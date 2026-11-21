@@ -1,5 +1,6 @@
 import {
   affordancesOf,
+  hostActionPolicy,
   isRecordPress,
   itemEditSpec,
   isRecordAction,
@@ -101,7 +102,7 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
     local,
     (props.state as StateName | undefined) ?? entryState,
     false,
-    { data, wire, schema: def.props },
+    { data, wire, schema: def.props, host: ctx.active[hostActionPolicy] },
   ).find((offered) => offered.address === action.address && offered.action === action.action)?.part;
   return (part && meta.confirmParts?.includes(part)) ||
     (ctx.entry.c === "Button" && action.action === "press" && ctx.input.confirm)

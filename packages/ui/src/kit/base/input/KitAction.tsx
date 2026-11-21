@@ -2,7 +2,15 @@ import { useState } from "react";
 import { useAnimatedValue } from "../../motion";
 import { motion } from "../../../catalog";
 import { XStack, styled, isWeb } from "tamagui";
-import { component, radius, size, space, type as typography, type IconName } from "../../../catalog";
+import {
+  component,
+  radius,
+  size,
+  space,
+  type as typography,
+  type ActionName,
+  type IconName,
+} from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { useComponentState, usePart } from "../../part";
 import { KitIcon, KitText, shifted, type IconTone, type TextTone } from "../text";
@@ -57,22 +65,7 @@ type ActionProps = {
   part?: string;
   a11y?: string;
   full?: boolean;
-  action?:
-    | "press"
-    | "dismiss"
-    | "play"
-    | "pause"
-    | "toggle"
-    | "select"
-    | "check"
-    | "set"
-    | "type"
-    | "increment"
-    | "decrement"
-    | "start"
-    | "stop"
-    | "send"
-    | "scan";
+  action?: Exclude<ActionName, "move" | "swipe" | "seek" | "flip">;
   value?: string | number | boolean;
   disabled?: boolean;
 };
@@ -141,6 +134,16 @@ function useActionPress(props: ActionProps, address: string, inactive: boolean) 
   return props.goto ? { onPress: () => kit.onLink?.(props.goto!, address) } : {};
 }
 
+function useAvailability(address: string, action: ActionProps["action"], disabled: boolean) {
+  const { interactive, controller } = useKit();
+  const offered =
+    interactive &&
+    controller &&
+    (action ? controller.actionsAt(address).includes(action) : controller.canPress(address));
+  const loading = useComponentState() === "loading" && !offered;
+  return { loading, inactive: loading || disabled || Boolean(interactive && controller && !offered) };
+}
+
 export function KitAction({
   label,
   icon,
@@ -156,20 +159,13 @@ export function KitAction({
   const kit = useKit();
   const ks = useKitStyle();
   const address = usePart(part);
-  const offered =
-    kit.controller &&
-    (action
-      ? kit.controller.actionsAt(address.testID).includes(action)
-      : kit.controller.canPress(address.testID));
-  const loading = useComponentState() === "loading" && !offered;
+  const { loading, inactive } = useAvailability(address.testID, action, disabled);
   const tone = kind === "quiet" && icon === "close" ? "muted" : toneOf[kind];
   const [pressed, setPressed] = useState(false);
   const pressScale = useAnimatedValue(
     pressed && !kit.environment.reduceMotion && !kit.environment.agentMode ? motion.pressScale : 1,
     kit.environment.reduceMotion || kit.environment.agentMode,
   );
-  const blocked = kit.interactive && kit.controller && !offered;
-  const inactive = loading || disabled || Boolean(blocked);
   const captionTone = loading ? "text" : inactive ? inactiveTone[kind] : tone;
   const fill = loading ? (kind === "quiet" ? "transparent" : "$line") : inactiveSurface[kind];
   const handlers = useActionPress({ action, value, goto } as ActionProps, address.testID, inactive);

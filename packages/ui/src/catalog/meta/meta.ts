@@ -4,10 +4,9 @@ import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
 import type { RecordEdits } from "./record-edits";
 import type { ItemVariants, Session, VariantParts, Variants } from "../types";
-import type { DeviceData, ItemEditPath, ItemEdits, ScreenLike } from "../agent";
+import type { DeviceData, HostCommandMeta, ItemEditPath, ItemEdits, ScreenLike } from "../agent";
 import type { Issue } from "../rules";
 import type * as LiveMeta from "./live";
-import type { HostCommands } from "../agent";
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -73,9 +72,6 @@ export type Meta = {
   adjust?: NumericAdjustments;
   /** Part/action pairs from `actions` that are also available in `empty`. */
   emptyActions?: readonly `${string}.${ActionName}`[];
-  /** Declared part/action pairs retained in loading or while a host operation is pending. */
-  loadingActions?: readonly `${string}.${ActionName}`[];
-  hostCommands?: HostCommands;
   /** Part/action pairs from `actions` that are also available in `success`. */
   successActions?: readonly `${string}.${ActionName}`[];
   /** Part/action pairs from `actions` available only in `error`. */
@@ -176,7 +172,7 @@ export type Meta = {
   status?: "draft" | "ready";
   /** Built by code (e.g. TabBar); stays readable but has no choose/write prompts or probes. */
   codeOwned?: boolean;
-};
+} & HostCommandMeta;
 /** Pure check over canonical entries with parsed props. Report stable `S.*` codes. */
 export type PackScreenValidator = (screen: ScreenLike) => readonly Issue[];
 export type PackMeta = {

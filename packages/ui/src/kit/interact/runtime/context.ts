@@ -112,16 +112,15 @@ function relativeAddress(screen: string, address: string) {
   const local = address.startsWith(`${screen}/`) ? address.slice(screen.length + 1) : address;
   return local.replace(/\/root$/, "");
 }
-export function createControllerContext(options: ControllerOptions, standalone = false) {
-  const { defs, now = Date.now, store = createInteractionStore() } = options;
-  const screen = controllerScreen(options, standalone);
-  const disabledParts = new Map<string, symbol>();
+function createValues(
+  options: ControllerOptions,
+  screen: ScreenLike,
+  store: InteractionStore,
+  now: () => number,
+  standalone: boolean,
+) {
+  const { defs } = options;
   let initial = standalone ? {} : initialValues(screen, defs, now);
-  const status = {
-    disposed: false,
-    openSheet: standalone ? undefined : (store.get(`${screen.id}/$sheet`) as string | undefined),
-    confirmation: store.get(`${screen.id}/$confirmation`) as Confirmation | undefined,
-  };
   const localOnly = standalone && !screen.components.some(({ c }) => defs[c]?.meta.recordRuntime);
   const valuesOf = (at = now()) =>
     localOnly
@@ -131,13 +130,27 @@ export function createControllerContext(options: ControllerOptions, standalone =
           ...store.snapshot(),
           ...Object.fromEntries(screen.components.map(({ id }) => [valueKey(screen.id, id, "$now"), at])),
         };
+  return {
+    valuesOf,
+    resetValues: () => {
+      initial = initialValues(screen, defs, now);
+    },
+  };
+}
+
+export function createControllerContext(options: ControllerOptions, standalone = false) {
+  const { defs, now = Date.now, store = createInteractionStore() } = options;
+  const screen = controllerScreen(options, standalone);
+  const disabledParts = new Map<string, symbol>();
+  const status = {
+    disposed: false,
+    openSheet: standalone ? undefined : (store.get(`${screen.id}/$sheet`) as string | undefined),
+    confirmation: store.get(`${screen.id}/$confirmation`) as Confirmation | undefined,
+  };
+  const { valuesOf, resetValues } = createValues(options, screen, store, now, standalone);
   const subjects = (id: string) => hostSubjectsOnScreen(options, screen, id, valuesOf(), now());
-  const hosts = createHostCommands(
-    screen.id,
-    () => options.hostCommands,
-    subjects,
-    () => store.setMany({}),
-  );
+  const changed = () => store.setMany({});
+  const hosts = createHostCommands(screen.id, () => options.hostCommands, subjects, changed);
   const admitted = () => allowsDestination(options.parentGate, screen.id);
   const withPolicy = (values: Values) => withHostPolicy(screen, options, hosts.policy(values), standalone);
   return {
@@ -165,9 +178,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
           )
         : undefined,
     expiredProgress: (values: Values, at = now()) => expiredProgress(screen, defs, values, at),
-    resetValues: () => {
-      initial = initialValues(screen, defs, now);
-    },
+    resetValues,
     mounted: new Map<string, symbol>(),
     disabledParts,
     privateMarks: createPrivateMarks(),
@@ -178,11 +189,11 @@ export function createControllerContext(options: ControllerOptions, standalone =
       const { id: _id, c: _c, state: _state, ...input } = entry;
       return defs[entry.c]!.props.parse(input) as Values;
     },
-    notifyChange: () =>
-      options.onChange?.(
-        projectScreen(screen, defs, valuesOf(), now(), status.openSheet, true),
-        store.snapshot(),
-      ),
+    notifyChange() {
+      if (!options.onChange || !admitted()) return;
+      const updated = projectScreen(screen, defs, valuesOf(), now(), status.openSheet, true);
+      options.onChange(updated, store.snapshot());
+    },
   };
 }
 export type ControllerContext = ReturnType<typeof createControllerContext>;

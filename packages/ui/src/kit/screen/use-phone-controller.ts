@@ -24,28 +24,15 @@ function useCommittedDeviceData(
 }
 
 export function usePhoneController(props: PhoneScreenProps) {
-  const {
-    screen,
-    defs,
-    interaction,
-    interactive = true,
-    media,
-    resolveMedia,
-    onLink,
-    onAction,
-    onChange,
-    onSend,
-    requestPhoto,
-    hostCommands,
-    parentGate,
-  } = props;
+  const { screen, defs, interaction, interactive = true, media } = props;
+  const { requestPhoto, hostCommands, parentGate } = props;
   const language = useRef(props.lang);
   language.current = props.lang;
-  const callbacks = useRef({ onLink, onAction, resolveMedia, onChange, onSend, requestPhoto });
-  callbacks.current = { onLink, onAction, resolveMedia, onChange, onSend, requestPhoto };
+  const callbacks = useRef(props);
+  callbacks.current = props;
   const localStore = useMemo(() => createInteractionStore(), [screen.id]);
   const store = interaction ?? localStore;
-  const hasMediaResolver = Boolean(resolveMedia);
+  const hasMediaResolver = Boolean(props.resolveMedia);
   const source = useMemo(() => {
     const committed = { deviceData: props.deviceData };
     const controller = createScreenController({

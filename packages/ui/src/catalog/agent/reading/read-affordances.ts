@@ -43,10 +43,17 @@ export function readOffers(
   props: Values,
   state: StateName,
   values: Values,
-  addresses: ReadonlySet<string>,
-  data?: DeviceData,
-  target?: ReturnType<typeof driveTarget>,
-  host?: HostActionPolicy,
+  {
+    addresses,
+    deviceData: data,
+    target,
+    host,
+  }: {
+    addresses: ReadonlySet<string>;
+    deviceData?: DeviceData | undefined;
+    target?: ReturnType<typeof driveTarget>;
+    host?: HostActionPolicy | undefined;
+  },
 ) {
   const get = (part: string) => values[`${instance}/${part}`];
   const offered = affordancesOf(def.meta, props, instance, values, state, false, {

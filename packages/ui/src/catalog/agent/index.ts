@@ -14,6 +14,7 @@ export {
   type CommandRequest,
   type ExternalRequest,
   type HostActionPolicy,
+  type HostCommandMeta,
   type HostCommands,
   type HostFields,
   type HostIntent,

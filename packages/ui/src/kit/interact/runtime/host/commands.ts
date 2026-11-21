@@ -56,108 +56,144 @@ function acknowledgement(result: HostCommandResult): Pick<HostOperation, "status
     : { status: "rejected" };
 }
 
+type Source = "human" | "agent";
+type Acknowledgement = Pick<HostOperation, "status" | "records">;
+
+function createSlots(currentSubjects: (component: string) => Subject[], changed: () => void) {
+  let slots = new Map<string, Slot>();
+  let version = 0;
+  const current = (subject: Subject) => {
+    try {
+      return currentSubjects(subject.component).some((key) => sameSubject(key, subject));
+    } catch {
+      return false;
+    }
+  };
+  const working = (values: WorkingValues) => values[stagedSlots] ?? slots;
+  return {
+    current,
+    working,
+    latest: (slot: Slot) => slots.get(slotKey(slot.subject)) === slot,
+    complete(slot: Slot, outcome: Acknowledgement) {
+      const key = slotKey(slot.subject);
+      if (slots.get(key) !== slot) return;
+      if (!current(slot.subject)) slots.delete(key);
+      else
+        slots.set(key, {
+          subject: slot.subject,
+          operation: Object.freeze({ ...slot.operation, ...outcome }),
+        });
+      version++;
+      changed();
+    },
+    commit(values: WorkingValues) {
+      if (values[stagedSlots]) {
+        slots = values[stagedSlots];
+        version++;
+      }
+      delete values[stagedSlots];
+    },
+    prune() {
+      const stale = [...slots].filter(([, slot]) => !current(slot.subject));
+      for (const [key] of stale) slots.delete(key);
+      for (const [, slot] of stale) slot.abort?.abort();
+      if (stale.length) {
+        version++;
+        changed();
+      }
+    },
+    reset() {
+      const previous = slots;
+      slots = new Map();
+      if (previous.size) version++;
+      for (const slot of previous.values()) slot.abort?.abort();
+    },
+    version: () => version,
+  };
+}
+
+type Slots = ReturnType<typeof createSlots>;
+type ResolveHandler = (request: HostRequest) => ReturnType<typeof admitted>;
+
+async function execute(
+  slots: Slots,
+  resolve: ResolveHandler,
+  slot: Slot,
+  request: HostRequest,
+  source: Source,
+) {
+  if (!slots.latest(slot)) return;
+  if (!slots.current(slot.subject)) {
+    slots.complete(slot, { status: "cancelled" });
+    return;
+  }
+  try {
+    const run = resolve(request);
+    const result = run ? await run({ source, signal: slot.abort!.signal }) : { status: "rejected" as const };
+    slots.complete(slot, acknowledgement(result));
+  } catch {
+    slots.complete(slot, { status: "rejected" });
+  }
+}
+
+function stage(
+  slots: Slots,
+  resolve: ResolveHandler,
+  values: WorkingValues,
+  { subject, request }: HostIntent,
+  source: Source,
+) {
+  const key = slotKey(subject);
+  const next = new Map(slots.working(values));
+  values[stagedSlots] = next;
+  const previous = next.get(key);
+  if (request.kind === "cancel") {
+    if (!previous) return () => {};
+    next.set(key, { subject, operation: Object.freeze({ ...previous.operation, status: "cancelled" }) });
+    return () => previous.abort?.abort();
+  }
+  const slot: Slot = {
+    subject,
+    operation: Object.freeze({
+      ...(subject.row ? { row: subject.row } : {}),
+      name: request.kind === "external" ? "external" : request.name,
+      status: "pending",
+    }),
+    abort: new AbortController(),
+  };
+  next.set(key, slot);
+  return () => {
+    previous?.abort?.abort();
+    void execute(slots, resolve, slot, request, source);
+  };
+}
+
 export function createHostCommands(
   screen: string,
   adapter: () => HostCommandAdapter | undefined,
   currentSubjects: (component: string) => Subject[],
   changed: () => void,
 ) {
-  let slots = new Map<string, Slot>();
-  let version = 0;
-  const current = (subject: Subject) =>
-    currentSubjects(subject.component).some((key) => sameSubject(key, subject));
-  const working = (values: WorkingValues) => values[stagedSlots] ?? slots;
-  const full = (request: HostRequest): HostRequest => ({
-    ...request,
-    address: `${screen}/${request.address}`,
-  });
-  const lookup = (subject: Subject, values: WorkingValues) => {
-    const slot = working(values).get(slotKey(subject));
-    return slot && sameSubject(slot.subject, subject) ? slot : undefined;
+  const slots = createSlots(currentSubjects, changed);
+  const resolve: ResolveHandler = (request) =>
+    admitted(adapter(), { ...request, address: `${screen}/${request.address}` });
+  return {
+    policy(values: Values): HostActionPolicy {
+      const lookup = (subject: Subject) => {
+        const slot = slots.working(values).get(slotKey(subject));
+        return slot && sameSubject(slot.subject, subject) ? slot.operation : undefined;
+      };
+      return {
+        operation: lookup,
+        allowsCommand: ({ subject, request }) =>
+          request.kind === "cancel" ? lookup(subject)?.status === "pending" : Boolean(resolve(request)),
+      };
+    },
+    stage: (values: Values, intent: HostIntent, source: Source) =>
+      stage(slots, resolve, values, intent, source),
+    commit: slots.commit,
+    prune: slots.prune,
+    reset: slots.reset,
+    version: slots.version,
   };
-  function policy(values: Values): HostActionPolicy {
-    return {
-      operation: (subject) => lookup(subject, values)?.operation,
-      allowsCommand: ({ subject, request }) =>
-        request.kind === "cancel"
-          ? lookup(subject, values)?.operation.status === "pending"
-          : Boolean(admitted(adapter(), full(request))),
-    };
-  }
-  function complete(slot: Slot, outcome: Pick<HostOperation, "status" | "records">) {
-    const key = slotKey(slot.subject);
-    if (slots.get(key) !== slot) return;
-    if (!current(slot.subject)) slots.delete(key);
-    else
-      slots.set(key, { subject: slot.subject, operation: Object.freeze({ ...slot.operation, ...outcome }) });
-    version++;
-    changed();
-  }
-  async function execute(slot: Slot, request: HostRequest, source: "human" | "agent") {
-    if (slots.get(slotKey(slot.subject)) !== slot) return;
-    if (!current(slot.subject)) {
-      complete(slot, { status: "cancelled" });
-      return;
-    }
-    try {
-      const run = admitted(adapter(), full(request));
-      const result = run
-        ? await run({ source, signal: slot.abort!.signal })
-        : { status: "rejected" as const };
-      complete(slot, acknowledgement(result));
-    } catch {
-      complete(slot, { status: "rejected" });
-    }
-  }
-  function stage(values: WorkingValues, { subject, request }: HostIntent, source: "human" | "agent") {
-    const key = slotKey(subject);
-    const next = new Map(working(values));
-    values[stagedSlots] = next;
-    const previous = next.get(key);
-    if (request.kind === "cancel" && previous) {
-      next.set(key, {
-        subject,
-        operation: Object.freeze({ ...previous.operation, status: "cancelled" }),
-      });
-      return () => previous.abort?.abort();
-    }
-    if (request.kind === "cancel") return () => {};
-    const slot: Slot = {
-      subject,
-      operation: Object.freeze({
-        ...(subject.row ? { row: subject.row } : {}),
-        name: request.kind === "external" ? "external" : request.name,
-        status: "pending",
-      }),
-      abort: new AbortController(),
-    };
-    next.set(key, slot);
-    return () => {
-      previous?.abort?.abort();
-      void execute(slot, request, source);
-    };
-  }
-  function commit(values: WorkingValues) {
-    if (values[stagedSlots]) {
-      slots = values[stagedSlots];
-      version++;
-    }
-    delete values[stagedSlots];
-  }
-  function prune() {
-    const stale = [...slots].filter(([, slot]) => !current(slot.subject));
-    for (const [key] of stale) slots.delete(key);
-    for (const [, slot] of stale) slot.abort?.abort();
-    if (stale.length) {
-      version++;
-      changed();
-    }
-  }
-  function reset() {
-    const previous = slots;
-    slots = new Map();
-    if (previous.size) version++;
-    for (const slot of previous.values()) slot.abort?.abort();
-  }
-  return { policy, stage, commit, prune, reset, version: () => version };
 }

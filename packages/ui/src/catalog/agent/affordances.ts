@@ -69,6 +69,38 @@ function actionsForItem(
     .flatMap((offer) => itemActionOffer(meta, props, item, offer, schema));
 }
 
+function ownActions(meta: Meta, props: Props, instance: string) {
+  const { parts, when } = meta.actions ?? {};
+  return partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
+    if ((a.action === "move" && meta.items?.move) || !hasNumericRoom(meta, props, a.part, a.action))
+      return [];
+    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
+    if (send !== undefined) return send ? [{ ...a, send }] : [];
+    const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
+    return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
+  });
+}
+
+function itemActionsOf(
+  meta: Meta,
+  props: Props,
+  instance: string,
+  items: Props[],
+  context: OfferContext,
+  get: (part: string) => unknown,
+  includeBlocked: boolean,
+) {
+  const visible = (meta.items?.visibleWhen || meta.items?.records) && new Set(visibleItems(meta, props));
+  // `$first` in a rule is true only for the first item (the top card of a stack).
+  const actions = items.flatMap((item, index) =>
+    visible && !visible.has(item) ? [] : actionsForItem(meta, props, item, instance, index === 0, context),
+  );
+  const hidden = visible && new Set(items.filter((item) => !visible.has(item)).map(({ id }) => id));
+  return nestedActions(meta, props, instance, actions, get, includeBlocked).filter(
+    ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),
+  );
+}
+
 /** Every offered action, addressed relative to the screen (`l1/r1/trail`). */
 export function affordancesOf(
   meta: Meta,
@@ -84,32 +116,14 @@ export function affordancesOf(
   const session = sessionState(meta, props, get);
   props = sessionActionProps(meta, props, session);
   if (meta.errorActions) props = { ...props, state };
-  const { parts, when } = meta.actions ?? {};
-  const own = partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
-    if ((a.action === "move" && meta.items?.move) || !hasNumericRoom(meta, props, a.part, a.action))
-      return [];
-    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
-    if (send !== undefined) return send ? [{ ...a, send }] : [];
-    const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
-    return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
-  });
   const items = addressedItems(meta, props);
-  const visible = (meta.items?.visibleWhen || meta.items?.records) && new Set(visibleItems(meta, props));
-  // `$first` in a rule is true only for the first item (the top card of a stack).
-  const itemActions = items.flatMap((item, index) =>
-    visible && !visible.has(item) ? [] : actionsForItem(meta, props, item, instance, index === 0, context),
-  );
+  const nested = itemActionsOf(meta, props, instance, items, context, get, includeBlocked);
   const runtime = values[`${instance}/$runtime`];
-  const nested = nestedActions(meta, props, instance, itemActions, get, includeBlocked);
-  const hidden = visible && new Set(items.filter((item) => !visible.has(item)).map(({ id }) => id));
-  const visibleNested = nested.filter(
-    ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),
-  );
   const now = Number(get("$now") ?? Date.now());
   const liveClock = runtime || meta.live?.derive || meta.recordRuntime?.actions;
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   const rows = meta.hostCommands ? new Map(items.map((item) => [String(item.id), item])) : undefined;
-  const offered = [...own, ...visibleNested].filter((offer) => {
+  const offered = [...ownActions(meta, props, instance), ...nested].filter((offer) => {
     const { address, action, part } = offer;
     if (!boundActionAvailable(meta, props, part, action, isItemOffer(instance, offer))) return false;
     const target = address === instance ? "root" : address.slice(instance.length + 1);

@@ -37,6 +37,11 @@ export type HostCommands = {
   /** Public record fields to include in read; request data is never read. */
   readFields?: readonly string[];
 };
+export type HostCommandMeta = {
+  /** Declared part/action pairs retained in loading or while a host operation is pending. */
+  loadingActions?: readonly `${string}.${ActionName}`[];
+  hostCommands?: HostCommands;
+};
 type Subject = { component: string; row?: string; identity: string };
 type Source = { address: string; action: string; tier: Tier };
 export type CommandRequest = Readonly<Source & { kind: "command"; name: string; input: HostFields }>;

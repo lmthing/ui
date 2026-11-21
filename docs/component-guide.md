@@ -35,6 +35,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs
    - `items.toggles: { save: "saved" }` maps a named item toggle at `rN/save` to a boolean row field. Also declare `save: ["toggle"]` in `actions.items`. The store value overlays the addressed row before `live.derive` and `items.visibleWhen`; it does not change wire props. Use `useLiveControls` to draw from the same live rows.
    - `clocks` on meta, items or items.nested declares time sources, live props, start/stop/reset and zero behavior. `adjust` on meta or items maps `"part.action"` to `{ prop, delta, min?, max? }` for a numeric prop or live clock; see `src/catalog/meta/README.md` and keep projected values inside the prop schema's bounds.
    - `items.nested: { key, parts: { [part]: { action: "toggle" | "set", prop, min?, max?, integer?, when? } } }` declares `rN/<part>_M` controls projected into sub-items; `when` names a boolean part on the same sub-item.
+   - `hostCommands.parts` and `hostCommands.items` bind declared `"part.action"` pairs to a host operation, external handoff, or cancellation. Keep local and host-owned actions distinct; a host-owned action does not also run the local handler or follow `goto`.
 3. **`props`**: `z.strictObject`. Every string is `text(n)`, every array has `.min()` and `.max()`,
    icons are `icon`, photos `photo`, links `screenId` (`goto`). Choices are `z.enum([...])` with a
    `.default()` when one is usual. Use shared axes for variants and reserve `style` for structure no
@@ -60,6 +61,24 @@ the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs
      component's shape. `empty` → `emptyLine(useEmptyThing())` in `KitText tone="muted"`. Other shared copy: `goalLine(of)` ("of 5"), `stepLine(at, count)` ("Step 2 of 3"), `totalLine(total, unit?)` ("Total 23 walks"), `trendWord(points)` ("rising"), `stepLabels` (counter buttons), `clockLine(seconds)` ("4:05"), `weekdayInitials` (Monday first), `timerLabels` (start, stop), `streakLine(count, days)` (its read lines), `photoLabels` (add, take, scan). Need other words? Report it; never write literal text in a view. A component whose meaning is in numbers sets `meta.read(props, state)` to return its reading (for example `["3 of 5"]`); it comes before the quoted texts in its read line.
    - No literal user-facing text anywhere. Text comes from props, the cast or `catalog/copy.ts`.
    - No raw numbers for layout. Use `space`, `size`, `radius`, `type` tokens through the bases.
+
+## Host-owned actions
+
+Catalog metadata declares intent; the `PhoneScreen` host owns permission, transport and final settlement.
+Without an adapter, host-owned actions are not offered. Ordinary screen links and local controls keep
+their existing behavior.
+
+| Need | Declaration and runtime behavior |
+| --- | --- |
+| Acknowledged command | Bind a declared pair in `hostCommands.parts` or `.items` to `{ kind: "command", name, input? }`. Build bounded scalar fields from validated live props and the addressed row, not from an arbitrary action payload. Match `name` to a host `hostCommands.commands` handler. Its pure `allows` gates offers and execution. Use `partTiers` and `confirmParts` as for other actions. The synchronous `act` reply means the request was staged, not that the host accepted it. |
+| Pending and terminal results | Use `useHostOperations()` to draw `pending`, `accepted`, `rejected` or `cancelled` by component or row. Declare `loadingActions` for ordinary controls still offered in a loading state or while that scope is pending. Bind Stop or Cancel with `{ kind: "cancel" }`; for an explicitly `loading` component also list the pair in `loadingActions`. Row bindings require `hostCommands.identity` to return a stable domain key, never a positional `rN`. A new host request replaces the latest result for its scope. |
+| Readable acknowledgements | Status is readable automatically for visible scopes. Opt in to individual public fields with `hostCommands.readFields`. Neither the request nor the identity key enters read or wire props. Keep credentials and private inputs out of acknowledgements. The host receives an abort signal; cancellation or unmount does not promise that a remote effect was reversed. |
+| External handoff | Bind `{ kind: "external", uri }`, set an explicit non-`phone` tier and provide the host's `hostCommands.external` handler. Only bounded HTTPS URLs without credentials are accepted. Never put a URI in Writer `goto`. A human or agent may request the handoff, but a separate mounted human confirmation is required. The host must enforce platform user activation and its destination policy before opening. |
+| Parent admission | Supply the same host `parentGate` to source and protected screens. After the challenge part has mounted, capture `controller.bindParentGatePart(address, destination)` and call it only from the completed hold or private math-input callback. The host verifies the proof and issues a destination-scoped expiring grant. Do not put the answer into Writer props or `act`. A hold does not establish an adult's identity; a link never creates a grant. |
+
+For each declared action, identify whether it is a local control, a shared runtime action, a screen
+link or an acknowledged host operation. Test reads and actions from the same live state, with the
+host unavailable, and after cancellation or target replacement.
 
 ## Variants
 

@@ -6,6 +6,7 @@ import { migrateLine } from "../../migrations";
 import { formatAffordance, visibleItems, type Affordance } from "../index";
 import { groupItemLines } from "./group-item-lines";
 export { readAffordances, readOffers } from "./read-affordances";
+export { readContent } from "./component-content";
 
 type Props = Record<string, unknown>;
 export type ReadSchema = {

@@ -1,102 +1,26 @@
-import type { ActStep, HostIntent, RandomSource } from "../../../../catalog";
-import { selectedStep, stageConfirmedClear, type ActReply } from "../../index";
+import type { ActStep, RandomSource } from "../../../../catalog";
 import {
   actionFailure,
   confirmationAction,
   confirmationFor,
   handlerFor,
-  type ActionContext,
   type ActionResult,
   type ActionState,
 } from "../../actions";
 import type { ControllerContext, MediaRuntime } from "../index";
 import {
-  confirmReport,
   dispatchPlan,
   drivenPartBlock,
   hostCaptureEffects,
-  inactive,
-  introducedPart,
   isDraw,
   needsConfirmation,
   standaloneEffects,
 } from "./introduced-part";
-import { actionInput, disabledHint } from "./action-input";
+import { prepareStep, type PreparedAction } from "./prepare-step";
 import { runHostCommand } from "./host-command";
-export { drivenPartBlock } from "./introduced-part";
+export { drivenPartBlock, inactive } from "./introduced-part";
 
-type PreparedStep =
-  | { state: ActionState; context: ActionContext; drive: ActStep | undefined; host: HostIntent | undefined }
-  | { error: Extract<ActReply, { ok: false }> };
-function prepareStep(
-  state: ActionState,
-  action: ActStep,
-  ctx: ControllerContext,
-  media: MediaRuntime,
-  at: number,
-  confirmed?: ActionState["confirmation"],
-  markToken?: symbol,
-): PreparedStep {
-  const active = ctx.liveScreen(state.values, state.sheet, Boolean(state.sheet));
-  const id = action.address.split("/")[0]!;
-  const entry = active.components.find((item) => item.id === id);
-  const fail = (code: string, hint: string) => ({ error: actionFailure(at, code, hint) });
-  if (!entry || !ctx.defs[entry.c]) return fail("not_actionable", "No component at this address");
-  if (inactive(ctx, entry)) return fail("not_actionable", "This component is not filled");
-  const def = ctx.defs[entry.c]!;
-  if (ctx.disabledParts.has(action.address) && !introducedPart(ctx, state, entry, action, true))
-    return fail("disabled", "This control is disabled");
-  const input = actionInput(ctx, entry, state.values);
-  if (!input) return fail("invalid_value", "This component has invalid props");
-  const hint = !ctx.standalone && disabledHint(entry.c, action.action, input);
-  if (hint) return fail("disabled", hint);
-  const selected = ctx.standalone ? action : selectedStep(action, entry, input, def);
-  const plan = dispatchPlan(ctx, active, state.values, selected, null, markToken);
-  if (!plan.ok) return { error: { ...plan, at } };
-  const mustMount = ctx.options.requireMounted && !confirmed && !ctx.mounted.has(action.address);
-  if (mustMount && !introducedPart(ctx, state, entry, action))
-    return fail("not_mounted", "This control is not mounted");
-  if (confirmed?.host && !plan.hostCommand) return fail("not_actionable", "The host command changed");
-  const values =
-    confirmed && !ctx.standalone && !plan.hostCommand
-      ? stageConfirmedClear(ctx.screen.id, entry, input, def, selected, plan.values)
-      : plan.values;
-  if (!values) return fail("invalid_value", "Clear conflicts with component props");
-  if (
-    confirmed &&
-    !plan.hostCommand &&
-    confirmReport(ctx, active, values, selected, confirmed.removal) === false
-  )
-    return fail("invalid_value", "Confirmation conflicts with report props");
-  return {
-    state: { ...state, values, changes: [...state.changes, ...plan.changed] },
-    drive: plan.driven?.[0],
-    host: plan.hostCommand,
-    context: {
-      screen: ctx.screen,
-      active,
-      entry,
-      input,
-      defs: ctx.defs,
-      selected,
-      links: plan.links,
-      send: plan.sends?.[0],
-      at,
-      now: ctx.now,
-      key: ctx.key,
-      options: ctx.options,
-      playMedia: media.playMedia,
-      seekMedia: media.seekMedia,
-      requestPhoto: media.requestPhoto,
-    },
-  };
-}
-
-function runControl(
-  { state, context }: Extract<PreparedStep, { context: ActionContext }>,
-  selected: ActStep,
-  address: string,
-) {
+function runControl({ state, context }: PreparedAction, selected: ActStep, address: string) {
   const { links, screen } = context;
   return handlerFor(selected.action)(
     state,
@@ -125,16 +49,7 @@ function stepRunner(
     const prepared = prepareStep(before, selected, ctx, media, at, confirmed, markToken);
     if ("error" in prepared) return { state: before, effects: [], error: prepared.error };
     if (prepared.host && !markToken)
-      return runHostCommand(
-        ctx,
-        before,
-        prepared.state,
-        prepared.context,
-        selected,
-        prepared.host,
-        source,
-        confirmed,
-      );
+      return runHostCommand(ctx, before, prepared, prepared.host, source, confirmed);
     const pending =
       !confirmed &&
       needsConfirmation(ctx, prepared.context) &&

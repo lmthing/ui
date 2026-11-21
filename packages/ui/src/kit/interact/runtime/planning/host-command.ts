@@ -1,39 +1,35 @@
-import type { ActStep, HostIntent } from "../../../../catalog";
+import type { HostIntent } from "../../../../catalog";
 import {
   actionFailure,
+  confirmationFor,
   showConfirmation,
-  type ActionContext,
   type ActionResult,
   type ActionState,
 } from "../../actions";
 import type { ControllerContext } from "../index";
 import { bindCommandConfirmation, commandForConfirmation } from "../host";
+import type { PreparedAction } from "./prepare-step";
 
 export function runHostCommand(
   ctx: ControllerContext,
   before: ActionState,
-  planned: ActionState,
-  context: ActionContext,
-  step: ActStep,
+  { state: planned, context }: PreparedAction,
   intent: HostIntent,
   source: { agent: boolean; single: boolean },
   confirmed?: ActionState["confirmation"],
 ): ActionResult {
-  const { entry, defs, at } = context;
+  const { at, selected: step } = context;
   const { request } = intent;
-  const meta = defs[entry.c]!.meta;
-  const part =
-    step.address === entry.id || step.address === `${entry.id}/${intent.subject.row}`
-      ? "root"
-      : step.address.split("/").at(-1)!;
-  if (!confirmed && (request.kind === "external" || meta.confirmParts?.includes(part))) {
+  const normal = !confirmed ? confirmationFor(before, step, context) : undefined;
+  if (!confirmed && (request.kind === "external" || normal)) {
     if (request.kind === "external" && !ctx.mounted.has(step.address))
       return {
         state: before,
         effects: [],
         error: actionFailure(at, "not_mounted", "This control is not mounted"),
       };
-    const result = showConfirmation(before, step, context);
+    const result = normal ?? showConfirmation(before, step, context);
+    if (result.error) return result;
     const pending = result.state.confirmation!;
     pending.host = true;
     bindCommandConfirmation(pending, intent);
