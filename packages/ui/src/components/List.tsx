@@ -66,7 +66,7 @@ export const props = z.strictObject({
 ).overwrite((value) => {
   const { rows, group, detail, lead, trail, overflow } = value;
   const style = rows.some((row) => row.body) ? "expand" : value.style;
-  const quiet = style === "expand" || style === "shelf" || value.arrange === "grid";
+  const quiet = style === "expand" || style === "shelf";
   return {
     ...value, style, more: overflow === "peek" && rows.length > c.peekLimit ? "peek" : undefined,
     rows: rows.map((row) => ({
@@ -126,16 +126,16 @@ export const probes = [
 type ListProps = c.Props<typeof props, typeof meta>;
 // prettier-ignore
 function CardDetails({ row, aspect, density, lead, index, grid }: Pick<ListProps, "aspect" | "density"> & { row: ListProps["rows"][number]; lead: ListProps["lead"] | undefined; index: number; grid?: ListProps["surface"] }) {
-  const { lang, words: { listLabels } } = kit.useWords(), mark = row.unread && row.mark === "none" ? "new" : row.mark;
+  const { lang, words: { listLabels } } = kit.useWords(), mark = row.unread && row.mark === "none" ? "new" : row.mark, sideTrail = grid && row.trail === "chevron";
   const leading = lead === "number" ? <kit.KitRank place={index + 1} part="rank" density={density} /> :
     (lead === "thumb" || (grid && lead === undefined)) && row.photo ? <kit.KitPhoto photo={row.photo} part="icon" /> :
     grid && lead === "icon" && row.icon ? <kit.KitIcon name={row.icon} part="icon" /> : undefined;
-  return <kit.KitRow item={row.id} label={row.title} goto={row.goto} density={density} mark={mark} surface={grid} leading={leading} leadingAlign={lead === "thumb" ? "row" : "line"} inset={grid ? "md" : "none"}>
+  return <kit.KitRow item={row.id} label={row.title} goto={row.goto} density={density} mark={mark} surface={grid} leading={leading} trailing={sideTrail ? <kit.KitIcon name="chevron_right" part="trail" scale="sm" /> : undefined} leadingAlign={lead === "thumb" ? "row" : "line"} inset={grid ? "md" : "none"}>
     <kit.KitContent density={density} lineRole="body">
       {!grid && !lead && row.photo && <kit.KitPhoto photo={row.photo} aspect={aspect} part="icon" label={row.title} />}
       <kit.KitText role="body" part="title" density={density} tone={row.me || mark === "new" ? "accent" : mark === "muted" ? "muted" : row.tone === "neutral" ? "text" : row.tone}>{row.title}</kit.KitText>
       {row.meta && <kit.KitText role="caption" tone="muted" part="meta">{row.meta}</kit.KitText>}
-      {row.trail !== "none" && <kit.KitTrail kind={row.trail ?? "none"} value={row.value} part="trail" density={density} />}
+      {!sideTrail && row.trail !== "none" && <kit.KitTrail kind={row.trail ?? "none"} value={row.value} part="trail" density={density} />}
       {row.badge && <kit.KitContent leadingAlign="row" lead={<kit.KitTrail kind="badge" value={row.badge} part="badge" />}><></></kit.KitContent>}
       {row.unread && <kit.KitText role="caption" tone="accent" part="unread">{listLabels.unread}</kit.KitText>}
       {row.pinned && <kit.KitText role="caption" tone="muted" part="pinned">{listLabels.pinned}</kit.KitText>}
