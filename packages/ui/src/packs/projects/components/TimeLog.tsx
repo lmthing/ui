@@ -142,7 +142,7 @@ function Entry({ copy, density, w, loading }: { copy: Row; density: Input["densi
     <kit.KitRow {...(loading ? { part: null } : { item: row.id, goto: row.goto })} label={row.title} density={density} inline>
       {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
         content={[["body", row.title], ["label", `${start}${w.range}${end}`], ["number", duration, "start", "compact"],
-          ["label", billable], ...(note ? [["label", note] as const] : [])]} /> : <kit.KitContent density={density}>
+          ["label", billable], ...(note ? [["label", note] as ["label", string]] : [])]} /> : <kit.KitContent density={density}>
       <kit.KitText part="title" role="body" emphasis="strong" tone={row.goto ? "accent" : "text"}>{row.title}</kit.KitText>
       <kit.KitText role="label" tone="muted" tabular part={null}>
         <kit.KitText part="start" role="label" tone="muted" tabular>{start}</kit.KitText>{w.range}
