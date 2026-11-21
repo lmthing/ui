@@ -172,7 +172,9 @@ describe.each(ready)("%s reads as text and can be acted on", (id) => {
     const { hidden, issues } = peekForExample(def.meta, props, html);
     expect(issues).toEqual([]);
     const addressed = addressedElements(html);
-    for (const affordance of affordancesOf(def.meta, props, "c1")) {
+    for (const affordance of affordancesOf(def.meta, props, "c1", {}, undefined, false, {
+      schema: def.props,
+    })) {
       if (hidden.includes(affordance.address.split("/")[1]!)) continue;
       expect(read, `${affordance.address} is missing from the read`).toContain(
         `[${affordance.address} ${affordance.action}`,

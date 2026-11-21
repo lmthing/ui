@@ -136,14 +136,12 @@ it("reads enum choices in declaration order and moves a wire row without writing
     links: [],
   });
   if (!result.ok) return;
-  expect(projectMoves(enumDef, enumProps, () => undefined)).toBe(enumProps);
   const next = projectMoves(enumDef, enumProps, (key) => result.values[`home/b1/${key}`]);
   expect(next).toEqual({ cards: [{ title: "One", stage: "working" }, enumProps.cards[1]] });
   expect((next.cards as unknown[])[1]).toBe(enumProps.cards[1]);
   const reading = readScreen(screen, defs, result.values);
   expect(reading).toContain('[b1/card1 move = "working"; choices ["done","review","queued"]]');
   expect(reading).toContain("working: 1");
-  expect(planAct(screen, defs, result.values, [step("queued")])).toMatchObject({ ok: true });
 });
 
 it.each(["queued", "unknown", "Working", 1])("rejects enum destination %s when not offered", (value) => {
@@ -184,4 +182,19 @@ it("rejects a repeated destination in a batch but permits switching back", () =>
     ok: true,
     values: { "home/b1/card1/$move": "queued" },
   });
+});
+
+it("excludes enum values rejected by the field's schema refinements", () => {
+  const stage = z
+    .enum(stages)
+    .refine((value) => value !== "done")
+    .default("queued");
+  const refined = {
+    ...enumDef,
+    props: z.strictObject({ cards: z.array(z.strictObject({ title: z.string(), stage })) }),
+  };
+  const defs = { [meta.id]: refined };
+  expect(readScreen(screen, defs)).toContain('[b1/card1 move = "queued"; choices ["review","working"]]');
+  expect(planAct(screen, defs, {}, [step("done")])).toMatchObject({ ok: false, code: "invalid_value" });
+  expect(projectMoves(refined, enumProps, () => "done")).toBe(enumProps);
 });

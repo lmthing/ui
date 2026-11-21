@@ -18,12 +18,15 @@ function unwrapOptional(schema: unknown): unknown {
 function enumValues(items: Items, spec: EnumMove, schema?: Schema): string[] {
   const rows = unwrapOptional(schema?.shape[items.key]);
   if (!(rows instanceof z.ZodArray) || !(rows.element instanceof z.ZodObject)) return [];
-  let field = unwrapOptional(rows.element.shape[spec.field]);
+  const fieldSchema = rows.element.shape[spec.field];
+  let field = unwrapOptional(fieldSchema);
   while (field instanceof z.ZodDefault || field instanceof z.ZodPrefault)
     field = unwrapOptional(field.unwrap());
   if (!(field instanceof z.ZodEnum)) return [];
   const allowed = new Set(field.options);
-  return [...new Set(spec.values)].filter((value) => allowed.has(value));
+  return [...new Set(spec.values)].filter(
+    (value) => allowed.has(value) && fieldSchema?.safeParse(value).data === value,
+  );
 }
 
 function columnLabels(props: Values, key: string): (string | undefined)[] {
