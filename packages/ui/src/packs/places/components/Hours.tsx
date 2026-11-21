@@ -133,18 +133,17 @@ function WeekRows({ days, copy, density }: { days: HoursProps["days"]; copy: Hou
 }
 
 function NoticeText({ text, density }: { text: string; density: c.ThemeDensity }) {
-  const runs = text.split(/(\b(?:[01]\d|2[0-3]):[0-5]\d\b)/);
+  const timed = /\b(?:[01]\d|2[0-3]):[0-5]\d\b/.test(text);
   return (
-    <kit.KitText part={null} tone="muted" density={density}>
-      {runs.map((run, index) =>
-        index % 2 === 0 ? (
-          run
-        ) : (
-          <kit.KitText key={index} part={null} role="number" numberScale="compact" tabular density={density}>
-            {run}
-          </kit.KitText>
-        ),
-      )}
+    <kit.KitText
+      part={null}
+      role={timed ? "number" : "body"}
+      numberScale="compact"
+      tone={timed ? "text" : "muted"}
+      tabular={timed}
+      density={density}
+    >
+      {text}
     </kit.KitText>
   );
 }
