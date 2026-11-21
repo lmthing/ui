@@ -58,15 +58,22 @@ export function reportLocked(meta: Meta, props: Values) {
   return Object.values(meta.signOff ?? {}).some((prop) => props[prop] !== undefined);
 }
 
+export function reportEditWire(def: Definition, input: unknown, get: (part: string) => unknown) {
+  const items = def.meta.items;
+  if (!items?.deviceData || !items.edits || !input || typeof input !== "object" || Array.isArray(input))
+    return;
+  return projectControlInput(def, input as Values, get);
+}
+
 function photoList(row: Values, prop: string): readonly string[] {
   return Array.isArray(row[prop]) ? (row[prop] as string[]) : [];
 }
 
 /** An item edit behaves like an ordinary declared action, but cannot link or fall back to a row selection. */
-export function itemEditOffer(meta: Meta, row: Values, part: string, action: string) {
+export function itemEditOffer(meta: Meta, row: Values, part: string, action: string, wire?: Values) {
   const spec = own(meta.items?.edits, part);
   if (!spec) return undefined;
-  if (meta.items?.deviceData && !meta.items.editPath) return false;
+  if (meta.items?.deviceData && (!wire || !meta.items.editPath?.(row, wire))) return false;
   if (spec.action === "photo") return action === "press" && photoList(row, spec.prop).length < spec.max;
   if (spec.action === "remove") {
     const photo = own(meta.items?.edits, spec.photo);
@@ -168,7 +175,7 @@ export function stageReportEdit(
     return true;
   }
   const edit = itemEditAt(meta, props, target);
-  if (!edit || !itemEditOffer(meta, edit.row, edit.part, step.action)) return false;
+  if (!edit || !itemEditOffer(meta, edit.row, edit.part, step.action, wire)) return false;
   const path = itemPath(meta, wire, edit);
   const change = changeAt(meta, edit.row, edit.spec, request, step.value);
   if (!path || !change || !commit([...path, change.prop], change.value)) return false;

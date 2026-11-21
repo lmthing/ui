@@ -97,6 +97,45 @@ it("never offers positional writes into the wire from a projected split", () => 
   ).toMatchObject({ ok: false, code: "not_actionable" });
 });
 
+it("reads host-only splits but only offers edits for splits with a wire owner", () => {
+  const items = def.meta.items!;
+  const projection = items.deviceData!;
+  const mixed = {
+    ...def,
+    meta: {
+      ...def.meta,
+      items: {
+        ...items,
+        deviceData: {
+          ...projection,
+          rows: (...args: Parameters<typeof projection.rows>) => [
+            ...projection.rows(...args),
+            {
+              key: "host",
+              label: "Host-only split",
+              categories: [{ value: "other", label: "Other" }],
+              vatRates: [],
+            },
+          ],
+        },
+      },
+    },
+  };
+  const mixedDefs = { [def.meta.id]: mixed };
+  const read = readScreen(screen, mixedDefs, {}, undefined, deviceData);
+  const steps = [{ address: "e/r3/category", action: "select", value: "Other" }];
+  expect(read).toContain('r3 "Host-only split"');
+  expect(read).toContain('[e/r1/category select choices ["Supplies"]]');
+  expect.soft(read).not.toContain("e/r3/category select");
+  const controller = createScreenController({ screen, defs: mixedDefs, deviceData });
+  expect(controller.actionsAt("e/r1/category")).toContain("select");
+  expect.soft(controller.actionsAt("e/r3/category")).toEqual([]);
+  expect(planAct(screen, mixedDefs, {}, steps, null, "planner", deviceData)).toMatchObject({
+    ok: false,
+    code: "not_actionable",
+  });
+});
+
 it("does not authorize a row-local choice from the Wire without a host row projection", () => {
   const { deviceData: _deviceData, editPath: _editPath, ...items } = def.meta.items!;
   const writerDef = {

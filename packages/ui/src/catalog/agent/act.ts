@@ -16,7 +16,7 @@ import { sessionKey, staleSession } from "./session";
 import { clockChanges, clockControlDeclared, hasPlaybackClock } from "./clocks";
 import { captureDeviceTime, filterDeviceDataScreen, type DeviceData } from "./device-data";
 import { stageLinkedEdit } from "./linked-edits";
-import { stageReportEdit } from "./report-edits";
+import { reportEditWire, stageReportEdit } from "./report-edits";
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
@@ -96,7 +96,8 @@ function affordancesOfScreen(
       hasPlaybackClock(def.meta)
         ? state
         : undefined);
-    return affordancesOf(def.meta, props, id, local, liveState, true);
+    const wire = reportEditWire(def, input, (part) => local[`${id}/${part}`]);
+    return affordancesOf(def.meta, props, id, local, liveState, true, wire);
   });
 }
 function expireProgress(

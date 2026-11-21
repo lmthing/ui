@@ -7,6 +7,7 @@ import {
   liveProps,
   parseAddress,
   parseControlProps,
+  reportEditWire,
   sessionEvent,
 } from "../../../catalog";
 import type { ActStep, StateName } from "../../../catalog";
@@ -67,7 +68,8 @@ function actionsAt(
       Object.entries(values).map(([key, value]) => [key.replace(`${ctx.screen.id}/`, ""), value]),
     );
     const { id: _id, c: _c, state: _state, ...raw } = entry;
-    const parsed = parseControlProps(def, raw, (part) => localValues[`${id}/${part}`]);
+    const get = (part: string) => localValues[`${id}/${part}`];
+    const parsed = parseControlProps(def, raw, get);
     const data = atDeviceTime(ctx.options.deviceData, now);
     const props = liveProps(def.meta, parsed, id, localValues, true, data);
     return affordancesOf(
@@ -77,6 +79,7 @@ function actionsAt(
       localValues,
       (props.state as StateName | undefined) ?? entry.state,
       includeBlocked,
+      reportEditWire(def, raw, get),
     )
       .filter((item) => item.address === local)
       .map((item) => item.action);

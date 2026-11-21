@@ -13,6 +13,7 @@ import { migrateLine, migrateScreen } from "../migrations";
 import { componentTexts, readAffordances, readItems, type ReadSchema as Json } from "./reading";
 import { projectVisibleItems } from "./visibility";
 import { captureDeviceTime, isDeviceDataVisible, selectDeviceData, type DeviceData } from "./device-data";
+import { reportEditWire } from "./report-edits";
 
 type Props = Record<string, unknown>;
 
@@ -95,7 +96,8 @@ export function readComponent(
   const { meta } = def;
   if (!isDeviceDataVisible(meta, deviceData)) return [];
   const get = (part: string) => values[`${instance}/${part}`];
-  const validated = parseControlProps(def, migrateInput(meta.id, input), get);
+  input = migrateInput(meta.id, input);
+  const validated = parseControlProps(def, input, get);
   const props = liveProps(meta, validated, instance, values, true, deviceData);
   const base = drawStatus(meta, props, (props.state as StateName | undefined) ?? state, get);
   state = sessionStatus(meta, props, base, get);
@@ -103,7 +105,7 @@ export function readComponent(
   const head = `${instance} ${meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
   const draw = drawState(def.meta, props, get),
     session = sessionState(meta, props, get);
-  const offered = affordancesOf(meta, props, instance, values, state);
+  const offered = affordancesOf(meta, props, instance, values, state, false, reportEditWire(def, input, get));
   const affordances = readAffordances(offered, values, def, props, instance, session);
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   if (state !== "filled" && !feedback && !(state === "success" && (draw || session || meta.readSuccess)))

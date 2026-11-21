@@ -4,6 +4,7 @@ import {
   liveProps,
   parseControlProps,
   reportConfirmation,
+  reportEditWire,
   reportRemovalAt,
   stampItemIds,
   type ActStep,
@@ -24,7 +25,9 @@ function confirmReportAction(state: ActionState, ctx: ActionContext, target: str
 }
 
 export function confirmationFor(state: ActionState, action: ActStep, ctx: ActionContext) {
-  const meta = ctx.defs[ctx.entry.c]!.meta;
+  const { id, c, state: entryState, ...raw } = ctx.entry;
+  const def = ctx.defs[c]!;
+  const { meta } = def;
   const target = action.address === ctx.entry.id ? "root" : action.address.slice(ctx.entry.id.length + 1);
   if (reportConfirmation(meta, target, action.action)) return confirmReportAction(state, ctx, target);
   if (
@@ -49,7 +52,9 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
     props,
     ctx.entry.id,
     local,
-    (props.state as StateName | undefined) ?? ctx.entry.state,
+    (props.state as StateName | undefined) ?? entryState,
+    false,
+    reportEditWire(def, raw, (part) => local[`${id}/${part}`]),
   ).find((offered) => offered.address === action.address && offered.action === action.action)?.part;
   return (part && meta.confirmParts?.includes(part)) ||
     (ctx.entry.c === "Button" && action.action === "press" && ctx.input.confirm)

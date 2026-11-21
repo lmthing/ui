@@ -22,6 +22,7 @@ export {
   hasReportConfirmation,
   itemEditSpec,
   reportConfirmation,
+  reportEditWire,
   reportRemovalAt,
   stageReportEdit,
   type ItemEditPath,

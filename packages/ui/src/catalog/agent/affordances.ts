@@ -60,6 +60,7 @@ function partsOf(
   outer: Props,
   meta: Meta,
   item = false,
+  wire?: Props,
 ) {
   const noGoto = item ? meta.actions?.noGoto?.items : meta.actions?.noGoto?.parts;
   const locked = reportLocked(meta, outer);
@@ -76,7 +77,7 @@ function partsOf(
           .filter((action) => {
             if (!matches(when?.[`${part}.${action}`], holder, outer, meta.deviceDataFlags)) return false;
             if (!item) return !locked || !reportConfirmation(meta, part, action);
-            const edit = itemEditOffer(meta, holder, part, action);
+            const edit = itemEditOffer(meta, holder, part, action, wire);
             return edit === undefined || (edit && !locked);
           })
           .map((action) => {
@@ -100,10 +101,11 @@ function partsOf(
   );
 }
 
-function actionsForItem(meta: Meta, props: Props, item: Props, instance: string, first: boolean) {
+function actionsForItem(meta: Meta, props: Props, item: Props, base: string, first: boolean, wire?: Props) {
   const { items, when } = meta.actions ?? {};
   const id = String(item.id);
-  return partsOf(items, item, `${instance}/${id}`, when, { ...props, $first: first }, meta, true).filter(
+  const outer = { ...props, $first: first };
+  return partsOf(items, item, `${base}/${id}`, when, outer, meta, true, wire).filter(
     ({ part, action }) =>
       action !== "select" ||
       meta.items?.edits?.[part]?.action !== "select" ||
@@ -119,6 +121,7 @@ export function affordancesOf(
   values: Props = {},
   state = (props.state as StateName | undefined) ?? "filled",
   includeBlocked = false,
+  wire?: Props,
 ): Affordance[] {
   const get = (part: string) => values[`${instance}/${part}`];
   state = sessionStatus(meta, props, drawStatus(meta, props, state, get), get);
@@ -136,7 +139,7 @@ export function affordancesOf(
   const visible = meta.items?.visibleWhen && new Set(visibleItems(meta, props));
   // `$first` in a rule is true only for the first item (the top card of a stack).
   const itemActions = items.flatMap((item, index) =>
-    visible && !visible.has(item) ? [] : actionsForItem(meta, props, item, instance, index === 0),
+    visible && !visible.has(item) ? [] : actionsForItem(meta, props, item, instance, index === 0, wire),
   );
   const runtime = values[`${instance}/$runtime`];
   const nested = nestedActions(meta, props, instance, itemActions, get, includeBlocked);
