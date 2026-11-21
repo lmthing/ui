@@ -5,6 +5,7 @@ import { peekLimit, wordsFor } from "../../lang";
 import { migrateLine } from "../../migrations";
 import { formatAffordance, visibleItems, type Affordance } from "../index";
 import { groupItemLines } from "./group-item-lines";
+import { matches } from "../visibility";
 export { readAffordances, readOffers } from "./read-affordances";
 
 type Props = Record<string, unknown>;
@@ -40,6 +41,7 @@ export function itemTexts(
   item: Props,
   nestedKey?: string,
   omit?: string,
+  secrets?: readonly string[],
 ): string[] {
   const nested =
     nestedKey && Array.isArray(item[nestedKey])
@@ -47,13 +49,19 @@ export function itemTexts(
           textsOf(schema?.properties?.[nestedKey]?.items, child),
         )
       : [];
-  return [...textsOf(schema, item, omit), ...nested];
+  return [...textsOf(schema, item, omit, secrets), ...nested];
 }
 
-function textsOf(schema: ReadSchema | undefined, value: Props, omit?: string): string[] {
+function textsOf(
+  schema: ReadSchema | undefined,
+  value: Props,
+  omit?: string,
+  secrets?: readonly string[],
+): string[] {
   return Object.entries(schema?.properties ?? {}).flatMap(([key, field]) => {
     if (key === omit) return [];
     const v = value[key];
+    if (secrets?.includes(key)) return typeof v === "string" ? ["(secret)"] : [];
     if (field.kind === "text" && typeof v === "string") return [JSON.stringify(v)];
     if (field.kind === "photo" && typeof v === "string") return [`photo:${v.replace(/^lib:/, "")}`];
     if (field.kind === "secret" && typeof v === "string") return ["(secret)"];
@@ -98,7 +106,11 @@ export function readItems(
       ? (z.toJSONSchema(host.schema, { unrepresentable: "any" }) as ReadSchema)
       : schema.properties?.[key]?.items;
   const group = meta.items?.readGroupBy;
-  const groupBy = group && isGroupText(itemSchema?.properties?.[group]) ? group : undefined;
+  const secrets = meta.items?.readSecrets;
+  const groupBy =
+    group && !secrets?.fields.includes(group) && isGroupText(itemSchema?.properties?.[group])
+      ? group
+      : undefined;
   const exactIds =
     host ||
     group ||
@@ -118,16 +130,15 @@ export function readItems(
   const words = wordsFor(lang),
     hidden = all.length - items.length;
   const disclosure = peek && ownAff.some(({ part, action }) => part === "more" && action === "toggle");
+  // prettier-ignore
   const render = (item: Props) => {
     const base = `${instance}/${String(item.id)}`;
     const mine = affordances.filter((a) => a.address === base || a.address.startsWith(`${base}/`));
+    const redact = secrets && matches(secrets.when, item, props) ? secrets.fields : undefined;
     return [
-      String(item.id),
-      itemTexts(itemSchema, item, meta.items?.nested?.key, groupBy).join(" · "),
+      String(item.id), itemTexts(itemSchema, item, meta.items?.nested?.key, groupBy, redact).join(" · "),
       ...mine.map(formatAffordance),
-    ]
-      .filter(Boolean)
-      .join(" ");
+    ].filter(Boolean).join(" ");
   };
   const rows = groupBy ? groupItemLines(items, groupBy, render) : items.map(render);
   return [

@@ -1,34 +1,28 @@
-import { describe, expect, expectTypeOf, it } from "vitest";
+import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { renderInstance } from "../../test/render";
-import { components, createRegistry, type CastLike, type Props } from "@lmthing/ui/catalog";
+import { components, createRegistry, readComponent, type CastLike, type Props } from "@lmthing/ui/catalog";
+import { createScreenController } from "@lmthing/ui/kit";
 
 const { props, meta, examples, fallback, probes } = components.KeyValue;
-
 describe("KeyValue schema", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
   );
+  // prettier-ignore
   it("applies defaults and trims text", () => {
     expect(props.parse({ pairs: [{ label: "  Room  ", value: "  Bathroom  " }] })).toEqual({
-      arrange: "rows",
-      surface: "card",
-      lead: "icon",
+      arrange: "rows", surface: "card", lead: "icon",
       pairs: [{ label: "Room", value: "Bathroom", tone: "neutral", mark: "none" }],
     });
   });
+  // prettier-ignore
   it.each([
-    {},
-    { pairs: [] },
-    { pairs: Array.from({ length: 7 }, () => ({ label: "Room", value: "Bathroom" })) },
-    { pairs: [{ label: "Room" }] },
-    { pairs: [{ value: "Bathroom" }] },
-    { pairs: [{ label: "", value: "Bathroom" }] },
-    { pairs: [{ label: "   ", value: "Bathroom" }] },
-    { pairs: [{ label: "Room", value: "" }] },
-    { pairs: [{ label: "Room", value: "   " }] },
+    {}, { pairs: [] }, { pairs: Array.from({ length: 7 }, () => ({ label: "Room", value: "Bathroom" })) },
+    { pairs: [{ label: "Room" }] }, { pairs: [{ value: "Bathroom" }] },
+    { pairs: [{ label: "", value: "Bathroom" }] }, { pairs: [{ label: "   ", value: "Bathroom" }] },
+    { pairs: [{ label: "Room", value: "" }] }, { pairs: [{ label: "Room", value: "   " }] },
     { pairs: [{ label: "a".repeat(21), value: "Bathroom" }] },
-    { pairs: [{ label: "Room", value: "a".repeat(29) }] },
-    { pairs: [{ label: "Room", value: 4 }] },
+    { pairs: [{ label: "Room", value: "a".repeat(29) }] }, { pairs: [{ label: "Room", value: 4 }] },
     { pairs: [{ label: "Room", value: "Bathroom", icon: "unknown" }] },
     { pairs: [{ label: "Room", value: "Bathroom", goto: "bathroom" }] },
     { pairs: [{ label: "Room", value: "Bathroom", pixels: 4 }] },
@@ -36,6 +30,7 @@ describe("KeyValue schema", () => {
     { arrange: "strip", pairs: [{ label: "Room", value: "Bathroom" }] },
     { pairs: [{ label: "Room", value: "Bathroom", tone: "info", mark: "new" }] },
     { color: "red", pairs: [{ label: "Room", value: "Bathroom" }] },
+    { masked: "true", pairs: [{ label: "Room", value: "Bathroom" }] },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("accepts the exact maximum lengths and count in both arrangements", () => {
     const pair = { label: "a".repeat(20), value: "a".repeat(28), icon: "leaf" };
@@ -52,7 +47,6 @@ describe("KeyValue schema", () => {
     expect(props.safeParse({ pairs: [{ label: "Room", value: "Bathroom", id: "r1" }] }).success).toBe(false);
   });
 });
-
 describe("KeyValue fallback and metadata", () => {
   it("validates with empty, full, mixed and malformed cast content", () => {
     const seed = { id: "fern", type: "plant", sample: true };
@@ -99,7 +93,6 @@ describe("KeyValue fallback and metadata", () => {
       ]);
   });
 });
-
 describe("KeyValue field labels and metadata", () => {
   it("keeps each usable field paired with its own value and clips readable labels", () => {
     const field = "long_field_name_for_label";
@@ -113,17 +106,11 @@ describe("KeyValue field labels and metadata", () => {
       { label: "Water interval", value: "Every seven days" },
     ]);
   });
-  it("has the declared metadata and well-formed choose and write probes without actions", () => {
-    expect(meta).toMatchObject({
-      id: "KeyValue",
-      group: "content",
-      region: "body",
-      weight: 2,
-      tier: "phone",
-      items: { key: "pairs", parts: ["root", "label", "value", "icon"] },
-      states: ["filled", "empty", "loading"],
-    });
-    expect(meta).not.toHaveProperty("actions");
+  it("has the declared metadata and well-formed choose and write probes", () => {
+    // prettier-ignore
+    expect(meta).toMatchObject({ id: "KeyValue", group: "content", region: "body", weight: 2, tier: "phone",
+      items: { key: "pairs" }, states: ["filled", "empty", "loading"] });
+    expect(meta.actions.items).toEqual({ reveal: ["toggle"], copy: ["copy"] });
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("List");
@@ -131,8 +118,7 @@ describe("KeyValue field labels and metadata", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "List")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "KeyValue")).toBeDefined();
-    expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "KeyValue" });
-    expect(probes.some((probe) => (probe as { kind: string }).kind === "read")).toBe(false);
+    expect(probes.some((probe) => probe.kind === "write" && probe.expect === "KeyValue")).toBe(true);
   });
   it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
@@ -143,24 +129,46 @@ describe("KeyValue field labels and metadata", () => {
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });
+// prettier-ignore
+it("masks the value in both layouts and never publishes it to the reader, even after a host reveal", () => {
+  const value = "DEMO-042", pairs = [{ label: "Entry code", value }];
+  expect(readComponent(components.KeyValue, { pairs }, "c1").join()).toContain(value);
+  for (const arrange of ["rows", "grid"] as const) {
+    const input = { pairs, masked: true, arrange };
+    for (const state of ["filled", "loading"] as const) {
+      const html = renderInstance("KeyValue", input, state, { preset: "calm", mode: "light", accent: "moss" });
+      expect(html).not.toContain(value);
+      expect(html.includes('data-testid="home/c1/r1/reveal"')).toBe(state === "filled");
+    }
+    const screen = { id: "home", components: [{ id: "c1", c: "KeyValue", ...input }] };
+    const writeClipboard = vi.fn();
+    const controller = createScreenController({ screen, defs: { KeyValue: components.KeyValue }, writeClipboard });
+    const reveal = { address: "c1/r1/reveal", action: "toggle" } as const;
+    const copy = { address: "c1/r1/copy", action: "copy" } as const;
+    controller.registerCopyTarget("home/c1/r1/copy", value);
+    expect(controller.act(reveal).ok).toBe(true);
+    expect(controller.store.get("home/c1/r1/reveal")).toBe(true);
+    expect(controller.act(copy).ok).toBe(true);
+    expect(writeClipboard).not.toHaveBeenCalled();
+    expect(controller.press("confirm/confirm").ok).toBe(true);
+    expect(writeClipboard).toHaveBeenCalledExactlyOnceWith(value);
+    const read = controller.read();
+    expect(read).toContain('"Entry code" · (secret)');
+    expect(read).not.toContain(value);
+    expect(controller.act(reveal).ok).toBe(true);
+    expect(controller.store.get("home/c1/r1/reveal")).toBe(false);
+    controller.dispose();
+  }
+});
 
+// prettier-ignore
 function renderPairs(arrange: "rows" | "grid", count: number, loading = false, hideIcons = false) {
-  return renderInstance(
-    "KeyValue",
-    {
-      arrange,
-      ...(hideIcons ? { lead: "none" } : {}),
-      pairs: Array.from({ length: count }, (_, index) => ({
-        label: `Fact ${index}`,
-        value: "a".repeat(28),
-        ...(index % 2 ? {} : { icon: "leaf" }),
-      })),
-    },
-    loading ? "loading" : "filled",
-    { preset: "calm", mode: "light", accent: "moss" },
-  );
+  const pairs = Array.from({ length: count }, (_, index) => ({
+    label: `Fact ${index}`, value: "a".repeat(28), ...(index % 2 ? {} : { icon: "leaf" }),
+  }));
+  return renderInstance("KeyValue", { arrange, pairs, ...(hideIcons ? { lead: "none" } : {}) },
+    loading ? "loading" : "filled", { preset: "calm", mode: "light", accent: "moss" });
 }
-
 describe("KeyValue rendering", () => {
   it("hides only the declared icon parts and keeps pair addresses", () => {
     const html = renderPairs("grid", 3, false, true);

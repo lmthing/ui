@@ -1,15 +1,4 @@
-import {
-  useWords,
-  KitAvatarStack,
-  KitCard,
-  KitEmpty,
-  KitIcon,
-  KitPhoto,
-  KitRow,
-  KitText,
-  useComponentState,
-  useVariant,
-} from "../kit";
+import * as kit from "../kit";
 import { z } from "zod";
 import {
   probesFor,
@@ -36,12 +25,13 @@ export const meta = {
   pick: "A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).",
   writeHints: [
     'Keep "density":null and "surface":null unless their appearance is requested. Set "detail":null even when role is absent or when drawing a stack. Only an explicit request to hide existing roles means "detail":"brief"; keep those roles in role. If asked to show roles, never use brief. Use style "stack" only for overlapping avatars.',
+    'Use style "rail" for a sideways strip of portraits. In a rail, online is presence, ring is accent or muted around the portrait, and statusText is a short message.',
   ],
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "The people involved and their roles in a shared app.",
-  items: { key: "members", parts: ["root", "photo", "name", "role"] },
+  items: { key: "members", parts: ["root", "photo", "name", "role", "online", "status_text"] },
   parts: ["root", "more"],
   variants: {
     density: ["comfortable", "compact"],
@@ -60,7 +50,7 @@ export const meta = {
 export const props = z
   .strictObject({
     ...variantProps(meta.variants),
-    style: z.literal("stack").optional(),
+    style: z.enum(["stack", "rail"]).optional(),
     more: z.int().min(1).max(999).optional(),
     members: z
       .array(
@@ -69,6 +59,9 @@ export const props = z
           role: text(24).optional(),
           photo: photo.optional(),
           goto: screenId.optional(),
+          online: z.boolean().optional(),
+          ring: z.enum(["none", "accent", "muted"]).optional(),
+          statusText: text(24).optional(),
         }),
       )
       .min(1)
@@ -81,11 +74,14 @@ export const props = z
     const stack = value.style === "stack" || value.more !== undefined;
     return {
       ...value,
-      style: stack ? "stack" : undefined,
+      style: stack ? "stack" : value.style,
       members: value.members.map((member) => ({
         ...member,
         ...(stack ? { goto: undefined, root: undefined } : {}),
         ...(stack || value.detail === "brief" ? { role: undefined } : {}),
+        ...(member.statusText !== undefined && (value.style !== "rail" || stack)
+          ? { statusText: undefined }
+          : {}),
       })),
     };
   });
@@ -107,6 +103,7 @@ const walkMembers = [
   { name: "Ben", role: "Pip's owner", goto: "ben" },
 ];
 
+// prettier-ignore
 export const examples = [
   { members: [{ name: "Maya", role: "Waters on weekends" }] },
   { members: walkMembers },
@@ -118,6 +115,10 @@ export const examples = [
   { detail: "brief", members: walkMembers },
   { density: "compact", members: walkMembers },
   { surface: "outlined", members: walkMembers },
+  { style: "rail", members: [
+    { name: "Anna", online: true, statusText: "At the park", goto: "anna" },
+    { name: "Ben", ring: "muted", statusText: "On a walk" }, { name: "Carla" },
+  ] },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("People");
@@ -135,51 +136,69 @@ export const probes = [
     variant: { axis: "detail", value: "brief" },
   },
   read("Open Anna", { address: "p1/r1", action: "press" }, 1),
+  {
+    ...write(
+      "Show only Anna in a sideways portrait strip. She's online now with an accent ring and the status At the park.",
+    ),
+    expectProps: {
+      style: "rail",
+      members: [{ name: "Anna", online: true, ring: "accent", statusText: "At the park" }],
+    },
+  },
 ] satisfies Probe[];
 
 type PeopleProps = Props<typeof props, typeof meta>;
 
+// prettier-ignore
 function MemberRows({ members, density }: Pick<PeopleProps, "members" | "density">) {
   const reserve = members.some((person) => person.photo);
   return members.map((member) => (
-    <KitRow
-      density={density}
-      leadingAlign={member.photo && member.role ? "row" : "line"}
-      leadingWidth={reserve ? "avatar" : undefined}
-      key={member.id}
-      item={member.id}
-      label={member.name}
-      goto={member.goto}
-      leading={
-        member.photo ? (
-          <KitPhoto photo={member.photo} shape="round" part="photo" label={member.name} />
-        ) : (
-          <KitIcon name="user" part="photo" />
-        )
-      }
-      trailing={member.goto ? <KitIcon name="chevron_right" decorative /> : undefined}
-    >
-      <KitText role="body" part="name" density={density}>
-        {member.name}
-      </KitText>
-      {member.role && (
-        <KitText role="caption" tone="muted" part="role" density={density}>
-          {member.role}
-        </KitText>
-      )}
-    </KitRow>
+    <kit.KitRow key={member.id} item={member.id} label={member.name} goto={member.goto} density={density}
+      leadingAlign={member.photo && member.role ? "row" : "line"} leadingWidth={reserve ? "avatar" : undefined}
+      leading={member.photo ? <kit.KitPhoto photo={member.photo} shape="round" part="photo" label={member.name} />
+        : <kit.KitIcon name="user" part="photo" />}
+      trailing={member.goto ? <kit.KitIcon name="chevron_right" decorative /> : undefined}>
+      <kit.KitText role="body" part="name" density={density}>{member.name}</kit.KitText>
+      {member.role && <kit.KitText role="caption" tone="muted" part="role" density={density}>
+        {member.role}
+      </kit.KitText>}
+    </kit.KitRow>
   ));
 }
 
 // prettier-ignore
+function MemberRail({ members, density }: Pick<PeopleProps, "members" | "density">) {
+  const { words } = kit.useWords();
+  const cards = members.map((member) =>
+    <kit.KitRow key={member.id} item={member.id} label={member.name} goto={member.goto} density={density}>
+      <kit.KitContent align="center" density={density}>
+        <kit.KitPhoto shape="round" part="photo" photo={member.photo} label={member.name}
+          initials={Array.from(member.name)[0]} ring={member.ring ?? (member.online ? "accent" : "none")} />
+        <kit.KitText align="center" part="name" lines={2} density={density}>{member.name}</kit.KitText>
+        {member.statusText && <kit.KitTrail kind="badge" tone="text" part="status_text" value={member.statusText} />}
+        {member.role && <kit.KitText align="center" role="caption" tone="muted" part="role" density={density}>{member.role}</kit.KitText>}
+        {member.online && <kit.KitText align="center" role="caption" tone="good" part="online">{words.onlineLabel}</kit.KitText>}
+      </kit.KitContent>
+    </kit.KitRow>
+  );
+  const pages = cards.filter((_, index) => index % 2 === 0).map((card, page) =>
+    <kit.KitRow key={card.key} label={members[page * 2]!.name} part={null} surface="card" inline>
+      <kit.KitGrid density={density} list>{cards.slice(page * 2, page * 2 + 2)}</kit.KitGrid>
+    </kit.KitRow>);
+  return <kit.KitStrip density={density} overflow="page">{pages}</kit.KitStrip>;
+}
+
+// prettier-ignore
 export function People({ style, members, more, surface, density: inputDensity }: PeopleProps) {
-  const { lang } = useWords();
-  const state = useComponentState();
-  const density = useVariant("density", meta.variants.density, inputDensity);
-  return <KitCard part="root" {...{ surface, density }} padded={style === "stack" && state !== "empty"}>
-    {state === "empty" ? <KitEmpty icon="users" part="name" /> :
-      style === "stack" ? <KitAvatarStack members={members.map(({ id, name, photo }) => ({ id, label: name, photo }))}>
-        {more && <KitText role="number" numberScale="compact" tone="muted" part="more" density={density}>{moreLine(more, lang)}</KitText>}
-      </KitAvatarStack> : <MemberRows {...{ members, density }} />}
-  </KitCard>;
+  const { lang } = kit.useWords();
+  const state = kit.useComponentState();
+  const density = kit.useVariant("density", meta.variants.density, inputDensity);
+  const railCards = style === "rail" && surface === "card";
+  return <kit.KitCard part="root" {...(railCards && { style: "cards" as const })} {...{ surface, density }}
+    padded={style !== undefined && state !== "empty"}>
+    {state === "empty" ? <kit.KitEmpty icon="users" part="name" /> :
+      style === "stack" ? <kit.KitAvatarStack members={members.map(({ id, name, photo }) => ({ id, label: name, photo }))}>
+        {more && <kit.KitText role="number" numberScale="compact" tone="muted" part="more" density={density}>{moreLine(more, lang)}</kit.KitText>}
+      </kit.KitAvatarStack> : style === "rail" ? <MemberRail {...{ members, density }} /> : <MemberRows {...{ members, density }} />}
+  </kit.KitCard>;
 }

@@ -1,15 +1,11 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
-import {
-  affordancesOf,
-  components,
-  placeholderDetail,
-  placeholderTitle,
-  readComponent,
-  type CastLike,
+// prettier-ignore
+import { affordancesOf, components, placeholderDetail, placeholderTitle, readComponent, type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
 import { elementAt, renderInstance, styleAt } from "../../test/render";
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+
 const { props, meta, examples, fallback, probes } = components.Card;
 describe("Card schema", () => {
   it.each(examples)("accepts a real example", (example) =>
@@ -120,6 +116,8 @@ describe("Card metadata and probes", () => {
     expect(probes.filter((probe) => probe.kind === "write")).toMatchObject([
       { expect: "Card", variant: { axis: "media", value: "cover" } },
       { expect: "Card" },
+      { expect: "Card", expectProps: { reward: "20 points" } },
+      { expect: "Card", expectProps: { duration: "15 min" } },
     ]);
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       screen: 0,
@@ -133,7 +131,7 @@ describe("Card view and actions", () => {
     const html = renderInstance("Card", example, "filled", theme, { resolvePhoto: () => "local-photo-uri" });
     expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
     expect(elementAt(html, "home/c1/root").attributes).toContain(`role="${example.goto ? "link" : "group"}"`);
-    for (const part of ["title", "body", "meta", "badge", "icon", "photo"] as const) {
+    for (const part of ["title", "body", "meta", "badge", "icon", "photo", "reward", "duration"] as const) {
       expect(html.includes(`data-testid="home/c1/${part}"`)).toBe(
         Boolean(example[part as keyof typeof example]),
       );
@@ -169,10 +167,10 @@ describe("Card actions and loading", () => {
     expect(html.includes("<svg")).toBe(Boolean(goto));
   });
   it.each([undefined, "uri"])("loads only resolved media without navigation: %s", (source) => {
-    for (const input of [examples[0], examples[1], examples[2], { title: "Title" }]) {
+    for (const input of [examples[0], examples[1], examples[2], examples[4], { title: "Title" }]) {
       const html = renderInstance("Card", input, "loading", theme, { resolvePhoto: () => source });
       expect(elementAt(html, "home/c1/root").attributes).toContain('role="group"');
-      expect(html).not.toContain('data-testid="home/c1/title"');
+      expect(html).not.toMatch(/data-testid="home\/c1\/(title|badge|reward|duration)"/);
       const checkHidden = (node: ReturnType<typeof elementAt>, hidden = false) => {
         const concealed = hidden || node.attributes.includes('aria-hidden="true"');
         if (node.tag === "span") expect(concealed).toBe(true);
