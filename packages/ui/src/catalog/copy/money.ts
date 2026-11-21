@@ -1,6 +1,6 @@
 import { numberLine, percentageLine } from "../format";
 import { localeOf, wordsFor, type Words } from "../lang";
-import type { AppCurrency } from "../meta";
+import { moneyFractionDigits, type AppCurrency } from "../agent";
 
 /** The currencies a sum of money may be written in (ISO 4217), and the one used when none is given. */
 export const currencies = [
@@ -27,9 +27,8 @@ export const currencies = [
   "NZD",
 ] as const;
 export type Currency = (typeof currencies)[number];
-export const defaultCurrency: Currency = "USD";
-
 export type PerWord = keyof Words["perWords"] | "none";
+export const defaultCurrency: Currency = "USD";
 
 /** A sum of money, formatted for the currency. Whole sums drop the cents unless a column needs them. */
 export function moneyLine(
@@ -39,11 +38,12 @@ export function moneyLine(
   lang?: string,
   fraction: "auto" | "fixed" = "auto",
 ): string {
+  const digits = moneyFractionDigits(currency);
   const amount = new Intl.NumberFormat(localeOf(lang), {
     style: "currency",
     currency,
-    minimumFractionDigits: fraction === "fixed" || !Number.isInteger(value) ? 2 : 0,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: fraction === "fixed" || !Number.isInteger(value) ? digits : 0,
+    maximumFractionDigits: digits,
   }).format(value);
   const words = wordsFor(lang);
   return per === "none" ? amount : words.perAmount(amount, words.perWords[per]);

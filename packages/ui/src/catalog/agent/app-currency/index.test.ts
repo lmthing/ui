@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { appCurrencySchema, parseAppCurrency } from "./app-currency";
+import { appCurrencySchema, parseAppCurrency } from "./index";
 
 it.each(["USD", "EUR", "JPY", "KWD", "XCG"])("accepts the ISO 4217 code %s", (code) => {
   expect(parseAppCurrency(code)).toBe(code);

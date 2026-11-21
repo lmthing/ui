@@ -55,7 +55,7 @@ const def: Definition = {
   },
 };
 const defs = { Fixture: def };
-const input = { value: 1240.5 };
+const input = { value: 1240.125 };
 const screen: ScreenLike = { id: "home", components: [{ id: "a1", c: "Fixture", ...input }] };
 const currencyTheme: ThemeChoice = { preset: "calm", mode: "light", accent: "moss" };
 const lang = "en-GB";
@@ -72,9 +72,10 @@ function renderedAmount(controller: ReturnType<typeof createScreenController>) {
 }
 
 it.each([
-  { currency: "GBP", expected: "£1,240.50 / hr" },
-  { currency: "EUR", expected: "€1,240.50 / hr" },
-  { currency: undefined, expected: "US$1,240.50 / hr" },
+  { currency: "GBP", expected: "£1,240.13 / hr" },
+  { currency: "EUR", expected: "€1,240.13 / hr" },
+  { currency: "KWD", expected: "KWD\u00a01,240.125 / hr" },
+  { currency: undefined, expected: "US$1,240.13 / hr" },
 ] as const)("uses the same $currency amount in the kit and both readers", ({ currency, expected }) => {
   const controller = createScreenController({ screen, defs, lang, currency });
   const agent = createAgentAccess({
@@ -114,7 +115,7 @@ it("does not take the app currency from Writer props or interaction values", () 
   expect(def.props.safeParse({ ...input, currency: "JPY" }).success).toBe(false);
   const values = { "home/a1/currency": "JPY", "home/a1/$currency": "JPY" };
   expect(readScreen(screen, defs, values, lang, undefined, "EUR")).toBe(
-    "screen home\na1 Fixture €1,240.50 / hr",
+    "screen home\na1 Fixture €1,240.13 / hr",
   );
 });
 

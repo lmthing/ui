@@ -186,3 +186,11 @@ export type AppCurrency = z.infer<typeof appCurrencySchema>;
 export function parseAppCurrency(value: unknown): AppCurrency | undefined {
   return value === undefined ? undefined : appCurrencySchema.parse(value);
 }
+
+const threeMinorDigits = new Set<AppCurrency>(["BHD", "IQD", "JOD", "KWD", "LYD", "OMR", "TND"]);
+
+/** Preserve legacy two-place formatting and allow all minor units of higher-precision currencies. */
+export function moneyFractionDigits(currency: AppCurrency): number {
+  if (currency === "CLF" || currency === "UYW") return 4;
+  return threeMinorDigits.has(currency) ? 3 : 2;
+}

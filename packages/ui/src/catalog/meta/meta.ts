@@ -3,8 +3,7 @@ import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
 import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
-import type { DeviceData, ItemEditPath, ItemEdits } from "../agent";
-import type { AppCurrency } from "./app-currency";
+import type { AppCurrency, DeviceData, ItemEditPath, ItemEdits } from "../agent";
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
