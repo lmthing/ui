@@ -7,6 +7,7 @@ import { z } from "zod";
 
 export const meta = {
   id: "Timer",
+  status: "ready",
   signature: "timer_spin",
   group: "data",
   purpose: "Measure time remaining or elapsed, with controls to start and stop.",
@@ -161,7 +162,7 @@ export function Timer(input: Props<typeof props, typeof meta>) {
           <KitText role={goal === undefined ? "caption" : "label"} tone="muted" part={null}>{` ${suffix.join(" ")}`}</KitText>
         )}
         {goal !== undefined && <KitText role="label" tone="muted" part="goal">
-          {` ${timerGoal(goal, lang)}`}
+          {`\u2002${timerGoal(goal, lang)}`}
         </KitText>}
       </KitText>
       <KitText role="body" tone="muted" align="center" part="label" density={density}>

@@ -11,6 +11,7 @@ import {
   type selectStep,
   stageProgress,
   stageRecord,
+  stageSecretReveal,
   stageValue,
   validateStep,
 } from "./action-input";
@@ -42,7 +43,6 @@ export type ActResult =
       driven?: ActStep[];
     }
   | { ok: false; code: ActCode; at: number; hint?: string };
-
 /** A mounted controller already stages clocks through its action table. */
 function stageStandaloneClock(
   screen: ScreenLike,
@@ -69,7 +69,6 @@ function stageStandaloneClock(
   const changes = clockChanges(meta, props, get, target, step, now);
   for (const [part, value] of Object.entries(changes)) next[`${screen.id}/${id}/${part}`] = value;
 }
-
 function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
   const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
   return liveProps(def.meta, parsed, id, local, true, data);
@@ -128,6 +127,7 @@ function stageControl(
   }: ReturnType<typeof validateStep> & ReturnType<typeof selectStep> & { key: string },
 ): Omit<Extract<ActResult, { ok: false }>, "at"> | undefined {
   const { address, action, value } = resolved;
+  if (stageSecretReveal(screen, defs, next, resolved, key)) return;
   const adjusted = edit ? undefined : stageItemAdjustment(screen, defs, address, action, next);
   if (clockOwner === "planner") stageStandaloneClock(screen, defs, next, address, resolved, snapshot);
   if (!(adjusted ?? stageValue(next, key, found, value, edit, screen.id, links)))

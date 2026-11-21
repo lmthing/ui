@@ -1,8 +1,8 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { renderInstance } from "../../test/render";
-import { components, createRegistry, readComponent, type CastLike, type Props } from "@lmthing/ui/catalog";
+// prettier-ignore
+import { components, createRegistry, planAct, readComponent, secretRevealKey, secretRevealMatches, type CastLike, type Props } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-
 const { props, meta, examples, fallback, probes } = components.KeyValue;
 describe("KeyValue schema", () => {
   it.each(examples)("accepts a real example", (example) =>
@@ -37,14 +37,9 @@ describe("KeyValue schema", () => {
     for (const arrange of meta.variants.arrange)
       expect(props.safeParse({ arrange, pairs: Array.from({ length: 6 }, () => pair) }).success).toBe(true);
   });
+  // prettier-ignore
   it("adds validator item ids only to view props", () => {
-    type ViewProps = Props<typeof props, typeof meta>;
-    expectTypeOf<ViewProps["pairs"][number]["id"]>().toEqualTypeOf<string>();
-    expectTypeOf<ViewProps["pairs"][number]["label"]>().toEqualTypeOf<string>();
-    expectTypeOf<ViewProps["pairs"][number]["value"]>().toEqualTypeOf<string>();
-    expectTypeOf<ViewProps>().not.toBeAny();
-    expectTypeOf<ViewProps>().not.toHaveProperty("color");
-    expect(props.safeParse({ pairs: [{ label: "Room", value: "Bathroom", id: "r1" }] }).success).toBe(false);
+    type ViewProps = Props<typeof props, typeof meta>; expectTypeOf<ViewProps["pairs"][number]["id"]>().toEqualTypeOf<string>(); expectTypeOf<ViewProps["pairs"][number]["label"]>().toEqualTypeOf<string>(); expectTypeOf<ViewProps["pairs"][number]["value"]>().toEqualTypeOf<string>(); expectTypeOf<ViewProps>().not.toBeAny(); expectTypeOf<ViewProps>().not.toHaveProperty("color"); expect(props.safeParse({ pairs: [{ label: "Room", value: "Bathroom", id: "r1" }] }).success).toBe(false);
   });
 });
 describe("KeyValue fallback and metadata", () => {
@@ -94,6 +89,7 @@ describe("KeyValue fallback and metadata", () => {
   });
 });
 describe("KeyValue field labels and metadata", () => {
+  // prettier-ignore
   it("keeps each usable field paired with its own value and clips readable labels", () => {
     const field = "long_field_name_for_label";
     const seed = { id: "one", type: "record", sample: false };
@@ -102,8 +98,7 @@ describe("KeyValue field labels and metadata", () => {
       items: [{ ...seed, blank: "", [field]: "a".repeat(40), "water-interval": "  Every seven days  " }],
     };
     expect(fallback({ cast }).pairs).toEqual([
-      { label: "Long field name for", value: "a".repeat(28) },
-      { label: "Water interval", value: "Every seven days" },
+      { label: "Long field name for", value: "a".repeat(28) }, { label: "Water interval", value: "Every seven days" },
     ]);
   });
   it("has the declared metadata and well-formed choose and write probes", () => {
@@ -120,10 +115,10 @@ describe("KeyValue field labels and metadata", () => {
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "KeyValue")).toBeDefined();
     expect(probes.some((probe) => probe.kind === "write" && probe.expect === "KeyValue")).toBe(true);
   });
+  // prettier-ignore
   it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
-    expect(registry.ids).toContain("KeyValue");
-    expect(registry.schema("KeyValue")).toBe(props);
+    expect(registry.ids).toContain("KeyValue"); expect(registry.schema("KeyValue")).toBe(props);
     expect(registry.resolve("key-value")).toBe("KeyValue");
     expect(registry.resolve("k-e-y-v-a-l-u-e")).toBe("KeyValue");
     expect(registry.resolve("unknown")).toBeUndefined();
@@ -147,20 +142,25 @@ it("masks the value in both layouts and never publishes it to the reader, even a
     const copy = { address: "c1/r1/copy", action: "copy" } as const;
     controller.registerCopyTarget("home/c1/r1/copy", value);
     expect(controller.act(reveal).ok).toBe(true);
-    expect(controller.store.get("home/c1/r1/reveal")).toBe(true);
+    const grantKey = secretRevealKey("home/c1/r1/reveal");
+    const grant = controller.store.get(grantKey);
+    expect(secretRevealMatches(grant, ["Entry code", value])).toBe(true);
+    const replacement = { ...screen, components: [{ ...screen.components[0]!, pairs: [{ label: "Entry code", value: "DEMO-043" }] }] };
+    expect(secretRevealMatches(grant, ["Entry code", "DEMO-043"])).toBe(false);
+    const next = planAct(replacement, { KeyValue: components.KeyValue }, controller.store.snapshot(), [reveal]);
+    expect(next.ok && secretRevealMatches(next.values[grantKey], ["Entry code", "DEMO-043"])).toBe(true);
+    expect(JSON.stringify(controller.store.snapshot())).not.toContain(value);
     expect(controller.act(copy).ok).toBe(true);
     expect(writeClipboard).not.toHaveBeenCalled();
     expect(controller.press("confirm/confirm").ok).toBe(true);
     expect(writeClipboard).toHaveBeenCalledExactlyOnceWith(value);
     const read = controller.read();
-    expect(read).toContain('"Entry code" · (secret)');
-    expect(read).not.toContain(value);
+    expect(read).toContain('"Entry code" · (secret)'); expect(read).not.toContain(value);
     expect(controller.act(reveal).ok).toBe(true);
-    expect(controller.store.get("home/c1/r1/reveal")).toBe(false);
+    expect(controller.store.get(grantKey)).toBeUndefined();
     controller.dispose();
   }
 });
-
 // prettier-ignore
 function renderPairs(arrange: "rows" | "grid", count: number, loading = false, hideIcons = false) {
   const pairs = Array.from({ length: count }, (_, index) => ({
@@ -176,27 +176,24 @@ describe("KeyValue rendering", () => {
     expect(html).not.toMatch(/data-testid="home\/c1\/r\d+\/icon"/);
     for (const id of ["r1", "r2", "r3"]) expect(html).toContain(`data-testid="home/c1/${id}/value"`);
   });
+  // prettier-ignore
   it.each(["rows", "grid"] as const)("draws each static pair once in %s at every allowed count", (style) => {
     for (let count = 1; count <= 6; count++) {
       const html = renderPairs(style, count);
       expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
-      expect(html).not.toContain('role="link"');
-      expect(html).not.toContain('role="button"');
+      expect(html).not.toMatch(/role="(?:link|button)"/);
       for (let index = 1; index <= count; index++) {
         for (const part of ["root", "label", "value"])
           expect(html.match(new RegExp(`data-testid="home/c1/r${index}/${part}"`, "g"))).toHaveLength(1);
         expect(html.includes(`data-testid="home/c1/r${index}/icon"`)).toBe(index % 2 === 1);
-        if (style === "grid")
-          expect(html).toMatch(
-            new RegExp(`data-testid="home/c1/r${index}/value"[^>]*>[^<]*</span></div></div>`),
-          );
+        if (style === "grid") expect(html).toMatch(new RegExp(`data-testid="home/c1/r${index}/value"[^>]*>[^<]*</span></div></div>`));
       }
     }
   });
+  // prettier-ignore
   it.each(["rows", "grid"] as const)("loads both text placeholders in %s at every count", (style) => {
     for (let count = 1; count <= 6; count++) {
-      const html = renderPairs(style, count, true);
-      expect(html.match(/aria-busy="true"/g)).toHaveLength(2 * count);
+      const html = renderPairs(style, count, true); expect(html.match(/aria-busy="true"/g)).toHaveLength(2 * count);
       expect(html).not.toMatch(/data-testid="home\/c1\/r\d+\/(label|value|icon)"/);
     }
   });

@@ -1,13 +1,14 @@
 import { z } from "zod";
 // prettier-ignore
 import { probesFor, clip, icon, itemVariantProps, itemsOf, placeholderTitle,
-  placeholderValue, text, thingOf, variantProps, type FallbackInput, type Meta, type Probe,
+  placeholderValue, secretRevealKey, secretRevealMatches, text, thingOf, variantProps, type FallbackInput, type Meta, type Probe,
   type Props, type ThemeDensity,
 } from "../catalog";
 import * as kit from "../kit";
 
 export const meta = {
   id: "KeyValue",
+  status: "ready",
   group: "content",
   purpose: "Label and value details of one single thing, like its room or schedule.",
   pick: "Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).",
@@ -30,6 +31,7 @@ export const meta = {
     key: "pairs",
     parts: ["root", "label", "value", "icon", "reveal", "reveal_icon", "copy", "copy_icon"],
     readSecrets: { fields: ["value"], when: { masked: true } },
+    revealSecrets: { part: "reveal", fields: ["label", "value"] },
     variants: { tone: ["neutral", "good", "warn", "bad"], mark: ["none", "highlight", "muted"] },
   },
   variantParts: { "lead.none": { hides: ["icon"] } },
@@ -139,7 +141,8 @@ const valueRole = (value: string) =>
 function MaskedValue({ pair, loading, density }: { pair: Pair; loading: boolean; density: ThemeDensity }) {
   const { screen, component } = kit.usePartContext();
   const { words: { secretValue: copy } } = kit.useWords();
-  const shown = kit.useControlValue(`${screen}/${component}/${pair.id}/reveal`, false);
+  const grant = kit.useControlValue<unknown>(secretRevealKey(`${screen}/${component}/${pair.id}/reveal`), undefined);
+  const shown = secretRevealMatches(grant, [pair.label, pair.value]);
   const value = shown && !loading ? pair.value : copy.mask;
   if (loading) return <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["body", value]]} />;
   const reveal = <kit.KitAction part="reveal" action="toggle" icon={shown ? "lock" : "eye"} kind="quiet"

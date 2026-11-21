@@ -112,6 +112,7 @@ export type Meta = {
     readGroupBy?: string;
     /** Replace these item fields with the secret marker when the shared read condition matches. */
     readSecrets?: { fields: readonly string[]; when: Readonly<Record<string, string | boolean>> };
+    revealSecrets?: { part: string; fields: readonly string[] };
     /** Match the addressed row first, then its component. Filter only after stamping. */
     visibleWhen?: Readonly<Record<string, string | boolean>>;
     toggles?: Readonly<Record<string, string>>; // Named toggle part → live row boolean.

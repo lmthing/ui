@@ -5,6 +5,7 @@ import * as kit from "../kit";
 
 export const meta = {
   id: "Card",
+  status: "ready",
   group: "content",
   purpose: "One thing with a little detail, optionally tappable to open it.",
   pick: "A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).",

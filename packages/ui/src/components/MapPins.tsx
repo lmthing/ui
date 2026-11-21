@@ -19,6 +19,7 @@ import * as kit from "../kit";
 
 export const meta = {
   id: "MapPins",
+  status: "ready",
   group: "data",
   purpose: "See where nearby places are and open a place.",
   pick: "Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).",

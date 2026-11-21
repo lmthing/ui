@@ -1,25 +1,14 @@
 import * as kit from "../kit";
 import { z } from "zod";
+// prettier-ignore
 import {
-  probesFor,
-  detailOf,
-  itemsOf,
-  moreLine,
-  photo,
-  placeholderTitle,
-  screenId,
-  text,
-  thingOf,
-  titleOf,
-  variantProps,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
+  probesFor, detailOf, itemsOf, moreLine, photo, placeholderTitle, screenId, text, thingOf, titleOf,
+  variantProps, wordsFor, type FallbackInput, type Meta, type Probe, type Props,
 } from "../catalog";
 
 export const meta = {
   id: "People",
+  status: "ready",
   group: "content",
   purpose: "Who else is involved, with their names and roles.",
   pick: "A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).",
@@ -41,9 +30,12 @@ export const meta = {
   variantParts: { "detail.brief": { hides: ["role"] } },
   states: ["filled", "empty"],
   actions: { items: { root: ["press"] } },
-  read: (input, _state, lang?: string) => {
-    const { more } = input as { more?: number };
-    return more ? [moreLine(more, lang)] : [];
+  read: (input, _state, lang?: string): string[] => {
+    const { style, members, more } = input as PeopleProps;
+    if (more) return [moreLine(more, lang)];
+    return style === "rail"
+      ? members.flatMap(({ id, online }) => (online ? [`${id}: ${wordsFor(lang).onlineLabel}`] : []))
+      : [];
   },
 } as const satisfies Meta;
 
@@ -69,6 +61,7 @@ export const props = z
       // Like List, expose the optional root action only for members with navigation.
       .transform((members) => members.map((member) => ({ ...member, root: member.goto }))),
   })
+  .refine(({ style, more }) => style !== "rail" || more === undefined, { path: ["more"] })
   // A count of more people means a stack, and a stack shows people without opening them.
   .overwrite((value) => {
     const stack = value.style === "stack" || value.more !== undefined;
@@ -170,7 +163,7 @@ function MemberRows({ members, density }: Pick<PeopleProps, "members" | "density
 function MemberRail({ members, density }: Pick<PeopleProps, "members" | "density">) {
   const { words } = kit.useWords();
   const cards = members.map((member) =>
-    <kit.KitRow key={member.id} item={member.id} label={member.name} goto={member.goto} density={density}>
+    <kit.KitRow key={member.id} item={member.id} label={member.name} goto={member.goto} surface="plain" density={density}>
       <kit.KitContent align="center" density={density}>
         <kit.KitPhoto shape="round" part="photo" photo={member.photo} label={member.name}
           initials={Array.from(member.name)[0]} ring={member.ring ?? (member.online ? "accent" : "none")} />

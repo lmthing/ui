@@ -6,6 +6,7 @@ import {
   createRegistry,
   migrateLine,
   placeholderTitle,
+  readComponent,
   stampItemIds,
   type CastLike,
   type Props,
@@ -23,7 +24,10 @@ it("draws presence and status in the rail and preserves linked members and the l
   expect(render(rail)).toContain('data-testid="home/c1/r1/status_text"');
   expect(render({ members })).not.toContain("At the park");
   expect(affordancesOf(meta, stampItemIds(meta, props.parse(rail)), "p1")[0]?.address).toBe("p1/r1");
-  expect(props.parse({ ...rail, more: 1 })).toMatchObject({ style: "stack", members: [{ root: undefined }] });
+  expect(props.safeParse({ ...rail, more: 1 }).success).toBe(false);
+  expect(props.parse({ members, more: 1 })).toMatchObject({ style: "stack", members: [{ root: undefined }] });
+  expect(readComponent(components.People, rail, "p1").join()).toContain("r1: Online");
+  expect(readComponent(components.People, { members }, "p1").join()).not.toContain("Online");
   expect(props.safeParse({ ...rail, members: [{ ...members[0], ring: "blue" }] }).success).toBe(false);
 });
 
