@@ -7,26 +7,42 @@ type Account = {
   kind: keyof MoneyWords["accountKinds"];
   last4?: string | undefined;
   balance: number;
+  creditLimit?: number | undefined;
+  rewardsValue?: number | undefined;
 };
 
 export function accountCopy(account: Account, lang?: string, words = moneyWordsFor(lang)) {
   const kind = words.accountKinds[account.kind];
   const exact = moneyLine(account.balance, undefined, undefined, lang);
   const balance = exact.length > 11 ? compactMoneyLine(account.balance, undefined, lang) : exact;
+  const extras = [
+    ["credit_limit", account.creditLimit, words.accountCreditLimit],
+    ["rewards_value", account.rewardsValue, words.accountRewardsValue],
+  ] as const;
+  const details = extras.flatMap(([part, value, label]) =>
+    value === undefined ? [] : [{ part, text: label(compactMoneyLine(value, undefined, lang)) }],
+  );
   return {
     kind,
     suffix: account.last4 === undefined ? undefined : words.accountSuffix(account.last4),
     exact,
     balance,
-    label: words.accountLabel(account.name, kind, exact, account.last4),
+    details,
+    label: [
+      words.accountLabel(account.name, kind, exact, account.last4),
+      ...details.map(({ text }) => text),
+    ].join(", "),
   };
 }
 
 export function accountReading(accounts: readonly Account[], lang?: string): string[] {
   return accounts.map((account) => {
-    const { kind, suffix, balance, exact } = accountCopy(account, lang);
+    const { kind, suffix, balance, exact, details } = accountCopy(account, lang);
     const visible = `${kind}${suffix ?? ""} ${balance}`;
-    const line = balance === exact ? visible : `${visible} (${exact})`;
+    const line = [
+      balance === exact ? visible : `${visible} (${exact})`,
+      ...details.map(({ text }) => text),
+    ].join(" · ");
     return account.id ? `${account.id} ${line}` : line;
   });
 }

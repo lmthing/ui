@@ -22,6 +22,12 @@ export {
   priceChartRanges,
   priceChartReading,
 } from "./PriceChart";
-export { loanToday, projectLoan } from "./repayment";
+export { loanCadences, loanToday, projectLoan } from "./repayment";
 export { splitBalances, splitCopy, splitPayments, splitReading } from "./Split";
-export { transactionAmount, transactionDay, transactionGroups, transactionReading } from "./Transactions";
+export {
+  transactionAmount,
+  transactionCopy,
+  transactionDay,
+  transactionGroups,
+  transactionReading,
+} from "./Transactions";

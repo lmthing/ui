@@ -10,6 +10,9 @@ export const en = {
     year: "Yearly total",
     separator: "\u00a0· ",
     due: (date: string) => `Due ${date}`,
+    trialEnds: (date: string) => `Trial ends ${date}`,
+    manage: "Manage",
+    manageBill: (name: string) => `Manage ${name}`,
     overdue: (name: string) => `${name}, overdue`,
     markPaid: (name: string) => `Mark ${name} as paid`,
     repeat: {
@@ -26,6 +29,8 @@ export const en = {
     jar: "Jar",
   },
   accountSuffix: (last4: string) => ` · ${last4}`,
+  accountCreditLimit: (amount: string) => `Credit limit: ${amount}`,
+  accountRewardsValue: (amount: string) => `Rewards: ${amount}`,
   accountLabel: (name: string, kind: string, balance: string, last4?: string) =>
     `${name}, ${kind}${last4 ? ` ending in ${last4}` : ""}, ${balance}`,
   cardControls: {
@@ -85,15 +90,19 @@ export const en = {
     principal: "Opening principal",
     rate: "Annual rate",
     payment: "Monthly payment",
+    weekly: "Weekly payment",
+    biweekly: "Payment every two weeks",
     next: "Next payment",
     finish: "Estimated payoff",
     schedule: "Upcoming payments",
+    installments: "Upcoming installments",
     edit: "Open terms editor",
     cleared: "Loan paid off",
     forecastError: "No forecast",
     forecastHelp: "In your loan terms, check the first due date and any recorded payment dates.",
     insufficientTitle: "Payment too low",
     insufficient: "The monthly payment must exceed the interest to reduce the balance.",
+    insufficientPeriodic: "Each payment must exceed the interest to reduce the balance.",
     unavailable: "No payoff date in this estimate",
     outOfRange: "This balance is too large to estimate.",
     estimate: "Fixed rate. No fees or new debt.",
@@ -102,7 +111,8 @@ export const en = {
   loanNext: (label: string, date: string, amount: string) => `${label} · ${date} · ${amount}`,
   loanSplit: (principal: string, interest: string) => `Principal ${principal} · Interest ${interest}`,
   loanRemaining: (balance: string) => `${balance} left`,
-  loanRow: (date: string, balance: string, split: string) => `${date} · ${balance} · ${split}`,
+  loanRow: (date: string, balance: string, split?: string, payment?: string) =>
+    [date, payment, balance, split].filter(Boolean).join(" · "),
   loanMore: (count: string, plural: Intl.LDMLPluralRule) =>
     `And ${count} more ${plural === "one" ? "payment" : "payments"}`,
   priceChart: {
@@ -164,6 +174,9 @@ export const en = {
     date: (weekday: string, day: string, month: string) => `${weekday} ${day} ${month}`,
     compactAmount: (amount: string, negative: boolean) => `${negative ? "-" : "+"}${amount}`,
     entry: (payee: string, category: string, amount: string) => `${payee} · ${category} · ${amount}`,
+    status: { posted: "Posted", pending: "Pending", disputed: "Disputed" },
+    receipt: "Receipt",
+    separator: "\u00a0· ",
   },
 };
 

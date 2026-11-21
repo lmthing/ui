@@ -5,6 +5,43 @@ const terms = { principal: 100, rate: 12, payment: 40, firstDue: "2028-01-31", p
 const today = "2028-01-31";
 
 describe("repayment projection", () => {
+  it.each([
+    ["weekly", 52, "2028-02-07", "2028-02-14"],
+    ["biweekly", 26, "2028-02-14", "2028-02-28"],
+  ] as const)("uses per-period rates and recorded dates on a %s cadence", (cadence, rate, due, next) => {
+    const periodic = {
+      ...terms,
+      cadence,
+      rate,
+      payments: [
+        { due, amount: 32 },
+        { due: next, amount: 999 },
+      ],
+    };
+    const projection = projectLoan(periodic, due);
+    expect(projection.balance).toBe(70.01);
+    expect(projection.rows[0]).toEqual({ due: next, principal: 39.3, interest: 0.7, balance: 30.71 });
+  });
+
+  it("computes four alternating-week payments across a year boundary and caps the last", () => {
+    const plan = {
+      ...terms,
+      principal: 100,
+      rate: 0,
+      payment: 30,
+      firstDue: "2026-12-14",
+      cadence: "biweekly",
+    } as const;
+    const projected = projectLoan(plan, "2026-12-01");
+    expect(projected.finish).toBe("2027-01-25");
+    expect(projected.rows.map(({ due, principal }) => [due, principal])).toEqual([
+      ["2026-12-14", 30],
+      ["2026-12-28", 30],
+      ["2027-01-11", 30],
+      ["2027-01-25", 10],
+    ]);
+    expect(projectLoan({ ...terms, cadence: "monthly" }, today)).toEqual(projectLoan(terms, today));
+  });
   it("rounds each instalment's interest, caps the last payment and preserves the due day", () => {
     expect(projectLoan(terms, today)).toEqual({
       balance: 100,
