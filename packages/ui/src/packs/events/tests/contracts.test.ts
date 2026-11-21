@@ -7,6 +7,7 @@ import {
   readScreen,
   type CastLike,
   type Definition,
+  type DeviceData,
 } from "@lmthing/ui/catalog";
 
 const contracts = [
@@ -120,14 +121,18 @@ describe("events read and action contracts", () => {
       id: "home",
       components: [{ ...components.FindDate.examples[0], c: "FindDate", id: "f1" }],
     };
-    const change = (address: string, value: string) =>
-      planAct(screen, defs, {}, [{ address, action: "select", value }], null);
-    const before = readScreen(screen, defs);
-    expect(before).toContain('[f1/r2 select choices ["yes","maybe","no"]');
+    const viewer: DeviceData = { eventViewer: [{ instance: "f1", row: 0 }] };
+    const change = (address: string, value: string, data: DeviceData = viewer) =>
+      planAct(screen, defs, {}, [{ address, action: "select", value }], null, "planner", data);
+    expect(readScreen(screen, defs)).not.toMatch(/\[f1\/r\d+ (select|press)/);
+    expect(change("f1/r2", "maybe", {})).toMatchObject({ ok: false, code: "not_actionable" });
+    const before = readScreen(screen, defs, {}, undefined, viewer);
+    expect(before).toMatch(/\[f1\/r2 select [^\]]*choices \["Yes","Maybe","No"\]/);
     expect(change("f1/r2", "sometimes")).toMatchObject({ ok: false, code: "invalid_value" });
     expect(change("f1/r3", "yes")).toMatchObject({ ok: false, code: "not_actionable" });
     const result = change("f1/r2", "maybe");
     expect(result.ok).toBe(true);
-    if (result.ok) expect(readScreen(screen, defs, result.values)).toContain("Imani Cole: yes · maybe");
+    if (result.ok)
+      expect(readScreen(screen, defs, result.values, undefined, viewer)).toContain("Imani Cole: Yes · Maybe");
   });
 });
