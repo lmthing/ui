@@ -1,4 +1,3 @@
-import { useLayoutEffect, useReducer } from "react";
 import { XStack, YStack } from "tamagui";
 import { component, size, space } from "../../../catalog";
 import { useCopyFeedback } from "../../interact";
@@ -25,9 +24,6 @@ function NoCopy({ part }: { part: string }) {
 
 function CopyButton({ part, code }: { part: string; code: string }) {
   const { codeLabels } = useWords().words;
-  const [, refresh] = useReducer((revision: number) => revision + 1, 0);
-  // Recheck availability after the preceding loading/empty binding has been removed.
-  useLayoutEffect(refresh, [part]);
   return (
     <KitAction
       action="copy"
@@ -45,11 +41,7 @@ function CopyTarget({ target, code, hidden }: { target: Target; code: string; hi
   const context = usePartContext();
   return (
     <PartContext.Provider value={target.item ? { ...context, item: target.item } : context}>
-      {hidden ? (
-        <NoCopy part={target.part} />
-      ) : (
-        <CopyButton key={target.item} part={target.part} code={code} />
-      )}
+      {hidden ? <NoCopy part={target.part} /> : <CopyButton part={target.part} code={code} />}
     </PartContext.Provider>
   );
 }

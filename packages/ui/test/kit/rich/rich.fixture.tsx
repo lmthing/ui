@@ -5,7 +5,6 @@ import { z } from "zod";
 import type { Definition } from "@lmthing/ui/catalog";
 import {
   createScreenController,
-  KitAction,
   KitCodeBlock,
   KitMasonry,
   KitPanelStrip,
@@ -48,7 +47,7 @@ const defs = {
   },
 } satisfies Record<string, Definition>;
 
-const source = `  const label = "<em>literal</em>";\n\n\t// trailing whitespace  \n${"long_identifier_".repeat(14)}\n`;
+const source = `  const label = "<em>literal</em>";\n\n\t// trailing whitespace  \n${"long_identifier_".repeat(14)}\n${"漢".repeat(42)}\n`;
 const ratios = [0.75, 2, 1, 2];
 const cards = ratios.map((ratio, i) => ({
   id: `r${i + 1}`,
@@ -65,15 +64,12 @@ const panels = [1, 2, 0.5].map((ratio, i) => ({
   content: (
     <YStack height="100%" backgroundColor={i % 2 ? "$accentSoft" : "$raised"}>
       <KitText>{`Panel ${i + 1}`}</KitText>
-      {i === 0 && <KitAction label="Panel link" part="link" />}
     </YStack>
   ),
 }));
 
-function SourceFixture({ loading, empty }: { loading: boolean; empty: boolean }) {
+function CopyGate() {
   const { controller } = useKit();
-  const [wrap, setWrap] = useState(false);
-  const [changed, setChanged] = useState(false);
   const [blocked, setBlocked] = useState(false);
   const unblock = useRef<() => void>(undefined);
   const block = () => {
@@ -82,11 +78,17 @@ function SourceFixture({ loading, empty }: { loading: boolean; empty: boolean })
     setBlocked(!blocked);
   };
   useEffect(() => () => unblock.current?.(), []);
+  return <button onClick={block}>{blocked ? "Unblock copy" : "Block copy"}</button>;
+}
+
+function SourceFixture({ loading, empty }: { loading: boolean; empty: boolean }) {
+  const [wrap, setWrap] = useState(false);
+  const [changed, setChanged] = useState(false);
   return (
     <PartScope screen="home" component="code" rev={1} state="filled">
       <button onClick={() => setWrap(!wrap)}>Wrap</button>
       <button onClick={() => setChanged(!changed)}>Change code</button>
-      <button onClick={block}>{blocked ? "Unblock copy" : "Block copy"}</button>
+      <CopyGate />
       <KitCodeBlock
         code={empty ? "" : changed ? "1 + 1 = 2" : source}
         language={changed ? "Math" : "TypeScript"}
@@ -179,12 +181,8 @@ function Fixture() {
           {label}
         </button>
       ))}
-      <output hidden id="clipboard">
-        {copied}
-      </output>
-      <output hidden id="attempted">
-        {attempted}
-      </output>
+      <output hidden id="clipboard" children={copied} />
+      <output hidden id="attempted" children={attempted} />
       <KitProvider theme={theme} interactive controller={controller}>
         <SourceFixture {...{ loading, empty }} />
         <PartScope screen="home" component="tiles" rev={1} state="filled">

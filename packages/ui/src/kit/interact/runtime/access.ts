@@ -189,7 +189,9 @@ export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCur
       return result;
     },
     registerPart: (address: string) => registerPart(ctx.mounted, ctx.relative(address)),
-    registerDisabledPart: (address: string) => registerPart(ctx.disabledParts, ctx.relative(address)),
+    registerDisabledPart: (address: string) => ctx.disabledRegistry.register(ctx.relative(address)),
+    isPartDisabled: (address: string) => ctx.disabledParts.has(ctx.relative(address)),
+    subscribeDisabledParts: ctx.disabledRegistry.subscribe,
     registerPrivateMarkPart: privateMarkRegistration(ctx, act),
   };
 }

@@ -56,23 +56,41 @@ function skeletonRuns(code: string) {
 
 export function CodeSource({ code, wrap, loading, language, label }: SourceProps) {
   const { codeLabels, placeholderDetail } = useWords().words;
+  const style = {
+    whiteSpace: wrap ? "pre-wrap" : "pre",
+    overflowWrap: wrap ? "anywhere" : "normal",
+  } as const;
   const text = (
     <Source
-      color={loading ? "$line" : "$text"}
+      color="$text"
       userSelect={loading ? "none" : "text"}
+      opacity={loading ? component.base.none : undefined}
       aria-hidden={loading || undefined}
       accessibilityElementsHidden={loading}
       {...(isWeb
-        ? {
-            tag: loading ? "span" : "code",
-            style: { whiteSpace: wrap ? "pre-wrap" : "pre", overflowWrap: wrap ? "anywhere" : "normal" },
-          }
+        ? { tag: loading ? "span" : "code", style: loading ? { ...style, visibility: "hidden" } : style }
         : {})}
     >
-      {loading ? skeletonRuns(code || placeholderDetail) : sourceRuns(code, language)}
+      {sourceRuns(code || placeholderDetail, language)}
     </Source>
   );
-  if (wrap) return <YStack padding={space.md}>{text}</YStack>;
+  // Use the real line layout for sizing, including non-Latin glyphs and wrap points.
+  const drawing = loading ? (
+    <YStack
+      pointerEvents="none"
+      aria-hidden
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
+      {text}
+      <YStack fullscreen overflow="hidden">
+        <Source {...(isWeb ? { style } : {})}>{skeletonRuns(code || placeholderDetail)}</Source>
+      </YStack>
+    </YStack>
+  ) : (
+    text
+  );
+  if (wrap) return <YStack padding={space.md}>{drawing}</YStack>;
   return (
     <ScrollView
       horizontal
@@ -81,7 +99,7 @@ export function CodeSource({ code, wrap, loading, language, label }: SourceProps
       accessibilityLabel={loading ? undefined : (label ?? codeLabels.block)}
       {...(isWeb ? { tabIndex: loading ? -1 : 0 } : {})}
     >
-      {text}
+      {drawing}
     </ScrollView>
   );
 }

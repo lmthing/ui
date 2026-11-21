@@ -24,6 +24,7 @@ import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
 import { visibleConfirmation } from "./read-controls";
 import { createPrivateMarks } from "./private-mark";
+import { createDisabledParts } from "./part-registration";
 export type Confirmation = {
   message: string;
   kind: "primary" | "secondary" | "quiet" | "danger";
@@ -136,7 +137,7 @@ type RuntimeOptions = ControllerOptions & { clipboard?: ReturnType<typeof clipbo
 export function createControllerContext(options: RuntimeOptions, standalone = false) {
   const { defs, now = Date.now, store = createInteractionStore() } = options;
   const screen = controllerScreen(options, standalone);
-  const disabledParts = new Map<string, symbol>();
+  const { parts: disabledParts, ...disabledRegistry } = createDisabledParts();
   let initial = standalone ? {} : initialValues(screen, defs, now);
   const status = {
     disposed: false,
@@ -173,11 +174,10 @@ export function createControllerContext(options: RuntimeOptions, standalone = fa
         valuesOf,
       ),
     expiredProgress: (values: Values, at = now()) => expiredProgress(screen, defs, values, at),
-    resetValues: () => {
-      initial = initialValues(screen, defs, now);
-    },
+    resetValues: () => void (initial = initialValues(screen, defs, now)),
     mounted: new Map<string, symbol>(),
     disabledParts,
+    disabledRegistry,
     privateMarks: createPrivateMarks(),
     key: (id: string, part: string) => valueKey(screen.id, id, part),
     relative: (address: string) => relativeAddress(screen.id, address),

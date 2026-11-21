@@ -58,7 +58,7 @@ it("keeps the exact selectable source, wraps without losing whitespace, and copi
   const text = page.locator("code");
   const original = await text.textContent();
   expect(original).toBe(
-    `  const label = "<em>literal</em>";\n\n\t// trailing whitespace  \n${"long_identifier_".repeat(14)}\n`,
+    `  const label = "<em>literal</em>";\n\n\t// trailing whitespace  \n${"long_identifier_".repeat(14)}\n${"漢".repeat(42)}\n`,
   );
   expect(await text.locator("em").count()).toBe(0);
   expect(await text.locator("span").count()).toBeGreaterThan(0);
@@ -76,9 +76,13 @@ it("keeps the exact selectable source, wraps without losing whitespace, and copi
   await button("Loading").click();
   const loading = page.getByRole("group", { name: "Loading" });
   expect((await box(loading)).height).toBe(filled.height);
-  expect(await loading.textContent()).not.toContain("long_identifier");
+  expect(await loading.getByText(/long_identifier/).isVisible()).toBe(false);
+  expect(await loading.ariaSnapshot()).not.toContain("long_identifier");
   await button("Loading").click();
   await button("Block copy").click();
+  expect(await button("Copy").getAttribute("aria-disabled")).toBe("true");
+  await button("Loading").click();
+  await button("Loading").click();
   expect(await button("Copy").getAttribute("aria-disabled")).toBe("true");
   await button("Unblock copy").click();
   expect(await button("Copy").getAttribute("aria-disabled")).toBe(null);

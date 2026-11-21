@@ -1,7 +1,7 @@
 import { useLayoutEffect, useState, type ReactNode } from "react";
 import { isWeb, YStack } from "tamagui";
 import { component, formatAddress } from "../../../catalog";
-import { PartContext, usePart, usePartContext } from "../../part";
+import { PartContext, usePart, usePartContext, usePartDisabled } from "../../part";
 import { useKit, useWords } from "../../provider";
 import { PanelPage, PanelViewport } from "./panel-viewport";
 import { RichEmpty, safeRatio, type Drawing, type Target } from "./rich-drawing";
@@ -38,10 +38,9 @@ function useHudTarget(target?: Target) {
   const { interactive, controller } = useKit();
   const address = usePart(target?.part, !!target);
   const { panelLabels } = useWords().words;
-  const canToggle = () =>
-    !!target && interactive && !!controller?.actionsAt(address.testID).includes("toggle");
-  const [enabled, setEnabled] = useState(canToggle);
-  useLayoutEffect(() => setEnabled(canToggle()));
+  const blocked = usePartDisabled(target ? address.testID : undefined);
+  const enabled =
+    !!target && !blocked && interactive && !!controller?.actionsAt(address.testID).includes("toggle");
   const toggle = () => controller?.act({ address: address.testID, action: "toggle" });
   return {
     surface: enabled
