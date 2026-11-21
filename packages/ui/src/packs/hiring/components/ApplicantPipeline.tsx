@@ -8,7 +8,7 @@ import { activeStages, outcomes, seedDate, seedGoto, seedJobId, seedRows } from 
 // Core first: List/badge can show a stage label but cannot move active applicants across counted hiring stages.
 export const meta = {
   id: "ApplicantPipeline",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "Move active applicants between counted hiring stages for one opening.",
   pick: "Only when an employer needs both counted stage lanes and moves between them for one opening. For a flat directory with one tappable row per applicant, use List even if the rows show status badges. Not a generic board (Board) or a seeker's own tracker (Applications).",
@@ -103,10 +103,6 @@ export const examples = [
         applied: "2027-04-06", next: "Call about group walks", nextAt: "2027-04-10", goto: "sam_review",
       },
       {
-        applicationId: "riley", name: "Riley Chen", stage: "interview", outcome: "withdrawn",
-        applied: "2027-04-05", goto: "riley_review",
-      },
-      {
         applicationId: "imani", name: "Imani Cole", stage: "applied", outcome: "active",
         applied: "2027-04-07", next: "Review references", goto: "imani_review",
       },
@@ -184,8 +180,8 @@ export function ApplicantPipeline({ title, applicants, density: requested, surfa
                 role="number" numberScale="compact" emphasis="strong" tabular {...{ density }}>{count}</kit.KitText></kit.KitText>
             )}</kit.KitText></kit.KitContent>}
         <kit.KitColumns part="stages" {...{ loading }} style={layout === "rows" ? "stack" : "columns"}
-          columns={columns.map(({ id, label, count, empty }) => ({
-            id, label, count, countPart: id, moveValue: id, headingRole: "body",
+          columns={columns.map(({ id, label, moveLabel, count, empty }) => ({
+            id, label, count, countPart: id, moveValue: id, moveLabel, headingRole: "body",
             summary: empty && <kit.KitText part={null} role="caption" tone="muted">{pipeline.emptyStage}</kit.KitText>,
           }))}
           move={{ caption: pipeline.move, label: pipeline.destination, reserveTargets: true, inlineCards: true, cards: active.map((row) => ({

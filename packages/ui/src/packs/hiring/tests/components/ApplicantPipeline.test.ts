@@ -13,11 +13,11 @@ import {
 import { createScreenController } from "@lmthing/ui/kit";
 import { hasColumnTarget } from "../../../../../test/kit/column-target";
 import { addressedElements } from "../../../../../test/render";
-import { PipelineFixture, pipelineScreen } from "./ApplicantPipeline.fixture";
+import { PipelineFixture, pipelineScreen, pipelineWithClosed } from "./ApplicantPipeline.fixture";
 
 const { ApplicantPipeline } = components;
 const { meta, props, examples, fallback, probes } = ApplicantPipeline;
-const full: ReturnType<typeof fallback> = examples[0]!;
+const full = pipelineWithClosed();
 const first = full.applicants[0]!;
 const view = (input = full, state: StateName = "filled") =>
   renderToStaticMarkup(createElement(PipelineFixture, { input, state }));

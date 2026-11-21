@@ -136,7 +136,7 @@ it("shows display labels and omits ambiguous wire values when opted into stable 
             style="stack"
             columns={[
               { id: "a", label: "Waiting", count: "1", moveValue: "queued" },
-              { id: "b", label: "In care", count: "0", moveValue: "working" },
+              { id: "b", label: "In care", count: "0", moveLabel: "care", moveValue: "working" },
               { id: "c", label: "Finished", count: "0", moveValue: "done" },
               { id: "d", label: "Complete", count: "0", moveValue: "done" },
             ]}
@@ -150,7 +150,9 @@ it("shows display labels and omits ambiguous wire values when opted into stable 
       </KitProvider>
     </TamaguiProvider>,
   );
-  expect(html).toContain('aria-label="Move Snake plant to In care"');
+  expect(html).toContain(">In care</");
+  expect(html).toContain('aria-label="Move Snake plant to care"');
+  expect(html).toContain(">care</");
   expect(html).not.toContain('aria-label="Move Snake plant to working"');
   expect(html).not.toContain('aria-label="Move Snake plant to Finished"');
   expect(html).not.toContain('aria-label="Move Snake plant to Complete"');

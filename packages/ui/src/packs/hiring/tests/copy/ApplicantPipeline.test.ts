@@ -36,7 +36,9 @@ describe("ApplicantPipeline copy", () => {
       ["offer", "0"],
     ]);
     expect(outcomes).toBe("Hired: 1 · Rejected: 1 · Withdrawn: 1");
-    expect(pipelineReading([sam], closed)).toContain(outcomes);
+    const reading = pipelineReading([sam], closed);
+    expect(reading).toEqual(expect.arrayContaining([outcomes, "Move to", "applied", "interview", "offer"]));
+    expect(reading).not.toContain("screening");
     const allClosed = pipelineReading(rows.slice(1), closed);
     expect(allClosed).toContain("Screening: 0");
     expect(allClosed).not.toContain("Move to");

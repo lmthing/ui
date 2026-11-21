@@ -9,6 +9,7 @@ export const en = {
   outcomes: { active: "Active", hired: "Hired", rejected: "Rejected", withdrawn: "Withdrawn" },
   pipeline: {
     move: "Move to",
+    moveStages: { applied: "applied", screening: "screening", interview: "interview", offer: "offer" },
     destination: (stage: string, name: string) => `Move ${name} to ${stage}`,
     count: (label: string, count: string) => `${label}: ${count}`,
     countLabel: (label: string) => `${label}: `,

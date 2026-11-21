@@ -14,7 +14,26 @@ export function pipelineScreen(input: Input, state: StateName = "filled") {
   return { id: "home", components: [{ ...input, id: "p1", c: "ApplicantPipeline", state }] };
 }
 
-// Exercise the real phone host even while the renderer is held out of the generated map.
+export function pipelineWithClosed(): Input {
+  const example = ApplicantPipeline.examples[0]!;
+  const [sam, imani] = example.applicants;
+  return {
+    ...example,
+    applicants: [
+      sam!,
+      {
+        applicationId: "riley",
+        name: "Riley Chen",
+        stage: "interview",
+        outcome: "withdrawn",
+        applied: "2027-04-05",
+        goto: "riley_review",
+      },
+      imani!,
+    ],
+  };
+}
+
 export function PipelineFixture({
   input,
   state,

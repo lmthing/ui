@@ -14,8 +14,9 @@ type Column = {
   label: string;
   count: string;
   countPart?: string;
-  /** Stable value for move actions. If omitted, the displayed label is the value. */
+  /** Optional move value and button label both default to the column label. */
   moveValue?: string;
+  moveLabel?: string;
   headingRole?: "body";
   summary?: ReactNode;
   children?: ReactNode;
@@ -167,7 +168,7 @@ export function KitColumns({ part = "root", loading = false, columns, style, mov
   const context = usePartContext();
   const focus = useRef<string | null>(null);
   const stack = style === "stack";
-  const choices = columns.map(({ label, moveValue }) => ({ label, value: moveValue ?? label }));
+  const choices = columns.map((c) => ({ label: c.moveLabel ?? c.label, value: c.moveValue ?? c.label }));
   const values = choices.map(({ value }) => value);
   const cards = columns.map((column, index) => {
     const destinations = choices.filter(

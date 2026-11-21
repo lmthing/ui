@@ -45,7 +45,13 @@ export function pipelineCopy<T extends Applicant>(
     active,
     columns: activeStages.map((id) => {
       const count = active.filter(({ stage }) => stage === id).length;
-      return { id, label: words.stages[id], count: numberLine(count, lang), empty: count === 0 };
+      return {
+        id,
+        label: words.stages[id],
+        moveLabel: words.pipeline.moveStages[id],
+        count: numberLine(count, lang),
+        empty: count === 0,
+      };
     }),
     outcomeLines,
     outcomes: outcomeLines.map(({ label, count }) => label + count).join(words.pipeline.separator),
@@ -64,6 +70,7 @@ export function pipelineReading(
     summary,
     ...(columns.some(({ empty }) => empty) ? [pipeline.emptyStage] : []),
     ...(active.length ? [pipeline.move] : []),
+    ...columns.filter(({ id }) => active.some(({ stage }) => stage !== id)).map(({ moveLabel }) => moveLabel),
     ...active.flatMap((row) => {
       const { applied, next, nextAt } = applicantCopy(row, lang);
       return [row.name, applied, ...(next ? [next] : []), ...(nextAt ? [nextAt] : [])];
