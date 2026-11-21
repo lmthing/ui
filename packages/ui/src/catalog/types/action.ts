@@ -17,7 +17,8 @@ export type ActionName =
   | "flip"
   | "move"
   | "send"
-  | "scan";
+  | "scan"
+  | "copy";
 export type ScreenAction = "back" | "tab" | "scroll";
 /** Store-backed inputs and derived gates, applied to parsed props, never to Writer input. */
 export type LiveActionInputs = {

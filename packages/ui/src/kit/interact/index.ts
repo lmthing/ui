@@ -1,5 +1,6 @@
 export { createScreenController, type ScreenController } from "./controller";
 export { browserMediaAdapter, type MediaAdapter, type MediaSession } from "./media";
+export { clipboardRuntime, useCopyFeedback, type ClipboardText, type ClipboardWriter } from "./clipboard";
 export { createInteractionStore, type InteractionStore } from "./store";
 export { createAgentAccess, type ActOptions, type ActReply, type ActLogEntry } from "./agent";
 export {

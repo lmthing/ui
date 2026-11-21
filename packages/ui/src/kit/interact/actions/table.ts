@@ -110,6 +110,15 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
 }
 const playbackAction: ActionHandler = (state, action, ctx) =>
   ctx.entry.c === "Player" ? mediaAction(state, action, ctx) : controlsAction(state, action, ctx);
+const copyAction: ActionHandler = (state, { address }, ctx) => {
+  const clipboard = ctx.options.clipboard;
+  if (!clipboard?.available())
+    return rejected(state, ctx.at, "clipboard_unavailable", "Clipboard is unavailable");
+  const effect = clipboard.effectFor(`${ctx.screen.id}/${address}`);
+  return effect
+    ? { state, effects: [effect] }
+    : rejected(state, ctx.at, "not_actionable", "No text at this copy target");
+};
 export const actionTable: Readonly<Record<ActStep["action"], ActionHandler>> = {
   press: playbackAction,
   play: playbackAction,
@@ -127,6 +136,7 @@ export const actionTable: Readonly<Record<ActStep["action"], ActionHandler>> = {
   send: playbackAction,
   dismiss: playbackAction,
   swipe: playbackAction,
+  copy: copyAction,
 };
 export const handlerFor = (action: string): ActionHandler =>
   Object.hasOwn(actionTable, action) ? actionTable[action]! : playbackAction;
