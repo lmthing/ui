@@ -718,8 +718,9 @@ Schema, but not the draft/ready flag. Replay prefers a complete recording of the
 reports prompt drift once per probe when it uses evidence from a different listing. A changed
 probe or own definition still needs new evidence. Recordings retain the exact prompt, sent format
 and all sample replies. A fixed offline index binds compatible legacy evidence without rewriting
-the books, checking component definitions at the recording commits. Live calls and exact-request
-pack resumption are unchanged.
+the books. It verifies component definitions and exact evidence at the recording commits, and a
+legacy alias stops working if its samples are replaced. Live calls and exact-request pack
+resumption are unchanged.
 
 | Command                           | Gate                                                                              |
 | --------------------------------- | --------------------------------------------------------------------------------- |

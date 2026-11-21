@@ -11,7 +11,15 @@ import {
   type Definition,
   type ReplayProbe,
 } from "@lmthing/ui/catalog";
-import { keyOf, replayBook, recordingCall, recordingKey, type Book } from "./recordings";
+import {
+  evidenceFingerprint,
+  keyOf,
+  replayBook,
+  recordingCall,
+  recordingKey,
+  withLegacyEvidence,
+  type Book,
+} from "./recordings";
 
 afterEach(() => vi.restoreAllMocks());
 const probe: ReplayProbe = { id: "List/choose/show plants", definition: {}, localPrompt: "same" };
@@ -63,6 +71,19 @@ it("resumes a legacy exact request without stamping today's offline identity ont
   expect(await recordingCall("model", book, live, true)("same", 0, undefined, probe)).toBe("old");
   expect(live).not.toHaveBeenCalled();
   await expect(replayBook("List", "model", book)("same", 0, undefined, probe)).rejects.toThrow(
+    "No recording",
+  );
+});
+
+it("does not use a legacy alias after the archived reply is replaced under the same request hash", async () => {
+  const old = keyOf("model", "same");
+  const key = recordingKey("model", "same", undefined, probe);
+  const entry = { prompt: "same", reply: "original" };
+  const aliases = { [key]: evidenceFingerprint(entry) };
+  const verified = replayBook("List", "model", withLegacyEvidence({ [old]: entry }, aliases));
+  expect(await verified("same", 0, undefined, probe)).toBe("original");
+  const replacement = withLegacyEvidence({ [old]: { ...entry, reply: "replacement" } }, aliases);
+  await expect(replayBook("List", "model", replacement)("same", 0, undefined, probe)).rejects.toThrow(
     "No recording",
   );
 });

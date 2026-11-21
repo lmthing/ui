@@ -11,9 +11,12 @@ export const legacyIndexFile = fileURLToPath(new URL("./migration/legacy-replay-
 /** `reply` is the first sample; `replies` holds every sample when a probe is run more than once. */
 export type Evidence = { prompt: string; format?: WriterFormat; reply?: string; replies?: (string | null)[] };
 export type Book = Record<string, Evidence>;
+/** For each book, maps a stable key to the fingerprint of its verified legacy evidence. */
 export type LegacyIndex = Record<string, Record<string, string>>;
 
 const digest = (value: string) => createHash("sha256").update(value).digest("hex").slice(0, 16);
+export const evidenceFingerprint = (entry: Evidence) => digest(JSON.stringify(entry));
+export const requestHash = (key: string) => key.slice(key.lastIndexOf("/") + 1);
 
 export const keyOf = (model: string, prompt: string, format?: WriterFormat) =>
   digest(`${model}\n${prompt}${format ? `\n${JSON.stringify(format)}` : ""}`);
@@ -39,14 +42,14 @@ export function recordingCall(model: string, book: Book, live: CallModel, resume
   const exact = new Map<string, string[]>();
   if (resume)
     for (const key of Object.keys(book)) {
-      const hash = key.slice(key.lastIndexOf("/") + 1);
+      const hash = requestHash(key);
       const versions = exact.get(hash) ?? [];
       versions.push(key);
       exact.set(hash, versions);
     }
   return async (prompt, sample, format, probe) => {
     const key = recordingKey(model, prompt, format, probe);
-    const request = key.slice(key.lastIndexOf("/") + 1);
+    const request = requestHash(key);
     const previous = book[key];
     const versions = exact.get(request) ?? [];
     if (resume) {
@@ -138,12 +141,16 @@ function legacyKeys(component: string, model: string) {
 
 /** Replays exact evidence first; a shared-listing change can reuse the same probe's evidence. */
 export function replayCall(component: string, model: string): ProbeCall {
-  const book = readBook(component, model);
-  const aliases = Object.entries(legacyKeys(component, model));
-  return replayBook(component, model, {
-    ...Object.fromEntries(aliases.flatMap(([key, legacy]) => (book[legacy] ? [[key, book[legacy]]] : []))),
-    ...book,
+  const book = withLegacyEvidence(readBook(component, model), legacyKeys(component, model));
+  return replayBook(component, model, book);
+}
+
+export function withLegacyEvidence(book: Book, aliases: Record<string, string>): Book {
+  const verified = Object.entries(aliases).flatMap(([key, fingerprint]) => {
+    const entry = book[requestHash(key)];
+    return entry && evidenceFingerprint(entry) === fingerprint ? [[key, entry]] : [];
   });
+  return { ...Object.fromEntries(verified), ...book };
 }
 
 export function replayBook(component: string, model: string, book: Book): ProbeCall {

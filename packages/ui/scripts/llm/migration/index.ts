@@ -12,6 +12,9 @@ import {
   recordingKey,
   recordingRoot,
   readLegacyBook,
+  evidenceFingerprint,
+  keyOf,
+  requestHash,
   type LegacyIndex,
   type Book,
   type Evidence,
@@ -80,9 +83,11 @@ function indexBook(
           JSON.stringify(entry.format) === JSON.stringify(format) &&
           (entry.prompt === prompt ||
             (listing && legacyLocalPrompt(entry.prompt, listing) === probe.localPrompt)) &&
+          keyOf(model, entry.prompt, entry.format) === key &&
           (!probe.sourceComponent || hasDefinition(key, probe.sourceComponent, entry)),
       );
-      for (const [legacy, entry] of matches) keys[recordingKey(model, entry.prompt, format, probe)] = legacy;
+      for (const [, entry] of matches)
+        keys[recordingKey(model, entry.prompt, format, probe)] = evidenceFingerprint(entry);
       cached.set(current, matches);
     }
     // For the core rubric, replay the exact compose samples so the runner asks about the same screen.
@@ -121,7 +126,7 @@ for (const path of readdirSync(recordingRoot, { encoding: "utf8", recursive: tru
   const aliases = Object.entries(keys).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
   if (aliases.length) index[`${component}/${model}`] = Object.fromEntries(aliases);
   total += Object.keys(book).length;
-  migrated += new Set(Object.values(keys)).size;
+  migrated += new Set(Object.keys(keys).map(requestHash)).size;
 }
 saveIndex(index);
 console.log(`Indexed ${migrated} of ${total} legacy requests. All original replies were kept.`);

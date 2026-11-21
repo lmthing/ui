@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath, URL } from "node:url";
 import { createInterface } from "node:readline";
 import { componentPath, currentDefinitionSource, definitionSource } from "../component-definition";
-import type { Book, Evidence } from "../recordings";
+import { evidenceFingerprint, type Book, type Evidence } from "../recordings";
 
 const cwd = fileURLToPath(new URL("../../../../../", import.meta.url));
 const recordings = "packages/ui/test/recordings/";
@@ -13,24 +13,40 @@ function gitShow(object: string): string {
   return execFileSync("git", ["show", object], {
     cwd,
     encoding: "utf8",
+    maxBuffer: 32 * 1024 * 1024,
     stdio: ["ignore", "pipe", "ignore"],
   });
 }
 
+function evidenceAt() {
+  const snapshots = new Map<string, Map<string, string>>();
+  return (commit: string, book: string, key: string) => {
+    const object = `${commit}:${recordings}${book}.json`;
+    if (!snapshots.has(object)) {
+      let entries: Book = {};
+      try {
+        entries = JSON.parse(gitShow(object)) as Book;
+      } catch {}
+      snapshots.set(
+        object,
+        new Map(Object.entries(entries).map(([key, entry]) => [key, evidenceFingerprint(entry)])),
+      );
+    }
+    return snapshots.get(object)?.get(key);
+  };
+}
+
 /** Identical samples after the full core refresh do not show up as additions in Git. */
-function verifiedCoreRefresh() {
+function verifiedCoreRefresh(fingerprintAt: ReturnType<typeof evidenceAt>) {
   // These are the exact requests emitted by the cited commit's own core probe runner and registry.
   const first = JSON.parse(
     readFileSync(new URL("./core-refresh-requests.json", import.meta.url), "utf8"),
   ) as Refresh & { followUps: Refresh[] };
   const refreshes = [...first.followUps, first];
-  const books = new Map<string, Book>();
-  return (book: string, key: string, entry: Evidence): string | undefined => {
+  return (book: string, key: string, fingerprint: string): string | undefined => {
     for (const { commit, requests } of refreshes) {
       if (!requests[book]?.includes(key)) continue;
-      const object = `${commit}:${recordings}${book}.json`;
-      if (!books.has(object)) books.set(object, JSON.parse(gitShow(object)) as Book);
-      if (JSON.stringify(books.get(object)?.[key]) === JSON.stringify(entry)) return commit;
+      if (fingerprintAt(commit, book, key) === fingerprint) return commit;
     }
   };
 }
@@ -76,24 +92,32 @@ export async function recordedAt() {
 
 export function matchesRecordedDefinition(origins: Awaited<ReturnType<typeof recordedAt>>) {
   const sources = new Map<string, string>();
-  const verifiedRefresh = verifiedCoreRefresh();
+  const fingerprintAt = evidenceAt();
+  const verifiedRefresh = verifiedCoreRefresh(fingerprintAt);
   return (book: string, key: string, component: string, entry: Evidence) => {
     const path = componentPath(component);
     const current = currentDefinitionSource(component);
-    const commits = origins.get(`${book}/${key}`);
     if (!path || !current) return false;
-    const refresh = verifiedRefresh(book, key, entry);
-    if (!refresh && !commits?.size) return false;
-    return (refresh ? [refresh] : [...commits!]).every((commit) => {
-      const object = `${commit}:packages/ui/src/${path}`;
-      if (!sources.has(object)) {
-        let source = "";
-        try {
-          source = gitShow(object);
-        } catch {}
-        sources.set(object, definitionSource(source));
-      }
-      return sources.get(object) === current;
-    });
+    const fingerprint = evidenceFingerprint(entry);
+    const refresh = verifiedRefresh(book, key, fingerprint);
+    const commits = refresh
+      ? [refresh]
+      : [...(origins.get(`${book}/${key}`) ?? [])].filter(
+          (commit) => fingerprintAt(commit, book, key) === fingerprint,
+        );
+    return (
+      commits.length > 0 &&
+      commits.every((commit) => {
+        const object = `${commit}:packages/ui/src/${path}`;
+        if (!sources.has(object)) {
+          let source = "";
+          try {
+            source = gitShow(object);
+          } catch {}
+          sources.set(object, definitionSource(source));
+        }
+        return sources.get(object) === current;
+      })
+    );
   };
 }
