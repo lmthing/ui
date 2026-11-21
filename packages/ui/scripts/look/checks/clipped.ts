@@ -11,7 +11,7 @@ function clipReason(el: Element, frameEl: Element, style: CSSStyleDeclaration) {
   for (let node: Element | null = el; node && node !== frameEl.parentElement; node = node.parentElement) {
     const css = node === el ? style : getComputedStyle(node);
     const clipX = node === frameEl || css.overflowX !== "visible";
-    const clipY = css.overflowY !== "visible";
+    const clipY = node === frameEl || css.overflowY !== "visible";
     if ((!clipX && !clipY) || !(node instanceof HTMLElement) || css.display === "inline") continue;
     const box = node.getBoundingClientRect();
     const x = box.left + node.clientLeft;

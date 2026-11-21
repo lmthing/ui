@@ -69,23 +69,25 @@ export function checkHeadingGap(context: FrameCheck, parts: ReadonlyMap<string, 
     if (first && !first.contains(heading)) reportHeading(context, heading, first);
   }
   const heading = parts.get("heading");
-  if (heading) {
+  const listItem = "li, [role=listitem]";
+  let semanticMatch = false;
+  for (const el of Array.from(context.frameEl.querySelectorAll("h1, h2, h3, h4, h5, h6, [role=heading]"))) {
+    const next = el.nextElementSibling;
+    const first = next?.matches(listItem)
+      ? next
+      : next?.matches("ul, ol, [role=list]") && next.querySelector(listItem);
+    if (!first) continue;
+    reportHeading(context, el, first);
+    if (el === heading) semanticMatch = true;
+  }
+  if (heading && !semanticMatch) {
     const first = Array.from(parts).find(
       ([part, row]) =>
         /^r\d+\/root$/.test(part) &&
         !heading.contains(row) &&
-        Boolean(heading.compareDocumentPosition(row) & Node.DOCUMENT_POSITION_FOLLOWING),
+        Boolean(heading.compareDocumentPosition(row) & Node.DOCUMENT_POSITION_FOLLOWING) &&
+        shown(row),
     );
     if (first) reportHeading(context, heading, first[1]);
-  }
-  const listItem = "li, [role=listitem]";
-  for (const el of Array.from(context.frameEl.querySelectorAll("h1, h2, h3, h4, h5, h6, [role=heading]"))) {
-    if (el === heading) continue;
-    const next = el.nextElementSibling;
-    if (next?.matches(listItem)) reportHeading(context, el, next);
-    if (next?.matches("ul, ol, [role=list]")) {
-      const first = next.querySelector(listItem);
-      if (first) reportHeading(context, el, first);
-    }
   }
 }

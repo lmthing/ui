@@ -134,16 +134,16 @@ it("detects an ellipsis, line clamp and a partially visible scrolling label at 3
 });
 
 it("checks the phone edge and labels in zero-width boxes", async () => {
-  const content = (
-    clipped: boolean,
-  ) => `<article style="margin-left:${clipped ? 350 : 100}px;white-space:nowrap">
+  const content = (clipped: boolean) => `<style>[data-look-frame] {height:${clipped ? 55 : 200}px}</style>
+    <article style="margin-left:${clipped ? 350 : 100}px;white-space:nowrap">
       <div ${testId("edge")}>A label at the right edge</div>
     </article><div ${testId("collapsed")} style="overflow:hidden;white-space:nowrap;width:${clipped ? 0 : 200}px">
       Collapsed label
-    </div>`;
+    </div><p style="padding-top:10px" ${testId("bottom")}>A label at the bottom edge</p>`;
   expect(await issues("clipped", content(true))).toMatchObject([
     { part: "edge", detail: expect.stringMatching(/clipped horizontally/) },
     { part: "collapsed", detail: expect.stringMatching(/clipped horizontally/) },
+    { part: "bottom", detail: expect.stringMatching(/clipped vertically/) },
   ]);
   expect(await issues("clipped", content(false))).toEqual([]);
 });
@@ -161,6 +161,12 @@ it("keeps the first named item near its heading", async () => {
     { part: "heading", detail: expect.stringMatching(/32px.*r1\/root/) },
   ]);
   expect(await issues("heading-gap", group(24, "heading"))).toEqual([]);
+  const semantic = (gap: number) => `<h2 ${testId("heading")}>Care</h2>
+    <ul style="padding-top:${gap}px"><li>Plant care visit</li></ul>`;
+  expect(await issues("heading-gap", semantic(32))).toMatchObject([
+    { part: "heading", detail: expect.stringMatching(/32px.*Plant care/) },
+  ]);
+  expect(await issues("heading-gap", semantic(24))).toEqual([]);
 });
 
 it("checks neutral copy only in documented empty states", async () => {
