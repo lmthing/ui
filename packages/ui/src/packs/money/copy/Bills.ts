@@ -5,6 +5,8 @@ type Bill = {
   name: string;
   amount: number;
   due?: string | undefined;
+  trialEnds?: string | undefined;
+  manage?: { goto: string } | undefined;
   repeat: "never" | "weekly" | "monthly" | "yearly";
   paid: boolean;
 };
@@ -40,6 +42,7 @@ export function billLines(bill: Bill, today: string, lang?: string, detail = "fu
     amount: compactMoneyLine(bill.amount, undefined, lang),
     due,
     shortDue,
+    trial: bill.trialEnds && words.trialEnds(appointmentDate(bill.trialEnds, lang)),
     repeat: detail === "brief" || bill.repeat === "never" ? undefined : words.repeat[bill.repeat],
     overdue: !bill.paid && bill.due !== undefined && bill.due < today,
   };
@@ -66,11 +69,17 @@ export function billsReading(input: View, lang?: string): string[] {
   const words = moneyWordsFor(lang).bills;
   return [
     ...orderedBills(input.bills, input.style).flatMap((bill) => {
-      const { amount, due, repeat } = billLines(bill, today, lang, input.detail);
+      const { amount, due, repeat, trial } = billLines(bill, today, lang, input.detail);
       const schedule = [repeat, due && words.due(due.replace(/\s/g, "\u00a0"))]
         .filter(Boolean)
         .join(words.separator);
-      return schedule ? [bill.name, amount, schedule] : [bill.name, amount];
+      return [
+        bill.name,
+        amount,
+        ...(schedule ? [schedule] : []),
+        ...(trial ? [trial] : []),
+        ...(input.style === "subscriptions" && bill.manage ? [words.manageBill(bill.name)] : []),
+      ];
     }),
     total.label,
     total.amount,

@@ -18,3 +18,9 @@
 {"id":"a1","c":"Agenda","days":[{"date":"2026-11-20","events":[{"time":"09:00","title":"Visit the garden centre","who":["Sam","Mia"]}]}],"goto":"add_event"}
 {"id":"r1","c":"Rewards","kids":[{"name":"Mia","points":20,"goto":"mia"}],"prizes":[{"title":"Choose a new plant","cost":15,"icon":"leaf"}],"money":false}
 {"id":"b1","c":"BabyLog","log":[{"kind":"feed_left","time":"07:30","minutes":12},{"kind":"bottle","time":"09:00","amount":"90 ml"}],"running":"none"}
+{"id":"h6","c":"Header","title":"Greenhouse camera"}
+{"id":"cf1","c":"CameraFeed","cameraId":"greenhouse","room":"Greenhouse","mode":"home","preview":"lib:plants","events":[{"id":"evt_1","kind":"motion","at":"2026-11-20T07:15:00+00:00"}]}
+{"id":"n3","c":"Note","text":"Camera preview only. Live video and commands need a connected camera service."}
+{"id":"h7","c":"Header","title":"Greenhouse automations"}
+{"id":"rt1","c":"Routines","routines":[{"id":"grow_lights","name":"Morning grow lights","triggerKind":"schedule","triggerSummary":"Every day at 07:00","actionsSummary":"Switch on the plant shelf lights","enabled":true}]}
+{"id":"n4","c":"Note","text":"Routine controls are a preview until a smart-home automation service is connected."}

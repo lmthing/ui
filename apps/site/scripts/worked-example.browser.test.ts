@@ -5,6 +5,41 @@ import { site } from "../src/data/site";
 import { siteViteConfig } from "./vite-config";
 
 const packs = site.packs.filter((pack) => pack.lines.length > 0);
+const workedFigures = {
+  invest: {
+    "h2/r1/value": /^Value\s*\$900$/,
+    "p1/value": /^\$1,108$/,
+    "p1/contributed": /^\$1,000$/,
+  },
+  books: {
+    "p1/profit": /^£450$/,
+    "v1/result": /^£24$/,
+    "p3/net_pay": /^£108$/,
+    "l1/total_in": /^£660$/,
+    "l2/total_in": /^£180$/,
+  },
+  projects: {
+    "m1/r2/missing": /^Still needed: Home page design, About page design, Contact page design$/,
+    "m1/r2/due": /^Due 24 Nov 2026$/,
+  },
+  inventory: { "s2/r2/count": /^14 items$/, "s2/r3/count": /^1 item$/ },
+  community: {
+    "m2/r1/dues": /^Dues paid$/,
+    "m2/r9/dues": /^Dues due$/,
+    "s2/r1/claimants": /^Ana Reed$/,
+  },
+  commerce: { "checkout_options/total": /^\$16$/ },
+  mind: {
+    "mood_patterns/r1/finding": /^Higher mood with Outdoors$/,
+    "mood_patterns/r1/with": /\b4\b/,
+    "mood_patterns/r1/without": /\b2\b/,
+  },
+  paperwork: { "t1/r1/matched": /^1$/, "t1/r2/matched": /^5$/ },
+  trips: { "w1/today": /^14° \/ 5°C$/, "c1/rate_date": /^Rate as of 19 Nov 2026$/ },
+  places: { "d2/r1/minutes": /^2 min$/, "m1/r3/distance": /^1\.2 km$/ },
+  team: { "t1/elapsed": /^2:35:00$/, "t1/breaks": /^1 break today$/ },
+  events: { "d1/arrivals": /^0 of 1$/, "d1/r1/name": /^Imani Cole$/ },
+};
 let server: ViteDevServer;
 let browser: Awaited<ReturnType<typeof launchChrome>>;
 
@@ -24,6 +59,48 @@ describe.runIf(Boolean(process.env.CHROME))("worked examples", () => {
     await browser?.close();
     await server?.close();
   });
+
+  it.each(Object.entries(workedFigures))(
+    "%s renders figures from its worked records",
+    async (id, figures) => {
+      const page = await browser.newPage({ viewport: { width: 390, height: 900 }, colorScheme: "light" });
+      try {
+        await page.clock.setFixedTime(new Date("2026-11-28T12:00:00Z"));
+        await page.goto(`${server.resolvedUrls!.local[0]}#/p/${id}`);
+        const phone = page.getByRole("figure", { name: "calm preset", exact: true });
+        await phone.locator(".is_ScrollView").first().waitFor({ timeout: 20000 });
+        for (const [part, figure] of Object.entries(figures)) {
+          const value = phone.getByTestId(`${id}_app/${part}`);
+          await value.waitFor({ state: "visible", timeout: 5000 });
+          expect(await value.innerText(), `${id}/${part}`).toMatch(figure);
+        }
+        if (id === "commerce") {
+          const quantity = phone.getByTestId("commerce_app/basket_items/r1/qty");
+          const total = phone.getByTestId("commerce_app/checkout_options/total");
+          await quantity.getByRole("button").last().click({ timeout: 5000 });
+          expect(await phone.getByTestId("commerce_app/basket_items/total").innerText()).toBe("$22.00");
+          await expect.poll(() => total.innerText()).toBe("$22");
+          const otherPreset = page.getByRole("figure", { name: "bold preset", exact: true });
+          expect(await otherPreset.getByTestId("commerce_app/checkout_options/total").innerText()).toBe(
+            "$16",
+          );
+          await quantity.getByRole("button").first().click({ timeout: 5000 });
+          await expect.poll(() => total.innerText()).toBe("$16");
+        }
+        if (id === "paperwork") {
+          const reviewed = phone.getByTestId("paperwork_app/r2/r5/reviewed");
+          const matched = phone.getByTestId("paperwork_app/t1/r2/matched");
+          await reviewed.click({ timeout: 5000 });
+          await expect.poll(() => matched.innerText()).toBe("6");
+          await reviewed.click({ timeout: 5000 });
+          await expect.poll(() => matched.innerText()).toBe("5");
+        }
+      } finally {
+        await page.close();
+      }
+    },
+    45000,
+  );
 
   it.each(packs)(
     "$id has a usable worked-example body in every preset",

@@ -26,13 +26,13 @@ const Frame = styled(YStack, {
 });
 
 type PhotoProps = {
-  photo?: string;
+  photo?: string | undefined;
   shape?: "thumb" | "round" | "wide" | "square" | "tall" | "avatar";
   /** `auto` keeps the caller's usual shape; explicit ratios stay in place even without a photo. */
   aspect?: AxisValue<"aspect">;
-  part?: string;
+  part?: string | null;
   label?: string;
-  initials?: string;
+  initials?: string | undefined;
   ring?: "none" | "accent" | "muted";
 };
 
@@ -46,11 +46,12 @@ export function KitPhoto(props: PhotoProps) {
   const kit = useKit();
   const source = photo ? kit.resolvePhoto?.(photo) : undefined;
   const ks = useKitStyle();
+  const address = usePart(part ?? undefined, part !== null);
   const shape = aspect !== "auto" ? aspect : !photo && fallbackShape !== "avatar" ? "round" : fallbackShape;
   const circle = shape === "round" || shape === "avatar";
   return (
     <Frame
-      {...usePart(part)}
+      {...(part === null ? {} : address)}
       shape={shape}
       {...(!photo || !source ? { backgroundColor: "$raised" } : {})}
       {...(circle ? {} : { borderRadius: shifted(shape === "thumb" ? "sm" : "lg", ks.radiusShift) })}

@@ -82,15 +82,15 @@ function DeliveryHeading({ display, loading, etaLabel, density }: {
   display: DeliveryCopy; loading: boolean; etaLabel: string; density: c.ThemeDensity;
 }) {
   const { delivered, eta, timed, step } = display;
-  const etaRole = timed ? "number" : "body";
+  const etaRole = timed ? "number" : "label";
   if (loading) return <kit.KitSkeleton shape="figure" inset="none" density={density}
     content={eta ? [["label", etaLabel], [etaRole, eta], ["label", step]] : [["title", step]]} />;
   return <kit.KitContent density={density}>
     {eta && <>
-      <kit.KitText part={null} role="label" tone="muted" density={density}>{etaLabel}</kit.KitText>
-      <kit.KitText part="eta" role={etaRole} tabular={timed} density={density}>{eta}</kit.KitText>
+      <kit.KitText part={null} role="label" tone="muted" density="comfortable">{etaLabel}</kit.KitText>
+      <kit.KitText part="eta" role={etaRole} tabular={timed} density="comfortable">{eta}</kit.KitText>
     </>}
-    <kit.KitText part="step" role={delivered ? "title" : "label"} tone={delivered ? "good" : "muted"} density={density}>{step}</kit.KitText>
+    <kit.KitText part="step" role={delivered ? "title" : "label"} tone={delivered ? "good" : "muted"} density="comfortable">{step}</kit.KitText>
   </kit.KitContent>;
 }
 
@@ -105,9 +105,9 @@ function DeliveryContact({ courier, photo, call, courierLabel, density, loading 
     : <kit.KitPhoto part="photo" shape="round" {...{ photo }} {...(courier ? { label: courier } : {})} />);
   const name = <kit.KitContent lead={avatar} leadingAlign="row" density={density}>
     {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
-      content={[["body", courier], ["label", courierLabel]]} /> : <>
-        {courier && <kit.KitText part="courier" role="body" density={density}>{courier}</kit.KitText>}
-        {courierLabel && <kit.KitText part={null} role="label" tone="muted" density={density}>{courierLabel}</kit.KitText>}
+      content={[["label", courier], ["label", courierLabel]]} /> : <>
+        {courier && <kit.KitText part="courier" role="label" emphasis="strong" density="comfortable">{courier}</kit.KitText>}
+        {courierLabel && <kit.KitText part={null} role="label" tone="muted" density="comfortable">{courierLabel}</kit.KitText>}
     </>}
   </kit.KitContent>;
   return call ? <kit.KitGrid fitLast density={density}>
@@ -124,9 +124,11 @@ export function DeliveryTracker(input: DeliveryProps) {
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const { lang, words } = kit.useWords(placesWordsFor);
   const display = deliveryCopy(input, state, kit.useDeviceData(), lang);
-  return <kit.KitCard part="root" style="inset" padded density="comfortable" surface={surface}>
+  return <kit.KitCard part="root" style="inset" padded {...{ density, surface }}>
     <DeliveryHeading {...{ display, loading, density }} etaLabel={words.deliveryEta} />
-    <kit.KitMapTile part="map" pins={display.pins} />
+    {loading ? <kit.KitCard part="map" style="plain">
+      <kit.KitSkeleton shape="media" inset="none" content={[]} />
+    </kit.KitCard> : <kit.KitMapTile part="map" pins={display.pins} />}
     {(input.courier || (media === "thumb" && input.photo)) && <kit.KitContent group="response" density={density}>
       <DeliveryContact courier={input.courier} photo={media === "thumb" ? input.photo : undefined}
         call={display.call} courierLabel={display.courierLabel} {...{ density, loading }} />
