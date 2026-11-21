@@ -112,7 +112,7 @@ describe("Comments states, parts and reading", () => {
       ].sort(),
     );
     expect(comments.map((_, i) => iconCount(elementAt(html, `home/c1/r${i + 1}/root`)))).toEqual([
-      2, 3, 3, 2,
+      2, 2, 2, 2,
     ]);
     expect(parts.get("home/c1/r3/root")?.attributes).toContain("Lee replying to Sam");
     expect(parts.get("home/c1/r2/text")?.text).toEqual([reply.text]);

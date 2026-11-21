@@ -7,7 +7,8 @@ export const post = {
   layouts: {
     thread: {
       writeHints: [
-        'Include a Sheet with style "menu" for post moderation. Also give the back Header an action with goto "sheet", which the screen validator requires as a wire-visible trigger. Composer with style "reply" is last in the body; Sheet is an overlay.',
+        'The back Header MUST open the moderation overlay with "action":{"icon":"more","label":"More","goto":"sheet"}. Copy the literal value "sheet" exactly; never use the Sheet component id or a named screen as action.goto.',
+        'Use a separate Sheet with style "menu" for the moderation items. Composer with style "reply" is last in the body; Sheet is an overlay.',
       ],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
