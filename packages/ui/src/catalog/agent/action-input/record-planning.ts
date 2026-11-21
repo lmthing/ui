@@ -94,6 +94,7 @@ export function affordancesOfScreen(
       clock,
       wire,
       schema: def.props,
+      baselineInput: input,
     });
     const hostOnly = hostOnlyAddresses(def, id, offered);
     const allowed = offered.filter(

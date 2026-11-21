@@ -62,6 +62,7 @@ export function readOffers(
     clock: recordClockOffer(def, wire as Values, props, get, data, undefined, values),
     wire: reportEditWire(def, wire, get),
     schema: def.props,
+    baselineInput: wire,
   });
   const hostOnly = hostOnlyAddresses(def, instance, offered);
   const visible = offered.filter(({ address }) => !hostOnly?.has(address) && !addresses.has(address));

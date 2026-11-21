@@ -85,7 +85,7 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
   const seeded = Object.fromEntries(
     [...keys].map((key) => [key, source[key] ?? defaultInput(fieldOf(def.props, key))]),
   );
-  const nested = projectNested(meta, seeded, get, nestedChoiceSeed(def, source));
+  const nested = projectNested(meta, seeded, get, nestedChoiceSeed(meta, def.props, source));
   const wireGet = (part: string) => get(controlValueKey(def, part));
   const adjusted = projectWireAdjustments(def, nested, get);
   const projected = items.set

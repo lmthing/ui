@@ -24,10 +24,11 @@ export function nestedChoices(
     "prop" in source ? (source.from === "parent" ? parent : item)[source.prop] : source,
   );
   const valueSchema = field?.(spec.prop);
-  return valueSchema ? options.filter(({ value }) => valueSchema.safeParse(value).data === value) : options;
+  if (!field) return options;
+  return valueSchema ? options.filter(({ value }) => valueSchema.safeParse(value).data === value) : [];
 }
 
-function rowShape(schema: z.ZodType | undefined): z.ZodObject | undefined {
+function rowShape(schema: unknown): z.ZodObject | undefined {
   while (
     schema instanceof z.ZodOptional ||
     schema instanceof z.ZodNullable ||
@@ -38,7 +39,14 @@ function rowShape(schema: z.ZodType | undefined): z.ZodObject | undefined {
   if (schema instanceof z.ZodArray && schema.element instanceof z.ZodObject) return schema.element;
 }
 
-function controlsForParent(nested: Nested, row: Values, id: string, active: boolean, field?: ChoiceField) {
+function controlsForParent(
+  nested: Nested,
+  row: Values,
+  id: string,
+  active: boolean,
+  field?: ChoiceField,
+  wireChildren?: unknown[],
+) {
   const parts = Object.entries(nested.parts);
   const children = row[nested.key];
   if (!Array.isArray(children)) return [];
@@ -50,7 +58,12 @@ function controlsForParent(nested: Nested, row: Values, id: string, active: bool
         typeof when === "object"
           ? item[when.prop] === when.equals
           : !when || item[nested.parts[when]?.prop ?? when] === true;
-      const choices = nestedChoices(spec, row, item, field);
+      const choices = nestedChoices(
+        spec,
+        row,
+        item,
+        wireChildren && !wireChildren[at] ? () => undefined : field,
+      );
       const peers =
         (nested.groups || nested.maxActive !== undefined) && spec.action === "toggle"
           ? parts.filter(([, peer]) => peer.action === "toggle" && peer.prop === spec.prop)
@@ -78,20 +91,29 @@ function controlsForParent(nested: Nested, row: Values, id: string, active: bool
 }
 
 /** Enumerate real sub-items and attach shared availability used by kit and the planner. */
-export function nestedControls(meta: Meta, props: Values, get?: Get, schema?: z.ZodObject) {
+export function nestedControls(
+  meta: Meta,
+  props: Values,
+  get?: Get,
+  schema?: z.ZodObject,
+  baseline?: Values,
+) {
   const nested = meta.items?.nested;
   if (!nested) return [];
   const activeParent = activeParentId(meta, props, get);
   const parent = rowShape(schema?.shape[meta.items!.key]);
   const child = rowShape(parent?.shape[nested.key]);
+  const wireRows = baseline && rowsOf(meta, baseline);
   return rowsOf(meta, props).flatMap((row, index) => {
     const id = idOf(meta, row, index);
+    const children = wireRows?.[index]?.[nested.key];
     return controlsForParent(
       nested,
       row,
       id,
       !nested.activeParent || id === activeParent,
-      child && ((prop) => child.shape[prop]),
+      schema && ((prop) => child?.shape[prop]),
+      wireRows && (Array.isArray(children) ? children : []),
     );
   });
 }

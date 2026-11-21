@@ -1,5 +1,6 @@
 export { partsOf } from "./affordance-parts";
 import type { Definition } from "../../probes";
+import { stampItemIds } from "../../lines";
 import { repairVariants } from "../../rules";
 import { adjustmentAt, projectAdjustments, setAt } from "../clocks";
 export { localValues, selectStep } from "./select-step";
@@ -23,6 +24,7 @@ import { storeLiveInput } from "../live-inputs";
 import {
   controlValueKey,
   nestedAt,
+  nestedPart,
   parseControlProps,
   projectControlInput,
   resolveKeypadValue,
@@ -101,12 +103,20 @@ export function controlsAreValid(
   address: string,
   values: Values,
 ) {
-  const [id] = address.split("/");
+  const [id, ...parts] = address.split("/");
   const entry = screen.components.find((item) => item.id === id)!;
   const def = defs[entry.c]!;
   const { id: _id, c: _c, state: _state, ...raw } = entry;
   const repaired = repairVariants(def, raw).props as Values;
   const projected = projectControlInput(def, repaired, (part) => values[`${screen.id}/${id}/${part}`]);
+  const target = parts.join("/");
+  const spec = nestedPart(def.meta, target);
+  if (spec?.action === "select") {
+    const parsed = def.props.safeParse(projected);
+    if (!parsed.success) return false;
+    const control = nestedAt(def.meta, stampItemIds(def.meta, parsed.data as Values), target);
+    return Boolean(control && control.item[spec.prop] === values[`${screen.id}/${address}`]);
+  }
   return projected === repaired || def.props.safeParse(projected).success;
 }
 

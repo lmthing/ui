@@ -2,7 +2,7 @@ import type { Meta } from "../../meta";
 import type { Definition } from "../../probes";
 import type { StateName } from "../../types";
 import { isNestedTarget, nestedControls, nestedRemaining, type Affordance, type Values } from "../index";
-import { hasNestedCollectionControls, nestedCapacityBlocked } from "../nested";
+import { hasNestedCollectionControls, nestedCapacityBlocked, nestedChoiceSeed } from "../nested";
 
 export function nestedActions(
   meta: Meta,
@@ -11,9 +11,9 @@ export function nestedActions(
   items: Affordance[],
   get: (part: string) => unknown,
   includeBlocked: boolean,
-  schema?: Definition["props"],
+  { schema, baselineInput }: { schema?: Definition["props"]; baselineInput?: unknown },
 ) {
-  const controls = nestedControls(meta, props, get, schema);
+  const controls = nestedControls(meta, props, get, schema, nestedChoiceSeed(meta, schema, baselineInput));
   const targets = new Set(controls.map(({ target }) => `${instance}/${target}`));
   const policy = meta.items?.nested;
   const remaining = nestedRemaining(meta, props, controls);

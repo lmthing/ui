@@ -36,6 +36,7 @@ type OfferContext = {
   data?: DeviceData | undefined;
   wire?: Props | undefined;
   schema?: Definition["props"];
+  baselineInput?: unknown;
   clock?: ((target: string, action: string) => boolean) | undefined;
 };
 type Adjustment = NonNullable<ReturnType<typeof adjustmentAt>>;
@@ -104,7 +105,7 @@ export function affordancesOf(
     visible && !visible.has(item) ? [] : actionsForItem(meta, props, item, instance, index === 0, context),
   );
   const runtime = values[`${instance}/$runtime`];
-  const nested = nestedActions(meta, props, instance, itemActions, get, includeBlocked, context.schema);
+  const nested = nestedActions(meta, props, instance, itemActions, get, includeBlocked, context);
   const hidden = visible && new Set(items.filter((item) => !visible.has(item)).map(({ id }) => id));
   const visibleNested = nested.filter(
     ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),

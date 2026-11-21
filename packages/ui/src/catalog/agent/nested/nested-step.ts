@@ -8,9 +8,9 @@ export const isNestedStep = (spec: Part): spec is Step =>
   spec.action === "increment" || spec.action === "decrement";
 
 /** Use the same normalized options and defaults for wire writes as for offers. */
-export function nestedChoiceSeed(def: Definition, input: Values) {
-  if (Object.values(def.meta.items?.nested?.parts ?? {}).some(({ action }) => action === "select"))
-    return def.props.safeParse(input).data as Values | undefined;
+export function nestedChoiceSeed(meta: Meta, schema: Definition["props"] | undefined, input: unknown) {
+  if (schema && Object.values(meta.items?.nested?.parts ?? {}).some(({ action }) => action === "select"))
+    return schema.safeParse(input).data as Values | undefined;
 }
 
 export function hasNestedCollectionControls(meta: Meta) {

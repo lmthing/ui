@@ -87,7 +87,7 @@ export function useNestedControls(meta: Meta, props: Values, schema?: Definition
       : projectControls(meta, props, get);
   const visible =
     grouped && meta.items?.visibleWhen ? new Set(visibleItems(meta, live).map((row) => row.id)) : undefined;
-  const controls = nestedControls(meta, live, get, controller?.defs[meta.id]?.props ?? schema);
+  const controls = nestedControls(meta, live, get, controller?.defs[meta.id]?.props ?? schema, props);
   const remaining = nestedRemaining(meta, live, controls);
   return {
     parent: activeParentId(meta, live, get),
