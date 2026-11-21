@@ -7,6 +7,7 @@ type Status = {
   steps: readonly { label: string; time?: string | undefined }[];
   style?: "carrier" | "pickup" | undefined;
   trackingNumber?: string | undefined;
+  proofPhoto?: string | undefined;
   pickupCode?: string | undefined;
 };
 
@@ -24,6 +25,7 @@ export function orderStatusReading(input: Status, complete: boolean, lang?: stri
       time === undefined ? [] : [documentFieldLine(label, timeOfDayLine(time, lang), lang)],
     ),
     ...(input.style === "carrier" && input.trackingNumber ? [words.tracking.copy(input.trackingNumber)] : []),
+    ...(input.style === "carrier" && input.proofPhoto ? [words.tracking.proof] : []),
     ...(input.style === "pickup" && !complete && input.pickupCode
       ? [words.tracking.pickup(input.pickupCode)]
       : []),

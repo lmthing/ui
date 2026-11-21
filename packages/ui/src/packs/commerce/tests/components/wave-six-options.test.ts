@@ -20,6 +20,7 @@ it("exposes carrier checkpoints, proof and a host copy action even after deliver
   const drawn = parts("OrderStatus", carrier, "success");
   for (const part of ["carrier", "tracking", "proof", "r2/time"]) expect(drawn.has(address(part))).toBe(true);
   expect(read("OrderStatus", carrier)).toContain("[x/tracking press]");
+  expect(read("OrderStatus", carrier)).toContain("Delivery proof");
   expect(OrderStatus.props.safeParse({ ...carrier, trackingNumber: "X".repeat(25) }).success).toBe(false);
   expect(OrderStatus.props.safeParse({ ...carrier, style: "pickup" }).success).toBe(false);
   const onAction = vi.fn();
