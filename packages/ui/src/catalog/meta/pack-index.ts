@@ -104,7 +104,7 @@ export const packIndex = [
     name: "Trips",
     purpose:
       "One trip from planning to coming home: the plan day by day, the confirmations for flights, trains, stays and tickets, what to pack, the documents to carry, the weather where you are going, money in the local currency and the time back home. Shared costs on a trip come from money; places to visit from places.",
-    pick: "Travelling: itineraries, reservations, packing, documents, weather. Not organising an event (events)",
+    pick: "Trip planning or a travel wallet: itineraries, existing travel confirmations, packing, passport and visa expiry, destination forecasts. Those travel details do not also need booking, paperwork or places. Not organising an event (events)",
   },
   {
     id: "events",
@@ -146,7 +146,7 @@ export const packIndex = [
     name: "Community",
     purpose:
       "The continuing work of a member-run group: who belongs and can vote, subscriptions collected by the treasurer, motions decided under the group's rules, contributions people claim, and the agreed record of decisions and actions. Notices use the core; this pack adds governance, not another social feed.",
-    pick: "A club, association or neighbourhood group run by its members: dues, notices, votes, sign-ups, minutes. Not sharing posts (social), not organising one gathering (events), not staff shifts (team)",
+    pick: "A club, association or neighbourhood group run by its members: dues, notices, votes, sign-ups, minutes. Member subscriptions and spending votes are governance, not personal finance (money); member sign-ups are not appointments (booking). Not sharing posts (social), not organising one gathering (events), not staff shifts (team)",
   },
   {
     id: "projects",
@@ -174,7 +174,7 @@ export const packIndex = [
     name: "Property",
     purpose:
       "The operating view of rented homes: which independently lettable units are occupied, who owes rent for which period, who is viewing, what condition each room was in, and how meters changed. A landlord or host can keep these records on one phone; tenant accounts, automatic payments and booking-platform sync are not implied. This pack does not replace inventory's Lease or Listing.",
-    pick: "Running rented property: units, occupancy, rent, viewings, inspections, meters. Not owned things or one listing or lease (inventory), not repairs and maintenance requests (requests)",
+    pick: "Landlord operations: rental units, dated occupancy, rent charges and receipts, viewings, inspections and meters. Use property alone for those operations. Add inventory for separately requested listings, leases or owned assets, and money for separate personal finances. Not repair and maintenance queues (requests)",
   },
   {
     id: "invest",
