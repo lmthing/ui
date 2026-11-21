@@ -4,6 +4,7 @@ import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
 import { repairVariants } from "../rules";
 import type { DeviceData, ScreenLike, Values } from "./index";
+import { projectDeviceFlags, projectDeviceRows } from "./device-data";
 import { isAdjustOnlyItem } from "./affordances";
 import { projectDraw } from "./draw";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
@@ -136,7 +137,7 @@ export function liveProps(
   data?: DeviceData,
 ): Values {
   const get = (part: string) => values[`${instance}/${part}`];
-  const addressed = projectRecordIds(meta, validated, get);
+  const addressed = projectRecordIds(meta, projectDeviceRows(meta, validated, data), get);
   const { draw, emptyActions, errorActions, successActions, session } = meta;
   const runtime = Boolean(get("$runtime"));
   let props = wireApplied
@@ -151,7 +152,7 @@ export function liveProps(
     if (state !== undefined) props = { ...props, state };
   }
   props = projectDraw(meta, props, get);
-  props = projectLiveInputs(meta, props, instance, get, data, validated);
+  props = projectDeviceFlags(meta, projectLiveInputs(meta, props, instance, get, data, validated), data);
   if (runtime && meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
     props = { ...props, minus: undefined };
   if (meta.id === "Field" || meta.id === "Search") {

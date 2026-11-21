@@ -17,7 +17,13 @@ import {
 import { deviceRandom, drawKey, staleDraw, type RandomSource } from "./draw";
 import { sessionKey, staleSession } from "./session";
 import { clockChanges, clockControlDeclared } from "./clocks";
-import { filterDeviceDataScreen, projectDeviceData, type DeviceData } from "./device-data";
+import {
+  captureDeviceTime,
+  deviceTimeOf,
+  filterDeviceDataScreen,
+  projectDeviceData,
+  type DeviceData,
+} from "./device-data";
 import { stageLinkedEdit } from "./linked-edits";
 import { stageReportEdit } from "./report-edits";
 import { stageInlinePress } from "./live-inputs";
@@ -145,8 +151,9 @@ export function planAct(
   random: RandomSource | null = deviceRandom,
   clockOwner: "planner" | "controller" = "planner",
   data?: DeviceData,
-  now = Date.now(),
+  now = deviceTimeOf(data) ?? Date.now(),
 ): ActResult {
+  data = captureDeviceTime(defs, data, now);
   if (random && steps.length > 1) {
     const preview = planAct(input, defs, values, steps, null, clockOwner, data, now);
     if (!preview.ok) return preview;

@@ -6,8 +6,7 @@ import type { RecordEdits } from "./record-edits";
 import type { ItemVariants, Session, VariantParts, Variants } from "../types";
 import type { DeviceData, ItemEditPath, ItemEdits, ScreenLike } from "../agent";
 import type { Issue } from "../rules";
-import type { LinkedEdits, LiveInputs } from "./live";
-
+import type * as LiveMeta from "./live";
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -98,6 +97,8 @@ export type Meta = {
     key: string;
     parts: readonly string[];
     prefix?: string;
+    /** Replace this runtime collection with validated, addressed host rows, not Writer props. */
+    deviceData?: LiveMeta.DeviceRows;
     visible?: "all" | "first";
     /** Read visible rows sharing the value of this readable text field on one addressed line. */
     readGroupBy?: string;
@@ -112,7 +113,7 @@ export type Meta = {
     records?: RecordEdits;
     /** Inline press/select parts; a choice source prop belongs to the addressed item. */
     pickers?: Readonly<Record<string, { prop: string; choices: ChoiceSource }>>;
-    /** Locate a derived item's owner in wire input; by default it is the item at its stamped index. */
+    /** Locate the row's wire owner; required for host row edits, otherwise defaults to the stamped index. */
     editPath?: ItemEditPath;
     /** Item-root move: the row's column index and the component's array of { label } columns. */
     move?: { column: string; columns: string };
@@ -143,20 +144,18 @@ export type Meta = {
   };
   select?: SelectMeta;
   /** Bind to item checks on a same-screen component. Without an instance id, require a unique source. */
-  selectionBinding?: {
-    component: string;
-    source?: string;
-    check: string;
-    all: string;
-    requireSelection?: true;
-  };
+  selectionBinding?: LiveMeta.SelectionBinding;
   /** Named component parts with independent destinations and explicit offers. */
   selections?: Readonly<Record<string, NamedSelection>>;
   /** Component `type` parts and one `press` part sharing runtime state outside Writer props. */
-  linkedEdits?: LinkedEdits;
-  live?: LiveInputs;
+  linkedEdits?: LiveMeta.LinkedEdits;
+  live?: LiveMeta.LiveInputs;
   /** Record kinds this component may read from the host, never from Writer props. */
   deviceData?: readonly string[];
+  /** Trusted boolean props for `actions.when`; `now` is an unstored epoch millisecond sample. */
+  deviceDataFlags?: LiveMeta.DeviceDataFlags;
+  /** Next future epoch millisecond when a mounted projection needs to be read again. */
+  deviceDataWake?: LiveMeta.DeviceDataWake;
   /** Pure visibility rule over the declared host records. A false result hides the whole component. */
   deviceDataVisible?: (data: DeviceData) => boolean;
   /** Deterministic synthetic records for preview, conformance and read-probe fixtures only. */

@@ -98,3 +98,30 @@ it("excludes host-disabled row checks from the shared selection and the bulk wri
   expect(runtime.act(allStep, { agent: true }).ok).toBe(true);
   expect(runtime.store.get(disabled)).toBe(true);
 });
+
+it("revalidates a host-gated select-all confirmation with the same source table", () => {
+  const { screen, defs } = selectionFixture();
+  const bulk = defs.BulkActions.meta;
+  bulk.confirmParts = ["all"];
+  bulk.deviceDataFlags = { inWindow: (_data, _props, now) => now < 20 };
+  bulk.actions = { ...bulk.actions, when: { "all.press": { inWindow: true } } };
+  let now = 10;
+  const runtime = createScreenController({ screen, defs, now: () => now });
+  expect(runtime.press(allStep.address).ok).toBe(true);
+  expect(runtime.read()).toContain("[confirm/confirm press]");
+  expect(runtime.store.get(checkStep.address)).toBeUndefined();
+  const enableFirst = runtime.registerDisabledPart("home/table/r1/pick");
+  const enableSecond = runtime.registerDisabledPart(checkStep.address);
+  expect(runtime.read()).not.toContain("[confirm/confirm press]");
+  enableFirst();
+  enableSecond();
+  expect(runtime.read()).toContain("[confirm/confirm press]");
+  expect(runtime.press("home/confirm/confirm").ok).toBe(true);
+  expect(runtime.store.get(checkStep.address)).toBe(true);
+  runtime.reset();
+  expect(runtime.press(allStep.address).ok).toBe(true);
+  now = 20;
+  expect(runtime.read()).not.toContain("[confirm/confirm press]");
+  expect(runtime.press("home/confirm/confirm").ok).toBe(false);
+  expect(runtime.store.get(checkStep.address)).toBeUndefined();
+});

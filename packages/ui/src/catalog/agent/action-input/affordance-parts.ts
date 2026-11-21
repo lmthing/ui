@@ -27,6 +27,14 @@ function detailOf(action: string, holder: Props, suppressLink: boolean): string 
 
 type When = Record<string, Record<string, string | boolean>> | undefined;
 
+function hasPart(meta: Meta, holder: Props, part: string, item: boolean) {
+  if (!(part in holder) || holder[part] !== undefined) return true;
+  if (item) return recordEdit(meta, part) || Object.hasOwn(meta.items?.edits ?? {}, part);
+  return (
+    meta.selections?.[part]?.runtime || Object.hasOwn(meta.live?.text ?? {}, part) || linkedInput(meta, part)
+  );
+}
+
 export function partsOf(
   spec: Record<string, readonly string[]> | undefined,
   holder: Props,
@@ -36,25 +44,19 @@ export function partsOf(
   meta: Meta,
   item = false,
   data?: DeviceData,
+  wire?: Props,
 ) {
   const noGoto = item ? meta.actions?.noGoto?.items : meta.actions?.noGoto?.parts;
   const locked = reportLocked(meta, outer);
   return Object.entries(spec ?? {}).flatMap(([part, actions]) =>
-    matches(when?.[part], holder, outer) &&
-    (!(part in holder) ||
-      holder[part] !== undefined ||
-      (item && (recordEdit(meta, part) || Object.hasOwn(meta.items?.edits ?? {}, part))) ||
-      (!item &&
-        (meta.selections?.[part]?.runtime ||
-          Object.hasOwn(meta.live?.text ?? {}, part) ||
-          linkedInput(meta, part))))
+    matches(when?.[part], holder, outer, meta.deviceDataFlags) && hasPart(meta, holder, part, item)
       ? actions
           .filter((action) => {
-            if (!matches(when?.[`${part}.${action}`], holder, outer)) return false;
+            if (!matches(when?.[`${part}.${action}`], holder, outer, meta.deviceDataFlags)) return false;
             if (!item) return !locked || !reportConfirmation(meta, part, action);
             const edit =
               recordEditAllowed(meta, outer, holder, part, action, data) ??
-              itemEditOffer(meta, holder, part, action);
+              itemEditOffer(meta, holder, part, action, wire);
             return edit === undefined || (edit && !locked);
           })
           .map((action) => {

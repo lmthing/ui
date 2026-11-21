@@ -62,6 +62,26 @@ it("does not group on secrets or print their values", () => {
   expect(reading[1]).toContain("(secret)");
 });
 
+it("groups host-only rows from their projection schema without a Writer collection", () => {
+  const host = {
+    ...def,
+    props: z.strictObject({}),
+    meta: {
+      ...def.meta,
+      deviceData: ["entries"],
+      items: {
+        ...def.meta.items,
+        deviceData: {
+          rows: (data) => data.entries ?? [],
+          schema: def.props.shape.rows.element,
+        },
+      },
+    },
+  } satisfies Definition;
+  const lines = readComponent(host, {}, "c", "filled", {}, undefined, { entries: seed.rows });
+  expect(lines).toEqual(readComponent(def, seed, "c"));
+});
+
 it.each([
   ["inner", z.string().meta({ kind: "secret" }).nullable()],
   ["outer", text(30).nullable().meta({ kind: "secret" })],

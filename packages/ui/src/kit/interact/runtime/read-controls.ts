@@ -1,6 +1,9 @@
 import {
+  atDeviceTime,
   driveTarget,
+  isDeviceDataVisible,
   migrateScreen,
+  planAct,
   projectDeviceData,
   readComponent,
   readScreen,
@@ -12,6 +15,41 @@ import {
   type ScreenLike,
   type Values,
 } from "../../../catalog";
+import type { Confirmation } from "./context";
+
+export function visibleConfirmation(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  confirmation: Confirmation | undefined,
+  data: DeviceData | undefined,
+  at: number,
+  valuesOf: (at: number) => Values,
+): Confirmation | undefined {
+  if (!confirmation) return;
+  const source = confirmation.source.startsWith(`${screen.id}/`)
+    ? confirmation.source.slice(screen.id.length + 1)
+    : confirmation.source;
+  const entry = screen.components.find(({ id }) => id === source.split("/")[0]);
+  const meta = entry && defs[entry.c]?.meta;
+  if (!meta) return confirmation;
+  const values = valuesOf(at);
+  if (!isDeviceDataVisible(meta, projectDeviceData(data, values))) return;
+  if (entry && meta?.deviceDataFlags && confirmation.step) {
+    const sourceScreen = meta.selectionBinding || meta.drives ? screen : { ...screen, components: [entry] };
+    const plan = planAct(
+      sourceScreen,
+      defs,
+      values,
+      [confirmation.step],
+      null,
+      "controller",
+      atDeviceTime(data, at),
+      at,
+    );
+    if (!plan.ok) return;
+  }
+  return confirmation;
+}
 
 // Match quoted content as one token so a label cannot be mistaken for an affordance.
 const controlTokens =

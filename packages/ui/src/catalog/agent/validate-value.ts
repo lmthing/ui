@@ -144,7 +144,9 @@ export function choiceOptions(meta: Meta, props: Values, target: string): Choice
   const offer = picker?.spec ?? (item?.spec.action === "select" ? item.spec : selectionOffer(meta, target));
   if (!offer) return undefined;
   const source = offer.choices;
-  const allowed = "prop" in source ? (picker?.row ?? props)[source.prop] : source;
+  if ("row" in source && !meta.items?.deviceData) return [];
+  const allowed =
+    "row" in source ? item?.row[source.row] : "prop" in source ? (picker?.row ?? props)[source.prop] : source;
   const choices: ChoiceOption[] = [];
   if (Array.isArray(allowed)) {
     for (const option of allowed as unknown[]) {

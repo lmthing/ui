@@ -8,10 +8,12 @@ export {
 export { checkDriveDeclaration, driveAffordances, driveTarget, type CanDrive } from "./drives";
 export { readComponent, readScreen, type ScreenLike } from "./read";
 export {
+  atDeviceTime,
   emptyDeviceData,
   filterDeviceDataScreen,
   isDeviceDataVisible,
   projectDeviceData,
+  projectDeviceRows,
   recordSnapshotKey,
   resetRecordSnapshots,
   selectDeviceData,
@@ -26,6 +28,7 @@ export {
   reportConfirmation,
   isRecordAction,
   recordClaimAt,
+  reportEditWire,
   reportRemovalAt,
   stageReportEdit,
   type ItemEditPath,

@@ -59,7 +59,7 @@ export function selectionBindingFor(
     local,
     (props.state as StateName | undefined) ?? state,
     false,
-    data,
+    { data },
   ).filter(
     ({ address, action, part }) =>
       action === "check" &&

@@ -1,3 +1,4 @@
+import type { z } from "zod";
 import type { DeviceData } from "../agent";
 import type { LiveActionInputs } from "../types";
 
@@ -21,3 +22,24 @@ export type LinkedEdits = {
     data: DeviceData,
   ) => Record<string, unknown>;
 };
+
+export type SelectionBinding = {
+  component: string;
+  source?: string;
+  check: string;
+  all: string;
+  requireSelection?: true;
+};
+
+type ProjectionProps = Readonly<Record<string, unknown>>;
+
+export type DeviceRows = {
+  rows: (data: DeviceData, props: ProjectionProps) => readonly unknown[];
+  schema: z.ZodObject;
+};
+
+export type DeviceDataFlags = Readonly<
+  Record<string, (data: DeviceData, props: ProjectionProps, now: number) => boolean>
+>;
+
+export type DeviceDataWake = (data: DeviceData, props: ProjectionProps, now: number) => number | undefined;

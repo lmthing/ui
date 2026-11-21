@@ -24,6 +24,11 @@ export type Affordance = {
   move?: { current: string; choices: string[] };
 };
 type Props = Record<string, unknown>;
+type OfferContext = {
+  data?: DeviceData | undefined;
+  wire?: Props | undefined;
+  clock?: ((target: string, action: string) => boolean) | undefined;
+};
 type Adjustment = NonNullable<ReturnType<typeof adjustmentAt>>;
 
 /** Item increments without a numeric setter or a clock are owned by the pure action planner. */
@@ -45,11 +50,11 @@ function actionsForItem(
   item: Props,
   instance: string,
   first: boolean,
-  data?: DeviceData,
+  { data, wire }: OfferContext,
 ) {
   const { items, when } = meta.actions ?? {};
   const id = String(item.id);
-  return partsOf(items, item, `${instance}/${id}`, when, { ...props, $first: first }, meta, true, data)
+  return partsOf(items, item, `${instance}/${id}`, when, { ...props, $first: first }, meta, true, data, wire)
     .filter(({ part, action }) => {
       const picker = Object.hasOwn(meta.items?.pickers ?? {}, part);
       const needsChoices =
@@ -68,8 +73,7 @@ export function affordancesOf(
   values: Props = {},
   state = (props.state as StateName | undefined) ?? "filled",
   includeBlocked = false,
-  data?: DeviceData,
-  recordClock?: (target: string, action: string) => boolean,
+  context: OfferContext = {},
 ): Affordance[] {
   const get = (part: string) => values[`${instance}/${part}`];
   state = sessionStatus(meta, props, drawStatus(meta, props, state, get), get);
@@ -89,7 +93,7 @@ export function affordancesOf(
   const visible = (meta.items?.visibleWhen || meta.items?.records) && new Set(visibleItems(meta, props));
   // `$first` in a rule is true only for the first item (the top card of a stack).
   const itemActions = items.flatMap((item, index) =>
-    visible && !visible.has(item) ? [] : actionsForItem(meta, props, item, instance, index === 0, data),
+    visible && !visible.has(item) ? [] : actionsForItem(meta, props, item, instance, index === 0, context),
   );
   const runtime = values[`${instance}/$runtime`];
   const nested = nestedActions(meta, props, instance, itemActions, get, includeBlocked);
@@ -106,7 +110,7 @@ export function affordancesOf(
     const role = drawRole(meta, target, action);
     const event = sessionEvent(meta, target, action);
     if (!allowedIn(meta, state, `${part}.${action}`, Boolean(role), feedback)) return false;
-    if (recordClock && !recordClock(target, action)) return false;
+    if (context.clock && !context.clock(target, action)) return false;
     if (event && !sessionAvailable(session, event)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
     if (

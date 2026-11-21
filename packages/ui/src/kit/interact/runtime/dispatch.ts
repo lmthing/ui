@@ -1,6 +1,8 @@
 import {
+  atDeviceTime,
   filterDeviceDataScreen,
   projectDeviceData,
+  projectDeviceRows,
   hasPlaybackClock,
   hasRecordClock,
   withDisabledSelectionChecks,
@@ -17,20 +19,24 @@ import { planSteps } from "./planning";
 function snapshotPlanning(ctx: ControllerContext): ControllerContext {
   const at = ctx.now();
   const values = ctx.valuesOf(at);
+  const data = atDeviceTime(ctx.options.deviceData, at);
+  const projected = projectDeviceData(data, values);
   if (ctx.standalone)
     for (const { c, id } of ctx.screen.components)
       if (ctx.defs[c] && hasRecordClock(ctx.defs[c]!.meta)) values[ctx.key(id, "$now")] = at;
   const disabledParts = new Map(ctx.disabledParts);
   return {
     ...ctx,
-    screen: filterDeviceDataScreen(ctx.screen, ctx.defs, projectDeviceData(ctx.options.deviceData, values)),
+    options: { ...ctx.options, deviceData: data },
+    screen: filterDeviceDataScreen(ctx.screen, ctx.defs, projected),
     now: () => at,
     valuesOf: () => values,
-    status: { ...ctx.status, confirmation: ctx.confirmationFor() },
+    status: { ...ctx.status, confirmation: ctx.confirmationFor(data, at) },
     mounted: new Map(ctx.mounted),
     disabledParts,
     liveScreen: (next, sheet, covered) =>
       withDisabledSelectionChecks(ctx.liveScreen(next, sheet, covered, at), disabledParts),
+    inputOf: (entry) => projectDeviceRows(ctx.defs[entry.c]!.meta, ctx.inputOf(entry), projected),
     expiredProgress: (next) => ctx.expiredProgress(next, at),
   };
 }

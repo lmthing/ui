@@ -45,15 +45,9 @@ export function driveTarget(
       true,
       data,
     );
-    const offered = affordancesOf(
-      def.meta,
-      props,
-      id,
-      values,
-      (props.state as StateName) ?? state,
-      false,
+    const offered = affordancesOf(def.meta, props, id, values, (props.state as StateName) ?? state, false, {
       data,
-    );
+    });
     if (offered.some((a) => a.address === address && a.action === "seek"))
       return !canDrive || canDrive(address)
         ? { address, screen: screen.id, seconds: props.seconds }

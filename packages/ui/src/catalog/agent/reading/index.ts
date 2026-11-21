@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { Meta } from "../../meta";
 import { numberLine } from "../../format";
 import { peekLimit, wordsFor } from "../../lang";
@@ -80,10 +81,15 @@ export function readItems(
   lang?: string,
 ) {
   const all = key ? visibleItems(meta, props) : [];
-  const itemSchema = key ? schema.properties?.[key]?.items : undefined;
+  const host = meta.items?.deviceData;
+  const itemSchema = !key
+    ? undefined
+    : host
+      ? (z.toJSONSchema(host.schema, { unrepresentable: "any" }) as ReadSchema)
+      : schema.properties?.[key]?.items;
   const group = meta.items?.readGroupBy;
   const groupBy = group && isGroupText(itemSchema?.properties?.[group]) ? group : undefined;
-  const exactIds = group || meta.items?.visibleWhen || (meta.deviceData?.length && meta.live?.derive);
+  const exactIds = host || group || meta.items?.visibleWhen || (meta.deviceData?.length && meta.live?.derive);
   const ids = exactIds && new Set(all.map(({ id }) => String(id)));
   const ownAff = affordances.filter(({ address }) => {
     if (!key) return true;

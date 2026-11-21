@@ -13,7 +13,7 @@ import type { DeviceData } from "../device-data";
 import { driveAffordances, driveTarget } from "../drives";
 import { liveProps, parseControlProps } from "../live-props";
 import type { ScreenLike } from "../read";
-import { isRecordAction, recordRequestAllowed } from "../report-edits";
+import { isRecordAction, recordRequestAllowed, reportEditWire } from "../report-edits";
 import { isItemOffer, isSelectAll, projectSelectionBinding, selectionBindingFor } from "../selection-binding";
 import { localValues } from "./select-step";
 
@@ -54,6 +54,8 @@ export function affordancesOfScreen(
       def.meta.linkedEdits ||
       def.meta.selectionBinding ||
       hasRuntimeSets(def.meta) ||
+      def.meta.deviceDataFlags ||
+      items?.deviceData ||
       items?.edits ||
       items?.move ||
       items?.records ||
@@ -66,7 +68,8 @@ export function affordancesOfScreen(
         : undefined);
     const get = (part: string) => local[`${id}/${part}`];
     const clock = recordClockOffer(def, input, props, get, data, now, values);
-    const offered = affordancesOf(def.meta, props, id, local, liveState, true, data, clock);
+    const wire = reportEditWire(def, input, get);
+    const offered = affordancesOf(def.meta, props, id, local, liveState, true, { data, clock, wire });
     const routed = driveAffordances(
       def.meta,
       props,
