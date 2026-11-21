@@ -135,11 +135,12 @@ function Deliverable({ copy, density, w, loading, editable, removable }: {
     <kit.KitAction part="remove" kind="quiet" icon="close" a11y={w.remove(row.title)} />
   </kit.PartScope>;
   return <kit.KitRow label={row.title} part={null} density={density} inline leading={check} trailing={remove}>
-    <kit.KitRow {...(loading ? { part: null } : { item: row.id, goto: row.goto })} label={row.title} inline density={density}>
+    <kit.KitRow {...(loading ? { part: null } : { item: row.id, goto: row.goto })} label={row.title} inline density={density}
+      trailing={!loading && row.goto && <kit.KitIcon name="chevron_right" scale="sm" decorative />}>
       {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
         content={[["body", row.title], ["body", row.acceptance], ["label", due], ["label", acceptedAt]]} /> :
         <kit.KitContent density={density}>
-          <kit.KitText part="title" role="body" density={density} emphasis="strong" tone={row.goto ? "accent" : "text"}>{row.title}</kit.KitText>
+          <kit.KitText part="title" role="body" density={density} emphasis="strong">{row.title}</kit.KitText>
           <kit.KitText part="acceptance" role="body" density={density} tone="muted">{row.acceptance}</kit.KitText>
           {due && <kit.KitText part="due" role="label" density={density} tone={overdue ? "bad" : "muted"}>{due}</kit.KitText>}
           {acceptedAt && <kit.KitText part="accepted_at" role="label" density={density} tone="good">{acceptedAt}</kit.KitText>}

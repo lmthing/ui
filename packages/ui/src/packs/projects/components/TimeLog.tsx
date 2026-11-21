@@ -136,20 +136,21 @@ type Words = ReturnType<typeof projectsWordsFor>["timeLog"];
 function Entry({ copy, density, w, loading }: { copy: Row; density: Input["density"]; w: Words; loading: boolean }) {
   const { row, start, end, duration, billable, note } = copy, scope = kit.usePartContext();
   const remove = <kit.PartScope {...scope} item={row.id}>
-    <kit.KitAction part="remove" kind="quiet" icon="close" a11y={w.remove(row.title)} />
+    <kit.KitAction part="remove" kind="quiet" icon="trash" a11y={w.remove(row.title)} />
   </kit.PartScope>;
   return <kit.KitRow part={null} label={row.title} density={density} inset="none" trailing={remove}>
-    <kit.KitRow {...(loading ? { part: null } : { item: row.id, goto: row.goto })} label={row.title} density={density} inline>
+    <kit.KitRow {...(loading ? { part: null } : { item: row.id, goto: row.goto })} label={row.title} density={density} inline
+      trailing={!loading && row.goto && <kit.KitIcon name="chevron_right" scale="sm" decorative />}>
       {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
-        content={[["body", row.title], ["label", `${start}${w.range}${end}`], ["number", duration, "start", "compact"],
-          ["label", billable], ...(note ? [["label", note] as ["label", string]] : [])]} /> : <kit.KitContent density={density}>
-      <kit.KitText part="title" role="body" emphasis="strong" tone={row.goto ? "accent" : "text"}>{row.title}</kit.KitText>
+        content={[["body", row.title], ["label", `${start}${w.range}${end}${w.separator}${duration}${w.separator}${billable}`],
+          ["label", note]]} /> : <kit.KitContent density={density}>
+      <kit.KitText part="title" role="body" emphasis="strong">{row.title}</kit.KitText>
       <kit.KitText role="label" tone="muted" tabular part={null}>
         <kit.KitText part="start" role="label" tone="muted" tabular>{start}</kit.KitText>{w.range}
-        <kit.KitText part="end" role="label" tone="muted" tabular>{end}</kit.KitText>
+        <kit.KitText part="end" role="label" tone="muted" tabular>{end}</kit.KitText>{w.separator}
+        <kit.KitText part="duration" role="label" emphasis="strong" tabular>{duration}</kit.KitText>{w.separator}
+        <kit.KitText part="billable" role="label" tone={row.billable ? "good" : "muted"}>{billable}</kit.KitText>
       </kit.KitText>
-      <kit.KitText part="duration" role="number" numberScale="compact" tabular>{duration}</kit.KitText>
-      <kit.KitText part="billable" role="label" tone={row.billable ? "good" : "muted"}>{billable}</kit.KitText>
       {note && <kit.KitText part="note" role="label" tone="muted">{note}</kit.KitText>}
       </kit.KitContent>}
     </kit.KitRow>

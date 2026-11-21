@@ -7,7 +7,7 @@ import {
   taskControls,
   taskCopy,
   taskGroups,
-  taskLoading,
+  taskPreviewComplete,
   taskReading,
 } from "../copy";
 import { projectsWordsFor } from "../lang";
@@ -153,28 +153,26 @@ export const probes = [
 
 type View = c.Props<typeof props, typeof meta>;
 type ViewRow = View["items"][number] & ReturnType<typeof projectTasks>[number];
-type Finish = { density: View["density"]; lang: string };
 // prettier-ignore
-function TaskRow({ row, density, lang, indent, project, choices }: Finish & {
-  row: ViewRow; indent: boolean; project?: string | undefined; choices: readonly string[];
+function TaskRow({ row, density, lang, indent, loading, choices }: {
+  row: ViewRow; density: View["density"]; lang: string; indent: boolean; loading: boolean; choices: readonly string[];
 }) {
-  const words = projectsWordsFor(lang).tasks;
-  const { state, due, overdue, priority, blockers } = taskCopy(row, lang);
+  const words = projectsWordsFor(lang).tasks, { state, due, overdue, priority, blockers } = taskCopy(row, lang);
   const controls = row.done !== undefined
-    ? <kit.KitCheck part="done" done={row.done} label={words.done(row.title)} /> : undefined;
+    ? loading ? <kit.KitSkeleton shape="control" kind="quiet" />
+      : <kit.KitCheck part="done" done={row.done} label={words.done(row.title)} /> : undefined;
   return <kit.KitRow item={row.id} part={null} label={row.title} trailing={controls} density={density} indent={indent ? 1 : 0}>
-    {project && <kit.KitText role="label" tone="muted" part="project">{words.project(project)}</kit.KitText>}
-    <kit.KitRow part="root" label={row.title} goto={row.goto} inline density={density}>
-      <kit.KitText part="title" role="body">{row.title}</kit.KitText>
+    {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[
+      ["body", row.title], ["caption", due], ["caption", [state, row.assignee, priority].filter(Boolean).join(words.separator)], ["caption", blockers]]} /> :
+    <kit.KitRow part="root" label={row.title} goto={row.goto} inline density={density}><kit.KitText part="title" role="body">{row.title}</kit.KitText>
       {due && <kit.KitText part="due" role="caption" tone={overdue ? "bad" : "muted"}>{due}</kit.KitText>}
       <kit.KitText part={null} role="caption" tone="muted">
         <kit.KitText part="state" role="caption" tone={row.progress === "done" ? "good" : "muted"}>{state}</kit.KitText>
         {row.assignee && <>{words.separator}<kit.KitText part="assignee" role="caption" tone="muted">{row.assignee}</kit.KitText></>}
         {priority && <>{words.separator}<kit.KitText part="priority" role="caption" tone="muted">{priority}</kit.KitText></>}
-      </kit.KitText>
-      {blockers && <kit.KitText part="blockers" role="caption" tone="warn">{blockers}</kit.KitText>}
-    </kit.KitRow>
-    {row.canAssign && <kit.KitTrack role="radiogroup" part="assign" label={words.assign(row.title)}>
+      </kit.KitText>{blockers && <kit.KitText part="blockers" role="caption" tone="warn">{blockers}</kit.KitText>}
+    </kit.KitRow>}
+    {!loading && row.canAssign && <kit.KitTrack role="radiogroup" part="assign" label={words.assign(row.title)}>
       {choices.map((name) => <kit.KitChip key={name} item={null} role="radio" label={name} on={name === row.assignee} />)}
     </kit.KitTrack>}
   </kit.KitRow>;
@@ -182,19 +180,21 @@ function TaskRow({ row, density, lang, indent, project, choices }: Finish & {
 
 // prettier-ignore
 export function Tasks(input: View) {
-  const { lang } = kit.useWords(projectsWordsFor), state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const group = kit.useVariant("group", meta.variants.group, input.group);
-  const live = kit.useLiveControls(meta, input) as { items: ViewRow[]; assigneeChoices: string[] };
-  const groups = group === "sections" ? taskGroups(live.items) : [{ project: undefined, tasks: live.items }];
+  const { lang, words: { tasks: words } } = kit.useWords(projectsWordsFor), state = kit.useComponentState();
+  const { controller } = kit.useKit(), loading = state === "loading";
+  const density = kit.useVariant("density", meta.variants.density, input.density), group = kit.useVariant("group", meta.variants.group, input.group);
+  const { items, assigneeChoices } = kit.useLiveControls(meta, input) as { items: ViewRow[]; assigneeChoices: string[] },
+    rows = state === "success" && !controller ? taskPreviewComplete(items) : items;
+  const groups = group === "sections" ? taskGroups(rows) : [{ project: undefined, tasks: rows }];
   return <kit.KitCard part="root" density={density}>
-    {state === "empty" ? <kit.KitEmpty part="empty" decorativeIcon /> : state === "loading" ?
-      <kit.KitContent group="response"><kit.KitSkeleton rows={live.items.length} items={taskLoading(live.items, lang)} density={density} lead="none" /></kit.KitContent> :
-      groups.map(({ project, tasks }) => <kit.KitContent key={project ?? tasks[0]?.id} group="response">
-        {tasks.map((row, index) => <kit.KitContent key={row.id} group={project && index > 0 && !row.parentRef ? "response" : "content"}>
-          <TaskRow {...{ row, lang }} density={project && (row.parentRef || tasks[index + 1]?.parentRef === row.taskRef) ? "compact" : density}
-            project={index === 0 ? project : undefined} indent={Boolean(project && row.parentRef)} choices={live.assigneeChoices} />
-        </kit.KitContent>)}
-      </kit.KitContent>)}
-  </kit.KitCard>;
+    {state === "empty" ? <kit.KitEmpty part="empty" decorativeIcon /> :
+      <kit.KitContent>{groups.map(({ project, tasks }, groupIndex) => <kit.KitContent key={project ?? tasks[0]?.id} group={groupIndex ? "response" : "content"}>
+        {project && <kit.KitContent inset="md">
+          {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.project(project)]]} /> :
+            <kit.KitText role="label" tone="muted" item={tasks[0]?.id} part="project">{words.project(project)}</kit.KitText>}
+        </kit.KitContent>}<kit.KitGrid arrange="rows" list density={density}>
+          {tasks.map((row, index) => <TaskRow key={row.id} {...{ row, lang, loading }}
+            density={project && (row.parentRef || tasks[index + 1]?.parentRef === row.taskRef) ? "compact" : density}
+            indent={Boolean(project && row.parentRef)} choices={assigneeChoices} />)}
+        </kit.KitGrid></kit.KitContent>)}</kit.KitContent>}</kit.KitCard>;
 }
