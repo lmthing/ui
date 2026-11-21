@@ -14,9 +14,10 @@ import {
 type Props = Record<string, unknown>;
 
 const firstBoolean = (value: Props) => Object.values(value).find((v) => typeof v === "boolean");
-function detailOf(action: string, holder: Props, suppressLink: boolean): string {
+function detailOf(action: string, holder: Props, suppressLink: boolean, flag?: string): string {
   if (!suppressLink && (action === "press" || action === "select") && typeof holder.goto === "string")
     return `→${holder.goto}`;
+  if (action === "toggle" && flag !== undefined) return holder[flag] === true ? ":on" : ":off";
   if (action === "toggle" && ["on", "off"].includes(String(holder.value))) return `:${holder.value}`;
   if (action === "toggle" || action === "check") {
     const on = firstBoolean(holder);
@@ -72,6 +73,7 @@ export function partsOf(
             const target = holder[part];
             const nested = target && typeof target === "object" ? (target as Props) : holder;
             const record = item ? recordEdit(meta, part) : undefined;
+            const flag = item && part === "root" && meta.select?.runtime ? meta.select.prop : undefined;
             const itemControl = item && itemControlAt(meta, part);
             const localPress =
               !item &&
@@ -90,7 +92,7 @@ export function partsOf(
               detail:
                 record?.action === "check"
                   ? `:${holder[record.date] === undefined ? "todo" : "done"}`
-                  : detailOf(action, nested, suppressLink),
+                  : detailOf(action, nested, suppressLink, flag),
               ...withLiveInput(meta, part, action, holder, item),
             };
           })
