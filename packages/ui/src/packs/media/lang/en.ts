@@ -3,6 +3,18 @@ import type { LDMLPluralRule } from "../../../catalog";
 const progress = "Progress";
 
 export const en = {
+  article: {
+    byline: (name: string) => `By ${name}`,
+    readingTime: (minutes: string) => `${minutes} min read`,
+    metadataSeparator: " · ",
+    bullet: "• ",
+    ordinal: (number: string) => `${number}. `,
+    quote: ["“", "”"] as [string, string],
+  },
+  chapterList: {
+    line: (time: string, title: string, current: boolean) =>
+      `${time} ${title}${current ? " · Current chapter" : ""}`,
+  },
   collection: {
     playAll: "Play all",
     follow: "Follow",

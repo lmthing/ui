@@ -5,9 +5,15 @@ import { component, radius, size, space, type as typography } from "../../../cat
 import { usePart } from "../../part";
 import { useKitStyle } from "../../provider";
 import { KitText, shifted } from "../text";
-import { PlanningTargetScope, usePlanningTarget, type Target } from "./usePlanningTarget";
+import { SeatMoveChoices, SeatMoveScope, useSeatMoveTarget, type Seat } from "./seat-move";
+import {
+  PlanningTargetScope,
+  usePlanningAddress,
+  usePlanningPress,
+  usePlanningTarget,
+  type Target,
+} from "./usePlanningTarget";
 
-type Seat = { id: string; label: string; initials?: string; selected?: boolean; target?: Target };
 type Table = {
   id: string;
   label: string;
@@ -19,12 +25,15 @@ type SeatMapProps = { part?: string; loading?: boolean; tables: readonly Table[]
 const mapWidth = component.base.emptyMinHeight + 2 * (space.md + component.base.borderWidth);
 
 function SeatMark({ seat, loading }: { seat: Seat; loading: boolean }) {
-  const target = usePlanningTarget(seat.target, seat.label, loading, Boolean(seat.selected));
+  const address = usePlanningAddress(seat.target, loading);
+  const press = usePlanningPress(seat.move ? undefined : address, seat.label, Boolean(seat.selected));
+  const move = useSeatMoveTarget(seat.move ? address : undefined, seat);
   const selected = !loading && seat.selected;
   return (
     <YStack
-      {...target}
-      {...(!loading && !target.testID ? { accessibilityRole: "image", accessibilityLabel: seat.label } : {})}
+      {...press}
+      {...move}
+      {...(!loading && !address ? { accessibilityRole: "image", accessibilityLabel: seat.label } : {})}
       width={size.control.md}
       height={size.control.md}
       alignItems="center"
@@ -121,6 +130,15 @@ function TableDrawing({ table, loading }: { table: Table; loading: boolean }) {
         {flanks && <ScopedSeat seat={seats[split]!} loading={loading} />}
       </XStack>
       <SeatBank seats={bottom} loading={loading} />
+      {!loading &&
+        seats.map(
+          (seat) =>
+            seat.move && (
+              <PlanningTargetScope key={seat.id} id={seat.id} target={seat.target}>
+                <SeatMoveChoices seat={seat} />
+              </PlanningTargetScope>
+            ),
+        )}
     </YStack>
   );
 }
@@ -166,11 +184,13 @@ export function KitSeatMap({ part = "root", loading = false, tables, tray }: Sea
           <LayoutGrid size={size.icon.lg} color="$muted" />
         </YStack>
       )}
-      {drawings.map((table) => (
-        <PlanningTargetScope key={table.id} id={table.id} target={table.target}>
-          <TableDrawing table={table} loading={loading} />
-        </PlanningTargetScope>
-      ))}
+      <SeatMoveScope>
+        {drawings.map((table) => (
+          <PlanningTargetScope key={table.id} id={table.id} target={table.target}>
+            <TableDrawing table={table} loading={loading} />
+          </PlanningTargetScope>
+        ))}
+      </SeatMoveScope>
       {tray != null && <SeatTray tray={tray} loading={loading} />}
     </YStack>
   );

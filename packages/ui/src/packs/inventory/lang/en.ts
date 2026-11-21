@@ -1,6 +1,7 @@
 export const en = {
   things: {
     low: "Low stock",
+    priceStockSeparator: " · ",
     stocked: "Nothing needs restocking",
     quantity: (count: string) => `Quantity: ${count}`,
     minimum: (count: string) => `Minimum: ${count}`,
@@ -20,8 +21,9 @@ export const en = {
     since: (date: string) => `Since ${date}`,
     due: (date: string) => `Due back ${date}`,
     overdue: "Overdue",
+    dueGap: "\u00a0\u00a0\u00a0",
     returned: "Mark returned",
-    remind: "Remind",
+    remind: { lent: (person: string) => `Remind ${person}`, borrowed: () => "Remind me" },
     reading: (fields: string[]) => fields.join(" · "),
   },
   warranties: {
@@ -36,8 +38,8 @@ export const en = {
   },
   wishlist: {
     got: "Mark as owned",
-    price: (amount: string) => `Price ${amount}`,
-    target: (amount: string) => `Target ${amount}`,
+    price: (amount: string) => ["Price ", amount] as const,
+    target: (amount: string) => ["Target ", amount] as const,
     priority: { 1: "High priority", 2: "Medium priority", 3: "Low priority" },
     separator: " · ",
   },
@@ -73,7 +75,7 @@ export const en = {
     rent: (amount: string, per: "month" | "week") => ["Rent ", amount, `\u00a0/\u00a0${per}`] as const,
     nextDue: (date: string) => `Next due ${date}`,
     noDue: "No further rent dates",
-    deposit: (amount: string) => `Deposit ${amount}`,
+    deposit: (amount: string) => ["Deposit ", amount] as const,
     renewal: { soon: "Renewal soon", endsToday: "Lease ends today", ended: "Lease ended" },
   },
 };

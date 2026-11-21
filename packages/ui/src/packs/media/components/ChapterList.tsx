@@ -1,5 +1,8 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import { chapterReading } from "../copy";
+import { mediaWordsFor } from "../lang";
 
 // Core first: Player/default can scrub one recording but cannot jump to named chapter marks.
 export const meta = {
@@ -10,6 +13,7 @@ export const meta = {
   pick: "Named timestamps inside the recording already on this screen; choose one to jump to its start. Not playback controls for one recording (Player), separate recordings (Playlist), or recipe steps (CookSteps).",
   writeHints: [
     'Use only next to a Player on the same screen. Put 2–16 chapter times in strictly increasing order, whole seconds from the start. "current" is a zero-based index.',
+    "Leave density and surface null unless a different spacing or surface is requested.",
   ],
   region: "body",
   weight: 3,
@@ -17,13 +21,13 @@ export const meta = {
   tier: "phone",
   realPath: "The chapter marks are stored with the recording.",
   drives: "Player",
-  variants: { density: ["comfortable", "compact"] },
+  variants: { density: ["comfortable", "compact"], surface: ["card", "plain", "outlined"] },
   parts: ["root"],
   items: { key: "chapters", parts: ["root", "title", "at"] },
   states: ["filled"],
   actions: { items: { root: ["press"] } },
-  read: (value, _state, lang): string[] =>
-    (value as z.output<typeof props>).chapters.map(({ at, title }) => `${c.clockLine(at, lang)} ${title}`),
+  read: (value, state, lang): string[] =>
+    state === "filled" ? chapterReading(value as z.output<typeof props>, lang) : [],
 } as const satisfies c.Meta & { drives: "Player" };
 
 export const props = z
@@ -82,3 +86,37 @@ export const probes = [
   ),
   read("Jump to the Water it in chapter", { address: "c1/r3", action: "press" }),
 ] satisfies c.Probe[];
+
+type ChapterListProps = c.Props<typeof props, typeof meta>;
+const hourInSeconds = 3600;
+
+// prettier-ignore
+export function ChapterList(input: ChapterListProps) {
+  const { chapters, current, surface } = input;
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const { lang, words } = kit.useWords(mediaWordsFor);
+  const showsHours = chapters.some(({ at }) => at >= hourInSeconds);
+  return (
+    <kit.KitCard part="root" padded density={density} surface={surface}>
+      <kit.KitGrid list arrange="rows" density={density}>
+        {chapters.map(({ id, title, at }, index) => {
+          const time = c.clockLine(at, lang);
+          const selected = current === index;
+          return (
+            <kit.KitRow key={id} item={id} part="root" role="button" selected={selected} density={density}
+              label={words.chapterList.line(time, title, selected)}
+              leadingWidth={showsHours ? undefined : "avatar"}
+              leading={showsHours ? <kit.KitTime part="at" value={time} /> :
+                <kit.KitText part="at" role="label" tone="muted" align="end" tabular lines={1}>{time}</kit.KitText>}
+              trailing={<kit.KitIcon name="play" scale="sm" tone={selected ? "accent" : "muted"} decorative />}
+            >
+              <kit.KitText part="title" role="body" emphasis={selected ? "strong" : "normal"} density={density}>
+                {title}
+              </kit.KitText>
+            </kit.KitRow>
+          );
+        })}
+      </kit.KitGrid>
+    </kit.KitCard>
+  );
+}

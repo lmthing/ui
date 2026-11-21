@@ -143,7 +143,8 @@ export function liveProps(
     : projectControls(meta, addressed, get);
   if (!wireApplied && (meta.items?.set || meta.items?.adjust || runtime))
     props = projectAdjustments(meta, props, get);
-  const timed = projectLiveClocks(meta, props, get, runtime || Boolean(meta.live));
+  const liveClock = runtime || Boolean(meta.live || meta.recordRuntime?.actions);
+  const timed = projectLiveClocks(meta, props, get, liveClock);
   if (timed !== props) props = timed;
   else if (draw || emptyActions?.length || errorActions?.length || successActions?.length || session) {
     const state = get("$state");

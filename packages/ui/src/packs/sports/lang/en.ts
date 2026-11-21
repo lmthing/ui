@@ -6,6 +6,7 @@ export const en = {
     tie: (id: string, round: string, a: string, b: string) => `${id}: ${round}, ${a} · ${b}`,
     outcome: (tie: string, winner: string) => `${tie} · ${winner}`,
   },
+  matchGoal: "Goal",
   fixtureHome: "Home",
   fixtureAway: "Away",
   fixtureMeet: (time: string) => `Meet at ${time}`,

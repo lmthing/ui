@@ -3,6 +3,8 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { matchFeedReading, matchMinute } from "../copy";
 import { sportsWordsFor } from "../lang";
+import { goalEvents } from "../match-record";
+import { matchFeedRecord } from "../match-runtime";
 
 // Core first: Timeline/history shows one stream of past events, not two sides' match incidents.
 export const meta = {
@@ -29,6 +31,7 @@ export const meta = {
   actions: { parts: { add: ["press"] } },
   emptyActions: ["add.press"],
   live: { derive: () => ({ add: { goto: "sheet" } }) },
+  ...matchFeedRecord,
   read: (input, _state, lang): string[] => {
     const { matchFeed } = sportsWordsFor(lang);
     return [
@@ -41,17 +44,7 @@ export const meta = {
 
 export const props = z.strictObject({
   ...c.variantProps(meta.variants),
-  events: z
-    .array(
-      z.strictObject({
-        minute: z.int().min(0).max(130),
-        side: z.enum(["home", "away"]),
-        kind: z.enum(["goal", "card_yellow", "card_red", "sub", "note"]),
-        text: c.text(36),
-      }),
-    )
-    .min(1)
-    .max(12),
+  events: goalEvents,
 });
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
@@ -161,11 +154,13 @@ function IncidentRow({ event, density, detail }: {
   );
 }
 
-export function MatchFeed(input: MatchFeedProps) {
+export function MatchFeed(seed: MatchFeedProps) {
+  const input = kit.useLiveControls(meta, seed) as MatchFeedProps & { state?: c.StateName };
   const {
     words: { matchFeed },
   } = kit.useWords(sportsWordsFor);
   const state = kit.useComponentState();
+  const empty = (input.state ?? state) === "empty";
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
@@ -174,7 +169,7 @@ export function MatchFeed(input: MatchFeedProps) {
       <kit.KitText part="title" role="heading" density={density}>
         {matchFeed.title}
       </kit.KitText>
-      {state === "empty" ? (
+      {empty ? (
         <kit.KitEmpty part="empty" icon="clock" decorativeIcon />
       ) : (
         <kit.KitGrid arrange="rows" density={density} list listRowGap="cards">
