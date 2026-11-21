@@ -1,4 +1,3 @@
-import { z } from "zod";
 import type { Meta, RecordContext, RecordRuntime } from "../../catalog";
 import { sportsWordsFor } from "./lang";
 import {
@@ -12,11 +11,11 @@ import {
   maxMatchMinute,
   maxSeedEvents,
   replayMatch,
+  scoreSeed,
   seededMatch,
 } from "./match-record";
 
 const deviceData = [matchRecordKind] as const;
-const scoreSeed = z.object({ homeScore: z.int().nonnegative(), awayScore: z.int().nonnegative() });
 const feedSeed = (screen: RecordContext["screen"]) => screen?.components.find(({ c }) => c === "MatchFeed");
 const feedEvents = (events: unknown) =>
   goalEvents.safeParse(
@@ -37,20 +36,9 @@ function seed({ props, screen }: RecordContext): MatchRecord | undefined {
     if (events.success) return seededMatch(id, events.data);
     return;
   }
-  const score = scoreSeed.safeParse(props);
-  if (!score.success) return;
-  const { homeScore, awayScore } = score.data;
-  // A legacy standalone score has no feed text. Large scores need a real host record.
-  if (homeScore + awayScore > maxSeedEvents) return;
-  return {
-    matchId: id,
-    goals: Array.from({ length: homeScore + awayScore }, (_, index) => ({
-      id: index + 1,
-      side: index < homeScore ? "home" : "away",
-      minute: 0,
-      scorer: null,
-    })),
-  };
+  const board = screen?.components.find(({ c }) => c === "Scoreboard");
+  const score = scoreSeed.safeParse(board ?? props);
+  if (score.success) return { matchId: id, goals: [], unlisted: score.data };
 }
 
 function history(context: RecordContext) {
@@ -65,17 +53,24 @@ function history(context: RecordContext) {
   if (records.length === 1 && parsed.success) return replayMatch(parsed.data, context.journal);
 }
 
-function latest(goals: readonly Goal[], side: Goal["side"]) {
+type History = NonNullable<ReturnType<typeof history>>;
+function undoTarget({ goals, unlisted, seed }: History, side: Goal["side"]) {
   for (let index = goals.length - 1; index >= 0; index--) {
     if (goals[index]?.side === side) return goals[index];
   }
+  const key = `${side}Score` as const;
+  const remaining = unlisted?.[key];
+  if (remaining && seed) return { side, seed: seed[key], remaining };
 }
 
 type KeeperAction = NonNullable<NonNullable<RecordRuntime["actions"]>[`${string}.${string}`]>;
 function keeper(side: Goal["side"], kind: "add" | "undo"): KeeperAction {
   return {
     target(props) {
-      if (kind === "add") return props.$canAdd === true ? side : undefined;
+      if (kind === "add")
+        return props.$canAdd === true && Number(props[`${side}Score`]) < Number.MAX_SAFE_INTEGER
+          ? side
+          : undefined;
       const goal = side === "home" ? props.$undoHome : props.$undoAway;
       return goal ? JSON.stringify(goal) : undefined;
     },
@@ -83,8 +78,8 @@ function keeper(side: Goal["side"], kind: "add" | "undo"): KeeperAction {
       const record = history(context);
       if (!record) return { error: "No valid match record" };
       if (kind === "undo") {
-        const goal = latest(record.goals, side);
-        return goal ? { operation: { kind, id: goal.id } } : { error: "No goal to undo" };
+        const target = undoTarget(record, side);
+        return target ? { operation: { kind, target } } : { error: "No goal to undo" };
       }
       const { nextId: id } = record;
       if (id === undefined) return { error: "No available goal ID" };
@@ -112,10 +107,10 @@ export const scoreboardRecord = {
       const record = history(context);
       return record
         ? {
-            ...matchScore(record.goals),
+            ...matchScore(record.goals, record.unlisted),
             $canAdd: record.nextId !== undefined,
-            $undoHome: latest(record.goals, "home"),
-            $undoAway: latest(record.goals, "away"),
+            $undoHome: undoTarget(record, "home"),
+            $undoAway: undoTarget(record, "away"),
           }
         : {};
     },
@@ -144,7 +139,8 @@ export const matchFeedRecord = {
           }))
           .reverse(),
       ].sort((a, b) => b.minute - a.minute);
-      return { events, ...(events.length ? {} : { state: "empty" }) };
+      const state = record.goals.length ? "filled" : events.length ? undefined : "empty";
+      return { events, ...(state && { state }) };
     },
   },
 } satisfies Declaration;
