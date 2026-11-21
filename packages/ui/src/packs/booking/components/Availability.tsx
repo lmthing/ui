@@ -1,11 +1,11 @@
 // prettier-ignore
-import { KitCard, KitGrid, KitInput, KitRow, KitText, KitTrail,
+import { KitCard, KitContent, KitGrid, KitInput, KitRow, KitText, KitTrail,
   useControlValue, usePart, useVariant, useWords } from "../../../kit";
 // prettier-ignore
-import { wordsFor, clock, probesFor, variantProps, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
+import { clock, isoDate, probesFor, variantProps, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
 import { bookingWordsFor } from "../lang";
 import { z } from "zod";
-import { availabilityDefaults, breakLine } from "../copy";
+import { availabilityDefaults, availabilityReading, breakLine, bufferLine, dateOverrideLine } from "../copy";
 
 // Core first: Field/time edits one time, not a seven-day working week with switches and breaks.
 export const meta = {
@@ -17,6 +17,7 @@ export const meta = {
   writeHints: [
     "Write each weekday once, mon through sun. End follows start; breaks need both endpoints inside working hours.",
     'Leave density and detail null unless requested. For working times without visible breaks, use detail "brief" and keep the breaks in the data.',
+    'Use bufferMinutes only for requested gaps between bookings. Use dateOverrides only for specific dates the provider is not taking bookings (kind "blocked" or "holiday").',
   ],
   region: "body",
   weight: 3,
@@ -26,30 +27,23 @@ export const meta = {
   variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["break"] } },
   items: { key: "days", parts: ["root", "day", "toggle", "from", "to", "break"] },
-  parts: ["root"],
+  parts: ["root", "bufferMinutes", "dateOverrides"],
   states: ["filled"],
   actions: { items: { toggle: ["toggle"], from: ["type"], to: ["type"] } },
-  read: (input, state, lang?: string): string[] => {
-    const { weekdayNames } = wordsFor(lang);
-    const { availabilityLabels } = bookingWordsFor(lang);
-    return state !== "filled"
-      ? []
-      : [
-          ...weekdayNames,
-          availabilityLabels.from,
-          availabilityLabels.to,
-          ...(input as z.output<typeof props>).days.flatMap((day) => [
-            day.from,
-            day.to,
-            ...(day.breakFrom && day.breakTo ? [breakLine(day.breakFrom, day.breakTo, lang)] : []),
-          ]),
-        ];
-  },
+  read: (input, state, lang): string[] =>
+    state === "filled" ? availabilityReading(input as z.output<typeof props>, lang) : [],
 } as const satisfies Meta;
 const weekdays = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 export const props = z
   .strictObject({
     ...variantProps(meta.variants),
+    bufferMinutes: z.literal([0, 5, 10, 15, 30]).optional(),
+    dateOverrides: z
+      .array(z.strictObject({ date: isoDate, kind: z.enum(["blocked", "holiday"]) }))
+      .min(0)
+      .max(6)
+      .refine((dates) => new Set(dates.map(({ date }) => date)).size === dates.length)
+      .optional(),
     days: z
       .array(
         z.strictObject({
@@ -99,10 +93,10 @@ const plantCareWeek = {
     ...(!["sat", "sun"].includes(day) ? { breakFrom: "12:00", breakTo: "13:00" } : {}),
   })),
 };
+// prettier-ignore
 export const examples = [
   plantCareWeek,
   // Trot's walking week.
-  // prettier-ignore
   {
     days: weekdays.map((day) => ({
       day, on: ["mon", "wed", "fri"].includes(day), from: "08:00", to: "16:00",
@@ -111,8 +105,12 @@ export const examples = [
   },
   { ...plantCareWeek, density: "compact" },
   { ...plantCareWeek, detail: "brief" },
+  { ...plantCareWeek, bufferMinutes: 15, dateOverrides: [
+    { date: "2026-12-24", kind: "blocked" }, { date: "2026-12-25", kind: "holiday" },
+  ] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Availability");
+// prettier-ignore
 export const probes = [
   choose("Set which weekdays I take bookings, the start and finish each day, and my lunch break"),
   choose("Enter a single start time in a form", "Field"),
@@ -126,8 +124,11 @@ export const probes = [
   read("Turn off bookings on Monday", { address: "a1/r1/toggle", action: "toggle" }),
   read("Change Monday's booking start to 10:00", { address: "a1/r1/from", action: "type" }),
   read("Change Monday's booking finish to 16:00", { address: "a1/r1/to", action: "type" }),
+  write("Take bookings weekdays 09:00 to 17:00, weekends off. Allow a 15-minute gap between consecutive bookings."),
+  write("Take bookings weekdays 09:00 to 17:00, weekends off. Block 2026-12-24 and mark 2026-12-25 as a holiday."),
 ] satisfies Probe[];
 
+// prettier-ignore
 function DayFields({ day }: { day: Props<typeof props, typeof meta>["days"][number] }) {
   const {
     lang,
@@ -152,27 +153,13 @@ function DayFields({ day }: { day: Props<typeof props, typeof meta>["days"][numb
           <KitText role="caption" tone="muted" part={null}>
             {availabilityLabels.from}
           </KitText>
-          <KitInput
-            compact
-            inactive={!on}
-            kind="time"
-            part="from"
-            hint={availabilityLabels.from}
-            value={day.from}
-          />
+          <KitInput compact inactive={!on} kind="time" part="from" hint={availabilityLabels.from} value={day.from} />
         </KitRow>
         <KitRow inline label={availabilityLabels.to}>
           <KitText role="caption" tone="muted" part={null}>
             {availabilityLabels.to}
           </KitText>
-          <KitInput
-            compact
-            inactive={!on}
-            kind="time"
-            part="to"
-            hint={availabilityLabels.to}
-            value={day.to}
-          />
+          <KitInput compact inactive={!on} kind="time" part="to" hint={availabilityLabels.to} value={day.to} />
         </KitRow>
       </KitGrid>
       {day.breakFrom && day.breakTo && (
@@ -184,8 +171,11 @@ function DayFields({ day }: { day: Props<typeof props, typeof meta>["days"][numb
   );
 }
 
-export function Availability({ days, density: requestedDensity }: Props<typeof props, typeof meta>) {
-  const density = useVariant("density", meta.variants.density, requestedDensity);
+// prettier-ignore
+export function Availability(input: Props<typeof props, typeof meta>) {
+  const { days, bufferMinutes, dateOverrides } = input;
+  const density = useVariant("density", meta.variants.density, input.density);
+  const { lang, words } = useWords(bookingWordsFor);
   return (
     <KitCard style="inset" part="root">
       {days.map((day) => (
@@ -193,6 +183,17 @@ export function Availability({ days, density: requestedDensity }: Props<typeof p
           <DayFields day={day} />
         </KitRow>
       ))}
+      {bufferMinutes !== undefined && <KitRow label={bufferLine(bufferMinutes, lang)} density={density}>
+        <KitText part="bufferMinutes" role="label">{bufferLine(bufferMinutes, lang)}</KitText>
+      </KitRow>}
+      {!!dateOverrides?.length && <KitRow label={words.availabilityOverrides} density={density}>
+        <KitContent density={density}>
+          <KitText part="dateOverrides" role="label">{words.availabilityOverrides}</KitText>
+          {dateOverrides.map(({ date, kind }) => <KitText key={date} part={null} role="caption" tone="muted">
+            {dateOverrideLine(date, kind, lang)}
+          </KitText>)}
+        </KitContent>
+      </KitRow>}
     </KitCard>
   );
 }

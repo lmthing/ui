@@ -1,34 +1,12 @@
-import {
-  useWords,
-  KitCard,
-  KitEmpty,
-  KitSkeleton,
-  KitSlotGrid,
-  KitText,
-  useComponentState,
-  useEmptyThing,
-  useVariant,
-} from "../../../kit";
+// prettier-ignore
+import { KitCard, KitEmpty, KitSkeleton, KitSlotGrid, KitText, KitTrail, useWords,
+  useComponentState, useEmptyThing, useVariant } from "../../../kit";
 import { bookingWordsFor } from "../lang";
 import { z } from "zod";
-import {
-  clock,
-  clockLine,
-  detailOf,
-  durationLine,
-  emptyLine,
-  itemsOf,
-  placeholderValue,
-  probesFor,
-  thingOf,
-  titleOf,
-  variantProps,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import { slotDetailLine, slotLoadingLine } from "../copy";
+// prettier-ignore
+import { clock, clockLine, detailOf, durationLine, emptyLine, itemsOf, placeholderValue, probesFor,
+  text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+import { slotDetailLine, slotLoadingLine, slotRangeLine } from "../copy";
 
 // Core first: Calendar/week selects dates, not free and taken times within a day.
 export const meta = {
@@ -40,6 +18,7 @@ export const meta = {
   writeHints: [
     "Times are unique HH:MM start times. at, when present, must exactly match a free time; omit it if none is selected.",
     'minutes is the appointment length, from 5 to 600. Only use arrange "rows" when asked for one row per time or for computed end times; otherwise leave arrange null.',
+    'Use style "ranges" for a single start–end span such as 09:00–09:45. Leave arrange null for ranges. Set timezone only when supplied; it labels the local times without converting them.',
   ],
   region: "body",
   weight: 3,
@@ -48,7 +27,7 @@ export const meta = {
   realPath: "Free times computed on the device from working hours minus bookings.",
   variants: { arrange: ["grid", "rows"] },
   items: { key: "times", parts: ["root", "time"] },
-  parts: ["root", "times", "minutes", "sub"],
+  parts: ["root", "times", "minutes", "sub", "timezone"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["select"] }, when: { root: { taken: false } } },
   select: { prop: "at", value: { field: "time" } },
@@ -56,13 +35,18 @@ export const meta = {
     const { slotLabels } = bookingWordsFor(lang);
 
     if (state !== "filled") return [];
-    const { times, minutes, arrange } = input as z.output<typeof props>;
+    const { times, minutes, arrange, style, timezone } = input as z.output<typeof props>;
     return [
       durationLine(minutes, lang),
-      ...times.flatMap(({ time, taken }) => [
-        `${time}${taken ? ` (${slotLabels.taken})` : ""}`,
-        slotDetailLine(time, minutes, arrange, taken, lang),
-      ]),
+      ...(timezone ? [timezone] : []),
+      ...times.flatMap(({ time, taken }) =>
+        style === "ranges"
+          ? [slotRangeLine(time, minutes, lang), taken ? slotLabels.taken : slotLabels.free]
+          : [
+              `${time}${taken ? ` (${slotLabels.taken})` : ""}`,
+              slotDetailLine(time, minutes, arrange, taken, lang),
+            ],
+      ),
     ];
   },
 } as const satisfies Meta;
@@ -75,6 +59,8 @@ export const props = z
       .max(24),
     at: clock.optional(),
     minutes: z.int().min(5).max(600),
+    style: z.literal("ranges").optional(),
+    timezone: text(32).optional(),
   })
   .refine(({ times, at }) => !at || times.some((slot) => slot.time === at && !slot.taken), { path: ["at"] })
   .refine(({ times }) => new Set(times.map(({ time }) => time)).size === times.length, {
@@ -131,6 +117,7 @@ export const examples = [
     at: "00:00",
     minutes: 600,
   },
+  { ...plantCareStarts, style: "ranges", minutes: 45, timezone: "America/New_York" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Slots");
 export const probes = [
@@ -145,10 +132,17 @@ export const probes = [
   },
   read("Choose the free 09:00 time", { address: "s1/r1", action: "select" }),
   { ...read("Choose the free 16:00 time", { address: "s1/r3", action: "select" }), screen: 2 },
+  write(
+    "Offer a free 09:00 and a taken 10:00 start for 45-minute visits. Show each time as a single span, like 09:00–09:45.",
+  ),
+  write(
+    "Offer free 09:00 and taken 10:00 starts for 45-minute visits. Label the times with America/New_York.",
+  ),
 ] satisfies Probe[];
 
 export function Slots(input: Props<typeof props, typeof meta>) {
-  const { times, at, minutes } = input;
+  const { times, at, minutes, timezone } = input;
+  const ranges = input.style === "ranges";
   const arrange = useVariant("arrange", meta.variants.arrange, input.arrange);
   const { lang, words } = useWords(bookingWordsFor);
   const { slotLabels } = words;
@@ -168,21 +162,23 @@ export function Slots(input: Props<typeof props, typeof meta>) {
     );
   }
   const slots = times.map(({ id, time, taken }) => {
-    const sub = slotDetailLine(time, minutes, arrange, taken, lang);
+    const label = ranges ? slotRangeLine(time, minutes, lang) : time;
+    const sub = slotDetailLine(time, minutes, ranges ? "grid" : arrange, taken, lang);
     return {
       id,
       taken,
-      label: state === "loading" ? slotLoadingLine(time) : time,
+      label: state === "loading" ? slotLoadingLine(label) : label,
       sub: state === "loading" ? slotLoadingLine(sub) : sub,
     };
   });
   const selected = times.find(({ time }) => time === at);
   return (
     <KitCard style="inset" padded part="root">
+      {timezone && <KitTrail kind="badge" part="timezone" tone="muted" value={timezone} />}
       <KitSlotGrid
         times={slots}
         {...(selected ? { at: selected.id } : {})}
-        style={arrange === "rows" ? "list" : "grid"}
+        style={ranges || arrange === "rows" ? "list" : "grid"}
         loading={state === "loading"}
         part="times"
       />

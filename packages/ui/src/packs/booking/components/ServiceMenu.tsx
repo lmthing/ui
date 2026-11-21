@@ -4,7 +4,7 @@ import {
   PartContext, type TextRole, type TextTone, useComponentState, usePartContext, useVariant, useWords,
 } from "../../../kit";
 import { bookingWordsFor } from "../lang";
-import { servicePrice, serviceReading } from "../copy";
+import { serviceCapacity, serviceDeposit, servicePrice, serviceReading } from "../copy";
 import { z } from "zod";
 // prettier-ignore
 import {
@@ -25,46 +25,47 @@ export const meta = {
   realPath: "Services stored on the device by the provider.",
   writeHints: [
     'A request to hide descriptions changes ONLY detail to "brief". Keep the supplied description in sub. Set density, surface, lead, style and every row tone/mark to null unless separately asked; do not spell out defaults. An absent photo does not request lead "none".',
+    "Set capacity only for an explicit group limit, deposit only for an upfront amount, and portfolioGoto only for a separate gallery screen. Keep goto for booking the service.",
   ],
   // prettier-ignore
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"],
     detail: ["full", "brief"], lead: ["thumb", "none"] },
   items: {
     key: "services",
-    parts: ["root", "name", "minutes", "price", "sub", "group", "photo"],
+    parts: ["root", "name", "minutes", "price", "sub", "group", "photo", "capacity", "deposit", "portfolio"],
     variants: { tone: ["neutral", "good"], mark: ["none", "muted"] },
   },
   variantParts: { "detail.brief": { hides: ["sub"] }, "lead.none": { hides: ["photo"] } },
   parts: ["root", "empty"],
   states: ["filled", "empty", "loading"],
-  actions: { items: { root: ["press"] } },
+  actions: { items: { root: ["press"], portfolio: ["press"] } },
   read: (input, state, lang?: string): string[] =>
     state === "filled" ? serviceReading((input as z.output<typeof props>).services, lang) : [],
 } as const satisfies Meta;
+// prettier-ignore
 export const props = z
   .strictObject({
     ...variantProps(meta.variants),
-    services: z
-      .array(
-        z.strictObject({
-          ...itemVariantProps(meta.items.variants),
-          name: text(28),
-          minutes: z.int().min(5).max(600),
-          price: z.number().min(0).optional(),
-          sub: text(60).optional(),
-          group: text(20).optional(),
-          photo: photo.optional(),
-          goto: screenId,
-        }),
-      )
-      .min(1)
-      .max(12),
+    services: z.array(z.strictObject({
+      ...itemVariantProps(meta.items.variants),
+      name: text(28),
+      minutes: z.int().min(5).max(600),
+      price: z.number().min(0).optional(),
+      capacity: z.int().min(1).default(1),
+      deposit: z.number().min(0).optional(),
+      sub: text(60).optional(),
+      group: text(20).optional(),
+      photo: photo.optional(),
+      goto: screenId,
+      portfolioGoto: screenId.optional(),
+    })).min(1).max(12),
     style: z.literal("cards").optional(),
   })
   .overwrite((value) => ({
     ...value,
     services: value.services.map((service) => ({
       ...service,
+      portfolio: service.portfolioGoto ? { goto: service.portfolioGoto } : undefined,
       ...(value.detail === "brief" ? { sub: undefined } : {}),
       ...(value.lead === "none" ? { photo: undefined } : {}),
     })),
@@ -110,19 +111,26 @@ export const examples = [
   { lead: "none", services: walkingServices },
   { services: [{ ...walkingServices[0]!, tone: "good" }, walkingServices[1]!] },
   { services: [walkingServices[0]!, { ...walkingServices[1]!, mark: "muted" }] },
+  { style: "cards", services: [
+    { ...walkingServices[0]!, capacity: 4, deposit: 5, portfolioGoto: "walks_gallery" },
+    walkingServices[1]!,
+  ] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("ServiceMenu");
+// prettier-ignore
 export const probes = [
   choose("Let clients book one of my services, grouped by type, with minutes and a price for each"),
   choose("Show several plants with short details and a link to open each", "List"),
   write("Offer a 30 minute park walk for 15 and a 60 minute walk for 25, both opening time"),
   {
-    ...write(
-      "Offer a 30-minute park walk for 15, opening time. Save the description 'With Clover and Pip' but show only the service name, duration and price, with no descriptive line.",
-    ),
+    ...write("Offer a 30-minute park walk for 15, opening time. Save the description 'With Clover and Pip' but show only the service name, duration and price, with no descriptive line."),
     variant: { axis: "detail", value: "brief" },
   },
   read("Book the plant care visit", { address: "s1/r1", action: "press" }),
+  write("Offer a 30-minute group park walk for 15 with up to four people per booking. Book through time."),
+  write("Offer a 30-minute park walk for 15 with a 5 deposit. Book through time."),
+  write("Offer a 30-minute park walk for 15. Book through time, and link separately to the walks_gallery screen for examples."),
+  { ...read("Open the portfolio for the park walk", { address: "s1/r1/portfolio", action: "press" }), screen: 9 },
 ] satisfies Probe[];
 // prettier-ignore
 function ServiceText({ value, part, density, role = "body", tone = "text" }:
@@ -143,19 +151,19 @@ function ServiceDetails({ service, density, lang }: { service: MenuProps["servic
       </KitContent>
     )}
     {service.sub && <ServiceText {...{ density }} value={service.sub} role="caption" tone="muted" part="sub" />}
+    {service.capacity > 1 && <ServiceText {...{ density }} value={serviceCapacity(service.capacity, lang)} role="caption" tone="muted" part="capacity" />}
+    {service.deposit !== undefined && <ServiceText {...{ density }} value={serviceDeposit(service.deposit, lang)} role="caption" tone="muted" part="deposit" />}
   </>;
   return density === "compact" ? content : <KitContent>{content}</KitContent>;
 }
 // prettier-ignore
 function ServiceRows({ services, density, style, surface }: MenuProps & { density: ThemeDensity }) {
   const { lang, words } = useWords();
-  const { bookLabel } = bookingWordsFor(lang);
+  const { bookLabel, servicePortfolio } = bookingWordsFor(lang);
   const loading = useComponentState() === "loading";
   const photos = services.some((service) => service.photo);
   const context = usePartContext();
-  return (
-    <>
-      {services.flatMap((service, index) => [
+  return services.flatMap((service, index) => [
         ...(service.group && service.group !== services[index - 1]?.group ? [
           <PartContext.Provider key={`${service.id}/group`} value={{ ...context, item: service.id }}>
             <KitRow part={null} label={service.group}>
@@ -163,37 +171,30 @@ function ServiceRows({ services, density, style, surface }: MenuProps & { densit
             </KitRow>
           </PartContext.Provider>,
         ] : []),
-        <KitRow
-          key={service.id}
-          item={service.id}
-          tone={service.tone}
-          mark={service.mark}
-          surface={style === "cards" ? surface : undefined}
-          label={loading ? words.loadingLabel : service.name}
-          goto={loading ? undefined : service.goto}
-          leadingAlign="row"
+        <KitRow key={service.id} item={service.id} tone={service.tone} mark={service.mark}
+          surface={style === "cards" ? surface : undefined} label={loading ? words.loadingLabel : service.name}
+          goto={loading ? undefined : service.goto} leadingAlign="row"
           leadingWidth={photos ? "avatar" : undefined}
           leading={service.photo && <KitPhoto photo={service.photo} label={service.name} part="photo" />}
           trailing={<ServiceText {...{ density }} value={bookLabel} role="caption" tone="accent" part={null} />}
         >
           <ServiceDetails {...{ service, density, lang }} />
         </KitRow>,
-      ])}
-    </>
-  );
+        service.portfolioGoto && <KitRow key={`${service.id}/portfolio`} item={service.id} part="portfolio"
+          label={servicePortfolio} goto={loading ? undefined : service.portfolioGoto} {...{ density }}>
+          <ServiceText {...{ density }} value={servicePortfolio} role="label" tone="accent" part={null} />
+        </KitRow>,
+  ]);
 }
 
+// prettier-ignore
 export function ServiceMenu(input: MenuProps) {
   const state = useComponentState();
   const { style, surface } = input;
   const density = useVariant("density", meta.variants.density, input.density);
   return (
     <KitCard style={state === "empty" ? "inset" : (style ?? "inset")} surface={surface} density={density}>
-      {state === "empty" ? (
-        <KitEmpty decorativeIcon part="empty" />
-      ) : (
-        <ServiceRows {...input} density={density} />
-      )}
+      {state === "empty" ? <KitEmpty decorativeIcon part="empty" /> : <ServiceRows {...input} density={density} />}
     </KitCard>
   );
 }

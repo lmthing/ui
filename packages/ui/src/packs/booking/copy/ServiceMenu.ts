@@ -1,4 +1,4 @@
-import { durationLine, moneyLine } from "../../../catalog";
+import { compactMoneyLine, durationLine, moneyLine, numberLine } from "../../../catalog";
 import { bookingWordsFor } from "../lang";
 /** The cue on an offering that opens its booking flow. */
 export const { bookLabel } = bookingWordsFor();
@@ -7,14 +7,29 @@ export function servicePrice(price: number, lang?: string) {
   return moneyLine(price, undefined, undefined, lang);
 }
 
+export const serviceCapacity = (capacity: number, lang?: string): string =>
+  bookingWordsFor(lang).serviceCapacity(numberLine(capacity, lang));
+
+export const serviceDeposit = (deposit: number, lang?: string): string =>
+  bookingWordsFor(lang).serviceDeposit(compactMoneyLine(deposit, undefined, lang));
+
 export function serviceReading(
-  services: readonly { minutes: number; price?: number | undefined }[],
+  services: readonly {
+    minutes: number;
+    price?: number | undefined;
+    capacity?: number | undefined;
+    deposit?: number | undefined;
+    portfolioGoto?: string | undefined;
+  }[],
   lang?: string,
 ) {
-  const { bookLabel } = bookingWordsFor(lang);
-  return services.flatMap(({ minutes, price }) => [
+  const { bookLabel, servicePortfolio } = bookingWordsFor(lang);
+  return services.flatMap(({ minutes, price, capacity = 1, deposit, portfolioGoto }) => [
     durationLine(minutes, lang),
     ...(price === undefined ? [] : [servicePrice(price, lang)]),
+    ...(capacity > 1 ? [serviceCapacity(capacity, lang)] : []),
+    ...(deposit === undefined ? [] : [serviceDeposit(deposit, lang)]),
     bookLabel,
+    ...(portfolioGoto ? [servicePortfolio] : []),
   ]);
 }

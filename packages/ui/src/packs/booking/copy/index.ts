@@ -1,4 +1,4 @@
-export { appointmentDetails, appointmentLabels, appointmentReading } from "./Appointment";
+export { appointmentCanJoin, appointmentDetails, appointmentLabels, appointmentReading } from "./Appointment";
 export {
   rosterCheckable,
   rosterCounts,
@@ -12,8 +12,15 @@ export {
   rosterStatuses,
   rosterSummary,
 } from "./ClassRoster";
-export { availabilityDefaults, availabilityLabels, breakLine } from "./Availability";
-export { bookLabel, servicePrice, serviceReading } from "./ServiceMenu";
+export {
+  availabilityDefaults,
+  availabilityLabels,
+  availabilityReading,
+  breakLine,
+  bufferLine,
+  dateOverrideLine,
+} from "./Availability";
+export { bookLabel, serviceCapacity, serviceDeposit, servicePrice, serviceReading } from "./ServiceMenu";
 export {
   projectSessionPack,
   sessionPackCopy,
@@ -24,6 +31,6 @@ export {
   sessionPackRecord,
   sessionPackWake,
 } from "./SessionPack";
-export { slotDetailLine, slotEndLine, slotLabels, slotLoadingLine } from "./Slots";
+export { slotDetailLine, slotEndLine, slotLabels, slotLoadingLine, slotRangeLine } from "./Slots";
 export { anyoneLabel } from "./StaffPicker";
 export { queueAhead, queueCount, queueExact, queueLabels } from "./Waitlist";
