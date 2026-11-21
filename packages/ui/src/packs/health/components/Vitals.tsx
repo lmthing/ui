@@ -130,15 +130,12 @@ function VitalValue({ reading, lang, history }: { reading: Reading; lang: string
   const pair = reading.value2 === undefined ? "" : vitalPairLine(reading.value2, lang);
   const numberScale = `${value}${pair}`.length > 12 ? "compact" : "display";
   const tone = vitalBand(reading).tone;
-  const context = reading.context && (
-    <KitText role="caption" tone="muted" part="context">{healthWordsFor(lang).vitalLabels.context[reading.context]}</KitText>
-  );
+  const context = reading.context && healthWordsFor(lang).vitalLabels.context[reading.context];
   const display = (
         <KitContent group={history ? "content" : "response"}>
           <KitRow
             inline
             label={reading.unit}
-            trailing={history ? context : undefined}
             lineRole={numberScale === "compact" ? "body" : "number"}
             leading={
               <KitText role="number" numberScale={numberScale} tone={tone} tabular part="value">
@@ -157,7 +154,7 @@ function VitalValue({ reading, lang, history }: { reading: Reading; lang: string
               </KitText>
             </KitText>
           </KitRow>
-          {!history && context}
+          {!history && context && <KitText role="caption" tone="muted" part="context">{context}</KitText>}
         </KitContent>
   );
   return history ? display : (
@@ -182,7 +179,10 @@ export function Vitals({ readings, goto, surface, detail, style }: Props<typeof 
             role="button" inset="none" lineRole="caption"
           >
             <KitGrid fitLast>
-              <KitText role="caption" tone="muted" part="label">{reading.label}</KitText>
+              {style === "history" && reading.context ? <KitContent>
+                <KitText role="caption" tone="muted" part="label">{reading.label}</KitText>
+                <KitText role="caption" tone="muted" part="context">{words.vitalLabels.context[reading.context]}</KitText>
+              </KitContent> : <KitText role="caption" tone="muted" part="label">{reading.label}</KitText>}
               {full && <KitText role="caption" tone="muted" tabular part="at">{reading.at}</KitText>}
             </KitGrid>
             <VitalValue reading={reading} lang={lang} history={style === "history"} />
