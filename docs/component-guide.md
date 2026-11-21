@@ -34,6 +34,8 @@ the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs
    - `select` declares the selected prop, row value (`index`, `position`, or `{ field }`), optional row `flags` mode and fixed named `parts` values.
    - `items.toggles: { save: "saved" }` maps a named item toggle at `rN/save` to a boolean row field. Also declare `save: ["toggle"]` in `actions.items`. The store value overlays the addressed row before `live.derive` and `items.visibleWhen`; it does not change wire props. Use `useLiveControls` to draw from the same live rows.
    - `clocks` on meta, items or items.nested declares time sources, live props, start/stop/reset and zero behavior. `adjust` on meta or items maps `"part.action"` to `{ prop, delta, min?, max? }` for a numeric prop or live clock; see `src/catalog/meta/README.md` and keep projected values inside the prop schema's bounds.
+   - `items.nested: { key, parts: { [part]: { action: "toggle" | "set", prop, min?, max?, integer?, when? } } }` declares `rN/<part>_M` controls projected into sub-items; `when` names a boolean part on the same sub-item.
+   - `read` may use its optional final argument to read the current instance's control values. Keep those values out of Writer props and wire snapshots.
    - `items.nested: { key, parts }` declares `rN/<part>_M` controls projected into sub-items. A part names `action`, `prop` and optional `when` (a boolean part or field on the same sub-item). For `set`, `min`, `max` and `integer` are optional. For `increment` or `decrement`, require `min`, `max` and positive `step`; each is a number or a field name on the sub-item. Step buttons for the same `prop` share one value, clamp at the bounds, and are not offered when they cannot move. Use `useNestedControls` for the live value and disabled state.
    - `items.reset` names a declared component `press` that always asks for confirmation. It clears item numeric adjustments and nested steps for this instance back to their input seeds, without clearing other controls.
    - Private handoffs declare `session: { kind: "rounds", items, hidden, reveal, hide, restart? }`. Declare `press` on separate reveal and hide parts for tap mode, or `start` and `stop` on the reveal part for `KitFlip` hold mode. Gate those actions by style if both modes exist. A hide veils and advances in one step, with success on the final hide. `sessionState` gives the view the active row; the agent reading omits `hidden` fields even during a reveal. Declare restart in `confirmParts` and `successActions` if offered after completion.
@@ -234,6 +236,10 @@ Folder names below are under `src/kit/base/`; each has an `index.ts` door.
 If the view needs something no base does, the task
 says which new base to add under `src/kit/base/` (or `helpers/`) and its exact props. Never draw it
 inside the component file. A new base is themed only through tokens, roles and `useKitStyle()`.
+
+`KitPlayback` accepts an optional `overlay` of controls for an in-frame video toolbar. The toolbar
+remains visible when the host replaces the fallback artwork with its video. Browser media elements
+also accept optional `speed` and `loop`; when neither is set, their playback settings are untouched.
 
 ## Tests: `<Id>.test.ts`
 

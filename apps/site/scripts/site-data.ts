@@ -5,6 +5,7 @@ import { readPackTable } from "./pack-table";
 import { readPlanned, readWaves } from "./plan-docs";
 import { readReadProbes, readScreens } from "./recordings";
 import type { Accent, Item, ItemState, Pack, Preset, RecordedData, SiteData, Stats } from "./site-types";
+import { workedRecords } from "./worked-records";
 
 const repoRoot = new URL("../../../", import.meta.url).pathname;
 const catalog = (await import(
@@ -79,22 +80,27 @@ export function loadSiteData(): SiteData & RecordedData {
   );
   const waves = readWaves(`${repoRoot}docs/catalog/packs/build-plan.md`);
   const waveOf = (id: string) => waves.find((w) => w.packs.includes(id))?.wave ?? 0;
-  const packs: Pack[] = catalog.packIds.map((id) => ({
-    id,
-    ready: readyPacks.has(id),
-    pick: table[id]?.pick ?? "",
-    example: (catalog.packs as Record<string, { example?: string } | undefined>)[id]?.example ?? "",
-    plannedComponents: table[id]?.components ?? 0,
-    plannedArchetypes: table[id]?.archetypes ?? 0,
-    builtArchetypes:
-      (catalog.packArchetypes as Record<string, readonly unknown[] | undefined>)[id]?.length ?? 0,
-    items: items.filter((item) => item.pack === id),
-    planned: readPlanned(`${repoRoot}docs/catalog/packs/${id}.md`),
-    wave: waveOf(id),
-    lines: ((catalog.packExamples as Record<string, string | undefined>)[id] ?? "")
+  const packs: Pack[] = catalog.packIds.map((id) => {
+    const lines = ((catalog.packExamples as Record<string, string | undefined>)[id] ?? "")
       .split("\n")
-      .filter((l: string) => l.trim()),
-  }));
+      .filter((l: string) => l.trim());
+    const deviceData = workedRecords(id, lines, catalog.components);
+    return {
+      id,
+      ready: readyPacks.has(id),
+      pick: table[id]?.pick ?? "",
+      example: (catalog.packs as Record<string, { example?: string } | undefined>)[id]?.example ?? "",
+      plannedComponents: table[id]?.components ?? 0,
+      plannedArchetypes: table[id]?.archetypes ?? 0,
+      builtArchetypes:
+        (catalog.packArchetypes as Record<string, readonly unknown[] | undefined>)[id]?.length ?? 0,
+      items: items.filter((item) => item.pack === id),
+      planned: readPlanned(`${repoRoot}docs/catalog/packs/${id}.md`),
+      wave: waveOf(id),
+      lines,
+      ...(deviceData ? { deviceData } : {}),
+    };
+  });
   const core = items.filter((item) => !item.pack);
   const presets = catalog.presets.map((p) => ({ ...p, roles: p.roles })) as unknown as Preset[];
   const accents = catalog.accents.map((a) => ({

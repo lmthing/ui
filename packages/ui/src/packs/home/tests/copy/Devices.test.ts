@@ -1,6 +1,13 @@
 import { expect, it } from "vitest";
 import { components } from "@lmthing/ui/catalog";
-import { deviceLabels, deviceRange, deviceUnits, deviceValue, focusedDevice } from "../../copy";
+import {
+  deviceLabels,
+  deviceRange,
+  deviceUnits,
+  deviceValue,
+  focusedDevice,
+  thermostatCopy,
+} from "../../copy";
 
 it("keeps device values, range warnings, lock confirmations and canonical units unchanged", () => {
   expect(deviceLabels).toEqual({
@@ -23,6 +30,17 @@ const humidity = devices.find((row) => row.kind === "sensor")!;
 it("formats readings for the requested locale without changing the stored value", () => {
   expect(deviceValue(20.5, "celsius", "de-DE")).toBe("20,5 °C");
   expect(deviceValue(20.5, "celsius", "en")).toBe("20.5 °C");
+});
+
+it("uses the old set-point label only without the new fields and localizes cooling values", () => {
+  expect(thermostatCopy({})).toMatchObject({ setPoint: "Set point", mode: undefined, coolTemp: undefined });
+  expect(thermostatCopy({ mode: "auto", coolTemp: 25.5 }, "de-DE")).toEqual({
+    setPoint: "Heating set point",
+    heatingCaption: "Heat target",
+    coolingCaption: "Cool target",
+    mode: "Mode: Auto",
+    coolTemp: "Cooling set point: 25,5 °C",
+  });
 });
 
 it("includes boundary readings in the normal band and distinguishes an outlier", () => {

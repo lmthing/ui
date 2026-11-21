@@ -117,6 +117,7 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
         props.style === "body" ? props : { icon: props.style === "quote" ? "quote" : "lightbulb", ...props },
     },
   ],
+  AccountCard: [{ from: "style", values: { stacked: { arrange: "rows" } } }],
   Loan: [{ from: "style", values: { summary: { detail: "brief" }, schedule: { detail: "full" } } }],
   Payoff: [{ from: "style", values: { plan: { detail: "full" }, compact: { detail: "brief" } } }],
   Slots: [{ from: "style", values: { grid: { arrange: "grid" }, list: { arrange: "rows" } } }],
@@ -130,6 +131,7 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
       values: {
         plain: { surface: "plain" },
         inset: { surface: "card" },
+        grid: { arrange: "grid" },
       },
     },
     // The shared surface sets the finish; the structural style keeps one card per row.
