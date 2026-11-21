@@ -14,7 +14,6 @@ import {
   type TextFinish,
   type TextTone,
 } from "../text";
-
 const Frame = styled(XStack, { alignItems: "center", minHeight: size.control.md });
 const Content = styled(XStack, { flex: component.base.bodyFlex, alignItems: "flex-start" });
 // Leading and trailing items centre on the title's first line, not on the middle of the text stack.
@@ -31,6 +30,8 @@ type RowProps = {
   role?: "text" | "button" | "group";
   /** A row that opens in place (role `button`): whether its content is shown. */
   expanded?: boolean;
+  /** Shift the leading and text slots one level; the row and trailing edge stay put. */
+  indent?: 0 | 1;
   selected?: boolean;
   tone?: SurfaceTone | undefined;
   rowTone?: TextTone | "neutral" | undefined;
@@ -47,7 +48,6 @@ type RowProps = {
   /** Horizontal inset: `md` (a row in a card) or `none` (a cell in a `KitGrid`, which spaces its own columns). */
   inset?: "md" | "none";
 } & TextFinish;
-
 function rowTint(tone: TextTone | undefined) {
   if (!tone) return {};
   if (tone === "text" || tone === "muted") return { backgroundColor: "$raised" } as const;
@@ -55,7 +55,6 @@ function rowTint(tone: TextTone | undefined) {
     backgroundColor: tintOf(tone === "accent" || tone === "onAccent" ? "neutral" : tone).backgroundColor,
   };
 }
-
 function useRowSurface(tone: RowProps["tone"], rowTone: TextTone | undefined, surface: RowProps["surface"]) {
   const style = useContext(CardStyleContext);
   const preset = useKitStyle().surface;
@@ -121,7 +120,7 @@ export function Row(props: RowProps) {
   const { children, leading, trailing, goto, label, role, expanded, selected } = props;
   const { tone, rowTone, surface, mark, density, emphasis, lineRole = "body" } = props;
   const { leadingAlign = "line", leadingWidth, inline = false, addressed = true } = props;
-  const { part = "root", inset = "md" } = props;
+  const { part = "root", inset = "md", indent } = props;
   const line = typography[useTextStep({ density, emphasis })(lineRole)].lineHeight;
   const ks = useKitStyle();
   const spacing = useVariantDensity(density);
@@ -152,6 +151,7 @@ export function Row(props: RowProps) {
       {((status && surface === undefined) || dimmed) && <RowDecoration fade />}
       <Content
         {...(contentId ? { id: contentId } : {})}
+        paddingLeft={indent === 1 ? space.xl : undefined}
         gap={inline ? space.xs : space[spacing.gap]}
         minHeight={inline ? line : Math.max(line, size.control.md - space[spacing.rowPad] * 2)}
       >

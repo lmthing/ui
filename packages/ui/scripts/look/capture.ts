@@ -1,3 +1,4 @@
+import { join } from "node:path";
 import type { Browser, Page } from "playwright-core";
 import type { LookIssue } from "./checks";
 
@@ -10,7 +11,8 @@ export async function capture(
   content: string,
   variantSheet = false,
 ) {
-  const page = await browser.newPage({ viewport: { width: width * 3 + 120, height: 900 } });
+  const columns = new URL(url).searchParams.getAll("preset").length || 3;
+  const page = await browser.newPage({ viewport: { width: width * columns + 120, height: 900 } });
   // Playwright still serialises the small image/font readiness callback.
   await page.addInitScript("globalThis.__name = (fn) => fn");
   const errors: string[] = [];
@@ -49,13 +51,13 @@ async function captureFrames(
     await document.fonts.ready;
     await Promise.all(Array.from(document.images).map((img) => img.decode().catch(() => undefined)));
   });
-  const shot = `${out}${variantSheet ? "variants" : `${width}-${mode}`}.png`;
+  const shot = join(out, `${variantSheet ? "variants" : `${width}-${mode}`}.png`);
   await page.screenshot({ path: shot, fullPage: true });
   await page.addScriptTag({ content });
   const found = await page.evaluate(() => window.lookChecks.find());
   if (!variantSheet && width === 390) {
     await page.evaluate(() => window.lookChecks.drawMarks());
-    await page.screenshot({ path: `${out}${width}-${mode}-marks.png`, fullPage: true });
+    await page.screenshot({ path: join(out, `${width}-${mode}-marks.png`), fullPage: true });
   }
   console.log(shot);
   return found;
