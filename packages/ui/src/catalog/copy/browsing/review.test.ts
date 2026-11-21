@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { reviewCountLine, reviewLabels, reviewReading, reviewScaleLabels, reviewStarsLine } from "../../copy";
+import { reviewCountLine, reviewLabels, reviewReading, reviewScale, reviewStarsLine } from "./review";
 
 it("reads exact summary numbers and singular/plural breakdown labels", () => {
   expect([reviewCountLine(0), reviewCountLine(1), reviewCountLine(2)]).toEqual([
@@ -8,7 +8,7 @@ it("reads exact summary numbers and singular/plural breakdown labels", () => {
     "2 reviews",
   ]);
   expect([reviewStarsLine(1), reviewStarsLine(5)]).toEqual(["1 star", "5 stars"]);
-  expect(reviewScaleLabels).toEqual(["1 of 5", "2 of 5", "3 of 5", "4 of 5", "5 of 5"]);
+  expect(reviewScale()).toEqual(["1 of 5", "2 of 5", "3 of 5", "4 of 5", "5 of 5"]);
   expect(
     reviewReading({
       style: "summary",
@@ -34,6 +34,7 @@ it("reads dates, ratings and reply controls with optional authored responses", (
     "2026-11-18",
     reviewLabels.reply,
     reviewLabels.response,
+    JSON.stringify('Thank you, "Alex".'),
     "1 of 5",
     "2026-11-17",
     reviewLabels.reply,

@@ -9,7 +9,6 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `ClientHistory.tsx`
 - `Invoice.tsx`
 - `PaymentStatus.tsx`
-- `Review.tsx`
 - `Loyalty.tsx`
 - `Agreement.tsx`
 

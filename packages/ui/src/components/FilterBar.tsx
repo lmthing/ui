@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { filterCount, filterReading, wordsFor } from "../catalog";
 import {
   itemsOf,
   clip,
@@ -14,10 +15,8 @@ import {
   type Meta,
   type Probe,
   type Props,
-} from "../../../catalog";
-import * as kit from "../../../kit";
-import { filterCount, filterReading } from "../copy";
-import { dataWordsFor } from "../lang";
+} from "../catalog";
+import * as kit from "../kit";
 
 // Core first: Chips/filter narrows by a few labels, not by several fields with separately opened pickers.
 export const meta = {
@@ -87,7 +86,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   }
   return {
     hint: clip(searchLine(thing?.type, lang), 40) ?? searchLine(undefined, lang),
-    filters: [{ label: clip(dataWordsFor(lang).filterLabel, 14) ?? dataWordsFor().filterLabel, options }],
+    filters: [{ label: clip(wordsFor(lang).filterLabel, 14) ?? wordsFor().filterLabel, options }],
   };
 }
 
@@ -136,7 +135,7 @@ type ViewProps = Props<typeof props, typeof meta> & { query?: string };
 function FilterPickers({ filters }: Pick<ViewProps, "filters">) {
   const { screen, component } = kit.usePartContext();
   const open = kit.useControlValue<string | undefined>(`${screen}/${component}/${pickerKey}`, undefined);
-  const { words } = kit.useWords(dataWordsFor);
+  const { words } = kit.useWords();
   return (
     <kit.KitScroll part="filters" label={words.filterList} bounded={open !== undefined}>
       {filters.map(({ id, label, options, value }) => (
@@ -150,7 +149,7 @@ export function FilterBar(input: ViewProps) {
   const { density: requestedDensity, detail, surface } = input;
   const density = kit.useVariant("density", meta.variants.density, requestedDensity);
   const { hint, filters, query, sort } = kit.useLiveControls(meta, input) as ViewProps;
-  const { lang, words } = kit.useWords(dataWordsFor);
+  const { lang, words } = kit.useWords();
   return (
     <kit.KitCard padded density={density} surface={surface}>
       <kit.KitContent>

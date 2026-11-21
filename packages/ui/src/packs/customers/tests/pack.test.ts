@@ -21,7 +21,7 @@ import {
   type Definition,
 } from "@lmthing/ui/catalog";
 
-const ids = ["ClientCard", "ClientHistory", "Invoice", "PaymentStatus", "Review", "Loyalty", "Agreement"];
+const ids = ["ClientCard", "ClientHistory", "Invoice", "PaymentStatus", "Loyalty", "Agreement"];
 const defs: Record<string, Definition> = components;
 const casts: CastLike[] = [
   { things: [], items: [] },
@@ -46,13 +46,15 @@ const casts: CastLike[] = [
 ];
 
 describe("customers contracts", () => {
-  it("has exactly seven components with examples, fallbacks and core near misses", () => {
+  it("has exactly six pack components with examples, fallbacks and core near misses", () => {
     expect(
       Object.entries(packOf)
         .filter(([, owner]) => owner === "customers")
         .map(([id]) => id)
         .sort(),
     ).toEqual([...ids].sort());
+    expect(createRegistry({ includeDrafts: true }).resolve("Review")).toBe(components.Review);
+    expect(Object.hasOwn(packOf, "Review")).toBe(false);
     for (const id of selectedIds(ids)) {
       const def = defs[id]!;
       expect(def.meta).toMatchObject({ id, region: "body" });

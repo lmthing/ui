@@ -21,7 +21,7 @@ import {
 import { createPreviewController, previewComponent } from "../../../../../../apps/gallery/app/draw";
 import { adminListProbes, boardProbes, reportProbes, example } from "..";
 
-const ids = ["Table", "Board", "FilterBar", "LineChart", "Heatmap", "BulkActions", "ActivityLog"] as const;
+const ids = ["Table", "Board", "LineChart", "Heatmap", "BulkActions", "ActivityLog"] as const;
 const draft = createRegistry({ packs: ["data"], includeDrafts: true });
 const empty: CastLike = { things: [], items: [] };
 const full: CastLike = {
@@ -42,6 +42,8 @@ it("scopes generated Writer choices and keeps drafts out of live registries", ()
   const format = JSON.stringify(writerFormat(draft));
   const liveFormat = JSON.stringify(writerFormat(live));
   expect(draft.ids.filter((id) => id in packOf).sort()).toEqual([...ids].sort());
+  expect(createRegistry({ includeDrafts: true }).resolve("FilterBar")).toBe(components.FilterBar);
+  expect(Object.hasOwn(packOf, "FilterBar")).toBe(false);
   for (const id of ids) {
     expect(packOf[id]).toBe("data");
     expect(core.resolve(id)).toBeUndefined();
@@ -62,7 +64,7 @@ it("validates the example byte for byte and parses every line", () => {
     expect(draft.schema(c)?.safeParse(input).success, c).toBe(true);
   }
   expect(new Set(lines.map(({ id }) => id)).size).toBe(lines.length);
-  for (const id of ids) expect(lines.some(({ c }) => c === id)).toBe(true);
+  for (const id of [...ids, "FilterBar"]) expect(lines.some(({ c }) => c === id)).toBe(true);
   expect(lines.find(({ c }) => c === "Table")).toMatchObject({ selectable: true, sort: 1 });
   expect(lines.find(({ c }) => c === "Table").rows).toHaveLength(20);
   expect(lines.find(({ c }) => c === "Bars").style).toBe("share");

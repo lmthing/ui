@@ -117,6 +117,35 @@ export const en = {
   documentField: (label: string, value: string) => `${label} · ${value}`,
   documentTax: (label: string, percent: string) => `${label} (${percent})`,
   kitchenLabels: { newItem: "Type a new grocery item", timer: "Cooking timer" },
+  filterClear: "Clear filters",
+  filterCount: (count: string, form: LDMLPluralRule) =>
+    form === "one" ? `${count} active filter` : `${count} active filters`,
+  filterLabel: "Name",
+  filterList: "Filter fields",
+  filterOptions: (id: string, label: string, options: readonly string[], value?: string) =>
+    `${id} ${value === undefined ? label : `${label}: ${value}`} (${options.join(" · ")})`,
+  filterSort: (label: string) => `Sort: ${label}`,
+  reviews: (count: string, form: LDMLPluralRule) => `${count} ${form === "one" ? "review" : "reviews"}`,
+  stars: (count: string, form: LDMLPluralRule) => `${count} ${form === "one" ? "star" : "stars"}`,
+  reviewLabels: {
+    reply: "Reply",
+    response: "Business reply",
+    verified: "Verified",
+    showSpoiler: "Show spoiler",
+    hideSpoiler: "Hide spoiler",
+    photo: (index: number) => `Review photo ${index}`,
+    fit: (value: number) =>
+      ["Runs very small", "Runs small", "True to size", "Runs large", "Runs very large"][value - 1]!,
+  },
+  article: {
+    byline: (name: string) => `By ${name}`,
+    readingTime: (minutes: string) => `${minutes} min read`,
+    metadataSeparator: " · ",
+    bullet: "• ",
+    ordinal: (number: string) => `${number}. `,
+    quote: ["“", "”"] as [string, string],
+    callout: "Note: ",
+  },
 };
 
 export type Words = typeof en;

@@ -1,7 +1,6 @@
 import {
   components,
   createRegistry,
-  packReady,
   planAct,
   readScreen,
   stampItemIds,
@@ -10,7 +9,7 @@ import {
 } from "@lmthing/ui/catalog";
 import { createScreenController, renderers } from "@lmthing/ui/kit";
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { addressedElements, renderInstance } from "../../../../../test/render";
+import { addressedElements, renderInstance } from "../../test/render";
 
 const def = components.FilterBar;
 const { meta, props, examples, fallback, probes } = def;
@@ -93,7 +92,7 @@ describe("FilterBar fallback and probes", () => {
 
   it("uses phone tier and retains the core near miss and the variant and action probes", () => {
     expect(meta).toMatchObject({ tier: "phone", weight: 2, states: ["filled"] });
-    expect(createRegistry({ packs: ["data"] }).ids.includes("FilterBar")).toBe(packReady("data"));
+    expect(createRegistry({ includeDrafts: true }).ids).toContain("FilterBar");
     expect(probes).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ kind: "choose", expect: "FilterBar" }),

@@ -99,6 +99,20 @@ Choose only axes and values that visibly change this component. These are candid
 See `src/components/Card.tsx` for Card finish and content axes and `src/components/List.tsx` for
 List's grouped rows, peek disclosure, inherited trail and per-row tone and mark.
 
+## Promoted core entries
+
+`FilterBar`, `Review`, and `Article` are core. The data, customers and media packs keep their
+existing archetypes and JSONL examples with the same component IDs; don't add aliases or re-export
+the definitions from the packs. Their words come from the core dictionary.
+
+- `FilterBar` keeps the existing search, picker, active count, sort label and clear action contract.
+- `Review` accepts up to three `photos` per review, optional `fitScale` (1–5), `verified`, and
+  `spoiler`. Spoilers begin collapsed; a local item toggle reveals or hides review content without
+  changing the saved line. The reader must also omit hidden content.
+- `Article` keeps its original default layout. It supports `article`, `book`, and `response`
+  styles, optional `paper` (light, sepia, dark), and `fontScale` (normal, small, large).
+  A line starting with `> [!NOTE]` is a callout.
+
 ## Words and language
 
 `KitProvider` and `PhoneScreen` take the app's BCP-47 `lang`; the default is English.
