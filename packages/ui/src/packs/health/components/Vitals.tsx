@@ -1,29 +1,8 @@
 import { z } from "zod";
-import {
-  wordsFor,
-  numberLine,
-  probesFor,
-  screenId,
-  text,
-  variantProps,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import {
-  KitCard,
-  KitContent,
-  KitEmpty,
-  KitGrid,
-  KitRangeBand,
-  KitRow,
-  KitText,
-  useComponentState,
-  useWords,
-  useVariant,
-  KitAction,
-} from "../../../kit";
+// prettier-ignore
+import { wordsFor, numberLine, probesFor, screenId, text, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+// prettier-ignore
+import { KitCard, KitContent, KitEmpty, KitGrid, KitRangeBand, KitRow, KitText, useComponentState, useWords, useVariant, KitAction } from "../../../kit";
 import { vitalBand, vitalLine, vitalPairLine, vitalRangeLine, vitalStatusLine } from "../copy";
 import { seedTitles } from "..";
 import { healthWordsFor } from "../lang";
@@ -38,6 +17,7 @@ export const meta = {
     "low must not exceed high. Ranges are references, not diagnoses; never write a computed status or tone.",
     "low and high describe value only. value2 is an optional paired reading, not checked against the primary range.",
     "Write surface null unless asked for an outline. Do not write the default surface card. Use detail brief to hide reading times; keep the time in each reading and retain the reference range and status.",
+    'Use style "history" only for a compact log without bands. Write context on each reading only when stated, using "resting", "fasting", "post_meal" or "active".',
   ],
   region: "body",
   weight: 2,
@@ -46,7 +26,7 @@ export const meta = {
     "Readings typed on the device; health-store device imports need read permission, and ranges are not medical advice.",
   variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["at"] } },
-  items: { key: "readings", parts: ["root", "label", "value", "value2", "unit", "band", "at"] },
+  items: { key: "readings", parts: ["root", "label", "value", "value2", "unit", "band", "at", "context"] },
   parts: ["root", "add"],
   states: ["filled", "empty"],
   actions: { items: { root: ["press"] }, parts: { add: ["press"] } },
@@ -63,6 +43,7 @@ export const meta = {
 const readingNumber = z.number().min(-1000000).max(1000000);
 export const props = z.strictObject({
   ...variantProps(meta.variants),
+  style: z.enum(["band", "history"]).default("band"),
   readings: z
     .array(
       z
@@ -75,6 +56,7 @@ export const props = z.strictObject({
           high: readingNumber,
           // The localized reader includes the timestamp only when the row displays it.
           at: z.string().trim().min(1).max(12),
+          context: z.enum(["resting", "fasting", "post_meal", "active"]).optional(),
         })
         .refine(({ low, high }) => low <= high, { path: ["high"] }),
     )
@@ -105,6 +87,10 @@ export const examples = [
     { label: "Resting pulse", value: 68, unit: "bpm", low: 60, high: 100, at: "08:12" },
   ], goto: "add_reading" },
   { readings: [{ label: "Temperature", value: 37.8, unit: "°C", low: 36.1, high: 37.2, at: "19:30" }], goto: "add_reading" },
+  { style: "history", readings: [
+    { label: "Blood glucose", value: 92, unit: "mg/dL", low: 70, high: 99, at: "07:15", context: "fasting" },
+    { label: "Blood glucose", value: 126, unit: "mg/dL", low: 70, high: 140, at: "13:25", context: "post_meal" },
+  ], goto: "add_reading" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Vitals");
 export const probes = [
@@ -124,20 +110,27 @@ export const probes = [
   },
   read("Add a new vital reading", { address: "v1/add", action: "press" }),
   read("Open the blood pressure reading", { address: "v1/r1", action: "press" }, 2),
+  {
+    ...write(
+      "Show my fasting blood glucose of 92 mg/dL at 07:15, with reference 70 to 99. Adding a reading opens add_reading.",
+    ),
+    fields: { "readings.0.context": "fasting" },
+  },
+  {
+    ...write(
+      "Show a compact history without bands: resting pulse 68 bpm at 08:10 and resting pulse 71 bpm at 09:15, each with reference 60 to 100. Adding a reading opens add_reading.",
+    ),
+    fields: { style: "history" },
+  },
 ] satisfies Probe[];
 type Reading = Props<typeof props, typeof meta>["readings"][number];
 // prettier-ignore
-function VitalValue({ reading, lang }: { reading: Reading; lang: string }) {
+function VitalValue({ reading, lang, history }: { reading: Reading; lang: string; history: boolean }) {
   const value = numberLine(reading.value, lang);
   const pair = reading.value2 === undefined ? "" : vitalPairLine(reading.value2, lang);
-  const numberScale = `${value}${pair}`.length > 12 ? "compact" : "display";
+  const numberScale = history || `${value}${pair}`.length > 12 ? "compact" : "display";
   const tone = vitalBand(reading).tone;
-  return (
-    <KitRangeBand
-      part="band"
-      label={reading.unit} value={reading.value} low={reading.low} high={reading.high}
-      {...vitalBand(reading)}
-      reading={
+  const display = (
         <KitContent group="response">
           <KitRow
             inline
@@ -161,13 +154,15 @@ function VitalValue({ reading, lang }: { reading: Reading; lang: string }) {
             </KitText>
           </KitRow>
         </KitContent>
-      }
-    />
+  );
+  return history ? display : (
+    <KitRangeBand part="band" label={reading.unit} value={reading.value}
+      low={reading.low} high={reading.high} {...vitalBand(reading)} reading={display} />
   );
 }
 
 // prettier-ignore
-export function Vitals({ readings, goto, surface, detail }: Props<typeof props, typeof meta>) {
+export function Vitals({ readings, goto, surface, detail, style }: Props<typeof props, typeof meta>) {
   const full = useVariant("detail", meta.variants.detail, detail) === "full";
   const state = useComponentState();
   const { lang, words } = useWords(healthWordsFor);
@@ -185,7 +180,8 @@ export function Vitals({ readings, goto, surface, detail }: Props<typeof props, 
               <KitText role="caption" tone="muted" part="label">{reading.label}</KitText>
               {full && <KitText role="caption" tone="muted" tabular part="at">{reading.at}</KitText>}
             </KitGrid>
-            <VitalValue reading={reading} lang={lang} />
+            <VitalValue reading={reading} lang={lang} history={style === "history"} />
+            {reading.context && <KitText role="caption" tone="muted" part="context">{words.vitalLabels.context[reading.context]}</KitText>}
             <KitText role="caption" tone="muted" part={null}>{vitalRangeLine(reading, lang)}</KitText>
             <KitText role="caption" tone={vitalBand(reading).tone} part={null}>{vitalStatusLine(reading, lang)}</KitText>
           </KitRow>

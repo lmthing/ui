@@ -44,6 +44,8 @@ describe("Cycle contract and boundaries", () => {
     { ...seed, next: "2026-11-29" },
     { ...seed, window: "2026-11-10" },
     { ...seed, id: "c1" },
+    { ...seed, mode: "other" },
+    { ...seed, symptoms: { goto: "Bad ID" } },
   ])("rejects invalid or model-written derived input", (input) =>
     expect(props.safeParse(input).success).toBe(false),
   );
@@ -104,21 +106,28 @@ describe("Cycle fallback", () => {
 describe("Cycle states, parts and reading", () => {
   it.each(examples)("addresses every filled part once and reads every visible line", (input) => {
     const html = renderInstance("Cycle", input, "filled", theme);
-    const hidden = input.detail === "brief" ? meta.variantParts["detail.brief"].hides : [];
+    const hidden = new Set<string>(input.detail === "brief" ? meta.variantParts["detail.brief"].hides : []);
+    if (input.mode === "pregnancy")
+      for (const part of ["day", "phase", "next", "window", "disclaimer", "log"]) hidden.add(part);
+    if (!input.mode) hidden.add("mode");
+    if (!input.symptoms) hidden.add("symptoms");
     for (const part of meta.parts)
       expect(html.match(new RegExp(`data-testid="home/c1/${part}"`, "g")) ?? []).toHaveLength(
-        hidden.some((name) => name === part) ? 0 : 1,
+        hidden.has(part) ? 0 : 1,
       );
-    expect(elementAt(html, "home/c1/log").attributes).toContain('role="button"');
+    if (!hidden.has("log")) expect(elementAt(html, "home/c1/log").attributes).toContain('role="button"');
     const reading = readComponent(components.Cycle, input, "c1").join("\n");
     for (const line of cycleReading(input)) {
       expect(html).toContain(line);
       expect(reading).toContain(line);
     }
-    expect(reading).toContain("[c1/log press]");
+    expect(reading.includes("[c1/log press]")).toBe(!hidden.has("log"));
     expect(reading).not.toContain("[c1 press]");
     expect(affordancesOf(meta, stampItemIds(meta, props.parse(input)), "c1")).toEqual([
-      { address: "c1/log", part: "log", action: "press", detail: "" },
+      ...(hidden.has("log") ? [] : [{ address: "c1/log", part: "log", action: "press", detail: "" }]),
+      ...(input.symptoms
+        ? [{ address: "c1/symptoms", part: "symptoms", action: "press", detail: "→symptom_log" }]
+        : []),
     ]);
   });
   it("keeps the empty state calm, addressed and free of predictions or controls", () => {
@@ -135,17 +144,20 @@ describe("Cycle states, parts and reading", () => {
 });
 
 it("dispatches repeated period-log requests only from the declared filled action", () => {
-  const onAction = vi.fn();
+  const onAction = vi.fn(),
+    onLink = vi.fn();
   const runtime = createScreenController({
     screen: {
       id: "home",
       components: [
         { id: "c1", c: "Cycle", ...seed },
         { id: "c2", c: "Cycle", ...seed, state: "empty" },
+        { id: "c3", c: "Cycle", ...seed, mode: "pregnancy", symptoms: { goto: "symptom_log" } },
       ],
     },
     defs: components,
     onAction,
+    onLink,
   });
   try {
     expect(runtime.press("home/c1/day")).toMatchObject({ ok: false });
@@ -157,6 +169,10 @@ it("dispatches repeated period-log requests only from the declared filled action
     expect(onAction).toHaveBeenLastCalledWith({ address: "home/c1/log", action: "press" });
     expect(runtime.snapshotScreen().components[0]).toMatchObject(seed);
     expect(runtime.read()).toContain("[c1/log press]");
+    expect(runtime.press("home/c1/symptoms").ok).toBe(false);
+    expect(runtime.press("home/c3/log").ok).toBe(false);
+    expect(runtime.press("home/c3/symptoms").ok).toBe(true);
+    expect(onLink).toHaveBeenCalledWith("symptom_log", "home/c3/symptoms");
   } finally {
     runtime.dispose();
   }

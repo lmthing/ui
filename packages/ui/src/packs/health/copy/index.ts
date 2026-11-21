@@ -18,7 +18,7 @@ export {
 } from "./Cycle";
 export { medicationLabels, medicationReading, orderedDoses, refillLine, stockLine } from "./Medication";
 export { exerciseLabels, exerciseReading } from "./Exercise";
-export { activityRingLine } from "./ActivityRings";
+export { activityRingLine, activityScoreLine, activityScoreMax } from "./ActivityRings";
 export { cardioControls, cardioMetrics, cardioReading, cardioSplits } from "./CardioSession";
 export { planCount, planDay, planOrder, planReading, planView } from "./TrainingPlan";
 export {
@@ -27,6 +27,7 @@ export {
   workoutReading,
   workoutSetLabel,
   workoutSetTimes,
+  workoutSummary,
 } from "./Workout";
 export {
   vitalBand,

@@ -47,14 +47,17 @@ export const en = {
   },
   activityRing: (label: string, value: string, goal: string | undefined, unit: string) =>
     `${label}: ${value}${goal === undefined ? "" : ` ${goal}`} ${unit}`,
+  activityScore: (label: string, value: string, goal: string) => `${label}: ${value} ${goal}`,
   symptomLevel: (value: string, max: string) => `${value}/${max}`,
   symptomSeverity: (label: string, level: string) => `${label} · ${level}`,
   vitalPair: (value: string) => ` / ${value}`,
   vitalUnit: (unit: string, value?: string) => (value === undefined ? unit : `/ ${value} ${unit}`),
-  vitalReading: (label: string, value: string, unit: string, range: string, status: string, at?: string) =>
-    `${label}: ${value} ${unit} · ${range} · ${status}${at === undefined ? "" : ` · ${at}`}`,
+  // prettier-ignore
+  vitalReading: (label: string, value: string, unit: string, range: string, status: string, at?: string, context?: string) =>
+    `${label}: ${value} ${unit} · ${range} · ${status}${at === undefined ? "" : ` · ${at}`}${context === undefined ? "" : ` · ${context}`}`,
   vitalLabels: {
     add: "Add reading",
+    context: { resting: "Resting", fasting: "Fasting", post_meal: "After a meal", active: "Active" },
     outside: "Outside range",
     normal: "In range",
     systolic: (status: string) => `Systolic: ${status}`,
@@ -82,6 +85,10 @@ export const en = {
   exerciseStart: (label: string) => `start button: ${label}`,
   cycleLabels: {
     log: "Log period",
+    symptoms: "View symptoms",
+    conceive: "Trying to conceive",
+    pregnancy: "Pregnancy tracking",
+    pregnancyDetail: "Cycle predictions are paused during pregnancy tracking.",
     disclaimer: "Predictions are not a method\u00a0of\u00a0contraception.",
     empty: "Log a period to see cycle\u00a0estimates.",
     upcoming: "Upcoming period",
@@ -112,6 +119,9 @@ export const en = {
     elapsed: "Elapsed time",
     timeLine: (time: string) => `Elapsed time · ${time}`,
     set: (position: string) => `Set ${position}`,
+    round: (position: string) => `Round ${position}`,
+    interval: { emom: "EMOM", amrap: "AMRAP", circuit: "Timed circuit" },
+    rpe: (value: string) => `Perceived effort · ${value}/10`,
     timedSet: (label: string, time: string) => `${label} · ${time}`,
     completeSet: (label: string) => `Complete ${label.toLowerCase()}`,
     weight: (unit: string) => `Weight (${unit})`,

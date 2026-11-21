@@ -1,32 +1,8 @@
-import {
-  useWords,
-  KitAction,
-  KitCard,
-  KitContent,
-  KitEmpty,
-  KitRadialTrack,
-  KitText,
-  useComponentState,
-  useEmptyThing,
-  useVariant,
-  type TextTone,
-} from "../../../kit";
-import { healthWordsFor } from "../lang";
 import { z } from "zod";
-import {
-  detailOf,
-  emptyLine,
-  isoDate,
-  itemsOf,
-  probesFor,
-  thingOf,
-  titleOf,
-  variantProps,
-  type CastLike,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
+// prettier-ignore
+import { useWords, KitAction, KitCard, KitContent, KitEmpty, KitRadialTrack, KitText, useComponentState, useEmptyThing, useVariant, type TextTone } from "../../../kit";
+// prettier-ignore
+import { detailOf, emptyLine, isoDate, itemsOf, probesFor, screenId, thingOf, titleOf, variantProps, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
 import {
   cycleDayLine,
   cycleEstimate,
@@ -34,8 +10,8 @@ import {
   cycleReading,
   cycleToday,
   cycleWindowLine,
-  type CycleSeed,
 } from "../copy";
+import { healthWordsFor } from "../lang";
 
 // Core first: Calendar/month cannot derive cycle phases, next period and a fertile window from period dates.
 export const meta = {
@@ -47,6 +23,8 @@ export const meta = {
   writeHints: [
     "Write the start, average length and period duration. Predictions are computed locally and are not a method of contraception.",
     "Write surface null unless asked for an outline. Do not write the default surface card. Use detail brief only to omit the estimated next-period and fertile-window captions.",
+    'Set mode "conceive" if trying to conceive, or "pregnancy" if already pregnant. Otherwise use null. Keep the supplied cycle dates and lengths in all modes; pregnancy mode does not show estimates.',
+    "For a link to the symptom log, write symptoms {goto} using the requested screen id. Otherwise symptoms is null.",
   ],
   region: "body",
   weight: 2,
@@ -55,18 +33,22 @@ export const meta = {
     "Period dates stored only on the device, never shared; local predictions are not medical advice or a method of contraception.",
   variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["next", "window"] } },
-  parts: ["root", "day", "phase", "next", "window", "disclaimer", "log"],
+  parts: ["root", "day", "phase", "next", "window", "disclaimer", "log", "mode", "symptoms"],
   states: ["filled", "empty"],
-  actions: { parts: { log: ["press"] } },
-  read: (input, state, lang?: string) =>
-    state === "filled" ? cycleReading(input as CycleSeed & { detail?: "full" | "brief" }, lang) : [],
+  actions: { parts: { log: ["press"], symptoms: ["press"] }, when: { log: { canLog: true } } },
+  read: (input, state, lang?: string): string[] =>
+    state === "filled" ? cycleReading(input as z.output<typeof props>, lang) : [],
 } as const satisfies Meta;
-export const props = z.strictObject({
-  ...variantProps(meta.variants),
-  start: isoDate,
-  length: z.int().min(21).max(40),
-  period: z.int().min(2).max(10),
-});
+export const props = z
+  .strictObject({
+    ...variantProps(meta.variants),
+    start: isoDate,
+    length: z.int().min(21).max(40),
+    period: z.int().min(2).max(10),
+    mode: z.enum(["track", "conceive", "pregnancy"]).default("track"),
+    symptoms: z.strictObject({ goto: screenId }).optional(),
+  })
+  .overwrite((value) => ({ ...value, canLog: value.mode !== "pregnancy", symptoms: value.symptoms }));
 export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   const thing = thingOf(cast);
   const start = itemsOf(cast, 6)
@@ -78,8 +60,11 @@ export const examples = [
   { start: "2026-11-01", length: 28, period: 5 },
   { start: "2026-10-26", length: 32, period: 6, surface: "outlined" },
   { start: "2026-11-01", length: 28, period: 5, detail: "brief" },
+  { start: "2026-11-01", length: 28, period: 5, mode: "conceive" },
+  { start: "2026-10-03", length: 28, period: 5, mode: "pregnancy", symptoms: { goto: "symptom_log" } },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Cycle");
+// prettier-ignore
 export const probes = [
   choose(
     "Follow my menstrual cycle, showing today's cycle day, phase, predicted next period and fertile window",
@@ -93,9 +78,23 @@ export const probes = [
     variant: { axis: "detail", value: "brief" },
   },
   read("Log a new period", { address: "c1/log", action: "press" }),
+  {
+    ...write("I'm trying to conceive. My last period started November 1, 2026, my cycle averages 28 days, and my period lasts five days."),
+    fields: { mode: "conceive" },
+  },
+  {
+    ...write("I'm already pregnant. Put my cycle tracker in pregnancy mode. My last period began October 3, 2026, with an average 28-day cycle and a five-day period."),
+    fields: { mode: "pregnancy" },
+  },
+  {
+    ...write("My last period began November 1, 2026, my average cycle is 28 days, and my period lasts five days. Add a link to the symptom log screen, symptom_log."),
+    fields: { "symptoms.goto": "symptom_log" },
+  },
+  read("Open the symptom log", { address: "c1/symptoms", action: "press" }, 4),
 ] satisfies Probe[];
 
-export function Cycle(input: Props<typeof props, typeof meta>) {
+type CycleProps = Props<typeof props, typeof meta>;
+export function Cycle(input: CycleProps) {
   const { lang, words } = useWords(healthWordsFor);
   const { cycleLabels } = words;
   const state = useComponentState();
@@ -114,15 +113,62 @@ export function Cycle(input: Props<typeof props, typeof meta>) {
       </KitCard>
     );
   }
+  const symptoms = input.symptoms && (
+    <KitAction
+      label={cycleLabels.symptoms}
+      part="symptoms"
+      kind="secondary"
+      goto={input.symptoms.goto}
+      full
+    />
+  );
+  if (input.mode === "pregnancy")
+    return (
+      <KitCard style="inset" padded part="root" surface={input.surface}>
+        <KitContent>
+          <KitText role="heading" part="mode">
+            {cycleLabels.pregnancy}
+          </KitText>
+          <KitText role="body" tone="muted" part={null}>
+            {cycleLabels.pregnancyDetail}
+          </KitText>
+        </KitContent>
+        {symptoms}
+      </KitCard>
+    );
+  return (
+    <CycleTrack input={input} full={full}>
+      {symptoms}
+    </CycleTrack>
+  );
+}
+
+type TrackProps = { input: CycleProps; full: boolean; children: ReturnType<typeof KitAction> | undefined };
+function CycleTrack({ input, full, children }: TrackProps) {
+  const {
+    lang,
+    words: { cycleLabels },
+  } = useWords(healthWordsFor);
+  const conceive = input.mode === "conceive";
   const cycle = cycleEstimate(input, undefined, lang);
+  const [periodTone, fertileTone] = conceive ? (["text", "accent"] as const) : (["accent", "text"] as const);
   const segments = Array.from({ length: input.length }, (_, index) => {
     const day = index + 1;
     const tone: TextTone =
-      day <= input.period ? "accent" : day >= cycle.fertileFrom && day <= cycle.fertileTo ? "text" : "muted";
+      day <= input.period
+        ? periodTone
+        : day >= cycle.fertileFrom && day <= cycle.fertileTo
+          ? fertileTone
+          : "muted";
     return { id: String(day), tone, current: day === cycle.day };
   });
   return (
     <KitCard style="inset" padded part="root" surface={input.surface}>
+      {conceive && (
+        <KitText role="label" tone="muted" align="center" part="mode">
+          {cycleLabels.conceive}
+        </KitText>
+      )}
       <KitRadialTrack style="days" segments={segments} part="day">
         <KitText role="number" align="center" part={null} tabular>
           {cycleDayLine(cycle.day, lang)}
@@ -142,6 +188,7 @@ export function Cycle(input: Props<typeof props, typeof meta>) {
         </KitContent>
       )}
       <KitAction label={cycleLabels.log} part="log" full />
+      {children}
       <KitText role="label" tone="muted" align="center" part="disclaimer">
         {cycleLabels.disclaimer}
       </KitText>
