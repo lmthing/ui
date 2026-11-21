@@ -119,21 +119,21 @@ type ListingCopy = ReturnType<typeof listingCopy>;
 type Density = c.ThemeDensity;
 
 // prettier-ignore
-function ListingFacts({ copy, unitSpace }: { copy: ListingCopy; unitSpace: string }) {
+function ListingFacts({ copy, unitSpace, density }: { copy: ListingCopy; unitSpace: string; density: Density }) {
   const facts = [
     { part: "beds", icon: "bed", text: copy.beds },
     { part: "baths", icon: "bath", text: copy.baths },
     { part: "area", icon: "home", text: copy.area },
   ] as const;
-  return <kit.KitGrid columns={3} density="compact">
+  return <kit.KitContent density={density}>
     {facts.map(({ part, icon, text }) =>
-      <kit.KitContent key={part} lineRole="body" leadingAlign="row" lead={<kit.KitIcon name={icon} scale="sm" decorative />} density="compact">
-        <kit.KitText part={part} role="label" density="compact">
-          {text}{part === "area" && <kit.KitText part="area_unit" role="label" density="compact">{unitSpace}{copy.areaUnit}</kit.KitText>}
+      <kit.KitContent key={part} leadingAlign="row" lead={<kit.KitIcon name={icon} scale="sm" decorative />} density={density}>
+        <kit.KitText part={part} role="label" density={density}>
+          {text}{part === "area" && <kit.KitText part="area_unit" role="label" density={density}>{unitSpace}{copy.areaUnit}</kit.KitText>}
         </kit.KitText>
       </kit.KitContent>
     )}
-  </kit.KitGrid>;
+  </kit.KitContent>;
 }
 
 // prettier-ignore
@@ -141,16 +141,20 @@ function ListingLoading({ input, copy, density }: { input: ListingProps; copy: L
   const { words: { listing: words } } = kit.useWords(inventoryWordsFor);
   return <>
     <kit.KitSkeleton shape="figure" inset="none" content={[["heading", input.title], ["number", copy.price]]} {...{ density }} />
-    <kit.KitGrid columns={3} density="compact">
+    <kit.KitContent density={density}>
       {[copy.beds, copy.baths, copy.area + words.unitSpace + copy.areaUnit].map((text, index) =>
-        <kit.KitSkeleton key={index} shape="figure" inset="none" content={[["label", text]]} density="compact" />
+        <kit.KitSkeleton key={index} shape="figure" inset="none" lead="dot" content={[["label", text]]} density={density} />
       )}
-    </kit.KitGrid>
-    <kit.KitSkeleton shape="figure" inset="none" content={[["label", input.where], ["label", copy.from], ["label", copy.about]]} {...{ density }} />
-    <kit.KitGrid {...{ density }}>
-      <kit.KitSkeleton shape="control" label={words.contact} full />
-      <kit.KitSkeleton shape="control" label={words.save} kind="secondary" full />
-    </kit.KitGrid>
+    </kit.KitContent>
+    <kit.KitContent density={density}>
+      <kit.KitSkeleton shape="figure" inset="none" content={[["label", input.where], ["label", copy.from], ["label", copy.about]]} {...{ density }} />
+      <kit.KitContent group="response" density={density}>
+        <kit.KitGrid {...{ density }}>
+          <kit.KitSkeleton shape="control" label={words.contact} full />
+          <kit.KitSkeleton shape="control" label={words.save} kind="secondary" full />
+        </kit.KitGrid>
+      </kit.KitContent>
+    </kit.KitContent>
   </>;
 }
 
@@ -172,16 +176,18 @@ export function Listing(input: ListingProps) {
           {copy.price}{copy.per && <kit.KitText part="per" role="label" tone="muted" {...{ density }}>{words.unitSpace}{copy.per}</kit.KitText>}
         </kit.KitText>
       </kit.KitContent>
-      <ListingFacts copy={copy} unitSpace={words.unitSpace} />
+      <ListingFacts copy={copy} unitSpace={words.unitSpace} density={density} />
       <kit.KitContent {...{ density }}>
         <kit.KitText part="where" role="label" {...{ density }}>{input.where}</kit.KitText>
         {copy.from && <kit.KitText part="from" role="label" tone="muted" {...{ density }}>{copy.from}</kit.KitText>}
         {copy.about && <kit.KitText part="about" role="label" tone="muted" {...{ density }}>{copy.about}</kit.KitText>}
+        <kit.KitContent group="response" density={density}>
+          <kit.KitGrid {...{ density }}>
+            <kit.KitAction part="contact" label={words.contact} full />
+            <kit.KitAction part="save" action="toggle" kind="secondary" icon={saved ? "check" : "bookmark"} label={saved ? words.unsave : words.save} full />
+          </kit.KitGrid>
+        </kit.KitContent>
       </kit.KitContent>
-      <kit.KitGrid {...{ density }}>
-        <kit.KitAction part="contact" label={words.contact} full />
-        <kit.KitAction part="save" action="toggle" kind="secondary" icon={saved ? "check" : "bookmark"} label={saved ? words.unsave : words.save} full />
-      </kit.KitGrid>
     </>}
   </kit.KitCard>;
 }

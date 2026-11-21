@@ -114,6 +114,8 @@ describe("Loans states and parts", () => {
     expect(parts.has(at("r2/overdue"))).toBe(false);
     expect(parts.has(at("r3/due"))).toBe(true);
     expect(parts.has(at("r3/overdue"))).toBe(false);
+    expect(parts.get(at("r1/remind_label"))?.text).toEqual(["Remind Ana"]);
+    expect(parts.get(at("r2/remind_label"))?.text).toEqual(["Remind me"]);
     for (const id of ["r1", "r2", "r3"])
       for (const action of ["returned", "remind"])
         expect(parts.get(at(`${id}/${action}`))?.attributes).toContain('role="button"');
@@ -148,8 +150,8 @@ describe("Loans read and act", () => {
   it("reads the due dates, directions and actions alongside the correct items", () => {
     const { controller } = setup("filled", "brief");
     const reading = controller.read();
-    expect(reading).toContain("r1 Lent to Ana · Due back 1 Mar 2024 · Overdue");
-    expect(reading).toContain("r2 Borrowed from Sam");
+    expect(reading).toContain("r1 Lent to Ana · Due back 1 Mar 2024 · Overdue · Mark returned · Remind Ana");
+    expect(reading).toContain("r2 Borrowed from Sam · Mark returned · Remind me");
     expect(reading).toMatch(
       /r2 .*"Long training lead".*\[l1\/r2\/returned press\].*\[l1\/r2\/remind press !needs-service\]/,
     );
