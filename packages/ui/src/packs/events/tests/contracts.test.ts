@@ -31,6 +31,7 @@ const casts: CastLike[] = [
 
 function verifiesProbes(def: Definition, miss: string) {
   const { meta, probes } = def;
+  if (meta.status === "draft") expect(def).not.toHaveProperty(meta.id);
   expect(probes).toContainEqual(expect.objectContaining({ kind: "choose", expect: meta.id }));
   expect(probes).toContainEqual(expect.objectContaining({ kind: "choose", expect: miss }));
   expect(probes).toContainEqual(expect.objectContaining({ kind: "write", expect: meta.id }));
@@ -53,7 +54,6 @@ describe("events component contracts", () => {
       for (const cast of casts) expect(def.props.safeParse(def.fallback({ cast })).success).toBe(true);
       expect(def.meta).toMatchObject({ tier, weight, region: "body" });
       if (weight === 3) expect(def.meta).toHaveProperty("dense", true);
-      if (def.meta.status === "draft") expect(def).not.toHaveProperty(def.meta.id);
       verifiesProbes(def, miss);
     },
   );

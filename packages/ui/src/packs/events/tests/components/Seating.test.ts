@@ -97,7 +97,7 @@ describe("Seating fallback and contract", () => {
     expect(probes).toContainEqual(
       expect.objectContaining({ kind: "read", expect: { address: "s1/r5", action: "move" } }),
     );
-    expect(createRegistry({ packs: [pack] }).ids.includes("Seating")).toBe(packReady(pack));
+    expect(createRegistry({ packs: [pack.id] }).ids.includes("Seating")).toBe(packReady(pack.id));
   });
 });
 
