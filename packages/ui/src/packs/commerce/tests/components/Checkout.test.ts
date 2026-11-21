@@ -98,8 +98,8 @@ describe("Checkout states and parts", () => {
   it("draws two named controls with radios, a delivery button and a separate place button", () => {
     const html = renderInstance("Checkout", delivery, "filled", theme);
     for (const [part, label, options, selected] of [
-      ["mode", "Fulfillment", ["pickup", "delivery", "table"], "delivery"],
-      ["method", "Payment", ["card", "cash", "wallet"], "card"],
+      ["mode", "Fulfillment", ["Pickup", "Delivery", "Table"], "Delivery"],
+      ["method", "Payment", ["Card", "Cash", "Wallet"], "Card"],
     ] as const) {
       const group = elementAt(html, `home/c1/${part}`);
       expect(group.attributes).toContain('role="radiogroup"');
@@ -122,8 +122,9 @@ describe("Checkout states and parts", () => {
   it("hides only time in brief, and shows an address control only for delivery", () => {
     const brief = { ...delivery, detail: "brief" };
     const html = renderInstance("Checkout", brief, "filled", theme);
-    expect(html).not.toContain("Tomorrow 10:30");
-    expect(readComponent(def, brief, "c1").join("\n")).not.toContain("Tomorrow 10:30");
+    expect(renderInstance("Checkout", delivery, "filled", theme)).toContain(delivery.time);
+    expect(html).not.toContain(delivery.time);
+    expect(readComponent(def, brief, "c1").join("\n")).not.toContain(delivery.time);
     expect(elementAt(html, "home/c1/address").attributes).toContain('role="button"');
     expect(renderInstance("Checkout", pickup, "filled", theme)).not.toContain("home/c1/address");
     expect(renderInstance("Checkout", { ...delivery, address: undefined }, "filled", theme)).toContain(

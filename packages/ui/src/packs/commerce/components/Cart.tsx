@@ -114,8 +114,8 @@ type LineView = { line: CartLine; density: c.ThemeDensity; detail: CartProps["de
 function BasketLineDetails({ line, density, detail, loading }: LineView) {
   const { lang, words } = kit.useWords(commerceWordsFor);
   const { price, note, unitPrice, variant } = cartLineCopy(line, detail, lang);
-  const photo = loading ? <kit.KitSkeleton shape="control" /> : <kit.KitPhoto photo={line.photo} part="photo" label={line.name} />;
-  return <kit.KitContent lead={photo} leadingAlign="row" {...{ density }}>
+  const photo = <kit.KitPhoto photo={line.photo} part={loading ? null : "photo"} label={line.name} loading={loading} />;
+  return <kit.KitContent lead={photo} leadingAlign="row" rhythm="flush" {...{ density }}>
     <kit.KitGrid fitLast {...{ density }}>
       {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["body", line.name]]} {...{ density }} /> :
         <kit.KitText role="body" part="name" {...{ density }}>{line.name}</kit.KitText>}
@@ -147,12 +147,12 @@ function BasketLine({ line, density, detail, loading }: LineView) {
   return <kit.KitRow {...(loading ? {} : { item: line.id })} label={line.name} inset="none" {...{ density }}>
     <kit.KitContent {...{ density }}>
       <BasketLineDetails {...{ line, density, detail, loading }} />
-      <kit.KitGrid fitLast {...{ density }}>
+      <kit.KitContent group="response" {...{ density }}><kit.KitGrid fitLast {...{ density }}>
         {loading ? <QuantitySkeleton qty={line.qty} /> :
           <kit.KitStepper part="qty" value={line.qty} min={1} max={99} />}
         {loading ? <kit.KitSkeleton shape="control" kind="secondary" /> :
           <kit.KitAction part="remove" action="press" kind="quiet" icon="close" a11y={cart.remove(line.name)} />}
-      </kit.KitGrid>
+      </kit.KitGrid></kit.KitContent>
     </kit.KitContent>
   </kit.KitRow>;
 }
@@ -191,8 +191,8 @@ export function Cart(input: CartProps) {
       <kit.KitGrid arrange="rows" list {...{ density }}>{input.lines.map((line) =>
         <BasketLine key={line.id} {...{ line, density, detail, loading }} />)}</kit.KitGrid>
       <kit.KitContent group={density === "compact" ? "content" : "response"} {...{ density }}>
-        {loading ? <kit.KitSkeleton shape="control" kind="secondary" full label={cart.promo} /> :
-          <kit.KitInput part="promo" hint={cart.promo} compact />}
+        <kit.KitLayoutText line={{ text: cart.promo, role: "meta", tone: "muted" }} {...{ density }} />
+        {loading ? <kit.KitSkeleton shape="control" kind="secondary" full inset="none" /> : <kit.KitInput part="promo" label={cart.promo} hint="" compact />}
       </kit.KitContent>
       <BasketTotals {...{ input, density, loading }} />
     </>}

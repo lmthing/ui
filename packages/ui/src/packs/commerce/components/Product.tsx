@@ -124,28 +124,25 @@ function ProductDetails({ input, density, state }: { input: ProductProps; densit
   const storeLines = productStoreLines(input, lang).filter(([, line]) => line !== undefined);
   const bar = (role: kit.TextRole, text: string | undefined) => text === undefined ? null :
     <kit.KitSkeleton shape="figure" inset="none" content={[[role, text]]} {...{ density }} />;
-  const prices = loading ? <kit.KitContent {...{ density }}>
-    {bar("body", price)}{bar("label", was)}
-  </kit.KitContent> : <kit.KitContent {...{ density }}>
-    <kit.KitText part="price" role="number" numberScale="compact" tabular {...{ density }}>{price}</kit.KitText>
-    {was !== undefined && <kit.KitText part="was" role="label" tone="muted" strike tabular {...{ density }}>{was}</kit.KitText>}
-  </kit.KitContent>;
-  const badge = input.badge && (loading ? <kit.KitSkeleton shape="control" kind="quiet" label={input.badge} /> :
-    <kit.KitTrail part="badge" kind="badge" value={input.badge} tone="good" {...{ density }} />);
+  const save = loading ? <kit.KitSkeleton shape="control" inset="none" /> : state === "filled" &&
+    <kit.KitAction part="save" action="toggle" icon={saved ? "check" : "heart"}
+      kind="quiet" a11y={saved ? words.unsave : words.save} />;
   return <>
-    <kit.KitRow part={null} inline label={input.name} lineRole="heading" {...{ density }}
-      trailing={state === "filled" && <kit.KitAction part="save" action="toggle" icon={saved ? "check" : "heart"}
-        kind={saved ? "primary" : "quiet"} a11y={saved ? words.unsave : words.save} />}>
-      {loading ? bar("heading", input.name) : <kit.KitText part="name" role="heading" {...{ density }}>{input.name}</kit.KitText>}
-    </kit.KitRow>
-    {badge ? <kit.KitContent lead={prices} leadingAlign="row" {...{ density }}>
-      <kit.KitContent lead={badge} leadingAlign="row" {...{ density }}>{null}</kit.KitContent>
-    </kit.KitContent> : prices}
+    <kit.KitGrid fitLast {...{ density }}>
+      <kit.KitContent {...{ density }}>
+        {loading ? bar("heading", input.name) : <kit.KitText part="name" role="heading" {...{ density }}>{input.name}</kit.KitText>}
+        <kit.KitLayoutText line={{ text: price, part: "price", role: "figure", compact: true, tabular: true }} {...{ density }} />
+        {loading ? bar("label", was) : was !== undefined && <kit.KitText part="was" role="label" tone="muted" strike tabular {...{ density }}>{was}</kit.KitText>}
+        {input.badge && (loading ? bar("caption", input.badge) : <kit.KitContent leadingAlign="row"
+          lead={<kit.KitTrail part="badge" kind="badge" value={input.badge} tone="good" {...{ density }} />}>{null}</kit.KitContent>)}
+      </kit.KitContent>
+      {save}
+    </kit.KitGrid>
     {loading ? bar("body", description) : description &&
       <kit.KitText part="description" tone="muted" {...{ density }}>{description}</kit.KitText>}
     {loading ? bar("label", stock) : stock &&
       <kit.KitText part="stock" role="label" tone={input.stock === 0 ? "bad" : "muted"} {...{ density }}>{stock}</kit.KitText>}
-    {storeLines.length > 0 && <kit.KitContent group="response" {...{ density }}>{storeLines.map(([part, line]) => {
+    {storeLines.length > 0 && <kit.KitContent group="response" rhythm="flush" {...{ density }}>{storeLines.map(([part, line]) => {
       const role = part === "store_stock" ? "number" : "label";
       return loading ? <kit.KitContent key={part}>{bar(role, line)}</kit.KitContent> :
         <kit.KitText key={part} part={part} role={role} tone="muted" numberScale="compact" {...{ density }}>{line}</kit.KitText>;

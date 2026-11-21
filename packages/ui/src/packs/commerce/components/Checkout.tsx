@@ -80,7 +80,7 @@ export const examples = [
   {
     modes: ["pickup", "delivery", "table"],
     mode: "delivery",
-    time: "Tomorrow 10:30",
+    time: "Tomorrow at 10:30",
     address: "21 Fern Lane",
     methods: ["card", "cash", "wallet"],
     method: "card",
@@ -89,7 +89,7 @@ export const examples = [
     modes: ["pickup", "table"],
     mode: "pickup",
     time: "Today at 16:00",
-    methods: ["wallet", "cash"],
+    methods: ["cash", "wallet"],
     method: "cash",
   },
 ] satisfies z.input<typeof props>[];
@@ -124,7 +124,7 @@ function CheckoutChoices<T extends string>({ part, label, options, labels, selec
   selected: T;
   density: c.ThemeDensity;
 }) {
-  return <kit.KitContent {...{ density }} group={part === "method" ? "response" : "content"}>
+  return <kit.KitContent {...{ density }} rhythm="flush" group={part === "method" ? "response" : "content"}>
     <kit.KitText role="label" tone="muted" part={null}>{label}</kit.KitText>
     <kit.KitTrack look="segments" role="radiogroup" {...{ part, label }}>
       {options.map((value) => <kit.KitChip key={value} item={null} role="radio" look="segment"
@@ -141,19 +141,19 @@ function CheckoutDetails({ mode, time, address, density, success }: Pick<Checkou
   const { words: { checkout: words } } = kit.useWords(commerceWordsFor);
   const addressLabel = address ? words.address : words.addAddress;
   return <>
-    {time && <kit.KitContent {...{ density }}>
+    {time && <kit.KitContent {...{ density }} group="response" rhythm="flush">
       <kit.KitText role="label" tone="muted" part={null}>{words.time}</kit.KitText>
       <kit.KitText part="time" {...{ density }}>{time}</kit.KitText>
     </kit.KitContent>}
     {mode === "delivery" && (!success || address) &&
-      <kit.KitRow inline part="address" label={addressLabel} {...{ density }}
+      <kit.KitContent {...{ density }} group="response"><kit.KitRow inline fitContent part="address" label={addressLabel} {...{ density }}
         role={success ? "text" : "button"}
         trailing={!success && <kit.KitIcon name="chevron_right" decorative scale="sm" />}>
-        <kit.KitContent {...{ density }}>
+        <kit.KitContent {...{ density }} rhythm="flush">
           <kit.KitText role="label" tone={address ? "muted" : "accent"} part={null}>{addressLabel}</kit.KitText>
           {address && <kit.KitText part={null} {...{ density }}>{address}</kit.KitText>}
         </kit.KitContent>
-      </kit.KitRow>}
+      </kit.KitRow></kit.KitContent>}
   </>;
 }
 
@@ -171,9 +171,10 @@ export function Checkout(input: CheckoutProps) {
     <CheckoutDetails {...input} {...{ density, success }} />
     {!success && <CheckoutChoices part="method" label={words.payment} options={input.methods}
       labels={words.methods} selected={input.method} {...{ density }} />}
-    <kit.KitContent group="response" {...{ density }}>
+    <kit.KitContent group="response" rhythm="flush" {...{ density }}>
       <kit.KitText role="label" tone="muted" part={null}>{words.total}</kit.KitText>
-      <kit.KitText role="number" numberScale="compact" part="total" tabular {...{ density }}>
+      <kit.KitText role="number" numberScale="compact" part="total" tabular {...{ density }}
+        {...(success ? { tone: "muted", emphasis: "quiet" } : {})}>
         {checkoutAmount(basket, lang)}
       </kit.KitText>
     </kit.KitContent>
