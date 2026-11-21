@@ -879,6 +879,22 @@ No component sub-themes; studio tier tints belong to the host. **Pending enforce
 raw values, preset comparisons and view handlers, and runtime contrast guards cover role/tone pairs.
 The current screenshot checker covers rendered contrast, not that complete runtime contract.
 
+### 5.4b Layout recipes and states
+
+Compose the kit's header, title-and-meta line, separated row group, captioned figure and action
+footer. The outer frame owns its gutter, the group owns separation, and the row owns its rails
+and close spacing. Empty slots do not create gaps; reserve a rail only to align sibling rows.
+Figures and units share a baseline. There is one semantic type scale: title, body, meta, figure
+and caption. Legacy text roles are kit-owned treatments of those roles, not additional steps a
+component can set. Density, emphasis and theme mapping stay in the kit.
+
+Use the kit's default empty, loading, error and success treatments. Share slot geometry between
+filled and loading; loading draws no text or controls. Retain usable content when the state
+describes an operation on that content. Only override the treatment when the component's catalog
+doc specifies it, and only show retry when an enabled action is declared. Layout is not a wire
+change: preserve reading, addresses and actions. Test missing metadata, retained error and success,
+filled/loading parity, and last-column reachability separately from gallery fixture quality.
+
 ### 5.5 Views
 
 Views are named React functions typed from their own schema through `Props<typeof props, typeof meta>`.
@@ -1120,6 +1136,15 @@ The separate theme-role, CSS and count checks always cover the full built theme 
 | Look/visual                                  | Fresh phone PNGs, automated clipping/overflow/overlap/contrast/loading/text/targets/alignment/rhythm checks, marks and human rubric. **Pending:** pixel-baseline gate, all-accent/full-theme review                                                                                               |
 | Accessibility/native                         | Base roles and browser keyboard tests exist. **Pending:** axe-core no-violation suite, native RN testing/assistive-tech/device acceptance                                                                                                                                                         |
 | Performance                                  | **Pending:** reference-device and fresh-process import/reader/size/settle measurements before release                                                                                                                                                                                             |
+
+Run the pack acceptance look gate in calm light at 390px before visual review. Automate recurring
+rubric findings against the rendered parts: keep a label and its value closer than the next group,
+use at most three sizes per item, right-align numeric columns, keep negative actions off the
+positive accent, show complete text, keep the first item close to its heading, and use specific
+empty copy when the component brief calls for it. Give each detector both a failing and a passing
+browser fixture. Use existing part addresses or DOM semantics rather than changing the renderer just
+to make a check possible. Where the DOM cannot express intent, record the documented expectation in
+the checker instead of guessing from arbitrary text.
 
 There is no Jest, `jest-expo` or React Native Testing Library setup. Vitest with static HTML is the
 current kit test tool; native behavioural coverage remains a requirement, not a claim made by those

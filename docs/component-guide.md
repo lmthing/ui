@@ -121,6 +121,38 @@ Unregistered words fall back to English. Only English ships at launch.
 
 ## Kit bases (the only building blocks)
 
+### Layout recipes
+
+Use `KitHeader` for heading plus supporting text, `KitMetaLine` for a row title and its metadata,
+`KitRowGroup` for a shared rail with separators, `KitFigure` for a figure and its caption, and
+`KitActionFooter` to attach actions to the group they belong to. The frame sets the outer gutter.
+The rail aligns leading and trailing slots; title-to-meta spacing stays smaller than group spacing.
+Absent slots take no space unless a row group deliberately reserves the leading rail.
+
+Use only the kit scale: title, body, meta, figure and caption. Existing `KitText` roles and compact
+figures map to that scale; use a kit role rather than sizing text in a view. Use `KitState` for
+empty, loading, error and success. It takes the same layout in both filled and loading states:
+describe the slots once, then let the recipe draw text or inert placeholders. Use an inline status
+for operations that leave useful content on screen. Keep existing parts, reading and actions.
+Only override a state treatment when the catalog doc calls for it, and do not invent a retry
+action. Test the kit geometry separately from host fixture data such as photos.
+
+| Recipe | Slots |
+| --- | --- |
+| `KitHeader`, `KitMetaLine` | `title`, optional `meta` (one or more lines), `align`, `density`. A line supplies `text`, optional `part`, semantic `role` and finish. |
+| `KitLayoutText` | One semantic `line`, with optional `align` and `density`; the same descriptor draws a loading bar. |
+| `KitRowGroup` | Row children, optional `leadingWidth="avatar"` to reserve a common rail, `spacing` (`rows` or `groups`), `separators` (default on), `density`. |
+| `KitFigure` | `value` and optional `unit`, or `media`; optional `caption`, `align`, `density`. |
+| `KitActionFooter` | Action children, optional `align` and `density`. A missing action takes no space. |
+| `KitState` | Filled children, optional shaped `loading`, `message`, `part`, `icon`, `density`; `retain` keeps children visible with an inline error or success message. |
+
+Inside a padded frame use `KitRow inset="none"` so the frame owns the gutter. A passive `inline`
+row can use `fitContent` to avoid reserving a control-height slot. This never shrinks links or buttons.
+In loading, keep the slots and use the inert treatment of `KitLayoutText`, `KitPhoto`, `KitIcon`,
+`KitTrail` and `KitAction`; preserve any existing measurement-only addresses.
+
+### Base reference
+
 This table covers every base exported by `src/kit/base/index.ts`, including its exported helpers.
 `KitOverlay` is internal to screen rendering, not a component building block.
 Folder names below are under `src/kit/base/`; each has an `index.ts` door.
@@ -272,3 +304,18 @@ Then the look must pass `docs/visual-rubric.md`: look at every PNG yourself, the
 `ui-reviewer` subagent (`.factory/droids/ui-reviewer.md`) to review it with fresh eyes, fix, and
 repeat until it answers `APPROVED` (at most 3 rounds). The orchestrating agent then looks at the final
 screenshots once, approves and merges.
+
+For pack acceptance, start with `pnpm look --component <Id> --widths 390 --preset calm --mode light`.
+Use the part names in `issues.json` to find the source. Use tight spacing inside a label/value
+pair and more space before the next group; put the first row close to its heading. Use at most
+three text sizes per item, and use end alignment for numeric columns even with tabular digits.
+Use a danger or neutral treatment for negative actions rather than the primary accent. Check
+that meaningful text fits without clipping or ellipsis; a wholly offscreen item in a scroll
+region is not clipped text. When the component brief requires a specific empty message, pass it
+from the language copy to `KitEmpty` instead of letting it show the shared neutral line.
+
+Document this requirement on the component's `States:` line as `empty (reason)` in its catalog
+brief. The acceptance reviews also call for specific copy in these existing cases:
+
+- `Approval`: empty (no requests waiting for a decision).
+- `TravelDocs`: empty (no travel documents).
