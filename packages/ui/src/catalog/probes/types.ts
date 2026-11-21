@@ -47,6 +47,22 @@ export type Definition = {
 /** One model call. `sample` numbers repeated calls with the same prompt (0, 1, 2, …). */
 export type CallModel = (prompt: string, sample?: number, format?: WriterFormat) => Promise<string>;
 
+/** Offline identity for one probe, separate from the exact request sent to the model. */
+export type ReplayProbe = {
+  id: string;
+  definition: unknown;
+  localPrompt: string;
+  /** When present, the other entries in this listing do not affect replay identity. */
+  listing?: { ids: readonly string[] };
+};
+
+export type ProbeCall = (
+  prompt: string,
+  sample: number,
+  format: WriterFormat | undefined,
+  probe: ReplayProbe,
+) => Promise<string>;
+
 export type ProbeResult = {
   component: string;
   probe: Probe | PackProbe;

@@ -4,7 +4,7 @@ import { checkScreen, type PackScreenContext } from "../../rules";
 import { readScreen, type ScreenLike } from "../../agent";
 import { buildEntry, composeFlow, variantVocabulary, writerVariants } from "../../prompt";
 import { migrateScreen } from "../../migrations";
-import type { CallModel, Definition } from "..";
+import type { ProbeCall, Definition } from "..";
 import { composeFormat, compositionInput } from "./compose-format";
 import { packPropIssues } from "./pack-prop-issues";
 const omitGuidance =
@@ -130,7 +130,7 @@ type ComposeOptions = {
   defs: Record<string, Definition>;
   packContext?: PackScreenContext;
   cast: CastLike | ((archetype: string, layout: string) => CastLike);
-  callModel: CallModel;
+  callModel: ProbeCall;
   samples?: number;
   rubric?: boolean;
   only?: readonly string[];
@@ -162,10 +162,16 @@ async function runComposeProbe(
   const content = typeof cast === "function" ? cast(meta.id, layout) : cast;
   const prompt = composePrompt(meta, layout, content, defs, brief);
   const format = composeFormat(meta, layout, defs);
+  const id = `${meta.id}/${layout}/${brief ?? ""}`;
+  const definition = { layout: meta.layouts[layout], defaults: meta.defaults[layout], brief };
   const replies: string[] = [];
   const scored: ReturnType<typeof scoreComposition>[] = [];
   for (let sample = 0; sample < samples; sample++) {
-    const reply = await callModel(prompt, sample, format);
+    const reply = await callModel(prompt, sample, format, {
+      id: `compose/${id}`,
+      definition,
+      localPrompt: prompt,
+    });
     replies.push(reply);
     scored.push(scoreComposition(reply, meta, layout, defs, packContext && { packContext }));
   }
@@ -181,8 +187,10 @@ async function runComposeProbe(
   };
   const screen = scored.find((item) => item.screen)?.screen;
   if (result.status === "pass" && useRubric && screen) {
-    const rubric = decode(await callModel(compositionRubricPrompt(screen, defs), 0)) as
-      Record<string, number> | undefined;
+    const localPrompt = compositionRubricPrompt(screen, defs);
+    const rubric = decode(
+      await callModel(localPrompt, 0, undefined, { id: `rubric/${id}`, definition, localPrompt }),
+    ) as Record<string, number> | undefined;
     const names = ["clarity", "focus", "flow", "content", "structure"];
     const ratings = names.map((name) => rubric?.[name]);
     if (

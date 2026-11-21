@@ -66,7 +66,7 @@ async function runModel(model: ProbeModel, only: string[], replay: boolean, pack
       model.id,
       book,
       (prompt, _sample, format) => azure(model, prompt, format),
-      packMode,
+      packMode ? recording : undefined,
     );
     try {
       const callModel = replay ? replayCall(recording, model.id) : live;

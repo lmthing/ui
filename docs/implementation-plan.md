@@ -559,8 +559,8 @@ writerFormat(registry) // strict line schema, the 2026-11-18 design (4.6)
 70-token cap. Choice blocks include purpose and pick, not schemas.
 
 Ordinary blocks sort by group then id; the pack index sorts by id. Code-owned components are
-excluded. Live choose prompts preserve definition order to keep existing recording keys. They use
-the same choice prose, not the same sorted block.
+excluded. Live choose prompts preserve definition order. They use the same choice prose, not the
+same sorted block.
 
 The implemented gates use `ceil(codePoints / 4)`, not an o200k tokenizer:
 
@@ -570,7 +570,7 @@ The implemented gates use `ceil(codePoints / 4)`, not an o200k tokenizer:
 
 Tests snapshot the real core and pack-index fixtures, and assert recorded write-entry parity. Synthetic packs copy core prose;
 they are not real-pack coverage. **Pending:** real pack blocks/snapshots, tokenizer measurements and
-reports for every entry/block, and cache-order unification once recordings can be refreshed.
+reports for every entry/block.
 
 ### 4.10 Checks
 
@@ -711,8 +711,13 @@ across a full app belongs to harness evals. Visual craft requires screenshots, n
 **Live and replay.** `scripts/llm.config.ts` is the only model routing table: one required light model,
 `deepseek-flash`, with three samples. Direct Azure REST uses environment credentials, not a provider
 SDK. Transient transport failures retry at most four attempts with exponential backoff; these are
-not extra sampled model answers. Recordings key a hash of model id and prompt, storing the prompt,
-first reply and sample replies. Replay is deterministic.
+not extra sampled model answers. Offline replay keys each model's evidence by probe id and a
+fingerprint of the probe and its own definition (schema, metadata and model-facing text), not the
+shared catalog listing. Replay prefers the exact prompt and reports prompt drift once per probe
+when it uses evidence from a different listing. A changed probe or own definition still needs new
+evidence. Recordings retain the exact prompt, sent format and all sample replies. Legacy books use
+a fixed offline index that binds compatible evidence without rewriting the books. Live calls and
+exact-request pack resumption are unchanged.
 
 | Command                           | Gate                                                                              |
 | --------------------------------- | --------------------------------------------------------------------------------- |

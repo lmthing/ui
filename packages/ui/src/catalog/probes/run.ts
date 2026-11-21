@@ -1,6 +1,7 @@
 import { choosePrompt, readPrompt, writePrompt } from "./prompts";
 import { scoreChoose, scoreRead, scoreWrite } from "./score";
-import type { CallModel, Definition, Probe, ProbeResult } from "./types";
+import type { Definition, Probe, ProbeCall, ProbeResult } from "./types";
+import { componentReplayProbe } from "./replay-probe";
 import { writerFormatFor } from "../format";
 import { variantProbeDefinitions } from "./variants";
 import { readFixtureFor } from "./fixtures";
@@ -9,7 +10,7 @@ async function runOne(
   def: Definition,
   probe: Probe,
   defs: readonly Definition[],
-  callModel: CallModel,
+  callModel: ProbeCall,
 ): Promise<ProbeResult> {
   const base = { component: def.meta.id, probe, prompt: "", reply: "" };
   // The model never sees code-owned components (TabBar) as choices.
@@ -26,7 +27,7 @@ async function runOne(
       readFixtureFor(def.meta.id, probe),
       probe.at,
     );
-    const reply = await callModel(prompt);
+    const reply = await callModel(prompt, 0, undefined, componentReplayProbe(def, probe, prompt));
     const { pass, detail } = scoreRead(reply, probe.expect);
     return { ...base, prompt, reply, status: pass ? "pass" : "fail", detail };
   }
@@ -35,12 +36,17 @@ async function runOne(
   }
   if (probe.kind === "choose") {
     const prompt = choosePrompt(offered, probe.need);
-    const reply = await callModel(prompt);
+    const reply = await callModel(
+      prompt,
+      0,
+      undefined,
+      componentReplayProbe(def, probe, choosePrompt([def], probe.need)),
+    );
     const { pass, detail } = scoreChoose(reply, ids, probe.expect);
     return { ...base, prompt, reply, status: pass ? "pass" : "fail", detail };
   }
   const prompt = writePrompt(def, probe.brief);
-  const reply = await callModel(prompt, 0, writerFormatFor(def));
+  const reply = await callModel(prompt, 0, writerFormatFor(def), componentReplayProbe(def, probe, prompt));
   const { pass, detail } = scoreWrite(reply, def, probe.variant, probe.expectProps);
   return { ...base, prompt, reply, status: pass ? "pass" : "fail", detail };
 }
@@ -50,13 +56,13 @@ async function sampled(
   def: Definition,
   probe: Probe,
   defs: readonly Definition[],
-  callModel: CallModel,
+  callModel: ProbeCall,
   samples: number,
 ): Promise<ProbeResult> {
   const runs: ProbeResult[] = [];
   for (let sample = 0; sample < samples; sample++) {
-    const run = await runOne(def, probe, defs, (prompt, _sample, format) =>
-      callModel(prompt, sample, format),
+    const run = await runOne(def, probe, defs, (prompt, _sample, format, replayProbe) =>
+      callModel(prompt, sample, format, replayProbe),
     );
     if (run.status === "skipped") return run;
     runs.push(run);
@@ -78,7 +84,7 @@ async function sampled(
  */
 export async function runProbes(options: {
   defs: readonly Definition[];
-  callModel: CallModel;
+  callModel: ProbeCall;
   only?: readonly string[];
   /** Calls per probe; a probe passes when a majority of its samples pass (2 of 3). */
   samples?: number;
