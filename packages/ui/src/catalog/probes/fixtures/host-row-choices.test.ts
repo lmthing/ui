@@ -25,7 +25,7 @@ const def: Definition = {
             const parsed = authorized.safeParse(raw);
             return parsed.success ? [parsed.data] : [];
           });
-          return (props.splits as Values[]).map(({ id: _id, ...row }) => {
+          return [...(props.splits as Values[])].reverse().map(({ id: _id, ...row }) => {
             const match = allowed.find((record) => record.key === row.key);
             return { ...row, categories: match?.categories ?? [], vatRates: match?.vatRates ?? [] };
           });
@@ -63,16 +63,16 @@ const deviceData = {
 
 it("reads, validates and writes choices against the addressed host-authorized split only", () => {
   const read = readScreen(screen, defs, {}, undefined, deviceData);
-  expect(read).toContain('[e/r1/category select choices ["Travel"]]');
-  expect(read).toContain('[e/r2/category select choices ["Supplies"]]');
-  expect(read).not.toContain("e/r1/vat");
+  expect(read).toContain('[e/r1/category select choices ["Supplies"]]');
+  expect(read).toContain('[e/r2/category select choices ["Travel"]]');
+  expect(read).not.toContain("e/r2/vat");
   expect(readScreen(screen, defs)).not.toContain("/category select");
-  const choose = { address: "e/r2/category", action: "select", value: "Supplies" };
+  const choose = { address: "e/r1/category", action: "select", value: "Supplies" };
   expect(
     planAct(screen, defs, {}, [{ ...choose, value: "Travel" }], null, "planner", deviceData),
   ).toMatchObject({ ok: false, code: "invalid_value" });
   const controller = createScreenController({ screen, defs, deviceData });
-  expect(controller.act([choose, { address: "e/r2/vat", action: "select", value: "None" }]).ok).toBe(true);
+  expect(controller.act([choose, { address: "e/r1/vat", action: "select", value: "None" }]).ok).toBe(true);
   expect(controller.snapshotScreen().components[0]?.splits).toEqual([
     splits[0],
     { ...splits[1], category: "supplies", vat: "nil" },
@@ -89,10 +89,37 @@ it("never offers positional writes into the wire from a projected split", () => 
       screen,
       unmapped,
       {},
-      [{ address: "e/r2/category", action: "select", value: "Supplies" }],
+      [{ address: "e/r1/category", action: "select", value: "Supplies" }],
       null,
       "planner",
       deviceData,
     ),
   ).toMatchObject({ ok: false, code: "not_actionable" });
+});
+
+it("does not authorize a row-local choice from the Wire without a host row projection", () => {
+  const { deviceData: _deviceData, editPath: _editPath, ...items } = def.meta.items!;
+  const writerDef = {
+    ...def,
+    props: z.strictObject({ splits: z.array(split.extend({ categories: choices })) }),
+    meta: { ...def.meta, items },
+  };
+  const writerDefs = { [def.meta.id]: writerDef };
+  const writerScreen = {
+    id: "s",
+    components: [
+      {
+        id: "e",
+        c: def.meta.id,
+        splits: [{ ...splits[0], categories: [{ value: "travel", label: "Travel" }] }],
+      },
+    ],
+  };
+  const steps = [{ address: "e/r1/category", action: "select", value: "Travel" }];
+  expect(writerDef.props.safeParse({ splits: writerScreen.components[0]!.splits }).success).toBe(true);
+  expect.soft(readScreen(writerScreen, writerDefs)).not.toContain("e/r1/category select");
+  expect(planAct(writerScreen, writerDefs, {}, steps, null)).toMatchObject({
+    ok: false,
+    code: "not_actionable",
+  });
 });
