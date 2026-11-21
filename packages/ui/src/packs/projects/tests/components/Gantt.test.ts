@@ -139,7 +139,7 @@ describe("Gantt states and parts", () => {
   it("has a calm empty state and a masked loading chart with no controls", () => {
     expect([...addressedElements(render(days, "empty")).keys()]).toEqual([part("root"), part("empty")]);
     const loading = render(days, "loading");
-    expect([...addressedElements(loading).keys()]).toEqual([part("root"), part("chart")]);
+    expect([...addressedElements(loading).keys()]).toEqual([part("root"), part("range"), part("chart")]);
     expect(loading).toContain('aria-busy="true"');
     expect(visibleTexts(loading)).toEqual([]);
   });

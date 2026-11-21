@@ -14,11 +14,13 @@ type Input = {
   packExamples: Partial<Record<PackId, string>>;
 };
 
+const indexedIds: readonly PackId[] = packIndex.map(({ id }) => id);
+
 function checkMeta(input: Input, pack: PackMeta): string[] {
   const issues: string[] = [];
   const entry = packIndex.find(({ id }) => id === pack.id);
   const pick = entry?.pick ?? "";
-  const nearest = packIds.filter((id) => id !== pack.id && new RegExp(`\\b${id}\\b`).test(pick));
+  const nearest = indexedIds.filter((id) => id !== pack.id && new RegExp(`\\b${id}\\b`).test(pick));
   const excludesCore =
     pick.includes("(core)") ||
     [...pick.matchAll(/\(core ([A-Z][A-Za-z0-9]*)\)/g)].some(
@@ -36,9 +38,9 @@ function checkMeta(input: Input, pack: PackMeta): string[] {
         (excludesCore && probe.expect.length === 0 && !probe.allow?.length)),
   );
   if (probes.length < 3 || positive.length < 2 || !miss) issues.push(`${pack.id}: probes`);
-  if (probes.some((probe) => probe.expect.length > 3 || probe.expect.some((id) => !packIds.includes(id))))
+  if (probes.some((probe) => probe.expect.length > 3 || probe.expect.some((id) => !indexedIds.includes(id))))
     issues.push(`${pack.id}: expect`);
-  if (probes.some((probe) => probe.allow?.some((id) => !packIds.includes(id))))
+  if (probes.some((probe) => probe.allow?.some((id) => !indexedIds.includes(id))))
     issues.push(`${pack.id}: allow`);
   return issues;
 }

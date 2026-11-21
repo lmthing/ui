@@ -36,6 +36,6 @@ it("keeps a pending undo on the latest journal goal when older seeds are inserte
   expect(agent.act(confirm).ok).toBe(true);
   const reading = agent.read();
   expect(reading).toContain("Ledge Rovers 1–2 Fern House");
-  expect(reading).toContain("32′ home goal: Reed scores");
-  expect(reading).not.toContain("0′ home goal");
+  expect(reading).toContain("32′ Home · Goal: Reed scores");
+  expect(reading).not.toContain("0′ Home · Goal");
 });

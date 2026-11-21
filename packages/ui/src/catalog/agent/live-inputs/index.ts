@@ -4,6 +4,7 @@ import { selectDeviceData, type DeviceData } from "../device-data";
 import type { Affordance, SendDraft, Values } from "../index";
 import { linkedInput, projectLinkedEdits } from "../linked-edits";
 import { addressedItems } from "../visibility";
+import { itemToggleDetail, projectItemToggles } from "./item-toggles";
 import { projectPickers } from "./pickers";
 export { pickerAt, pickerKey, pickerSelectionChanges, stageInlinePress } from "./pickers";
 
@@ -86,7 +87,8 @@ export function projectLiveInputs(
   const seeded = projectRuntimeSets(meta, props, get, validated);
   const selected = projectNamedSelections(meta, seeded, get, "runtime");
   const edited = applyChecks(meta, applyText(meta, selected, get), get);
-  const projected = projectLinkedEdits(meta, projectPickers(meta, edited, get), get, data);
+  const toggled = projectItemToggles(meta, edited, get);
+  const projected = projectLinkedEdits(meta, projectPickers(meta, toggled, get), get, data);
   const derived = meta.live?.derive?.(projected, instance, selectDeviceData(meta, data));
   const live = derived ? { ...projected, ...derived } : projected;
   return live === seeded ? live : projectRuntimeSets(meta, live, get, validated);
@@ -103,11 +105,15 @@ export function withLiveInput(meta: Meta, part: string, action: string, holder: 
     const spec = linkedInput(meta, part) ?? (text && Object.hasOwn(text, part) ? text[part] : undefined);
     if (spec) return { input: { kind: "text", max: spec.max } as const };
   }
-  if (row && action === "check" && Object.hasOwn(meta.live?.checks ?? {}, part)) {
+  if (row && (action === "check" || action === "toggle") && Object.hasOwn(meta.live?.checks ?? {}, part)) {
     const done = holder[meta.live!.checks![part]!];
-    if (typeof done === "boolean")
-      return { input: { kind: "check" } as const, detail: `:${done ? "done" : "todo"}` };
+    if (typeof done === "boolean") {
+      const state = action === "toggle" ? (done ? "on" : "off") : done ? "done" : "todo";
+      return { input: { kind: "check" } as const, detail: `:${state}` };
+    }
   }
+  const detail = row && action === "toggle" ? itemToggleDetail(meta, part, holder) : undefined;
+  if (detail !== undefined) return { detail };
   return {};
 }
 

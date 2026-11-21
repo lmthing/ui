@@ -97,15 +97,19 @@ async function expectCompactTypes(root: string) {
   );
   expect(catalog).toContain("export type ComponentName = keyof typeof components;");
   expect(catalog).toContain("ReturnType<typeof registryOf<typeof components>>");
-  expect(await source("packs/index.ts")).toContain(
-    "export const components: typeof group1.components & typeof group2.components & typeof group3.components",
+  const groups = Array.from(
+    { length: Math.ceil(packIds.length / 9) },
+    (_, i) => `typeof group${i + 1}.components`,
+  );
+  expect((await source("packs/index.ts")).replace("components: & ", "components: ")).toContain(
+    `export const components: ${groups.join(" & ")} =`,
   );
   expect(await source("packs/group-1/index.ts")).toMatch(
-    /export const components: (?:& )?typeof booking\.components & typeof books\.components/,
+    /export const components: [^=]*typeof booking\.components & typeof books\.components/,
   );
 }
 
-it("keeps all generated files and doors bounded with 45 core components and all 27 packs", async () => {
+it("keeps all generated files and doors bounded with 45 core components and all registered packs", async () => {
   const root = await mkdtemp(resolve(".entries-scale-test-"));
   roots.push(root);
   await put(root, "catalog/index.ts", `export * from ${JSON.stringify(resolve("src/catalog/index.ts"))};`);
@@ -117,7 +121,7 @@ it("keeps all generated files and doors bounded with 45 core components and all 
   await generateEntries(root);
   const metrics = { maxLines: 0, maxFiles: 0 };
   const files = await auditEntries(join(root, "src/entry"), metrics);
-  expect(files.filter((file) => /group-\d+\/(?!index)[a-z]+\.ts$/.test(file))).toHaveLength(27);
+  expect(files.filter((file) => /group-\d+\/(?!index)[a-z]+\.ts$/.test(file))).toHaveLength(packIds.length);
   expect(await checkRules(root)).toEqual([]);
   await expectCompactTypes(root);
   const catalog = await loadEntry(root, "catalog");
@@ -134,7 +138,7 @@ it("keeps all generated files and doors bounded with 45 core components and all 
   const kit = await loadEntry(root, "renderers");
   expect(Object.keys(kit.renderers)).toEqual([...coreNames, ...names, "Surface"]);
   console.info(
-    `27-pack fixture: ${metrics.maxLines} maximum lines, ${metrics.maxFiles} maximum folder entries.`,
+    `${packIds.length}-pack fixture: ${metrics.maxLines} maximum lines, ${metrics.maxFiles} maximum folder entries.`,
   );
 }, 30000);
 

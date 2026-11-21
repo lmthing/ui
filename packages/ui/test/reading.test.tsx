@@ -32,7 +32,6 @@ import {
   useAppCurrency,
   useWords,
 } from "@lmthing/ui/kit";
-import { existsSync } from "node:fs";
 import { addressedElements, config, hasStepTarget, renderExample } from "./render";
 import { selectedIds } from "../scripts/build";
 import { decode, peekForExample, visibleTexts } from "./variants";
@@ -122,7 +121,7 @@ it("does not take the app currency from Writer props or interaction values", () 
   );
 });
 
-const ready = selectedIds(Object.keys(renderers) as ComponentName[]);
+const ready = selectedIds(Object.keys(renderers) as ComponentName[], import.meta.url);
 const theme = { preset: "calm", mode: "light", accent: "moss" } as never;
 const roles: Record<string, string[]> = {
   press: ["button", "link"],
@@ -169,10 +168,7 @@ it("accepts addressed KitSeatMap guest buttons for the move action offered in th
 
 describe.each(ready)("%s reads as text and can be acted on", (id) => {
   const def = components[id];
-  // An open problem listed in test/known/<Id>.md is expected to fail until it is fixed.
-  const known = existsSync(`${import.meta.dirname}/known/${id}.md`);
-  const test = known ? it.fails : it;
-  test.each(def.examples.map((example, index) => ({ example, index })))("example $index", ({ example }) => {
+  it.each(def.examples.map((example, index) => ({ example, index })))("example $index", ({ example }) => {
     const { html, deviceData, props: parsed } = renderExample(id, example, "filled", theme);
     const read = readComponent(def, example, "c1", "filled", {}, undefined, deviceData).join("\n");
     if (!isDeviceDataVisible(def.meta, deviceData)) {
