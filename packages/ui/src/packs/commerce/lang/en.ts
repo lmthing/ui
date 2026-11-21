@@ -15,6 +15,17 @@ export type CommerceWords = {
     add: string;
     added: string;
   };
+  cart: {
+    empty: string;
+    promo: string;
+    subtotal: string;
+    delivery: string;
+    deliveryReading: string;
+    total: string;
+    quantity: string;
+    unitPrice: (price: string) => string;
+    remove: (name: string) => string;
+  };
   checkout: {
     fulfillment: string;
     payment: string;
@@ -77,6 +88,17 @@ export const en = {
     unsave: "Remove from saved items",
     add: "Add to basket",
     added: "Added to basket",
+  },
+  cart: {
+    empty: "Your basket is empty",
+    promo: "Promo code",
+    subtotal: "Subtotal",
+    delivery: "Delivery",
+    deliveryReading: "delivery",
+    total: "Total",
+    quantity: "Quantity",
+    unitPrice: (price) => `${price} each`,
+    remove: (name) => `Remove ${name}`,
   },
   checkout: {
     fulfillment: "Fulfillment",
