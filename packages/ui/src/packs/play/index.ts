@@ -16,5 +16,6 @@ export const example = [
   '{"id":"l2","c":"LifeCounter","players":[{"name":"Leaves","swatch":"green"},{"name":"Roots"},{"name":"Seeds"}]}',
   '{"id":"p1","c":"PassReveal","players":[{"name":"Leaves","role":"Clue keeper"},{"name":"Roots","role":"Time keeper"},{"name":"Seeds","role":"Word keeper"}]}',
   '{"id":"c1","c":"CardDeck","title":"Table Night challenges","cards":[{"title":"Name a leaf"},{"title":"Name three animals"},{"title":"Sing a tune"},{"title":"Find a rhyme"},{"title":"Mime a job"},{"title":"Name a capital"}]}',
+  '{"id":"b1","c":"BuzzerPad","prompt":"Buzz in when you know the answer","players":[{"name":"Leaves","swatch":"green"},{"name":"Roots","swatch":"brown"},{"name":"Seeds","swatch":"yellow"}]}',
   "",
 ].join("\n");

@@ -19,6 +19,12 @@ export const en = {
     reshuffle: "Reshuffle deck",
     exhausted: "The draw pile is empty",
   },
+  buzzerPad: {
+    waiting: "Ready to buzz",
+    winner: (name: string) => `${name} buzzed first`,
+    delta: (time: string) => `${time} ms later`,
+    reset: "Reset buzzer",
+  },
   teamPicker: {
     ready: "Ready to split",
     empty: "No teams drawn yet",

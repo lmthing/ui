@@ -31,6 +31,7 @@ const ids = [
   "LifeCounter",
   "PassReveal",
   "CardDeck",
+  "BuzzerPad",
 ] as const;
 const layouts = {
   game_night: ["play_teams", "play_turns", "play_chance"],

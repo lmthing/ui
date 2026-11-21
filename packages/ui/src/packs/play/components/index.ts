@@ -7,3 +7,4 @@ export * as TeamPicker from "./TeamPicker";
 export * as LifeCounter from "./LifeCounter";
 export * as PassReveal from "./PassReveal";
 export * as CardDeck from "./CardDeck";
+export * as BuzzerPad from "./BuzzerPad";

@@ -7,3 +7,4 @@ export { teamPickerCopy, teamPickerReading } from "./TeamPicker";
 export { lifeCounterLines } from "./LifeCounter";
 export { passRevealCurtain } from "./PassReveal";
 export { cardDeckCounts } from "./CardDeck";
+export { buzzerPadReady } from "./BuzzerPad";
