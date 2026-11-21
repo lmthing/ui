@@ -84,6 +84,6 @@ export function leaseReading(input: Lease, lang?: string, now = new Date()): str
     renewal,
     rent.join(""),
     nextDue,
-    deposit,
+    deposit?.join(""),
   ].filter((line): line is string => line !== undefined);
 }

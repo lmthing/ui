@@ -13,7 +13,7 @@ export const meta = {
   pick: "One existing rental agreement with tenant, term, rent cadence, due day, deposit and calculated time left or renewal warning. Not static facts (KeyValue), terms to sign (Agreement), a bill (Bills), or a list of rental units (Units).",
   writeHints: [
     "End must be after start. For monthly rent write the due day of the month (1–31); for weekly rent write the weekday (Monday 1, Sunday 7). Never write the computed next due date, progress or renewal status.",
-    'Set detail to "brief" only when asked to hide the start date and deposit; keep both in the record. Leave unrequested variants null.',
+    'When asked to hide the start date and deposit, write "detail":"brief" and keep both in the record. Hiding them, even "on the card", does not request a spacing or surface change: write "density":null and "surface":null unless explicitly asked for those changes. Use null for any unrequested variant, not its default.',
   ],
   region: "body",
   weight: 2,
@@ -121,21 +121,23 @@ export function Lease(input: c.Props<typeof props, typeof meta>) {
         <kit.KitText part="end" role="label" {...{ density }}>{copy.end}</kit.KitText>
       </kit.KitContent>
       <kit.KitContent group="response" {...{ density }}>
-        <kit.KitRow part="time_left" inline label={words.timeLeft} {...{ density }}>
+        <kit.KitCard part="time_left" style="plain" {...{ density }}>
           <kit.KitGrid fitLast {...{ density }}>
             <kit.KitText part={null} role="label" tone="muted" {...{ density }}>{words.timeLeft}</kit.KitText>
             <kit.KitText part={null} role="number" numberScale="compact" tabular {...{ density }}>{copy.remaining}</kit.KitText>
           </kit.KitGrid>
           <kit.KitMeter label="" amount="" ratio={copy.ratio} slim tone={copy.renewalTone === "warn" ? "warn" : "accent"} addressed={false} />
           {copy.renewal && <kit.KitText part="renewal" role="label" tone={copy.renewalTone} {...{ density }}>{copy.renewal}</kit.KitText>}
-        </kit.KitRow>
+        </kit.KitCard>
       </kit.KitContent>
       <kit.KitContent group="response" {...{ density }}>
         <kit.KitText part="rent" role="label" tone="muted" {...{ density }}>
           {copy.rent[0]}<kit.KitText part={null} role="number" numberScale="compact" tabular {...{ density }}>{copy.rent[1]}</kit.KitText>{copy.rent[2]}
         </kit.KitText>
         <kit.KitText part="next_due" role="label" {...{ density }}>{copy.nextDue}</kit.KitText>
-        {copy.deposit && <kit.KitText part="deposit" role="label" tone="muted" {...{ density }}>{copy.deposit}</kit.KitText>}
+        {copy.deposit && <kit.KitText part="deposit" role="label" tone="muted" {...{ density }}>
+          {copy.deposit[0]}<kit.KitText part={null} role="number" numberScale="compact" tabular {...{ density }}>{copy.deposit[1]}</kit.KitText>
+        </kit.KitText>}
       </kit.KitContent>
     </kit.KitRow>
   );

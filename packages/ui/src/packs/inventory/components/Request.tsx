@@ -169,8 +169,10 @@ export function Request(input: RequestProps) {
     ? <kit.KitPhoto part="photo" shape="thumb" photo={input.photo} label={words.photo} /> : undefined;
   return <kit.KitCard part="root" padded {...{ density, surface }}>
     <kit.KitContent lead={photo} leadingAlign="row" density={density}>
-      <kit.KitText part="title" role={density === "compact" ? "title" : "heading"} density={density}>{input.title}</kit.KitText>
-      <kit.KitText part="where" role="label" tone="muted" density={density}>{input.where}</kit.KitText>
+      <kit.KitRow part={null} inline surface="plain" label={input.title} density={density}>
+        <kit.KitText part="title" role={density === "compact" ? "title" : "heading"} density={density}>{input.title}</kit.KitText>
+        <kit.KitText part="where" role="label" tone="muted" density={density}>{input.where}</kit.KitText>
+      </kit.KitRow>
       <kit.KitText part="priority" role="label" tone={status !== "fixed" && input.priority === "urgent" ? "bad" : "muted"} density={density}>{words.priority[input.priority]}</kit.KitText>
       {input.who && <kit.KitText part="who" role="label" tone="muted" density={density}>{words.assignee(input.who)}</kit.KitText>}
     </kit.KitContent>

@@ -132,19 +132,22 @@ function WishRow({ row, density, surface, detail }: WishRowProps) {
             <kit.KitContent density={density} lead={<kit.KitIcon part="trail" name="chevron_right" scale="sm" />}>
               <kit.KitText part="name" role="heading" density="comfortable">{row.name}</kit.KitText>
               {row.where && <kit.KitText part="where" role="caption" tone="muted" density={density}>{row.where}</kit.KitText>}
-              {price && <kit.KitText part="price" role="number" numberScale="compact" density={density}>{price}</kit.KitText>}
-              {target && <kit.KitText part="target" role="number" numberScale="compact" tone="muted" density={density}>{target}</kit.KitText>}
-              <kit.KitText part="priority" role="caption" tone="muted" density={density}>{priority}</kit.KitText>
+              {price && <kit.KitText part="price" role="label" tone="muted" density={density}>
+                {price[0]}<kit.KitText part={null} role="number" numberScale="compact" tabular density={density}>{price[1]}</kit.KitText>
+              </kit.KitText>}
+              {target && <kit.KitText part="target" role="label" tone="muted" density={density}>
+                {target[0]}<kit.KitText part={null} role="number" numberScale="compact" tabular density={density}>{target[1]}</kit.KitText>
+              </kit.KitText>}
             </kit.KitContent>
             {row.photo && <kit.KitPhoto part="photo" photo={row.photo} label={row.name} />}
           </kit.KitGrid>
         </kit.KitRow>
-        <kit.KitContent density={density}>
-          <kit.KitGrid fitLast density={density}>
-            <kit.KitContent density={density}>{null}</kit.KitContent>
-            <kit.KitAction part="got" label={words.got} kind="secondary" />
-          </kit.KitGrid>
-        </kit.KitContent>
+        <kit.KitRow part={null} inline surface="plain" label={row.name} lineRole="body" density={density}
+          leading={<kit.KitAction part="got" label={words.got} kind="secondary" />} leadingAlign="row">
+          <kit.KitRow part={null} inline surface="plain" label={priority} density={density}>
+            <kit.KitText part="priority" role="caption" tone="muted" density={density}>{priority}</kit.KitText>
+          </kit.KitRow>
+        </kit.KitRow>
       </kit.KitCard>
     </kit.PartScope>
   );

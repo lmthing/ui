@@ -60,7 +60,7 @@ describe("lease copy and reading", () => {
       end: "Ends 31 Mar 2024",
       nextDue: "Next due 31 Mar 2024",
       rent: ["Rent ", "US$950", "\u00a0/\u00a0month"],
-      deposit: "Deposit US$0",
+      deposit: ["Deposit ", "US$0"],
       remaining: "1 day",
       renewal: "Renewal soon",
     });

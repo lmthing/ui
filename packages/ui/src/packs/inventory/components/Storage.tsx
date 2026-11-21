@@ -139,7 +139,13 @@ function Breadcrumbs({ rows, density }: { rows: (Navigation & { id: string })[];
             />
           }
         >
-          <kit.KitText part="name" role="caption" density={density} tone={goto ? "accent" : "muted"}>
+          <kit.KitText
+            part="name"
+            role="caption"
+            density={density}
+            tone={index === rows.length - 1 ? "accent" : "muted"}
+            emphasis={index === rows.length - 1 ? "strong" : "normal"}
+          >
             {name}
           </kit.KitText>
         </kit.KitRow>
@@ -173,17 +179,15 @@ export function Storage(input: StorageProps) {
               trailing={count && <kit.KitText part="count" role="caption" density={density} tone="muted">
                 <kit.KitText part={null} role="number" numberScale="compact" density={density} tabular>{count.digits}</kit.KitText>{count.unit}
               </kit.KitText>}>
-              <kit.KitText part="name" density={density} tone="accent">{name}</kit.KitText>
+              <kit.KitText part="name" density={density}>{name}</kit.KitText>
             </kit.KitRow>;
           })}
         </kit.KitContent>}
-        <kit.KitContent group={spots.length ? "response" : "content"} density={density}>
-          <kit.KitContent group={spots.length ? "response" : "content"} density={density}>
-            <kit.KitText part="here" role={spots.length ? "caption" : "heading"} tone={spots.length ? "muted" : "text"} density={density}>{words.here}</kit.KitText>
-            {(here.length ? here : [words.emptyHere]).map((name, index) =>
-              <kit.KitText key={index} part={null} tone={here.length ? "text" : "muted"} density={density}>{name}</kit.KitText>,
-            )}
-          </kit.KitContent>
+        <kit.KitContent density={density}>
+          <kit.KitText part="here" role={spots.length ? "caption" : "heading"} tone={spots.length ? "muted" : "text"} density={density}>{words.here}</kit.KitText>
+          {(here.length ? here : [words.emptyHere]).map((name, index) =>
+            <kit.KitText key={index} part={null} tone={here.length ? "text" : "muted"} density={density}>{name}</kit.KitText>,
+          )}
         </kit.KitContent>
       </>}
   </kit.KitCard>;
