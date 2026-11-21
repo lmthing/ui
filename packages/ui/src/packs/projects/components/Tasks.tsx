@@ -1,11 +1,22 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import {
+  bindTaskChoices,
+  projectTasks,
+  taskControls,
+  taskCopy,
+  taskGroups,
+  taskLoading,
+  taskReading,
+} from "../copy";
+import { projectsWordsFor } from "../lang";
 import { acyclic, seedFriday, seedLabels, unique } from "../seeds";
 
 // Core first: Checklist/default cannot show assigned project work with task dependencies or subtasks.
 export const meta = {
   id: "Tasks",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Track assigned project tasks, their subtasks, due dates and blockers.",
   pick: "Assigned deliverable work with subtasks or dependencies. Not independent jobs (Checklist), operational columns (Board), or graded coursework (Assignments).",
@@ -20,7 +31,7 @@ export const meta = {
     "Tasks, assignments and dependency links live on the device; assignments on another person's device require a shared app.",
   variants: { density: ["comfortable", "compact"], group: ["none", "sections"] },
   variantParts: { "group.sections": { adds: ["project"] } },
-  parts: ["root"],
+  parts: ["root", "empty"],
   items: {
     key: "items",
     parts: ["root", "title", "project", "assignee", "due", "priority", "state", "blockers", "done", "assign"],
@@ -31,18 +42,13 @@ export const meta = {
     // The host projects this gate from the addressed task's available assignees.
     when: { assign: { canAssign: true } },
   },
-  read(input, state): string[] {
-    if (state !== "filled" && state !== "success") return [];
-    const { items } = input as { items: ReturnType<typeof projectedTasks> };
-    return items.flatMap(({ title, due, blockers }) =>
-      due || blockers.length ? [[title, due, ...blockers].filter(Boolean).join(" · ")] : [],
-    );
-  },
+  live: { checks: { done: "checked" }, derive: (input) => taskControls(input, []) },
+  read: taskReading,
   successActions: ["root.press", "done.check", "assign.select"],
   readSuccess: true,
 } as const satisfies c.Meta;
 
-const ref = c.text(32);
+const ref = c.text(32).meta({ kind: undefined });
 const task = z.strictObject({
   taskRef: ref,
   projectRef: ref,
@@ -83,39 +89,19 @@ function validTasks(items: Task[]) {
   );
 }
 
-function projectedTasks(items: Task[]) {
-  const stateOf = (row: Task) => {
-    const children = items.filter(({ parentRef }) => parentRef === row.taskRef);
-    if (!children.length) return row.state;
-    if (children.every(({ state }) => state === "done")) return "done";
-    return children.some(({ state }) => state !== "todo") ? "doing" : "todo";
-  };
-  const byRef = new Map(items.map((row) => [row.taskRef, row]));
-  return items.map((row) => {
-    const blockers = row.after.filter((ref) => {
-      const prerequisite = byRef.get(ref);
-      return !prerequisite || stateOf(prerequisite) !== "done";
-    });
-    return {
-      ...row,
-      root: row.goto,
-      // Assigning uses the host's choices rather than the row's navigation link.
-      assign: {},
-      // Absence suppresses the check; false is a visible unchecked control.
-      done: row.state !== undefined && !blockers.length ? row.state === "done" : undefined,
-      blockers: blockers.map((ref) => byRef.get(ref)?.title ?? ref),
-      state: stateOf(row),
-    };
-  });
+// The host supplies local assignee choices for this Tasks instance, not the Writer.
+export function bindTasks(choicesFor: (instance: string) => readonly string[]): c.Definition {
+  return bindTaskChoices({ props, examples, fallback, probes, meta }, choicesFor);
 }
 
+// prettier-ignore
 export const props = z
   .strictObject({ ...c.variantProps(meta.variants), items: z.array(task).min(1).max(6) })
   .refine(({ items }) => validTasks(items), {
     path: ["items"],
     message: "Use one level of same-project subtasks and acyclic prerequisites",
   })
-  .overwrite((value) => ({ ...value, items: projectedTasks(value.items) }));
+  .overwrite((value) => ({ ...value, items: projectTasks(value.items) }));
 
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
   return {
@@ -132,35 +118,83 @@ export function fallback(input: c.FallbackInput): z.input<typeof props> {
 }
 
 // prettier-ignore
-export const examples = [
-  { items: [
+const ledge = { items: [
     { taskRef: "survey", projectRef: "garden", title: "Check balcony light", assignee: "Inez", due: seedFriday, priority: "high", state: "todo", after: [], goto: "survey" },
     { taskRef: "planting", projectRef: "garden", title: "Plan the balcony planting", state: "todo", after: ["survey"] },
-  ] },
-  { group: "sections", density: "compact", items: [
+  ] } satisfies z.input<typeof props>;
+// prettier-ignore
+const trot = { items: [
     { taskRef: "guide", projectRef: "route_guide", title: "Prepare route guide", after: [] },
     { taskRef: "map", projectRef: "route_guide", parentRef: "guide", title: "Map the park route", state: "done", after: [] },
     { taskRef: "photos", projectRef: "route_guide", parentRef: "guide", title: "Take crossing photos", priority: "low", state: "doing", after: ["map"] },
-  ] },
+    { taskRef: "handout", projectRef: "route_guide", title: "Print the route guide", state: "todo", after: ["guide"] },
+    { taskRef: "check", projectRef: "walker_onboarding", title: "Check lead inventory", state: "todo", after: [] },
+] } satisfies z.input<typeof props>;
+// prettier-ignore
+export const examples = [
+  ledge,
+  { ...trot, group: "sections" },
+  trot,
+  { ...trot, density: "compact" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Tasks");
+// prettier-ignore
 export const probes = [
-  choose(
-    "Assign work for a launch, give jobs due dates and subtasks, and block design until the research job is done.",
-  ),
-  choose(
-    "Give me a short list of separate errands I can tick off independently, with no links between them.",
-    "Checklist",
-  ),
-  write(
-    "For project garden, list assigned task survey, Check balcony light, for Inez, due 2026-11-20, high priority and still to do. Make task planting, Plan the balcony planting, still to do and blocked by survey.",
-  ),
+  choose("Assign work for a launch, give jobs due dates and subtasks, and block design until the research job is done."),
+  choose("Give me a short list of separate errands I can tick off independently, with no links between them.", "Checklist"),
+  write("For project garden, list assigned task survey, Check balcony light, for Inez, due 2026-11-20, high priority and still to do. Make task planting, Plan the balcony planting, still to do and blocked by survey."),
   {
-    ...write(
-      "Group assigned work by project. For project route_guide, show Prepare route guide (guide) with its child Map the park route (map), which is done. Show that child indented under the parent.",
-    ),
+    ...write("Group assigned work by project. For project route_guide, show Prepare route guide (guide) with its child Map the park route (map), which is done. Show that child indented under the parent."),
     variant: { axis: "group", value: "sections" },
   },
   read("Mark Check balcony light complete.", { address: "t1/r1/done", action: "check" }),
 ] satisfies c.Probe[];
+
+type View = c.Props<typeof props, typeof meta>;
+type ViewRow = View["items"][number] & ReturnType<typeof projectTasks>[number];
+type Finish = { density: View["density"]; lang: string };
+// prettier-ignore
+function TaskRow({ row, density, lang, indent, project, choices }: Finish & {
+  row: ViewRow; indent: boolean; project?: string | undefined; choices: readonly string[];
+}) {
+  const words = projectsWordsFor(lang).tasks;
+  const { state, due, overdue, priority, blockers } = taskCopy(row, lang);
+  const controls = row.done !== undefined
+    ? <kit.KitCheck part="done" done={row.done} label={words.done(row.title)} /> : undefined;
+  return <kit.KitRow item={row.id} part={null} label={row.title} trailing={controls} density={density} indent={indent ? 1 : 0}>
+    {project && <kit.KitText role="label" tone="muted" part="project">{words.project(project)}</kit.KitText>}
+    <kit.KitRow part="root" label={row.title} goto={row.goto} inline density={density}>
+      <kit.KitText part="title" role="body">{row.title}</kit.KitText>
+      {due && <kit.KitText part="due" role="caption" tone={overdue ? "bad" : "muted"}>{due}</kit.KitText>}
+      <kit.KitText part={null} role="caption" tone="muted">
+        <kit.KitText part="state" role="caption" tone={row.progress === "done" ? "good" : "muted"}>{state}</kit.KitText>
+        {row.assignee && <>{words.separator}<kit.KitText part="assignee" role="caption" tone="muted">{row.assignee}</kit.KitText></>}
+        {priority && <>{words.separator}<kit.KitText part="priority" role="caption" tone="muted">{priority}</kit.KitText></>}
+      </kit.KitText>
+      {blockers && <kit.KitText part="blockers" role="caption" tone="warn">{blockers}</kit.KitText>}
+    </kit.KitRow>
+    {row.canAssign && <kit.KitTrack role="radiogroup" part="assign" label={words.assign(row.title)}>
+      {choices.map((name) => <kit.KitChip key={name} item={null} role="radio" label={name} on={name === row.assignee} />)}
+    </kit.KitTrack>}
+  </kit.KitRow>;
+}
+
+// prettier-ignore
+export function Tasks(input: View) {
+  const { lang } = kit.useWords(projectsWordsFor), state = kit.useComponentState();
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const group = kit.useVariant("group", meta.variants.group, input.group);
+  const live = kit.useLiveControls(meta, input) as { items: ViewRow[]; assigneeChoices: string[] };
+  const groups = group === "sections" ? taskGroups(live.items) : [{ project: undefined, tasks: live.items }];
+  return <kit.KitCard part="root" density={density}>
+    {state === "empty" ? <kit.KitEmpty part="empty" decorativeIcon /> : state === "loading" ?
+      <kit.KitContent group="response"><kit.KitSkeleton rows={live.items.length} items={taskLoading(live.items, lang)} density={density} lead="none" /></kit.KitContent> :
+      groups.map(({ project, tasks }) => <kit.KitContent key={project ?? tasks[0]?.id} group="response">
+        {tasks.map((row, index) => <kit.KitContent key={row.id} group={project && index > 0 && !row.parentRef ? "response" : "content"}>
+          <TaskRow {...{ row, lang }} density={project && (row.parentRef || tasks[index + 1]?.parentRef === row.taskRef) ? "compact" : density}
+            project={index === 0 ? project : undefined} indent={Boolean(project && row.parentRef)} choices={live.assigneeChoices} />
+        </kit.KitContent>)}
+      </kit.KitContent>)}
+  </kit.KitCard>;
+}
