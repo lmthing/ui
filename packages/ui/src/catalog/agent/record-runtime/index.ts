@@ -44,6 +44,8 @@ function pressAt(meta: Meta, address: string, action: string) {
   if (item && part && !extra && presses && Object.hasOwn(presses, part))
     return { item, press: presses[part]! };
 }
+export const isRecordPress = (meta: Meta, address: string, action: string) =>
+  Boolean(pressAt(meta, address, action));
 
 /** Bind a pending confirmation to a durable record (and, for receipts, its revision). */
 export function recordTargetAt(meta: Meta, props: Values, address: string, action: string) {

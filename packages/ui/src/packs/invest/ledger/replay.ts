@@ -1,12 +1,23 @@
 import { add, decimal, div, mul, negative, sub, zero, type Decimal } from "./decimal";
-import { invalid, ordered, time, valid, type LedgerResult, type Manual, type Portfolio } from "./records";
+import { invalid, time, valid, type LedgerResult, type Manual, type Portfolio } from "./records";
 
 export type Balance = {
   cash: Decimal;
   contributed: Decimal;
   owned: ReadonlyMap<string, { units: Decimal; cost: Decimal }>;
 };
-export type Event = Manual | { kind: "dividend"; id: string; at: string; amount: Decimal; voided: boolean };
+export type Event =
+  | Manual
+  | {
+      kind: "dividend";
+      id: string;
+      at: string;
+      amount: Decimal;
+      voided: boolean;
+      beforeTrades: boolean;
+    };
+const priority = (event: Event) => (event.kind === "dividend" ? (event.beforeTrades ? -1 : 1) : 0);
+export const compareEvents = (a: Event, b: Event) => time(a.at) - time(b.at) || priority(a) - priority(b);
 
 export function cashMovement(event: Event): Decimal {
   if (event.kind === "dividend") return event.amount;
@@ -19,11 +30,11 @@ export function cashMovement(event: Event): Decimal {
   return sub(event.kind === "sell" ? principal : sub(zero, principal), fee);
 }
 
-function apply(balance: Balance, event: Event): LedgerResult<Balance> {
+function apply(balance: Balance, event: Event, checkCash: boolean): LedgerResult<Balance> {
   if (event.voided) return valid(balance);
   const movement = cashMovement(event);
   const cash = add(balance.cash, movement);
-  if (negative(cash)) return invalid(`Negative cash after ${event.id}`);
+  if (checkCash && negative(cash)) return invalid(`Negative cash after ${event.id}`);
   if (event.kind === "deposit" || event.kind === "withdrawal")
     return valid({ ...balance, cash, contributed: add(balance.contributed, movement) });
   if (!("assetId" in event)) return valid({ ...balance, cash });
@@ -38,12 +49,12 @@ function apply(balance: Balance, event: Event): LedgerResult<Balance> {
   return valid({ ...balance, cash, owned });
 }
 
-/** Checkpoints include all entries at their timestamp. Validation also checks the remaining suffix. */
+/** A full replay validates the suffix; entitlement checkpoints depend only on units. */
 export function replay(
   portfolio: Portfolio,
   events: readonly Event[],
   checkpoints: readonly number[],
-  validateSuffix = true,
+  mode: "full" | "entitlement" = "full",
 ) {
   let balance: Balance = {
     cash: decimal(portfolio.openingCash),
@@ -56,13 +67,13 @@ export function replay(
     ),
   };
   const snapshots = new Map<number, Balance>();
-  const sorted = ordered(events);
+  const sorted = [...events].sort(compareEvents);
   let index = 0;
   const times = [...new Set(checkpoints)].sort((a, b) => a - b);
-  if (validateSuffix) times.push(Infinity);
+  if (mode === "full") times.push(Infinity);
   for (const at of times) {
     while (index < sorted.length && time(sorted[index]!.at) <= at) {
-      const result = apply(balance, sorted[index++]!);
+      const result = apply(balance, sorted[index++]!, mode === "full");
       if (!result.ok) return result;
       balance = result.value;
     }

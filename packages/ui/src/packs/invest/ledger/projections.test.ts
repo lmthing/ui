@@ -78,6 +78,7 @@ it("rejects unordered, duplicate and pre-opening samples and duplicate quotes", 
     [s, { ...s, at: date(1) }],
     [s, { ...s, at: "2026-01-03T19:00:00-05:00" }],
     [{ ...s, at: "2025-12-31T00:00:00Z" }],
+    [{ ...s, at: "2026-01-04T00:00:00.0001Z" }],
     [
       {
         ...s,

@@ -5,7 +5,7 @@ import { createAgentAccess, createInteractionStore, createScreenController } fro
 import { activityLedger, dividendsLedger, holdingsLedger, performanceLedger, portfolioKind } from "./index";
 import { date, now, statement } from "./fixtures";
 
-const common = z.strictObject({ portfolioId: z.string() });
+const common = z.strictObject({ portfolioId: z.string().default("education") });
 function definition(id: string, extra: Partial<Meta>, props = common): Definition {
   return {
     meta: {
@@ -35,7 +35,6 @@ const defs = {
       actions: { parts: { range: ["select"] }, items: { root: ["select"] } },
       selections: { range: { prop: "range", choices: ["all", "month", "year"] } },
       select: { prop: "selected_point", value: { field: "at" } },
-      emptyActions: ["range.select"],
     },
     common.extend({ samples: z.array(z.unknown()), range: z.string() }),
   ),
@@ -76,6 +75,11 @@ it("renders code-owned holdings, activity and sample amounts through readScreen"
   expect(
     planAct(p, defs, {}, [{ address: "record/r3", action: "select" }], null, "planner", data, now),
   ).toMatchObject({ ok: true, values: { "performance/record/r3": date(3) } });
+  const controller = createScreenController({ screen: p, defs, deviceData: data, now: () => now });
+  expect(controller.act({ address: "record/r3", action: "select" }).ok).toBe(true);
+  expect(controller.read()).toContain("value 1100, contributed 1000, gain 100");
+  expect(controller.snapshotScreen().components[0]).not.toHaveProperty("selected_point");
+  controller.dispose();
   expect(readScreen(screen("Holdings"), defs)).toContain("Holdings (error)");
 });
 
@@ -153,4 +157,17 @@ it("does not allow a confirmed standalone press to void a different host record 
     hint: "The record changed after confirmation opened",
   });
   expect(store.get(journalKey)).toBeUndefined();
+});
+
+it("uses parsed defaults to bind a confirmed standalone receipt reversal", () => {
+  const store = createInteractionStore();
+  const current = () => screen("Dividends", { portfolioId: undefined });
+  const agent = createAgentAccess({ defs, store, current, deviceData: data });
+  expect(agent.act(press("record/r1/receive")).ok).toBe(true);
+  expect(agent.read()).toContain("[record/r1/void press]");
+  expect(agent.act(press("record/r1/void")).ok).toBe(true);
+  expect(agent.read()).toContain("[confirm/confirm press]");
+  expect(store.get(journalKey)).toHaveLength(1);
+  expect(agent.act(press("confirm/confirm")).ok).toBe(true);
+  expect(store.get(journalKey)).toHaveLength(2);
 });

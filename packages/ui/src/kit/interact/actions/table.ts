@@ -1,5 +1,6 @@
 import {
   affordancesOf,
+  isRecordPress,
   itemEditSpec,
   liveProps,
   parseControlProps,
@@ -24,14 +25,31 @@ function confirmReportAction(state: ActionState, ctx: ActionContext, target: str
     : rejected(state, ctx.at, "not_actionable", "No photo at this address");
 }
 
+function confirmRecordAction(state: ActionState, action: ActStep, ctx: ActionContext) {
+  const { id, c, state: _state, ...wire } = ctx.entry;
+  const def = ctx.defs[c]!;
+  const prefix = `${ctx.screen.id}/`;
+  const local = Object.fromEntries(
+    Object.entries(state.values).map(([key, value]) => [
+      key.startsWith(prefix) ? key.slice(prefix.length) : key,
+      value,
+    ]),
+  );
+  const parsed = parseControlProps(def, wire, (part) => local[`${id}/${part}`]);
+  const props = liveProps(def.meta, parsed, id, local, true, ctx.options.deviceData, ctx.now());
+  const recordTarget = recordTargetAt(def.meta, props, action.address, action.action);
+  return recordTarget === undefined
+    ? rejected(state, ctx.at, "not_actionable", "No record at this address")
+    : showConfirmation(state, { ...ctx.selected, recordTarget }, ctx);
+}
+
 export function confirmationFor(state: ActionState, action: ActStep, ctx: ActionContext) {
   const meta = ctx.defs[ctx.entry.c]!.meta;
   const target = action.address === ctx.entry.id ? "root" : action.address.slice(ctx.entry.id.length + 1);
-  if (
-    reportConfirmation(meta, target, action.action) &&
-    !meta.recordRuntime?.presses?.[target.split("/")[1]!]
-  )
-    return confirmReportAction(state, ctx, target);
+  if (reportConfirmation(meta, target, action.action))
+    return isRecordPress(meta, action.address, action.action)
+      ? confirmRecordAction(state, action, ctx)
+      : confirmReportAction(state, ctx, target);
   if (
     action.action === "press" &&
     Object.hasOwn(meta.clearItems ?? {}, target) &&
@@ -56,14 +74,9 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
     local,
     (props.state as StateName | undefined) ?? ctx.entry.state,
   ).find((offered) => offered.address === action.address && offered.action === action.action)?.part;
-  const recordTarget = recordTargetAt(meta, props, action.address, action.action);
   return (part && meta.confirmParts?.includes(part)) ||
     (ctx.entry.c === "Button" && action.action === "press" && ctx.input.confirm)
-    ? showConfirmation(
-        state,
-        { ...ctx.selected, ...(recordTarget === undefined ? {} : { recordTarget }) },
-        ctx,
-      )
+    ? showConfirmation(state, ctx.selected, ctx)
     : undefined;
 }
 const playbackAction: ActionHandler = (state, action, ctx) =>

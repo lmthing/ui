@@ -1,7 +1,7 @@
 import { add, decimal, div, mul, negative, numeric, positive, sub } from "./decimal";
 import { distributionCash, type History } from "./history";
-import { cashMovement, replay, type Balance } from "./replay";
-import { invalid, latestReceipt, ordered, time, valid, type Sample } from "./records";
+import { cashMovement, compareEvents, replay, type Balance } from "./replay";
+import { invalid, latestReceipt, ledgerDay, performanceSample, time, valid, type Sample } from "./records";
 
 const row = (index: number) => `r${index + 1}`;
 const ownedUnits = ({ owned }: Balance) =>
@@ -70,6 +70,8 @@ function valueAt(balance: Balance, sample: Sample) {
 }
 
 export function performance(history: History, samples: readonly Sample[]) {
+  if (samples.some((sample) => !performanceSample.safeParse(sample).success))
+    return invalid("Invalid performance sample");
   const { portfolio, events, now } = history;
   const assets = new Set(portfolio.positions.map((p) => p.assetId));
   const times = samples.map((sample) => time(sample.at));
@@ -114,10 +116,7 @@ export function dividends(history: History) {
       receivedAt: active?.at,
       revision: last?.revision ?? 0,
       canReceive: Boolean(
-        !active &&
-        amounts &&
-        !negative(amounts.net) &&
-        new Date(history.now).toISOString().slice(0, 10) >= distribution.payOn,
+        !active && amounts && !negative(amounts.net) && ledgerDay(history.now) >= distribution.payOn,
       ),
       canReverse: Boolean(active),
     };
@@ -125,7 +124,10 @@ export function dividends(history: History) {
 }
 
 export function activity(history: History) {
-  const entries = history.events.map((event, index) => {
+  const events = history.events
+    .map((event, index) => ({ event, index }))
+    .sort((a, b) => compareEvents(a.event, b.event));
+  return events.map(({ event, index }) => {
     const movement = numeric(cashMovement(event));
     const id = row(index);
     const appliedCash = event.voided ? 0 : movement;
@@ -152,5 +154,4 @@ export function activity(history: History) {
     }
     return { ...event, ...shared, canVoid: !event.voided };
   });
-  return ordered(entries);
 }

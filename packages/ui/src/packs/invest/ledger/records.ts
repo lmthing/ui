@@ -5,7 +5,11 @@ const id = z
   .string()
   .max(24)
   .regex(/^[a-z0-9]+(?:_[a-z0-9]+)*$/);
-const at = z.iso.datetime({ offset: true });
+const at = z.iso
+  .datetime({ offset: true })
+  .refine((value) => Number.isFinite(time(value)) && !/\.\d{4}/.test(value), {
+    message: "Use a valid instant with at most millisecond precision",
+  });
 const nonnegative = z.number().nonnegative();
 const amount = z.number().positive();
 const link = screenId.optional();
@@ -42,7 +46,9 @@ const distribution = z
     receivedAt: at.optional(),
     goto: link,
   })
-  .refine(({ payOn, entitledAt }) => payOn >= entitledAt.slice(0, 10));
+  .refine(
+    ({ payOn, entitledAt }) => Number.isFinite(time(entitledAt)) && payOn >= ledgerDay(time(entitledAt)),
+  );
 
 /** The host supplies the complete portfolio, independently of the visible component. */
 export const portfolioRecord = z.strictObject({
@@ -76,6 +82,7 @@ export function latestReceipt(receipts: readonly Receipt[], id: string) {
   for (let i = receipts.length - 1; i >= 0; i--) if (receipts[i]!.id === id) return receipts[i];
 }
 export const time = (date: string) => Date.parse(date);
+export const ledgerDay = (instant: number) => new Date(instant).toISOString().slice(0, 10);
 export const ordered = <T extends { at: string }>(events: readonly T[]) =>
   [...events].sort((a, b) => time(a.at) - time(b.at));
 

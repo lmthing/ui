@@ -7,7 +7,7 @@ import { invalid, performanceSample, time, type LedgerOperation, type LedgerResu
 export const portfolioKind = "investment_portfolios";
 const base = { kind: portfolioKind, scope: "portfolioId" } as const;
 const deviceData = [portfolioKind] as const;
-type Declaration = Pick<Meta, "deviceData" | "recordRuntime" | "read">;
+type Declaration = Pick<Meta, "deviceData" | "recordRuntime" | "read" | "emptyActions">;
 type Row = Readonly<Record<string, unknown>>;
 
 function history({ props, data, journal, now }: RecordContext) {
@@ -86,6 +86,7 @@ function rangeStart(last: string, range: unknown) {
 
 export const performanceLedger = {
   deviceData,
+  emptyActions: ["range.select"],
   recordRuntime: {
     ...base,
     project(context) {
@@ -96,7 +97,10 @@ export const performanceLedger = {
       const result = !ledger.ok
         ? ledger
         : samples.success
-          ? performance(ledger.value, samples.data)
+          ? performance(
+              ledger.value,
+              samples.data.map(({ id: _id, ...sample }) => sample),
+            )
           : invalid("Invalid performance samples");
       return view("samples", result, (points) => {
         const latest = points.at(-1);
