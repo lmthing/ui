@@ -7,25 +7,7 @@ import { text } from "../../props";
 import { planAct, readScreen, type DeviceData, type ScreenLike } from "../index";
 
 it("admits the staged Resolution outcome without changing its strict reason refinement", () => {
-  const def: Definition = {
-    ...RequestResolution,
-    meta: {
-      ...RequestResolution.meta,
-      selections: {
-        outcome: { prop: "outcome", choices: { prop: "outcome_choices" }, runtime: true },
-      },
-      live: {
-        text: { reason: { prop: "reason", max: 120 } },
-        derive: (props) => ({
-          outcome_choices: [
-            "repaired",
-            "workaround",
-            ...(String(props.reason ?? "").trim() ? ["unable"] : []),
-          ],
-        }),
-      },
-    },
-  };
+  const def: Definition = RequestResolution;
   const defs = { [def.meta.id]: def };
   const wire = RequestResolution.examples[0]!;
   const screen: ScreenLike = {
@@ -33,9 +15,12 @@ it("admits the staged Resolution outcome without changing its strict reason refi
     components: [{ id: "r", c: def.meta.id, ...wire }],
   };
   const pick = { address: "r/outcome", action: "select", value: "unable" };
+  const reason = "Cannot proceed";
   expect(def.props.safeParse({ ...wire, outcome: "unable" }).success).toBe(false);
+  expect(def.props.safeParse({ ...wire, outcome: "unable", liveReason: reason }).success).toBe(false);
+  expect(def.props.safeParse({ ...wire, outcome: "unable", reason }).success).toBe(true);
   expect(planAct(screen, defs, {}, [pick]).ok).toBe(false);
-  const edit = planAct(screen, defs, {}, [{ address: "r/reason", action: "type", value: "Cannot proceed" }]);
+  const edit = planAct(screen, defs, {}, [{ address: "r/reason", action: "type", value: reason }]);
   expect(edit.ok).toBe(true);
   if (!edit.ok) return;
   expect(readScreen(screen, defs, edit.values)).toContain('choices ["repaired","workaround","unable"]');
@@ -43,6 +28,7 @@ it("admits the staged Resolution outcome without changing its strict reason refi
   expect(select.ok).toBe(true);
   if (!select.ok) return;
   expect(readScreen(screen, defs, select.values)).toContain('[r/outcome select = "unable"');
+  expect(screen.components[0]).toEqual({ id: "r", c: def.meta.id, ...wire });
 });
 
 const viewerDef = {

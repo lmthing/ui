@@ -1,5 +1,6 @@
 import {
   atDeviceTime,
+  captureDeviceTime,
   driveTarget,
   isDeviceDataVisible,
   migrateScreen,
@@ -9,6 +10,7 @@ import {
   readScreen,
   selectionBindingFor,
   withDisabledSelectionChecks,
+  type AppCurrency,
   type CanDrive,
   type Definition,
   type DeviceData,
@@ -73,12 +75,12 @@ function withKeypadDrafts(def: Definition, address: string, values: Values): Def
     ...def,
     meta: {
       ...def.meta,
-      read: (input, state, lang, deviceData) => {
+      read: (input, state, lang, deviceData, currency) => {
         const own = Object.keys(def.meta.actions?.parts ?? {}).filter((part) => parts.includes(part));
         const projected = projectValue(input as Values, address, own, values);
         const items = def.meta.items?.key;
         const rows = items && projected[items];
-        if (!items || !Array.isArray(rows)) return read(projected, state, lang, deviceData);
+        if (!items || !Array.isArray(rows)) return read(projected, state, lang, deviceData, currency);
         const itemParts = Object.keys(def.meta.actions?.items ?? {}).filter((part) => parts.includes(part));
         return read(
           {
@@ -90,6 +92,7 @@ function withKeypadDrafts(def: Definition, address: string, values: Values): Def
           state,
           lang,
           deviceData,
+          currency,
         );
       },
     },
@@ -103,14 +106,15 @@ export function readControls(
   lang?: string,
   disabled?: ReadonlyMap<string, symbol>,
   deviceData?: DeviceData,
+  currency?: AppCurrency,
   canDrive?: CanDrive,
 ): string {
   const source = withDisabledSelectionChecks(screen, disabled);
   const migrated = migrateScreen(source, { variantOnly: true });
   const hasKeypads = migrated.components.some(({ c }) => Array.isArray(defs[c]?.props.meta()?.keypadParts));
   const read = hasKeypads
-    ? readKeypads(migrated, defs, values, lang, deviceData, canDrive)
-    : readScreen(source, defs, values, lang, deviceData, canDrive);
+    ? readKeypads(migrated, defs, values, lang, deviceData, currency, canDrive)
+    : readScreen(source, defs, values, lang, deviceData, currency, canDrive);
   return disabled?.size
     ? read.replace(controlTokens, (token, address) => (disabled.has(address) ? "" : token))
     : read;
@@ -122,8 +126,10 @@ function readKeypads(
   values: Values,
   lang?: string,
   deviceData?: DeviceData,
+  currency?: AppCurrency,
   canDrive?: CanDrive,
 ) {
+  deviceData = captureDeviceTime(defs, deviceData);
   const snapshot = projectDeviceData(deviceData, values);
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
@@ -144,6 +150,7 @@ function readKeypads(
         local,
         lang,
         deviceData,
+        currency,
         selection?.view,
         target,
       );

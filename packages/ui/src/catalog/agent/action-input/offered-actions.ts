@@ -14,7 +14,7 @@ export function findAction(
 ) {
   const offered = affordancesOfScreen(screen, defs, next, data, now);
   const address = original.address.replace(new RegExp(`^${screen.id}/`), "").replace(/\/root$/, "");
-  const selected = selectStep(screen, defs, original, address, next, data);
+  const selected = selectStep(screen, defs, original, address, next, data, now);
   const found = offered.find((a) => a.address === address && a.action === selected.step.action);
   if (!found) {
     const here = offered.filter((a) => a.address === address).map((a) => a.action);

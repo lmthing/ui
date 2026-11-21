@@ -7,8 +7,10 @@ export {
 } from "./affordances";
 export { checkDriveDeclaration, driveAffordances, driveTarget, type CanDrive } from "./drives";
 export { readComponent, readScreen, type ScreenLike } from "./read";
+export { appCurrencySchema, moneyFractionDigits, parseAppCurrency, type AppCurrency } from "./app-currency";
 export {
   atDeviceTime,
+  captureDeviceTime,
   emptyDeviceData,
   filterDeviceDataScreen,
   isDeviceDataVisible,
@@ -22,6 +24,7 @@ export {
 export { visibleItems } from "./visibility";
 export { pickerAt, pickerKey, projectLiveInputs } from "./live-inputs";
 export { linkedEditKey } from "./linked-edits";
+export { isRecordJournal, isRecordPress, recordTargetAt } from "./record-runtime";
 export {
   hasReportConfirmation,
   itemEditSpec,

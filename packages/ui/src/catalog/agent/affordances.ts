@@ -30,7 +30,6 @@ type OfferContext = {
   clock?: ((target: string, action: string) => boolean) | undefined;
 };
 type Adjustment = NonNullable<ReturnType<typeof adjustmentAt>>;
-
 /** Item increments without a numeric setter or a clock are owned by the pure action planner. */
 export function isAdjustOnlyItem(
   adjustment: Adjustment | undefined,

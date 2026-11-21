@@ -132,15 +132,14 @@ export function createControllerContext(options: ControllerOptions, standalone =
     openSheet: standalone ? undefined : (store.get(`${screen.id}/$sheet`) as string | undefined),
     confirmation: store.get(`${screen.id}/$confirmation`) as Confirmation | undefined,
   };
+  const localOnly = standalone && !screen.components.some(({ c }) => defs[c]?.meta.recordRuntime);
   const valuesOf = (at = now()) =>
-    standalone
+    localOnly
       ? store.snapshot(screen.id)
       : {
           ...initial,
           ...store.snapshot(),
-          ...Object.fromEntries(
-            screen.components.map((entry) => [valueKey(screen.id, entry.id, "$now"), at]),
-          ),
+          ...Object.fromEntries(screen.components.map(({ id }) => [valueKey(screen.id, id, "$now"), at])),
         };
   return {
     standalone,

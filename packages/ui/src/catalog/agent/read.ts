@@ -7,10 +7,11 @@ import { affordancesOf, formatAffordance } from "./affordances";
 import { hasRuntimeSets, projectLiveClocks, recordClockOffer } from "./clocks";
 import { nestedRemaining, visibleNestedProps } from "./selection";
 import type { Meta } from "../meta";
+import { parseAppCurrency, type AppCurrency } from "./app-currency";
 import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
 import { sessionKey, sessionState, sessionStatus, type SessionState } from "./session";
-import { migrateLine, migrateScreen } from "../migrations";
-import { componentTexts, readAffordances, readItems, type ReadSchema as Json } from "./reading";
+import { migrateScreen } from "../migrations";
+import { componentTexts, migrateInput, readAffordances, readItems, type ReadSchema as Json } from "./reading";
 import { projectVisibleItems } from "./visibility";
 import {
   disabledSelectionChecks,
@@ -55,6 +56,7 @@ function readingProps(
   const timed = projectLiveClocks(meta, reading, get, runtime);
   const useLive =
     meta.live ||
+    meta.recordRuntime ||
     meta.linkedEdits ||
     meta.selectionBinding ||
     meta.items?.deviceData ||
@@ -90,15 +92,6 @@ function sessionForRead(meta: Meta, session: SessionState | undefined) {
   return { ...session, item };
 }
 
-function migrateInput(component: string, input: unknown) {
-  if (!input || typeof input !== "object" || Array.isArray(input) || Object.hasOwn(input, "c")) return input;
-  const line = { ...input, c: component };
-  const migrated = migrateLine(line, { variantOnly: true });
-  if (migrated === line) return input;
-  const { c: _c, ...props } = migrated;
-  return props;
-}
-
 /** Read addressed text and affordances, without styling or secrets (plan 4.12). */
 export function readComponent(
   def: Definition,
@@ -108,9 +101,11 @@ export function readComponent(
   values: Record<string, unknown> = {},
   lang?: string,
   deviceData?: DeviceData,
+  currency?: AppCurrency,
   selection?: BoundSelection,
   target?: ReturnType<typeof driveTarget>,
 ): string[] {
+  const appCurrency = parseAppCurrency(currency);
   const { meta } = def;
   deviceData = projectDeviceData(deviceData, values);
   if (!isDeviceDataVisible(meta, deviceData)) return [];
@@ -125,12 +120,10 @@ export function readComponent(
   const head = `${instance} ${meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
   const draw = drawState(def.meta, props, get),
     session = sessionState(meta, props, get);
-  const clock = recordClockOffer(def, migrated as Props, props, get, deviceData, undefined, values);
-  const wire = reportEditWire(def, migrated, get);
   const offered = affordancesOf(meta, props, instance, values, state, false, {
     data: deviceData,
-    clock,
-    wire,
+    clock: recordClockOffer(def, migrated as Props, props, get, deviceData, undefined, values),
+    wire: reportEditWire(def, migrated, get),
   });
   const driven = driveAffordances(meta, props, instance, offered, target);
   const affordances = readAffordances(driven, values, def, props, instance, session);
@@ -150,6 +143,7 @@ export function readComponent(
       state,
       lang,
       selectDeviceData(meta, deviceData),
+      appCurrency,
     ) ?? []),
     ...readProgress(session, lang),
     ...readDraw(draw),
@@ -174,8 +168,10 @@ export function readScreen(
   values: Record<string, unknown> = {},
   lang?: string,
   deviceData?: DeviceData,
+  currency?: AppCurrency,
   canDrive?: CanDrive,
 ): string {
+  const appCurrency = parseAppCurrency(currency);
   deviceData = captureDeviceTime(defs, deviceData);
   const snapshot = projectDeviceData(deviceData, values);
   const local = Object.fromEntries(
@@ -186,9 +182,9 @@ export function readScreen(
   const lines = migrated.components.flatMap(({ id, c, state, ...props }) => {
     const def = defs[c];
     if (!def) return [`${id} ${c} (unknown)`];
-    const selection = selectionBindingFor(migrated, defs, def.meta, id, local, snapshot);
+    const selection = selectionBindingFor(migrated, defs, def.meta, id, local, snapshot)?.view;
     const target = driveTarget(def.meta, migrated, defs, local, snapshot, canDrive);
-    return readComponent(def, props, id, state, local, lang, deviceData, selection?.view, target);
+    return readComponent(def, props, id, state, local, lang, deviceData, appCurrency, selection, target);
   });
   return [header, ...lines].join("\n");
 }

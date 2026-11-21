@@ -1,6 +1,6 @@
 import type { z } from "zod";
-import type { DeviceData } from "../agent";
-import type { LiveActionInputs } from "../types";
+import type { AppCurrency, DeviceData } from "../agent";
+import type { LiveActionInputs, StateName } from "../types";
 
 export type LiveInputs = Omit<LiveActionInputs, "derive"> & {
   /** Project live props and gates from parsed props and declared host records. Derived items supply stable ids. */
@@ -43,3 +43,32 @@ export type DeviceDataFlags = Readonly<
 >;
 
 export type DeviceDataWake = (data: DeviceData, props: ProjectionProps, now: number) => number | undefined;
+
+export type ReadSummary = (
+  props: unknown,
+  state: StateName,
+  lang?: string,
+  deviceData?: DeviceData,
+  currency?: AppCurrency,
+) => string[];
+
+export type RecordContext = {
+  props: ProjectionProps;
+  data: DeviceData;
+  journal: readonly unknown[];
+  now: number;
+};
+export type RecordRuntime = {
+  kind: string;
+  scope: string;
+  project: (context: RecordContext) => ProjectionProps;
+  presses?: Readonly<
+    Record<
+      string,
+      {
+        target: (row: ProjectionProps) => string;
+        plan: (context: RecordContext, row: ProjectionProps) => { operation?: unknown } | { error: string };
+      }
+    >
+  >;
+};

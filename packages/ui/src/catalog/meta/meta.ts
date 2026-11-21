@@ -156,6 +156,8 @@ export type Meta = {
   deviceDataFlags?: LiveMeta.DeviceDataFlags;
   /** Next future epoch millisecond when a mounted projection needs to be read again. */
   deviceDataWake?: LiveMeta.DeviceDataWake;
+  /** Runtime projections and row presses backed by declared host records and a staged journal. */
+  recordRuntime?: LiveMeta.RecordRuntime;
   /** Pure visibility rule over the declared host records. A false result hides the whole component. */
   deviceDataVisible?: (data: DeviceData) => boolean;
   /** Deterministic synthetic records for preview, conformance and read-probe fixtures only. */
@@ -163,7 +165,8 @@ export type Meta = {
   parts?: readonly string[];
   states?: readonly StateName[];
   actions?: ActionSpec;
-  read?: (props: unknown, state: StateName, lang?: string, deviceData?: DeviceData) => string[];
+  /** Currency comes from the host, never from the component props. */
+  read?: LiveMeta.ReadSummary;
   signature?: string;
   status?: "draft" | "ready";
   /** Built by code (e.g. TabBar); stays readable but has no choose/write prompts or probes. */

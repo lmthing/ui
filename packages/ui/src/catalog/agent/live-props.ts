@@ -11,6 +11,7 @@ import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
 import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
 import { projectMoves } from "./action-input";
+import { projectRecordRuntime } from "./record-runtime";
 import {
   adjustmentAt,
   projectAdjustments,
@@ -135,6 +136,7 @@ export function liveProps(
   values: Values,
   wireApplied = false,
   data?: DeviceData,
+  now?: number,
 ): Values {
   const get = (part: string) => values[`${instance}/${part}`];
   const addressed = projectRecordIds(meta, projectDeviceRows(meta, validated, data), get);
@@ -152,7 +154,8 @@ export function liveProps(
     if (state !== undefined) props = { ...props, state };
   }
   props = projectDraw(meta, props, get);
-  props = projectDeviceFlags(meta, projectLiveInputs(meta, props, instance, get, data, validated), data);
+  props = projectLiveInputs(meta, props, instance, get, data, validated);
+  props = projectDeviceFlags(meta, projectRecordRuntime(meta, props, instance, values, data, now), data);
   if (runtime && meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
     props = { ...props, minus: undefined };
   if (meta.id === "Field" || meta.id === "Search") {

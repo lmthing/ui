@@ -35,6 +35,15 @@ function hasPart(meta: Meta, holder: Props, part: string, item: boolean) {
   );
 }
 
+function itemControlAt(meta: Meta, part: string) {
+  return Boolean(
+    recordEdit(meta, part) ||
+    meta.items?.edits?.[part] ||
+    meta.items?.pickers?.[part] ||
+    meta.recordRuntime?.presses?.[part],
+  );
+}
+
 export function partsOf(
   spec: Record<string, readonly string[]> | undefined,
   holder: Props,
@@ -63,7 +72,7 @@ export function partsOf(
             const target = holder[part];
             const nested = target && typeof target === "object" ? (target as Props) : holder;
             const record = item ? recordEdit(meta, part) : undefined;
-            const itemControl = item && (record || meta.items?.edits?.[part] || meta.items?.pickers?.[part]);
+            const itemControl = item && itemControlAt(meta, part);
             const localPress =
               !item &&
               (meta.clear?.[part] ||

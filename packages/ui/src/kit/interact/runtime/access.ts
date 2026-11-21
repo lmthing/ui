@@ -17,7 +17,7 @@ import {
   sessionEvent,
   withDisabledSelectionChecks,
 } from "../../../catalog";
-import type { ActStep, StateName } from "../../../catalog";
+import type { ActStep, AppCurrency, StateName } from "../../../catalog";
 import { actionFailure } from "../actions";
 import type { ActReply } from "../index";
 import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
@@ -126,7 +126,7 @@ function isPressAction(ctx: ControllerContext, local: string, action: string) {
     (action === "flip" ? sessionEvent(meta, target, action) : clockControlDeclared(meta, target, action)),
   );
 }
-function read(ctx: ControllerContext) {
+function read(ctx: ControllerContext, currency?: AppCurrency) {
   const { lang, deviceData } = ctx.options;
   const { cancelLabel, confirmLabel, mediaUnavailable } = wordsFor(lang);
   const confirmation = ctx.confirmationFor();
@@ -138,7 +138,7 @@ function read(ctx: ControllerContext) {
   const visible = ctx.liveScreen(values, sheet, Boolean(sheet), now);
   const data = atDeviceTime(deviceData, now);
   const canDrive = ctx.standalone ? undefined : (part: string) => !drivenPartBlock(ctx, part);
-  const reading = readControls(visible, ctx.defs, values, lang, ctx.disabledParts, data, canDrive);
+  const reading = readControls(visible, ctx.defs, values, lang, ctx.disabledParts, data, currency, canDrive);
   if (ctx.standalone) return reading;
   return [
     reading,
@@ -153,16 +153,16 @@ function isKeypad(ctx: ControllerContext, full: string) {
   const parts = entry ? ctx.defs[entry.c]?.props.meta()?.keypadParts : undefined;
   return Array.isArray(parts) && parts.includes(address?.part ?? "root");
 }
-export function createStandaloneAccess(options: ControllerOptions) {
+export function createStandaloneAccess(options: ControllerOptions, currency?: AppCurrency) {
   const ctx = createControllerContext(options, true);
-  return { act: createAct(ctx, createMediaRuntime(ctx), () => {}), read: () => read(ctx) };
+  return { act: createAct(ctx, createMediaRuntime(ctx), () => {}), read: () => read(ctx, currency) };
 }
-export function createAccess(ctx: ControllerContext, act: Act) {
+export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCurrency) {
   return {
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>
       actionsAt(ctx, address, false, options?.ignoreDisabledPart),
     press: (address: string) => press(ctx, act, address),
-    read: () => read(ctx),
+    read: () => read(ctx, currency),
     canPress: (address: string) =>
       actionsAt(ctx, address).some((action) => isPressAction(ctx, ctx.relative(address), action)) ||
       (address.endsWith("/play") && actionsAt(ctx, address).includes("play")),

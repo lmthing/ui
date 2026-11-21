@@ -32,6 +32,7 @@ export function selectStep(
   address: string,
   values: Values,
   data?: DeviceData,
+  now?: number,
 ) {
   if (step.action !== "select") return { step };
   const [id, ...parts] = address.split("/");
@@ -48,10 +49,11 @@ export function selectStep(
   if (
     item ||
     def.meta.items?.deviceData ||
+    def.meta.recordRuntime ||
     def.meta.items?.pickers ||
     Object.hasOwn(def.meta.selections ?? {}, target)
   )
-    props = liveProps(def.meta, props, id!, local, true, data);
+    props = liveProps(def.meta, props, id!, local, true, data, now);
   else if (def.meta.items?.set) props = projectAdjustments(def.meta, props, get);
   props = sessionActionProps(def.meta, props, sessionState(def.meta, props, get));
   const picker = pickerAt(def.meta, props, target);

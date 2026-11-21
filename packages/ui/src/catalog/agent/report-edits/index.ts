@@ -29,9 +29,8 @@ export type ItemEditPath = (
   wire: Readonly<Values>,
 ) => readonly (string | number)[] | undefined;
 
-function own<T>(map: Readonly<Record<string, T>> | undefined, key: string): T | undefined {
-  return Object.hasOwn(map ?? {}, key) ? map![key] : undefined;
-}
+const own = <T>(map: Readonly<Record<string, T>> | undefined, key: string): T | undefined =>
+  Object.hasOwn(map ?? {}, key) ? map![key] : undefined;
 
 function itemTarget(target: string) {
   const [item, part, extra] = target.split("/");
@@ -53,10 +52,11 @@ export function itemEditAt(meta: Meta, props: Values, target: string) {
 }
 
 export function reportConfirmation(meta: Meta, target: string, action: string) {
-  return (
-    isRecordAction(meta, target, action) ||
-    (action === "press" && (itemEditSpec(meta, target)?.action === "remove" || !!own(meta.signOff, target)))
-  );
+  if (isRecordAction(meta, target, action)) return true;
+  if (action !== "press") return false;
+  if (itemEditSpec(meta, target)?.action === "remove" || own(meta.signOff, target)) return true;
+  const part = itemTarget(target)?.part;
+  return Boolean(part && meta.confirmParts?.includes(part) && own(meta.recordRuntime?.presses, part));
 }
 
 export function hasReportConfirmation(meta: Meta) {

@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { Meta } from "../../meta";
 import { numberLine } from "../../format";
 import { peekLimit, wordsFor } from "../../lang";
+import { migrateLine } from "../../migrations";
 import { formatAffordance, visibleItems, type Affordance } from "../index";
 import { groupItemLines } from "./group-item-lines";
 export { readAffordances } from "./read-affordances";
@@ -15,6 +16,15 @@ export type ReadSchema = {
   type?: string;
   anyOf?: ReadSchema[];
 };
+
+export function migrateInput(component: string, input: unknown) {
+  if (!input || typeof input !== "object" || Array.isArray(input) || Object.hasOwn(input, "c")) return input;
+  const line = { ...input, c: component };
+  const migrated = migrateLine(line, { variantOnly: true });
+  if (migrated === line) return input;
+  const { c: _c, ...props } = migrated;
+  return props;
+}
 
 function isGroupText(field: ReadSchema | undefined): boolean {
   if (!field || (field.kind !== undefined && field.kind !== "text")) return false;

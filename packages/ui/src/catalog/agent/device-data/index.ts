@@ -33,7 +33,8 @@ export function captureDeviceTime(
   data?: DeviceData,
   now = Date.now(),
 ): DeviceData | undefined {
-  return data?.[deviceTime] === undefined && Object.values(defs).some(({ meta }) => meta.deviceDataFlags)
+  return data?.[deviceTime] === undefined &&
+    Object.values(defs).some(({ meta }) => meta.deviceDataFlags || meta.recordRuntime)
     ? atDeviceTime(data, now)
     : data;
 }

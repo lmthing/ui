@@ -27,8 +27,8 @@ import {
 import { stageLinkedEdit } from "./linked-edits";
 import { stageReportEdit } from "./report-edits";
 import { stageInlinePress } from "./live-inputs";
-
-export type ActStep = { address: string; action: string; value?: unknown };
+import { stageRecordPress } from "./record-runtime";
+export type ActStep = { address: string; action: string; value?: unknown; recordTarget?: string };
 export type Values = Record<string, unknown>;
 export type SendDraft = { address: string; text: string; audience?: string };
 type ActCode = "not_actionable" | "invalid_value" | "random_unavailable" | "max_active";
@@ -173,8 +173,10 @@ export function planAct(
     const { result } = validated;
     if ("code" in result) return { ok: false, at, ...result };
     const resolved = { ...step, address, value: result.value };
+    const record = stageRecordPress(screen, defs, next, resolved, now, snapshot);
+    if (record && "error" in record) return { ok: false, code: "invalid_value", at, hint: record.error };
     try {
-      const progress = stepProgress(screen, defs, next, resolved, found, random, snapshot, now);
+      const progress = record ? "" : stepProgress(screen, defs, next, resolved, found, random, snapshot, now);
       if (progress === false)
         return { ok: false, code: "invalid_value", at, hint: "Invalid record mutation" };
       if (progress !== undefined) {
