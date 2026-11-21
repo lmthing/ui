@@ -66,7 +66,9 @@ it("KitSeatGrid aligns aisle gaps, reads taken seats, and moves or activates by 
   await page.getByRole("button", { name: "Compact" }).focus();
   await page.keyboard.press("Tab");
   expect(await active()).toBe("A1");
-  await page.keyboard.press("Enter");
+  await page.keyboard.down("Enter");
+  await page.keyboard.down("Enter");
+  await page.keyboard.up("Enter");
   await page.keyboard.press("ArrowRight");
   expect(await active()).toBe("A2");
   await page.keyboard.press("Space");
@@ -129,8 +131,15 @@ it("KitCellGrid draws scored states, clues and notes and reaches every coordinat
     { address: "test/cells/r2/root", ok: true },
     { address: "test/cells/r4/root", ok: true },
   ]);
-  await page.getByRole("button", { name: "Compact" }).click();
+  await page.keyboard.press("Control+End");
+  const compact = page.getByRole("button", { name: "Compact" });
+  await compact.evaluate((button: HTMLButtonElement) => button.click());
+  await expect.poll(active).toBe("1, 1, given, G");
   expect(await grid.getByRole("gridcell").count()).toBe(16);
+  await page.keyboard.press("ArrowRight");
+  expect(await active()).toContain("1, 2, draft");
+  await page.getByRole("button", { name: "Filled" }).click();
+  await expect.poll(() => page.locator(":focus").textContent()).toBe("Filled");
 });
 
 it("retains the same geometry during loading and removes addresses, labels and tab stops", async () => {

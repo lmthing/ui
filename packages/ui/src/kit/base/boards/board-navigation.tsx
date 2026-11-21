@@ -1,37 +1,36 @@
-import { createContext, useContext, useRef, useState, type ReactNode } from "react";
-import { ScrollView, YStack, isWeb, type GetProps } from "tamagui";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import { ScrollView, YStack, isWeb, type GetProps, type TamaguiElement } from "tamagui";
 import { component, parseAddress } from "../../../catalog";
 import { useMoveFocus } from "../../interact";
-import { usePart, usePartContext } from "../../part";
+import { PartContext, usePart, usePartContext } from "../../part";
 import { useKit } from "../../provider";
 
 export type Target = { item?: string; part: string };
 type Position = { row: number; col: number };
-type KeyEvent = { key: string; ctrlKey?: boolean; preventDefault(): void; stopPropagation(): void };
+type KeyEvent = Pick<KeyboardEvent, "key" | "ctrlKey" | "repeat" | "preventDefault" | "stopPropagation">;
 const positionKey = ({ row, col }: Position) => `${row}:${col}`;
+const axes = { ArrowLeft: "col", ArrowRight: "col", ArrowUp: "row", ArrowDown: "row" } as const;
 
 export function nextPosition(positions: readonly Position[], from: Position, key: string, ctrl = false) {
-  const choose = (matches: Position[], reverse: boolean) => (reverse ? matches.at(-1) : matches[0]);
-  if (key === "Home" || key === "End")
-    return choose(
-      positions.filter(({ row }) => ctrl || row === from.row),
-      key === "End",
-    );
-  if (key === "ArrowLeft" || key === "ArrowRight")
-    return choose(
-      positions.filter(
-        ({ row, col }) => row === from.row && (key === "ArrowLeft" ? col < from.col : col > from.col),
-      ),
-      key === "ArrowLeft",
-    );
-  if (key === "ArrowUp" || key === "ArrowDown")
-    return choose(
-      positions.filter(
-        ({ row, col }) => col === from.col && (key === "ArrowUp" ? row < from.row : row > from.row),
-      ),
-      key === "ArrowUp",
-    );
-  return undefined;
+  const backwards = key === "ArrowUp" || key === "ArrowLeft";
+  const axis = axes[key as keyof typeof axes];
+  const cross = axis === "col" ? "row" : "col";
+  const matches = positions.filter((position) =>
+    key === "Home" || key === "End"
+      ? ctrl || position.row === from.row
+      : axis &&
+        position[cross] === from[cross] &&
+        (backwards ? position[axis] < from[axis] : position[axis] > from[axis]),
+  );
+  return backwards || key === "End" ? matches.at(-1) : matches[0];
 }
 
 const navigationKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"];
@@ -40,12 +39,12 @@ const Navigation = createContext<ReturnType<typeof useNavigation> | null>(null);
 function useNavigation(positions: readonly Position[]) {
   const [focused, setFocused] = useState<string>();
   const pending = useRef<string | null>(null);
-  const active = positions.some((position) => positionKey(position) === focused)
-    ? focused
-    : positions[0] && positionKey(positions[0]);
+  const detachedFocus = useRef(false);
+  const active = positions.find((position) => positionKey(position) === focused) ?? positions[0];
   return {
-    active,
+    active: active && positionKey(active),
     pending,
+    detachedFocus,
     focus: setFocused,
     move(from: Position, event: KeyEvent) {
       const next = nextPosition(positions, from, event.key, event.ctrlKey);
@@ -56,15 +55,7 @@ function useNavigation(positions: readonly Position[]) {
   };
 }
 
-export function BoardGrid({
-  rows,
-  cols,
-  positions,
-  label,
-  loading,
-  gap,
-  children,
-}: {
+type GridProps = {
   rows: number;
   cols: number;
   positions: readonly Position[];
@@ -72,8 +63,16 @@ export function BoardGrid({
   loading: boolean;
   gap?: number;
   children: ReactNode;
-}) {
+};
+export function BoardGrid({ rows, cols, positions, label, loading, gap, children }: GridProps) {
   const navigation = useNavigation(positions);
+  const grid = useRef<TamaguiElement>(null);
+  useLayoutEffect(() => {
+    if (!isWeb || !navigation.detachedFocus.current) return;
+    navigation.detachedFocus.current = false;
+    if (!loading && document.activeElement === document.body)
+      (grid.current as HTMLElement | null)?.querySelector<HTMLElement>('[tabindex="0"]')?.focus();
+  });
   return (
     <ScrollView
       horizontal
@@ -84,6 +83,7 @@ export function BoardGrid({
     >
       <Navigation.Provider value={navigation}>
         <YStack
+          ref={grid}
           flexShrink={component.base.none}
           gap={gap ?? component.base.none}
           {...(loading
@@ -132,6 +132,16 @@ function BoardCellContent({ cell, valid, ...frame }: BoardTileProps & { valid: b
   return <YStack {...frame} {...target} />;
 }
 
+function useCellRef(ref: ReturnType<typeof usePart>["ref"], detached: { current: boolean }) {
+  return useCallback(
+    (node: TamaguiElement | null) => {
+      if (isWeb && !node && ref.current && ref.current === document.activeElement) detached.current = true;
+      ref.current = node;
+    },
+    [ref, detached],
+  );
+}
+
 function useBoardCell(props: BoardCellProps, valid: boolean) {
   const { row, col, label, selected, disabled, invalid, loading, target } = props;
   const nav = useContext(Navigation)!;
@@ -140,29 +150,24 @@ function useBoardCell(props: BoardCellProps, valid: boolean) {
   const press = valid && interactive && controller ? () => void controller.press(address.testID) : undefined;
   const key = positionKey(props);
   useMoveFocus(nav.pending, key, address.ref);
+  const ref = useCellRef(address.ref, nav.detachedFocus);
   if (loading) return {};
-  const handlers = press
-    ? {
-        onPress: (event: { stopPropagation?(): void }) => {
-          event.stopPropagation?.();
-          press();
-        },
-      }
-    : {};
-  const part = valid ? address : { ref: address.ref };
+  const onPress = (event: { stopPropagation?(): void }) => {
+    event.stopPropagation?.();
+    press?.();
+  };
+  const part = { ...(valid ? address : {}), ref, ...(press ? { onPress } : {}) };
   if (!isWeb)
     return {
       ...part,
-      ...handlers,
       accessible: true,
       accessibilityLabel: label,
-      accessibilityRole: valid ? ("button" as const) : ("text" as const),
+      accessibilityRole: press ? ("button" as const) : ("text" as const),
       accessibilityState: { selected, disabled },
       onAccessibilityTap: press,
     };
   return {
     ...part,
-    ...handlers,
     role: "gridcell" as const,
     "aria-label": label,
     "aria-rowindex": row + 1,
@@ -185,7 +190,7 @@ function useBoardCell(props: BoardCellProps, valid: boolean) {
       event.preventDefault();
       event.stopPropagation();
       if (move) nav.move(props, event);
-      else press?.();
+      else if (!event.repeat) press?.();
     },
   };
 }
