@@ -14,6 +14,7 @@ import { useKit, useKitStyle } from "../../provider";
 import { KitText, shifted } from "../text";
 import {
   planningButtonEvents,
+  planningFocus,
   planningNativeChoices,
   usePlanningAddress,
   type Target,
@@ -124,7 +125,7 @@ export function SeatTray({ children, loading, maxWidth, gap }: SeatTrayProps) {
   );
 }
 
-export function SeatMoveChoices({ seat }: { seat: Seat }) {
+export function SeatMoveChoices({ seat, tray = false }: { seat: Seat; tray?: boolean }) {
   const address = usePlanningAddress(seat.target, false, false);
   const { expanded, close, choose, focus, focusOnOpen } = useSeatMove(address, seat, true);
   const first = useRef<TamaguiElement>(null);
@@ -140,23 +141,20 @@ export function SeatMoveChoices({ seat }: { seat: Seat }) {
     if (isWeb) focus.current = address.testID;
     close();
   };
-  const chooseDestination = (destination: string) => {
-    if (choose(destination).ok) returnFocus();
-  };
-  return <SeatDestinations seat={seat} first={first} dismiss={returnFocus} choose={chooseDestination} />;
+  const chooseDestination = (destination: string) => choose(destination).ok && returnFocus();
+  const choices = (
+    <SeatDestinations seat={seat} first={first} dismiss={returnFocus} choose={chooseDestination} />
+  );
+  return tray ? <YStack marginBottom={space.xs}>{choices}</YStack> : choices;
 }
 
-function SeatDestinations({
-  seat,
-  first,
-  choose,
-  dismiss,
-}: {
+type SeatDestinationProps = {
   seat: Seat;
   first: RefObject<TamaguiElement | null>;
   choose: (destination: string) => void;
   dismiss: () => void;
-}) {
+};
+function SeatDestinations({ seat, first, choose, dismiss }: SeatDestinationProps) {
   const ks = useKitStyle();
   const { destinations, label } = seat.move!;
   const escape = (event: { key?: string; stopPropagation(): void; preventDefault(): void }) => {
@@ -184,6 +182,7 @@ function SeatDestinations({
             accessibilityRole="button"
             accessibilityLabel={label(destination)}
             focusable
+            focusVisibleStyle={planningFocus}
             {...(!isWeb ? { accessible: true, onAccessibilityTap: press } : {})}
             {...planningButtonEvents(press)}
           >

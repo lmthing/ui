@@ -106,7 +106,7 @@ export function SeatMoveFixture(input: ViewProps) {
       })}
       tray={
         trayGuests.length ? (
-          <KitText role="label" part="tray">
+          <KitText role="label" tone="muted" part="tray">
             Unassigned guests
           </KitText>
         ) : null

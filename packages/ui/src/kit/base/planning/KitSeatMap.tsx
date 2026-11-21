@@ -4,7 +4,7 @@ import { XStack, YStack } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
 import { usePart } from "../../part";
 import { useKitStyle } from "../../provider";
-import { KitText, shifted } from "../text";
+import { KitText, shifted, surfaceOf } from "../text";
 import { SeatMoveChoices, SeatMoveScope, SeatTray, useSeatMoveTarget, type Seat } from "./seat-move";
 import {
   PlanningTargetScope,
@@ -44,17 +44,15 @@ function SeatMark({ seat, loading, tray }: { seat: Seat; loading: boolean; tray:
       height={size.control.md}
       alignItems={tray ? "flex-start" : "center"}
       justifyContent="center"
-      paddingHorizontal={tray ? space.md : undefined}
+      paddingHorizontal={tray ? space.sm : undefined}
       borderRadius={tray ? radius.md : radius.pill}
-      borderWidth={selected ? component.base.strongBorder : component.base.borderWidth}
+      borderWidth={tray ? 0 : selected ? component.base.strongBorder : component.base.borderWidth}
       borderColor={selected ? "$accent" : "$line"}
-      backgroundColor={
-        loading ? "$line" : selected ? "$accentSoft" : tray || seat.initials ? "$raised" : "$surface"
-      }
+      backgroundColor={tray ? undefined : loading ? "$line" : selected ? "$accentSoft" : seatFill(seat)}
     >
       {!loading &&
         (tray || seat.initials ? (
-          <KitText role="label" part={null} align={tray ? "start" : "center"} lines={1}>
+          <KitText role={tray ? "body" : "label"} part={null} align={tray ? "start" : "center"} lines={1}>
             {tray ? seat.label : seat.initials}
           </KitText>
         ) : (
@@ -63,13 +61,14 @@ function SeatMark({ seat, loading, tray }: { seat: Seat; loading: boolean; tray:
     </YStack>
   );
 }
+const seatFill = (seat: Seat) => (seat.initials ? "$raised" : "$surface");
 
 type ScopedSeatProps = { seat: Seat; loading?: boolean; tray?: boolean };
 function ScopedSeat({ seat, loading = false, tray = false }: ScopedSeatProps) {
   return (
     <PlanningTargetScope id={seat.id} target={seat.target}>
       <SeatMark seat={seat} loading={loading} tray={tray} />
-      {tray && <SeatMoveChoices seat={seat} />}
+      {tray && <SeatMoveChoices seat={seat} tray />}
     </PlanningTargetScope>
   );
 }
@@ -155,12 +154,12 @@ function TableDrawing({ table, loading }: { table: Table; loading: boolean }) {
 }
 
 const loadingTables: readonly Table[] = [{ id: "placeholder", label: "", shape: "long", seats: [] }];
-
 /** Tables and their seats are separate targets, never nested controls. */
 export function KitSeatMap({ part = "root", loading = false, tables, tray, trayGuests = [] }: SeatMapProps) {
   const ks = useKitStyle();
   const address = usePart(part);
   const drawings = loading && !tables.length ? loadingTables : tables;
+  const guests = trayGuests.map((guest) => <ScopedSeat key={guest.id} seat={guest} tray />);
   return (
     <YStack {...address} gap={space[ks.density.gap]} aria-busy={loading || undefined}>
       {!drawings.length && (
@@ -183,9 +182,16 @@ export function KitSeatMap({ part = "root", loading = false, tables, tray, trayG
         {(tray != null || trayGuests.length > 0) && (
           <SeatTray loading={loading} maxWidth={mapWidth} gap={trayGuests.length ? space.xs : 0}>
             {tray}
-            {trayGuests.map((guest) => (
-              <ScopedSeat key={guest.id} seat={guest} tray />
-            ))}
+            {guests.length > 0 && (
+              <YStack
+                {...surfaceOf(ks.surface)}
+                borderRadius={shifted("md", ks.radiusShift)}
+                padding={space.xs}
+                gap={space.xs}
+              >
+                {guests}
+              </YStack>
+            )}
           </SeatTray>
         )}
       </SeatMoveScope>
