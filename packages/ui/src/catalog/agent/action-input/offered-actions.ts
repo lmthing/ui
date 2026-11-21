@@ -43,6 +43,8 @@ function affordancesOfScreen(
       meta.drives ||
       meta.linkedEdits ||
       items?.edits ||
+      items?.pickers ||
+      meta.clear ||
       meta.signOff ||
       hasPlaybackClock(meta)
         ? state

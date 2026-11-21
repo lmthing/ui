@@ -15,7 +15,7 @@ export {
   type DeviceData,
 } from "./device-data";
 export { visibleItems } from "./visibility";
-export { projectLiveInputs } from "./live-inputs";
+export { pickerAt, pickerKey, projectLiveInputs } from "./live-inputs";
 export { linkedEditKey } from "./linked-edits";
 export {
   hasReportConfirmation,

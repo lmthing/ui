@@ -16,6 +16,7 @@ import { clockChanges, clockControlDeclared } from "./clocks";
 import { filterDeviceDataScreen, type DeviceData } from "./device-data";
 import { stageLinkedEdit } from "./linked-edits";
 import { stageReportEdit } from "./report-edits";
+import { stageInlinePress } from "./live-inputs";
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
@@ -61,6 +62,7 @@ function liveInput(def: Definition, input: Values, id: string, local: Values, da
   const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
   return liveProps(def.meta, parsed, id, local, true, data);
 }
+
 function expireProgress(
   screen: ScreenLike,
   defs: Record<string, Definition>,
@@ -123,6 +125,7 @@ export function planAct(
     if (clockOwner === "planner") stageStandaloneClock(screen, defs, next, address, resolved, data);
     if (!(adjusted ?? stageValue(next, key, found, result.value, edit, screen.id, links)))
       return { ok: false, code: "not_actionable", at };
+    stageInlinePress(screen, defs, resolved, next);
     Object.assign(next, selected.changes);
     if (stageReportEdit(screen, defs, next, resolved, { kind: "input" }, data) === false)
       return { ok: false, code: "invalid_value", at, hint: "Value conflicts with report props" };
