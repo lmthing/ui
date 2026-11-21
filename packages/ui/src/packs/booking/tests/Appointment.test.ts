@@ -102,7 +102,7 @@ describe("Appointment fallback and metadata", () => {
     expect(meta.pick).toContain("Card");
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Card")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Appointment" });
-    expect(probes.filter((probe) => probe.kind === "read")).toHaveLength(2);
+    expect(probes.filter((probe) => probe.kind === "read")).toHaveLength(3);
     expect(createRegistry().ids).not.toContain("Appointment");
     expect(createRegistry({ packs: ["booking"], includeDrafts: true }).ids).toContain("Appointment");
   });

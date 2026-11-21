@@ -1,11 +1,16 @@
 import { createContext, createElement, useContext, type ReactNode } from "react";
 import { isWeb } from "tamagui";
-import { parseAddress } from "../../../catalog";
+import { component, parseAddress } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKit } from "../../provider";
 
 export type Target = { item?: string; part: string };
 const ValidTarget = createContext(false);
+export const planningFocus = {
+  outlineColor: "$accent",
+  outlineStyle: "solid",
+  outlineWidth: component.base.strongBorder,
+} as const;
 
 export function PlanningTargetScope({
   id,
@@ -50,6 +55,22 @@ export function planningButtonEvents(press: (() => void) | undefined) {
         },
       }
     : {};
+}
+
+export function planningNativeChoices(
+  action: string,
+  values: readonly string[],
+  label: (value: string) => string,
+  choose: (value: string) => void,
+) {
+  const actions = values.map((value, index) => ({ name: `${action}_${index}`, label: label(value) }));
+  return {
+    accessibilityActions: actions,
+    onAccessibilityAction: ({ nativeEvent }: { nativeEvent: { actionName: string } }) => {
+      const value = values[actions.findIndex(({ name }) => name === nativeEvent.actionName)];
+      if (value !== undefined) choose(value);
+    },
+  };
 }
 
 type Address = ReturnType<typeof usePlanningAddress>;

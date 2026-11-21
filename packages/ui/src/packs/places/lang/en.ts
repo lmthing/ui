@@ -1,7 +1,7 @@
 export const en = {
   closed: "Closed",
   rating: (value: string, max: string) => `Rating ${value} out of ${max}`,
-  ratingSkeleton: (value: string) => `★\u2004★\u2004★\u2004★\u2004★\u2004${value}`,
+  ratingSkeleton: (value: string) => `${value}\u2004★\u2004★\u2004★\u2004★\u2004★`,
   priceLevel: (value: string, max: string) => `Price level ${value} out of ${max}`,
   placeHours: (opens: string, closes: string) => `${opens}–${closes}`,
   openNow: "Open now",
@@ -23,6 +23,7 @@ export const en = {
   mapListPin: (name: string) => `Select ${name} on the map`,
   mapListReading: (name: string, distance: string) => `${JSON.stringify(name)}: ${distance}`,
   addressDirections: "Directions",
+  addressMapPreview: "Schematic location preview",
   addressCopy: "Copy address",
   addressCall: (phone: string) => `Call ${phone}`,
   departureDue: "Due",

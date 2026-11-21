@@ -9,8 +9,8 @@ export function HeroCopy() {
       <h1 id="hero-h">Components a model can't misuse</h1>
       <p className="lede">
         lmthing/ui is the component catalog behind lmthing. A model picks from {stats.core} core components
-        and up to three of {site.packs.length} domain packs, and writes each one as a JSON line. Code checks
-        the line and the kit draws it. There is no code, colour or size in a line to get wrong.
+        and up to three live domain packs, and writes each one as a JSON line. Code checks the line and the
+        kit draws it. There is no code, colour or size in a line to get wrong.
       </p>
       <p className="actions">
         <a className="btn primary" href="#try">

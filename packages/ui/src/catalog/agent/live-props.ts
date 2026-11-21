@@ -10,7 +10,8 @@ import { projectDraw } from "./draw";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
 import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
-import { projectMoves } from "./action-input";
+import { projectDerivedMoves, projectMoves } from "./action-input";
+import { hasWireNestedControls } from "./nested";
 import { projectRecordRuntime } from "./record-runtime";
 import {
   adjustmentAt,
@@ -70,7 +71,6 @@ export function controlValueKey(def: Definition, key: string): string {
     ? `$wire/${key}`
     : key;
 }
-/** Apply stored control edits to wire input, never copying schema-derived output into it. */
 export function projectControlInput(def: Definition, input: Values, get: (part: string) => unknown): Values {
   const { meta } = def;
   let source = projectComponentSets(meta, applyReportEdits(meta, input, get), get);
@@ -79,7 +79,7 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
   source = applyRecordWire(meta, source, get);
   source = projectMoves(def, source, get);
   const items = meta.items;
-  if (!items || (!items.set && !items.adjust && !(items.nested && (meta.select || meta.set)))) return source;
+  if (!items || (!items.set && !items.adjust && !hasWireNestedControls(meta))) return source;
   const keys = new Set([items.key]);
   for (const { matrix } of Object.values(items.set ?? {})) if (matrix) keys.add(matrix.rows);
   const seeded = Object.fromEntries(
@@ -135,7 +135,8 @@ export function liveProps(
   now?: number,
 ): Values {
   const get = (part: string) => values[`${instance}/${part}`];
-  const addressed = projectRecordIds(meta, projectDeviceRows(meta, validated, data), get);
+  const moved = projectDerivedMoves(meta, validated, get);
+  const addressed = projectRecordIds(meta, projectDeviceRows(meta, moved, data), get);
   const { draw, emptyActions, errorActions, successActions, session } = meta;
   const runtime = Boolean(get("$runtime"));
   let props = wireApplied
@@ -143,8 +144,7 @@ export function liveProps(
     : projectControls(meta, addressed, get);
   if (!wireApplied && (meta.items?.set || meta.items?.adjust || runtime))
     props = projectAdjustments(meta, props, get);
-  const liveClock = runtime || Boolean(meta.live || meta.recordRuntime?.actions);
-  const timed = projectLiveClocks(meta, props, get, liveClock);
+  const timed = projectLiveClocks(meta, props, get, runtime || !!(meta.live || meta.recordRuntime?.actions));
   if (timed !== props) props = timed;
   else if (draw || emptyActions?.length || errorActions?.length || successActions?.length || session) {
     const state = get("$state");

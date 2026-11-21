@@ -923,6 +923,159 @@
       "Search"
     ]
   },
+  "507c3268cbf5a543": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nField: Enter or change one labelled piece of information on a form.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", kind?: text|number|date|time|choice|repeat|toggle|slider|photo=\"text\", label: text≤24, value?: text≤40, repeat?: never|daily|weekdays|weekly|monthly|yearly, hint?: text≤60, options?: [2..4 text≤16] }\nRule: For a recurring schedule use kind: \"repeat\" and repeat: \"weekly\" (or another repeat enum). Omit value; never use kind: \"text\" with repeat.\nRule: Date values use YYYY-MM-DD, time values HH:MM and photo values lib:<tag> or local:<n>. Fields are one line.\nRule: Example recurring input: {\"kind\":\"repeat\",\"label\":\"Water it\",\"repeat\":\"weekly\"}.\nRule: To hide an authored helper hint, keep its text in hint and set detail to \"brief\". Leave density null unless the person asks for tighter spacing or smaller type.\nexample: {\"c\":\"Field\",\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: A usual-size input called Plant name. Save the hint \"Use a short name\", but hide it on screen.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Field",
+              "enum": [
+                "Field"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "kind": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "text",
+                    "number",
+                    "date",
+                    "time",
+                    "choice",
+                    "repeat",
+                    "toggle",
+                    "slider",
+                    "photo"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "repeat": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "never",
+                    "daily",
+                    "weekdays",
+                    "weekly",
+                    "monthly",
+                    "yearly"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "hint": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 60
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "options": {
+              "anyOf": [
+                {
+                  "minItems": 2,
+                  "maxItems": 4,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "kind",
+            "label",
+            "value",
+            "repeat",
+            "hint",
+            "options"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Field\",\"density\":null,\"detail\":\"brief\",\"kind\":\"text\",\"label\":\"Plant name\",\"value\":null,\"repeat\":null,\"hint\":\"Use a short name\",\"options\":null}",
+    "replies": [
+      "{\"c\":\"Field\",\"density\":null,\"detail\":\"brief\",\"kind\":\"text\",\"label\":\"Plant name\",\"value\":null,\"repeat\":null,\"hint\":\"Use a short name\",\"options\":null}",
+      "{\"c\":\"Field\",\"density\":null,\"detail\":\"brief\",\"kind\":\"text\",\"label\":\"Plant name\",\"value\":null,\"repeat\":null,\"hint\":\"Use a short name\",\"options\":null}",
+      "{\"c\":\"Field\",\"density\":null,\"detail\":\"brief\",\"kind\":\"text\",\"label\":\"Plant name\",\"value\":null,\"repeat\":null,\"hint\":\"Use a short name\",\"options\":null}"
+    ]
+  },
   "521554975b7796c6": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nLeave out an optional prop (name?) when you have nothing for it: never write an empty string.\nField: Enter or change one labelled piece of information on a form.\nprops: { kind?: text|number|date|time|choice|toggle|slider|photo=\"text\", label: text≤24, value?: text≤40, hint?: text≤60, options?: [2..4 text≤16] }\nexample: {\"c\":\"Field\",\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\"}\n\nBrief: A form input labelled Plant name, with Fern already entered\nReply with only the JSON line, starting with {\"c\":\"Field\".",
     "reply": "{\"c\":\"Field\",\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\"}",
@@ -1597,6 +1750,159 @@
       "{\"c\":\"Field\",\"kind\":\"repeat\",\"label\":\"Water it\",\"repeat\":\"weekly\"}"
     ]
   },
+  "c223d4f5276c75af": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nField: Enter or change one labelled piece of information on a form.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", kind?: text|number|date|time|choice|repeat|toggle|slider|photo=\"text\", label: text≤24, value?: text≤40, repeat?: never|daily|weekdays|weekly|monthly|yearly, hint?: text≤60, options?: [2..4 text≤16] }\nRule: For a recurring schedule use kind: \"repeat\" and repeat: \"weekly\" (or another repeat enum). Omit value; never use kind: \"text\" with repeat.\nRule: Date values use YYYY-MM-DD, time values HH:MM and photo values lib:<tag> or local:<n>. Fields are one line.\nRule: Example recurring input: {\"kind\":\"repeat\",\"label\":\"Water it\",\"repeat\":\"weekly\"}.\nRule: To hide an authored helper hint, keep its text in hint and set detail to \"brief\". Leave density null unless the person asks for tighter spacing or smaller type.\nexample: {\"c\":\"Field\",\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: A form input labelled Water it, set to repeat every week",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Field",
+              "enum": [
+                "Field"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "kind": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "text",
+                    "number",
+                    "date",
+                    "time",
+                    "choice",
+                    "repeat",
+                    "toggle",
+                    "slider",
+                    "photo"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "repeat": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "never",
+                    "daily",
+                    "weekdays",
+                    "weekly",
+                    "monthly",
+                    "yearly"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "hint": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 60
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "options": {
+              "anyOf": [
+                {
+                  "minItems": 2,
+                  "maxItems": 4,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "kind",
+            "label",
+            "value",
+            "repeat",
+            "hint",
+            "options"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}",
+    "replies": [
+      "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}",
+      "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}",
+      "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}"
+    ]
+  },
   "c295cddc02006456": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nField: Enter or change one labelled piece of information on a form.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", kind?: text|number|date|time|choice|repeat|toggle|slider|photo=\"text\", label: text≤24, value?: text≤40, repeat?: never|daily|weekdays|weekly|monthly|yearly, hint?: text≤60, options?: [2..4 text≤16] }\nRule: For a recurring schedule use kind: \"repeat\" and repeat: \"weekly\" (or another repeat enum). Omit value; never use kind: \"text\" with repeat.\nRule: Date values use YYYY-MM-DD, time values HH:MM and photo values lib:<tag> or local:<n>. Fields are one line.\nRule: Example recurring input: {\"kind\":\"repeat\",\"label\":\"Water it\",\"repeat\":\"weekly\"}.\nRule: Leave axes null unless asked. To hide an authored helper hint, keep its text in hint and set detail to \"brief\".\nexample: {\"c\":\"Field\",\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\",\"density\":\"compact\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: A form input labelled Water it, set to repeat every week",
     "format": {
@@ -1748,6 +2054,159 @@
       "{\"c\":\"Field\",\"density\":\"compact\",\"detail\":\"brief\",\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}",
       "{\"c\":\"Field\",\"density\":\"compact\",\"detail\":\"full\",\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}",
       "{\"c\":\"Field\",\"density\":\"comfortable\",\"detail\":\"full\",\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}"
+    ]
+  },
+  "c7f55aa1340ba22c": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nField: Enter or change one labelled piece of information on a form.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", kind?: text|number|date|time|choice|repeat|toggle|slider|photo=\"text\", label: text≤24, value?: text≤40, repeat?: never|daily|weekdays|weekly|monthly|yearly, hint?: text≤60, options?: [2..4 text≤16] }\nRule: For a recurring schedule use kind: \"repeat\" and repeat: \"weekly\" (or another repeat enum). Omit value; never use kind: \"text\" with repeat.\nRule: Date values use YYYY-MM-DD, time values HH:MM and photo values lib:<tag> or local:<n>. Fields are one line.\nRule: Example recurring input: {\"kind\":\"repeat\",\"label\":\"Water it\",\"repeat\":\"weekly\"}.\nRule: To hide an authored helper hint, keep its text in hint and set detail to \"brief\". Leave density null unless the person asks for tighter spacing or smaller type.\nexample: {\"c\":\"Field\",\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: A form input labelled Plant name, with Fern already entered",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Field",
+              "enum": [
+                "Field"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "kind": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "text",
+                    "number",
+                    "date",
+                    "time",
+                    "choice",
+                    "repeat",
+                    "toggle",
+                    "slider",
+                    "photo"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "repeat": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "never",
+                    "daily",
+                    "weekdays",
+                    "weekly",
+                    "monthly",
+                    "yearly"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "hint": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 60
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "options": {
+              "anyOf": [
+                {
+                  "minItems": 2,
+                  "maxItems": 4,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "kind",
+            "label",
+            "value",
+            "repeat",
+            "hint",
+            "options"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\",\"repeat\":null,\"hint\":null,\"options\":null}",
+    "replies": [
+      "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\",\"repeat\":null,\"hint\":null,\"options\":null}",
+      "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\",\"repeat\":null,\"hint\":null,\"options\":null}",
+      "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\",\"repeat\":null,\"hint\":null,\"options\":null}"
     ]
   },
   "d7c4e591b8d1832d": {

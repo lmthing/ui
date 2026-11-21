@@ -39,7 +39,10 @@ const legacyStyles: Readonly<Partial<Record<string, Readonly<Record<string, stri
   },
   Player: { compact: "Pending density migration in core adoption" },
   Progress: { compact: "Pending density migration in core adoption" },
-  Appointment: { card: "Action-bearing layout, not just surface treatment" },
+  Appointment: {
+    card: "Action-bearing layout, not just surface treatment",
+    compact: "Single-row booking overview, independent of spacing density",
+  },
   ServiceMenu: { rows: "Pending booking pack variant adoption" },
   Slots: { grid: "Pending arrange migration in booking pack" },
   Payoff: { compact: "Pending density migration in money pack adoption" },

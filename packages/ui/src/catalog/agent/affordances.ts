@@ -22,7 +22,8 @@ export type Affordance = {
   send?: SendDraft;
   blocked?: "max_active";
   togglePeers?: readonly string[];
-  move?: { current: string; choices: string[] };
+  nestedStep?: { key: string; next: number };
+  move?: { current: string | null; choices: string[] };
 };
 type Props = Record<string, unknown>;
 type OfferContext = {

@@ -27,13 +27,13 @@ describe("booking scaffold", () => {
     expect(draft.defaultLines("book", "service", { things: [], items: [] }).components[1]?.c).toBe(
       "ServiceMenu",
     );
-    const capacity = draft
-      .defaultLines("schedule", "class", { things: [], items: [] })
-      .components.find(({ c }) => c === "Progress");
+    const classLines = draft.defaultLines("schedule", "class", { things: [], items: [] }).components;
+    const capacity = classLines.find(({ c }) => c === "Progress");
     expect(capacity).toMatchObject({ density: "compact" });
     expect(capacity).not.toHaveProperty("style");
+    expect(classLines[3]?.c).toBe("ClassRoster");
     const booking = Object.keys(packOf).filter((id) => packOf[id as keyof typeof packOf] === "booking");
-    expect(draft.ids.filter((id) => booking.includes(id))).toHaveLength(6);
+    expect(draft.ids.filter((id) => booking.includes(id))).toHaveLength(8);
     const format = JSON.stringify(writerFormat(draft));
     const liveFormat = JSON.stringify(writerFormat(live));
     for (const id of selectedIds(booking)) {
@@ -48,6 +48,7 @@ describe("booking scaffold", () => {
       .split("\n")
       .filter(Boolean)
       .map((line) => JSON.parse(line));
+    expect(workedBooking.find((line) => line.c === "ClassRoster").attendees[0].photo).toBe("lib:people");
     for (const id of ["ServiceMenu", "Slots"] as const) {
       const { c: _c, id: _id, ...input } = workedBooking.find((line) => line.c === id);
       expect(input).not.toHaveProperty("style");
@@ -74,6 +75,12 @@ describe("booking scaffold", () => {
       ).toBe(true);
     }
   });
+});
+
+it("keeps the prepaid packs layout in the booking archetype", () => {
+  const draft = createRegistry({ packs: ["booking"], includeDrafts: true });
+  const { components: lines } = draft.defaultLines("appointments", "packs", { things: [], items: [] });
+  expect(lines.map(({ c }) => c)).toEqual(["Header", "Segmented", "SessionPack", "List"]);
 });
 
 describe("booking draft schemas", () => {

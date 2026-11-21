@@ -51,7 +51,9 @@ function inputsFor(session: Session, props: Values) {
         ? [session.hidden, session.reveal, session.next, session.assessment.inputs]
         : session.ratings
           ? [session.hidden, session.reveal, session.ratings, session.front]
-          : [session.hidden];
+          : session.hide !== undefined
+            ? [session.hidden, session.reveal, session.hide]
+            : [session.hidden];
   return JSON.stringify([session.items, rows, ...inputs]);
 }
 
@@ -114,7 +116,8 @@ export function sessionStatus(meta: Meta, props: Values, state: StateName, get: 
   if (!current) return "empty";
   if (current.kind === "rounds") {
     if (current.assessment?.correct === false) return "error";
-    if (current.recall) return current.complete ? "success" : "filled";
+    if (current.recall || (meta.session.kind === "rounds" && meta.session.hide !== undefined))
+      return current.complete ? "success" : "filled";
   }
   return (current.kind === "turns" ? current.complete : current.revealed) ? "success" : "filled";
 }
@@ -174,7 +177,7 @@ export function advanceSession(
   const before = matching(session, props, get(sessionKey)) ?? initial(session, props);
   const items = itemsOf(session, props);
   if (session.kind === "rounds" && before.kind === "rounds") {
-    if (event === "answer" || event === "reveal" || event === "next" || event === "rate")
+    if (event === "answer" || event === "reveal" || event === "hide" || event === "next" || event === "rate")
       return { inputs, progress: advanceRound(session, before, items, event, part, value) };
   } else if (session.kind === "turns" && before.kind === "turns") {
     return { inputs, progress: turnEvent(before, event, items.length, lapsOf(session, props)) };

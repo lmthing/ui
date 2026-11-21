@@ -25,7 +25,7 @@ library (with `media`), self-care check-in, therapy homework between sessions, a
 A separate mood picker, mood chart, gratitude list or meditation session would each be a near miss with the
 core components above, so the pack holds only what they cannot say.
 
-## Components (7)
+## Components (8)
 
 ### `Entries` · planned · content · phone
 A journal as a feed: each entry with its date, a mood face, the first two lines of text, its tags and a
@@ -94,6 +94,15 @@ findings, writes the sentences from copy and computes the bars; a model only cho
 - Writes: `factors` text(14) each, 1–4 (labels from the screen's `Factors`), `minDays` 14–60 (default 14).
 - States: filled, empty (too few days logged). · Real path: averages computed on the device from entries.
 
+### `ThoughtRecord` · planned · input · phone
+A structured CBT reflection card guiding the person through the triggering situation and automatic thought, multi-select thinking-trap chips such as catastrophizing or all-or-nothing, a balanced reframe box, and a before-and-after mood check. Saving records the completed entry locally in the pack's calm tone without clinical scoring or red warnings.
+- Pick: guided cognitive reframing or therapy reflection homework. Not free-form journal writing (`Composer[entry]`), browsing past entries (`Entries`), or naming isolated emotion words (`Feelings`).
+- Writes: `prompt` text(80) optional, `situation` text(200) optional, `thought` text(200) optional, `distortions` of `label` text(20), `on` boolean, 3–8; `reframe` text(240) optional, `moodBefore` 1–5 optional, `moodAfter` 1–5 optional, `style`. Mood change delta is computed by code when both before and after ratings are set.
+- Styles: `guided` (default, sequential prompts with distortion chips and before/after mood check), `compact` (thought, distortion chips, and reframe only).
+- Parts → actions: `situation type`, `thought type`, distortions `root toggle`, `reframe type`, `moodBefore select` (1–5), `moodAfter select` (1–5), `save press`.
+- States: empty (blank prompts), filled, loading, success (reflection saved).
+- Real path: reflection prompts and responses stored privately on the device; clinical screening forms and provider sharing belong in `medical`.
+
 ## Archetypes (4)
 
 | Archetype | Job | Layouts | Recipe |
@@ -118,7 +127,9 @@ All `phone`. Reading sleep from the phone is an `ok` part. Entries never leave t
 
 ## Build notes
 
-- Order: `Entries`, `Factors`, `Feelings`, `Breathe`, `SleepLog`, `Soundscape`, `Patterns`.
+- Order: `Entries`, `Factors`, `Feelings`, `Breathe`, `SleepLog`, `Soundscape`, `Patterns`, then Wave 6 `ThoughtRecord`.
+- Wave 6 option upgrades on existing components: `SleepLog` adds optional `stages` (`deep`, `rem`, `light`, `awake` minutes via `KitShare`), wearable `hrAvg`/`hrv`, and `style: "summary" | "stages"`; `Breathe` adds `style: "circle" | "grounding"` (5-4-3-2-1 sensory grounding / body-scan prompts) and `haptic` boolean; `Entries` adds `style: "feed" | "compact"` and optional `prompt` badge; `Feelings` adds `intensity` (`mild`, `medium`, `strong`) and `style: "families" | "wheel"`; `Soundscape` adds saved mix `presets` chips and optional `fadeOut` minutes; `Patterns` extends correlation pairs to cover `SleepLog` quality and duration alongside mood.
+- Wave 6 boundaries: clinical screenings (PHQ-9/GAD-7) and provider telehealth belong in `medical`; virtual pet dress-up games stay in `Canvas`.
 - The pack prefers the `calm`, `soft` and `night` presets in the Director's pick line.
 - `Patterns` needs at least 14 logged days; before that it shows its empty state with the days left.
 

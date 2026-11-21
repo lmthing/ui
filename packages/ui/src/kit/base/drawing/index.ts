@@ -1,0 +1,1 @@
+export { KitSignaturePad } from "./KitSignaturePad";

@@ -7,7 +7,7 @@ import { selectedLayouts } from "../scripts/build";
 describe.each(probeModels.filter((model) => model.required))("archetype composition on $id", (model) => {
   it("passes every current layout and the text-first rubric from real recorded replies", async () => {
     const metas = Object.values(archetypes).map((def) => def.meta);
-    const only = selectedLayouts(metas);
+    const only = selectedLayouts(metas, import.meta.url);
     if (only && !only.length) return;
     const results = await runComposeProbes({
       archetypes: metas,

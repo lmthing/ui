@@ -1,10 +1,11 @@
 import { Children, type ReactNode } from "react";
 import { isWeb, YStack } from "tamagui";
-import { component, radius, size, space, type as typography } from "../../../catalog";
+import { component, radius, size, space } from "../../../catalog";
 import { useAnimatedValue } from "../../motion";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKit, useKitStyle } from "../../provider";
 import { KitIcon, KitText, shifted, surfaceOf } from "../text";
+import { FlipPlaceholder, useHoldTarget } from "./flip";
 
 type Target = { item?: string; part: string | null };
 type FlipProps = {
@@ -16,6 +17,7 @@ type FlipProps = {
   label: string;
   target: Target;
   disabled?: boolean;
+  mode?: "press" | "hold";
   /** A start-aligned face and caption share KitContent's `md` inset. */
   align?: "center" | "start";
 };
@@ -25,6 +27,7 @@ export function usePanelTarget(
   label: string,
   loading: boolean,
   disabled: boolean,
+  pressEnabled = true,
 ) {
   const kit = useKit();
   const active = target?.part != null && !loading;
@@ -38,7 +41,7 @@ export function usePanelTarget(
     ...(isWeb ? { "aria-disabled": disabled } : { accessibilityState: { disabled } }),
     disabled,
     focusable: !disabled,
-    ...(kit.interactive && kit.controller && !disabled
+    ...(pressEnabled && kit.interactive && kit.controller && !disabled
       ? {
           cursor: "pointer" as const,
           onPress: (event: { stopPropagation?(): void }) => {
@@ -54,34 +57,6 @@ export function usePanelTarget(
         }
       : {}),
   };
-}
-
-function FlipPlaceholder({ hint }: { hint: boolean }) {
-  const ks = useKitStyle();
-  const rowHeights = [
-    typography.caption.lineHeight,
-    typography.heading.lineHeight,
-    typography.label.lineHeight,
-  ];
-  return (
-    <YStack width="100%" maxWidth={component.base.ringLg} gap={space.xs} alignItems="center" aria-hidden>
-      {(hint ? ["42%", "100%", "36%"] : ["42%", "100%"]).map((width, index) => (
-        <YStack
-          key={width}
-          width={width}
-          height={rowHeights[index]}
-          marginTop={index === 2 ? space.sm : undefined}
-          justifyContent="center"
-        >
-          <YStack
-            height={index === 1 ? space.md : space.xs + component.base.strongBorder}
-            borderRadius={shifted("sm", ks.radiusShift)}
-            backgroundColor="$line"
-          />
-        </YStack>
-      ))}
-    </YStack>
-  );
 }
 
 function FlipHint({
@@ -116,19 +91,24 @@ function FlipFace({
   flipped,
   loading = false,
   align = "center",
+  mode = "press",
 }: Omit<FlipProps, "part">) {
   const ks = useKitStyle();
   const surface = surfaceOf(ks.surface);
   const { environment } = useKit();
-  const interactive = usePanelTarget(target, label, loading, disabled);
-  const settled = loading || environment.reduceMotion || environment.agentMode;
-  const reveal = useAnimatedValue(Number(flipped), settled);
-  const offset = settled ? 0 : Math.min(1, Math.abs(Number(flipped) - reveal));
-  const face = flipped ? back : front;
+  const hold = mode === "hold";
+  const interactive: { testID?: string } = usePanelTarget(target, label, loading, disabled, !hold);
+  const { held, handlers } = useHoldTarget(hold && !disabled ? interactive.testID : undefined);
+  const visible = flipped && (!hold || held);
+  const settled = hold || loading || environment.reduceMotion || environment.agentMode;
+  const reveal = useAnimatedValue(Number(visible), settled);
+  const offset = settled ? 0 : Math.min(1, Math.abs(Number(visible) - reveal));
+  const face = visible ? back : front;
   const hint = target.part !== null;
   return (
     <YStack
       {...interactive}
+      {...handlers}
       {...surface}
       borderRadius={shifted("md", ks.radiusShift)}
       minHeight={component.base.ringMd + space.md}

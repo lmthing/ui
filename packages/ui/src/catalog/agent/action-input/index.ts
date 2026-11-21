@@ -5,8 +5,19 @@ import { adjustmentAt, projectAdjustments, setAt } from "../clocks";
 export { localValues, selectStep } from "./select-step";
 export { stageRecord } from "./record-planning";
 export { stageProgress } from "./progress";
-export { itemActionOffer, moveKey, projectMoves } from "./move";
-export { findAction } from "./offered-actions";
+export { itemActionOffer, itemMoveOffer, moveKey, projectDerivedMoves, projectMoves } from "./move";
+export { actionValueAddress, findAction } from "./offered-actions";
+export {
+  createPrivateMarks,
+  hostOnlyParts,
+  hostOnlyAddresses,
+  isPrivateMark,
+  planHostAct,
+  privateMarkKey,
+  redactPrivateMarks,
+  registerPrivateMark,
+  type PrivateMarks,
+} from "./host-actions";
 import { storeLiveInput } from "../live-inputs";
 import {
   controlValueKey,
@@ -54,7 +65,9 @@ export function nestedSpec(screen: ScreenLike, defs: Record<string, Definition>,
   const def = entry && defs[entry.c];
   if (!def?.meta.items?.nested) return undefined;
   const { id: _id, c: _c, state: _state, ...raw } = entry!;
-  return nestedAt(def.meta, parseControlProps(def, raw), parts.join("/"))?.spec;
+  const spec = nestedAt(def.meta, parseControlProps(def, raw), parts.join("/"))?.spec;
+  if (!spec) return;
+  return spec.action === "set" || spec.action === "toggle" ? spec : {};
 }
 
 function setStep(
@@ -136,6 +149,8 @@ export function stageValue(
     next[`${base}/${edit.slot}`] = amount;
     next[atSet === "root" ? base : `${base}/${atSet}`] = amount;
     next[key] = amount;
+  } else if (found.nestedStep) {
+    next[key] = found.nestedStep.next;
   } else if (action === "toggle" || action === "check") {
     const projected = detail === ":on" || detail === ":done";
     const now =
