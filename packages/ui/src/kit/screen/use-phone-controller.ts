@@ -36,6 +36,8 @@ export function usePhoneController(props: PhoneScreenProps) {
     onChange,
     onSend,
     requestPhoto,
+    hostCommands,
+    parentGate,
   } = props;
   const language = useRef(props.lang);
   language.current = props.lang;
@@ -56,6 +58,8 @@ export function usePhoneController(props: PhoneScreenProps) {
         return committed.deviceData;
       },
       store,
+      hostCommands,
+      parentGate,
       interactive,
       requireMounted: true,
       onChange: (changed, values) => callbacks.current.onChange?.(changed, values),
@@ -75,7 +79,17 @@ export function usePhoneController(props: PhoneScreenProps) {
           : undefined),
     });
     return { controller, committed };
-  }, [screen, defs, media, hasMediaResolver, store, interactive, Boolean(requestPhoto)]);
+  }, [
+    screen,
+    defs,
+    media,
+    hasMediaResolver,
+    store,
+    interactive,
+    Boolean(requestPhoto),
+    hostCommands,
+    parentGate,
+  ]);
   useCommittedDeviceData(source, props.deviceData);
   return source.controller;
 }

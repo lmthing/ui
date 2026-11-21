@@ -5,6 +5,7 @@ import {
   createAct,
   createAccess,
   discardHiddenConfirmation,
+  bindParentGatePart,
   type ControllerContext,
   type ControllerOptions,
 } from "./runtime";
@@ -63,6 +64,7 @@ export function createScreenController(options: ControllerOptions & { currency?:
   const clock = createClock(ctx, () => discardHiddenConfirmation(ctx));
   const media = createMediaRuntime(ctx);
   const act = createAct(ctx, media, clock.scheduleClock);
+  let unwatchAdmission: (() => void) | undefined;
   return {
     defs: ctx.defs,
     store: ctx.store,
@@ -70,6 +72,16 @@ export function createScreenController(options: ControllerOptions & { currency?:
       return currency;
     },
     act,
+    get admitted() {
+      return ctx.admitted();
+    },
+    bindParentGatePart: (address: string, destination: string) =>
+      bindParentGatePart(ctx, address, destination),
+    hostOperationVersion: ctx.hosts.version,
+    hostOperations: (id: string) => {
+      const { operation } = ctx.hosts.policy(ctx.valuesOf());
+      return ctx.subjects(id).flatMap((subject) => operation?.(subject) ?? []);
+    },
     mountMedia: media.mountMedia,
     tick: clock.tick,
     ...createAccess(ctx, act, currency),
@@ -79,6 +91,11 @@ export function createScreenController(options: ControllerOptions & { currency?:
     },
     liveControls: (meta: Meta, props: Values, component: string) => liveControls(ctx, meta, props, component),
     mount() {
+      unwatchAdmission ??= options.parentGate?.subscribe(() => {
+        ctx.hosts.prune();
+        discardHiddenConfirmation(ctx);
+        ctx.store.setMany({});
+      });
       const expired = ctx.expiredProgress(ctx.valuesOf());
       // A boundary may have passed between the initial render and the mount effect.
       const timeGated = ctx.screen.components.some(({ c }) => ctx.defs[c]?.meta.deviceDataWake);
@@ -93,16 +110,19 @@ export function createScreenController(options: ControllerOptions & { currency?:
     },
     confirmationFor: ctx.confirmationFor,
     discardHiddenConfirmation: () => {
+      ctx.hosts.prune();
       discardHiddenConfirmation(ctx);
       clock.scheduleDeviceWake();
     },
     snapshotScreen: () => {
+      if (!ctx.admitted()) return { id: ctx.screen.id, components: [] };
       const values = ctx.valuesOf();
       return projectScreen(ctx.screen, ctx.defs, values, ctx.now(), ctx.status.openSheet);
     },
     reset() {
       ctx.status.openSheet = undefined;
       ctx.status.confirmation = undefined;
+      ctx.hosts.reset();
       media.reset();
       ctx.store.reset(ctx.screen.id);
       ctx.resetValues();
@@ -111,6 +131,8 @@ export function createScreenController(options: ControllerOptions & { currency?:
     },
     dispose() {
       ctx.status.disposed = true;
+      unwatchAdmission?.();
+      ctx.hosts.reset();
       clock.dispose();
       media.dispose();
     },

@@ -11,6 +11,7 @@ import type { SendDraft } from "./act";
 import { boundActionAvailable, isItemOffer } from "./selection-binding";
 import { itemActionOffer, partsOf } from "./action-input";
 import type { DeviceData } from "./device-data";
+import { hostOffer, type HostActionPolicy, type HostIntent } from "./host-commands";
 
 export type Affordance = {
   address: string;
@@ -23,6 +24,7 @@ export type Affordance = {
   blocked?: "max_active";
   togglePeers?: readonly string[];
   move?: { current: string | null; choices: string[] };
+  hostIntent?: HostIntent;
 };
 type Props = Record<string, unknown>;
 type OfferContext = {
@@ -30,6 +32,7 @@ type OfferContext = {
   wire?: Props | undefined;
   schema?: Definition["props"];
   clock?: ((target: string, action: string) => boolean) | undefined;
+  host?: HostActionPolicy | undefined;
 };
 type Adjustment = NonNullable<ReturnType<typeof adjustmentAt>>;
 /** Item increments without a numeric setter or a clock are owned by the pure action planner. */
@@ -105,7 +108,8 @@ export function affordancesOf(
   const now = Number(get("$now") ?? Date.now());
   const liveClock = runtime || meta.live?.derive || meta.recordRuntime?.actions;
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
-  return [...own, ...visibleNested].filter((offer) => {
+  const rows = meta.hostCommands ? new Map(items.map((item) => [String(item.id), item])) : undefined;
+  const offered = [...own, ...visibleNested].filter((offer) => {
     const { address, action, part } = offer;
     if (!boundActionAvailable(meta, props, part, action, isItemOffer(instance, offer))) return false;
     const target = address === instance ? "root" : address.slice(instance.length + 1);
@@ -126,6 +130,19 @@ export function affordancesOf(
       return (!adjustment?.atSet && !isAdjustOnlyItem(adjustment, action)) || adjustment?.next !== undefined;
     return !adjustment || adjustment.next !== undefined;
   });
+  if (!meta.hostCommands && !context.host) return offered;
+  return offered.flatMap((offer) => {
+    const allowed = hostOffer(
+      meta,
+      props,
+      instance,
+      offer,
+      partTierAt(meta, props, offer.part),
+      context.host,
+      rows,
+    );
+    return allowed ? [allowed] : [];
+  });
 }
 
 function allowedIn(meta: Meta, state: StateName, pair: string, draw: boolean, feedback: boolean) {
@@ -133,6 +150,7 @@ function allowedIn(meta: Meta, state: StateName, pair: string, draw: boolean, fe
   if (errorOnly) return state === "error";
   if (state === "filled") return true;
   if (state === "empty") return meta.emptyActions?.some((allowed) => allowed === pair);
+  if (state === "loading") return meta.loadingActions?.some((allowed) => allowed === pair);
   return (
     (state === "success" || feedback) && (draw || meta.successActions?.some((allowed) => allowed === pair))
   );

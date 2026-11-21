@@ -156,19 +156,19 @@ export function KitAction({
   const kit = useKit();
   const ks = useKitStyle();
   const address = usePart(part);
-  const loading = useComponentState() === "loading";
+  const offered =
+    kit.controller &&
+    (action
+      ? kit.controller.actionsAt(address.testID).includes(action)
+      : kit.controller.canPress(address.testID));
+  const loading = useComponentState() === "loading" && !offered;
   const tone = kind === "quiet" && icon === "close" ? "muted" : toneOf[kind];
   const [pressed, setPressed] = useState(false);
   const pressScale = useAnimatedValue(
     pressed && !kit.environment.reduceMotion && !kit.environment.agentMode ? motion.pressScale : 1,
     kit.environment.reduceMotion || kit.environment.agentMode,
   );
-  const blocked =
-    kit.interactive &&
-    kit.controller &&
-    !(action
-      ? kit.controller.actionsAt(address.testID).includes(action)
-      : kit.controller.canPress(address.testID));
+  const blocked = kit.interactive && kit.controller && !offered;
   const inactive = loading || disabled || Boolean(blocked);
   const captionTone = loading ? "text" : inactive ? inactiveTone[kind] : tone;
   const fill = loading ? (kind === "quiet" ? "transparent" : "$line") : inactiveSurface[kind];

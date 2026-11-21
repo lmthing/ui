@@ -98,8 +98,16 @@ export function standaloneEffects({ links, send, options }: ActionContext) {
 
 export function inactive(ctx: ControllerContext, entry: ScreenComponent) {
   if (ctx.standalone || !entry.state || entry.state === "filled") return false;
-  const { draw, emptyActions, errorActions, session, successActions } = ctx.defs[entry.c]!.meta;
-  return !draw && !emptyActions?.length && !errorActions?.length && !session && !successActions?.length;
+  const { draw, emptyActions, errorActions, loadingActions, session, successActions } =
+    ctx.defs[entry.c]!.meta;
+  return (
+    !draw &&
+    !emptyActions?.length &&
+    !errorActions?.length &&
+    !loadingActions?.length &&
+    !session &&
+    !successActions?.length
+  );
 }
 
 /** Check whether an earlier step introduced the part before the view could update. */

@@ -23,6 +23,15 @@ export function useAppCurrency() {
   return useKit().controller?.currency;
 }
 
+/** Live acknowledgements for this component and its currently identified rows. */
+export function useHostOperations() {
+  const { component } = usePartContext();
+  const { controller } = useKit();
+  const snapshot = controller?.hostOperationVersion ?? (() => 0);
+  useSyncExternalStore(controller?.store.subscribe ?? subscribeNone, snapshot, snapshot);
+  return controller?.hostOperations(component) ?? [];
+}
+
 /** Get the host's declared records for the current component, outside its parsed props. */
 export function useDeviceData() {
   const { component } = usePartContext();

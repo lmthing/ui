@@ -2,6 +2,7 @@ import {
   atDeviceTime,
   captureDeviceTime,
   driveTarget,
+  hostActionPolicy,
   isDeviceDataVisible,
   migrateScreen,
   parseAddress,
@@ -22,6 +23,7 @@ import {
 } from "../../../catalog";
 import type { Confirmation, ControllerContext } from "./context";
 import type { PrivateMarks } from "../../../catalog/agent/action-input";
+import { commandForConfirmation } from "./host";
 
 export function isKeypad(ctx: ControllerContext, full: string) {
   const address = parseAddress(full);
@@ -39,6 +41,9 @@ export function visibleConfirmation(
   valuesOf: (at: number) => Values,
 ): Confirmation | undefined {
   if (!confirmation) return;
+  if (confirmation.host && !commandForConfirmation(confirmation)) return;
+  const policy = screen[hostActionPolicy];
+  if (confirmation.goto && policy?.allowsLink?.(confirmation.goto) === false) return;
   const source = confirmation.source.startsWith(`${screen.id}/`)
     ? confirmation.source.slice(screen.id.length + 1)
     : confirmation.source;
@@ -168,6 +173,7 @@ function readKeypads(
         currency,
         selection?.view,
         target,
+        screen[hostActionPolicy],
       );
     }),
   ].join("\n");

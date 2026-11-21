@@ -28,6 +28,7 @@ import { stageLinkedEdit } from "./linked-edits";
 import { stageReportEdit } from "./report-edits";
 import { stageInlinePress } from "./live-inputs";
 import { stageRecordAction, withRecordScreen } from "./record-runtime";
+import type { HostIntent } from "./host-commands";
 export type ActStep = { address: string; action: string; value?: unknown; recordTarget?: string };
 export type Values = Record<string, unknown>;
 export type SendDraft = { address: string; text: string; audience?: string };
@@ -40,6 +41,7 @@ export type ActResult =
       links: { goto: string; address: string }[];
       sends?: SendDraft[];
       driven?: ActStep[];
+      hostCommand?: HostIntent;
     }
   | { ok: false; code: ActCode; at: number; hint?: string };
 
@@ -174,6 +176,11 @@ export function planAct(
     const validated = { key, ...selected, ...validateStep(screen, defs, found, step, next, key) };
     const { result } = validated;
     if ("code" in result) return { ok: false, at, ...result };
+    if (found.hostIntent) {
+      plan.hostCommand = found.hostIntent;
+      changed.push(`${address} ${step.action}`);
+      continue;
+    }
     const resolved = { ...step, address, value: result.value };
     const record = stageRecordAction(screen, defs, next, resolved, now, snapshot);
     if (record && "error" in record) return { ok: false, code: "invalid_value", at, hint: record.error };

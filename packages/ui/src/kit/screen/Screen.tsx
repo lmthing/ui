@@ -34,6 +34,7 @@ export function Screen({ controller, renderers, onReport }: ScreenProps) {
         : { address: `${controller.openSheet}/close`, action: "dismiss" },
     );
   }, [controller]);
+  if (!controller.admitted) return null;
   return (
     <YStack flex={1} position="relative" minHeight="100%" paddingBottom={environment.keyboardHeight}>
       <ScreenContent

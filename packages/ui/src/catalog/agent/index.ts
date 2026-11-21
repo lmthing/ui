@@ -7,6 +7,20 @@ export {
 } from "./affordances";
 export { checkDriveDeclaration, driveAffordances, driveTarget, type CanDrive } from "./drives";
 export { readComponent, readScreen, type ScreenLike } from "./read";
+export {
+  hostActionPolicy,
+  hostRecords,
+  hostSubjects,
+  type CommandRequest,
+  type ExternalRequest,
+  type HostActionPolicy,
+  type HostCommands,
+  type HostFields,
+  type HostIntent,
+  type HostOperation,
+  type HostRecords,
+  type HostRequest,
+} from "./host-commands";
 export { hostOnlyParts, hostOnlyAddresses, privateMarkKey, redactPrivateMarks } from "./action-input";
 export { appCurrencySchema, moneyFractionDigits, parseAppCurrency, type AppCurrency } from "./app-currency";
 export {

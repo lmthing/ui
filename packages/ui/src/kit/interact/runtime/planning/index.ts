@@ -1,4 +1,4 @@
-import type { ActStep, RandomSource } from "../../../../catalog";
+import type { ActStep, HostIntent, RandomSource } from "../../../../catalog";
 import { selectedStep, stageConfirmedClear, type ActReply } from "../../index";
 import {
   actionFailure,
@@ -22,10 +22,11 @@ import {
   standaloneEffects,
 } from "./introduced-part";
 import { actionInput, disabledHint } from "./action-input";
+import { runHostCommand } from "./host-command";
 export { drivenPartBlock } from "./introduced-part";
 
 type PreparedStep =
-  | { state: ActionState; context: ActionContext; drive: ActStep | undefined }
+  | { state: ActionState; context: ActionContext; drive: ActStep | undefined; host: HostIntent | undefined }
   | { error: Extract<ActReply, { ok: false }> };
 function prepareStep(
   state: ActionState,
@@ -55,16 +56,22 @@ function prepareStep(
   const mustMount = ctx.options.requireMounted && !confirmed && !ctx.mounted.has(action.address);
   if (mustMount && !introducedPart(ctx, state, entry, action))
     return fail("not_mounted", "This control is not mounted");
+  if (confirmed?.host && !plan.hostCommand) return fail("not_actionable", "The host command changed");
   const values =
-    confirmed && !ctx.standalone
+    confirmed && !ctx.standalone && !plan.hostCommand
       ? stageConfirmedClear(ctx.screen.id, entry, input, def, selected, plan.values)
       : plan.values;
   if (!values) return fail("invalid_value", "Clear conflicts with component props");
-  if (confirmed && confirmReport(ctx, active, values, selected, confirmed.removal) === false)
+  if (
+    confirmed &&
+    !plan.hostCommand &&
+    confirmReport(ctx, active, values, selected, confirmed.removal) === false
+  )
     return fail("invalid_value", "Confirmation conflicts with report props");
   return {
     state: { ...state, values, changes: [...state.changes, ...plan.changed] },
     drive: plan.driven?.[0],
+    host: plan.hostCommand,
     context: {
       screen: ctx.screen,
       active,
@@ -105,6 +112,7 @@ function stepRunner(
   at: number,
   execution: { performed: ActStep[]; drew: boolean },
   markToken: symbol | undefined,
+  source: { agent: boolean; single: boolean },
 ) {
   const run = (
     before: ActionState,
@@ -116,6 +124,17 @@ function stepRunner(
       return { state: before, effects: [], error: actionFailure(at, "not_actionable", "Private control") };
     const prepared = prepareStep(before, selected, ctx, media, at, confirmed, markToken);
     if ("error" in prepared) return { state: before, effects: [], error: prepared.error };
+    if (prepared.host && !markToken)
+      return runHostCommand(
+        ctx,
+        before,
+        prepared.state,
+        prepared.context,
+        selected,
+        prepared.host,
+        source,
+        confirmed,
+      );
     const pending =
       !confirmed &&
       needsConfirmation(ctx, prepared.context) &&
@@ -160,6 +179,7 @@ export function planSteps(
   media: MediaRuntime,
   random: RandomSource | null | undefined,
   markToken?: symbol,
+  agent = false,
 ): ActionResult & { performed: ActStep[]; drew?: boolean } {
   let state: ActionState = {
     values: { ...ctx.valuesOf() },
@@ -169,9 +189,10 @@ export function planSteps(
   };
   const effects: (() => void)[] = [];
   const execution = { performed: [] as ActStep[], drew: false };
+  const source = { agent, single: list.length === 1 };
   for (const [at, step] of list.entries()) {
     const action = markToken ? step : { ...step, address: ctx.relative(step.address) };
-    const run = stepRunner(ctx, media, random, at, execution, markToken);
+    const run = stepRunner(ctx, media, random, at, execution, markToken, source);
     let result: ActionResult;
     if (state.confirmation)
       result = confirmationAction(state, action, { screen: ctx.screen, at, options: ctx.options }, run);

@@ -6,6 +6,7 @@ import {
   driveAffordances,
   driveTarget,
   hostOnlyAddresses,
+  hostActionPolicy,
   isPlaybackAction,
   liveProps,
   parseControlProps,
@@ -25,6 +26,7 @@ import { createControllerContext, type ControllerContext, type ControllerOptions
 import { createAct, discardHiddenConfirmation } from "./dispatch";
 import { createMediaRuntime } from "./media";
 import { drivenPartBlock } from "./planning";
+import { commandForConfirmation } from "./host";
 import { privateMarkRegistration } from "./private-mark";
 import { isKeypad, readControls } from "./read-controls";
 type Act = ReturnType<typeof createAct>;
@@ -62,9 +64,14 @@ function actionsAt(
   const entry = screen.components.find((item) => item.id === id);
   const def = entry && ctx.defs[entry.c];
   if (!entry || !def) return [];
-  const { draw, emptyActions, errorActions, session, successActions } = def.meta;
+  const { draw, emptyActions, errorActions, loadingActions, session, successActions } = def.meta;
   const stateActions =
-    draw || emptyActions?.length || errorActions?.length || session || successActions?.length;
+    draw ||
+    emptyActions?.length ||
+    errorActions?.length ||
+    loadingActions?.length ||
+    session ||
+    successActions?.length;
   if (entry.state && entry.state !== "filled" && !stateActions) return [];
   try {
     const localValues = Object.fromEntries(
@@ -80,7 +87,7 @@ function actionsAt(
     const clock = recordClockOffer(def, raw, props, get, data, now, values);
     const wire = reportEditWire(def, raw, get);
     const state = (props.state as StateName | undefined) ?? entry.state;
-    const offerContext = { data, clock, wire, schema: def.props };
+    const offerContext = { data, clock, wire, schema: def.props, host: screen[hostActionPolicy] };
     const offered = affordancesOf(def.meta, props, id, localValues, state, includeBlocked, offerContext);
     if (hostOnlyAddresses(def, id, offered)?.has(local)) return [];
     const canDrive = (part: string) => !drivenPartBlock(ctx, part);
@@ -132,8 +139,13 @@ function read(ctx: ControllerContext, currency?: AppCurrency) {
   const { lang, deviceData } = ctx.options;
   const { cancelLabel, confirmLabel, mediaUnavailable } = wordsFor(lang);
   const confirmation = ctx.confirmationFor();
-  if (confirmation)
-    return `screen ${ctx.screen.id}\nconfirm ${JSON.stringify(confirmation.message)} [confirm/confirm press] ${JSON.stringify(confirmLabel)} [confirm/cancel dismiss] ${JSON.stringify(cancelLabel)}`;
+  if (confirmation) {
+    const accept =
+      commandForConfirmation(confirmation)?.request.kind === "external"
+        ? "(user confirmation required)"
+        : `[confirm/confirm press] ${JSON.stringify(confirmLabel)}`;
+    return `screen ${ctx.screen.id}\nconfirm ${JSON.stringify(confirmation.message)} ${accept} [confirm/cancel dismiss] ${JSON.stringify(cancelLabel)}`;
+  }
   const now = ctx.now();
   const values = ctx.valuesOf(now);
   const sheet = ctx.status.openSheet;

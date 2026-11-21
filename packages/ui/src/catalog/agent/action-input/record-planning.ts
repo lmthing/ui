@@ -18,6 +18,7 @@ import { isRecordAction, recordRequestAllowed, reportEditWire } from "../report-
 import { isItemOffer, isSelectAll, projectSelectionBinding, selectionBindingFor } from "../selection-binding";
 import { localValues } from "./select-step";
 import { hostOnlyAddresses, isPrivateMark } from "./host-actions";
+import { hostActionPolicy } from "../host-commands";
 
 type PlannedAffordance = Affordance & { drive?: ActStep; checks?: readonly Affordance[] };
 
@@ -39,6 +40,8 @@ function usesLiveState(meta: Meta) {
   return (
     draw ||
     emptyActions ||
+    meta.loadingActions?.length ||
+    meta.hostCommands ||
     errorActions?.length ||
     session ||
     successActions?.length ||
@@ -91,6 +94,7 @@ export function affordancesOfScreen(
       clock,
       wire,
       schema: def.props,
+      host: screen[hostActionPolicy],
     });
     const hostOnly = hostOnlyAddresses(def, id, offered);
     const allowed = offered.filter(

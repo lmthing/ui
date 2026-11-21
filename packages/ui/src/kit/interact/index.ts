@@ -7,6 +7,7 @@ export {
   useAppCurrency,
   useControlValue,
   useDeviceData,
+  useHostOperations,
   useLiveControls,
   useMoveFocus,
   useNestedControls,
@@ -15,3 +16,10 @@ export { useSwipe, swipeDirection } from "./use-swipe";
 export { actionDelivery, type ActionEvent } from "./actions";
 export { controlStep, selectedStep, stageConfirmedClear, type ControlChange } from "./control-step";
 export { projectScreen, valueKey, type TimerState } from "./live-screen";
+export {
+  createParentGate,
+  type HostCommandAdapter,
+  type HostCommandResult,
+  type ParentGate,
+  type ParentGateProof,
+} from "./runtime";

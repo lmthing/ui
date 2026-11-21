@@ -36,6 +36,7 @@ import {
 } from "./device-data";
 import { withRecordScreen } from "./record-runtime";
 import { redactPrivateMarks } from "./action-input";
+import { hostActionPolicy, readHostOperations, type HostActionPolicy } from "./host-commands";
 
 type Props = Record<string, unknown>;
 
@@ -115,6 +116,7 @@ export function readComponent(
   currency?: AppCurrency,
   selection?: BoundSelection,
   target?: ReturnType<typeof driveTarget>,
+  host?: HostActionPolicy,
 ): string[] {
   const { meta } = def;
   if (meta.selectionBinding?.requireSelection && !selection?.selected.length) return [];
@@ -132,12 +134,25 @@ export function readComponent(
   const head = `${instance} ${meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
   const draw = drawState(def.meta, props, get),
     session = sessionState(meta, props, get);
-  const offered = readOffers(def, migrated, instance, props, state, values, addresses, deviceData, target);
+  const offered = readOffers(
+    def,
+    migrated,
+    instance,
+    props,
+    state,
+    values,
+    addresses,
+    deviceData,
+    target,
+    host,
+  );
+  const operations = readHostOperations(meta, props, instance, host, get("more") === true);
   const affordances = readAffordances(offered, values, def, props, instance, session);
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   if (state !== "filled" && !feedback && !(state === "success" && (draw || session || meta.readSuccess)))
     return [
       [head, ...(state === "empty" ? readDraw(draw) : []), ...affordances.map(formatAffordance)].join(" "),
+      ...operations,
     ];
   const readable = sessionForRead(meta, session);
   const round = readable?.kind === "rounds" ? readable : undefined;
@@ -158,7 +173,10 @@ export function readComponent(
     ...componentTexts(schema, props, key, roundKey, round?.item),
   ];
   const nested = visibleNestedProps(meta, props, get);
-  return readItems(meta, schema, nested, instance, key, head, own, affordances, get("more") === true, lang);
+  return [
+    ...readItems(meta, schema, nested, instance, key, head, own, affordances, get("more") === true, lang),
+    ...operations,
+  ];
 }
 
 export type ScreenLike = {
@@ -166,6 +184,7 @@ export type ScreenLike = {
   title?: string;
   components: ({ id: string; c: string; state?: StateName } & Props)[];
   [disabledSelectionChecks]?: Pick<ReadonlySet<string>, "has">;
+  [hostActionPolicy]?: HostActionPolicy;
 };
 
 /** A whole screen as text, for a model to read before acting. */
@@ -192,7 +211,19 @@ export function readScreen(
     if (!def) return [`${id} ${c} (unknown)`];
     const selection = selectionBindingFor(migrated, defs, def.meta, id, safe, snapshot, addresses)?.view;
     const target = driveTarget(def.meta, migrated, defs, safe, snapshot, canDrive, addresses);
-    return readComponent(def, props, id, state, local, lang, deviceData, appCurrency, selection, target);
+    return readComponent(
+      def,
+      props,
+      id,
+      state,
+      local,
+      lang,
+      deviceData,
+      appCurrency,
+      selection,
+      target,
+      migrated[hostActionPolicy],
+    );
   });
   return [header, ...lines].join("\n");
 }

@@ -6,8 +6,6 @@ import {
   sessionKey,
   staleSession,
   migrateScreen,
-  filterDeviceDataScreen,
-  projectDeviceData,
   resolveDefinition,
   withDisabledSelectionChecks,
   type ActStep,
@@ -24,6 +22,15 @@ import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
 import { visibleConfirmation } from "./read-controls";
 import { createPrivateMarks } from "./private-mark";
+import {
+  allowsDestination,
+  createHostCommands,
+  hostSubjectsOnScreen,
+  projectLive,
+  withHostPolicy,
+  type HostCommandAdapter,
+  type ParentGate,
+} from "./host";
 export type Confirmation = {
   message: string;
   kind: "primary" | "secondary" | "quiet" | "danger";
@@ -31,6 +38,7 @@ export type Confirmation = {
   goto?: string;
   step?: ActStep;
   removal?: ReportRemoval;
+  host?: true;
 };
 export type ControllerOptions = {
   screen: ScreenLike;
@@ -48,6 +56,8 @@ export type ControllerOptions = {
   requireMounted?: boolean | undefined;
   onLink?: ((goto: string, address: string) => void) | undefined;
   onAction?: ((step: ActionEvent) => void) | undefined;
+  hostCommands?: HostCommandAdapter | undefined;
+  parentGate?: ParentGate | undefined;
 };
 export type ScreenComponent = ScreenLike["components"][number];
 function initialValues(screen: ScreenLike, defs: Record<string, Definition>, now: () => number): Values {
@@ -102,27 +112,6 @@ function relativeAddress(screen: string, address: string) {
   const local = address.startsWith(`${screen}/`) ? address.slice(screen.length + 1) : address;
   return local.replace(/\/root$/, "");
 }
-function hostHidesSheet(screen: ScreenLike, visible: ScreenLike, sheet: string | undefined) {
-  return (
-    visible !== screen &&
-    screen.components.some(({ id }) => id === sheet) &&
-    !visible.components.some(({ id }) => id === sheet)
-  );
-}
-function projectLive(options: ControllerOptions, screen: ScreenLike, standalone: boolean, now: () => number) {
-  return (values: Values, sheet: string | undefined, covered = false, at = now()) => {
-    const visible = filterDeviceDataScreen(
-      screen,
-      options.defs,
-      projectDeviceData(options.deviceData, values),
-    );
-    if (standalone) return visible;
-    const projected = projectScreen(visible, options.defs, values, at, sheet, false, false);
-    return covered && !hostHidesSheet(screen, visible, sheet)
-      ? { ...projected, components: projected.components.filter((entry) => entry.id === sheet) }
-      : projected;
-  };
-}
 export function createControllerContext(options: ControllerOptions, standalone = false) {
   const { defs, now = Date.now, store = createInteractionStore() } = options;
   const screen = controllerScreen(options, standalone);
@@ -142,6 +131,15 @@ export function createControllerContext(options: ControllerOptions, standalone =
           ...store.snapshot(),
           ...Object.fromEntries(screen.components.map(({ id }) => [valueKey(screen.id, id, "$now"), at])),
         };
+  const subjects = (id: string) => hostSubjectsOnScreen(options, screen, id, valuesOf(), now());
+  const hosts = createHostCommands(
+    screen.id,
+    () => options.hostCommands,
+    subjects,
+    () => store.setMany({}),
+  );
+  const admitted = () => allowsDestination(options.parentGate, screen.id);
+  const withPolicy = (values: Values) => withHostPolicy(screen, options, hosts.policy(values), standalone);
   return {
     standalone,
     options,
@@ -151,16 +149,21 @@ export function createControllerContext(options: ControllerOptions, standalone =
     store,
     status,
     valuesOf,
-    liveScreen: projectLive(options, screen, standalone, now),
+    hosts,
+    subjects,
+    admitted,
+    liveScreen: projectLive(options, screen, standalone, now, withPolicy),
     confirmationFor: (data = options.deviceData, at = now()) =>
-      visibleConfirmation(
-        withDisabledSelectionChecks(screen, disabledParts),
-        defs,
-        status.confirmation,
-        data,
-        at,
-        valuesOf,
-      ),
+      admitted()
+        ? visibleConfirmation(
+            withDisabledSelectionChecks(withPolicy(status.confirmation ? valuesOf(at) : {}), disabledParts),
+            defs,
+            status.confirmation,
+            data,
+            at,
+            valuesOf,
+          )
+        : undefined,
     expiredProgress: (values: Values, at = now()) => expiredProgress(screen, defs, values, at),
     resetValues: () => {
       initial = initialValues(screen, defs, now);
