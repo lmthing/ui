@@ -185,7 +185,7 @@ describe("Camera rendering and reading", () => {
     expect(read).toContain(label);
     expect(read).toContain(input.hint);
     expect(read).toContain("c1/shutter");
-    expect(meta.read(props.parse(input), "loading")).toEqual([]);
+    expect(meta.read(props.parse(input), "loading", undefined, undefined, undefined, undefined)).toEqual([]);
   });
   it.each([
     ["video", "Start recording"],
