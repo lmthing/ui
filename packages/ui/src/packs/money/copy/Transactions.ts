@@ -2,7 +2,15 @@ import { changeLine, compactMoneyLine, dateLocaleOf, defaultLang, localeOf } fro
 import { moneyWordsFor } from "../lang";
 
 type Dated = { date: string };
-type Transaction = Dated & { id?: string; payee: string; category: string; amount: number };
+type Transaction = Dated & {
+  id?: string;
+  payee: string;
+  category: string;
+  amount: number;
+  status?: keyof ReturnType<typeof moneyWordsFor>["transactions"]["status"] | undefined;
+  note?: string | undefined;
+  receipt?: string | undefined;
+};
 
 /** Newest days first, preserving the authored order and item addresses within each day. */
 export function transactionGroups<T extends Dated>(entries: readonly T[]) {
@@ -45,17 +53,32 @@ export function transactionAmount(amount: number, lang?: string): string {
   return compactAmount(compactMoneyLine(magnitude, undefined, lang), amount < 0);
 }
 
+export function transactionCopy(entry: Transaction, lang?: string, showLead = true) {
+  const words = moneyWordsFor(lang).transactions;
+  const amount = transactionAmount(entry.amount, lang);
+  const status = entry.status === undefined ? undefined : words.status[entry.status];
+  const label = [
+    words.entry(entry.payee, entry.category, amount),
+    status,
+    entry.note,
+    showLead && entry.receipt && words.receipt,
+  ]
+    .filter(Boolean)
+    .join(words.separator);
+  return { amount, label, status };
+}
+
 export function transactionReading(
   entries: readonly Transaction[],
   lang?: string,
   now = new Date(),
+  showLead = true,
 ): string[] {
-  const words = moneyWordsFor(lang).transactions;
   return transactionGroups(entries).flatMap(({ date, entries }) => [
     transactionDay(date, lang, now),
-    ...entries.map(({ id, payee, category, amount }) => {
-      const line = words.entry(payee, category, transactionAmount(amount, lang));
-      return id ? `${id} ${line}` : line;
+    ...entries.map((entry) => {
+      const { label } = transactionCopy(entry, lang, showLead);
+      return entry.id ? `${entry.id} ${label}` : label;
     }),
   ]);
 }

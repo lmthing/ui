@@ -24,6 +24,7 @@ const adoptedVariants: readonly string[] = [
   "Slots",
   "ServiceMenu",
   "Devices",
+  "AccountCard",
   "Loan",
   "Payoff",
   "ScoreSheet",

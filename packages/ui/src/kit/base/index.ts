@@ -10,6 +10,16 @@ export {
   KitListItem,
   type ListItemRow,
 } from "./composition";
+export {
+  KitLayoutText,
+  type LayoutLine,
+  KitMetaLine,
+  KitHeader,
+  KitFigure,
+  KitActionFooter,
+  KitState,
+  KitRowGroup,
+} from "./layout";
 export { KitCode } from "./codes";
 export { KitPath, KitPitch, KitBracket } from "./diagram";
 export { KitSeatMap, KitGantt } from "./planning";

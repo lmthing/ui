@@ -34,6 +34,7 @@ type PhotoProps = {
   label?: string;
   initials?: string | undefined;
   ring?: "none" | "accent" | "muted";
+  loading?: boolean;
 };
 
 /**
@@ -42,27 +43,34 @@ type PhotoProps = {
  */
 export function KitPhoto(props: PhotoProps) {
   const { photo, shape: fallbackShape = "thumb", aspect = "auto", part = "icon" } = props;
-  const { label, initials, ring = "none" } = props;
+  const { label, initials, ring = "none", loading = false } = props;
   const kit = useKit();
-  const source = photo ? kit.resolvePhoto?.(photo) : undefined;
+  const source = photo && !loading ? kit.resolvePhoto?.(photo) : undefined;
   const ks = useKitStyle();
-  const address = usePart(part ?? undefined, part !== null);
+  const addressed = part !== null;
+  const address = usePart(part ?? undefined, addressed);
   const shape = aspect !== "auto" ? aspect : !photo && fallbackShape !== "avatar" ? "round" : fallbackShape;
   const circle = shape === "round" || shape === "avatar";
   return (
     <Frame
-      {...(part === null ? {} : address)}
+      {...(addressed ? address : {})}
       shape={shape}
-      {...(!photo || !source ? { backgroundColor: "$raised" } : {})}
+      {...(loading ? { backgroundColor: "$line" } : !photo || !source ? { backgroundColor: "$raised" } : {})}
       {...(circle ? {} : { borderRadius: shifted(shape === "thumb" ? "sm" : "lg", ks.radiusShift) })}
-      accessibilityRole="image"
-      accessibilityLabel={label ?? photo?.replace(/^lib:/, "").replace(/_/g, " ") ?? initials}
+      aria-hidden={loading || undefined}
+      accessibilityRole={loading ? undefined : "image"}
+      accessibilityLabel={
+        loading ? undefined : (label ?? photo?.replace(/^lib:/, "").replace(/_/g, " ") ?? initials)
+      }
       {...(ring !== "none"
-        ? { borderWidth: component.base.strongBorder, borderColor: ring === "accent" ? "$accent" : "$muted" }
+        ? {
+            borderWidth: component.base.strongBorder,
+            borderColor: loading ? "$line" : ring === "accent" ? "$accent" : "$muted",
+          }
         : {})}
       {...(!photo ? { alignItems: "center", justifyContent: "center" } : {})}
     >
-      {!photo && initials && (
+      {!loading && !photo && initials && (
         <KitText
           role={shape === "avatar" ? "heading" : "label"}
           tone="text"

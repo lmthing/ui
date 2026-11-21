@@ -127,5 +127,14 @@
       "ChapterList",
       "ChapterList"
     ]
+  },
+  "cca2c38af26709e2": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ntarget Player \"Recording\" [target/scrubber seek]\nc1 ChapterList 0:00 Set out the pot — 0:48 Loosen the roots · Current chapter — 1:52 Water it in\n  r1 \"Set out the pot\" [c1/r1 press]\n  r2 \"Loosen the roots\" [c1/r2 press]\n  r3 \"Water it in\" [c1/r3 press]\n\nTask: Jump to the Water it in chapter\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"c1/r3\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"c1/r3\", \"action\": \"press\"}",
+      "{\"address\": \"c1/r3\", \"action\": \"press\"}",
+      "{\"address\": \"c1/r3\", \"action\": \"press\"}"
+    ]
   }
 }

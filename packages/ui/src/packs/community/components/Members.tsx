@@ -152,30 +152,25 @@ type Density = c.AxisValue<"density">;
 
 // prettier-ignore
 function MemberRow({ row, density, loading }: { row: Row; density: Density; loading: boolean }) {
+  const scope = kit.usePartContext();
   const { lang, words: { members: w } } = kit.useWords(communityWordsFor);
   const { voting, joined, ended, otherRoles, dues } = memberFacts(row, kit.useDeviceData(), lang);
-  const photo = row.photo ? <kit.KitPhoto part="photo" shape="round"
-    {...(loading ? {} : { photo: row.photo, label: row.name })} />
-    : joined ? loading ? <></> : <kit.KitIcon name="user" tone="muted" decorative /> : undefined;
+  const photo = row.photo ? <kit.KitPhoto part="photo" shape="round" photo={row.photo} label={row.name} loading={loading} />
+    : joined ? <kit.KitIcon name="user" tone="muted" decorative loading={loading} /> : undefined;
   const badge = dues && <kit.KitTrail kind="badge" part="dues" tone={dues.tone} value={dues.label} density={density} />;
-  return <kit.KitRow item={row.id} part={null} label={row.name} density={density}>
-    <kit.KitRow part={loading ? null : "root"} label={loading ? "" : row.name}
-      goto={loading ? undefined : row.goto} inline density={density}
-      lineRole="heading" leading={photo} leadingWidth="avatar" leadingAlign={row.photo ? "row" : "line"}
-      trailing={badge}>
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
-        content={[["heading", row.name], ["label", row.roles[0]], ["label", otherRoles],
-          ["label", joined], ["label", ended], ["label", voting]]} /> : <kit.KitContent density={density}>
-        <kit.KitText part="name" role="heading" emphasis="strong" density={density}>{row.name}</kit.KitText>
-        {row.roles[0] && <kit.KitText part="role" role="label" tone="muted">{row.roles[0]}</kit.KitText>}
-        {otherRoles && <kit.KitText part="other_roles" role="label" tone="muted">{otherRoles}</kit.KitText>}
-        {joined && <kit.KitText part="joined" role="label" tone="muted">{joined}</kit.KitText>}
-        {ended && <kit.KitText part="ended" role="label" tone="muted">{ended}</kit.KitText>}
-        <kit.KitText part="voting_rights" role="label" tone="muted">{voting}</kit.KitText>
-      </kit.KitContent>}
+  return <kit.PartScope {...scope} item={row.id}>
+    <kit.KitRow part={loading ? null : "root"} label={row.name} inset="none" density={density}
+      goto={loading ? undefined : row.goto} leading={photo} leadingAlign={row.photo ? "row" : "line"} trailing={badge}>
+      <kit.KitMetaLine density={density} title={{ text: row.name, part: "name", strong: true }} meta={[
+        { text: row.roles[0], part: "role" }, { text: otherRoles, part: "other_roles" },
+        { text: joined, part: "joined" }, { text: ended, part: "ended" },
+        { text: voting, part: "voting_rights" },
+      ]} />
     </kit.KitRow>
-    {!loading && row.can_end && <kit.KitAction part="end" action="press" kind="danger" label={w.end} />}
-  </kit.KitRow>;
+    {row.can_end && <kit.KitActionFooter density={density}>
+      <kit.KitAction part={loading ? null : "end"} action="press" kind="danger" label={w.end} />
+    </kit.KitActionFooter>}
+  </kit.PartScope>;
 }
 
 // prettier-ignore
@@ -184,14 +179,12 @@ export function Members(input: View) {
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const { members } = kit.useLiveControls(meta, input) as { members: Row[] };
   const { words: { members: w } } = kit.useWords(communityWordsFor);
-  return <kit.KitCard part="root" density={density}>
-    {state === "empty" ? <kit.KitEmpty part="empty" icon="users" decorativeIcon />
-      : state === "success" || state === "error"
-        ? <kit.KitRow label={state === "success" ? w.saved : w.error} density={density}>
-          <kit.KitText part={null} role="heading" tone={state === "success" ? "good" : "bad"}>
-            {state === "success" ? w.saved : w.error}
-          </kit.KitText>
-        </kit.KitRow>
-        : members.map((row) => <MemberRow key={row.id} row={row} density={density} loading={state === "loading"} />)}
+  const rows = <kit.KitRowGroup density={density} leadingWidth={members.some((row) => row.photo || row.joined) ? "avatar" : undefined}>
+    {members.map((row) => <MemberRow key={row.id} row={row} density={density} loading={state === "loading"} />)}
+  </kit.KitRowGroup>;
+  const message = state === "success" ? w.saved : state === "error" ? w.error : undefined;
+  return <kit.KitCard part="root" density={density} padded={state === "filled" || state === "loading"}>
+    <kit.KitState part={state === "empty" ? "empty" : null} icon={state === "empty" ? "users" : undefined}
+      loading={rows} {...{ message, density }}>{rows}</kit.KitState>
   </kit.KitCard>;
 }

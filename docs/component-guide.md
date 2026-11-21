@@ -34,6 +34,8 @@ the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs
    - `select` declares the selected prop, row value (`index`, `position`, or `{ field }`), optional row `flags` mode and fixed named `parts` values.
    - `items.toggles: { save: "saved" }` maps a named item toggle at `rN/save` to a boolean row field. Also declare `save: ["toggle"]` in `actions.items`. The store value overlays the addressed row before `live.derive` and `items.visibleWhen`; it does not change wire props. Use `useLiveControls` to draw from the same live rows.
    - `clocks` on meta, items or items.nested declares time sources, live props, start/stop/reset and zero behavior. `adjust` on meta or items maps `"part.action"` to `{ prop, delta, min?, max? }` for a numeric prop or live clock; see `src/catalog/meta/README.md` and keep projected values inside the prop schema's bounds.
+   - `items.nested: { key, parts: { [part]: { action: "toggle" | "set", prop, min?, max?, integer?, when? } } }` declares `rN/<part>_M` controls projected into sub-items; `when` names a boolean part on the same sub-item.
+   - `read` may use its optional final argument to read the current instance's control values. Keep those values out of Writer props and wire snapshots.
    - `items.nested: { key, parts }` declares `rN/<part>_M` controls projected into sub-items. A part names `action`, `prop` and optional `when` (a boolean part or field on the same sub-item). For `set`, `min`, `max` and `integer` are optional. For `increment` or `decrement`, require `min`, `max` and positive `step`; each is a number or a field name on the sub-item. Step buttons for the same `prop` share one value, clamp at the bounds, and are not offered when they cannot move. Use `useNestedControls` for the live value and disabled state.
    - `items.reset` names a declared component `press` that always asks for confirmation. It clears item numeric adjustments and nested steps for this instance back to their input seeds, without clearing other controls.
    - Private handoffs declare `session: { kind: "rounds", items, hidden, reveal, hide, restart? }`. Declare `press` on separate reveal and hide parts for tap mode, or `start` and `stop` on the reveal part for `KitFlip` hold mode. Gate those actions by style if both modes exist. A hide veils and advances in one step, with success on the final hide. `sessionState` gives the view the active row; the agent reading omits `hidden` fields even during a reveal. Declare restart in `confirmParts` and `successActions` if offered after completion.
@@ -118,6 +120,38 @@ language file. To add a language, write a complete dictionary that `satisfies Wo
 Unregistered words fall back to English. Only English ships at launch.
 
 ## Kit bases (the only building blocks)
+
+### Layout recipes
+
+Use `KitHeader` for heading plus supporting text, `KitMetaLine` for a row title and its metadata,
+`KitRowGroup` for a shared rail with separators, `KitFigure` for a figure and its caption, and
+`KitActionFooter` to attach actions to the group they belong to. The frame sets the outer gutter.
+The rail aligns leading and trailing slots; title-to-meta spacing stays smaller than group spacing.
+Absent slots take no space unless a row group deliberately reserves the leading rail.
+
+Use only the kit scale: title, body, meta, figure and caption. Existing `KitText` roles and compact
+figures map to that scale; use a kit role rather than sizing text in a view. Use `KitState` for
+empty, loading, error and success. It takes the same layout in both filled and loading states:
+describe the slots once, then let the recipe draw text or inert placeholders. Use an inline status
+for operations that leave useful content on screen. Keep existing parts, reading and actions.
+Only override a state treatment when the catalog doc calls for it, and do not invent a retry
+action. Test the kit geometry separately from host fixture data such as photos.
+
+| Recipe | Slots |
+| --- | --- |
+| `KitHeader`, `KitMetaLine` | `title`, optional `meta` (one or more lines), `align`, `density`. A line supplies `text`, optional `part`, semantic `role` and finish. |
+| `KitLayoutText` | One semantic `line`, with optional `align` and `density`; the same descriptor draws a loading bar. |
+| `KitRowGroup` | Row children, optional `leadingWidth="avatar"` to reserve a common rail, `spacing` (`rows` or `groups`), `separators` (default on), `density`. |
+| `KitFigure` | `value` and optional `unit`, or `media`; optional `caption`, `align`, `density`. |
+| `KitActionFooter` | Action children, optional `align` and `density`. A missing action takes no space. |
+| `KitState` | Filled children, optional shaped `loading`, `message`, `part`, `icon`, `density`; `retain` keeps children visible with an inline error or success message. |
+
+Inside a padded frame use `KitRow inset="none"` so the frame owns the gutter. A passive `inline`
+row can use `fitContent` to avoid reserving a control-height slot. This never shrinks links or buttons.
+In loading, keep the slots and use the inert treatment of `KitLayoutText`, `KitPhoto`, `KitIcon`,
+`KitTrail` and `KitAction`; preserve any existing measurement-only addresses.
+
+### Base reference
 
 This table covers every base exported by `src/kit/base/index.ts`, including its exported helpers.
 `KitOverlay` is internal to screen rendering, not a component building block.
@@ -235,6 +269,10 @@ If the view needs something no base does, the task
 says which new base to add under `src/kit/base/` (or `helpers/`) and its exact props. Never draw it
 inside the component file. A new base is themed only through tokens, roles and `useKitStyle()`.
 
+`KitPlayback` accepts an optional `overlay` of controls for an in-frame video toolbar. The toolbar
+remains visible when the host replaces the fallback artwork with its video. Browser media elements
+also accept optional `speed` and `loop`; when neither is set, their playback settings are untouched.
+
 ## Tests: `<Id>.test.ts`
 
 Copy `List.test.ts` and keep its four blocks: every example parses; invalid inputs are rejected
@@ -266,3 +304,18 @@ Then the look must pass `docs/visual-rubric.md`: look at every PNG yourself, the
 `ui-reviewer` subagent (`.factory/droids/ui-reviewer.md`) to review it with fresh eyes, fix, and
 repeat until it answers `APPROVED` (at most 3 rounds). The orchestrating agent then looks at the final
 screenshots once, approves and merges.
+
+For pack acceptance, start with `pnpm look --component <Id> --widths 390 --preset calm --mode light`.
+Use the part names in `issues.json` to find the source. Use tight spacing inside a label/value
+pair and more space before the next group; put the first row close to its heading. Use at most
+three text sizes per item, and use end alignment for numeric columns even with tabular digits.
+Use a danger or neutral treatment for negative actions rather than the primary accent. Check
+that meaningful text fits without clipping or ellipsis; a wholly offscreen item in a scroll
+region is not clipped text. When the component brief requires a specific empty message, pass it
+from the language copy to `KitEmpty` instead of letting it show the shared neutral line.
+
+Document this requirement on the component's `States:` line as `empty (reason)` in its catalog
+brief. The acceptance reviews also call for specific copy in these existing cases:
+
+- `Approval`: empty (no requests waiting for a decision).
+- `TravelDocs`: empty (no travel documents).
