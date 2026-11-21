@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useAnimatedValue } from "../../motion";
 import { useCopyFeedback } from "../../interact";
-import { motion } from "../../../catalog";
 import { XStack, styled, isWeb } from "tamagui";
 import {
   component,
+  motion,
   radius,
   size,
   space,
@@ -15,7 +15,6 @@ import {
 import { useKit, useKitStyle } from "../../provider";
 import { useComponentState, usePart } from "../../part";
 import { KitIcon, KitText, shifted, type IconTone, type TextTone } from "../text";
-
 export type ActionKind = "primary" | "secondary" | "quiet" | "danger";
 const Frame = styled(XStack, {
   alignItems: "center",

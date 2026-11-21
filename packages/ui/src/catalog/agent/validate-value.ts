@@ -99,7 +99,7 @@ export function validateActionValue(
   value: unknown,
   limits?: NumericLimits | StringLimits,
 ): ValueError | null {
-  const rule = Object.hasOwn(rules, action) ? rules[action] : undefined;
+  const rule = rules[action];
   if (!rule) return { code: "invalid_value", hint: `unknown action ${action}` };
   if (!rule[0](value)) return { code: "invalid_value", hint: rule[1] };
   if (limits?.type === "date") {

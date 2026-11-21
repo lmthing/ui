@@ -72,6 +72,15 @@ function logStep(step: ActStep): ActLogEntry {
     : { ...step, at: Date.now() };
 }
 
+function detachedRead(options: AgentOptions, currency: AppCurrency | undefined) {
+  const { store, defs, lang, deviceData } = options;
+  const screen = options.current();
+  return (
+    standaloneAccess(options, screen, currency)?.read() ??
+    readControls(screen, defs, store.snapshot(screen.id), lang, undefined, deviceData, currency)
+  );
+}
+
 /** Every step is checked before commit. Dry runs and rejected batches leave the store untouched. */
 export function createAgentAccess(options: AgentOptions) {
   const { defs, store, current, onLink } = options;
@@ -85,22 +94,7 @@ export function createAgentAccess(options: AgentOptions) {
       steps.some(({ action }) => action === "copy"),
     );
   return {
-    read: () => {
-      if (options.runtime) return options.runtime.read();
-      const screen = current();
-      return (
-        standaloneAccess(options, screen, currency)?.read() ??
-        readControls(
-          screen,
-          defs,
-          store.snapshot(screen.id),
-          options.lang,
-          undefined,
-          options.deviceData,
-          currency,
-        )
-      );
-    },
+    read: () => options.runtime?.read() ?? detachedRead(options, currency),
     act(steps: ActStep | ActStep[], opts: ActOptions = {}): ActReply {
       const list = Array.isArray(steps) ? steps : [steps];
       const screen = options.runtime ? undefined : current();
