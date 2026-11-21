@@ -35,7 +35,7 @@ import {
 
 // prettier-ignore
 export const meta = {
-  id: "Player",
+  id: "Player", status: "ready",
   group: "content",
   purpose: "Listen to or watch one recording, with play, skip and a scrubber.",
   pick: "One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).",
@@ -54,14 +54,15 @@ export const meta = {
   actions: {
     parts: { scrubber: ["seek"], back: ["press"], play: ["play", "pause"], forward: ["press"] },
   },
-  read: (input, state, lang?: string): string[] => {
+  read: (input, state, lang, _data, _currency, live): string[] => {
     if (state !== "filled") return [];
-    const { at, seconds } = input as z.output<typeof props>;
-    const options = optionLines(input as PlayerProps, lang);
-    return [clockLine(at ?? 0, lang), remainingLine(seconds - (at ?? 0), lang), ...(options.length ? [options.join(" · ")] : [])];
+    const { at, seconds } = input as z.output<typeof props>, clock = live?.("scrubber"), playing = live?.("play");
+    const here = typeof clock === "number" ? clock : (at ?? 0), w = wordsFor(lang).playbackOptions;
+    const status = typeof playing === "boolean" || live?.("$runtime") === true ? (playing ? w.playing : w.paused) : undefined;
+    return [clockLine(here, lang), remainingLine(seconds - here, lang), status, optionLines(input as PlayerProps, lang).join(" · ")]
+      .filter((line): line is string => Boolean(line));
   },
 } as const satisfies Meta;
-
 export const props = z
   .strictObject({
     ...variantProps(meta.variants),
@@ -102,7 +103,6 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     seconds: 60,
   };
 }
-
 // prettier-ignore
 const fernGuide = { style: "video", media: "lib:fern_care", title: "Repotting a fern", sub: "Two minute guide", photo: "lib:fern_care", seconds: 134 } as const;
 // prettier-ignore
@@ -158,22 +158,24 @@ export function Player(input: PlayerProps) {
   const { lang, words: { mediaLabels } } = useWords();
   const loading = useComponentState() === "loading";
   const compact = style === "compact";
-  const lines = [{ text: title, role: "heading" as const }, ...(sub ? [{ text: sub, role: "body" as const }] : [])];
+  const here = at ?? 0, info = optionLines(input, lang).join(" · ");
+  const lines = [{ text: title, role: "heading" as const }, ...(sub ? [{ text: sub, role: "body" as const }] : []),
+    ...(info ? [{ text: info, role: "caption" as const }] : [])];
   if (loading && style === "audio") {
     return <KitCard style="inset" padded density={density}>
       <KitSkeleton shape="media" inset="none" playback aspect={artwork ? aspect : "none"} {...{ density, lines }} />
     </KitCard>;
   }
-  const here = at ?? 0, info = optionLines(input, lang);
   const controls = <KitMediaControls labels={mediaLabels} compact={compact} />;
   const titles = loading ? (compact ?
-    <KitSkeleton items={[{ title, sub, ...(artwork ? { photo: artwork } : {}) }]} lead={artwork ? "box" : "none"} density={density} /> :
+    <KitSkeleton items={[{ lines: lines.map((line, i) => ({ ...line, role: i === 0 ? "body" : "caption" })), ...(artwork ? { photo: artwork } : {}) }]} lead={artwork ? "box" : "none"} density={density} /> :
     <KitSkeleton shape="media" aspect="none" inset="none" {...{ density, lines }} />) : <>
     <KitText role={compact ? "body" : "heading"} part="title" density={density}>{title}</KitText>
     {sub && <KitText role={compact ? "caption" : "body"} tone="muted" part="sub" density={density}>{sub}</KitText>}
-    {info.length > 0 && <KitText role="caption" tone="muted" part="options">{info.join(" · ")}</KitText>}
+    {info && <KitText role="caption" tone="muted" part="options">{info}</KitText>}
   </>;
-  const position = loading ? <KitSkeleton shape="control" kind="quiet" full label={title} /> : <>
+  const position = loading ? <><KitSkeleton shape="control" kind="quiet" full label={title} />
+    <KitSkeleton shape="figure" split inset="none" lines={[{ text: clockLine(here, lang), role: "caption" }, { text: remainingLine(seconds - here, lang), role: "caption", align: "end" }]} /></> : <>
     <KitSlider value={here} min={0} max={seconds} label={title} part="scrubber" />
     <KitTimes elapsed={clockLine(here, lang)} remaining={remainingLine(seconds - here, lang)} prominent={style !== "audio"} />
   </>;

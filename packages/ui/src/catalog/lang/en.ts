@@ -81,6 +81,8 @@ export const en = {
     liked: "Liked",
     shuffle: "Shuffle",
     loop: "Loop",
+    playing: "Playing",
+    paused: "Paused",
   },
   captureLabels: {
     start: "Start recording",

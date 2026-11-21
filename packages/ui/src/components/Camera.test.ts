@@ -27,6 +27,9 @@ it.each([
     for (const [index, action] of actions.slice(0, 2).entries()) {
       expect(controller.act({ address, action: action! })).toMatchObject({ ok: true });
       expect(controller.actionsAt(address)).toEqual(actions[index + 1] ? [actions[index + 1]] : []);
+      const live = { "c1/$recording": controller.store.get("home/c1/$recording"), "c1/$adjust/side": controller.store.get("home/c1/$adjust/side") };
+      const read = readComponent(components.Camera, { kind, hint: "Aim here" }, "c1", "filled", live).join("\n");
+      expect(read).toContain(kind === "video" ? ["Stop recording", "Start recording"][index] : ["Scan back", "Both sides scanned"][index]);
     }
   } finally {
     controller.dispose();

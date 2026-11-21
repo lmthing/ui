@@ -516,6 +516,15 @@
       "List"
     ]
   },
+  "91326dec0c7f65c5": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 Player 4:05 — -7:55 — Paused — \"Evening wind-down\" — \"Guided breathing\" — photo:plants [p1/scrubber seek] [p1/back press] [p1/play play] [p1/play pause] [p1/forward press]\n\nTask: Pause the recording\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"p1/play pause\", \"action\": \"pause\"}",
+    "replies": [
+      "{\"address\": \"p1/play pause\", \"action\": \"pause\"}",
+      "{\"address\": \"p1/play pause\", \"action\": \"pause\"}",
+      "{\"address\": \"p1/play pause\", \"action\": \"pause\"}"
+    ]
+  },
   "a5f8106df516421e": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPlayer: Listen to or watch one recording, with play, skip and a scrubber.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", style?: audio|video|compact=\"audio\", mode?: audio|music|podcast|video|live, speed?: num 0.25..4, liked?: boolean, shuffle?: boolean, repeat?: boolean, loop?: boolean, media: media lib:<tag>|local:<n>, title: text≤40, sub?: text≤40, photo?: photo lib:<tag>|local:<n>, seconds: int 1..36000, at?: int 0..9007199254740991 }\nRule: Hiding only the cover artwork sets detail \"brief\" and density null. Keep the photo reference and playback controls. Never output default axis values; density is compact only when tighter spacing was specifically requested.\nRule: The media field is the recording reference. Use style \"video\" for the original video layout or \"compact\" for one audio row. Mode is the recording type; write it only when requested. Speed is a multiplier (1.5 for 1.5×).\nexample: {\"c\":\"Player\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Play the 12-minute Evening wind-down recording from lib:wind_down. Keep lib:plants as its cover photo but hide the artwork, without changing the spacing or playback controls.",
     "format": {
@@ -1346,11 +1355,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":null,\"repeat\":null,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}",
+    "reply": "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":null,\"repeat\":null,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}",
     "replies": [
-      "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":null,\"repeat\":null,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}",
       "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":null,\"repeat\":null,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}",
-      "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":false,\"repeat\":false,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}"
+      "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":false,\"repeat\":false,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":0}",
+      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":null,\"repeat\":null,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}"
     ]
   },
   "f20dba48f737a372": {
@@ -1554,11 +1563,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"local:1\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"local:1\",\"seconds\":720,\"at\":240}",
+    "reply": "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
     "replies": [
-      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"local:1\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"local:1\",\"seconds\":720,\"at\":240}",
-      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"compact\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
-      "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"music\",\"speed\":1.5,\"liked\":false,\"shuffle\":true,\"repeat\":false,\"loop\":false,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}"
+      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
+      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}",
+      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":null,\"seconds\":720,\"at\":240}"
     ]
   },
   "f27a3877b8f98d24": {

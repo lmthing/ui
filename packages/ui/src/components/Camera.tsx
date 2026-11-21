@@ -26,6 +26,7 @@ import { z } from "zod";
 
 export const meta = {
   id: "Camera",
+  status: "ready",
   group: "beyond",
   purpose: "Aim at something to take a photo, record video, or scan it.",
   pick: "Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).",
@@ -59,10 +60,18 @@ export const meta = {
     },
   ],
   adjust: { "shutter.increment": { prop: "side", delta: 1, min: 0, max: 2 } },
-  read: (input, state, lang?: string): string[] => {
+  read: (input, state, lang, _data, _currency, live): string[] => {
+    if (state !== "filled") return [];
     const capture = input as CameraProps;
-    // The offered shutter action reports the current recording state without exposing the clock as wire data.
-    return state === "filled" && capture.kind !== "video" ? [shutterLabel(capture, lang)] : [];
+    const clock = live?.("$recording") as ClockState | undefined;
+    const side = live?.("$adjust/side");
+    const label = shutterLabel(
+      { ...capture, side: typeof side === "number" ? side : 0, recording: clock?.running === true },
+      lang,
+    );
+    return capture.kind === "document_dual" && side === 1
+      ? [label, wordsFor(lang).captureLabels.backHint]
+      : [label];
   },
 } as const satisfies Meta;
 

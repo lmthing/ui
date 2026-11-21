@@ -29,7 +29,7 @@ import {
 
 // prettier-ignore
 export const meta = {
-  id: "Bubbles",
+  id: "Bubbles", status: "ready",
   group: "content",
   purpose: "A conversation between you and someone else, with each person's messages kept distinct.",
   pick: "Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).",

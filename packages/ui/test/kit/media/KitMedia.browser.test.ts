@@ -28,7 +28,8 @@ const fixture = `
   };
   createRoot(document.getElementById("root")).render(h(
     TamaguiProvider, { config, defaultTheme: "kit_calm_light_moss" },
-    h(PhoneScreen, { screen, theme, media, defs: components, renderers, interactive: true }),
+    h(PhoneScreen, { screen, theme, media, defs: components, renderers, interactive: true,
+      onReady: (agent) => { window.__lmthingUI = agent; } }),
   ));
 `;
 
@@ -70,10 +71,13 @@ it("keeps the toolbar usable over the mounted video and applies supplied playbac
       const action = (await play.boundingBox())!;
       expect(action.y).toBeGreaterThan(frame.y);
       expect(action.y + action.height).toBeLessThanOrEqual(frame.y + frame.height);
+      await page.waitForFunction(() => window.__lmthingUI?.read().includes("Paused"));
       await play.click();
       await page.getByRole("button", { name: "Pause" }).waitFor();
+      expect(await page.evaluate(() => window.__lmthingUI!.read())).toContain("Playing");
       await play.click();
       await page.getByRole("button", { name: "Play" }).waitFor();
+      expect(await page.evaluate(() => window.__lmthingUI!.read())).toContain("Paused");
     } finally {
       await browser.close();
     }

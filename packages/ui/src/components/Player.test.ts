@@ -95,6 +95,16 @@ describe("Player fallback, metadata and actions", () => {
     const line = readComponent(components.Player, examples[0], "p1").join("\n");
     expect(line).toContain("4:05");
     expect(line).toContain("-7:55");
+    const live = { "p1/play": true, "p1/scrubber": 300, "p2/play": false, "p3/$runtime": true };
+    expect(readComponent(components.Player, examples[0], "p1", "filled", live).join("\n")).toContain(
+      "5:00 — -7:00 — Playing",
+    );
+    expect(readComponent(components.Player, examples[0], "p2", "filled", live).join("\n")).toContain(
+      "Paused",
+    );
+    expect(readComponent(components.Player, examples[0], "p3", "filled", live).join("\n")).toContain(
+      "Paused",
+    );
     expect(remainingLine(60)).toBe("-1:00");
     expect(clockLine(0)).toBe("0:00");
   });

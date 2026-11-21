@@ -5,7 +5,7 @@ const trails = ["chevron", "none", "value", "badge", "toggle", "check"] as const
 const trailPart = { adds: ["trail"] } as const;
 // prettier-ignore
 export const meta = {
-  id: "List", group: "content",
+  id: "List", group: "content", status: "ready",
   purpose: "Several things of the same kind, each one tappable.",
   pick: "Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).",
   writeHints: [
@@ -36,9 +36,9 @@ export const meta = {
     "trail.none": { hides: ["trail"] }, "trail.chevron": trailPart, "trail.value": trailPart,
     "trail.badge": trailPart, "trail.toggle": trailPart, "trail.check": trailPart,
   },
-  states: ["filled", "empty", "loading"], read: (input, state, lang): string[] => {
+  states: ["filled", "empty", "loading"], read: (input, state, lang, _data, _currency, live): string[] => {
     const { rows, overflow } = input as { rows: Parameters<typeof c.listDetailLines>[0]; overflow?: string };
-    return state === "filled" ? c.listDetailLines(overflow === "peek" ? rows.slice(0, c.peekLimit) : rows, lang) : [];
+    return state === "filled" ? c.listDetailLines(overflow === "peek" && live?.("more") !== true ? rows.slice(0, c.peekLimit) : rows, lang) : [];
   },
   actions: { parts: { more: ["toggle"] }, items: { root: ["press", "toggle"], trail: ["toggle"] },
     when: { trail: { trail: "toggle" }, "root.press": { root: "press" }, "root.toggle": { root: "toggle" } } },

@@ -34,6 +34,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs
    - `select` declares the selected prop, row value (`index`, `position`, or `{ field }`), optional row `flags` mode and fixed named `parts` values.
    - `clocks` on meta, items or items.nested declares time sources, live props, start/stop/reset and zero behavior. `adjust` on meta or items maps `"part.action"` to `{ prop, delta, min?, max? }` for a numeric prop or live clock; see `src/catalog/meta/README.md` and keep projected values inside the prop schema's bounds.
    - `items.nested: { key, parts: { [part]: { action: "toggle" | "set", prop, min?, max?, integer?, when? } } }` declares `rN/<part>_M` controls projected into sub-items; `when` names a boolean part on the same sub-item.
+   - `read` may use its optional final argument to read the current instance's control values. Keep those values out of Writer props and wire snapshots.
 3. **`props`**: `z.strictObject`. Every string is `text(n)`, every array has `.min()` and `.max()`,
    icons are `icon`, photos `photo`, links `screenId` (`goto`). Choices are `z.enum([...])` with a
    `.default()` when one is usual. Use shared axes for variants and reserve `style` for structure no

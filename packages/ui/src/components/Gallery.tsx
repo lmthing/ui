@@ -30,6 +30,7 @@ import {
 
 export const meta = {
   id: "Gallery",
+  status: "ready",
   group: "content",
   purpose: "Browse several pictures together, optionally opening one.",
   pick: "Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).",
