@@ -162,8 +162,8 @@ function expectTarget(read: string, addressed: ReturnType<typeof addressedElemen
 it("accepts addressed KitSeatMap guest buttons for the move action offered in the read", () => {
   const { html, text, offers } = seatMoveReading();
   const addressed = addressedElements(html);
-  expect(offers.map(({ address, action }) => `${address} ${action}`)).toEqual(["c1/r1 move", "c1/r2 move"]);
-  expect(html.match(/aria-expanded="false"/g)).toHaveLength(2);
+  expect(offers.map(({ address }) => address)).toEqual(["c1/r1", "c1/r2", "c1/r3", "c1/r4"]);
+  expect(html.match(/aria-expanded="false"/g)).toHaveLength(4);
   for (const offer of offers) expectTarget(text, addressed, offer);
 });
 

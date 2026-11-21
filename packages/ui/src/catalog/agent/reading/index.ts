@@ -99,7 +99,12 @@ export function readItems(
       : schema.properties?.[key]?.items;
   const group = meta.items?.readGroupBy;
   const groupBy = group && isGroupText(itemSchema?.properties?.[group]) ? group : undefined;
-  const exactIds = host || group || meta.items?.visibleWhen || (meta.deviceData?.length && meta.live?.derive);
+  const exactIds =
+    host ||
+    group ||
+    meta.items?.move?.derived ||
+    meta.items?.visibleWhen ||
+    (meta.deviceData?.length && meta.live?.derive);
   const ids = exactIds && new Set(all.map(({ id }) => String(id)));
   const ownAff = affordances.filter(({ address }) => {
     if (!key) return true;

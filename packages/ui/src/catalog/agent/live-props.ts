@@ -10,7 +10,7 @@ import { projectDraw } from "./draw";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
 import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
-import { projectMoves } from "./action-input";
+import { projectDerivedMoves, projectMoves } from "./action-input";
 import { projectRecordRuntime } from "./record-runtime";
 import {
   adjustmentAt,
@@ -135,7 +135,8 @@ export function liveProps(
   now?: number,
 ): Values {
   const get = (part: string) => values[`${instance}/${part}`];
-  const addressed = projectRecordIds(meta, projectDeviceRows(meta, validated, data), get);
+  const moved = projectDerivedMoves(meta, validated, get);
+  const addressed = projectRecordIds(meta, projectDeviceRows(meta, moved, data), get);
   const { draw, emptyActions, errorActions, successActions, session } = meta;
   const runtime = Boolean(get("$runtime"));
   let props = wireApplied
