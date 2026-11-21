@@ -1,0 +1,174 @@
+import { z } from "zod";
+import * as c from "../catalog";
+import * as kit from "../kit";
+
+export const meta = {
+  id: "FileList",
+  status: "draft",
+  group: "content",
+  purpose: "Show attached files and let people preview, download, or remove them.",
+  pick: "One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).",
+  writeHints: [
+    'Use only the supplied opaque fileRef, never a download URL or device path. Give sizeBytes in bytes. Use status "ready" for available demo or attached files; use "downloading" or "missing" only when stated. Keep goto null unless a preview screen id is supplied.',
+    'Use detail "brief" only if asked to hide the page count; keep pages in the data. Use style "cards" for stacked preview tiles, otherwise null for rows. Leave other axes null unless requested.',
+  ],
+  region: "body",
+  weight: 2,
+  tier: "ok",
+  realPath:
+    "The host document picker supplies opaque references, the viewer previews them, and a host adapter downloads them.",
+  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["pages"] } },
+  parts: ["root", "message"],
+  items: {
+    key: "files",
+    parts: [
+      "root",
+      "format",
+      "name",
+      "size",
+      "pages",
+      "status",
+      "download",
+      "download_icon",
+      "remove",
+      "remove_icon",
+    ],
+  },
+  states: ["filled", "empty", "loading", "error"],
+  actions: {
+    items: { root: ["press"], download: ["press"], remove: ["press"] },
+    when: { root: { status: "ready" }, download: { status: "ready" }, remove: { removable: true } },
+    noGoto: { items: ["download", "remove"] },
+  },
+  partTiers: { download: "service" },
+  confirmParts: ["remove"],
+  read: (value, _state, lang): string[] => {
+    const { files, detail } = value as z.output<typeof props>;
+    const words = c.wordsFor(lang).fileList;
+    return files.flatMap((file, index) => {
+      const { format, size, pages, status } = fileCopy(file, detail === "full", lang);
+      return [`r${index + 1}: ${[format, size, pages, status].filter(Boolean).join(words.separator)}`];
+    });
+  },
+} as const satisfies c.Meta;
+
+const file = z.strictObject({
+  fileRef: c
+    .text(32)
+    .refine((ref) => !/[/\\]|^[a-z][a-z\d+.-]*:(?!\d+$)/i.test(ref))
+    .meta({ kind: "secret", max: 32 }),
+  name: c.text(48),
+  ext: z.enum(["pdf", "doc", "sheet", "zip", "audio", "other"]),
+  sizeBytes: z.number().nonnegative(),
+  pages: z.number().int().min(1).optional(),
+  status: z.enum(["ready", "downloading", "missing"]),
+  goto: c.screenId.optional(),
+});
+
+export const props = z.strictObject({
+  ...c.variantProps(meta.variants),
+  files: z.array(file).min(1).max(6),
+  removable: z.boolean().default(false),
+  style: z.enum(["rows", "cards"]).default("rows"),
+});
+
+export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
+  const thing = c.thingOf(cast);
+  const unavailable = (name: string) =>
+    ({ name, fileRef: c.placeholderValue, ext: "other", sizeBytes: 0, status: "missing" }) as const;
+  const files = c.itemsOf(cast, 3).flatMap((item) => {
+    const name = c.titleOf(item, 48, thing);
+    return name ? [unavailable(name)] : [];
+  });
+  return { files: files.length ? files : [unavailable(c.placeholderTitle(0, lang))] };
+}
+
+// prettier-ignore
+export const examples = [
+  { files: [
+    { fileRef: "demo_care", name: "Fern care guide.pdf", ext: "pdf", sizeBytes: 240000, pages: 4, status: "ready" },
+    { fileRef: "demo_light", name: "Light log.xlsx", ext: "sheet", sizeBytes: 18000, status: "ready" },
+    { fileRef: "demo_mixes", name: "Potting recipes.zip", ext: "zip", sizeBytes: 4200000, status: "downloading" },
+  ], removable: true },
+  { files: [
+    { fileRef: "demo_route", name: "River route notes.pdf", ext: "pdf", sizeBytes: 1400000, pages: 2, status: "ready", goto: "river_route" },
+    { fileRef: "demo_brief", name: "Walk briefing.m4a", ext: "audio", sizeBytes: 5200000, status: "missing" },
+  ], style: "cards" },
+] satisfies z.input<typeof props>[];
+
+const { choose, write, read } = c.probesFor("FileList");
+export const probes = [
+  choose("Show the two PDFs attached to this form, their file sizes and a way to preview or download each."),
+  choose("Show my four dog photos together so I can swipe through the pictures.", "Gallery"),
+  write(
+    "Show the attached Fern guide.pdf, file reference demo_fern, PDF, 240000 bytes, 4 pages, ready. Let me remove it.",
+  ),
+  {
+    ...write(
+      "Show Intake.pdf, supplied reference demo_intake, PDF, 120000 bytes, 3 pages, ready. Keep the page count in the data but hide it from the display.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
+  read("Open the attached Fern care guide PDF for a preview.", { address: "c1/r1", action: "press" }),
+] satisfies c.Probe[];
+
+type FileListProps = c.Props<typeof props, typeof meta>;
+type File = FileListProps["files"][number];
+
+function fileCopy(row: z.output<typeof file>, showPages: boolean, lang?: string) {
+  const words = c.wordsFor(lang).fileList;
+  const size = c.fileSizeLine(row.sizeBytes, lang);
+  const pages = showPages && row.pages !== undefined ? c.filePagesLine(row.pages, lang) : undefined;
+  const status = words.status[row.status];
+  return { size, pages, status, format: words.format[row.ext] };
+}
+
+// prettier-ignore
+function FileRow({ row, density, cards, removable, showPages }: {
+  row: File; density: c.ThemeDensity; cards: boolean; removable: boolean; showPages: boolean;
+}) {
+  const { lang, words: { fileList: words } } = kit.useWords();
+  const { format, size, pages, status } = fileCopy(row, showPages, lang);
+  const ready = row.status === "ready";
+  const controls = (ready || removable) && <>
+    {ready && <kit.KitAction part="download" icon="download" kind="quiet" a11y={words.download(row.name)} />}
+    {removable && <kit.KitAction part="remove" icon="trash" kind="quiet" a11y={words.remove(row.name)} />}
+  </>;
+  const preview = <kit.KitRow part="root" label={row.name} inset="none" density={density}
+    {...(ready && (row.goto ? { goto: row.goto } : { role: "button" as const }))}
+    leading={<kit.KitTrail kind="badge" tone="muted" part="format" value={format} density={density} />}>
+    <kit.KitText part="name" density={density} lines={2}>{row.name}</kit.KitText>
+    <kit.KitText part={null} role="caption" tone="muted" density={density}>
+      <kit.KitText part="size" role="caption" tone="muted" density={density}>{size}</kit.KitText>
+      {!cards && pages && <>{words.separator}<kit.KitText part="pages" role="caption" tone="muted" density={density}>{pages}</kit.KitText></>}
+      {status && <>{words.separator}<kit.KitText part="status" role="caption" tone={row.status === "missing" ? "bad" : "muted"} density={density}>{status}</kit.KitText></>}
+    </kit.KitText>
+  </kit.KitRow>;
+  return <kit.KitRow item={row.id} part={null} label={row.name} density={density} lineRole="heading"
+    leadingAlign="row" trailing={!cards && controls}>
+    {preview}
+    {cards && (pages || controls) && <kit.KitRow part={null} label={row.name} inline density={density} lineRole="heading"
+      trailing={controls}>
+      {pages && <kit.KitTrail kind="badge" tone="muted" part="pages" value={pages} density={density} />}
+    </kit.KitRow>}
+  </kit.KitRow>;
+}
+
+// prettier-ignore
+export function FileList(input: FileListProps) {
+  const state = kit.useComponentState();
+  const { words: { fileList: words } } = kit.useWords();
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const cards = input.style === "cards";
+  return <kit.KitCard part="root" style={cards && state === "filled" ? "cards" : "inset"} density={density}>
+    {state === "loading" ? <kit.KitSkeleton lead="box" rows={input.files.length} density={density}
+      items={input.files.map((file) => ({ title: file.name }))} /> :
+      state === "empty" || state === "error" ? <kit.KitEmpty icon={state === "empty" ? "paperclip" : "alert"} part="message"
+        title={state === "empty" ? words.empty : words.error} decorativeIcon /> :
+        <kit.KitGrid arrange="rows" list listRowGap={cards ? "cards" : "group"} density={density}>
+          {input.files.map((row) => <FileRow key={row.id} row={row} density={density} cards={cards}
+            removable={input.removable} showPages={input.detail === "full"} />)}
+        </kit.KitGrid>}
+  </kit.KitCard>;
+}
