@@ -17,18 +17,8 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import {
-  KitCard,
-  KitEmpty,
-  KitHours,
-  KitIcon,
-  KitRow,
-  KitSkeleton,
-  KitText,
-  KitTime,
-  useComponentState,
-  useVariant,
-} from "../kit";
+import { KitCard, KitEmpty, KitHours, KitSkeleton, useComponentState, useVariant } from "../kit";
+import { TimelineFlow, type TimelineFlowGroup } from "../kit/timeline";
 
 export const meta = {
   id: "Timeline",
@@ -173,16 +163,21 @@ export const probes = [
 
 type TimelineProps = Props<typeof props, typeof meta>;
 
-// prettier-ignore
-function Events({ items, density }: Pick<TimelineProps, "items" | "density">) {
-  return items.map((item) => {
-    return <KitRow key={item.id} item={item.id} label={item.title} tone={item.tone} density={density}
-      leading={<KitTime value={item.time} part="time" />}
-      trailing={item.done ? <KitIcon name="check" decorative /> : undefined}>
-      <KitText role="body" part="title" density={density}>{item.title}</KitText>
-      {item.meta && <KitText role="caption" tone="muted" part="meta" density={density}>{item.meta}</KitText>}
-    </KitRow>;
-  });
+function TimelineEvents({ items, density }: Pick<TimelineProps, "items" | "density">) {
+  const group: TimelineFlowGroup = {
+    rows: items.map((item) => ({
+      kind: "event",
+      item: item.id,
+      tone: item.tone,
+      slots: {
+        title: { part: "title", text: item.title },
+        time: { part: "time", text: item.time },
+        ...(item.meta ? { detail: { part: "meta", text: item.meta } } : {}),
+        done: item.done,
+      },
+    })),
+  };
+  return <TimelineFlow groups={[group]} density={density} />;
 }
 
 // prettier-ignore
@@ -195,6 +190,6 @@ export function Timeline({ style, items, density: requested }: TimelineProps) {
       state === "empty" ? <KitEmpty part="title" /> :
       hours ? <KitHours blocks={items.map(({ id, time, end, title, tone, goto }) => ({
         id, start: time, end: end!, title, tone, ...(goto ? { goto } : {}),
-      }))} /> : <Events {...{ items, density }} />}
+      }))} /> : <TimelineEvents {...{ items, density }} />}
   </KitCard>;
 }
