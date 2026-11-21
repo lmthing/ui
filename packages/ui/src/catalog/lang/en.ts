@@ -16,6 +16,8 @@ export const en = {
   nothing: "Nothing here yet",
   search: (things: string) => (things ? `Search ${things}` : "Search"),
   loadingLabel: "Loading",
+  codeLabels: { block: "Code", copy: "Copy", copied: "Copied" },
+  panelLabels: { reader: "Panel reader", controls: "Toggle reader controls" },
   photoLabels: { add: "Add photo", take: "Take photo", scan: "Scan" },
   sendLabel: "Send",
   closeLabel: "Close",

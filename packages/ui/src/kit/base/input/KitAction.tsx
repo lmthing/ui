@@ -124,18 +124,31 @@ function useActionPress(props: ActionProps, address: string, inactive: boolean) 
   const scale = useAnimatedValue(pressed && !still ? motion.pressScale : 1, still);
   if (!kit.interactive || inactive) return { scale };
   const feedback = { scale, onPressIn: () => setPressed(true), onPressOut: () => setPressed(false) };
-  if (kit.controller)
+  if (kit.controller) {
+    const press = () =>
+      props.action
+        ? kit.controller!.act({
+            address,
+            action: props.action,
+            ...(props.value === undefined || props.action === "copy" ? {} : { value: props.value }),
+          })
+        : kit.controller!.press(address);
     return {
       ...feedback,
-      onPress: () =>
-        props.action
-          ? kit.controller!.act({
-              address,
-              action: props.action,
-              ...(props.value === undefined || props.action === "copy" ? {} : { value: props.value }),
-            })
-          : kit.controller!.press(address),
+      onPress: press,
+      ...(isWeb && props.action === "copy"
+        ? ({
+            tabIndex: 0,
+            onKeyDown(event: Pick<KeyboardEvent, "key" | "repeat" | "preventDefault" | "stopPropagation">) {
+              if (event.key !== "Enter" && event.key !== " ") return;
+              event.preventDefault();
+              event.stopPropagation();
+              if (!event.repeat) press();
+            },
+          } as object)
+        : {}),
     };
+  }
   return props.goto && props.action !== "copy"
     ? { ...feedback, onPress: () => kit.onLink?.(props.goto!, address) }
     : feedback;
@@ -163,7 +176,7 @@ export function KitAction({
     kit.interactive &&
     kit.controller &&
     !(action
-      ? kit.controller.actionsAt(address.testID).includes(action)
+      ? kit.controller.actionsAt(address.testID, { ignoreDisabledPart: action === "copy" }).includes(action)
       : kit.controller.canPress(address.testID));
   const noCopyValue = action === "copy" && (typeof value !== "string" || value.length === 0);
   const inactive = loading || disabled || noCopyValue || Boolean(blocked);

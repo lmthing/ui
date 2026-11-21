@@ -58,3 +58,4 @@ export { KitContent, KitText, type TextRole, type TextTone, KitIcon, type IconTo
 export { KitTrail, KitSkeleton, KitCheck, KitEmpty, type TrailKind } from "./helpers";
 export { KitSignaturePad } from "./drawing";
 export { KitSeatGrid, KitCellGrid } from "./boards";
+export { KitCodeBlock, KitMasonry, KitPanelStrip } from "./rich";
