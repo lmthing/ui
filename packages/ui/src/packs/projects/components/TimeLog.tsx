@@ -40,7 +40,7 @@ export const meta = {
   clocks: [
     {
       id: "elapsed", kind: "up", prop: "timerSeconds", runningProp: "timerRunning",
-      start: { part: "timer", action: "start" },
+      start: { part: "timer", action: "start", state: "filled" },
       stop: { part: "timer", action: "stop", state: "success" },
       reset: { part: "discard", action: "press" },
       commitOnStop: {
@@ -156,7 +156,8 @@ function Entry({ copy, density, w, loading }: { copy: Row; density: Input["densi
   </kit.KitRow>;
 }
 // prettier-ignore
-export function TimeLog(input: View) {
+export function TimeLog(seed: Input) {
+  const input = kit.useLiveControls(meta, seed) as View;
   const state = kit.useComponentState(), { lang, words: { timeLog: w } } = kit.useWords(projectsWordsFor);
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);

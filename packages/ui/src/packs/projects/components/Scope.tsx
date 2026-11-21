@@ -149,7 +149,8 @@ function Deliverable({ copy, density, w, loading, editable, removable }: {
 }
 
 // prettier-ignore
-export function Scope(input: View) {
+export function Scope(seed: View) {
+  const input = kit.useLiveControls(meta, seed) as View;
   const state = kit.useComponentState(), { lang, words: { scope: w } } = kit.useWords(projectsWordsFor);
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail), data = kit.useDeviceData();
