@@ -1,36 +1,28 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
-import { payPeriods, seedGoto, seedJobId, seedRows } from "../seeds";
+import * as kit from "../../../kit";
+import { jobAcceptsApplications, jobPostCopy, jobPostReading } from "../copy";
+import { hiringWordsFor } from "../lang";
+import { payPeriods, seedGoto, seedJobId } from "../seeds";
 
 // Core first: Card/card can spotlight a role but cannot show structured pay terms and an application window.
 export const meta = {
   id: "JobPost",
-  status: "draft",
+  status: "ready",
   group: "content",
-  purpose: "Read, save or open an application for one job opening.",
-  pick: "The full terms and application window of one job opening: work arrangement, pay, requirements and deadline. Not a photo-and-teaser preview linking to the terms elsewhere (Card), a list of openings (List), an available shift (OpenShift), or goods for sale (Product).",
+  purpose: "Review employment terms and requirements before saving an opening or starting an application.",
+  pick: "For a tappable photo, role title and one-line teaser opening a separate details screen, choose Card, never JobPost. Choose JobPost only when the component itself displays employment terms such as a pay range, requirements or the application deadline. Terms the request says not to show do not qualify. Not several openings (List), a staff shift (OpenShift), or goods for sale (Product).",
   region: "body",
   weight: 2,
   tier: "phone",
   partTiers: { publish: "service" },
   realPath:
     "An opening and its save state live on the phone, while publishing needs a job board or website service.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"] },
-  parts: [
-    "root",
-    "title",
-    "employer",
-    "place",
-    "workplace",
-    "contract",
-    "pay",
-    "about",
-    "requirements",
-    "closes",
-    "save",
-    "apply",
-    "publish",
-  ],
+  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["about"] } },
+  // prettier-ignore
+  parts: ["root", "title", "employer", "place", "workplace", "contract", "pay", "about", "requirements",
+    "closes", "save", "apply", "apply_label", "publish", "publish_label", "success", "error"],
   states: ["filled", "loading", "success", "error"],
   actions: {
     parts: { save: ["toggle"], apply: ["press"], publish: ["press"] },
@@ -38,20 +30,22 @@ export const meta = {
     noGoto: { parts: ["publish"] },
   },
   live: {
-    derive: ({ closes }) => {
-      const now = new Date();
-      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-      return { acceptingApplications: typeof closes !== "string" || closes >= today };
-    },
+    derive: ({ closes, detail }) => ({
+      acceptingApplications: jobAcceptsApplications(closes),
+      ...(detail === "brief" ? { about: undefined } : {}),
+    }),
   },
+  read: (input, state, lang, _data, currency): string[] =>
+    state === "filled" ? jobPostReading(input as z.output<typeof props>, currency, lang) : [],
   writeHints: [
     "Pay is optional, numeric, and min must be at most max. Do not write currency or whether the opening is closed. Apply opens the form, not an outbound submission.",
+    'For a normal job post write "detail":null,"density":null,"surface":null. If asked to hide the description, use "detail":"brief" and keep about in the record; still write "density":null,"surface":null unless those finishes are explicitly requested. Never write a default surface value in place of null.',
   ],
 } as const satisfies c.Meta;
 
 export const props = z.strictObject({
   ...c.variantProps(meta.variants),
-  jobId: c.text(32),
+  jobId: c.text(32).meta({ kind: "id" }),
   title: c.text(32),
   employer: c.text(32),
   place: c.text(36).optional(),
@@ -72,16 +66,19 @@ export const props = z.strictObject({
   goto: c.screenId,
 });
 
-export function fallback(input: c.FallbackInput): z.input<typeof props> {
-  const [row] = seedRows(input, 1);
+export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
+  const thing = c.thingOf(cast);
+  const [row] = c.itemsOf(cast, 1);
+  const neutral = c.wordsFor(lang).placeholderDetail;
+  const detail = (max: number) => (row && c.detailOf(row, max, thing)) ?? c.clip(neutral, max);
   return {
     jobId: seedJobId,
-    title: row!.title(32),
-    employer: row!.detail(32),
+    title: (row && c.titleOf(row, 32, thing)) ?? c.clip(c.placeholderTitle(0, lang), 32),
+    employer: detail(32),
     workplace: "onsite",
     contract: "casual",
-    about: row!.detail(400),
-    requirements: [row!.detail(80)],
+    about: detail(400),
+    requirements: [detail(80)],
     saved: false,
     goto: seedGoto,
   };
@@ -110,10 +107,9 @@ export const examples: z.input<typeof props>[] = [
     contract: "permanent",
     about: "Edit two short newsletters each week.",
     requirements: ["A recent editing sample"],
+    closes: "2026-10-01",
     saved: true,
     goto: "editor_apply",
-    density: "compact",
-    surface: "outlined",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -129,5 +125,75 @@ export const probes: c.Probe[] = [
   write(
     "Post Trot's on-site, fixed-term Summer dog walker role in North Park, paying 18 to 22 an hour. Lead weekday group walks; group handling experience is required. Closes 2027-04-30. It is not saved; link to the apply form.",
   ),
+  {
+    ...write(
+      "Show Harbour Press's permanent remote Copy editor opening. Keep 'Edit two short newsletters each week.' in the record, but don't display the job description. Ask for a recent editing sample, mark the posting saved and link to the application form.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Bookmark this opening on my phone.", { address: "j1/save", action: "toggle" }),
 ] satisfies c.Probe[];
+
+type Job = c.Props<typeof props, typeof meta>;
+type Density = c.ThemeDensity;
+
+// prettier-ignore
+function JobActions({ input, open, loading, density }: { input: Job; open: boolean; loading: boolean; density: Density }) {
+  const { words: { jobPost: words } } = kit.useWords(hiringWordsFor);
+  return <kit.KitContent group="response" {...{ density }}>
+    <kit.KitRow label={words.save} inline {...{ density }}
+      trailing={<kit.KitTrail kind="toggle" part="save" on={input.saved} />}>
+      {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.save]]} {...{ density }} /> :
+        <kit.KitText part={null} role="label" {...{ density }}>{words.save}</kit.KitText>}
+    </kit.KitRow>
+    {open && (loading ? <kit.KitSkeleton shape="control" label={words.apply} kind="secondary" full /> :
+      <kit.KitAction part="apply" label={words.apply} goto={input.goto} kind="secondary" full />)}
+    <kit.KitContent group="response" {...{ density }}>
+      {loading ? <kit.KitSkeleton shape="control" label={words.publish} kind="quiet" full /> :
+        <kit.KitAction part="publish" label={words.publish} kind="quiet" full />}
+    </kit.KitContent>
+  </kit.KitContent>;
+}
+
+// prettier-ignore
+export function JobPost(input: Job) {
+  const state = kit.useComponentState(), loading = state === "loading";
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  const { lang, words: { jobPost: words } } = kit.useWords(hiringWordsFor);
+  const copy = jobPostCopy(input, kit.useAppCurrency(), lang);
+  const line = (part: string | null, value: string | undefined, role: kit.TextRole, tone: kit.TextTone = "text") =>
+    value === undefined ? null : loading ?
+      <kit.KitSkeleton shape="figure" inset="none" content={[[role, value, "start", "compact"]]} {...{ density }} /> :
+      <kit.KitText {...{ part, role, tone, density }} numberScale="compact" tabular={role === "number"}>{value}</kit.KitText>;
+  return <kit.KitCard part="root" padded {...{ density, surface }}>
+    {state === "success" || state === "error" ? <kit.KitEmpty part={state} decorativeIcon
+      title={words[state]} icon={state === "success" ? "check" : "info"} /> : <>
+      <kit.KitContent {...{ density }}>
+        {line("title", input.title, "title")}
+        {line("employer", input.employer, "body")}
+        {line("place", input.place, "label", "muted")}
+      </kit.KitContent>
+      <kit.KitContent group="response" {...{ density }}>
+        {loading ? line(null, [copy.workplace, copy.contract].join(words.termSeparator), "label") :
+          <kit.KitText part="workplace" role="label" tone="muted" {...{ density }}>
+            {copy.workplace}{words.termSeparator}{line("contract", copy.contract, "label", "muted")}
+          </kit.KitText>}
+        {line("pay", copy.pay, "number")}
+      </kit.KitContent>
+      {detail === "full" && <kit.KitContent group="response" {...{ density }}>
+        {line("about", input.about, "body")}
+      </kit.KitContent>}
+      <kit.KitContent group="response" {...{ density }}>
+        {line("requirements", words.requirements, "label", "muted")}
+        {copy.requirements.map((requirement, index) =>
+          <kit.KitContent key={index} {...{ density }}>{line(null, requirement, "body")}</kit.KitContent>)}
+      </kit.KitContent>
+      {copy.closes && <kit.KitContent group="response" {...{ density }}>
+        {line("closes", copy.closes, "label", copy.open ? "muted" : "warn")}
+      </kit.KitContent>}
+      <JobActions {...{ input, loading, density }} open={copy.open} />
+    </>}
+  </kit.KitCard>;
+}
