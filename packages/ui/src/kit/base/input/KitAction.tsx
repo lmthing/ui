@@ -16,9 +16,11 @@ import { useKit, useKitStyle } from "../../provider";
 import { useComponentState, usePart } from "../../part";
 import { KitIcon, KitText, shifted, type IconTone, type TextTone } from "../text";
 export type ActionKind = "primary" | "secondary" | "quiet" | "danger";
+const webCopyButton = { tag: "button", type: "button" } as const;
 const Frame = styled(XStack, {
   alignItems: "center",
   justifyContent: "center",
+  borderWidth: component.base.none,
   minHeight: size.control.md,
   minWidth: size.control.md,
   gap: space.sm,
@@ -34,9 +36,7 @@ const Frame = styled(XStack, {
       },
     },
     iconOnly: { true: { paddingHorizontal: space.xs }, false: { paddingHorizontal: space.lg } },
-    loading: {
-      true: { borderColor: "$line" },
-    },
+    loading: { true: { borderColor: "$line" } },
   } as const,
 });
 const toneOf: Record<ActionKind, TextTone & IconTone> = {
@@ -124,31 +124,18 @@ function useActionPress(props: ActionProps, address: string, inactive: boolean) 
   const scale = useAnimatedValue(pressed && !still ? motion.pressScale : 1, still);
   if (!kit.interactive || inactive) return { scale };
   const feedback = { scale, onPressIn: () => setPressed(true), onPressOut: () => setPressed(false) };
-  if (kit.controller) {
-    const press = () =>
-      props.action
-        ? kit.controller!.act({
-            address,
-            action: props.action,
-            ...(props.value === undefined || props.action === "copy" ? {} : { value: props.value }),
-          })
-        : kit.controller!.press(address);
+  if (kit.controller)
     return {
       ...feedback,
-      onPress: press,
-      ...(isWeb && props.action === "copy"
-        ? ({
-            tabIndex: 0,
-            onKeyDown(event: Pick<KeyboardEvent, "key" | "repeat" | "preventDefault" | "stopPropagation">) {
-              if (event.key !== "Enter" && event.key !== " ") return;
-              event.preventDefault();
-              event.stopPropagation();
-              if (!event.repeat) press();
-            },
-          } as object)
-        : {}),
+      onPress: () =>
+        props.action
+          ? kit.controller!.act({
+              address,
+              action: props.action,
+              ...(props.value === undefined || props.action === "copy" ? {} : { value: props.value }),
+            })
+          : kit.controller!.press(address),
     };
-  }
   return props.goto && props.action !== "copy"
     ? { ...feedback, onPress: () => kit.onLink?.(props.goto!, address) }
     : feedback;
@@ -172,16 +159,15 @@ export function KitAction({
   const address = usePart(part);
   const loading = useComponentState() === "loading";
   const tone = kind === "quiet" && icon === "close" ? "muted" : toneOf[kind];
+  const copy = action === "copy";
   const blocked =
     kit.interactive &&
     kit.controller &&
     !(action
-      ? kit.controller.actionsAt(address.testID, { ignoreDisabledPart: action === "copy" }).includes(action)
+      ? kit.controller.actionsAt(address.testID).includes(action)
       : kit.controller.canPress(address.testID));
-  const noCopyValue = action === "copy" && (typeof value !== "string" || value.length === 0);
-  const inactive = loading || disabled || noCopyValue || Boolean(blocked);
-  const copied =
-    useCopyFeedback(action === "copy" ? address.testID : undefined, value, loading || disabled) && !inactive;
+  const inactive = loading || disabled || Boolean(blocked) || (copy && (typeof value !== "string" || !value));
+  const copied = useCopyFeedback(copy ? address.testID : undefined, value, loading || disabled) && !inactive;
   const captionTone = loading ? "text" : inactive ? inactiveTone[kind] : copied ? "good" : tone;
   const fill = loading ? (kind === "quiet" ? "transparent" : "$line") : inactiveSurface[kind];
   const handlers = useActionPress({ action, value, goto } as ActionProps, address.testID, inactive);
@@ -192,15 +178,16 @@ export function KitAction({
       backgroundColor={inactive ? fill : copied ? "$goodSoft" : undefined}
       loading={loading}
       iconOnly={!label}
+      {...(isWeb && copy && !loading ? webCopyButton : {})}
       borderRadius={label ? shifted("md", ks.radiusShift) : radius.pill}
-      {...(full ? { alignSelf: "stretch" } : { alignSelf: "flex-start" })}
+      alignSelf={full ? "stretch" : "flex-start"}
       accessibilityRole={loading ? undefined : "button"}
       aria-busy={loading || undefined}
       {...(!isWeb ? { accessibilityState: { disabled: inactive } } : {})}
       aria-disabled={inactive || undefined}
       {...(inactive ? { tabIndex: -1 } : {})}
       accessibilityLabel={(copied ? copiedLabel : undefined) ?? label ?? a11y}
-      aria-live={action === "copy" ? "polite" : undefined}
+      aria-live={copy ? "polite" : undefined}
       {...handlers}
     >
       <ActionContent

@@ -175,6 +175,7 @@ export function PanelPage({
         ? {
             style: { scrollSnapAlign: strip ? undefined : "start", overflowY: overflow ? "auto" : "hidden" },
             dir: "auto",
+            ...(overflow && active && !loading ? { tabIndex: 0 } : {}),
           }
         : {})}
     >

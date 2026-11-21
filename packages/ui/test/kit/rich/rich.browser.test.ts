@@ -72,6 +72,16 @@ it("keeps the exact selectable source, wraps without losing whitespace, and copi
   expect(await text.evaluate((el) => getComputedStyle(el).whiteSpace)).toBe("pre-wrap");
   expect((await box(text)).width).toBeLessThan(390);
   expect(await text.textContent()).toBe(original);
+  const filled = await box(page.getByRole("group", { name: "Example" }));
+  await button("Loading").click();
+  const loading = page.getByRole("group", { name: "Loading" });
+  expect((await box(loading)).height).toBe(filled.height);
+  expect(await loading.textContent()).not.toContain("long_identifier");
+  await button("Loading").click();
+  await button("Block copy").click();
+  expect(await button("Copy").getAttribute("aria-disabled")).toBe("true");
+  await button("Unblock copy").click();
+  expect(await button("Copy").getAttribute("aria-disabled")).toBe(null);
   await button("Change code").click();
   await button("Copy").click();
   await button("Copied").waitFor();
@@ -137,6 +147,18 @@ it("scrolls gaplessly, snaps in both directions, and works with the HUD hidden",
   const hud = button("Toggle reader controls");
   await hud.press("Space");
   expect(await page.getByText("Reader HUD").count()).toBe(0);
+  const zoom = await page.context().newCDPSession(page);
+  await zoom.send("Emulation.setPageScaleFactor", { pageScaleFactor: 2 });
+  try {
+    expect(await page.evaluate(() => visualViewport?.scale)).toBe(2);
+    await reader().press("ArrowLeft");
+    await expect.poll(() => viewportOffset("scrollLeft")).toBe(-390);
+    expect(await page.getByText("Reader HUD").count()).toBe(0);
+  } finally {
+    await zoom.send("Emulation.setPageScaleFactor", { pageScaleFactor: 1 });
+    await zoom.detach();
+  }
+  await reader().press("Home");
   await panel(1).click();
   expect(await page.getByText("Reader HUD").count()).toBe(1);
   await button("Change target").click();
@@ -150,4 +172,24 @@ it("scrolls gaplessly, snaps in both directions, and works with the HUD hidden",
   await button("Loading").click();
   await button("Empty").click();
   expect(await page.getByTestId("home/panels/root").textContent()).toBe("Nothing here yet");
+});
+
+it("makes one tall page keyboard-scrollable and disables a shared root HUD address while hidden", async () => {
+  await button("Single").click();
+  await button("ltr").click();
+  const tall = reader().getByRole("listitem");
+  expect(await tall.getAttribute("tabindex")).toBe("0");
+  await tall.press("End");
+  await expect.poll(() => tall.evaluate((node) => node.scrollTop)).toBeGreaterThan(0);
+  await button("Root target").click();
+  await button("Attempt HUD").click();
+  expect(await page.locator("#attempted").textContent()).toBe("true");
+  for (const state of ["Loading", "Empty"]) {
+    await button(state).click();
+    await button("Attempt HUD").click();
+    expect(await page.locator("#attempted").textContent()).toBe("false");
+    await button(state).click();
+    const hud = button("Toggle reader controls");
+    expect(await hud.getAttribute("aria-disabled")).toBe(null);
+  }
 });

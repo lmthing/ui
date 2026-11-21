@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { TamaguiProvider, YStack } from "tamagui";
 import { z } from "zod";
@@ -12,6 +12,7 @@ import {
   KitProvider,
   KitText,
   PartScope,
+  useKit,
 } from "@lmthing/ui/kit";
 import { config } from "../../render";
 
@@ -38,7 +39,12 @@ const defs = {
   },
   Reader: {
     ...definition,
-    meta: { ...meta, id: "Reader", parts: ["root", "hud"], actions: { parts: { hud: ["toggle"] } } },
+    meta: {
+      ...meta,
+      id: "Reader",
+      parts: ["root", "hud"],
+      actions: { parts: { hud: ["toggle"], root: ["toggle"] } },
+    },
   },
 } satisfies Record<string, Definition>;
 
@@ -65,12 +71,22 @@ const panels = [1, 2, 0.5].map((ratio, i) => ({
 }));
 
 function SourceFixture({ loading, empty }: { loading: boolean; empty: boolean }) {
+  const { controller } = useKit();
   const [wrap, setWrap] = useState(false);
   const [changed, setChanged] = useState(false);
+  const [blocked, setBlocked] = useState(false);
+  const unblock = useRef<() => void>(undefined);
+  const block = () => {
+    unblock.current?.();
+    unblock.current = blocked ? undefined : controller?.registerDisabledPart("home/code/root");
+    setBlocked(!blocked);
+  };
+  useEffect(() => () => unblock.current?.(), []);
   return (
     <PartScope screen="home" component="code" rev={1} state="filled">
       <button onClick={() => setWrap(!wrap)}>Wrap</button>
       <button onClick={() => setChanged(!changed)}>Change code</button>
+      <button onClick={block}>{blocked ? "Unblock copy" : "Block copy"}</button>
       <KitCodeBlock
         code={empty ? "" : changed ? "1 + 1 = 2" : source}
         language={changed ? "Math" : "TypeScript"}
@@ -83,10 +99,21 @@ function SourceFixture({ loading, empty }: { loading: boolean; empty: boolean })
   );
 }
 
-function ReaderFixture({ loading, empty, hud }: { loading: boolean; empty: boolean; hud: boolean }) {
+function ReaderFixture({
+  loading,
+  empty,
+  single,
+  hud,
+}: {
+  loading: boolean;
+  empty: boolean;
+  single: boolean;
+  hud: boolean;
+}) {
   const [mode, setMode] = useState<"strip" | "ltr" | "rtl">("strip");
   const [current, setCurrent] = useState(0);
   const [hasTarget, setHasTarget] = useState(true);
+  const [rootTarget, setRootTarget] = useState(false);
   return (
     <PartScope screen="home" component="panels" rev={1} state="filled">
       {(["strip", "ltr", "rtl"] as const).map((value) => (
@@ -96,13 +123,14 @@ function ReaderFixture({ loading, empty, hud }: { loading: boolean; empty: boole
       ))}
       <button onClick={() => setCurrent(current === 2 ? 0 : 2)}>Jump</button>
       <button onClick={() => setHasTarget(!hasTarget)}>Change target</button>
+      <button onClick={() => setRootTarget(!rootTarget)}>Root target</button>
       {hud && <KitText part={null}>Reader HUD</KitText>}
       <KitPanelStrip
         mode={mode}
-        panels={empty ? [] : panels}
+        panels={empty ? [] : single ? panels.slice(-1) : panels}
         current={current}
         loading={loading}
-        {...(hasTarget ? { target: { part: "hud" } } : {})}
+        {...(hasTarget ? { target: { part: rootTarget ? "root" : "hud" } } : {})}
       />
     </PartScope>
   );
@@ -129,8 +157,8 @@ function Fixture() {
         },
         writeClipboard: (text) => setCopied(text),
         resolveClipboardText: () => "Host fallback",
-        onAction: ({ address, action }) => {
-          if (address === "home/panels/hud" && action === "toggle") setHud((shown) => !shown);
+        onAction: ({ action }) => {
+          if (action === "toggle") setHud((shown) => !shown);
         },
       }),
     [],
@@ -141,11 +169,16 @@ function Fixture() {
       <button onClick={() => setLoading(!loading)}>Loading</button>
       <button onClick={() => setEmpty(!empty)}>Empty</button>
       <button onClick={() => setSingle(!single)}>Single</button>
-      <button
-        onClick={() => setAttempted(String(controller.act({ address: "home/code/root", action: "copy" }).ok))}
-      >
-        Attempt copy
-      </button>
+      {(
+        [
+          ["Attempt copy", "home/code/root", "copy"],
+          ["Attempt HUD", "home/panels/root", "toggle"],
+        ] as const
+      ).map(([label, address, action]) => (
+        <button key={label} onClick={() => setAttempted(String(controller.act({ address, action }).ok))}>
+          {label}
+        </button>
+      ))}
       <output hidden id="clipboard">
         {copied}
       </output>
@@ -157,7 +190,7 @@ function Fixture() {
         <PartScope screen="home" component="tiles" rev={1} state="filled">
           <KitMasonry loading={loading} items={empty ? [] : single ? cards.slice(0, 1) : cards} />
         </PartScope>
-        <ReaderFixture {...{ loading, empty, hud }} />
+        <ReaderFixture {...{ loading, empty, single, hud }} />
       </KitProvider>
     </TamaguiProvider>
   );

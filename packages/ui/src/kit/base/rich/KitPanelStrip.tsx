@@ -1,6 +1,6 @@
-import { useState, type ReactNode } from "react";
+import { useLayoutEffect, useState, type ReactNode } from "react";
 import { isWeb, YStack } from "tamagui";
-import { component } from "../../../catalog";
+import { component, formatAddress } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKit, useWords } from "../../provider";
 import { PanelPage, PanelViewport } from "./panel-viewport";
@@ -38,7 +38,10 @@ function useHudTarget(target?: Target) {
   const { interactive, controller } = useKit();
   const address = usePart(target?.part, !!target);
   const { panelLabels } = useWords().words;
-  const enabled = !!target && interactive && !!controller?.actionsAt(address.testID).includes("toggle");
+  const canToggle = () =>
+    !!target && interactive && !!controller?.actionsAt(address.testID).includes("toggle");
+  const [enabled, setEnabled] = useState(canToggle);
+  useLayoutEffect(() => setEnabled(canToggle()));
   const toggle = () => controller?.act({ address: address.testID, action: "toggle" });
   return {
     surface: enabled
@@ -134,6 +137,7 @@ function PanelReader({
 /** Reader geometry and input only; the caller owns the HUD and any augmented panel content. */
 export function KitPanelStrip({ part = "root", loading, mode, panels, current, target }: PanelProps) {
   const context = usePartContext();
+  const { controller } = useKit();
   const [width, setWidth] = useState(0);
   const busy = !!loading || context.state === "loading";
   const empty = !busy && (context.state === "empty" || !panels.length);
@@ -141,6 +145,14 @@ export function KitPanelStrip({ part = "root", loading, mode, panels, current, t
   const sharedPart =
     !busy && !empty && target?.part === part && (target.item ?? context.item) === context.item;
   const address = usePart(part, !sharedPart);
+  const hiddenAddress =
+    target && (busy || empty)
+      ? formatAddress({ ...context, ...(target.item ? { item: target.item } : {}), part: target.part })
+      : undefined;
+  useLayoutEffect(
+    () => (hiddenAddress ? controller?.registerDisabledPart(hiddenAddress) : undefined),
+    [controller, hiddenAddress],
+  );
   return (
     <YStack
       {...(!sharedPart ? address : {})}
