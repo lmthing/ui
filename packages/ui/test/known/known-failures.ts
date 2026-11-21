@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { URL } from "node:url";
 import type { Reporter, TestState } from "vitest/node";
 
 type Entry = { file: string; test: string; reason: string; owner: string };

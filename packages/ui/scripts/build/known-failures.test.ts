@@ -1,7 +1,9 @@
 import { deepStrictEqual, match } from "node:assert/strict";
 import { evaluateKnownFailures } from "./known-failures";
 
-const { it } = process.env.VITEST ? await import("vitest") : await import("node:test");
+const { it }: { it: (name: string, test: () => void) => void } = process.env.VITEST
+  ? await import("vitest")
+  : await import("node:test");
 
 const entry = {
   file: "test/probes.test.ts",
