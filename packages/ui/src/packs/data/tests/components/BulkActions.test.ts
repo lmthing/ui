@@ -20,7 +20,7 @@ import { BulkActions } from "../../components";
 const def = components.BulkActions;
 const { meta, props, examples, fallback, probes } = def;
 const ledge = examples[0]!;
-const defs = { BulkActions: { ...def, meta: BulkActions.boundMeta }, Table: components.Table };
+const defs = { BulkActions: def, Table: components.Table };
 const table = { ...components.Table.examples[0]!, id: "table", c: "Table", selectable: true };
 const entry = { ...ledge, id: "bulk", c: "BulkActions" };
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -132,9 +132,9 @@ describe("BulkActions states and parts", () => {
       expect(active.get(at("r2/root"))?.attributes).not.toContain('role="button"');
       expect(active.get(at("r2/icon"))).toBeDefined();
       expect(active.get(at("r2/label"))?.text).toContain("Delete plants");
-      expect([...draw(controller, { ...ledge, arrange: "rows", surface: "outlined" }).keys()].sort()).toEqual(
-        [...active.keys()].sort(),
-      );
+      const addresses = [...active.keys()].sort();
+      for (const change of [{ arrange: "rows" }, { surface: "outlined" }, { density: "compact" }])
+        expect([...draw(controller, { ...ledge, ...change }).keys()].sort()).toEqual(addresses);
       expect(draw(controller, ledge, "empty").size).toBe(0);
       expect(controller.press(at("all")).ok).toBe(true);
       expect(controller.store.get(firstCheck)).toBe(true);

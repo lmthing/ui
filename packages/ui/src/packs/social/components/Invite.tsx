@@ -12,8 +12,8 @@ export const meta = {
   purpose: "Bring new members in with a code they can share or scan.",
   pick: "Invite people to join an app or group using a copyable, shareable code and optional QR. Not sharing a post (Post) or listing existing members (People).",
   writeHints: [
-    "Set qr to true to show a scannable version of code. joined is the number of people who used the code to join, or null if unknown.",
-    'Use detail "brief" only when asked to hide the joined count; keep the count in joined. Otherwise use null. Leave density, surface and align null unless requested.',
+    'If the brief says to keep the number who joined without displaying it, write both fields: "joined":3,"detail":"brief" (use the supplied number, not necessarily 3). A null detail shows the count, so use null only when hiding the count was not requested.',
+    "The joined field is null only if the count is unknown. Set qr to true for a scannable version of code. Leave density, surface and align null unless requested.",
   ],
   region: "body",
   weight: 2,

@@ -15,6 +15,7 @@ import {
   type ScreenLike,
   type Values,
 } from "../index";
+import { hostOnlyAddresses, isPrivateMark } from "../action-input";
 import { addressedItems } from "../visibility";
 import { driveSeekPart } from "./declaration";
 export { checkDriveDeclaration } from "./declaration";
@@ -30,6 +31,7 @@ export function driveTarget(
   values: Values,
   data?: DeviceData,
   canDrive?: CanDrive,
+  privateAddresses?: ReadonlySet<string>,
 ): DriveTarget | undefined {
   if (meta.drives === undefined || meta.drives === meta.id || !Object.hasOwn(defs, meta.drives)) return;
   const def = defs[meta.drives];
@@ -39,6 +41,7 @@ export function driveTarget(
   for (const { id, c, state, ...input } of screen.components) {
     if (c !== meta.drives || values[`${id}/$dismissed`]) continue;
     const address = part === "root" ? id : `${id}/${part}`;
+    if (privateAddresses?.has(address) || isPrivateMark(values, address)) continue;
     const live = liveProps(
       def.meta,
       parseControlProps(def, input, (key) => values[`${id}/${key}`]),
@@ -47,11 +50,12 @@ export function driveTarget(
       true,
       data,
     );
-    const selection = selectionBindingFor(screen, defs, def.meta, id, values, data);
+    const selection = selectionBindingFor(screen, defs, def.meta, id, values, data, privateAddresses);
     const props = projectSelectionBinding(def.meta, live, selection?.view);
     const offered = affordancesOf(def.meta, props, id, values, (props.state as StateName) ?? state, false, {
       data,
     });
+    if (hostOnlyAddresses(def, id, offered)?.has(address)) continue;
     if (offered.some((a) => a.address === address && a.action === "seek"))
       return !canDrive || canDrive(address)
         ? { address, screen: screen.id, seconds: props.seconds }

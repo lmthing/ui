@@ -7,7 +7,7 @@ import { teamWordsFor } from "../lang";
 // Core first: Composer/entry accepts personal writing, not a shift's authored notes with shared acknowledgements.
 export const meta = {
   id: "Handover",
-  status: "draft",
+  status: "ready",
   group: "content",
   purpose: "Read what the last shift passed on and mark each note as seen.",
   pick: "Read shift-to-shift notes with author, time, optional flag and a mark-as-seen control. Not writing your own note (Composer), chatting (Bubbles), or a record change log (ActivityLog).",
@@ -131,33 +131,30 @@ function HandoverNote({ note, detail, density }: NoteProps) {
     <kit.KitCheck part="seen" done={seen} readonly={seen} label={seen ? seenNote(text) : markSeen(text)} />
   );
   return (
-    <kit.KitRow item={note.id} label={by} inline density={density}>
-      <kit.KitContent density={density}>
-        <kit.KitGrid fitLast density={density}>
-          <kit.KitGrid fitLast density={density}>
-            <kit.KitContent density={density}>
-              <kit.KitText part="by" role="label" density={density} emphasis="strong">
-                {by}
-              </kit.KitText>
-              {detail === "full" && (
-                <kit.KitText part="time" role="label" tone="muted" density={density} tabular>
-                  {time}
-                </kit.KitText>
-              )}
-            </kit.KitContent>
-            {flag && (
-              <kit.KitTrail
-                kind="badge"
-                part="flag"
-                value={flag}
-                tone={note.tone === "warn" ? "warn" : "muted"}
-                density={density}
-              />
-            )}
-          </kit.KitGrid>
-          {check}
-        </kit.KitGrid>
-        <kit.KitText part="text" role="body" density={density}>
+    <kit.KitRow item={note.id} label={by} inline lineRole="label" trailing={check} density={density}>
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitText part="by" role="label" tone="muted" density={density}>
+          {by}
+        </kit.KitText>
+        {flag && (
+          <kit.KitText
+            part="flag"
+            role="label"
+            align="end"
+            tone={note.tone === "warn" ? "warn" : "muted"}
+            density={density}
+          >
+            {flag}
+          </kit.KitText>
+        )}
+      </kit.KitGrid>
+      {detail === "full" && (
+        <kit.KitText part="time" role="label" tone="muted" density={density} tabular>
+          {time}
+        </kit.KitText>
+      )}
+      <kit.KitContent density={density} group="response">
+        <kit.KitText part="text" role="body" density={density} emphasis="strong">
           {text}
         </kit.KitText>
       </kit.KitContent>
@@ -174,12 +171,7 @@ export function Handover(input: HandoverProps) {
   return (
     <kit.KitCard part="root" padded={state === "filled"} surface={surface} density={density}>
       {state === "filled" ? (
-        <kit.KitGrid
-          arrange="rows"
-          list
-          listRowGap={detail === "brief" ? "group" : "cards"}
-          density={density}
-        >
+        <kit.KitGrid arrange="rows" list listRowGap="cards" density={density}>
           {notes.map((note) => (
             <HandoverNote key={note.id} {...{ note, detail, density }} />
           ))}

@@ -24,7 +24,7 @@ staff (with `events`), student society duties, food bank volunteers.
 The first plan's `RoleBadge` is the `badge` on `Card` and the `List` trail `badge`, `Assignee` is `People`
 style `stack`, and `TaskBoard` is data `Board`, so this pack holds only what is about shifts.
 
-## Components (7)
+## Components (11)
 
 ### `Roster` · planned · data · people
 The week as a grid: people down the side, days across, each cell a shift time or blank, today's column
@@ -89,6 +89,43 @@ Notes passed from one shift to the next, newest first: who wrote it, when, the n
 - Parts → actions: items `seen check`. · States: filled, empty.
 - Real path: notes in a shared app.
 
+### `LeaveBalance` · planned · data · people
+Employee PTO summary broken down across leave types such as Vacation, Sick, and Personal time, showing accrued, used, pending, and code-computed available hours or days on progress meters. A request trigger opens the time-off request flow when linked.
+- Pick: viewing accrued, used, pending, and available PTO balances by leave type. Not manager decisions (`Approval`), generic progress bars (`Progress`), or weekly shift hours (`Timesheet`).
+- Writes: `employee` text(24) optional, `unit` (`hours` default, `days`), `balances` of `label` text(20), `accrued` number ≥ 0, `used` number ≥ 0, `pending` number ≥ 0, `cap` number > 0 optional, `expiresOn` date optional, `goto` optional, 1–6; `style`. Available balance (`accrued - used - pending`) and meter ratios are computed by code rather than written by the model.
+- Styles: `meters` (default, each leave type with progress bar and accrued/used/pending/available breakdown), `compact` (single-row leave label and available balance).
+- Parts → actions: balances `root press` (when linked via `goto`), `request press` (opens time-off request flow).
+- States: filled, empty (no leave balances assigned), loading.
+- Real path: accrued and pending PTO balances synced from a shared HR or workplace scheduling host.
+
+### `PayStub` · planned · data · people
+An employee's self-service read-only pay statement displaying pay period dates, pay date, itemized gross earnings, itemized tax and benefit deductions, code-computed net pay, and year-to-date totals. An export action downloads or shares a copy (`service`) without letting the employee modify payroll figures.
+- Pick: an employee viewing their issued payslip and deductions. Not running employer small-business payroll (books `Payroll`), collecting daily hours (`Timesheet`), or personal bills (money `Bills`).
+- Writes: `periodFrom` date, `periodTo` date, `payDate` date, `employee` text(24), `earnings` of `label` text(24), `hours` number ≥ 0 optional, `rate` number ≥ 0 optional, `amount` number ≥ 0, 1–6; `deductions` of `label` text(24), `amount` number ≥ 0, 0–6; `ytdGross` number ≥ 0 optional, `ytdNet` number ≥ 0 optional, `style`. Gross total, deduction total, and net pay (`gross - deductions`) are computed by code from the itemized lines.
+- Styles: `statement` (default, net pay headline with full earnings, deductions, and YTD totals), `summary` (pay date, gross, deductions, and net pay only).
+- Parts → actions: `export press`. `meta.partTiers: { export: "service" }`.
+- States: filled, empty (no issued pay statements yet), loading, error (statement unavailable).
+- Real path: finalized read-only pay statements issued to the employee by a shared employer payroll host.
+
+### `TeamDirectory` · planned · content · people
+A searchable staff and org directory grouped by department, showing each member's avatar, name, role, reporting manager link, and live availability badge (`on_shift`, `break`, `pto`, `off`), along with direct message and call buttons. Tapping a member row opens their profile or org record.
+- Pick: browsing workplace staff, departments, reporting lines, and live shift status. Not small task teams (`People`), business clients (customers `ClientCard`), or club registers (community `Members`).
+- Writes: `departments` text(24) each 0–6, `members` of `name` text(24), `role` text(24), `department` text(24) optional, `photo` optional, `availability` (`on_shift`, `break`, `pto`, `off`), `manager` text(24) optional, `goto` optional, 1–16; `query` text(32) optional, `style`. Department grouping and search matching are computed by code.
+- Styles: `grouped` (default, department headings with role, availability badge, and message/call buttons), `compact` (flat alphabetical rows without contact shortcuts).
+- Parts → actions: `search type`, members `root press`, members `message press`, members `call press`. `meta.partTiers: { call: "service" }`.
+- States: filled, empty (no matching teammates), loading.
+- Real path: staff directory and live shift status synced from a shared workplace app; calling opens the device dialer or VoIP service (`call`).
+- Density: `meta.dense: true`, weight 3; workplace directories group up to sixteen staff rows across departments.
+
+### `TeamNotice` · planned · content · people
+A pinned workplace announcement or safety and policy bulletin displaying its title, author, timestamp, priority tone, and full body copy, paired with a required read-acknowledgment checkbox and live read count ("14 of 18 read"). Ticking acknowledgment records a read receipt for the current member.
+- Pick: official workplace announcements or safety bulletins requiring read confirmation. Not shift-to-shift handovers (`Handover`), ephemeral status banners (`Banner`), or social posts (social `Post`).
+- Writes: `title` text(48), `by` text(24), `postedAt` text(16), `priority` (`info` default, `important`, `urgent`), `body` text(400), `requireAck` boolean (default true), `acknowledged` boolean (default false), `readCount` integer ≥ 0, `totalMembers` integer ≥ 1, `goto` optional, `style`. Unread count and acknowledgment progress are computed by code.
+- Styles: `bulletin` (default, full notice card with acknowledgment tick and read count), `pinned` (compact alert strip linking to full bulletin).
+- Parts → actions: `ack check`, `root press` (when `goto` is linked).
+- States: filled, loading, success (acknowledged).
+- Real path: pinned workplace bulletins and per-employee read receipts synchronized in a shared team app.
+
 ## Archetypes (3)
 
 | Archetype | Job | Layouts | Recipe |
@@ -111,8 +148,10 @@ sample staff.
 
 ## Build notes
 
-- Order: `Shift`, `Roster`, `OpenShift`, `Approval`, `Handover`, `TimeClock`, `Timesheet`.
+- Order: `Shift`, `Roster`, `OpenShift`, `Approval`, `Handover`, `TimeClock`, `Timesheet`; Wave 6 additions follow in order: `LeaveBalance`, `PayStub`, `TeamDirectory`, `TeamNotice`.
 - `Roster` reads one line per person with their week ("Sam: Mon 7–15, Wed 7–15"), not a cell per day.
+- Wave 6 option upgrades on existing components: `Roster` adds `style: "day"` (today's shifts grouped by station); `TimeClock` adds `style: "kiosk"` (geofence/PIN mark, `!needs-ok`) and live break timer; `Approval` adds `kind: "shift_claim"` and `style: "my_requests"`; `Timesheet` adds `style: "mine"` (employee's own daily punches before submit).
+- Wave 6 boundaries: employer payroll runs stay in `books`, hiring pipelines in `hiring`, gig courier shifts in `dispatch`, and channels/calls in `comms`.
 
 ## Open questions
 

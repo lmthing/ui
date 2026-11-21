@@ -636,3 +636,61 @@ Shared copy in `catalog/copy.ts`: send, cancel, confirm, close, undo, retry, off
 - **More merges?** Use section 3's evidence gate. `DayTimeline` is merged; `Sparkline` stays.
 - **Are 44 model choices too many for the cheapest model?** Default: no, because overlap is what hurts.
   Keep measuring near misses; fix `pick` lines before adding choices.
+
+## 9. Wave 6 planned core additions, promotions & options
+
+Based on the Wave 6 Google Play Store top-app audit across 32 app categories, 17 game categories, Kids, and Wear OS, two cross-domain core components, three pack-to-core promotions, fifteen targeted option upgrades, and the `copy` action are scheduled alongside the Wave 6 packs so no domain pack ever depends on another pack.
+
+### Planned core components (2)
+
+### `PassCard` · planned · content · phone
+A digital pass, membership card, coupon, or transit pass displaying issuer branding, holder or account identifier (masked by default with reveal), scannable barcode or QR code via `KitCode`, live balance or points figure, up to four summary facts, and a high-brightness barcode zoom toggle.
+- Pick: a scannable membership card, digital coupon, voucher code, or transit/insurance ID card shown across 3+ unrelated domains. Not a rich event admission stub (events `Ticket` / ticketing `EventPass`), not a travel boarding document with gates/legs (trips `Reservation`), and not a full loyalty tier wallet (dining `RewardsWallet`).
+- Writes: `issuer` text(28), `title` text(32), `memberName` text(24) optional, `memberId` text(24) optional, `masked` boolean (default true), `code` text(64) optional, `codeKind` (`qr`, `barcode`), `balance` number optional, `pointsLabel` text(20) optional, `facts` of `label` text(16), `value` text(24), 0–4, `expiresAt` date optional, `used` boolean (default false), `style`.
+- Styles: `card` (default, membership or insurance card with barcode toggle), `coupon` (tinted offer card with barcode and expiry), `code` (large centered QR/barcode with copyable code), `transit` (transit fare pass with balance and tap status).
+- Parts → actions: `root press`, `reveal toggle` (masked ID), `code copy`, `bright toggle` (high-brightness scanner view).
+- States: filled, empty (`Empty` when no pass saved), loading, error (invalid or unreadable code payload).
+- Real path: stored locally on device with host-resolved `KitCode` barcode rendering; never fabricates valid carrier, payment, or clinical insurer credentials.
+
+### `FileList` · planned · content · ok
+A bounded list of 1–6 non-image file attachments (`pdf`, `doc`, `sheet`, `zip`, `audio`, `other`) showing format badge, filename, human-readable size, optional page count or duration, and preview, download/share, or remove actions. Prevents `Photo` and `Gallery` misuse for PDFs, CVs, contracts, invoices, and email attachments.
+- Pick: 1–6 attached documents or binary files with size and format metadata. Not photos (`Gallery`, `Photo`), not an interactive file explorer tree (workspace `DriveTree`, utilities `FileBrowser`), and not personal ID vault records with expiries (paperwork `Documents`).
+- Writes: `files` of `fileRef` text(32), `name` text(48), `ext` (`pdf`, `doc`, `sheet`, `zip`, `audio`, `other`), `sizeBytes` number ≥ 0, `pages` integer ≥ 1 optional, `status` (`ready`, `downloading`, `missing`), `goto` optional, 1–6; `removable` boolean (default false), `style`. Code formats `sizeBytes` consistently; models never invent download URLs.
+- Styles: `rows` (default, compact attachment rows with action icons), `cards` (wider preview tiles with page count badge).
+- Parts → actions: files `root press` (preview), files `download press`, files `remove press`. `meta.confirmParts: ["remove"]`; `meta.partTiers: { download: "service" }`.
+- States: filled, empty, loading, error (missing local file or failed transfer).
+- Real path: host document picker (`ok`) and share/download adapter (`service`); preview opens host native viewer.
+
+### Core promotions from existing packs (3)
+
+The three components below are promoted from domain packs into Core in Wave 6 Step 0 once Wave 5 stabilizes, eliminating pack-to-pack pressure across search, discovery, and reading apps. Existing copies remain documented inside their original Wave 3–5 pack specs until Wave 6 Step 0 migrates their imports and adds core near-miss probes.
+
+| Component | Origin pack | Group / Tier | Why promoted to Core & additions in Wave 6 |
+| --- | --- | --- | --- |
+| `FilterBar` | `data` | `input` / `phone` | Search box + up to 4 picker filters + sort selector + active filter count; needed across `realestate`, `ticketing`, `stays`, `commerce`, `auto`, `places`, `hiring`, and `data`. |
+| `Review` | `customers` | `content` / `people` | Average star score + 5-bar histogram + review/reply rows; gains optional `photos`, `fitScale` (apparel fit), `spoiler` toggle (books/film), and `verified` pill for `commerce`, `places`, `media`, `stays`, `dining`, `marketplace`, `beauty`, and `booking`. |
+| `Article` | `media` | `content` / `phone` | Long-form formatted markdown/prose (`style`: `article`, `book`, `response`) with headings, quotes, callouts, optional `paper` (`light`, `sepia`, `dark`) and `fontScale`; needed across `media`, `news`, `reference`, `assistant`, `workspace`, `projects`, and `learning`. |
+
+*(Watchlist: `BeforeAfter` starts in `studio` and `LiveRoom` starts in `social`; either promotes to Core only if future `Canvas` misses show cross-pack overlap.)*
+
+### Core component option upgrades (15 targeted extensions)
+
+| Core component | Proposed option (`style` / `kind` / `prop`) | Domains unblocked |
+| --- | --- | --- |
+| `Player` | Complete pending frame-overlaid `video` controls, 1-row `compact` audio, and play/pause read mark; add `mode` (`audio`, `music`, `podcast`, `video`, `live`), `speed`, `liked`, `shuffle`, `repeat`, `loop` | `media`, `watch`, `news`, `learning`, ringtones |
+| `Camera` | Add `kind: "video"` (with `start`/`stop` shutter) and `kind: "document_dual"` (front+back guided scan) | `studio`, `money` (check deposit), `paperwork`, `auto`, `medical` |
+| `Gallery` | Add `aspect: "tall"` (`["auto", "wide", "tall"]`) reusing `KitPhoto` portrait ratio | Wallpapers, `studio`, `watch`, `curation` |
+| `List` | Allow `aspect: ["square", "wide", "tall"]`, `progress` (`0–1`), and `badge` on `style: "shelf"`; add `style: "grid"` (2-col quick cards) plus `unread` and `pinned` row props | `media`, `watch`, `workspace`, `comms`, `learning` |
+| `Bubbles` | Add optional `style` (`direct`, `group`, `broadcast`), `sender`, `avatar`, `time`, `status` (`sent`, `delivered`, `read`), `replyTo`, `attachment` (`photo`, `voice`, `file`), `reactions` | `comms`, `social`, `dating`, `medical` |
+| `Composer` | Complete pending empty/sent states; add optional `attach` boolean, `voice` boolean (`partTiers: { voice: "ok" }`), `attachments` chips, `replyingTo`, and `style: "prompt"` | `comms`, `assistant`, `learning`, `mind`, `utilities` |
+| `Field` | Complete pending `ok` tier on `kind: "photo"`; add `kind: "range"` (dual-thumb min–max `KitSlider`) and `kind: "voice"` (`ok` mic capture via `KitMicCapture`) | `dating`, `realestate`, `commerce`, `stays`, `utilities` |
+| `Calendar` | Add `range: boolean` (check-in to check-out two-date selection) | `trips`, `stays`, `booking`, `events`, `property` |
+| `Route` | Add `mode` (`walk`, `bike`, `car`, `transit`, `flight`) and `duration` text(12) | `places`, `trips`, `navigation`, `health` |
+| `Bars` | Complete pending `share` icons/press/order; add `active` bar index + `status` subline on `columns` (live venue busyness) | `places`, `dining`, `health` |
+| `KeyValue` | Add optional `masked: boolean` with reveal toggle (`(secret)` read mark) | `money`, `auto`, `paperwork`, `security` |
+| `Card` | Complete pending corner `badge`; add optional `reward` / `duration` pill option | `perks`, `commerce`, survey/earn apps |
+| `Timer` | Add optional `goal` seconds prop on `style: "up"` (elapsed vs target fasting or session window) | `health`, `projects` |
+| `People` | Add `style: "rail"` (horizontal strip with `online`, `ring`, `statusText` bubble) | `comms`, `dating`, `social` |
+| `MapPins` | Add `userLocation` boolean (`ok`) and `selected` index to align with `KitMapTile` | `places`, `realestate`, `navigation` |
+
+Action vocabulary addition: Wave 6 formalizes `copy` (in [README.md](README.md)) across core and packs (`PassCard`, `KeyValue[masked]`, `security`, `utilities`, `assistant`, `trips`, `social`, `puzzles`).
