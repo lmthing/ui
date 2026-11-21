@@ -15,13 +15,17 @@ export const en = {
     lap: "Lap",
     finish: "Finish",
     saved: "Session saved",
-    error: "Location or heart-rate data is unavailable.",
+    error: "Sensor data unavailable",
+    errorDetail: "Check location and heart-rate access.",
     distanceValue: (value: string, unit: "km" | "mi") => `${value} ${unit}`,
     paceValue: (value: string, unit: "km" | "mi") => `${value} /${unit}`,
     speedValue: (value: string, unit: "km" | "mi") => `${value} ${unit === "km" ? "km/h" : "mph"}`,
     elevationValue: (value: string) => `${value} m`,
     heartValue: (value: string) => `${value} bpm`,
     line: (label: string, value: string) => `${label}: ${value}`,
+    splitLine: (label: string, duration: string, delta?: string) =>
+      `${label}: ${duration}${delta === undefined ? "" : ` · ${delta}`}`,
+    splitDelta: (delta: string) => ` · ${delta}`,
   },
   activityRing: (label: string, value: string, goal: string | undefined, unit: string) =>
     `${label}: ${value}${goal === undefined ? "" : ` ${goal}`} ${unit}`,

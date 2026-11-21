@@ -15,6 +15,7 @@ import { renderInstance } from "../../../../test/render";
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const cases = {
   ActivityRings: ["detail", "brief", "of 5"],
+  CardioSession: ["detail", "brief", "Elevation gain"],
   Cycle: ["detail", "brief", "Fertile window"],
   Exercise: ["media", "none", "photo:exercise"],
   HabitGrid: ["lead", "none", ""],

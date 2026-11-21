@@ -19,6 +19,7 @@ export {
 export { medicationLabels, medicationReading, orderedDoses, refillLine, stockLine } from "./Medication";
 export { exerciseLabels, exerciseReading } from "./Exercise";
 export { activityRingLine } from "./ActivityRings";
+export { cardioControls, cardioMetrics, cardioReading, cardioSplits } from "./CardioSession";
 export {
   activeWorkoutRest,
   hasWorkoutSetFields,
