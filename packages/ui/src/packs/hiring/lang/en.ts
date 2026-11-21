@@ -70,6 +70,32 @@ export const en = {
     success: "Job post updated",
     error: "Couldn’t publish the job post",
   },
+  offer: {
+    status: {
+      draft: "Draft",
+      sent: "Sent",
+      accepted: "Accepted",
+      declined: "Declined",
+      withdrawn: "Withdrawn",
+    },
+    expired: "Expired",
+    hours: (value: string) => `${value} h / week`,
+    start: (date: string) => `Starts ${date}`,
+    termSeparator: " · ",
+    deadline: (date: string) => `Respond by ${date}`,
+    closed: (date: string) => `Deadline passed ${date}`,
+    conditions: "Conditions",
+    condition: (line: string) => `• ${line}`,
+    actions: {
+      edit: "Edit terms",
+      send: "Send offer",
+      accept: "Accept offer",
+      decline: "Decline offer",
+      withdraw: "Withdraw offer",
+    },
+    success: "Offer updated",
+    error: "Couldn’t update the offer",
+  },
 };
 
 export type HiringWords = typeof en;

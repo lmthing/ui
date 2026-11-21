@@ -1,0 +1,1064 @@
+{
+  "0434b325f5339027": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\no1 Offer Sent — $20 / hr — 20 h / week · Starts 10 May 2027 — Respond by 1 May 2027 — Conditions — • Subject to two references — Accept offer — Decline offer — Withdraw offer — \"Sam Patel\" — \"Summer dog walker\" — \"Trot\" [o1/accept press !needs-people] [o1/decline press !needs-people] [o1/withdraw press !needs-service]\n\nTask: Withdraw the offer that was sent to Sam.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"o1/withdraw\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"o1/withdraw\", \"action\": \"press\"}",
+      "{\"address\": \"o1/withdraw\", \"action\": \"press\"}",
+      "{\"address\": \"o1/withdraw\", \"action\": \"press\"}"
+    ]
+  },
+  "2acc15c0aa556da2": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nOffer: Review proposed employment terms and manage the offer and its response.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", arrange?: rows|grid=\"rows\", offerId: text≤32, applicationId: text≤32, candidate: text≤24, role: text≤32, employer: text≤32, pay: num 0.., per: hour|month|year, hoursPerWeek: num ..80, start: date YYYY-MM-DD, respondBy?: date YYYY-MM-DD, conditions: [0..6 text≤100], status: draft|sent|accepted|declined|withdrawn, goto: id snake_case }\nRule: Write numeric pay in the brief's currency, not currency text. Record only a supplied response status; acceptance does not mean hired. Do not write a calculated expiry flag.\nRule: For weekly hours beside the start date, write \"arrange\":\"grid\",\"density\":null,\"surface\":null. Use these null finishes unless the person explicitly asks for a finish. In the usual letter layout write \"arrange\":null. The word \"offer\" or \"terms\" does not request a surface; never substitute \"card\" for null.\nexample: {\"c\":\"Offer\",\"offerId\":\"sam_terms\",\"applicationId\":\"sam\",\"candidate\":\"Sam Patel\",\"role\":\"Summer dog walker\",\"employer\":\"Trot\",\"pay\":20,\"per\":\"hour\",\"hoursPerWeek\":20,\"start\":\"2027-05-10\",\"respondBy\":\"2027-05-01\",\"conditions\":[\"Subject to two references\"],\"status\":\"sent\",\"goto\":\"offer_edit\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Draft a Morning baker job offer for Mara Kim at Harbour Bakery. Pay 26 an hour, 30 hours a week starting 2027-06-07, with no conditions. Show weekly hours beside the start date in two columns. Link to the edit form.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Offer",
+              "enum": [
+                "Offer"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "offerId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "applicationId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "candidate": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "role": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "employer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "pay": {
+              "type": "number",
+              "minimum": 0
+            },
+            "per": {
+              "type": "string",
+              "enum": [
+                "hour",
+                "month",
+                "year"
+              ]
+            },
+            "hoursPerWeek": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 80
+            },
+            "start": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "respondBy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "conditions": {
+              "minItems": 0,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              }
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "sent",
+                "accepted",
+                "declined",
+                "withdrawn"
+              ]
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "arrange",
+            "offerId",
+            "applicationId",
+            "candidate",
+            "role",
+            "employer",
+            "pay",
+            "per",
+            "hoursPerWeek",
+            "start",
+            "respondBy",
+            "conditions",
+            "status",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Offer\",\"density\":null,\"surface\":null,\"arrange\":\"grid\",\"offerId\":\"mara_baker_offer\",\"applicationId\":\"mara_app\",\"candidate\":\"Mara Kim\",\"role\":\"Morning baker\",\"employer\":\"Harbour Bakery\",\"pay\":26,\"per\":\"hour\",\"hoursPerWeek\":30,\"start\":\"2027-06-07\",\"respondBy\":null,\"conditions\":[],\"status\":\"draft\",\"goto\":\"offer_edit\"}",
+    "replies": [
+      "{\"c\":\"Offer\",\"density\":null,\"surface\":null,\"arrange\":\"grid\",\"offerId\":\"mara_baker_offer\",\"applicationId\":\"mara_app\",\"candidate\":\"Mara Kim\",\"role\":\"Morning baker\",\"employer\":\"Harbour Bakery\",\"pay\":26,\"per\":\"hour\",\"hoursPerWeek\":30,\"start\":\"2027-06-07\",\"respondBy\":null,\"conditions\":[],\"status\":\"draft\",\"goto\":\"offer_edit\"}",
+      "{\"c\":\"Offer\",\"density\":null,\"surface\":null,\"arrange\":\"grid\",\"offerId\":\"mara_baker\",\"applicationId\":\"mara_app\",\"candidate\":\"Mara Kim\",\"role\":\"Morning baker\",\"employer\":\"Harbour Bakery\",\"pay\":26,\"per\":\"hour\",\"hoursPerWeek\":30,\"start\":\"2027-06-07\",\"respondBy\":null,\"conditions\":[],\"status\":\"draft\",\"goto\":\"offer_edit\"}",
+      "{\"c\":\"Offer\",\"density\":null,\"surface\":null,\"arrange\":\"grid\",\"offerId\":\"mara_baker_offer\",\"applicationId\":\"mara_app\",\"candidate\":\"Mara Kim\",\"role\":\"Morning baker\",\"employer\":\"Harbour Bakery\",\"pay\":26,\"per\":\"hour\",\"hoursPerWeek\":30,\"start\":\"2027-06-07\",\"respondBy\":null,\"conditions\":[],\"status\":\"draft\",\"goto\":\"offer_edit\"}"
+    ]
+  },
+  "402a0480c7d1a2a3": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nOffer: Review proposed employment terms and manage the offer and its response.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", arrange?: rows|grid=\"rows\", offerId: text≤32, applicationId: text≤32, candidate: text≤24, role: text≤32, employer: text≤32, pay: num 0.., per: hour|month|year, hoursPerWeek: num ..80, start: date YYYY-MM-DD, respondBy?: date YYYY-MM-DD, conditions: [0..6 text≤100], status: draft|sent|accepted|declined|withdrawn, goto: id snake_case }\nRule: Write numeric pay in the brief's currency, not currency text. Record only a supplied response status; acceptance does not mean hired. Do not write a calculated expiry flag.\nRule: For an ordinary offer use \"arrange\":null,\"density\":null,\"surface\":null. Hours and a start date are terms, not a layout request. Use \"arrange\":\"grid\" only when the brief explicitly asks for two columns. That request does not change \"density\":null or \"surface\":null. Never substitute \"card\" for null.\nexample: {\"c\":\"Offer\",\"offerId\":\"sam_terms\",\"applicationId\":\"sam\",\"candidate\":\"Sam Patel\",\"role\":\"Summer dog walker\",\"employer\":\"Trot\",\"pay\":20,\"per\":\"hour\",\"hoursPerWeek\":20,\"start\":\"2027-05-10\",\"respondBy\":\"2027-05-01\",\"conditions\":[\"Subject to two references\"],\"status\":\"sent\",\"goto\":\"offer_edit\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Draft a Morning baker job offer for Mara Kim at Harbour Bakery. Pay 26 an hour, 30 hours a week starting 2027-06-07, with no conditions. Show weekly hours beside the start date in two columns. Link to the edit form.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Offer",
+              "enum": [
+                "Offer"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "offerId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "applicationId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "candidate": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "role": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "employer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "pay": {
+              "type": "number",
+              "minimum": 0
+            },
+            "per": {
+              "type": "string",
+              "enum": [
+                "hour",
+                "month",
+                "year"
+              ]
+            },
+            "hoursPerWeek": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 80
+            },
+            "start": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "respondBy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "conditions": {
+              "minItems": 0,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              }
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "sent",
+                "accepted",
+                "declined",
+                "withdrawn"
+              ]
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "arrange",
+            "offerId",
+            "applicationId",
+            "candidate",
+            "role",
+            "employer",
+            "pay",
+            "per",
+            "hoursPerWeek",
+            "start",
+            "respondBy",
+            "conditions",
+            "status",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Offer\",\"density\":null,\"surface\":null,\"arrange\":\"grid\",\"offerId\":\"ham_baker_mara\",\"applicationId\":\"app_mara\",\"candidate\":\"Mara Kim\",\"role\":\"Morning baker\",\"employer\":\"Harbour Bakery\",\"pay\":26,\"per\":\"hour\",\"hoursPerWeek\":30,\"start\":\"2027-06-07\",\"respondBy\":null,\"conditions\":[],\"status\":\"draft\",\"goto\":\"offer_edit\"}",
+    "replies": [
+      "{\"c\":\"Offer\",\"density\":null,\"surface\":null,\"arrange\":\"grid\",\"offerId\":\"ham_baker_mara\",\"applicationId\":\"app_mara\",\"candidate\":\"Mara Kim\",\"role\":\"Morning baker\",\"employer\":\"Harbour Bakery\",\"pay\":26,\"per\":\"hour\",\"hoursPerWeek\":30,\"start\":\"2027-06-07\",\"respondBy\":null,\"conditions\":[],\"status\":\"draft\",\"goto\":\"offer_edit\"}",
+      "{\"c\":\"Offer\",\"density\":null,\"surface\":null,\"arrange\":\"grid\",\"offerId\":\"morning_baker_offer\",\"applicationId\":\"mara_kim_app\",\"candidate\":\"Mara Kim\",\"role\":\"Morning baker\",\"employer\":\"Harbour Bakery\",\"pay\":26,\"per\":\"hour\",\"hoursPerWeek\":30,\"start\":\"2027-06-07\",\"respondBy\":null,\"conditions\":[],\"status\":\"sent\",\"goto\":\"offer_edit\"}",
+      "{\"c\":\"Offer\",\"density\":null,\"surface\":null,\"arrange\":\"grid\",\"offerId\":\"harbour_baker_mara\",\"applicationId\":\"mara_kim_app\",\"candidate\":\"Mara Kim\",\"role\":\"Morning baker\",\"employer\":\"Harbour Bakery\",\"pay\":26,\"per\":\"hour\",\"hoursPerWeek\":30,\"start\":\"2027-06-07\",\"respondBy\":null,\"conditions\":[],\"status\":\"sent\",\"goto\":\"offer_edit\"}"
+    ]
+  },
+  "42840c5c9ec071eb": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- ApplicantPipeline: Manage counted hiring lanes and move active applicants between stages for one opening. Pick: A hiring board: each stage has its own lane and count, with active applicants movable between lanes. Not one vertical list of names, static status badges and profile links (List), a generic board (Board), or the seeker's tracker (Applications).\n- Applications: Track my job applications and log the follow-ups I owe. Pick: A job seeker's own applications to multiple employers with dated next actions, follow-up logging and application history. Not employers reviewing people (ApplicantPipeline), one flat list with a static badge and link per row (List), or a simple checklist (Checklist).\n- Candidate: Review evidence for one job application and record a human hiring decision. Pick: One application with criterion-by-criterion findings and evidence, interview and offer links, and a human decision. Not identity alone (Profile), generic facts (KeyValue), a client summary (ClientCard), or a rating (Scale).\n- Interview: View and manage one job interview already arranged for an applicant. Pick: One arranged hiring interview with interviewers, time, format, link and confirmation or cancellation. Not a day's agenda (Timeline), available times (Slots), or a service appointment (Appointment).\n- JobPost: Review employment terms and requirements before saving an opening or starting an application. Pick: For a tappable photo, role title and one-line teaser opening a separate details screen, choose Card, never JobPost. Choose JobPost only when the component itself displays employment terms such as a pay range, requirements or the application deadline. Terms the request says not to show do not qualify. Not several openings (List), a staff shift (OpenShift), or goods for sale (Product).\n- Offer: Review proposed employment terms and manage the offer and its response. Pick: An employment offer with pay, hours, start date, conditions, response deadline and status. Not pay alone (Amount), a discount (Promo), a client agreement (Agreement) or a quote (Invoice).\n\nNeed, in the person's words: \"Show a proposed job offer with hourly pay, weekly hours, a start date and conditions, and let the recipient accept or decline.\"\nReply with only the component id, nothing else.",
+    "reply": "Offer",
+    "replies": [
+      "Offer",
+      "Offer",
+      "Offer"
+    ]
+  },
+  "46252125d9be2f32": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\no1 Offer Sent — $20 / hr — 20 h / week — Starts 10 May 2027 — Respond by 1 May 2027 — Conditions — • Subject to two references — Accept offer — Decline offer — Withdraw offer — \"Sam Patel\" — \"Summer dog walker\" — \"Trot\" [o1/accept press !needs-people] [o1/decline press !needs-people] [o1/withdraw press !needs-service]\n\nTask: Withdraw the offer that was sent to Sam.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"o1/withdraw\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"o1/withdraw\", \"action\": \"press\"}",
+      "{\"address\": \"o1/withdraw\", \"action\": \"press\"}",
+      "{\"address\": \"o1/withdraw\", \"action\": \"press\"}"
+    ]
+  },
+  "74a55ada42acbdaf": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- ApplicantPipeline: Manage counted hiring lanes and move active applicants between stages for one opening. Pick: A hiring board: each stage has its own lane and count, with active applicants movable between lanes. Not one vertical list of names, static status badges and profile links (List), a generic board (Board), or the seeker's tracker (Applications).\n- Applications: Track my job applications and log the follow-ups I owe. Pick: A job seeker's own applications to multiple employers with dated next actions, follow-up logging and application history. Not employers reviewing people (ApplicantPipeline), one flat list with a static badge and link per row (List), or a simple checklist (Checklist).\n- Candidate: Review evidence for one job application and record a human hiring decision. Pick: One application with criterion-by-criterion findings and evidence, interview and offer links, and a human decision. Not identity alone (Profile), generic facts (KeyValue), a client summary (ClientCard), or a rating (Scale).\n- Interview: View and manage one job interview already arranged for an applicant. Pick: One arranged hiring interview with interviewers, time, format, link and confirmation or cancellation. Not a day's agenda (Timeline), available times (Slots), or a service appointment (Appointment).\n- JobPost: Review employment terms and requirements before saving an opening or starting an application. Pick: For a tappable photo, role title and one-line teaser opening a separate details screen, choose Card, never JobPost. Choose JobPost only when the component itself displays employment terms such as a pay range, requirements or the application deadline. Terms the request says not to show do not qualify. Not several openings (List), a staff shift (OpenShift), or goods for sale (Product).\n- Offer: Review proposed employment terms and manage the offer and its response. Pick: An employment offer with pay, hours, start date, conditions, response deadline and status. Not pay alone (Amount), a discount (Promo), a client agreement (Agreement) or a quote (Invoice).\n\nNeed, in the person's words: \"Show just one prominent money figure for the hourly rate, labelled Base pay. No other employment terms, deadlines or actions.\"\nReply with only the component id, nothing else.",
+    "reply": "Amount",
+    "replies": [
+      "Amount",
+      "Amount",
+      "Amount"
+    ]
+  },
+  "77a35b5491c131ea": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nOffer: Review proposed employment terms and manage the offer and its response.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", arrange?: rows|grid=\"rows\", offerId: text≤32, applicationId: text≤32, candidate: text≤24, role: text≤32, employer: text≤32, pay: num 0.., per: hour|month|year, hoursPerWeek: num ..80, start: date YYYY-MM-DD, respondBy?: date YYYY-MM-DD, conditions: [0..6 text≤100], status: draft|sent|accepted|declined|withdrawn, goto: id snake_case }\nRule: Write numeric pay in the brief's currency, not currency text. Record only a supplied response status; acceptance does not mean hired. Do not write a calculated expiry flag.\nRule: For weekly hours beside the start date, write \"arrange\":\"grid\",\"density\":null,\"surface\":null. Use these null finishes unless the person explicitly asks for a finish. In the usual letter layout write \"arrange\":null. The word \"offer\" or \"terms\" does not request a surface; never substitute \"card\" for null.\nexample: {\"c\":\"Offer\",\"offerId\":\"sam_terms\",\"applicationId\":\"sam\",\"candidate\":\"Sam Patel\",\"role\":\"Summer dog walker\",\"employer\":\"Trot\",\"pay\":20,\"per\":\"hour\",\"hoursPerWeek\":20,\"start\":\"2027-05-10\",\"respondBy\":\"2027-05-01\",\"conditions\":[\"Subject to two references\"],\"status\":\"sent\",\"goto\":\"offer_edit\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Trot sent Sam Patel a Summer dog walker offer: 20 per hour, 20 hours weekly, start 2027-05-10, reply by 2027-05-01, subject to two references. Link to the edit form.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Offer",
+              "enum": [
+                "Offer"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "offerId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "applicationId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "candidate": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "role": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "employer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "pay": {
+              "type": "number",
+              "minimum": 0
+            },
+            "per": {
+              "type": "string",
+              "enum": [
+                "hour",
+                "month",
+                "year"
+              ]
+            },
+            "hoursPerWeek": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 80
+            },
+            "start": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "respondBy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "conditions": {
+              "minItems": 0,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              }
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "sent",
+                "accepted",
+                "declined",
+                "withdrawn"
+              ]
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "arrange",
+            "offerId",
+            "applicationId",
+            "candidate",
+            "role",
+            "employer",
+            "pay",
+            "per",
+            "hoursPerWeek",
+            "start",
+            "respondBy",
+            "conditions",
+            "status",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Offer\",\"density\":null,\"surface\":null,\"arrange\":\"grid\",\"offerId\":\"sam_terms\",\"applicationId\":\"sam\",\"candidate\":\"Sam Patel\",\"role\":\"Summer dog walker\",\"employer\":\"Trot\",\"pay\":20,\"per\":\"hour\",\"hoursPerWeek\":20,\"start\":\"2027-05-10\",\"respondBy\":\"2027-05-01\",\"conditions\":[\"Subject to two references\"],\"status\":\"sent\",\"goto\":\"offer_edit\"}",
+    "replies": [
+      "{\"c\":\"Offer\",\"density\":null,\"surface\":null,\"arrange\":\"grid\",\"offerId\":\"sam_terms\",\"applicationId\":\"sam\",\"candidate\":\"Sam Patel\",\"role\":\"Summer dog walker\",\"employer\":\"Trot\",\"pay\":20,\"per\":\"hour\",\"hoursPerWeek\":20,\"start\":\"2027-05-10\",\"respondBy\":\"2027-05-01\",\"conditions\":[\"Subject to two references\"],\"status\":\"sent\",\"goto\":\"offer_edit\"}",
+      "{\"c\":\"Offer\",\"density\":null,\"surface\":null,\"arrange\":\"grid\",\"offerId\":\"sam_terms\",\"applicationId\":\"sam\",\"candidate\":\"Sam Patel\",\"role\":\"Summer dog walker\",\"employer\":\"Trot\",\"pay\":20,\"per\":\"hour\",\"hoursPerWeek\":20,\"start\":\"2027-05-10\",\"respondBy\":\"2027-05-01\",\"conditions\":[\"Subject to two references\"],\"status\":\"sent\",\"goto\":\"offer_edit\"}",
+      "{\"c\":\"Offer\",\"density\":null,\"surface\":null,\"arrange\":null,\"offerId\":\"sam_terms\",\"applicationId\":\"sam\",\"candidate\":\"Sam Patel\",\"role\":\"Summer dog walker\",\"employer\":\"Trot\",\"pay\":20,\"per\":\"hour\",\"hoursPerWeek\":20,\"start\":\"2027-05-10\",\"respondBy\":\"2027-05-01\",\"conditions\":[\"Subject to two references\"],\"status\":\"sent\",\"goto\":\"offer_edit\"}"
+    ]
+  },
+  "9bedd691ab368f87": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nOffer: Review proposed employment terms and manage the offer and its response.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", arrange?: rows|grid=\"rows\", offerId: text≤32, applicationId: text≤32, candidate: text≤24, role: text≤32, employer: text≤32, pay: num 0.., per: hour|month|year, hoursPerWeek: num ..80, start: date YYYY-MM-DD, respondBy?: date YYYY-MM-DD, conditions: [0..6 text≤100], status: draft|sent|accepted|declined|withdrawn, goto: id snake_case }\nRule: Write numeric pay in the brief's currency, not currency text. Record only a supplied response status; acceptance does not mean hired. Do not write a calculated expiry flag.\nRule: For a two-column pairing of weekly hours and start date, write arrange \"grid\". Otherwise leave arrange null. Leave finish axes null unless requested.\nexample: {\"c\":\"Offer\",\"offerId\":\"sam_terms\",\"applicationId\":\"sam\",\"candidate\":\"Sam Patel\",\"role\":\"Summer dog walker\",\"employer\":\"Trot\",\"pay\":20,\"per\":\"hour\",\"hoursPerWeek\":20,\"start\":\"2027-05-10\",\"respondBy\":\"2027-05-01\",\"conditions\":[\"Subject to two references\"],\"status\":\"sent\",\"goto\":\"offer_edit\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Trot sent Sam Patel a Summer dog walker offer: 20 per hour, 20 hours weekly, start 2027-05-10, reply by 2027-05-01, subject to two references. Link to the edit form.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Offer",
+              "enum": [
+                "Offer"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "offerId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "applicationId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "candidate": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "role": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "employer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "pay": {
+              "type": "number",
+              "minimum": 0
+            },
+            "per": {
+              "type": "string",
+              "enum": [
+                "hour",
+                "month",
+                "year"
+              ]
+            },
+            "hoursPerWeek": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 80
+            },
+            "start": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "respondBy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "conditions": {
+              "minItems": 0,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              }
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "sent",
+                "accepted",
+                "declined",
+                "withdrawn"
+              ]
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "arrange",
+            "offerId",
+            "applicationId",
+            "candidate",
+            "role",
+            "employer",
+            "pay",
+            "per",
+            "hoursPerWeek",
+            "start",
+            "respondBy",
+            "conditions",
+            "status",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Offer\",\"density\":null,\"surface\":\"card\",\"arrange\":\"grid\",\"offerId\":\"sam_terms\",\"applicationId\":\"sam\",\"candidate\":\"Sam Patel\",\"role\":\"Summer dog walker\",\"employer\":\"Trot\",\"pay\":20,\"per\":\"hour\",\"hoursPerWeek\":20,\"start\":\"2027-05-10\",\"respondBy\":\"2027-05-01\",\"conditions\":[\"Subject to two references\"],\"status\":\"sent\",\"goto\":\"offer_edit\"}",
+    "replies": [
+      "{\"c\":\"Offer\",\"density\":null,\"surface\":\"card\",\"arrange\":\"grid\",\"offerId\":\"sam_terms\",\"applicationId\":\"sam\",\"candidate\":\"Sam Patel\",\"role\":\"Summer dog walker\",\"employer\":\"Trot\",\"pay\":20,\"per\":\"hour\",\"hoursPerWeek\":20,\"start\":\"2027-05-10\",\"respondBy\":\"2027-05-01\",\"conditions\":[\"Subject to two references\"],\"status\":\"sent\",\"goto\":\"offer_edit\"}",
+      "{\"c\":\"Offer\",\"density\":null,\"surface\":\"card\",\"arrange\":\"grid\",\"offerId\":\"sam_terms\",\"applicationId\":\"sam\",\"candidate\":\"Sam Patel\",\"role\":\"Summer dog walker\",\"employer\":\"Trot\",\"pay\":20,\"per\":\"hour\",\"hoursPerWeek\":20,\"start\":\"2027-05-10\",\"respondBy\":\"2027-05-01\",\"conditions\":[\"Subject to two references\"],\"status\":\"sent\",\"goto\":\"offer_edit\"}",
+      "{\"c\":\"Offer\",\"density\":\"comfortable\",\"surface\":\"card\",\"arrange\":\"grid\",\"offerId\":\"sam_terms\",\"applicationId\":\"sam\",\"candidate\":\"Sam Patel\",\"role\":\"Summer dog walker\",\"employer\":\"Trot\",\"pay\":20,\"per\":\"hour\",\"hoursPerWeek\":20,\"start\":\"2027-05-10\",\"respondBy\":\"2027-05-01\",\"conditions\":[\"Subject to two references\"],\"status\":\"sent\",\"goto\":\"offer_edit\"}"
+    ]
+  },
+  "dfe9434ca01e9554": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nOffer: Review proposed employment terms and manage the offer and its response.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", arrange?: rows|grid=\"rows\", offerId: text≤32, applicationId: text≤32, candidate: text≤24, role: text≤32, employer: text≤32, pay: num 0.., per: hour|month|year, hoursPerWeek: num ..80, start: date YYYY-MM-DD, respondBy?: date YYYY-MM-DD, conditions: [0..6 text≤100], status: draft|sent|accepted|declined|withdrawn, goto: id snake_case }\nRule: Write numeric pay in the brief's currency, not currency text. Record only a supplied response status; acceptance does not mean hired. Do not write a calculated expiry flag.\nRule: For an ordinary offer use \"arrange\":null,\"density\":null,\"surface\":null. Hours and a start date are terms, not a layout request. Use \"arrange\":\"grid\" only when the brief explicitly asks for two columns. That request does not change \"density\":null or \"surface\":null. Never substitute \"card\" for null.\nexample: {\"c\":\"Offer\",\"offerId\":\"sam_terms\",\"applicationId\":\"sam\",\"candidate\":\"Sam Patel\",\"role\":\"Summer dog walker\",\"employer\":\"Trot\",\"pay\":20,\"per\":\"hour\",\"hoursPerWeek\":20,\"start\":\"2027-05-10\",\"respondBy\":\"2027-05-01\",\"conditions\":[\"Subject to two references\"],\"status\":\"sent\",\"goto\":\"offer_edit\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Trot sent Sam Patel a Summer dog walker offer: 20 per hour, 20 hours weekly, start 2027-05-10, reply by 2027-05-01, subject to two references. Link to the edit form.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Offer",
+              "enum": [
+                "Offer"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "offerId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "applicationId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "candidate": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "role": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "employer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "pay": {
+              "type": "number",
+              "minimum": 0
+            },
+            "per": {
+              "type": "string",
+              "enum": [
+                "hour",
+                "month",
+                "year"
+              ]
+            },
+            "hoursPerWeek": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 80
+            },
+            "start": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "respondBy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "conditions": {
+              "minItems": 0,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              }
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "sent",
+                "accepted",
+                "declined",
+                "withdrawn"
+              ]
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "arrange",
+            "offerId",
+            "applicationId",
+            "candidate",
+            "role",
+            "employer",
+            "pay",
+            "per",
+            "hoursPerWeek",
+            "start",
+            "respondBy",
+            "conditions",
+            "status",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Offer\",\"density\":null,\"surface\":null,\"arrange\":null,\"offerId\":\"sam_terms\",\"applicationId\":\"sam\",\"candidate\":\"Sam Patel\",\"role\":\"Summer dog walker\",\"employer\":\"Trot\",\"pay\":20,\"per\":\"hour\",\"hoursPerWeek\":20,\"start\":\"2027-05-10\",\"respondBy\":\"2027-05-01\",\"conditions\":[\"Subject to two references\"],\"status\":\"sent\",\"goto\":\"offer_edit\"}",
+    "replies": [
+      "{\"c\":\"Offer\",\"density\":null,\"surface\":null,\"arrange\":null,\"offerId\":\"sam_terms\",\"applicationId\":\"sam\",\"candidate\":\"Sam Patel\",\"role\":\"Summer dog walker\",\"employer\":\"Trot\",\"pay\":20,\"per\":\"hour\",\"hoursPerWeek\":20,\"start\":\"2027-05-10\",\"respondBy\":\"2027-05-01\",\"conditions\":[\"Subject to two references\"],\"status\":\"sent\",\"goto\":\"offer_edit\"}",
+      "{\"c\":\"Offer\",\"density\":null,\"surface\":null,\"arrange\":null,\"offerId\":\"sam_terms\",\"applicationId\":\"sam\",\"candidate\":\"Sam Patel\",\"role\":\"Summer dog walker\",\"employer\":\"Trot\",\"pay\":20,\"per\":\"hour\",\"hoursPerWeek\":20,\"start\":\"2027-05-10\",\"respondBy\":\"2027-05-01\",\"conditions\":[\"Subject to two references\"],\"status\":\"sent\",\"goto\":\"offer_edit\"}",
+      "{\"c\":\"Offer\",\"density\":null,\"surface\":null,\"arrange\":null,\"offerId\":\"sam_terms\",\"applicationId\":\"sam\",\"candidate\":\"Sam Patel\",\"role\":\"Summer dog walker\",\"employer\":\"Trot\",\"pay\":20,\"per\":\"hour\",\"hoursPerWeek\":20,\"start\":\"2027-05-10\",\"respondBy\":\"2027-05-01\",\"conditions\":[\"Subject to two references\"],\"status\":\"sent\",\"goto\":\"offer_edit\"}"
+    ]
+  },
+  "e05284f5de1a21dc": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nOffer: Review proposed employment terms and manage the offer and its response.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", arrange?: rows|grid=\"rows\", offerId: text≤32, applicationId: text≤32, candidate: text≤24, role: text≤32, employer: text≤32, pay: num 0.., per: hour|month|year, hoursPerWeek: num ..80, start: date YYYY-MM-DD, respondBy?: date YYYY-MM-DD, conditions: [0..6 text≤100], status: draft|sent|accepted|declined|withdrawn, goto: id snake_case }\nRule: Write numeric pay in the brief's currency, not currency text. Record only a supplied response status; acceptance does not mean hired. Do not write a calculated expiry flag.\nRule: For a two-column pairing of weekly hours and start date, write arrange \"grid\". Otherwise leave arrange null. Leave finish axes null unless requested.\nexample: {\"c\":\"Offer\",\"offerId\":\"sam_terms\",\"applicationId\":\"sam\",\"candidate\":\"Sam Patel\",\"role\":\"Summer dog walker\",\"employer\":\"Trot\",\"pay\":20,\"per\":\"hour\",\"hoursPerWeek\":20,\"start\":\"2027-05-10\",\"respondBy\":\"2027-05-01\",\"conditions\":[\"Subject to two references\"],\"status\":\"sent\",\"goto\":\"offer_edit\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Draft a Morning baker job offer for Mara Kim at Harbour Bakery. Pay 26 an hour, 30 hours a week starting 2027-06-07, with no conditions. Show weekly hours beside the start date in two columns. Link to the edit form.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Offer",
+              "enum": [
+                "Offer"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "offerId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "applicationId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "candidate": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "role": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "employer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "pay": {
+              "type": "number",
+              "minimum": 0
+            },
+            "per": {
+              "type": "string",
+              "enum": [
+                "hour",
+                "month",
+                "year"
+              ]
+            },
+            "hoursPerWeek": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 80
+            },
+            "start": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "respondBy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "conditions": {
+              "minItems": 0,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              }
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "sent",
+                "accepted",
+                "declined",
+                "withdrawn"
+              ]
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "arrange",
+            "offerId",
+            "applicationId",
+            "candidate",
+            "role",
+            "employer",
+            "pay",
+            "per",
+            "hoursPerWeek",
+            "start",
+            "respondBy",
+            "conditions",
+            "status",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Offer\",\"density\":null,\"surface\":\"card\",\"arrange\":\"grid\",\"offerId\":\"harbour_baker_mara\",\"applicationId\":\"mara_baker\",\"candidate\":\"Mara Kim\",\"role\":\"Morning baker\",\"employer\":\"Harbour Bakery\",\"pay\":26,\"per\":\"hour\",\"hoursPerWeek\":30,\"start\":\"2027-06-07\",\"respondBy\":null,\"conditions\":[],\"status\":\"draft\",\"goto\":\"offer_edit\"}",
+    "replies": [
+      "{\"c\":\"Offer\",\"density\":null,\"surface\":\"card\",\"arrange\":\"grid\",\"offerId\":\"harbour_baker_mara\",\"applicationId\":\"mara_baker\",\"candidate\":\"Mara Kim\",\"role\":\"Morning baker\",\"employer\":\"Harbour Bakery\",\"pay\":26,\"per\":\"hour\",\"hoursPerWeek\":30,\"start\":\"2027-06-07\",\"respondBy\":null,\"conditions\":[],\"status\":\"draft\",\"goto\":\"offer_edit\"}",
+      "{\"c\":\"Offer\",\"density\":null,\"surface\":\"card\",\"arrange\":\"grid\",\"offerId\":\"harbour_mara\",\"applicationId\":\".apply\",\"candidate\":\"Mara Kim\",\"role\":\"Morning baker\",\"employer\":\"Harbour Bakery\",\"pay\":26,\"per\":\"hour\",\"hoursPerWeek\":30,\"start\":\"2027-06-07\",\"respondBy\":null,\"conditions\":[],\"status\":\"draft\",\"goto\":\"offer_edit\"}",
+      "{\"c\":\"Offer\",\"density\":null,\"surface\":\"card\",\"arrange\":\"grid\",\"offerId\":\"hb_baker_offer\",\"applicationId\": \"app_mk_baker\", \"candidate\":\"Mara Kim\",\"role\":\"Morning baker\",\"employer\":\"Harbour Bakery\", \"pay\":26,\"per\":\"hour\",\"hoursPerWeek\":30,\"start\":\"2027-06-07\",\"respondBy\":null,\"conditions\":[],\"status\":\"draft\",\"goto\":\"offer_edit\"}"
+    ]
+  }
+}
