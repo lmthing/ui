@@ -27,26 +27,31 @@ function reportColumn({ frame, add }: FrameCheck, title: string, values: Figure[
 }
 
 function semanticColumns(context: FrameCheck, figures: Figure[]) {
-  const byTable = new Map<Element, Map<number, Figure[]>>();
+  type Rows = Map<Element, Figure[]>;
+  const byTable = new Map<Element, Map<number, Rows>>();
   for (const value of figures) {
     const cell = value.el.closest(cells);
     const row = cell?.closest("tr, [role=row]");
     const table = row?.closest(tables);
-    if (!cell || !row || !table) continue;
+    // A cell with a range or several values is not one comparable figure.
+    if (!cell || !row || !table || cell.textContent?.trim() !== value.el.textContent?.trim()) continue;
     const index = cell.hasAttribute("aria-colindex")
       ? Number(cell.getAttribute("aria-colindex"))
       : Array.from(row.querySelectorAll(`${cells}, th, [role=columnheader], [role=rowheader]`)).indexOf(
           cell,
         ) + 1;
-    if (index < 1) continue;
-    const columns = byTable.get(table) ?? new Map<number, Figure[]>();
-    const values = columns.get(index) ?? [];
-    values.push(value);
-    columns.set(index, values);
+    if (!Number.isInteger(index) || index < 1) continue;
+    const columns = byTable.get(table) ?? new Map<number, Rows>();
+    const rows = columns.get(index) ?? new Map<Element, Figure[]>();
+    rows.set(row, [...(rows.get(row) ?? []), value]);
+    columns.set(index, rows);
     byTable.set(table, columns);
   }
   for (const columns of byTable.values())
-    for (const [index, values] of columns) reportColumn(context, `numeric column ${index}`, values);
+    for (const [index, rows] of columns) {
+      const values = Array.from(rows.values()).flatMap((row) => (row.length === 1 ? row : []));
+      reportColumn(context, `numeric column ${index}`, values);
+    }
 }
 
 function timesheetColumns(context: FrameCheck, figures: Figure[], parts: ReadonlyMap<string, Element>) {

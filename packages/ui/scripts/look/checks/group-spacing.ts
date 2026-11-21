@@ -40,7 +40,7 @@ export function checkGroupSpacing(context: FrameCheck, parts: ReadonlyMap<string
     const next = parts.get(`r${Number(item) + 1}/label`);
     if (value && next) reportPair(context, value, caption, next);
   }
-  for (const term of context.frameEl.querySelectorAll("dl > dt")) {
+  for (const term of Array.from(context.frameEl.querySelectorAll("dl > dt"))) {
     const value = term.nextElementSibling;
     const next = value?.nextElementSibling;
     if (value?.matches("dd") && next?.matches("dt")) reportPair(context, value, term, next);
@@ -49,7 +49,7 @@ export function checkGroupSpacing(context: FrameCheck, parts: ReadonlyMap<string
 
 function reportHeading({ frame, add }: FrameCheck, heading: Element, item: Element) {
   if (![heading, item].every(shown) || item.closest("[data-look-timed]")) return;
-  const first = [item, ...item.querySelectorAll("*")].filter((el) => ownText(el) && shown(el));
+  const first = [item, ...Array.from(item.querySelectorAll("*"))].filter((el) => ownText(el) && shown(el));
   const y = Math.min(...first.map((el) => el.getBoundingClientRect().top));
   const gap = y - heading.getBoundingClientRect().bottom;
   if (Number.isFinite(gap) && gap > 24) {
@@ -68,13 +68,24 @@ export function checkHeadingGap(context: FrameCheck, parts: ReadonlyMap<string, 
     const first = item && parts.get(`${item}/root`);
     if (first && !first.contains(heading)) reportHeading(context, heading, first);
   }
+  const heading = parts.get("heading");
+  if (heading) {
+    const first = Array.from(parts).find(
+      ([part, row]) =>
+        /^r\d+\/root$/.test(part) &&
+        !heading.contains(row) &&
+        Boolean(heading.compareDocumentPosition(row) & Node.DOCUMENT_POSITION_FOLLOWING),
+    );
+    if (first) reportHeading(context, heading, first[1]);
+  }
   const listItem = "li, [role=listitem]";
-  for (const heading of context.frameEl.querySelectorAll("h1, h2, h3, h4, h5, h6, [role=heading]")) {
-    const next = heading.nextElementSibling;
-    if (next?.matches(listItem)) reportHeading(context, heading, next);
+  for (const el of Array.from(context.frameEl.querySelectorAll("h1, h2, h3, h4, h5, h6, [role=heading]"))) {
+    if (el === heading) continue;
+    const next = el.nextElementSibling;
+    if (next?.matches(listItem)) reportHeading(context, el, next);
     if (next?.matches("ul, ol, [role=list]")) {
       const first = next.querySelector(listItem);
-      if (first) reportHeading(context, heading, first);
+      if (first) reportHeading(context, el, first);
     }
   }
 }

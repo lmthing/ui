@@ -1,7 +1,8 @@
-import { describe, partOf, shown, type FrameCheck } from "./shared";
+import { describe, ownText, partOf, shown, type FrameCheck } from "./shared";
 
 const actions = "button, a[href], [role=button], [role=link]";
-const negativePart = /(?:^|_)(?:decline|reject|delete|discard|remove|revoke|cancel)(?:_|$)/;
+const negativePart =
+  /(?:^|_)(?:decline|reject|delete|discard|remove|revoke|cancel_(?:booking|order|subscription|appointment))(?:_|$)/;
 const negativeLabel =
   /^(?:(?:decline|reject|delete|discard|revoke)(?:\s|$)|cancel (?:booking|order|subscription|appointment)\b)/i;
 const positiveTokens = ["--accent", "--accentSoft", "--good", "--goodSoft"];
@@ -10,13 +11,11 @@ function paints(el: Element, control: Element): string[] {
   const css = getComputedStyle(el);
   if (el !== control && el.closest(actions) !== control) return [];
   const colors = [css.backgroundColor];
-  if (
-    el.childNodes.length &&
-    Array.from(el.childNodes).some((node) => node.nodeType === 3 && node.textContent?.trim())
-  )
-    colors.push(css.color);
+  if (ownText(el)) colors.push(css.color);
   if (el instanceof SVGElement) colors.push(css.stroke, css.fill);
-  if (parseFloat(css.borderTopWidth)) colors.push(css.borderTopColor);
+  for (const edge of ["Top", "Right", "Bottom", "Left"] as const) {
+    if (parseFloat(css[`border${edge}Width`])) colors.push(css[`border${edge}Color`]);
+  }
   return colors;
 }
 
@@ -28,16 +27,20 @@ export function checkActionTone({ frameEl, frame, add }: FrameCheck) {
     canvas.fillStyle = raw;
     return canvas.fillStyle;
   };
-  for (const el of frameEl.querySelectorAll(actions)) {
+  for (const el of Array.from(frameEl.querySelectorAll(actions))) {
     const name = el.getAttribute("aria-label") || el.textContent?.trim() || "";
-    if (!(negativePart.test(partOf(el).split("/").at(-1)!) || negativeLabel.test(name)) || !shown(el))
-      continue;
+    const part = partOf(el).split("/").at(-1)!;
+    // Plain "Cancel" is often a dialog dismissal. Appointment's addressed action cancels a booking.
+    const cancelBooking = frame.startsWith("appointment_") && part === "cancel";
+    if (!(negativePart.test(part) || negativeLabel.test(name) || cancelBooking) || !shown(el)) continue;
     const css = getComputedStyle(el);
     const positive = new Map(
       positiveTokens.map((token) => [color(css.getPropertyValue(token).trim()), token]),
     );
     positive.delete("");
-    const used = [el, ...el.querySelectorAll("*")].filter(shown).flatMap((node) => paints(node, el));
+    const used = [el, ...Array.from(el.querySelectorAll("*"))]
+      .filter(shown)
+      .flatMap((node) => paints(node, el));
     const token = used.map((paint) => positive.get(color(paint))).find(Boolean);
     if (token) add("action-tone", frame, el, `${describe(el)} uses the positive ${token.slice(2)} color`);
   }

@@ -8,9 +8,9 @@ function clipReason(el: Element, frameEl: Element, style: CSSStyleDeclaration) {
   // Check the visible portion of each run, while retaining local ellipsis/clamp as a fault.
   const visible = rects.map(({ left, right, top, bottom }) => ({ left, right, top, bottom }));
   let reason: string | undefined;
-  for (let node: Element | null = el; node && node !== frameEl; node = node.parentElement) {
+  for (let node: Element | null = el; node && node !== frameEl.parentElement; node = node.parentElement) {
     const css = node === el ? style : getComputedStyle(node);
-    const clipX = css.overflowX !== "visible";
+    const clipX = node === frameEl || css.overflowX !== "visible";
     const clipY = css.overflowY !== "visible";
     if ((!clipX && !clipY) || !(node instanceof HTMLElement) || css.display === "inline") continue;
     const box = node.getBoundingClientRect();

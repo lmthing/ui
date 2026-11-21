@@ -35,8 +35,13 @@ function checkFrame(context: FrameCheck) {
   const texts: TextBox[] = [];
   for (const el of Array.from(context.frameEl.querySelectorAll("*"))) {
     const rect = el.getBoundingClientRect();
-    if (!rect.width || !rect.height) continue;
+    const hasText = ownText(el);
+    if ((!rect.width || !rect.height) && !hasText) continue;
     const check = { el, rect, style: getComputedStyle(el), frame: context.frame, add: context.add };
+    if (!rect.width || !rect.height) {
+      if (Math.abs(context.box.width - 390) < 1) checkClipped(check, context);
+      continue;
+    }
     checkOutside(check, context);
     if (el.tagName.toLowerCase() === "svg") {
       checkIcon(check);
@@ -45,7 +50,7 @@ function checkFrame(context: FrameCheck) {
     checkBorder(check);
     checkTargets(check);
     checkLoading(check);
-    if (!ownText(el)) continue;
+    if (!hasText) continue;
     texts.push({ el, rect });
     checkClipped(check, context);
     checkTextContrast(check);

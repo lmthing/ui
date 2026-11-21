@@ -84,6 +84,9 @@ it("compares the visible digit edges, not the edges of equal-width cells", async
     { part: "r1/hours", detail: expect.stringMatching(/column 2.*r1\/hours.*r2\/hours.*right edge/) },
   ]);
   expect(await issues("numeric-align", table("right"))).toEqual([]);
+  expect(
+    await issues("numeric-align", `<table><tr><td><span>7</span> / <span>10</span></td></tr></table>`),
+  ).toEqual([]);
 });
 
 it("finds positive foreground or fill on a negative action, not on Approve", async () => {
@@ -98,6 +101,15 @@ it("finds positive foreground or fill on a negative action, not on Approve", asy
     { part: "r1/decline", detail: expect.stringMatching(/Decline.*positive goodSoft color/) },
   ]);
   expect(await issues("action-tone", actions("var(--bad)"))).toEqual([]);
+});
+
+it("distinguishes canceling a booking from dismissing a dialog", async () => {
+  const cancel = (copy: string) => `<button ${testId("cancel")} style="color:var(--accent)">${copy}</button>`;
+  expect(await issues("action-tone", cancel("Cancel"))).toEqual([]);
+  expect(await issues("action-tone", cancel("Cancel booking"))).toMatchObject([{ part: "cancel" }]);
+  expect(await issues("action-tone", cancel("Cancel"), "appointment_calm_light_0_filled")).toMatchObject([
+    { part: "cancel" },
+  ]);
 });
 
 it("detects an ellipsis, line clamp and a partially visible scrolling label at 390px", async () => {
@@ -121,8 +133,23 @@ it("detects an ellipsis, line clamp and a partially visible scrolling label at 3
   expect(await issues("clipped", content(false))).toEqual([]);
 });
 
+it("checks the phone edge and labels in zero-width boxes", async () => {
+  const content = (
+    clipped: boolean,
+  ) => `<article style="margin-left:${clipped ? 350 : 100}px;white-space:nowrap">
+      <div ${testId("edge")}>A label at the right edge</div>
+    </article><div ${testId("collapsed")} style="overflow:hidden;white-space:nowrap;width:${clipped ? 0 : 200}px">
+      Collapsed label
+    </div>`;
+  expect(await issues("clipped", content(true))).toMatchObject([
+    { part: "edge", detail: expect.stringMatching(/clipped horizontally/) },
+    { part: "collapsed", detail: expect.stringMatching(/clipped horizontally/) },
+  ]);
+  expect(await issues("clipped", content(false))).toEqual([]);
+});
+
 it("keeps the first named item near its heading", async () => {
-  const group = (gap: number) => `<div ${testId("r1/group")}>Care</div>
+  const group = (gap: number, heading = "r1/group") => `<div ${testId(heading)}>Care</div>
     <div ${testId("r1/root")} style="padding-top:${gap}px">
       <p ${testId("r1/name")}>Plant care visit</p>
     </div>`;
@@ -130,6 +157,10 @@ it("keeps the first named item near its heading", async () => {
     { part: "r1/group", detail: expect.stringMatching(/r1\/group.*32px.*r1\/root.*Plant care/) },
   ]);
   expect(await issues("heading-gap", group(24))).toEqual([]);
+  expect(await issues("heading-gap", group(32, "heading"))).toMatchObject([
+    { part: "heading", detail: expect.stringMatching(/32px.*r1\/root/) },
+  ]);
+  expect(await issues("heading-gap", group(24, "heading"))).toEqual([]);
 });
 
 it("checks neutral copy only in documented empty states", async () => {
