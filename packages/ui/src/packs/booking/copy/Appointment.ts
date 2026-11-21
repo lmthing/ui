@@ -25,7 +25,7 @@ export function appointmentDetails(
     with: input.with,
     minutes: durationLine(input.minutes, lang),
     place: input.place,
-    locationKind: input.locationKind && bookingWordsFor(lang).appointmentLocation[input.locationKind],
+    location: input.locationKind && bookingWordsFor(lang).appointmentLocation[input.locationKind],
     price: input.price !== undefined ? compactMoneyLine(input.price, undefined, lang) : undefined,
     policy: input.policy,
   }).flatMap(([part, text]) => (text ? [{ part, text }] : []));

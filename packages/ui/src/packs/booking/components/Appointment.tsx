@@ -30,7 +30,7 @@ export const meta = {
   // prettier-ignore
   parts: [
     "root", "service", "with", "date", "time", "minutes", "place", "price", "status",
-    "policy", "reschedule", "cancel", "edit", "locationKind", "join", "join_label",
+    "policy", "reschedule", "cancel", "edit", "location", "join", "join_label",
   ],
   partTiers: { join: "service" },
   confirmParts: ["cancel"],
@@ -113,9 +113,12 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
-  write("Show my confirmed 30-minute plant care visit on 2026-11-20 at 09:00 in a single compact summary row. Open time from the card."),
-  write("Show my confirmed 30-minute phone appointment for dog-walking advice on 2026-11-20 at 09:00, with rescheduling to time."),
-  write("Show my confirmed 30-minute plant care video visit on 2026-11-20 at 09:00. Use https://meet.example.org/ledge for the join button, and time to reschedule."),
+  { ...write("Show my confirmed 30-minute plant care visit on 2026-11-20 at 09:00 in a single compact summary row. Open time from the card."),
+    expectProps: { style: "compact" } },
+  { ...write("Show my confirmed 30-minute phone appointment for dog-walking advice on 2026-11-20 at 09:00, with rescheduling to time."),
+    expectProps: { locationKind: "phone" } },
+  { ...write("Show my confirmed 30-minute plant care video visit on 2026-11-20 at 09:00. Use https://meet.example.org/ledge for the join button, and time to reschedule."),
+    expectProps: { status: "confirmed", locationKind: "video", meetingUrl: "https://meet.example.org/ledge" } },
   read("Cancel this appointment", { address: "a1/cancel", action: "press" }),
   {
     ...read("Edit the booking details before confirming", { address: "a1/edit", action: "press" }),
@@ -159,7 +162,7 @@ export function Appointment(input: Props<typeof props, typeof meta>) {
     <AppointmentLine key={part} value={text} part={part} {...finish} />
   );
   const details = appointmentDetails(input, lang);
-  const location = details.find(({ part }) => part === "locationKind");
+  const location = details.find(({ part }) => part === "location");
   const status = <KitTrail kind="badge" part="status" value={loading ? words.loadingLabel : badge} />;
   const join = appointmentCanJoin(input.status, input.locationKind, input.meetingUrl) &&
     <KitAction label={appointmentJoin} part="join" disabled={!active} full />;
@@ -182,7 +185,7 @@ export function Appointment(input: Props<typeof props, typeof meta>) {
         </KitGrid>
         <KitContent>
           <AppointmentLine value={input.service} part="service" {...finish} />
-          {details.filter(({ part }) => part === "with" || part === "place" || part === "locationKind").map(line)}
+          {details.filter(({ part }) => part === "with" || part === "place" || part === "location").map(line)}
           <KitGrid fitLast density={density}>
             {details.filter(({ part }) => part === "minutes" || part === "price").map(line)}
           </KitGrid>

@@ -7,7 +7,16 @@ export type ChooseProbe = { kind: "choose"; need: string; expect: string };
 type VariantExpectation = {
   [A in Axis]: { axis: A; value: AxisValue<A> | null; item?: number; itemTitles?: readonly string[] };
 }[Axis];
-export type WriteProbe = { kind: "write"; brief: string; expect: string; variant?: VariantExpectation };
+type ExpectedProp = string | number | boolean | null | readonly ExpectedProp[] | ExpectedProps;
+type ExpectedProps = { readonly [field: string]: ExpectedProp };
+export type WriteProbe = {
+  kind: "write";
+  brief: string;
+  expect: string;
+  variant?: VariantExpectation;
+  /** Authored values the sample must include, before schema defaults are applied. */
+  expectProps?: ExpectedProps;
+};
 export type ReadProbe = {
   kind: "read";
   screen: number;

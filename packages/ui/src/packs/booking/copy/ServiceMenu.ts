@@ -19,17 +19,17 @@ export function serviceReading(
     price?: number | undefined;
     capacity?: number | undefined;
     deposit?: number | undefined;
-    portfolioGoto?: string | undefined;
+    portfolio?: { goto: string } | undefined;
   }[],
   lang?: string,
 ) {
   const { bookLabel, servicePortfolio } = bookingWordsFor(lang);
-  return services.flatMap(({ minutes, price, capacity = 1, deposit, portfolioGoto }) => [
+  return services.flatMap(({ minutes, price, capacity = 1, deposit, portfolio }) => [
     durationLine(minutes, lang),
     ...(price === undefined ? [] : [servicePrice(price, lang)]),
     ...(capacity > 1 ? [serviceCapacity(capacity, lang)] : []),
     ...(deposit === undefined ? [] : [serviceDeposit(deposit, lang)]),
     bookLabel,
-    ...(portfolioGoto ? [servicePortfolio] : []),
+    ...(portfolio ? [servicePortfolio] : []),
   ]);
 }

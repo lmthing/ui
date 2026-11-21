@@ -132,12 +132,18 @@ export const probes = [
   },
   read("Choose the free 09:00 time", { address: "s1/r1", action: "select" }),
   { ...read("Choose the free 16:00 time", { address: "s1/r3", action: "select" }), screen: 2 },
-  write(
-    "Offer a free 09:00 and a taken 10:00 start for 45-minute visits. Show each time as a single span, like 09:00–09:45.",
-  ),
-  write(
-    "Offer free 09:00 and taken 10:00 starts for 45-minute visits. Label the times with America/New_York.",
-  ),
+  {
+    ...write(
+      "Offer a free 09:00 and a taken 10:00 start for 45-minute visits. Show each time as one span, like 09:00–09:45.",
+    ),
+    expectProps: { style: "ranges" },
+  },
+  {
+    ...write(
+      "Offer free 09:00 and taken 10:00 starts for 45-minute visits. Label the times with America/New_York.",
+    ),
+    expectProps: { timezone: "America/New_York" },
+  },
 ] satisfies Probe[];
 
 export function Slots(input: Props<typeof props, typeof meta>) {

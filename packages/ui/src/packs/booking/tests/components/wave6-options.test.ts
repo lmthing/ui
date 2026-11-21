@@ -13,7 +13,7 @@ const meetingUrl = "https://meet.example.org/ledge";
 it("draws a compact booking with its own location and status, keeping its root navigation", () => {
   const input = { ...booking, style: "compact", locationKind: "in_person" };
   const html = renderInstance("Appointment", input, "filled", theme);
-  for (const part of ["service", "date", "time", "locationKind", "status"])
+  for (const part of ["service", "date", "time", "location", "status"])
     expect(elementAt(html, `home/c1/${part}`).attributes).toContain("data-testid");
   for (const part of ["minutes", "with", "place", "reschedule", "cancel", "edit"])
     expect(html).not.toContain(`home/c1/${part}`);
@@ -35,7 +35,7 @@ it("validates meeting URLs and dispatches only an eligible, service-tier join wi
   const screen = { id: "home", components: [{ ...input, c: "Appointment", id: "a1" }] };
   const runtime = createScreenController({ screen, defs: components, onAction, onLink });
   try {
-    expect(runtime.read()).toContain("[a1/join press]");
+    expect(runtime.read()).toContain("[a1/join press !needs-service]");
     expect(runtime.read()).not.toContain(meetingUrl);
     expect(runtime.press("a1/join").ok).toBe(true);
     expect(onAction).toHaveBeenCalledExactlyOnceWith({ address: "home/a1/join", action: "press" });
@@ -118,16 +118,24 @@ it("shows zero buffer and dated exceptions separately from the editable week", (
     expect(reading).toContain(line);
   }
   expect(html.match(/role="switch"/g)).toHaveLength(7);
+  expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
   expect(renderInstance("Availability", { ...week, dateOverrides: [] }, "filled", theme)).not.toContain(
-    "home/c1/dateOverrides",
+    "home/c1/overrides",
   );
 });
 
 it("shows a group limit and zero deposit, and uses different destinations for booking and portfolio", () => {
   const def = components.ServiceMenu;
   const base = { ...visit, goto: "time" };
-  const input = { services: [{ ...base, capacity: 4, deposit: 0, portfolioGoto: "walks_gallery" }, base] };
-  for (const change of [{ capacity: 0 }, { capacity: 1.5 }, { deposit: -1 }, { portfolioGoto: "Bad ID" }])
+  const input = {
+    services: [{ ...base, capacity: 4, deposit: 0, portfolio: { goto: "walks_gallery" } }, base],
+  };
+  for (const change of [
+    { capacity: 0 },
+    { capacity: 1.5 },
+    { deposit: -1 },
+    { portfolio: { goto: "Bad ID" } },
+  ])
     expect(def.props.safeParse({ services: [{ ...base, ...change }] }).success).toBe(false);
   const html = renderInstance("ServiceMenu", input, "filled", theme);
   for (const part of ["capacity", "deposit", "portfolio"]) {
@@ -150,7 +158,7 @@ it("shows a group limit and zero deposit, and uses different destinations for bo
     expect(runtime.press("s1/r1/portfolio").ok).toBe(true);
     expect(runtime.press("s1/r2/portfolio").ok).toBe(false);
     expect(onLink.mock.calls).toEqual([
-      ["time", "home/s1/r1/root"],
+      ["time", "home/s1/r1"],
       ["walks_gallery", "home/s1/r1/portfolio"],
     ]);
   } finally {
