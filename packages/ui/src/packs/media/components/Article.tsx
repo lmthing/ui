@@ -13,7 +13,7 @@ export const meta = {
   pick: "A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).",
   writeHints: [
     "Body uses headings, paragraphs, lists, quotes, bold, italic and [label](screen:screen_id) links. No HTML or external links.",
-    "Encode line breaks using \\n in the JSON body string. Put headings, quotes and list items on separate lines, and use \\n\\n between paragraphs. Do not substitute spaces for line breaks.",
+    'Copy this JSON body pattern: "## Heading\\nFirst paragraph.\\n\\nSecond paragraph." Put each heading, quote and list item on its own line. Use JSON escapes, not tabs, spaces or invisible characters for line breaks. Keep headings short and paragraphs focused.',
     'For body-only reading with no header, set detail "brief". Keep title in the line; reading time is computed. Leave density null unless the brief explicitly asks for tighter spacing.',
   ],
   region: "body",
@@ -62,12 +62,12 @@ export const examples = [
     title: "A fern's first week at home",
     by: "Noor Martin",
     date: "2026-11-08",
-    photo: "lib:plants",
-    body: "## Pick a spot\nSet the fern by a bright window in **indirect light**. Give its fronds room to unfurl.\n\n> Check the pot before you water.\n\nSee the [fern care schedule](screen:fern_schedule) for a reminder.",
+    photo: "lib:fern",
+    body: "## Pick a spot\nSet the fern in **indirect light**, where its fronds have plenty of room to unfurl.\n\n> Check the pot before you water.\n\nSee the [fern care schedule](screen:fern_schedule) for a reminder.",
   },
   {
     title: "Before the first walk",
-    body: "## At the door\nBring the lead, a water bowl, and a spare bag. Let Clover sniff the lead before clipping it on.\n\n- Check the gate latch.\n- Keep the first loop *short and familiar*.\n\nOpen the [park route](screen:park_route) before setting out.",
+    body: "## At the door\nBefore clipping on the lead, let Clover sniff it while you pack a bowl and spare bag.\n\n- Check the gate latch.\n- Keep the first loop *short and familiar*.\n\nOpen the [park route](screen:park_route) before setting out.",
   },
 ] satisfies z.input<typeof props>[];
 
