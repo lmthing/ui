@@ -86,6 +86,8 @@ export type Meta = {
   set?: Readonly<Record<string, ComponentSet>>;
   /** Confirmed component press part → item set part whose nullable values are cleared. */
   clearItems?: Readonly<Record<string, string>>;
+  /** Component press part → live text and item picker parts to reset together. */
+  clear?: Readonly<Record<string, { text: readonly string[]; pickers: readonly string[] }>>;
   /** Confirmed component press part → wire prop holding the sign-off timestamp. */
   signOff?: Readonly<Record<string, string>>;
   /** `visible: "first"` draws and reads only the first item, with a count of the rest. */
@@ -101,6 +103,8 @@ export type Meta = {
     adjust?: NumericAdjustments;
     /** Item parts backed by wire props. Photo and remove use the declared press actions. */
     edits?: ItemEdits;
+    /** Inline press/select parts; a choice source prop belongs to the addressed item. */
+    pickers?: Readonly<Record<string, { prop: string; choices: ChoiceSource }>>;
     /** Locate a derived item's owner in wire input; by default it is the item at its stamped index. */
     editPath?: ItemEditPath;
     /** Item parts with a numeric `set`; adjustments to the same prop share its value and bounds. */
