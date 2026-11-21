@@ -24,6 +24,8 @@ export type LiveActionInputs = {
   text?: Readonly<Record<string, { prop: string; max: number }>>;
   /** Item check or toggle part → the parsed boolean projected before deriving live props. */
   checks?: Readonly<Record<string, string>>;
+  /** Component check or toggle part → one live boolean, seeded by a parsed boolean or `initial`. */
+  toggles?: Readonly<Record<string, { prop: string; initial: boolean }>>;
   /** Send part → declared text input and optional audience prop, captured at the admitted step. */
   send?: Readonly<Record<string, { field: string; audience?: string }>>;
   /** Derive presentation props/gates, optionally closing over trusted host facts for this instance. */

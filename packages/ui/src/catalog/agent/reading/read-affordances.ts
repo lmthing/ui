@@ -108,7 +108,8 @@ export function readAffordances(
                 ? (answers?.[target] ?? values[`${instance}/${liveInputKey(target, "type")}`])
                 : (values[`${a.address}/$draft`] ?? answers?.[target] ?? values[a.address]);
     let detail = a.detail;
-    if (typeof value === "boolean" && a.action === "toggle") detail = `:${value ? "on" : "off"}`;
+    if (a.input?.kind !== "boolean" && typeof value === "boolean" && a.action === "toggle")
+      detail = `:${value ? "on" : "off"}`;
     if (!a.input && typeof value === "boolean" && a.action === "check")
       detail = `:${value ? "done" : "todo"}`;
     const offered = a.action === "select" && !choices ? runtimeRowValue(meta, props, target, value) : value;

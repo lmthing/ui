@@ -49,7 +49,8 @@ export function needsConfirmation(ctx: ControllerContext, { entry, selected }: A
   const part = selected.address.split("/").slice(1).join("/") || "root";
   if (selected.action === "press" && meta.items?.reset === part) return true;
   if (reportConfirmation(meta, part, selected.action)) return true;
-  if (successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits) return true;
+  if (successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits || meta.localState)
+    return true;
   return Boolean(sessionEvent(meta, part, selected.action));
 }
 
@@ -132,6 +133,8 @@ export function introducedPart(
   const prefix = `${ctx.screen.id}/${entry.id}/`;
   const gated =
     (meta.live?.derive ||
+      meta.live?.toggles ||
+      meta.localState ||
       (isNestedTarget(meta, target) && (action.action === "increment" || action.action === "decrement")) ||
       meta.select?.runtime ||
       meta.linkedEdits ||

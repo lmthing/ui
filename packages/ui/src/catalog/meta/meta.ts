@@ -156,6 +156,8 @@ export type Meta = {
   deviceDataWake?: LiveMeta.DeviceDataWake;
   /** Runtime projections and row presses backed by declared host records and a staged journal. */
   recordRuntime?: LiveMeta.RecordRuntime;
+  /** Pure, bounded instance state, advanced by declared local actions only. */
+  localState?: LiveMeta.LocalStateRuntime;
   /** Pure visibility rule over the declared host records. A false result hides the whole component. */
   deviceDataVisible?: (data: DeviceData) => boolean;
   /** Deterministic synthetic records for preview, conformance and read-probe fixtures only. */

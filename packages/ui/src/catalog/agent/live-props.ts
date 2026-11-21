@@ -12,7 +12,7 @@ import { projectLegacySelection, projectNested, projectSelection } from "./selec
 import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
 import { projectDerivedMoves, projectMoves } from "./action-input";
 import { hasWireNestedControls } from "./nested";
-import { projectRecordRuntime } from "./record-runtime";
+import { projectLocalState, projectRecordRuntime } from "./record-runtime";
 import {
   adjustmentAt,
   projectAdjustments,
@@ -151,6 +151,7 @@ export function liveProps(
     if (state !== undefined) props = { ...props, state };
   }
   props = projectDraw(meta, props, get);
+  props = projectLocalState(meta, props, validated, get);
   props = projectLiveInputs(meta, props, instance, get, data, validated);
   props = projectRecordRuntime(meta, props, instance, values, data, now);
   // Reapply to rows that a live or host projection may have replaced.

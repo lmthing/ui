@@ -1,7 +1,6 @@
 import { liveProps, parseControlProps, stageItemAdjustment } from "./live-props";
 import type { Definition } from "../probes";
 import { migrateScreen } from "../migrations";
-import type { Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
 import {
   actionValueAddress,
@@ -9,8 +8,7 @@ import {
   findAction,
   localValues,
   type selectStep,
-  stageProgress,
-  stageRecord,
+  stageStepProgress,
   stageValue,
   validateStep,
 } from "./action-input";
@@ -24,10 +22,9 @@ import {
   projectDeviceData,
   type DeviceData,
 } from "./device-data";
-import { stageLinkedEdit } from "./linked-edits";
 import { stageReportEdit } from "./report-edits";
 import { stageInlinePress } from "./live-inputs";
-import { stageRecordAction, withRecordScreen } from "./record-runtime";
+import { stageLocalEvent, stageRecordAction, withRecordScreen } from "./record-runtime";
 export type ActStep = { address: string; action: string; value?: unknown; recordTarget?: string };
 export type Values = Record<string, unknown>;
 export type SendDraft = { address: string; text: string; audience?: string };
@@ -40,6 +37,7 @@ export type ActResult =
       links: { goto: string; address: string }[];
       sends?: SendDraft[];
       driven?: ActStep[];
+      localEvent?: true;
     }
   | { ok: false; code: ActCode; at: number; hint?: string };
 
@@ -90,24 +88,6 @@ function expireProgress(
     if (def.meta.draw && staleDraw(def.meta, props, values[draw])) values[draw] = undefined;
     if (staleSession(def.meta, props, values[session])) values[session] = undefined;
   }
-}
-
-function stepProgress(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  next: Values,
-  step: ActStep,
-  found: Affordance,
-  random: RandomSource | null,
-  snapshot: DeviceData | undefined,
-  now: number,
-) {
-  const record = stageRecord(screen, defs, next, step, snapshot, now);
-  if (record !== undefined) return record ? "" : false;
-  return (
-    stageLinkedEdit(screen, defs, next, found, step.value) ??
-    stageProgress(screen, defs, step.address, step, next, random, snapshot)
-  );
 }
 
 function stageControl(
@@ -175,10 +155,19 @@ export function planAct(
     const { result } = validated;
     if ("code" in result) return { ok: false, at, ...result };
     const resolved = { ...step, address, value: result.value };
+    if (found.localEvent) {
+      const failure = stageLocalEvent(screen, defs, next, resolved, found.localEvent);
+      if (failure) return { ok: false, code: "invalid_value", at, hint: failure.error };
+      plan.localEvent = true;
+      changed.push(`${address} ${step.action}`);
+      continue;
+    }
     const record = stageRecordAction(screen, defs, next, resolved, now, snapshot);
     if (record && "error" in record) return { ok: false, code: "invalid_value", at, hint: record.error };
     try {
-      const progress = record ? "" : stepProgress(screen, defs, next, resolved, found, random, snapshot, now);
+      const progress = record
+        ? ""
+        : stageStepProgress(screen, defs, next, resolved, found, random, snapshot, now);
       if (progress === false)
         return { ok: false, code: "invalid_value", at, hint: "Invalid record mutation" };
       if (progress !== undefined) {

@@ -57,7 +57,7 @@ export function useLiveControls(meta: Meta, props: Values): Values {
   useSyncExternalStore(subscribe, selectionSnapshot, selectionSnapshot);
   return (
     host?.liveControls(meta, props, component) ??
-    (meta.select?.runtime
+    (meta.select?.runtime || meta.localState
       ? liveProps(meta, props, component, {}, true, data)
       : projectLiveInputs(meta, props, component, () => undefined, data))
   );

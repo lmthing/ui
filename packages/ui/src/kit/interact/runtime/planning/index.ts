@@ -5,6 +5,7 @@ import {
   confirmationAction,
   confirmationFor,
   handlerFor,
+  navigationAction,
   type ActionContext,
   type ActionResult,
   type ActionState,
@@ -26,7 +27,7 @@ import { actionInput, disabledHint } from "./action-input";
 export { drivenPartBlock } from "./introduced-part";
 
 type PreparedStep =
-  | { state: ActionState; context: ActionContext; drive: ActStep | undefined }
+  | { state: ActionState; context: ActionContext; drive: ActStep | undefined; localEvent?: true }
   | { error: Extract<ActReply, { ok: false }> };
 function prepareStep(
   state: ActionState,
@@ -66,6 +67,7 @@ function prepareStep(
   return {
     state: { ...state, values, changes: [...state.changes, ...plan.changed] },
     drive: plan.driven?.[0],
+    ...(plan.localEvent && { localEvent: true }),
     context: {
       screen: ctx.screen,
       active,
@@ -87,12 +89,12 @@ function prepareStep(
 }
 
 function runControl(
-  { state, context }: Extract<PreparedStep, { context: ActionContext }>,
+  { state, context, localEvent }: Extract<PreparedStep, { context: ActionContext }>,
   selected: ActStep,
   address: string,
 ) {
   const { links, screen } = context;
-  return handlerFor(selected.action)(
+  return (localEvent ? navigationAction : handlerFor(selected.action))(
     state,
     { ...selected, address },
     { ...context, links: links.map((link) => ({ ...link, address: `${screen.id}/${address}` })) },
@@ -132,7 +134,8 @@ function stepRunner(
       if (block) return { state: before, effects: [], error: actionFailure(at, block.code, block.hint) };
       return run(before, { ...prepared.drive, address: `${ctx.screen.id}/${prepared.drive.address}` });
     }
-    execution.performed.push({ ...selected, address: `${ctx.screen.id}/${selected.address}` });
+    if (!prepared.localEvent)
+      execution.performed.push({ ...selected, address: `${ctx.screen.id}/${selected.address}` });
     if (isDraw(prepared.context)) {
       execution.drew = true;
       if (random !== null) {

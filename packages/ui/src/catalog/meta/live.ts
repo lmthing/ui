@@ -1,6 +1,6 @@
 import type { z } from "zod";
 import type { AppCurrency, DeviceData, ScreenLike } from "../agent";
-import type { LiveActionInputs, StateName } from "../types";
+import type { ActionName, LiveActionInputs, StateName } from "../types";
 
 export type LiveInputs = Omit<LiveActionInputs, "derive"> & {
   /** Project live props and gates from parsed props and declared host records. Derived items supply stable ids. */
@@ -32,6 +32,24 @@ export type SelectionBinding = {
 };
 
 type ProjectionProps = Readonly<Record<string, unknown>>;
+
+export type LocalStateEvent = Readonly<{
+  part: string;
+  action: ActionName;
+  item?: string;
+  value: unknown;
+}>;
+export type LocalStateRuntime = {
+  events?: readonly `${string}.${ActionName}`[];
+  itemEvents?: readonly `${string}.${ActionName}`[];
+  frame: (
+    seed: ProjectionProps,
+    stored: unknown,
+  ) =>
+    | { props: ProjectionProps; advance: (event: LocalStateEvent) => { stored: unknown } | { error: string } }
+    | undefined;
+};
+
 /** Schemas hosts use to supply a pack's trusted records, outside the Writer contract. */
 export type HostRecords = Readonly<Record<string, z.ZodType>>;
 
