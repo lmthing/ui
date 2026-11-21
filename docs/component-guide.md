@@ -139,6 +139,12 @@ Keep the strict Writer schema and existing recipes unchanged. Test legacy recipe
 parts and action verbs at the old addresses, including hidden or absent slots. The Timeline
 pilot shares event rows and date/rail layout without replacing Agenda or Itinerary on the wire.
 
+| Internal renderer | Owner supplies |
+| --- | --- |
+| `SeatPlan` | Grid sections, optional marker, badges, preview/total and footer; or tables and an unassigned guest tray. Grid targets select or toggle as declared by the owner; table and guest targets retain their separate press/move policies. |
+| `StageBoard` | Ordered lanes, localized headings/counts, stamped cards and optional move presentation. Terminal outcomes, locks and eligible destinations are owner policy. A read-only queue passes no move presentation. |
+| `FeedRow`, `DateRows` | Named author, timestamp, payload, hierarchy and accessory slots. Date groups preserve the caller's order and distinguish explicit time labels from missing time; independently addressed accessories are not nested in a row link. |
+
 ## Words and language
 
 `KitProvider` and `PhoneScreen` take the app's BCP-47 `lang`; the default is English.

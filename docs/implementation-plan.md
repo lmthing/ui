@@ -535,6 +535,16 @@ schema. The first adapters are Agenda's dated event list and Itinerary's foldabl
 Timeline's event renderer. Keep their legacy ids, parts, action verbs and recipes, including the
 distinction between all-day events and untimed stops. Renderer adoption does not retire an id.
 
+Before a Wave 6 scaffold, check both shipped and planned definitions for equivalent drawing.
+Share `SeatPlan` for cabin and cinema grids (`KitSeatGrid`) and assigned event seating
+(`KitSeatMap`). Selection, holds, confirmation and guest moves stay separate owner behaviors,
+not visual variants. Share `StageBoard` over `KitColumns` for counted lanes: only the owner
+can offer move destinations, and a sorted queue can use the lanes without any move controls.
+Share `FeedRow` and `DateRows` for authored streams and dated entries. The owner keeps order,
+filtering, visibility, tiers and actions; the renderer only places named slots under existing
+addresses. Exercise missing slots and inert loading as well as filled rows. No new Director
+scope or Writer fields follow from shared drawing.
+
 ### 4.7 Lookups for repairs
 
 **Pending:** `nearestIcon(name)` (edit distance and synonyms, else neutral `dot`),

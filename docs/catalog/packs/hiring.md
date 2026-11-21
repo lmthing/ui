@@ -61,8 +61,8 @@ offer. Moving an applicant changes their active stage; hired, rejected and withd
 - Parts → actions: active applicants `root press`, active applicants `root move` (to a stage label).
 - States: filled, empty, loading, error (a change could not be saved).
 - Real path: application records on the phone; the host moves only active records between active stages.
-- Metadata: `meta.dense: true`, weight 3. Reuse `KitColumns`, a shared kit base, not data `Board`.
-  Code derives column counts and terminal-outcome counts from records; stage labels come from shared copy.
+- Metadata: `meta.dense: true`, weight 3. The `ApplicantLanes` adapter uses `StageBoard` over `KitColumns`, not data `Board`.
+  Hiring derives lane and terminal-outcome counts, localizes stage labels and supplies legal move values for active applicants.
 
 ### `Candidate` · planned · content · phone
 One person's application for one opening: submitted date, stage, outcome and an evidence review.
@@ -146,6 +146,7 @@ A scannable list of open roles showing each job title, employer, workplace pill 
 - Parts → actions: jobs `root press` (opens `goto`), jobs `save toggle`, jobs `apply press` (`meta.partTiers: { apply: "service" }` when submitting externally).
 - States: filled, empty, loading, success (saved), error (feed load failed).
 - Real path: cached or saved job openings stored on the seeker's phone; fetching live openings or submitting external applications uses a job-board service.
+- Renderer: use `FeedRow` for employer, role, posted age, and save/apply accessories. Hiring owns pay formatting and apply gating.
 
 ### `ResumeProfile` · planned · content · phone
 A job seeker's structured CV card presenting their headline, an open-to-work toggle, dated work experience and education entries, up to twelve skill chips and an attached CV label. Seekers can update visibility, open the CV preview or jump to edit details before applying.
