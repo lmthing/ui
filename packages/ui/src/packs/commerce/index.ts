@@ -44,4 +44,5 @@ export const example = `{"id":"shop_header","c":"Header","title":"Crumb"}
 {"id":"saved_basket","c":"CartBar","goto":"basket"}
 {"id":"scan_barcode_header","c":"Header","style":"back","title":"Scan a product"}
 {"id":"scan_barcode_camera","c":"Camera","kind":"scan","hint":"Point at the barcode on your loaf."}
+{"id":"scan_barcode_cancel","c":"Button","label":"Back to the loaf","goto":"loaf"}
 `;
