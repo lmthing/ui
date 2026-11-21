@@ -16,6 +16,7 @@ type Column = {
   countPart?: string;
   /** Stable value for move actions. If omitted, the displayed label is the value. */
   moveValue?: string;
+  headingRole?: "body";
   summary?: ReactNode;
   children?: ReactNode;
 };
@@ -24,12 +25,7 @@ type ColumnsProps = Drawing & {
   style?: "columns" | "stack";
   move?: ColumnMove;
 };
-type CardProps = {
-  column: Column;
-  loading: boolean;
-  stack: boolean;
-  items: ReactNode;
-};
+type CardProps = { column: Column; loading: boolean; stack: boolean; items: ReactNode };
 function ColumnCard({ column, loading, stack, items }: CardProps) {
   const ks = useKitStyle();
   const empty = Children.toArray(column.children).length === 0;
@@ -45,7 +41,11 @@ function ColumnCard({ column, loading, stack, items }: CardProps) {
       <MatrixContent loading={loading}>
         <XStack gap={space.md} alignItems="center" justifyContent="space-between">
           <YStack flex={component.base.bodyFlex}>
-            <KitText role="heading" part={null}>
+            <KitText
+              role={column.headingRole ?? "heading"}
+              emphasis={column.headingRole ? "strong" : undefined}
+              part={null}
+            >
               {column.label}
             </KitText>
           </YStack>
@@ -71,41 +71,36 @@ type ColumnItem = {
 type ColumnMove = {
   cards: readonly ColumnItem[];
   caption: string;
+  inlineCards?: boolean;
+  reserveTargets?: boolean;
   /** Accessible name for the button that moves this card to the given column. */
   label: (destination: string, card: string) => string;
 };
-type DestinationProps = { destination: string; name: string; press?: (() => void) | undefined };
-function Destination({ destination, name, press }: DestinationProps) {
+// prettier-ignore
+type DestinationProps = { destination: string; name: string; loading: boolean; press?: (() => void) | undefined };
+// prettier-ignore
+function Destination({ destination, name, loading, press }: DestinationProps) {
   const ks = useKitStyle();
-  return (
-    <XStack
-      maxWidth="100%"
-      minHeight={size.control.md}
-      minWidth={size.control.md}
-      paddingHorizontal={space.sm}
-      alignItems="center"
-      justifyContent="center"
-      borderRadius={shifted("sm", ks.radiusShift)}
-      backgroundColor="$raised"
-      accessibilityRole="button"
-      accessibilityLabel={name}
-      {...(isWeb ? { "data-step-action": "move", tabIndex: press ? 0 : -1 } : {})}
-      onPress={press}
-      {...((isWeb && press
-        ? {
-            onKeyDown: (event: { key: string; preventDefault(): void }) => {
-              if (event.key !== "Enter" && event.key !== " ") return;
-              event.preventDefault();
-              press();
-            },
-          }
-        : {}) as object)}
-    >
-      <KitText role="label" tone="text" part={null}>
-        {destination}
-      </KitText>
-    </XStack>
+  const onKeyDown = (event: { key: string; preventDefault(): void }) => {
+    if (!press || (event.key !== "Enter" && event.key !== " ")) return;
+    event.preventDefault();
+    press();
+  };
+  const text = (
+    <KitText role="label" part={null}>
+      {destination}
+    </KitText>
   );
+  const web = isWeb && !loading
+    ? { "data-step-action": "move", tabIndex: press ? 0 : -1, ...(press && { onKeyDown }) }
+    : {};
+  return <XStack maxWidth="100%" minHeight={size.control.md} minWidth={size.control.md}
+    paddingHorizontal={space.sm} alignItems="center" justifyContent="center"
+    borderRadius={shifted("sm", ks.radiusShift)} backgroundColor={loading ? "$line" : "$raised"}
+    accessibilityRole={loading ? undefined : "button"} accessibilityLabel={loading ? undefined : name}
+    {...(web as object)} onPress={press}>
+    {loading ? <YStack opacity={component.base.none}>{text}</YStack> : text}
+  </XStack>;
 }
 
 type ItemProps = {
@@ -115,7 +110,7 @@ type ItemProps = {
   move: ColumnMove;
   focus: RefObject<string | null>;
 };
-function ItemRoot({ card, destinations, move: { caption, label }, loading, focus }: ItemProps) {
+function ItemRoot({ card, destinations, move, loading, focus }: ItemProps) {
   const address = usePart("root", !loading);
   const { controller, interactive } = useKit();
   const runMove = useMoveFocus(focus, address.testID, address.ref);
@@ -128,6 +123,7 @@ function ItemRoot({ card, destinations, move: { caption, label }, loading, focus
       label={card.label}
       goto={card.goto}
       inset="none"
+      inline={move.inlineCards ?? false}
       trailing={card.goto && <KitIcon name="chevron_right" decorative />}
     >
       {card.children}
@@ -141,17 +137,20 @@ function ItemRoot({ card, destinations, move: { caption, label }, loading, focus
         : {})}
     >
       <MatrixContent loading={loading}>{row}</MatrixContent>
-      {!loading && destinations.length > 0 && (!interactive || !controller || offered) && (
+      {destinations.length > 0 && (loading ? move.reserveTargets : !active || offered) && (
         <YStack gap={space.xs}>
-          <KitText role="caption" tone="muted" part={null}>
-            {caption}
-          </KitText>
+          <MatrixContent loading={loading}>
+            <KitText role="caption" tone="muted" part={null}>
+              {move.caption}
+            </KitText>
+          </MatrixContent>
           <XStack gap={space.xs} flexWrap="wrap">
             {destinations.map(({ label: destination, value }) => (
               <Destination
                 key={value}
                 destination={destination}
-                name={label(destination, card.label)}
+                name={move.label(destination, card.label)}
+                loading={loading}
                 press={offered ? () => press(value) : undefined}
               />
             ))}

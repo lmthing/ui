@@ -1,6 +1,6 @@
 import { expect, it, vi } from "vitest";
 import { planAct, readScreen } from "@lmthing/ui/catalog";
-import { createScreenController } from "@lmthing/ui/kit";
+import { createScreenController, KitColumns, KitProvider, PartScope } from "@lmthing/ui/kit";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { PhoneScreen } from "../../src/kit/screen";
@@ -124,4 +124,35 @@ it("renders one canonical item address with separate, unaddressed move and press
   const item = elementAt(html, address);
   expect(hasColumnTarget(item, "move")).toBe(true);
   expect(hasColumnTarget(item, "press")).toBe(true);
+});
+
+it("shows display labels and omits ambiguous wire values when opted into stable destinations", () => {
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  const html = renderToStaticMarkup(
+    <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss">
+      <KitProvider theme={theme}>
+        <PartScope screen="home" component="c1" rev={1} state="filled">
+          <KitColumns
+            style="stack"
+            columns={[
+              { id: "a", label: "Waiting", count: "1", moveValue: "queued" },
+              { id: "b", label: "In care", count: "0", moveValue: "working" },
+              { id: "c", label: "Finished", count: "0", moveValue: "done" },
+              { id: "d", label: "Complete", count: "0", moveValue: "done" },
+            ]}
+            move={{
+              caption: "Move to",
+              label: (destination, card) => `Move ${card} to ${destination}`,
+              cards: [{ id: "r1", column: 0, label: "Snake plant", children: "Snake plant" }],
+            }}
+          />
+        </PartScope>
+      </KitProvider>
+    </TamaguiProvider>,
+  );
+  expect(html).toContain('aria-label="Move Snake plant to In care"');
+  expect(html).not.toContain('aria-label="Move Snake plant to working"');
+  expect(html).not.toContain('aria-label="Move Snake plant to Finished"');
+  expect(html).not.toContain('aria-label="Move Snake plant to Complete"');
+  expect(html).not.toContain('aria-label="Move Snake plant to Waiting"');
 });
