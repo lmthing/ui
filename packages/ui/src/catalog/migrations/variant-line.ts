@@ -130,6 +130,7 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
       values: {
         plain: { surface: "plain" },
         inset: { surface: "card" },
+        grid: { arrange: "grid" },
       },
     },
     // The shared surface sets the finish; the structural style keeps one card per row.
