@@ -7,10 +7,10 @@ Built in step U7 (drafts in U3), wave 2 of the catalog plan. Read `docs/catalog/
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
-- `components/`: `Chores.tsx` `Rewards.tsx` `CareSchedule.tsx` `Turns.tsx` `Agenda.tsx` `BabyLog.tsx` `Devices.tsx` `CameraFeed.tsx`
+- `components/`: `Chores.tsx` `Rewards.tsx` `CareSchedule.tsx` `Turns.tsx` `Agenda.tsx` `BabyLog.tsx` `Devices.tsx` `CameraFeed.tsx` `Routines.tsx`
 - `archetypes/`: `family.ts` `kids.ts` `care.ts` `baby.ts` `house.ts`
 
-`Devices.tsx` includes focused thermostat controls, sensor ranges and saved scenes; `house.ts` holds all three device layouts. No separate climate, scene or sensor files.
+`Devices.tsx` includes focused thermostat controls, sensor ranges and saved scenes. `house.ts` holds the device, camera and routine layouts.
 
 Rules:
 

@@ -13,6 +13,7 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `BabyLog.tsx`
 - `Devices.tsx`
 - `CameraFeed.tsx`
+- `Routines.tsx`
 
 Rules:
 - Same file shape as `src/components/`: exports `meta`, `props`, `fallback`, `examples`, `probes`, view.
