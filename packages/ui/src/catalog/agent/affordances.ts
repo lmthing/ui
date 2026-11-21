@@ -4,11 +4,11 @@ import { choiceValues } from "./validate-value";
 import { adjustmentAt, clockActionValid, clockControlDeclared } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
-import { addressedItems, matches, nestedActions, visibleItems } from "./visibility";
-import { sendDraft, withLiveInput, type LiveInput } from "./live-inputs";
-import { linkedInput } from "./linked-edits";
+import { addressedItems, nestedActions, visibleItems } from "./visibility";
+import { sendDraft, type LiveInput } from "./live-inputs";
 import type { SendDraft } from "./act";
-import { itemEditOffer, reportConfirmation, reportLocked } from "./report-edits";
+import { partsOf } from "./action-input";
+import type { DeviceData } from "./device-data";
 
 export type Affordance = {
   address: string;
@@ -22,7 +22,6 @@ export type Affordance = {
 };
 type Props = Record<string, unknown>;
 type Adjustment = NonNullable<ReturnType<typeof adjustmentAt>>;
-
 /** Item increments without a numeric setter or a clock are owned by the pure action planner. */
 export function isAdjustOnlyItem(
   adjustment: Adjustment | undefined,
@@ -36,76 +35,26 @@ export function isAdjustOnlyItem(
   );
 }
 
-const firstBoolean = (value: Props) => Object.values(value).find((v) => typeof v === "boolean");
-function detailOf(action: string, holder: Props, suppressLink: boolean): string {
-  if (!suppressLink && (action === "press" || action === "select") && typeof holder.goto === "string")
-    return `→${holder.goto}`;
-  if (action === "toggle" && ["on", "off"].includes(String(holder.value))) return `:${holder.value}`;
-  if (action === "toggle" || action === "check") {
-    const on = firstBoolean(holder);
-    if (on !== undefined) return action === "check" ? `:${on ? "done" : "todo"}` : `:${on ? "on" : "off"}`;
-  }
-  return "";
-}
-
-type When = Record<string, Record<string, string | boolean>> | undefined;
-
-function partsOf(
-  spec: Record<string, readonly string[]> | undefined,
-  holder: Props,
-  base: string,
-  when: When,
-  outer: Props,
+function actionsForItem(
   meta: Meta,
-  item = false,
+  props: Props,
+  item: Props,
+  instance: string,
+  first: boolean,
+  data?: DeviceData,
 ) {
-  const noGoto = item ? meta.actions?.noGoto?.items : meta.actions?.noGoto?.parts;
-  const locked = reportLocked(meta, outer);
-  return Object.entries(spec ?? {}).flatMap(([part, actions]) =>
-    matches(when?.[part], holder, outer) &&
-    (!(part in holder) ||
-      holder[part] !== undefined ||
-      (item && Object.hasOwn(meta.items?.edits ?? {}, part)) ||
-      (!item &&
-        (meta.selections?.[part]?.runtime ||
-          Object.hasOwn(meta.live?.text ?? {}, part) ||
-          linkedInput(meta, part))))
-      ? actions
-          .filter((action) => {
-            if (!matches(when?.[`${part}.${action}`], holder, outer)) return false;
-            if (!item) return !locked || !reportConfirmation(meta, part, action);
-            const edit = itemEditOffer(meta, holder, part, action);
-            return edit === undefined || (edit && !locked);
-          })
-          .map((action) => {
-            const target = holder[part];
-            const nested = target && typeof target === "object" ? (target as Props) : holder;
-            const itemControl = item && (meta.items?.edits?.[part] || meta.items?.pickers?.[part]);
-            const localPress =
-              !item &&
-              (meta.clear?.[part] ||
-                meta.linkedEdits?.swap.part === part ||
-                reportConfirmation(meta, part, action));
-            const suppressLink = Boolean(
-              itemControl ||
-              (action === "press" && (localPress || (nested === holder && noGoto?.includes(part)))),
-            );
-            return {
-              address: part === "root" ? base : `${base}/${part}`,
-              part,
-              action,
-              detail: detailOf(action, nested, suppressLink),
-              ...withLiveInput(meta, part, action, holder, item),
-            };
-          })
-      : [],
-  );
-}
-
-function actionsForItem(meta: Meta, props: Props, item: Props, instance: string, first: boolean) {
   const { items, when } = meta.actions ?? {};
   const id = String(item.id);
-  const actions = partsOf(items, item, `${instance}/${id}`, when, { ...props, $first: first }, meta, true);
+  const actions = partsOf(
+    items,
+    item,
+    `${instance}/${id}`,
+    when,
+    { ...props, $first: first },
+    meta,
+    true,
+    data,
+  );
   return actions.filter(({ part, action }) => {
     const picker = Object.hasOwn(meta.items?.pickers ?? {}, part);
     const needsChoices =
@@ -123,6 +72,8 @@ export function affordancesOf(
   values: Props = {},
   state = (props.state as StateName | undefined) ?? "filled",
   includeBlocked = false,
+  data?: DeviceData,
+  recordClock?: (target: string, action: string) => boolean,
 ): Affordance[] {
   const get = (part: string) => values[`${instance}/${part}`];
   state = sessionStatus(meta, props, drawStatus(meta, props, state, get), get);
@@ -137,10 +88,10 @@ export function affordancesOf(
     return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
   });
   const items = addressedItems(meta, props);
-  const visible = meta.items?.visibleWhen && new Set(visibleItems(meta, props));
+  const visible = (meta.items?.visibleWhen || meta.items?.records) && new Set(visibleItems(meta, props));
   // `$first` in a rule is true only for the first item (the top card of a stack).
   const itemActions = items.flatMap((item, index) =>
-    visible && !visible.has(item) ? [] : actionsForItem(meta, props, item, instance, index === 0),
+    visible && !visible.has(item) ? [] : actionsForItem(meta, props, item, instance, index === 0, data),
   );
   const runtime = values[`${instance}/$runtime`];
   const nested = nestedActions(meta, props, instance, itemActions, get, includeBlocked);
@@ -158,6 +109,7 @@ export function affordancesOf(
     const role = drawRole(meta, target, action);
     const event = sessionEvent(meta, target, action);
     if (!allowedIn(meta, state, `${part}.${action}`, Boolean(role), feedback)) return false;
+    if (recordClock && !recordClock(target, action)) return false;
     if (event && !sessionAvailable(session, event)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
     if (

@@ -16,6 +16,11 @@ import { useKit } from "../provider";
 const subscribeNone = () => () => {};
 export const DeviceDataContext = createContext<DeviceData | undefined>(undefined);
 
+/** Host currency, if configured on the same controller that reads this screen. */
+export function useAppCurrency() {
+  return useKit().controller?.currency;
+}
+
 /** Get the host's declared records for the current component, outside its parsed props. */
 export function useDeviceData() {
   const { component } = usePartContext();

@@ -2,9 +2,11 @@ import type { ActionName, ActionSpec, Component, ComponentId, StateName, Tier } 
 import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
+import type { RecordEdits } from "./record-edits";
 import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
-import type { DeviceData, ItemEditPath, ItemEdits, ScreenLike } from "../agent";
+import type { AppCurrency, DeviceData, ItemEditPath, ItemEdits, ScreenLike, Values } from "../agent";
 import type { Issue } from "../rules";
+import type { RecordRuntime } from "./record-runtime";
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -22,11 +24,7 @@ type LinkedEdits = {
   inputs: Readonly<Record<string, { prop: string; max: number }>>;
   swap: { part: string; sides: readonly [string, string] };
   /** Project display text and related props from the exact source edit and current order. */
-  project: (
-    props: Readonly<Record<string, unknown>>,
-    state: LinkedEditState,
-    data: DeviceData,
-  ) => Record<string, unknown>;
+  project: (props: Readonly<Values>, state: LinkedEditState, data: DeviceData) => Values;
 };
 type RowSelection = "index" | "position" | { field: string };
 type Choice = string | number | { value: string | number; label: string };
@@ -104,6 +102,8 @@ export type Meta = {
     adjust?: NumericAdjustments;
     /** Item parts backed by wire props. Photo and remove use the declared press actions. */
     edits?: ItemEdits;
+    /** Confirmed edits of whole wire records in the item collection. */
+    records?: RecordEdits;
     /** Inline press/select parts; a choice source prop belongs to the addressed item. */
     pickers?: Readonly<Record<string, { prop: string; choices: ChoiceSource }>>;
     /** Locate a derived item's owner in wire input; by default it is the item at its stamped index. */
@@ -149,6 +149,8 @@ export type Meta = {
   live?: LiveActionInputs;
   /** Record kinds this component may read from the host, never from Writer props. */
   deviceData?: readonly string[];
+  /** Runtime projections and row presses backed by declared host records and a staged journal. */
+  recordRuntime?: RecordRuntime;
   /** Pure visibility rule over the declared host records. A false result hides the whole component. */
   deviceDataVisible?: (data: DeviceData) => boolean;
   /** Deterministic synthetic records for preview, conformance and read-probe fixtures only. */
@@ -156,7 +158,14 @@ export type Meta = {
   parts?: readonly string[];
   states?: readonly StateName[];
   actions?: ActionSpec;
-  read?: (props: unknown, state: StateName, lang?: string, deviceData?: DeviceData) => string[];
+  /** Currency comes from the host, never from the component props. */
+  read?: (
+    props: unknown,
+    state: StateName,
+    lang?: string,
+    deviceData?: DeviceData,
+    currency?: AppCurrency,
+  ) => string[];
   signature?: string;
   status?: "draft" | "ready";
   /** Built by code (e.g. TabBar); stays readable but has no choose/write prompts or probes. */

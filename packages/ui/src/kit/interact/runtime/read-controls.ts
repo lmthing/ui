@@ -2,6 +2,7 @@ import {
   migrateScreen,
   readComponent,
   readScreen,
+  type AppCurrency,
   type Definition,
   type DeviceData,
   type ScreenLike,
@@ -29,12 +30,12 @@ function withKeypadDrafts(def: Definition, address: string, values: Values): Def
     ...def,
     meta: {
       ...def.meta,
-      read: (input, state, lang, deviceData) => {
+      read: (input, state, lang, deviceData, currency) => {
         const own = Object.keys(def.meta.actions?.parts ?? {}).filter((part) => parts.includes(part));
         const projected = projectValue(input as Values, address, own, values);
         const items = def.meta.items?.key;
         const rows = items && projected[items];
-        if (!items || !Array.isArray(rows)) return read(projected, state, lang, deviceData);
+        if (!items || !Array.isArray(rows)) return read(projected, state, lang, deviceData, currency);
         const itemParts = Object.keys(def.meta.actions?.items ?? {}).filter((part) => parts.includes(part));
         return read(
           {
@@ -46,6 +47,7 @@ function withKeypadDrafts(def: Definition, address: string, values: Values): Def
           state,
           lang,
           deviceData,
+          currency,
         );
       },
     },
@@ -59,12 +61,13 @@ export function readControls(
   lang?: string,
   disabled?: ReadonlyMap<string, symbol>,
   deviceData?: DeviceData,
+  currency?: AppCurrency,
 ): string {
   const migrated = migrateScreen(screen, { variantOnly: true });
   const hasKeypads = migrated.components.some(({ c }) => Array.isArray(defs[c]?.props.meta()?.keypadParts));
   const read = hasKeypads
-    ? readKeypads(migrated, defs, values, lang, deviceData)
-    : readScreen(screen, defs, values, lang, deviceData);
+    ? readKeypads(migrated, defs, values, lang, deviceData, currency)
+    : readScreen(screen, defs, values, lang, deviceData, currency);
   return disabled?.size
     ? read.replace(controlTokens, (token, address) => (disabled.has(address) ? "" : token))
     : read;
@@ -76,6 +79,7 @@ function readKeypads(
   values: Values,
   lang?: string,
   deviceData?: DeviceData,
+  currency?: AppCurrency,
 ) {
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
@@ -86,7 +90,7 @@ function readKeypads(
     ...screen.components.flatMap(({ id, c, state, ...props }) => {
       const def = defs[c];
       return def
-        ? readComponent(withKeypadDrafts(def, id, local), props, id, state, local, lang, deviceData)
+        ? readComponent(withKeypadDrafts(def, id, local), props, id, state, local, lang, deviceData, currency)
         : [`${id} ${c} (unknown)`];
     }),
   ].join("\n");

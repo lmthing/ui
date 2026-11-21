@@ -8,6 +8,7 @@ import {
   migrateScreen,
   filterDeviceDataScreen,
   isDeviceDataVisible,
+  projectDeviceData,
   resolveDefinition,
   type ActStep,
   type Definition,
@@ -119,8 +120,7 @@ function visibleConfirmation(
 ) {
   if (!confirmation) return;
   const [source] = relativeAddress(screen.id, confirmation.source).split("/");
-  const component = screen.components.find(({ id }) => id === source)?.c;
-  const meta = component && defs[component]?.meta;
+  const meta = defs[screen.components.find(({ id }) => id === source)?.c ?? ""]?.meta;
   if (!meta || isDeviceDataVisible(meta, data)) return confirmation;
 }
 export function createControllerContext(options: ControllerOptions, standalone = false) {
@@ -132,18 +132,17 @@ export function createControllerContext(options: ControllerOptions, standalone =
     openSheet: standalone ? undefined : (store.get(`${screen.id}/$sheet`) as string | undefined),
     confirmation: store.get(`${screen.id}/$confirmation`) as Confirmation | undefined,
   };
+  const localOnly = standalone && !screen.components.some(({ c }) => defs[c]?.meta.recordRuntime);
   const valuesOf = (at = now()) =>
-    standalone
+    localOnly
       ? store.snapshot(screen.id)
       : {
           ...initial,
           ...store.snapshot(),
-          ...Object.fromEntries(
-            screen.components.map((entry) => [valueKey(screen.id, entry.id, "$now"), at]),
-          ),
+          ...Object.fromEntries(screen.components.map(({ id }) => [valueKey(screen.id, id, "$now"), at])),
         };
   const liveScreen = (values: Values, sheet: string | undefined, covered = false, at = now()): ScreenLike => {
-    const visible = filterDeviceDataScreen(screen, defs, options.deviceData);
+    const visible = filterDeviceDataScreen(screen, defs, projectDeviceData(options.deviceData, values));
     if (standalone) return visible;
     const projected = projectScreen(visible, defs, values, at, sheet, false, false);
     return covered && !hostHidesSheet(screen, visible, sheet)
@@ -161,7 +160,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
     valuesOf,
     liveScreen,
     confirmationFor: (data = options.deviceData) =>
-      visibleConfirmation(screen, defs, status.confirmation, data),
+      visibleConfirmation(screen, defs, status.confirmation, projectDeviceData(data, valuesOf())),
     expiredProgress: (values: Values, at = now()) => expiredProgress(screen, defs, values, at),
     resetValues: () => {
       initial = initialValues(screen, defs, now);
@@ -183,18 +182,3 @@ export function createControllerContext(options: ControllerOptions, standalone =
   };
 }
 export type ControllerContext = ReturnType<typeof createControllerContext>;
-export function snapshotPlanning(ctx: ControllerContext): ControllerContext {
-  const at = ctx.now();
-  const values = ctx.valuesOf(at);
-  return {
-    ...ctx,
-    screen: filterDeviceDataScreen(ctx.screen, ctx.defs, ctx.options.deviceData),
-    now: () => at,
-    valuesOf: () => values,
-    status: { ...ctx.status, confirmation: ctx.confirmationFor() },
-    mounted: new Map(ctx.mounted),
-    disabledParts: new Map(ctx.disabledParts),
-    liveScreen: (next, sheet, covered) => ctx.liveScreen(next, sheet, covered, at),
-    expiredProgress: (next) => ctx.expiredProgress(next, at),
-  };
-}

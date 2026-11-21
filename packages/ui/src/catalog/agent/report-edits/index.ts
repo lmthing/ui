@@ -4,9 +4,18 @@ import type { ActStep, Values } from "../act";
 import { liveProps, parseControlProps, projectControlInput } from "../live-props";
 import type { ScreenLike } from "../read";
 import { addressedItems } from "../visibility";
-import type { DeviceData } from "../device-data";
+import { projectDeviceData, type DeviceData } from "../device-data";
 import { wireEditKey, writeWireEdit } from "./wire-edits";
-export { applyReportEdits } from "./wire-edits";
+import { isRecordAction, stageRecordEdit, recordClaimAt } from "./record-edits";
+export { applyRecordWire, applyReportEdits, validRecordWire, writeRecordWire } from "./wire-edits";
+export {
+  isRecordAction,
+  recordClaimAt,
+  recordEdit,
+  recordEditAllowed,
+  recordRequestAllowed,
+} from "./record-edits";
+export { projectRecordIds, rememberRecordIds } from "./record-ids";
 type Choices = NonNullable<NonNullable<Meta["select"]>["choices"]>[string];
 type ItemEdit =
   | { action: "select"; prop: string; choices: Choices }
@@ -43,14 +52,18 @@ export function itemEditAt(meta: Meta, props: Values, target: string) {
 }
 
 export function reportConfirmation(meta: Meta, target: string, action: string) {
-  return (
-    action === "press" && (itemEditSpec(meta, target)?.action === "remove" || !!own(meta.signOff, target))
-  );
+  if (isRecordAction(meta, target, action)) return true;
+  if (action !== "press") return false;
+  if (itemEditSpec(meta, target)?.action === "remove" || own(meta.signOff, target)) return true;
+  const part = itemTarget(target)?.part;
+  return Boolean(part && meta.confirmParts?.includes(part) && own(meta.recordRuntime?.presses, part));
 }
 
 export function hasReportConfirmation(meta: Meta) {
   return Boolean(
-    meta.signOff || Object.values(meta.items?.edits ?? {}).some(({ action }) => action === "remove"),
+    meta.signOff ||
+    meta.items?.records ||
+    Object.values(meta.items?.edits ?? {}).some(({ action }) => action === "remove"),
   );
 }
 
@@ -79,7 +92,8 @@ type EditRequest =
   | { kind: "confirm"; now: number; removal: ReportRemoval | undefined }
   | { kind: "photo"; reference: string };
 
-export type ReportRemoval = Readonly<{ index: number; reference: string }>;
+export type RecordClaim = NonNullable<ReturnType<typeof recordClaimAt>>;
+export type ReportRemoval = Readonly<{ index: number; reference: string }> | { record: RecordClaim };
 export function reportRemovalAt(meta: Meta, props: Values, target: string): ReportRemoval | undefined {
   const edit = itemEditAt(meta, props, target);
   if (edit?.spec.action !== "remove") return;
@@ -108,7 +122,7 @@ function changeAt(
     return { prop: spec.prop, value: [...photoList(row, spec.prop), request.reference] };
   if (request.kind === "confirm" && spec.action === "remove") {
     const photo = own(meta.items?.edits, spec.photo);
-    if (photo?.action !== "photo" || !request.removal) return;
+    if (photo?.action !== "photo" || !request.removal || "record" in request.removal) return;
     const { index, reference } = request.removal;
     const photos = photoList(row, photo.prop);
     if (photos[index] !== reference) return;
@@ -139,14 +153,15 @@ export function stageReportEdit(
   if (!def) return undefined;
   const { meta } = def;
   const spec = itemEditSpec(meta, target);
-  if (request.kind !== "input" && step.action !== "press") return undefined;
+  const record = request.kind === "confirm" && isRecordAction(meta, target, step.action);
+  if (!record && request.kind !== "input" && step.action !== "press") return undefined;
   const signOff = request.kind === "confirm" && own(meta.signOff, target);
   const relevant =
     request.kind === "input"
       ? spec?.action === step.action
       : request.kind === "photo"
         ? spec?.action === "photo"
-        : signOff || spec?.action === "remove";
+        : record || signOff || spec?.action === "remove";
   if (!relevant) return undefined;
   const { id: _id, c: _c, state: _state, ...raw } = entry!;
   const base = `${screen.id}/${id}`;
@@ -159,12 +174,20 @@ export function stageReportEdit(
   );
   const props = liveProps(meta, parseControlProps(def, raw, get), id!, editValues, true, data);
   if (reportLocked(meta, props)) return false;
+  if (record && request.kind === "confirm")
+    return stageRecordEdit(
+      { def, wire, props, base, data: projectDeviceData(data, values) },
+      values,
+      target,
+      step,
+      request.now,
+      request.removal && "record" in request.removal ? request.removal.record : undefined,
+    );
   const commit = (path: readonly (string | number)[], value: unknown) =>
     writeWireEdit(def, wire, values, `${base}/${wireEditKey}`, { path, value });
   if (signOff && request.kind === "confirm") {
     const date = new Date(request.now);
-    if (!Number.isFinite(date.valueOf()) || !commit([signOff], date.toISOString())) return false;
-    return true;
+    return Number.isFinite(date.valueOf()) && commit([signOff], date.toISOString());
   }
   const edit = itemEditAt(meta, props, target);
   if (!edit || !itemEditOffer(meta, edit.row, edit.part, step.action)) return false;
