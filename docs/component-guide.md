@@ -121,6 +121,24 @@ Unregistered words fall back to English. Only English ships at launch.
 
 ## Kit bases (the only building blocks)
 
+### Layout recipes
+
+Use `KitHeader` for heading plus supporting text, `KitMetaLine` for a row title and its metadata,
+`KitRowGroup` for a shared rail with separators, `KitFigure` for a figure and its caption, and
+`KitActionFooter` to attach actions to the group they belong to. The frame sets the outer gutter.
+The rail aligns leading and trailing slots; title-to-meta spacing stays smaller than group spacing.
+Absent slots take no space unless a row group deliberately reserves the leading rail.
+
+Use only the kit scale: title, body, meta, figure and caption. Existing `KitText` roles and compact
+figures map to that scale; use a kit role rather than sizing text in a view. Use `KitState` for
+empty, loading, error and success. It takes the same layout in both filled and loading states:
+describe the slots once, then let the recipe draw text or inert placeholders. Use an inline status
+for operations that leave useful content on screen. Keep existing parts, reading and actions.
+Only override a state treatment when the catalog doc calls for it, and do not invent a retry
+action. Test the kit geometry separately from host fixture data such as photos.
+
+### Base reference
+
 This table covers every base exported by `src/kit/base/index.ts`, including its exported helpers.
 `KitOverlay` is internal to screen rendering, not a component building block.
 Folder names below are under `src/kit/base/`; each has an `index.ts` door.

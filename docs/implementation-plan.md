@@ -865,6 +865,22 @@ Bases use Tamagui styled frames, token props and fixed lookup tables. `shifted` 
 `surfaceOf` applies soft/solid/hairline treatment. `KitStyle` sets density, font pairing, radius and
 strong text. No raw colours, pixel values or z-index outside tokens/themes.
 
+### 5.4b Layout recipes and states
+
+Compose the kit's header, title-and-meta line, separated row group, captioned figure and action
+footer. The outer frame owns its gutter, the group owns separation, and the row owns its rails
+and close spacing. Empty slots do not create gaps; reserve a rail only to align sibling rows.
+Figures and units share a baseline. There is one semantic type scale: title, body, meta, figure
+and caption. Legacy text roles are kit-owned treatments of those roles, not additional steps a
+component can set. Density, emphasis and theme mapping stay in the kit.
+
+Use the kit's default empty, loading, error and success treatments. Share slot geometry between
+filled and loading; loading draws no text or controls. Retain usable content when the state
+describes an operation on that content. Only override the treatment when the component's catalog
+doc specifies it, and only show retry when an enabled action is declared. Layout is not a wire
+change: preserve reading, addresses and actions. Test missing metadata, retained error and success,
+filled/loading parity, and last-column reachability separately from gallery fixture quality.
+
 ### 5.4a Theming a single component
 
 | To change                 | Do this                                                                                        |
