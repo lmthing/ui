@@ -4,6 +4,7 @@ Pure copy and formatting owned by booking pack components, one file per componen
 Use `index.ts` as the folder's door.
 
 - `Appointment.ts`: booking labels, optional details and reading.
+- `ClassRoster.ts`: localized session date and attendance counts.
 - `Availability.ts`: neutral working-week defaults, time-control labels and breaks.
 - `ServiceMenu.ts`: booking cue.
 - `Slots.ts`: availability labels, local end times, subtitles and hidden loading text.

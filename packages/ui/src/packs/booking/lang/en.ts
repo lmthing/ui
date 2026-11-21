@@ -27,6 +27,24 @@ export const en = {
     leave: "Leave waitlist",
   },
   slotLabels: { free: "free", taken: "taken", empty: "No free times" },
+  roster: {
+    status: { booked: "Booked", checked_in: "Checked in", no_show: "No-show" },
+    paid: "Paid",
+    unpaid: "Unpaid",
+    walkin: "Add walk-in",
+    promote: "Promote next",
+    noshow: "Mark no-show",
+    checkin: (name: string) => `Check-in for ${name}`,
+    noShowFor: (name: string) => `Mark ${name} as a no-show`,
+    attendance: (count: string) => `${count} checked in`,
+    spaces: (count: string, form: LDMLPluralRule) => `${count} ${form === "one" ? "spot" : "spots"} left`,
+    waiting: (count: string) => `${count} waiting`,
+    dateTime: (date: string, time: string) => `${date} · ${time}`,
+    empty: "No attendees yet",
+    success: "Attendance updated",
+    full: "Class is full",
+    error: "Couldn’t save attendance",
+  },
 };
 
 export type BookingWords = typeof en;

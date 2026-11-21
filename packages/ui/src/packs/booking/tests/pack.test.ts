@@ -32,8 +32,11 @@ describe("booking scaffold", () => {
       .components.find(({ c }) => c === "Progress");
     expect(capacity).toMatchObject({ density: "compact" });
     expect(capacity).not.toHaveProperty("style");
+    expect(draft.defaultLines("schedule", "class", { things: [], items: [] }).components[3]?.c).toBe(
+      "ClassRoster",
+    );
     const booking = Object.keys(packOf).filter((id) => packOf[id as keyof typeof packOf] === "booking");
-    expect(draft.ids.filter((id) => booking.includes(id))).toHaveLength(6);
+    expect(draft.ids.filter((id) => booking.includes(id))).toHaveLength(7);
     const format = JSON.stringify(writerFormat(draft));
     const liveFormat = JSON.stringify(writerFormat(live));
     for (const id of selectedIds(booking)) {
