@@ -4,7 +4,7 @@ import { component, radius, space, type as typography } from "../../../catalog";
 import { usePart } from "../../part";
 import { KitIcon, KitText } from "../text";
 import { PlotLabel } from "./PlotParts";
-import { placeZones, ZoneLegend, ZoneTrack, type RangeZone } from "./RangeZones";
+import { placeZones, ZoneLegend, ZoneTrack, type RangeZone } from "./range-zones";
 
 type RangeBandProps = {
   part?: string;

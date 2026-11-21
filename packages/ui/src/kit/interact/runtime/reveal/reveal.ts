@@ -1,8 +1,8 @@
-import type { ActStep } from "../../../catalog";
-import { actionFailure } from "../actions";
-import type { ActOptions, ActReply } from "../index";
-import { offersReveal } from "./access";
-import type { ControllerContext } from "./context";
+import type { ActStep } from "../../../../catalog";
+import { actionFailure } from "../../actions";
+import type { ActOptions, ActReply } from "../../index";
+import { offersReveal } from "../access";
+import type { ControllerContext } from "../context";
 
 type AuthResult = "approved" | "denied" | "unavailable";
 export type AuthenticateReveal = (request: { address: string; tier: "ok" }) => Promise<AuthResult>;

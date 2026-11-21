@@ -1,7 +1,7 @@
 import { XStack, YStack } from "tamagui";
-import { component, numberLine, radius, space } from "../../../catalog";
-import { useWords } from "../../provider";
-import { PlotLabel } from "./PlotParts";
+import { component, numberLine, radius, space } from "../../../../catalog";
+import { useWords } from "../../../provider";
+import { PlotLabel } from "../PlotParts";
 
 export type RangeZone = {
   label: string;
