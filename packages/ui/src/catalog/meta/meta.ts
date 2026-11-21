@@ -155,6 +155,8 @@ export type Meta = {
   deviceDataFlags?: Readonly<
     Record<string, (data: DeviceData, props: ProjectionProps, now: number) => boolean>
   >;
+  /** Next future epoch millisecond when a mounted projection needs to be read again. */
+  deviceDataWake?: (data: DeviceData, props: ProjectionProps, now: number) => number | undefined;
   /** Pure visibility rule over the declared host records. A false result hides the whole component. */
   deviceDataVisible?: (data: DeviceData) => boolean;
   /** Deterministic synthetic records for preview, conformance and read-probe fixtures only. */

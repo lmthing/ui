@@ -1,6 +1,6 @@
 import { expect, it, vi } from "vitest";
 import { atDeviceTime, planAct, readScreen, writerFormatFor, type Definition } from "@lmthing/ui/catalog";
-import { createScreenController } from "@lmthing/ui/kit";
+import { createAgentAccess, createInteractionStore, createScreenController } from "@lmthing/ui/kit";
 import { runProbes } from "..";
 import {
   ballot,
@@ -77,7 +77,26 @@ it("only offers vote writes to eligible viewers during the host window", () => {
   }
 });
 
-it("uses the mounted host clock for read and write, including confirming after closing", () => {
+it("passes projected row values through mounted selection", () => {
+  const def: Definition = {
+    ...reportFixture,
+    meta: {
+      ...reportFixture.meta,
+      select: { prop: "selected", value: { field: "label" } },
+      actions: { items: { root: ["select"] } },
+    },
+  };
+  const { defs, screen } = fixture(def, "r");
+  const onAction = vi.fn();
+  const controller = createScreenController({ screen, defs, deviceData: statement, onAction });
+  expect(controller.read()).toContain("[r/a2 select");
+  expect(controller.act({ address: "r/a2", action: "select" }).ok).toBe(true);
+  expect(onAction).toHaveBeenCalledWith({ address: "s/r/a2", action: "select" });
+  expect(controller.store.get("s/r/$selected")).toBe('Costs "direct"');
+  expect(controller.snapshotScreen()).toEqual(screen);
+});
+
+it("uses the mounted host clock to hide an expired confirmation and reject the write", () => {
   const def = { ...ballotFixture, meta: { ...ballotFixture.meta, confirmParts: ["vote"] } };
   const { defs, screen } = fixture(def, "b");
   const onAction = vi.fn();
@@ -87,11 +106,34 @@ it("uses the mounted host clock for read and write, including confirming after c
   expect(controller.press("b/r1/vote").ok).toBe(true);
   expect(controller.confirmation).toBeDefined();
   now = closes;
+  expect(controller.read()).not.toContain("[confirm/confirm press]");
+  expect(controller.canPress("confirm/confirm")).toBe(false);
   expect(controller.press("confirm/confirm")).toMatchObject({ ok: false, code: "not_actionable" });
   expect(onAction).not.toHaveBeenCalled();
-  expect(controller.press("confirm/cancel").ok).toBe(true);
   expect(controller.canPress("b/r1/vote")).toBe(false);
   expect(controller.read()).not.toContain("[b/r1/vote press]");
+  controller.dispose();
+});
+
+it("refreshes mounted subscribers exactly at ballot boundaries without saving the clock", () => {
+  vi.useFakeTimers({ now: opens - 1 });
+  const { defs, screen } = fixture(ballotFixture, "b");
+  const controller = createScreenController({ screen, defs, deviceData: ballot });
+  const visible: boolean[] = [];
+  const unsubscribe = controller.store.subscribe(() => visible.push(controller.canPress("b/r1/vote")));
+  try {
+    controller.mount();
+    expect(controller.canPress("b/r1/vote")).toBe(false);
+    vi.advanceTimersByTime(1);
+    expect(visible).toEqual([true]);
+    vi.advanceTimersByTime(closes - opens);
+    expect(visible).toEqual([true, false]);
+    expect(controller.store.snapshot()).toEqual({});
+  } finally {
+    unsubscribe();
+    controller.dispose();
+    vi.useRealTimers();
+  }
 });
 
 it("requires the declared refresh service and follows the current host attachment", () => {
@@ -137,4 +179,20 @@ it.each([
     },
   });
   expect(results[0]?.status).toBe("pass");
+});
+
+it("rechecks the live clock on detached agent actions", () => {
+  const { defs, screen } = fixture(ballotFixture, "b");
+  const store = createInteractionStore({ "s/b/$now": opens });
+  const agent = createAgentAccess({ defs, store, current: () => screen, deviceData: ballot });
+  const step = { address: "b/r1/vote", action: "press" };
+  const now = vi.spyOn(Date, "now").mockReturnValue(opens);
+  try {
+    expect(agent.act(step, { dryRun: true }).ok).toBe(true);
+    now.mockReturnValue(closes);
+    expect(agent.read()).not.toContain("[b/r1/vote press]");
+    expect(agent.act(step)).toMatchObject({ ok: false, code: "not_actionable" });
+  } finally {
+    now.mockRestore();
+  }
 });

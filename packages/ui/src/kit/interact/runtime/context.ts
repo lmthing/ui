@@ -8,7 +8,7 @@ import {
   staleSession,
   migrateScreen,
   filterDeviceDataScreen,
-  isDeviceDataVisible,
+  projectDeviceRows,
   resolveDefinition,
   type ActStep,
   type Definition,
@@ -22,6 +22,7 @@ import { createInteractionStore, projectScreen, valueKey } from "../index";
 import type { InteractionStore, MediaAdapter } from "../index";
 import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
+import { visibleConfirmation } from "./read-controls";
 export type Confirmation = {
   message: string;
   kind: "primary" | "secondary" | "quiet" | "danger";
@@ -107,17 +108,21 @@ function hostHidesSheet(screen: ScreenLike, visible: ScreenLike, sheet: string |
     !visible.components.some(({ id }) => id === sheet)
   );
 }
-function visibleConfirmation(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  confirmation?: Confirmation,
-  data?: DeviceData,
-) {
-  if (!confirmation) return;
-  const [source] = relativeAddress(screen.id, confirmation.source).split("/");
-  const component = screen.components.find(({ id }) => id === source)?.c;
-  const meta = component && defs[component]?.meta;
-  if (!meta || isDeviceDataVisible(meta, data)) return confirmation;
+function projectLive(options: ControllerOptions, screen: ScreenLike, standalone: boolean, now: () => number) {
+  return (
+    values: Values,
+    sheet: string | undefined,
+    covered = false,
+    at = now(),
+    data = options.deviceData,
+  ) => {
+    const visible = filterDeviceDataScreen(screen, options.defs, data);
+    if (standalone) return visible;
+    const projected = projectScreen(visible, options.defs, values, at, sheet, false, false);
+    return covered && !hostHidesSheet(screen, visible, sheet)
+      ? { ...projected, components: projected.components.filter((entry) => entry.id === sheet) }
+      : projected;
+  };
 }
 export function createControllerContext(options: ControllerOptions, standalone = false) {
   const { defs, now = Date.now, store = createInteractionStore() } = options;
@@ -138,14 +143,6 @@ export function createControllerContext(options: ControllerOptions, standalone =
             screen.components.map((entry) => [valueKey(screen.id, entry.id, "$now"), at]),
           ),
         };
-  const liveScreen = (values: Values, sheet: string | undefined, covered = false, at = now()): ScreenLike => {
-    const visible = filterDeviceDataScreen(screen, defs, options.deviceData);
-    if (standalone) return visible;
-    const projected = projectScreen(visible, defs, values, at, sheet, false, false);
-    return covered && !hostHidesSheet(screen, visible, sheet)
-      ? { ...projected, components: projected.components.filter((entry) => entry.id === sheet) }
-      : projected;
-  };
   return {
     standalone,
     options,
@@ -155,9 +152,9 @@ export function createControllerContext(options: ControllerOptions, standalone =
     store,
     status,
     valuesOf,
-    liveScreen,
-    confirmationFor: (data = options.deviceData) =>
-      visibleConfirmation(screen, defs, status.confirmation, data),
+    liveScreen: projectLive(options, screen, standalone, now),
+    confirmationFor: (data = options.deviceData, at = now()) =>
+      visibleConfirmation(screen, defs, status.confirmation, data, at, valuesOf),
     expiredProgress: (values: Values, at = now()) => expiredProgress(screen, defs, values, at),
     resetValues: () => {
       initial = initialValues(screen, defs, now);
@@ -182,17 +179,18 @@ export type ControllerContext = ReturnType<typeof createControllerContext>;
 export function snapshotPlanning(ctx: ControllerContext): ControllerContext {
   const at = ctx.now();
   const values = ctx.valuesOf(at);
-  const data = ctx.options.deviceData;
+  const data = atDeviceTime(ctx.options.deviceData, at);
   return {
     ...ctx,
-    options: { ...ctx.options, deviceData: atDeviceTime(data, at) },
+    options: { ...ctx.options, deviceData: data },
     screen: filterDeviceDataScreen(ctx.screen, ctx.defs, data),
     now: () => at,
     valuesOf: () => values,
-    status: { ...ctx.status, confirmation: ctx.confirmationFor(data) },
+    status: { ...ctx.status, confirmation: ctx.confirmationFor(data, at) },
     mounted: new Map(ctx.mounted),
     disabledParts: new Map(ctx.disabledParts),
-    liveScreen: (next, sheet, covered) => ctx.liveScreen(next, sheet, covered, at),
+    liveScreen: (next, sheet, covered) => ctx.liveScreen(next, sheet, covered, at, data),
+    inputOf: (entry) => projectDeviceRows(ctx.defs[entry.c]!.meta, ctx.inputOf(entry), data),
     expiredProgress: (next) => ctx.expiredProgress(next, at),
   };
 }

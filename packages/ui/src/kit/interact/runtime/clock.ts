@@ -4,6 +4,8 @@ import {
   clockTime,
   clockEnded,
   parseControlProps,
+  isDeviceDataVisible,
+  selectDeviceData,
   type ClockState,
   type Meta,
   type Values,
@@ -71,8 +73,46 @@ function tickValues(ctx: ControllerContext) {
     ctx.notifyChange();
   }
 }
-export function createClock(ctx: ControllerContext) {
+/** Find the next declared boundary without polling the host. */
+function nextDeviceWake(ctx: ControllerContext, now: number): number | undefined {
+  const data = ctx.options.deviceData;
+  let next: number | undefined;
+  for (const entry of ctx.screen.components) {
+    const def = ctx.defs[entry.c];
+    const wake = def?.meta.deviceDataWake;
+    if (!wake || !isDeviceDataVisible(def.meta, data)) continue;
+    const { c: _c, id: _id, state: _state, ...wire } = entry;
+    const parsed = def.props.safeParse(wire);
+    if (!parsed.success) continue;
+    const at = wake(selectDeviceData(def.meta, data), parsed.data, now);
+    if (at !== undefined && Number.isFinite(at) && at > now && (next === undefined || at < next)) next = at;
+  }
+  return next;
+}
+const maxTimerDelay = 2 ** 31 - 1;
+
+export function createClock(ctx: ControllerContext, expireConfirmation?: () => void) {
   let clock: ReturnType<typeof setInterval> | undefined;
+  let wake: ReturnType<typeof setTimeout> | undefined;
+  function scheduleDeviceWake() {
+    if (wake !== undefined) clearTimeout(wake);
+    wake = undefined;
+    if (ctx.status.disposed) return;
+    const now = ctx.now();
+    const next = nextDeviceWake(ctx, now);
+    if (next === undefined) return;
+    wake = setTimeout(
+      () => {
+        if (ctx.now() >= next) {
+          expireConfirmation?.();
+          // Refresh subscribers without persisting a host clock or a projected flag.
+          ctx.store.setMany({});
+        }
+        scheduleDeviceWake();
+      },
+      Math.min(next - now, maxTimerDelay),
+    );
+  }
   function scheduleClock() {
     if (needsClock(ctx) && !clock && !ctx.status.disposed) clock = setInterval(tick, 1000);
     else if ((!needsClock(ctx) || ctx.status.disposed) && clock) {
@@ -87,10 +127,16 @@ export function createClock(ctx: ControllerContext) {
   }
   return {
     tick,
-    scheduleClock,
+    scheduleClock: () => {
+      scheduleClock();
+      scheduleDeviceWake();
+    },
+    scheduleDeviceWake,
     dispose: () => {
       if (clock) clearInterval(clock);
+      if (wake !== undefined) clearTimeout(wake);
       clock = undefined;
+      wake = undefined;
     },
   };
 }

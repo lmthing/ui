@@ -65,6 +65,13 @@ export const ballotFixture: Definition = {
         return result.success && result.data.opens <= now && now < result.data.closes;
       },
     },
+    deviceDataWake: (data, _props, now) => {
+      const result = window.safeParse(data.window?.[0]);
+      if (!result.success) return;
+      const { opens, closes } = result.data;
+      if (now < opens && opens < closes) return opens;
+      if (now < closes) return closes;
+    },
     previewDeviceData: () => ballot,
     actions: { items: { vote: ["press"] }, when: { "vote.press": { eligibleViewer: true, inWindow: true } } },
   },

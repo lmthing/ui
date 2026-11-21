@@ -34,7 +34,7 @@ function liveControls(ctx: ControllerContext, meta: Meta, props: Values, compone
 /** One dispatcher for human taps and agent steps. Hidden sheets and covered controls are not actionable. */
 export function createScreenController(options: ControllerOptions) {
   const ctx = createControllerContext(options);
-  const clock = createClock(ctx);
+  const clock = createClock(ctx, () => discardHiddenConfirmation(ctx));
   const media = createMediaRuntime(ctx);
   const act = createAct(ctx, media, clock.scheduleClock);
   return {
@@ -65,7 +65,10 @@ export function createScreenController(options: ControllerOptions) {
       return ctx.confirmationFor();
     },
     confirmationFor: ctx.confirmationFor,
-    discardHiddenConfirmation: () => discardHiddenConfirmation(ctx),
+    discardHiddenConfirmation: () => {
+      discardHiddenConfirmation(ctx);
+      clock.scheduleDeviceWake();
+    },
     snapshotScreen: () => {
       const values = ctx.valuesOf();
       return projectScreen(ctx.screen, ctx.defs, values, ctx.now(), ctx.status.openSheet);

@@ -11,6 +11,7 @@ export {
   emptyDeviceData,
   filterDeviceDataScreen,
   isDeviceDataVisible,
+  projectDeviceRows,
   selectDeviceData,
   type DeviceData,
 } from "./device-data";
