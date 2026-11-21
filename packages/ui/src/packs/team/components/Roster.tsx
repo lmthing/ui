@@ -1,42 +1,41 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+// prettier-ignore
+import { rosterCover, rosterDays, rosterPortrait, rosterReading, rosterShift, rosterToday, rosterWeek, shiftsByPerson } from "../copy";
+import { teamWordsFor } from "../lang";
+
+// prettier-ignore
+const portraits = ["portrait_1", "portrait_2", "portrait_3", "portrait_4",
+  "portrait_5", "portrait_6", "portrait_7", "portrait_8"] as const;
 
 // Core first: Timeline/hours shows one schedule, not a week of shifts compared across people.
 export const meta = {
   id: "Roster",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "See who works each day this week and spot gaps in cover.",
   pick: "A weekly grid comparing staff shift times across people and days. Not one person's daily schedule (Timeline), one shift (Shift), bookable hours (Availability), a sports lineup (Lineup), or class periods (Timetable).",
   writeHints: [
-    "week is the Monday date. Each shift's person is the zero-based index of an entry in people, and day is 0 for Monday through 6 for Sunday. Omit shifts on days off; do not write cover flags.",
+    "week is the Monday date. Use the person's zero-based index in people. Day indices: Mon 0, Tue 1, Wed 2, Thu 3, Fri 4, Sat 5, Sun 6. Omit shifts on days off, write roles only when provided, and do not write cover flags.",
+    'When asked to show times without role labels, write detail "brief" and keep the roles in the data. Use null for unrequested density, surface and detail.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "people",
   realPath: "A manager edits the rota in a shared app.",
-  variants: { density: ["comfortable", "compact"] },
-  parts: ["root", "week"],
-  items: { key: "shifts", parts: ["root"] },
+  variants: {
+    density: ["comfortable", "compact"],
+    surface: ["card", "outlined"],
+    detail: ["full", "brief"],
+  },
+  variantParts: { "detail.brief": { hides: ["role"] } },
+  parts: ["root", "week", "matrix", "cover", "scroll_hint", "empty", ...portraits],
+  items: { key: "shifts", parts: ["root", "role"] },
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] } },
-  read: (input, _state, lang): string[] => {
-    const { week, people, shifts } = input as z.output<typeof props>;
-    const { weekdayShort } = c.wordsFor(lang);
-    const oneLine = (value: string) => value.replace(/[\r\n\u2028\u2029]+/g, " ");
-    const rows = people.map(({ name }, person) => {
-      const schedule = shifts.flatMap((slot, index) => (slot.person === person ? [{ slot, index }] : []));
-      schedule.sort((a, b) => a.slot.day - b.slot.day || a.slot.from.localeCompare(b.slot.from));
-      const details = schedule.map(({ slot: { day, from, to, role }, index }) => {
-        const time = `${c.timeOfDayLine(from, lang)}–${c.timeOfDayLine(to, lang)}`;
-        return `${weekdayShort[day]} ${time}${role ? ` ${oneLine(role)}` : ""} (r${index + 1})`;
-      });
-      return details.length ? `${oneLine(name)}: ${details.join(", ")}` : oneLine(name);
-    });
-    // Keep staff summaries on separate lines; the shared reader appends the addressed cell actions.
-    return [[c.appointmentDate(week, lang), ...rows].join("\n")];
-  },
+  read: rosterReading,
 } as const satisfies c.Meta;
 
 export const props = z
@@ -92,7 +91,6 @@ export const examples = [
     ],
   },
   {
-    density: "compact",
     week: "2026-11-23",
     people: [
       { name: "Sam", photo: "lib:people" },
@@ -101,6 +99,8 @@ export const examples = [
     shifts: [
       { person: 0, day: 1, from: "08:00", to: "13:00", role: "Park walks" },
       { person: 1, day: 5, from: "13:00", to: "18:00", role: "Home visits" },
+      { person: 1, day: 0, from: "10:00", to: "15:00", role: "River walks" },
+      { person: 1, day: 1, from: "10:00", to: "15:00", role: "Day care" },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -117,5 +117,82 @@ export const probes = [
   write(
     "Start the rota Monday 2026-11-16. Put Sam first and Lee second, both with lib:people photos. Sam works Monday 07:00–12:00 and Lee works Saturday 12:00–17:00.",
   ),
+  {
+    ...write(
+      "Show the staff rota for the week starting Monday 2026-11-16. Sam, photo lib:people, works Monday from 07:00 to 12:00 on watering. Keep the role on record but show only the shift times, without role labels.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Open Anna's Wednesday shift at 08:00", { address: "r1/r3", action: "press" }),
 ] satisfies c.Probe[];
+
+type ViewProps = c.Props<typeof props, typeof meta>;
+type MatrixProps = ViewProps & { loading: boolean };
+
+// prettier-ignore
+function RosterMatrix({ week, people, shifts, density, detail, loading }: MatrixProps) {
+  const { words, lang } = kit.useWords(teamWordsFor);
+  const w = words.roster;
+  const days = rosterDays(shifts, lang).map((day) => ({
+    ...day,
+    header: <kit.KitText role="label" tone={day.uncovered ? "warn" : "text"} part={null}>{day.short}</kit.KitText>,
+  }));
+  const schedule = shiftsByPerson(people, shifts);
+  const rows = people.map(({ name, photo }, person) => ({
+    id: `person_${person}`,
+    label: name,
+    heading: (
+      <kit.KitRow inline density={density} label={name} leadingAlign="row"
+        leading={<kit.KitPhoto {...rosterPortrait(name, photo)} shape="round" label={name} part={portraits[person]!} />}>
+        <kit.KitRow inline label={name}>
+          <kit.KitText role="label" lines={1} part={null}>{name}</kit.KitText>
+        </kit.KitRow>
+      </kit.KitRow>
+    ),
+    cells: days.map((day, index) => ({
+      id: day.id,
+      content: schedule[person]!.filter(({ shift }) => shift.day === index).map(({ shift }) => {
+        const { time, role } = rosterShift(shift, detail === "brief", lang);
+        return (
+          <kit.KitRow key={shift.id} item={shift.id} part="root" role="button" inline
+            density={density} label={w.shiftLabel(name, day.label, w.shift(time, role))}>
+            <kit.KitText role="number" numberScale="compact" tabular lines={1} part={null}>{time}</kit.KitText>
+            {role && <kit.KitText role="caption" tone="muted" lines={1} part="role">{role}</kit.KitText>}
+          </kit.KitRow>
+        );
+      }),
+    })),
+  }));
+  const cover = rosterCover(days, lang);
+  return <>
+    <kit.KitWeekMatrix part="matrix" {...{ days, rows, loading }}
+      today={rosterToday(week, new Date())}
+      corner={<kit.KitText part={null} role="label" tone="muted">{w.staff}</kit.KitText>} />
+    {loading ? <kit.KitSkeleton density={density} shape="figure" inset="none"
+      content={[["caption", cover], ["caption", w.scrollHint]]} /> : <kit.KitContent density={density}>
+      {cover && <kit.KitText role="caption" part="cover" tone="warn">{cover}</kit.KitText>}
+      <kit.KitText part="scroll_hint" role="caption" tone="muted">{w.scrollHint}</kit.KitText>
+    </kit.KitContent>}
+  </>;
+}
+
+// prettier-ignore
+export function Roster(input: ViewProps) {
+  const state = kit.useComponentState();
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  const { words, lang } = kit.useWords(teamWordsFor);
+  const heading = rosterWeek(input.week, lang);
+  const loading = state === "loading";
+  return (
+    <kit.KitCard padded {...{ density, surface }}>
+      {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["heading", heading]]} /> :
+        <kit.KitText part="week" role="heading">{heading}</kit.KitText>}
+      {state === "empty" ? <kit.KitEmpty part="empty" icon="calendar_days" decorativeIcon /> :
+        !loading && !input.shifts.length ? (
+          <kit.KitEmpty part="empty" icon="calendar_days" decorativeIcon title={words.roster.empty} />
+        ) : <RosterMatrix {...input} {...{ detail, density, loading }} />}
+    </kit.KitCard>
+  );
+}
