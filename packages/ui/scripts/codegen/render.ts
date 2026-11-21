@@ -96,21 +96,26 @@ export function ${meta.id}(_input: Props<typeof props, typeof meta>) {
 `;
 }
 
-export function testSource(meta: Metadata, fields: Field[], component: string) {
+export function testSource(meta: Metadata, fields: Field[], core: boolean) {
   const invalid = fields.flatMap(({ name, invalid }) =>
     (invalid ?? []).map((value) => `{ ...valid, ${name}: ${value} }`),
   );
+  const exports = "{ examples, fallback, probes, props }";
+  const importComponent = core
+    ? `import ${exports} from "./${meta.id}";`
+    : `import { ${meta.id} } from "../components";\n\nconst ${exports} = ${meta.id};`;
   return `import { expect, it } from "vitest";
-import { examples, fallback, probes, props } from ${quote(component)};
+${importComponent}
 
 const cast = { things: [], items: [] };
 const valid = props.parse(fallback({ cast }));
+const invalid: unknown[] = [{ ...valid, unknown: "invalid" }, ${invalid.join(",")}];
 
 it.each(examples)("accepts a draft example", (example) => {
   expect(props.safeParse(example).success).toBe(true);
 });
 
-it.each<unknown>([{ ...valid, unknown: "invalid" }, ${invalid.join(",")}])("rejects invalid input", (input) => {
+it.each(invalid)("rejects invalid input", (input) => {
   expect(props.safeParse(input).success).toBe(false);
 });
 

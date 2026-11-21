@@ -15,7 +15,6 @@ export function draftComponent(doc: string, scope: string, name: string) {
   const meta = readMeta(name, section, fields, axes);
   const near = nearMiss(section.sections.get("Pick") ?? "");
   const catalog = core ? "../catalog" : "../../../catalog";
-  const importPath = core ? `./${name}` : `../components/${name}`;
   const kebab = name.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
   const labels = labelSources(meta);
   const base = core ? "src" : `src/packs/${scope}`;
@@ -24,7 +23,7 @@ export function draftComponent(doc: string, scope: string, name: string) {
   return {
     view,
     files: {
-      [`${base}/${core ? "components" : "tests"}/${name}.test.ts`]: testSource(meta, fields, importPath),
+      [`${base}/${core ? "components" : "tests"}/${name}.test.ts`]: testSource(meta, fields, core),
       [`${labelBase}/copy/${core ? kebab : name}.ts`]: labels.copy,
       [`${labelBase}/lang/${kebab}.ts`]: labels.lang,
       [view]: componentSource(meta, fields, catalog, near, !core),

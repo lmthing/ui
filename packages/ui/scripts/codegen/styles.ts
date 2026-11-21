@@ -4,7 +4,7 @@ import { splitTop } from "./doc-section";
 export function enumValues(source: string) {
   const entries = splitTop(source, ",|");
   const values = entries.flatMap((entry) => {
-    const value = /^(?:`([a-z][a-z0-9_-]*)`|(-?\d+(?:\.\d+)?))(?=\s|$)/i.exec(entry);
+    const value = /^(?:`([a-z0-9][a-z0-9_-]*)`|(-?\d+(?:\.\d+)?))(?=\s|$)/i.exec(entry);
     return value ? [value[1] ?? Number(value[2])] : [];
   });
   const marked = entries.find((entry) => /\bdefault\b/.test(entry));
@@ -21,7 +21,7 @@ export function enumValues(source: string) {
   if (
     entries.some(
       (entry) =>
-        !/^(?:`[a-z][a-z0-9_-]*`|-?\d+(?:\.\d+)?)(?=\s|$)/i.test(entry) &&
+        !/^(?:`[a-z0-9][a-z0-9_-]*`|-?\d+(?:\.\d+)?)(?=\s|$)/i.test(entry) &&
         !/^default\s+`?[\w-]+`?$/.test(entry),
     )
   )

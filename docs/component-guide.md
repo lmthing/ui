@@ -24,7 +24,11 @@ For a new catalog entry, start with `pnpm gen:component <pack|core> <Name>` from
 It reads the named section of `docs/catalog/`, writes a `draft` component and test, and
 creates component-specific copy and English label keys. It leaves existing components,
 including their probes, alone. For a pack, it also wires the component through the pack door.
-The command reports unsupported declarations rather than guessing their schema.
+Use explicit types (`text(n)`, `number`, `integer`, `boolean`, dates and references),
+backticked enum choices, and explicit array bounds (`items` of fields, `1–6`). Name
+shared axes in `Styles`, for example `density: comfortable, compact` with the values
+in backticks. Ambiguous shorthand, nested repeated collections, conditional schemas
+and custom runtime state names may need to be scaffolded by hand.
 
 Check the draft against the full entry before building the view: supply real examples,
 replace the probe prompts and check the read address, implement conditional actions and

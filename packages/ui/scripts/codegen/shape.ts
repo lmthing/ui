@@ -12,12 +12,11 @@ export function arrayShape(child: Shape, limit: RegExpExecArray): Shape {
     ...child,
     schema: `z.array(${child.schema}).min(${min}).max(${max})`,
     seed: `Array.from({ length: ${min} }, (${child.seed.includes("index") ? "_, index" : ""}) => (${child.seed}))`,
+    invalid: [
+      ...(min ? ["[]"] : []),
+      `Array.from({ length: ${max + 1} }, () => (${child.seed.replace(/castTitle\(\d+, index\)/g, '"x"')}))`,
+    ],
   };
-}
-
-export function collectionInvalid(name: string, limit: RegExpExecArray) {
-  const [min, max] = bounds(limit);
-  return [...(min ? ["[]"] : []), `Array.from({ length: ${max + 1} }, () => valid.${name}?.[0])`];
 }
 
 export function objectShape(children: Field[], index: string): Shape {

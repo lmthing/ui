@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { URL } from "node:url";
 import { runInNewContext } from "node:vm";
 import { transformSync } from "esbuild";
 import { describe, expect, it } from "vitest";
@@ -7,12 +8,15 @@ import * as catalog from "../../src/catalog";
 import { components } from "@lmthing/ui/catalog";
 import { draftComponent } from "./draft";
 
-function definition(source: string): catalog.Definition {
+function execute(source: string, require: (id: string) => unknown): unknown {
   const { code } = transformSync(source, { loader: "tsx", format: "cjs" });
   const module: { exports: unknown } = { exports: {} };
-  runInNewContext(code, { module, require: (id: string) => (id === "zod" ? { z } : catalog) });
-  return module.exports as catalog.Definition;
+  runInNewContext(code, { module, require });
+  return module.exports;
 }
+
+const definition = (source: string) =>
+  execute(source, (id) => (id === "zod" ? { z } : catalog)) as catalog.Definition;
 
 const doc = (file: string) =>
   readFile(new URL(`../../../../docs/catalog/${file}.md`, import.meta.url), "utf8");
@@ -23,37 +27,80 @@ function wireSchema(props: z.ZodObject) {
 
 describe("existing catalog entries", () => {
   it.each([
-    ["media", "Collection"],
-    ["team", "TimeClock"],
-    ["learning", "Lesson"],
-  ] as const)("matches the documented wire props and action metadata of %s/%s", async (pack, name) => {
-    const draft = draftComponent(await doc(`packs/${pack}`), pack, name);
-    const { props, meta } = definition(draft.files[draft.view]!);
-    const live = components[name];
-    // Shared axes and runtime action gates were adopted after these prose entries were written.
-    const liveSchema = wireSchema(live.props);
-    for (const axis of Object.keys(live.meta.variants)) delete liveSchema.properties?.[axis];
-    expect(wireSchema(props)).toEqual(liveSchema);
-    expect({
-      id: meta.id,
-      group: meta.group,
-      tier: meta.tier,
-      region: meta.region,
-      weight: meta.weight,
-      states: meta.states,
-      actions: meta.actions?.parts,
-    }).toEqual({
-      id: live.meta.id,
-      group: live.meta.group,
-      tier: live.meta.tier,
-      region: live.meta.region,
-      weight: live.meta.weight,
-      states: live.meta.states,
-      actions: live.meta.actions.parts,
-    });
-    expect(live.meta.parts).toEqual(expect.arrayContaining(meta.parts ?? []));
-    expect(draft.files[draft.view]).toContain("// Core first: ");
+    [
+      "media",
+      "Collection",
+      ["photo", "title", "by", "about", "summary", "play_icon", "play_label", "follow_icon", "follow_label"],
+    ],
+    [
+      "team",
+      "TimeClock",
+      ["shift", "status", "since", "elapsed", "elapsed_label", "breaks", "clock_label", "break_label"],
+    ],
+    ["learning", "Lesson", ["title", "text", "example", "photo", "example_label", "next_label"]],
+  ] as const)(
+    "matches the documented wire props and action metadata of %s/%s",
+    async (pack, name, runtimeParts) => {
+      const draft = draftComponent(await doc(`packs/${pack}`), pack, name);
+      const { props, meta } = definition(draft.files[draft.view]!);
+      const live = components[name];
+      // Shared axes and runtime action gates were adopted after these prose entries were written.
+      const liveSchema = wireSchema(live.props);
+      for (const axis of Object.keys(live.meta.variants)) delete liveSchema.properties?.[axis];
+      expect(wireSchema(props)).toEqual(liveSchema);
+      expect({
+        id: meta.id,
+        group: meta.group,
+        tier: meta.tier,
+        region: meta.region,
+        weight: meta.weight,
+        states: meta.states,
+        actions: meta.actions?.parts,
+      }).toEqual({
+        id: live.meta.id,
+        group: live.meta.group,
+        tier: live.meta.tier,
+        region: live.meta.region,
+        weight: live.meta.weight,
+        states: live.meta.states,
+        actions: live.meta.actions.parts,
+      });
+      const runtimeOnly: readonly string[] = runtimeParts;
+      expect(meta.parts).toEqual(live.meta.parts.filter((part) => !runtimeOnly.includes(part)));
+      expect(draft.files[draft.view]).toContain("// Core first: ");
+    },
+  );
+});
+
+it("accepts the documented digit-leading drivetrain choice in VehicleListing", async () => {
+  const draft = draftComponent(await doc("packs/auto"), "auto", "VehicleListing");
+  const { props, fallback, meta } = definition(draft.files[draft.view]!);
+  const input = fallback({ cast: { things: [], items: [] } }) as Record<string, unknown>;
+  expect(props.parse({ ...input, drivetrain: "4wd" })).toMatchObject({ drivetrain: "4wd" });
+  expect(props.safeParse({ ...input, drivetrain: 4 }).success).toBe(false);
+  expect(meta.partTiers).toEqual({ contact: "service" });
+});
+
+it("emits valid child values to test the maximum of a zero-minimum array", async () => {
+  const draft = draftComponent(await doc("packs/events"), "events", "RSVP");
+  const component = definition(draft.files[draft.view]!);
+  const { props, fallback } = component;
+  const input = fallback({ cast: { things: [], items: [] } }) as Record<string, unknown>;
+  expect(props.parse(input)).toMatchObject({ meals: [] });
+  const values: { meals?: string[] }[] = [];
+  const collect = Object.assign(() => {}, {
+    each: (cases: typeof values) => {
+      values.push(...cases);
+      return () => {};
+    },
   });
+  execute(draft.files["src/packs/events/tests/RSVP.test.ts"]!, (id) =>
+    id === "vitest" ? { it: collect } : { RSVP: component },
+  );
+  const meals = values.find((value) => value.meals?.length === 5)?.meals;
+  expect(meals).toBeDefined();
+  expect(props.safeParse({ ...input, meals: meals!.slice(1) }).success).toBe(true);
+  expect(props.safeParse({ ...input, meals }).success).toBe(false);
 });
 
 describe("planned catalog entries", () => {

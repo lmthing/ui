@@ -62,7 +62,12 @@ function readParts(source: string, keys: string[]): Part[] {
       offered.some((word) => !actions.includes(word as ActionName))
     )
       throw new Error(`Unsupported part or action: ${raw}`);
-    parts.push({ name, itemKey, actions: offered as ActionName[], confirm: /\bconfirmParts\b/.test(entry) });
+    parts.push({
+      name,
+      ...(itemKey ? { itemKey } : {}),
+      actions: offered as ActionName[],
+      confirm: /\bconfirmParts\b/.test(entry),
+    });
   }
   if (new Set(parts.flatMap(({ itemKey }) => (itemKey ? [itemKey] : []))).size > 1)
     throw new Error("Only one addressed item collection is supported");

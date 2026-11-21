@@ -1,13 +1,5 @@
 import { quote, splitTop } from "./doc-section";
-import {
-  arrayShape,
-  collectionInvalid,
-  count,
-  objectShape,
-  requireUnique,
-  type Field,
-  type Shape,
-} from "./shape";
+import { arrayShape, count, objectShape, requireUnique, type Field, type Shape } from "./shape";
 import { enumValues } from "./styles";
 
 const bound = "-?\\d+(?:\\.\\d+)?";
@@ -147,7 +139,6 @@ function field(source: string, styles: Record<string, string[]>): Field {
   return {
     name,
     ...shape,
-    invalid: item ? collectionInvalid(name, limit!) : shape.invalid,
     omit: optional || Boolean(numericDefault) || ("omit" in shape && shape.omit === true),
     schema:
       shape.schema + (numericDefault ? `.default(${defaultValue[1]})` : "") + (optional ? ".optional()" : ""),
@@ -165,7 +156,6 @@ function collection(name: string, members: string[], limit: RegExpExecArray): Fi
       ),
       limit,
     ),
-    invalid: collectionInvalid(name, limit),
   };
 }
 

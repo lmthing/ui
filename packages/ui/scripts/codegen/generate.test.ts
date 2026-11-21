@@ -1,7 +1,10 @@
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, URL } from "node:url";
+import { format } from "prettier";
 import { expect, it } from "vitest";
+import { generateEntries } from "../build/entries";
+import { checkRules } from "../rules";
 import { generateComponent } from "./generate";
 
 const workspace = fileURLToPath(new URL("../../../../", import.meta.url));
@@ -27,6 +30,7 @@ it("generates an unbuilt Wave 6 pack component and preserves subsequent edits", 
   await inFixture(async (root) => {
     const doc = "docs/catalog/packs/weather.md";
     await put(root, doc, await readFile(join(workspace, doc), "utf8"));
+    await put(root, ".prettierrc.json", '{"printWidth": 58}\n');
     const pack = "src/packs/weather";
     const first = await generateComponent(root, "weather", "AstroSun");
     expect(first.written).toEqual([
@@ -39,9 +43,16 @@ it("generates an unbuilt Wave 6 pack component and preserves subsequent edits", 
     const component = join(ui, `${pack}/components/AstroSun.tsx`);
     const original = await readFile(component, "utf8");
     expect(original).toContain('status: "draft"');
+    expect(original).toBe(await format(original, { filepath: component, printWidth: 58 }));
     expect(await readFile(join(ui, pack, "index.ts"), "utf8")).toBe('export * from "./components";\n');
     const door = join(ui, pack, "components/index.ts");
     expect(await readFile(door, "utf8")).toBe('export * as AstroSun from "./AstroSun";\n');
+    expect(await checkRules(ui)).toEqual([]);
+    await generateEntries(ui);
+    expect(await readFile(join(ui, "src/entry/packs/group-1/weather.ts"), "utf8")).toContain(
+      'import { AstroSun } from "../../../packs/weather";',
+    );
+    expect(await readFile(join(ui, "src/entry/views/group-1.ts"), "utf8")).not.toContain("AstroSun");
     const edited = original.replace("TODO: describe the nearest wrong choice", "Show a time zone");
     await writeFile(component, edited);
     expect(await generateComponent(root, "weather", "AstroSun")).toEqual({

@@ -1,6 +1,6 @@
 import { appendFile, lstat, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { format } from "prettier";
+import { format, resolveConfig } from "prettier";
 import { packIds, type PackId } from "../../src/catalog";
 import { draftComponent } from "./draft";
 
@@ -58,9 +58,11 @@ export async function generateComponent(workspace: string, scope: string, name: 
   const file = join(workspace, "docs/catalog", core ? "core.md" : `packs/${scope}.md`);
   const doc = await readFile(file, "utf8");
   const draft = draftComponent(doc, scope, name);
+  const options = await resolveConfig(join(root, "package.json"));
   const entries = await Promise.all(
     Object.entries(draft.files).map(
-      async ([path, source]) => [path, await format(source, { filepath: path })] as const,
+      async ([path, source]) =>
+        [path, await format(source, { ...options, filepath: join(root, path) })] as const,
     ),
   );
   if (!core) await wirePack(root, scope, name);
