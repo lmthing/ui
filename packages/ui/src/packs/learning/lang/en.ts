@@ -49,6 +49,18 @@ export const en = {
     paired: (label: string, other: string) => `${label} (${other})`,
     pair: (left: string, right: string) => `${left} → ${right}`,
   },
+  result: {
+    score: "Practice score",
+    perfect: "Perfect score",
+    total: (of: string) => ` of ${of}`,
+    right: "Right",
+    wrong: "Wrong",
+    seconds: "Time",
+    points: "Points",
+    corrections: "Corrections",
+    review: "Review",
+    again: "Try again",
+  },
 };
 
 export type LearningWords = typeof en;

@@ -8,8 +8,15 @@ import {
   groupedIds,
   groups,
   modes,
+  screenPresets,
   variantCount,
 } from "./gallery-data";
+
+it("selects only requested screen presets in catalog order and keeps the unfiltered gallery", () => {
+  expect(screenPresets([])).toEqual(presets);
+  expect(screenPresets(["bold"]).map(({ id }) => id)).toEqual(["bold"]);
+  expect(screenPresets(["editorial", "bold", "bold"]).map(({ id }) => id)).toEqual(["bold", "editorial"]);
+});
 
 describe("gallery overview data", () => {
   it("shows all 45 core components once, in stable group and id order", () => {
