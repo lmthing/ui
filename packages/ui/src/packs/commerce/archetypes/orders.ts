@@ -7,7 +7,8 @@ export const orders = {
   layouts: {
     today: {
       writeHints: [
-        'List rows carry order numbers as title, time as meta, and short status values; set trail "badge" on List. Keep each row plain: no body, photo, section, rank or personal “me” marker.',
+        'Set List trail to "badge". Use two short order rows with unique order numbers as title, pickup time as meta, a non-empty status as value and a goto for each order. Leave row trail, tone, mark, body, photo, section and me null; do not write a placeholder or empty message.',
+        "Return the four recipe components in one screen object. Keep the sample short: two view options, one order count and two orders.",
       ],
       recipe: [
         { allow: ["Header"], required: true },

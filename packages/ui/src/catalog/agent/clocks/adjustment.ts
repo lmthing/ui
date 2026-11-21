@@ -181,8 +181,8 @@ export function projectMatrix(
   return props;
 }
 
-/** Read from the store after parsing so this also works for derived, addressed item rows. */
-export function projectAdjustments(meta: Meta, props: Values, get: (part: string) => unknown): Values {
+// prettier-ignore
+export function projectAdjustments(meta: Meta, props: Values, get: (part: string) => unknown, wire = false): Values {
   const setters = new Set(Object.values(meta.set ?? {}).map(({ prop }) => prop));
   const top = Object.values(meta.adjust ?? {}).filter((spec) => spec && !setters.has(spec.prop));
   if (top.length) props = projectHolder(props, top, "", get);
@@ -193,7 +193,7 @@ export function projectAdjustments(meta: Meta, props: Values, get: (part: string
   return {
     ...props,
     [items.key]: knownRows(props[items.key]).map((row, index) => {
-      const base = `${rowId(meta, row, index)}/`;
+      const base = `${rowId(meta, wire ? {} : row, index)}/`; // Wire ids belong to records, not address slots.
       return projectItemSets(meta, projectHolder(row, specs, base, get), base, get);
     }),
   };

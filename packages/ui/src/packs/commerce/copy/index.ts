@@ -1,9 +1,11 @@
-export { productAmounts, productReading } from "./ProductGrid";
-export { basketSummary, cartBarLines, cartBarReading } from "./CartBar";
+export { dealBadge, dealsReading, productAmounts, productReading } from "./ProductGrid";
 export { checkoutAmount, checkoutReading } from "./Checkout";
 export { nextOrderStage, orderStatusReading } from "./OrderStatus";
 export { receiptCopy, receiptLine, receiptReading } from "./OrderSummary";
-export { promoExpiry } from "./Promo";
-export { variantExtra, variantReading } from "./VariantPicker";
-export { productDetailCopy, productDetailReading } from "./Product";
+export { offerClock, offerRemaining, promoExpiry } from "./Promo";
+export { shadeDepths, shadeGroups, shadeUndertones, variantExtra, variantReading } from "./VariantPicker";
+export { productDetailCopy, productDetailReading, productStoreLines } from "./Product";
+export { fitLine, measurementLine, sizeGuideReading } from "./SizeGuide";
+export { savedItemCopy, savedListReading } from "./SavedList";
 export { cartLineCopy, cartTotals, cartReading } from "./Cart";
+export { basketSummary, cartBarLines, cartBarReading } from "./CartBar";
