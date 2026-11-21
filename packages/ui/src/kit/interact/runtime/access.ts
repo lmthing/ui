@@ -80,6 +80,7 @@ function actionsAt(
       data,
       clock,
       wire,
+      schema: def.props,
     });
     const canDrive = (part: string) => !drivenPartBlock(ctx, part);
     const target = driveTarget(def.meta, screen, ctx.defs, localValues, data, canDrive);

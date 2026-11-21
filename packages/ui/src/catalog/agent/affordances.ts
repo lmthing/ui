@@ -1,4 +1,5 @@
 import type { Meta } from "../meta";
+import type { Definition } from "../probes";
 import type { StateName, Tier } from "../types";
 import { choiceValues } from "./validate-value";
 import { adjustmentAt, clockActionValid, clockControlDeclared, hasNumericRoom } from "./clocks";
@@ -27,6 +28,7 @@ type Props = Record<string, unknown>;
 type OfferContext = {
   data?: DeviceData | undefined;
   wire?: Props | undefined;
+  schema?: Definition["props"];
   clock?: ((target: string, action: string) => boolean) | undefined;
 };
 type Adjustment = NonNullable<ReturnType<typeof adjustmentAt>>;
@@ -49,7 +51,7 @@ function actionsForItem(
   item: Props,
   instance: string,
   first: boolean,
-  { data, wire }: OfferContext,
+  { data, wire, schema }: OfferContext,
 ) {
   const { items, when } = meta.actions ?? {};
   const id = String(item.id);
@@ -61,7 +63,7 @@ function actionsForItem(
         (action === "select" && (picker || meta.items?.edits?.[part]?.action === "select"));
       return !needsChoices || Boolean(choiceValues(meta, props, `${id}/${part}`)?.length);
     })
-    .flatMap((offer) => itemActionOffer(meta, props, item, offer));
+    .flatMap((offer) => itemActionOffer(meta, props, item, offer, schema));
 }
 
 /** Every offered action, addressed relative to the screen (`l1/r1/trail`). */

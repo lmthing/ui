@@ -106,7 +106,6 @@ export function readComponent(
   selection?: BoundSelection,
   target?: ReturnType<typeof driveTarget>,
 ): string[] {
-  const appCurrency = parseAppCurrency(currency);
   const { meta } = def;
   deviceData = projectDeviceData(deviceData, values);
   if (!isDeviceDataVisible(meta, deviceData)) return [];
@@ -125,6 +124,7 @@ export function readComponent(
     data: deviceData,
     clock: recordClockOffer(def, migrated as Props, props, get, deviceData, undefined, values),
     wire: reportEditWire(def, migrated, get),
+    schema: def.props,
   });
   const driven = driveAffordances(meta, props, instance, offered, target);
   const affordances = readAffordances(driven, values, def, props, instance, session);
@@ -144,7 +144,7 @@ export function readComponent(
       state,
       lang,
       selectDeviceData(meta, deviceData),
-      appCurrency,
+      parseAppCurrency(currency),
     ) ?? []),
     ...readProgress(session, lang),
     ...readDraw(draw),
