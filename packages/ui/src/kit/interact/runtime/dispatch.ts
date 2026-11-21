@@ -49,6 +49,10 @@ export function discardHiddenConfirmation(ctx: ControllerContext) {
   }
 }
 
+function releaseStoppedCaptures(ctx: ControllerContext, steps: ActStep[]) {
+  for (const step of steps) if (step.action === "stop") ctx.micCapture.release(step.address, "stop");
+}
+
 export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleClock: () => void) {
   return function act(
     steps: ActStep | ActStep[],
@@ -102,8 +106,7 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
     if (!ctx.standalone || state.confirmation || planning.status.confirmation)
       state.values[`${ctx.screen.id}/$confirmation`] = state.confirmation;
     ctx.store.setMany({ ...settleMedia(true), ...state.values });
-    for (const step of result.performed)
-      if (step.action === "stop") ctx.micCapture.release(step.address, "stop");
+    releaseStoppedCaptures(ctx, result.performed);
     for (const effect of effects) effect();
     scheduleClock();
     ctx.notifyChange();

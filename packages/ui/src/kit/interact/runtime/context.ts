@@ -125,16 +125,19 @@ function projectLive(options: ControllerOptions, screen: ScreenLike, standalone:
       : projected;
   };
 }
+function initialStatus(screen: string, store: InteractionStore, standalone: boolean) {
+  return {
+    disposed: false,
+    openSheet: standalone ? undefined : (store.get(`${screen}/$sheet`) as string | undefined),
+    confirmation: store.get(`${screen}/$confirmation`) as Confirmation | undefined,
+  };
+}
 export function createControllerContext(options: ControllerOptions, standalone = false) {
   const { defs, now = Date.now, store = createInteractionStore() } = options;
   const screen = controllerScreen(options, standalone);
   const disabledParts = new Map<string, symbol>();
   let initial = standalone ? {} : initialValues(screen, defs, now);
-  const status = {
-    disposed: false,
-    openSheet: standalone ? undefined : (store.get(`${screen.id}/$sheet`) as string | undefined),
-    confirmation: store.get(`${screen.id}/$confirmation`) as Confirmation | undefined,
-  };
+  const status = initialStatus(screen.id, store, standalone);
   const localOnly = standalone && !screen.components.some(({ c }) => defs[c]?.meta.recordRuntime);
   const valuesOf = (at = now()) =>
     localOnly
