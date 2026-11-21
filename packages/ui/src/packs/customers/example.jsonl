@@ -1,5 +1,6 @@
 {"id":"h1","c":"Header","title":"Trot clients"}
 {"id":"l1","c":"List","rows":[{"title":"Ben Carter","photo":"lib:people","meta":"Clover and Pip · Last walk 17 Nov","trail":"badge","value":"Owes 120","goto":"client"},{"title":"Mia Jones","photo":"lib:people","meta":"Maple · Last walk 16 Nov","goto":"client"}]}
+{"id":"f1","c":"FollowUpQueue","items":[{"id":"october","clientName":"Ben Carter","kind":"invoice","due":"2026-12-02","note":"October park walks","amount":120,"done":false,"goto":"client"}]}
 {"id":"c1","c":"ClientCard","name":"Ben Carter","photo":"lib:people","since":"2025-04-03","next":"Clover and Pip · Friday 09:00","tags":["Regular","Key holder"],"phone":true,"address":true}
 {"id":"l2","c":"List","rows":[{"title":"Clover","photo":"lib:dogs","meta":"Morning park walks","goto":"clover"},{"title":"Pip","photo":"lib:dogs","meta":"Short lead near roads","goto":"pip"}]}
 {"id":"l3","c":"Loyalty","name":"Ben Carter","stamps":7,"of":10,"reward":"Your tenth walk is free"}

@@ -21,7 +21,16 @@ import {
   type Definition,
 } from "@lmthing/ui/catalog";
 
-const ids = ["ClientCard", "ClientHistory", "Invoice", "PaymentStatus", "Review", "Loyalty", "Agreement"];
+const ids = [
+  "ClientCard",
+  "ClientHistory",
+  "Invoice",
+  "PaymentStatus",
+  "Review",
+  "Loyalty",
+  "Agreement",
+  "FollowUpQueue",
+];
 const defs: Record<string, Definition> = components;
 const casts: CastLike[] = [
   { things: [], items: [] },
@@ -46,7 +55,7 @@ const casts: CastLike[] = [
 ];
 
 describe("customers contracts", () => {
-  it("has exactly seven components with examples, fallbacks and core near misses", () => {
+  it("has the planned components with examples, fallbacks and core near misses", () => {
     expect(
       Object.entries(packOf)
         .filter(([, owner]) => owner === "customers")
@@ -177,6 +186,6 @@ describe("customers archetype layouts", () => {
         }
       }
     }
-    expect(layouts).toBe(7);
+    expect(layouts).toBe(8);
   });
 });

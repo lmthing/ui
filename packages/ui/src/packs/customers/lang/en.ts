@@ -21,6 +21,20 @@ export const en = {
     updated: "Update complete",
   },
   reviewLabels: { reply: "Reply", response: "Business reply" },
+  followUpLabels: {
+    quote: "Quote",
+    invoice: "Invoice",
+    checkin: "Check-in",
+    renewal: "Renewal",
+    overdue: "Overdue",
+    today: "Due today",
+    upcoming: "Upcoming",
+    done: "Done",
+    snooze: "Snooze",
+    remind: "Remind",
+    success: "Follow-up updated",
+    error: "Reminder wasn’t sent",
+  },
 };
 
 export type CustomersWords = typeof en;
