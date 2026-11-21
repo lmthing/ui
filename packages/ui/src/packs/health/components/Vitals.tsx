@@ -130,11 +130,15 @@ function VitalValue({ reading, lang, history }: { reading: Reading; lang: string
   const pair = reading.value2 === undefined ? "" : vitalPairLine(reading.value2, lang);
   const numberScale = `${value}${pair}`.length > 12 ? "compact" : "display";
   const tone = vitalBand(reading).tone;
+  const context = reading.context && (
+    <KitText role="caption" tone="muted" part="context">{healthWordsFor(lang).vitalLabels.context[reading.context]}</KitText>
+  );
   const display = (
         <KitContent group={history ? "content" : "response"}>
           <KitRow
             inline
             label={reading.unit}
+            trailing={history ? context : undefined}
             lineRole={numberScale === "compact" ? "body" : "number"}
             leading={
               <KitText role="number" numberScale={numberScale} tone={tone} tabular part="value">
@@ -153,9 +157,7 @@ function VitalValue({ reading, lang, history }: { reading: Reading; lang: string
               </KitText>
             </KitText>
           </KitRow>
-          {reading.context && <KitText role="caption" tone="muted" part="context">
-            {healthWordsFor(lang).vitalLabels.context[reading.context]}
-          </KitText>}
+          {!history && context}
         </KitContent>
   );
   return history ? display : (
