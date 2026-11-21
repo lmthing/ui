@@ -8,7 +8,7 @@ import { isAdjustOnlyItem } from "./affordances";
 import { projectDraw } from "./draw";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
-import { applyReportEdits } from "./report-edits";
+import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
 import { projectRecordRuntime } from "./record-runtime";
 import {
   adjustmentAt,
@@ -67,13 +67,13 @@ export function controlValueKey(def: Definition, key: string): string {
     ? `$wire/${key}`
     : key;
 }
-
 /** Apply stored control edits to wire input, never copying schema-derived output into it. */
 export function projectControlInput(def: Definition, input: Values, get: (part: string) => unknown): Values {
   const { meta } = def;
   let source = projectComponentSets(meta, applyReportEdits(meta, input, get), get);
   if (meta.select?.choices) source = projectLegacySelection(meta, source, get);
   source = projectNamedSelections(meta, source, get, "wire");
+  source = applyRecordWire(meta, source, get);
   const items = meta.items;
   if (!items || (!items.set && !items.adjust && !(items.nested && (meta.select || meta.set)))) return source;
   const keys = new Set([items.key]);
@@ -100,7 +100,6 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
   }
   return source;
 }
-
 /** Recompute derived props from the wire after applying staged edits, never from draft input. */
 export function parseControlProps(def: Definition, input: unknown, get?: (part: string) => unknown): Values {
   const repaired = repairVariants(def, input).props;
@@ -126,7 +125,6 @@ export function projectParsedControls(
   const nested = projectNested(meta, selected, get);
   return runtime || meta.items?.set || meta.items?.adjust ? projectAdjustments(meta, nested, get) : nested;
 }
-
 /** Runtime-only presentation keeps the validated wire data and stable item ids intact. */
 export function liveProps(
   meta: Meta,
@@ -138,6 +136,7 @@ export function liveProps(
   now?: number,
 ): Values {
   const get = (part: string) => values[`${instance}/${part}`];
+  props = projectRecordIds(meta, props, get);
   const { draw, emptyActions, errorActions, successActions, session } = meta;
   const runtime = Boolean(get("$runtime"));
   if (wireApplied) props = projectParsedControls(meta, props, get, runtime);
@@ -172,7 +171,6 @@ export function liveProps(
     );
   return { ...props, [key]: items };
 }
-
 export function stageItemAdjustment(
   screen: ScreenLike,
   defs: Record<string, Definition>,

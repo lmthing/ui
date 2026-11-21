@@ -2,8 +2,11 @@ import {
   affordancesOf,
   isRecordPress,
   itemEditSpec,
+  isRecordAction,
   liveProps,
   parseControlProps,
+  projectDeviceData,
+  recordClaimAt,
   reportConfirmation,
   reportRemovalAt,
   stampItemIds,
@@ -17,6 +20,25 @@ import { rejected, type ActionContext, type ActionHandler, type ActionState } fr
 function confirmReportAction(state: ActionState, ctx: ActionContext, target: string) {
   const { id, c, state: _state, ...wire } = ctx.entry;
   const def = ctx.defs[c]!;
+  if (isRecordAction(def.meta, target, ctx.selected.action)) {
+    const prefix = `${ctx.screen.id}/`;
+    const local = Object.fromEntries(
+      Object.entries(state.values)
+        .filter(([key]) => key.startsWith(prefix))
+        .map(([key, value]) => [key.slice(prefix.length), value]),
+    );
+    const parsed = parseControlProps(def, wire, (part) => local[`${id}/${part}`]);
+    const data = projectDeviceData(ctx.options.deviceData, state.values);
+    const claim = recordClaimAt(
+      def.meta,
+      liveProps(def.meta, parsed, id, local, true, data),
+      target,
+      ctx.selected.action,
+    );
+    return claim
+      ? showConfirmation(state, ctx.selected, ctx, { record: claim })
+      : rejected(state, ctx.at, "not_actionable", "No record at this address");
+  }
   if (itemEditSpec(def.meta, target)?.action !== "remove") return showConfirmation(state, ctx.selected, ctx);
   const props = parseControlProps(def, wire, (part) => state.values[ctx.key(id, part)]);
   const removal = reportRemovalAt(def.meta, props, target);
@@ -36,7 +58,8 @@ function confirmRecordAction(state: ActionState, action: ActStep, ctx: ActionCon
     ]),
   );
   const parsed = parseControlProps(def, wire, (part) => local[`${id}/${part}`]);
-  const props = liveProps(def.meta, parsed, id, local, true, ctx.options.deviceData, ctx.now());
+  const data = projectDeviceData(ctx.options.deviceData, state.values);
+  const props = liveProps(def.meta, parsed, id, local, true, data, ctx.now());
   const recordTarget = recordTargetAt(def.meta, props, action.address, action.action);
   return recordTarget === undefined
     ? rejected(state, ctx.at, "not_actionable", "No record at this address")
@@ -65,7 +88,7 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
     ctx.entry.id,
     local,
     true,
-    ctx.options.deviceData,
+    projectDeviceData(ctx.options.deviceData, state.values),
   );
   const part = affordancesOf(
     meta,
