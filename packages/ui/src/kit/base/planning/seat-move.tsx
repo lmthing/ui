@@ -124,7 +124,7 @@ function SeatDestinations({
     if (isWeb) (first.current as HTMLElement | null)?.focus();
   }, []);
   const { destinations, label } = seat.move!;
-  const escape = (event: { key: string; stopPropagation(): void; preventDefault(): void }) => {
+  const escape = (event: { key?: string; stopPropagation(): void; preventDefault(): void }) => {
     if (event.key !== "Escape") return;
     event.stopPropagation();
     event.preventDefault();
