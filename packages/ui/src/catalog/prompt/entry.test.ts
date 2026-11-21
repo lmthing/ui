@@ -4,7 +4,7 @@ import { expect, it } from "vitest";
 import { z } from "zod";
 import { archetypes, components, createRegistry } from "@lmthing/ui/catalog";
 import { choosePrompt, composePrompt, signature, writePrompt, type Definition } from "../probes";
-import { buildEntry, writerVariants } from "./index";
+import { buildEntry, composeFlow, writerVariants } from "./index";
 import markdown from "./writer-variants.md?raw";
 
 const definitions: readonly Definition[] = createRegistry({ includeDrafts: true }).defs;
@@ -63,12 +63,13 @@ it("neutralizes existing component and row axes without changing other example f
 });
 
 it("uses the Markdown spacing rule for both Writer paths without leaking it into unrelated prompts", () => {
-  expect(writerVariants).toBe(markdown.trimEnd());
+  expect([writerVariants, composeFlow]).toEqual(markdown.trimEnd().split("\n\n## Composition\n\n"));
   const brief = "Keep all rows, but show only the first two";
   expect(writePrompt(components.List, brief)).toContain(`${writerVariants}\nBrief: ${brief}`);
   expect(writePrompt(components.Photo, brief)).not.toContain(writerVariants);
   const compose = composePrompt(archetypes.settings.meta, "simple", { things: [], items: [] }, components);
   expect(compose.split(writerVariants)).toHaveLength(2);
+  expect(compose).toContain(composeFlow);
   expect(compose).toContain('effective trail of "toggle"');
 });
 

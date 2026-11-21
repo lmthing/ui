@@ -2,7 +2,7 @@ import type { CastLike } from "../../types";
 import { defaultLines, type ComposeProbe, type CoreArchetypeMeta as ArchetypeMeta } from "../../archetypes";
 import { checkScreen, type PackScreenContext } from "../../rules";
 import { readScreen, type ScreenLike } from "../../agent";
-import { buildEntry, variantVocabulary, writerVariants } from "../../prompt";
+import { buildEntry, composeFlow, variantVocabulary, writerVariants } from "../../prompt";
 import { migrateScreen } from "../../migrations";
 import type { CallModel, Definition } from "..";
 import { composeFormat, compositionInput } from "./compose-format";
@@ -58,7 +58,7 @@ export function composePrompt(
     ...names.map((name) => `${buildEntry(defs[name]!)}\nweight: ${defs[name]!.meta.weight}`),
     `A valid default for this layout: ${JSON.stringify(defaultLines(meta, layout, cast, defs))}`,
     ...(names.some((name) => defs[name]?.meta.variants?.density) ? [writerVariants] : []),
-    "Use the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. Reply with JSON only.",
+    `Use the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. ${composeFlow} Reply with JSON only.`,
   ].join("\n\n");
 }
 function hasToggleRows(entry: ScreenLike["components"][number], def: Definition | undefined): boolean {
