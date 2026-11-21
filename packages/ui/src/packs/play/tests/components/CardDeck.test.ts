@@ -41,10 +41,11 @@ describe("CardDeck draft", () => {
       expect(props.safeParse({ title, cards, ...invalid }).success).toBe(false);
   });
   it("reads initial counts without exposing any face-down cards", () => {
-    const lines = readComponent(components.CardDeck, examples[0], "c1").join("\n");
+    const sample = examples[0]!;
+    const lines = readComponent(components.CardDeck, sample, "c1").join("\n");
     expect(lines).toContain("Draw pile: 6");
     expect(lines).toContain("Discard pile: 0");
-    for (const { title } of examples[0].cards) expect(lines).not.toContain(title);
+    for (const { title } of sample.cards) expect(lines).not.toContain(title);
   });
   it("declares density, the core near miss and confirmation for reshuffling", () => {
     expect(meta).toMatchObject({ dense: true, weight: 3, confirmParts: ["reshuffle"] });

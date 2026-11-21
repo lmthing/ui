@@ -17,7 +17,7 @@ describe("BuzzerPad draft", () => {
   it("bounds players, swatches and prompt without accepting timing state", () => {
     const player = { name: "x".repeat(16), swatch: "grey" };
     const players = Array.from({ length: 4 }, () => player);
-    expect(props.safeParse({ players, prompt: "x".repeat(48) }).success).toBe(true);
+    expect(props.parse({ players, prompt: "x".repeat(48) }).arrange).toBe("grid");
     for (const invalid of [
       { players: [player] },
       { players: [...players, player] },
@@ -25,7 +25,8 @@ describe("BuzzerPad draft", () => {
       { players: [player, { ...player, swatch: "#123456" }] },
       { players: [player, { ...player, name: "x".repeat(17) }] },
       { prompt: "x".repeat(49) },
-      { style: "other" },
+      { arrange: "strip" },
+      { style: "rows" },
       { winner: 0 },
       { deltas: [0, 5] },
     ])
