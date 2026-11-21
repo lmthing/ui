@@ -25,7 +25,7 @@ describe("ServiceMenu contract and boundaries", () => {
       surface: "card",
       detail: "full",
       lead: "thumb",
-      services: [{ ...service, tone: "neutral", mark: "none" }],
+      services: [{ ...service, capacity: 1, tone: "neutral", mark: "none" }],
     });
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["services"][number]["id"]>().toEqualTypeOf<string>();

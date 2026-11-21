@@ -4,12 +4,18 @@ import { bookingWordsFor } from "../lang";
 export const { slotLabels } = bookingWordsFor();
 
 /** A local end time; +1d explicitly identifies a finish on the following day. */
-export function slotEndLine(time: string, minutes: number, lang?: string): string {
+function slotEnd(time: string, minutes: number, lang?: string): string {
   const [hours, mins] = time.split(":").map(Number) as [number, number];
   const end = hours * 60 + mins + minutes;
   const two = (value: number) => digitsLine(value, 2, lang);
-  return `→ ${two(Math.floor((end % 1440) / 60))}:${two(end % 60)}${end >= 1440 ? bookingWordsFor(lang).slotTomorrow : ""}`;
+  return `${two(Math.floor((end % 1440) / 60))}:${two(end % 60)}${end >= 1440 ? bookingWordsFor(lang).slotTomorrow : ""}`;
 }
+
+export const slotEndLine = (time: string, minutes: number, lang?: string): string =>
+  `→ ${slotEnd(time, minutes, lang)}`;
+
+export const slotRangeLine = (time: string, minutes: number, lang?: string): string =>
+  `${time}–${slotEnd(time, minutes, lang)}`;
 
 /** Every grid time has a status line so its number aligns with the other cells. */
 export function slotDetailLine(

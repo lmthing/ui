@@ -105,10 +105,12 @@ export function withLiveInput(meta: Meta, part: string, action: string, holder: 
     const spec = linkedInput(meta, part) ?? (text && Object.hasOwn(text, part) ? text[part] : undefined);
     if (spec) return { input: { kind: "text", max: spec.max } as const };
   }
-  if (row && action === "check" && Object.hasOwn(meta.live?.checks ?? {}, part)) {
+  if (row && (action === "check" || action === "toggle") && Object.hasOwn(meta.live?.checks ?? {}, part)) {
     const done = holder[meta.live!.checks![part]!];
-    if (typeof done === "boolean")
-      return { input: { kind: "check" } as const, detail: `:${done ? "done" : "todo"}` };
+    if (typeof done === "boolean") {
+      const state = action === "toggle" ? (done ? "on" : "off") : done ? "done" : "todo";
+      return { input: { kind: "check" } as const, detail: `:${state}` };
+    }
   }
   const detail = row && action === "toggle" ? itemToggleDetail(meta, part, holder) : undefined;
   if (detail !== undefined) return { detail };
