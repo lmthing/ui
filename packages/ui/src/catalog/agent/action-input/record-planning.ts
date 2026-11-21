@@ -84,7 +84,12 @@ export function affordancesOfScreen(
     const get = (part: string) => local[`${id}/${part}`];
     const clock = recordClockOffer(def, input, props, get, data, now, values);
     const wire = reportEditWire(def, input, get);
-    const offered = affordancesOf(def.meta, props, id, local, liveState, true, { data, clock, wire });
+    const offered = affordancesOf(def.meta, props, id, local, liveState, true, {
+      data,
+      clock,
+      wire,
+      schema: def.props,
+    });
     const routed = driveAffordances(
       def.meta,
       props,

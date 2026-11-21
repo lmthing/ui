@@ -22,7 +22,7 @@ christening or bar mitzvah, office party, community fair with stalls, a club's a
 - Choosing a menu or a package: `Choice`; photos after the day: `Gallery`; the hosts: `People`.
 - The budget against what is spent: `Progress` and `Amount` (or the `money` pack for shared costs).
 
-## Components (8)
+## Components (9)
 
 ### `GuestList` · planned · data · people
 Everyone invited, grouped by party or household: name, RSVP status (yes, no, maybe, waiting) as a pill,
@@ -34,6 +34,7 @@ plus-ones, dietary needs, and the counts per status at the top.
 - Parts → actions: guests `root press`, `remind press` (to everyone waiting; `partTiers`: `service`).
 - States: filled, empty, loading. · Real path: the list on the organiser's device; reminders are sent by
   message or email.
+- Wave 6 options: add `pending_approval` and `waitlisted` values to `status`, plus `approve press` and `decline press` (`meta.confirmParts: ["decline"]`) for host-approved RSVPs.
 
 ### `RSVP` · planned · input · people
 The guest's reply: the event's name and date at the top, attending yes or no as two large buttons, then
@@ -54,6 +55,7 @@ a table lists its guests; unseated guests wait in a tray below.
   1–20; `unseated` text(24) each 0–20. · Dense.
 - Parts → actions: tables `root press`, guests `root move` (to a table label). · States: filled, empty.
 - Real path: the plan on the organiser's device. · Kit: `KitSeatMap`.
+- Wave 6 options: add `style: "banquet" | "rows"` for assigned ceremony or talk rows alongside banquet tables.
 
 ### `Vendors` · planned · data · phone
 The suppliers (venue, caterer, photographer, band, florist): each with its role icon, name, the agreed cost,
@@ -75,6 +77,7 @@ scannable code with the ticket number.
   `holder` text(24), `number` text(12).
 - States: filled, success (scanned in). · Real path: a ticket issued by the app; scanning at the door needs
   the organiser's `Door`. · Kit: `KitTicket`.
+- Wave 6 options: add `style: "badge" | "pass"`, optional `section`, `row` and `seat` props, `status` (`valid`, `transferred`, `used`), and `transfer press` (`meta.partTiers: { transfer: "people" }`).
 
 ### `Door` · planned · action · ok
 The door on the day: a scanner for tickets, a large count of arrivals against tickets sold, the last few
@@ -107,6 +110,16 @@ highlighted with its count.
 - Parts → actions: own row cells `root select` (yes, maybe or no). · States: filled, empty.
 - Real path: answers collected in a shared app or link.
 
+### `Sessions` · planned · data · phone
+A multi-track schedule for one event showing stage or room filter chips and chronological session rows with time, speaker or host and a capacity pill. Guests can bookmark talks with one tap to assemble their own personal agenda.
+- Pick: multi-room or multi-stage sessions within one event with personal bookmarking. Not one single-track day (`Timeline`), a holiday trip (trips `Itinerary`), or weekly classes (learning `Timetable`).
+- Writes: `tracks` text(16) each 1–6, `selectedTrack` text(16) optional, `sessions` of `id` text(24), `title` text(32), `track` text(16), `start` HH:MM, `end` HH:MM, `room` text(20), `speaker` text(24) optional, `booked` number optional, `capacity` number optional, `saved` boolean, `goto` optional, 1–24; `style`. Remaining capacity and personal-agenda time conflicts are computed by code.
+- Styles: `tracks` (default, filterable stage/room chips above all sessions), `mine` (bookmarked personal agenda with overlap flags).
+- Parts → actions: `track select`, sessions `save toggle`, sessions `root press` (linked).
+- States: filled, empty (no sessions or nothing bookmarked), loading, success (agenda updated).
+- Real path: event schedule data stored on the device; live capacity counts and synced agendas use a shared event app (`people`).
+- Density: `meta.dense: true`, weight 3; multi-track event schedules contain more than six sessions.
+
 ## Archetypes (4)
 
 | Archetype | Job | Layouts | Recipe |
@@ -114,7 +127,7 @@ highlighted with its count.
 | `plan_event` | The event at a glance | `overview` | Header, Timer[until], Checklist, Button |
 | `guests` | Who is coming and where they sit | `list`, `seating`, `reply` | `list`: Header, Chips, GuestList · `seating`: Header, Stats, Seating · `reply`: Hero[photo], KeyValue, MapPins, RSVP |
 | `suppliers` | Who supplies what | `vendors`, `gifts` | `vendors`: Header, Vendors, Button · `gifts`: Header, Note, Registry |
-| `on_the_day` | Running it | `door`, `ticket`, `date` | `door`: Header, Door, Note · `ticket`: Header[back], Ticket, MapPins · `date`: Header, FindDate, Button |
+| `on_the_day` | Running it | `door`, `ticket`, `sessions`, `date` | `door`: Header, Door, Note · `ticket`: Header[back], Ticket, MapPins · `sessions`: Header, Sessions, Note · `date`: Header, FindDate, Button |
 
 ## Worked example: Vows
 
@@ -130,8 +143,11 @@ the camera (`ok`). `Seating`, `Vendors` and `Ticket` work on the organiser's pho
 
 ## Build notes
 
-- Order: `GuestList`, `RSVP`, `Vendors`, `Seating`, `Registry`, `FindDate`, `Ticket`, `Door`.
+- Order: `GuestList`, `RSVP`, `Vendors`, `Seating`, `Registry`, `FindDate`, `Ticket`, `Door`, then Wave 6 addition `Sessions`.
 - `GuestList` reads as counts and one line per party, not one line per guest, to stay within read budgets.
+- **Wave 6 additions & options:**
+  - Added `Sessions` (`data`, `phone`) for multi-track event schedules with track filters, capacity pills and personal agenda bookmarking.
+  - Option/style upgrades: `GuestList` gains `pending_approval` and `waitlisted` statuses plus `approve press` / `decline press` (`confirmParts`); `Ticket` gains `style: "badge" | "pass"`, optional `section`/`row`/`seat`, `status` (`valid`, `transferred`, `used`) and `transfer press` (`people`); `Seating` gains `style: "banquet" | "rows"`.
 
 ## Open questions
 

@@ -1,4 +1,5 @@
 export { pack } from "./pack";
+export { matchRecordKind } from "./match-record";
 export { checkMatchScore } from "./check-match-score";
 export * from "./components";
 export * from "./archetypes";

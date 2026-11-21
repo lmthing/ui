@@ -25,7 +25,7 @@ reader, a museum audio guide, a meditation library (with `mind`), a cooking vide
 The first plan's `RichText` is folded into `Article` style `plain`, and `Episode` is a `Playlist` row plus
 the core `Player`.
 
-## Components (7)
+## Components (9)
 
 ### `Article` · planned · content · phone
 Long-form reading: title, byline and date, reading time, an optional lead image, then the body in
@@ -38,6 +38,7 @@ paragraphs with headings, quotes and lists, set for comfortable reading.
 - Styles: `article` (default, with header), `plain` (body only: about pages, instructions, policies).
 - Parts → actions: links `root press` (to their screen). · States: filled, loading.
 - Real path: text stored on or bundled with the app.
+- Wave 6 note: proposed for promotion to Core with `style: "article" | "book" | "response"`, `paper` (`light`, `sepia`, `dark`), `fontScale`, `progress`, and `bookmark` toggle so e-books, news, and AI responses share one reader. `Article` remains listed here among `media.md`'s 9 components until Core promotion ships.
 
 ### `Library` · planned · content · phone
 The person's library as a grid of covers (books, shows, albums), a progress bar under each started one and a
@@ -102,6 +103,25 @@ each opening the source at that spot.
 - Parts → actions: items `root press`. · States: filled, empty.
 - Real path: highlights stored on the device.
 
+### `Transcript` · planned · content · phone
+Line-by-line time-synced song lyrics or spoken podcast transcript that auto-highlights the active timestamp during playback and keeps the current line scrolled into view. Tapping any line seeks the screen's `Player` (`meta.drives: "Player"`), and a save action clips lines directly to `Highlights`.
+- Pick: continuous time-synced lyrics or spoken podcast and audiobook transcripts. Not coarse chapter jumps (`ChapterList`), static long-form reading (`Article`), or saved quotes alone (`Highlights`).
+- Writes: `lines` of `at` seconds ≥ 0, `speaker` text(20) optional, `text` text(160), 2–40; `current` index optional, `follow` boolean (default true), `style`. Active line highlighting and formatted timestamps follow playback position and `at` seconds.
+- Styles: `lyrics` (default, centered lyric lines with emphasized active line), `spoken` (left-aligned speaker labels with timestamp rail).
+- Parts → actions: lines `root press` (seeks `Player` to `at`), lines `save press` (clips line to `Highlights`), `follow toggle` (auto-scroll sync). `meta.drives: "Player"`.
+- States: filled, empty (no transcript available), loading.
+- Real path: timed caption or LRC files bundled with local media or fetched from a media host; requires `Player` on the same screen for seeking.
+- Density: `meta.dense: true`, weight 3; time-synced transcripts hold up to forty timestamped lines.
+
+### `AudioMatch` · planned · action · ok
+A tap-to-listen ambient music recognition card that triggers microphone matching against nearby audio, reveals the identified track with cover artwork, artist, and external-play links, and lists recent matches below. If matching fails, it preserves recent match history and offers a retry.
+- Pick: identifying music or humming playing nearby via the microphone. Not playing stored audio (`Player`), typing catalog search queries (`Search`), or speaking pronunciation drills (learning `SpeechCheck`).
+- Writes: `listening` boolean (default false), `match` (`title` text(40), `artist` text(32), `album` text(32) optional, `photo` optional, `url` text(120) optional) optional, `history` of `title` text(32), `artist` text(24), `photo` optional, `matchedAt` text(12), `goto` optional, 0–6; `style`. Listening state and identified match payloads come from the host recognition adapter, never invented by the model.
+- Styles: `listen` (default, centered listening pulse tile above recent match history), `result` (focused identified track card with artwork and external play links).
+- Parts → actions: `listen start`, `listen stop` (captures mic sample and queries recognition service), `open press` (opens matched track externally), history `root press`. `meta.partTiers: { listen: "service", open: "service" }`.
+- States: empty (ready to listen, no history yet), filled, loading (listening and matching), success (track identified), error (no match found or mic permission denied).
+- Real path: microphone permission (`ok`) captures audio matched by an external acoustic-recognition service (`listen`, `open`); DSP fingerprinting stays in the host adapter.
+
 ## Archetypes (3)
 
 | Archetype | Job | Layouts | Recipe |
@@ -124,10 +144,12 @@ All `phone` for files on the device. Streaming from a service would make `Librar
 
 ## Build notes
 
-- Order: `Playlist`, `Collection`, `Article`, `Library`, `ChapterList`, `MiniPlayer`, `Highlights`.
+- Order: `Playlist`, `Collection`, `Article`, `Library`, `ChapterList`, `MiniPlayer`, `Highlights`; Wave 6 additions follow in order: `Transcript`, `AudioMatch`.
 - `Article` markdown is parsed by a small catalog parser into kit text roles; no HTML.
 - `MiniPlayer` adds a rule to plan 4.5's regions: bottom holds the primary action, then the mini player,
   then the tab bar.
+- Wave 6 Core promotions & option upgrades: `Article` is proposed for promotion to Core (`style: "article" | "book" | "response"`, `paper`, `fontScale`, `progress`, `bookmark`) while remaining in `media.md` for now; **Media Reviews** are served by proposing Core promotion of `customers/Review` with optional `spoiler` toggle and `helpful` vote (if `Review` stays in `customers`, add `MediaReview` here later). On existing components: `Library` adds `style: "grid" | "list" | "shelf" | "loans"` plus `status` (`owned`, `borrowed`, `hold`, `finished`) and `dueLabel`; `Collection` adds `style: "show" | "album" | "book"` plus `rating`, `ratingCount`, `tags` (0–3), and `shelfStatus`; `Playlist` adds `style: "tracks" | "episodes" | "queue"`; `Highlights` adds `kind: "quote" | "clip" | "bookmark"`.
+- Wave 6 boundaries: TV series seasons, live EPGs, TV remotes, and cinema seats move to `watch`; vertical webtoons/manga and paid chapter unlocks move to `comics`; news rivers and bias clusters move to `news`; scripture and dictionaries move to `reference`; multitrack DAWs and real-time EQ stay in `Canvas`.
 
 ## Open questions
 

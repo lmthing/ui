@@ -1,7 +1,11 @@
 import type { PackMeta } from "../../catalog";
+import { checkMatchScore } from "./check-match-score";
+import { matchRecord, matchRecordKind } from "./match-record";
 
 export const pack = {
   id: "sports",
+  screenValidators: [checkMatchScore],
+  hostRecords: { [matchRecordKind]: matchRecord },
   example:
     "Sunday Kickers arrange five-a-side fixtures, collect availability, keep live scores and follow their league and cup.",
   probes: [

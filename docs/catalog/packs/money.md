@@ -30,7 +30,7 @@ credit-card payoff, car-loan tracker, mortgage overview, paying back a friend ov
 The first plan's `Balance` is core `Amount`, its `Budget` is `Progress` under an `Amount`, and the revised
 plan's `Spending` donut became core `Bars` style `share`, so money and data share one drawing.
 
-## Components (8)
+## Components (11)
 
 ### `AccountCard` · planned · content · phone
 
@@ -142,6 +142,33 @@ priority or extra monthly amount recomputes the whole plan.
 - States: filled, empty (no debts), loading, success (all cleared), error (budget cannot reduce debt).
 - Real path: a local projection, never a payment; shared acknowledgement of a friend's loan is a host `people` feature.
 
+### `CardControls` · planned · input · service
+Controls for a single debit, credit, or EBT card: a lock/freeze toggle, independent channel switches for online, ATM, and international or out-of-state spending, a per-transaction spend-cap slider, and masked card digits with CVV reveal. Toggling card freeze asks for confirmation before locking the card; masked digits and CVV stay read-protected as secrets until explicitly unlocked.
+- Pick: configuring security locks, spending channels, and caps for one payment card. Not listing accounts or balances (`AccountCard`), paying bills (`Bills`), or ordinary app settings (`List`).
+- Writes: `cardRef` text(32), `label` text(24), `network` (`debit`, `credit`, `ebt`, `prepaid`), `last4` text(4), `frozen` boolean (default false), `channels` (`online` boolean, `atm` boolean, `international` boolean), `spendCap` number ≥ 0 optional, `maxCap` number > 0 optional (upper slider bound when `spendCap` is supplied), `maskedNumber` secret(24) optional, `cvv` secret(4) optional, `expires` text(7) optional, `style`. Formatted cap amounts and masked card values are rendered by code.
+- Styles: `controls` (default, card header, lock toggle, channel switches, and spend-cap slider), `compact` (lock toggle and channel switches without slider or secret reveal).
+- Parts → actions: `freeze toggle`, `online toggle`, `atm toggle`, `international toggle`, `spendCap set` (number up to `maxCap`), `reveal press` (host unlock gate before revealing masked card number or CVV). `meta.confirmParts: ["freeze"]`.
+- States: filled, loading, success (rule updated), error (card issuer sync failed).
+- Real path: card lock state and channel limits synced with the issuing bank or card-program service; secret reveal uses a host device-unlock check (`ok`).
+
+### `MoneyTransfer` · planned · action · service
+A peer-to-peer send or request money flow: recipient row, funding source selector, large amount entry, optional memo, transfer speed and fee breakdown, and a tab to share or scan a personal payment QR code. Switching between send and request updates the confirmation copy; committing a transfer requires confirmation.
+- Pick: sending or requesting money between two people or accounts. Not entering a local expense amount (`AmountPad`), settling shared group costs (`Split`), or paying a business invoice (customers `PaymentStatus`).
+- Writes: `mode` (`send` default, `request`), `recipient` (`name` text(24), `handle` text(32) optional, `photo` optional), `sources` of `label` text(24), `last4` text(4) optional, `balance` number optional, 1–4; `sourceAt` index (default 0), `amount` number > 0 optional, `memo` text(60) optional, `speed` (`standard` default, `instant`), `instantFee` number ≥ 0 optional, `qrPayload` text(120) optional, `style`. Total including any instant fee and directional labels are computed by code.
+- Styles: `transfer` (default, recipient, source selector, amount keypad, speed, and memo), `qr` (personal payment QR code with scan-to-pay action).
+- Parts → actions: `mode select` (`send` or `request`), `source select`, `pad type` (digits), `memo type`, `speed select` (`standard` or `instant`), `submit press`, `scan scan` (scans a recipient QR code). `meta.confirmParts: ["submit"]`.
+- States: filled, empty (amount not entered), loading, success (transfer sent or requested), error (insufficient balance or network error).
+- Real path: executed by a payment rails or P2P network service; QR scanning uses camera permission (`ok`) and requests involve the recipient (`people`).
+
+### `CreditScore` · planned · data · service
+A consumer credit score summary displaying the numeric score on a 300–850 band gauge with its rating tier, signed score delta since the previous report, bureau and update date label, and four to six rated factor rows covering payment history, utilization percent, credit age, recent inquiries, and credit mix. Tapping a factor opens its breakdown when linked.
+- Pick: displaying a consumer credit score and its contributing rating factors. Not a personal savings goal (`Ring`), body vitals (health `Vitals`), or category budgets (`Progress`).
+- Writes: `score` integer 300–850, `previousScore` integer 300–850 optional, `bureau` text(24), `updatedAt` date, `factors` of `label` text(24), `value` text(16), `rating` (`excellent`, `good`, `fair`, `poor`), `impact` (`high`, `medium`, `low`), `goto` optional, 4–6; `style`. Band tier label and signed score delta are computed by code from `score` and `previousScore`.
+- Styles: `gauge` (default, 300–850 multi-zone band gauge above factor rows), `compact` (headline score, delta, and factor rows without the band gauge).
+- Parts → actions: factors `root press` (when linked via `goto`), `refresh press`.
+- States: filled, empty (no bureau score available), loading, error (bureau service unreachable).
+- Real path: score and factor ratings fetched from a credit-bureau monitoring service on behalf of the user.
+
 ## Archetypes (6)
 
 | Archetype | Job                             | Layouts                      | Recipe                                                                                                                                   |
@@ -173,7 +200,10 @@ any future lender sync or payment part must be `service` in `meta.partTiers`, no
 
 ## Build notes
 
-- Order: `Transactions`, `AmountPad`, `Bills`, `Split`, `AccountCard`, `Loan`, `Payoff`, `PriceChart`.
+- Order: `Transactions`, `AmountPad`, `Bills`, `Split`, `AccountCard`, `Loan`, `Payoff`, `PriceChart`; Wave 6 additions follow in order: `CardControls`, `MoneyTransfer`, `CreditScore`.
+- Wave 6 option upgrades on existing components: `AccountCard` adds `style: "stacked"` plus optional `creditLimit` and `rewardsValue`; `Transactions` adds optional `status` (`posted`, `pending`, `disputed`), `note` text(60), and `receipt` photo thumbnail; `Bills` adds optional `trialEnds` date and cancel/manage shortcut on `style: "subscriptions"`; `Loan` adds `cadence` (`weekly`, `biweekly`, `monthly`) and `style: "installments"` for Pay-in-4 / 0% APR plans.
+- Wave 6 boundaries: generic scannable barcode, loyalty, transit, and membership passes unify in proposed Core `PassCard` rather than a duplicate `WalletPass` in `money`; mobile check deposit uses Core `Camera[document_dual]`. Stock/crypto portfolios stay in `invest`, SMB bookkeeping in `books`, and NFC HCE tap-to-pay emulation in native OS adapters (`Canvas`).
+- `CreditScore` reuses `KitRangeBand` with a multi-zone band option rather than adding a new kit base.
 - Every sum, share, balance and settle-up is computed by code from items; the model never writes a total.
 - Share the pure repayment calculator between `Loan` and `Payoff`; add adjacent unit tests when built.
   At each monthly due date accrue `remaining principal × rate / 1200`, round to the brief currency's minor unit,

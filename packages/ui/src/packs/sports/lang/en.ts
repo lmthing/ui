@@ -1,4 +1,5 @@
 export const en = {
+  matchGoal: "Goal",
   fixtureHome: "Home",
   fixtureAway: "Away",
   fixtureMeet: (time: string) => `Meet at ${time}`,

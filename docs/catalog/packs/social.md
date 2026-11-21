@@ -25,7 +25,7 @@ spotting), friends' challenge app, church or society news, fan club, alumni grou
 The first plan's `Follow` is `Profile` plus `Stats` plus `Button`, `Reactions` is a part of `Post` and
 `Feed`, and `Leaderboard` is core `List` style `ranked`.
 
-## Components (8)
+## Components (13)
 
 ### `Feed` · planned · content · people
 Posts from several people, newest first: avatar, name, time, text clipped to three lines, an optional photo,
@@ -104,6 +104,55 @@ Bringing others in: an invite code with copy and share, a QR code, and how many 
 - Parts → actions: `copy press`, `share press`. · States: filled.
 - Real path: an invite code from a shared app; sharing uses the phone's share sheet.
 
+### `ActivityFeed` · planned · content · people
+Grouped social notifications organized under time headings such as "Today" and "This week", pairing each actor's avatar and reaction or follow badge with a summary line, a target post thumbnail when relevant, and an inline Follow back or Accept request button. Tapping an entry opens the referenced post or member profile.
+- Pick: social notifications, likes, mentions, replies, and follow alerts directed at the person. Not plain rows (`List`), system audit logs (data `ActivityLog`), or direct messages (`comms/Inbox`).
+- Writes: `items` of `actor` text(24), `photo` optional, `kind` (`like`, `comment`, `mention`, `repost`, `follow`, `request`), `time` text(12), `bucket` (`today`, `week`, `earlier`), `summary` text(64), `targetPhoto` optional, `following` boolean optional, `goto` optional, 1–12; `style`. Time-bucket grouping is derived by code.
+- Styles: `grouped` (default, bucket headings with actor avatars, target thumbnails, and inline buttons), `compact` (flat list without thumbnails).
+- Parts → actions: items `root press`, items `follow toggle`, items `accept press`, items `decline press`. `meta.confirmParts: ["decline"]`.
+- States: filled, empty, loading.
+- Real path: activity notifications aggregated from member interactions in a shared social app.
+- Density: `meta.dense: true`, weight 3; activity streams hold up to twelve grouped notifications across time buckets.
+
+### `Groups` · planned · content · people
+Community, subreddit, or starter-pack discovery cards or rows displaying each group's icon or cover photo, name, topic tags, member and online counts, privacy pill ("Public", "Restricted", "Private"), and an inline Join or Joined toggle. Tapping a group opens its community feed or overview screen.
+- Pick: discovering, browsing, and joining topical communities, subreddits, or local groups. Not club dues and eligibility governance (community `Members`), user directories (`FollowList`), or generic lists (`List`).
+- Writes: `groups` of `name` text(32), `handle` text(24) optional, `about` text(80) optional, `icon` optional, `cover` optional, `tags` text(14) each 0–3, `members` integer ≥ 0, `online` integer ≥ 0 optional, `privacy` (`public`, `restricted`, `private`), `joined` boolean, `goto` optional, 1–6; `style`. Formatted member and online counts are rendered by code.
+- Styles: `cards` (default, cover banner, summary, tags, and Join toggle), `rows` (compact directory rows with icon, counts, and Join toggle).
+- Parts → actions: groups `root press`, groups `join toggle`.
+- States: filled, empty, loading.
+- Real path: community directory and membership state maintained in a shared social app.
+
+### `StoryViewer` · planned · content · people
+A full-bleed ephemeral story viewer displaying segmented top progress bars across slides, author header with avatar and timestamp, tap-to-advance or hold-to-pause navigation, an optional interactive sticker poll or link pill, and a bottom quick-reply and reaction bar. Sending a quick reply or reaction stays attached to the active slide without leaving the viewer.
+- Pick: watching multi-slide ephemeral stories opened from `Stories`. Not the horizontal avatar strip (`Stories`), a static gallery (`Gallery`), or permanent feed posts (`Post`).
+- Writes: `author` text(24), `avatar` optional, `slides` of `photo`, `time` text(12), `caption` text(120) optional, `sticker` (`kind`: `poll` or `link`, `label` text(40), `options` text(20) each 0–2, `goto` optional) optional, 1–8; `current` index (default 0), `paused` boolean (default false), `replyDraft` text(120) optional, `style`. Segmented slide progress and slide counts come from runtime state.
+- Styles: `story` (default, full-bleed media with progress bars and bottom quick-reply dock), `clean` (hides reply dock for read-only viewing).
+- Parts → actions: `prev press`, `next press`, `story pause`, `story play`, `sticker press`, `reply type`, `reply send`, `react press`, `close dismiss`.
+- States: filled, empty (story expired or unavailable), loading, success (reply sent).
+- Real path: ephemeral 24-hour story slides loaded from a shared social app; replies route to the author's message thread.
+- Density: `meta.dense: true`, weight 3; a multi-slide story sequence holds up to eight timed media slides.
+
+### `FollowList` · planned · content · people
+A directory of followers, following accounts, or suggested creators displaying each person's avatar, display name, `@handle`, optional verified mark, one-line bio or mutual-follower summary, and an individual Follow or Following toggle per row. Tapping a row opens that person's profile screen.
+- Pick: browsing followers, following lists, or suggested creators to follow. Not small team avatar lists (`People`), club governance with dues (community `Members`), or client records (customers `ClientCard`).
+- Writes: `kind` (`followers`, `following`, `suggested`), `users` of `name` text(24), `handle` text(24), `photo` optional, `verified` boolean (default false), `bio` text(60) optional, `mutuals` text(32) optional, `following` boolean, `goto` optional, 1–12; `style`.
+- Styles: `rows` (default, avatar, name, handle, bio or mutuals, and per-row Follow toggle), `compact` (name, handle, and toggle without bio lines).
+- Parts → actions: users `root press`, users `follow toggle`.
+- States: filled, empty, loading.
+- Real path: follower graphs and follow toggles persisted in a shared social app.
+- Density: `meta.dense: true`, weight 3; follow directories display up to twelve scrollable account rows.
+
+### `LiveRoom` · planned · content · people
+A live audio or broadcast stage displaying the room topic, host and speaker avatars with active-talker rings, live listener count, a Raise Hand toggle, and a reaction tray. Listeners can join the live audio room (`service`) and request to speak (`ok` microphone permission when promoted); hosts can mute speakers or end the room after confirmation. *(Core Watchlist candidate for `comms` and `learning`.)*
+- Pick: hosting or listening to a live multi-speaker audio room. Not pre-recorded media (`Player`), private 1:1 or team calls (`comms/ActiveCall`), or async posts (`Feed`).
+- Writes: `title` text(48), `topic` text(20) optional, `speakers` of `name` text(20), `photo` optional, `role` (`host`, `cohost`, `speaker`), `speaking` boolean (default false), `muted` boolean (default false), 1–12; `listenersCount` integer ≥ 0, `handRaised` boolean (default false), `isHost` boolean (default false), `style`. Active-talker rings and listener totals reflect runtime room state.
+- Styles: `stage` (default, speaker avatar grid with active-talker rings, listener count, and raise-hand bar), `mini` (collapsed live bar showing room title, active speaker, and leave control).
+- Parts → actions: `connect press` (joins live room stream), `speak toggle` (unmutes mic once promoted; uses device mic permission `ok`), `hand toggle` (Raise Hand), `react press`, `leave press`, `end press` (host only). `meta.confirmParts: ["end"]`; `meta.partTiers: { connect: "service" }`.
+- States: filled, loading (connecting), success (room ended), error (audio connection lost).
+- Real path: live multi-speaker audio rooms backed by a real-time audio service (`connect`) and device microphone permission (`ok`) for active speakers; live WebRTC/video codecs stay in `Canvas`.
+- Density: `meta.dense: true`, weight 3; live stages display up to twelve host and speaker tiles simultaneously.
+
 ## Archetypes (5)
 
 | Archetype | Job | Layouts | Recipe |
@@ -128,9 +177,11 @@ community with sample members and says that a real one needs a shared app.
 
 ## Build notes
 
-- Order: `Feed`, `Post`, `Comments`, `Poll`, `EventCard`, `Challenge`, `Stories`, `Invite`.
+- Order: `Feed`, `Post`, `Comments`, `Poll`, `EventCard`, `Challenge`, `Stories`, `Invite`; Wave 6 additions follow in order: `ActivityFeed`, `Groups`, `StoryViewer`, `FollowList`, `LiveRoom`.
 - Counts such as likes and votes are seed values stored on the post; the shares in `Poll` and days left in
   `Challenge` are computed.
+- Wave 6 option upgrades on existing components: `Feed` and `Post` add `style: "stream" | "compact" | "grid" | "reel"` (`grid` for profile grids; `reel` for vertical short video + right-rail actions), plus `media` (video), `reposts`, `reposted`, `saved`, `quote`, `vote` (`up | down`), `tags`, and neighborhood radius/alert tag; `Comments` adds `badge` (`"OP"`, `"Mod"`), `replyCount`, and `reactionMode: "like" | "vote"`; `Poll` adds `multi: boolean` and `style: "bars" | "chips"`; `Stories` adds `style: "stories" | "notes"` (avatar thought-bubbles); `Invite` adds `style: "code" | "starter_pack"`.
+- Wave 6 boundaries: multi-thread DM inboxes, server channels, and VoIP calls belong in `comms`, dating discovery in `dating`, club moderation queues in `community`, and AR camera lenses / live WebRTC codecs in `Canvas`. `LiveRoom` is on the Core Watchlist if `comms` and `learning` adopt live audio stages.
 
 ## Open questions
 
