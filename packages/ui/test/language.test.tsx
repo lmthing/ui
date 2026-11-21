@@ -13,6 +13,7 @@ import {
 import { bookingWordsFor, registerBookingWords, type BookingWords } from "../src/packs/booking/lang";
 import { kitchenWordsFor, registerKitchenWords, type KitchenWords } from "../src/packs/kitchen/lang";
 import { createScreenController } from "@lmthing/ui/kit";
+import { selectedIds } from "../scripts/build";
 import { renderInstance, type Theme } from "./render";
 
 const lang = "en-XA-u-nu-fullwide";
@@ -62,6 +63,7 @@ const pseudoKitchen = {
   ingredientPieces: (_value, form) => `[${form}]`,
 } satisfies KitchenWords;
 const unregister: (() => void)[] = [];
+const forIds = (...ids: string[]) => it.runIf(selectedIds(ids, import.meta.url).length > 0);
 
 beforeAll(() => {
   unregister.push(
@@ -72,7 +74,7 @@ beforeAll(() => {
 });
 afterAll(() => unregister.forEach((remove) => remove()));
 
-it("switches the List empty and loading words without changing authored labels", () => {
+forIds("List")("switches the List empty and loading words without changing authored labels", () => {
   const list = { rows: [{ title: "Fern" }] };
   expect(renderInstance("List", list, "empty", theme, { lang, thing: "plant" })).toContain("[No plant~ yet]");
   expect(renderInstance("List", list, "empty", theme, { lang })).toContain("[Nothing here yet]");
@@ -86,7 +88,11 @@ it("switches the List empty and loading words without changing authored labels",
   );
 });
 
-it("switches Timer, Counter and their reader words; formats a clock and amount with Intl", () => {
+forIds(
+  "Timer",
+  "Counter",
+  "Amount",
+)("switches Timer, Counter and their reader words; formats a clock and amount with Intl", () => {
   const timer = { seconds: 65, label: "Fern" };
   const html = renderInstance("Timer", timer, "filled", theme, { lang });
   expect(html).toContain("[Start]");
@@ -109,33 +115,36 @@ it("switches Timer, Counter and their reader words; formats a clock and amount w
   expect(moneyLine(24, undefined, "hour")).toBe("$24 / hr");
 });
 
-it("switches booking-specific words and date formatting in the view and reader", () => {
-  const input = {
-    service: "Fern",
-    goto: "details",
-    date: "2026-11-18",
-    time: "10:00",
-    minutes: 30,
-    status: "confirmed",
-    style: "card",
-  };
-  const html = renderInstance("Appointment", input, "filled", theme, { lang });
-  const date = appointmentDate(input.date, lang);
-  expect(date).toContain("２０２６");
-  for (const word of [date, "１０:００", "[Confirmed]", "[３０ min]", "[Reschedule]", "[Cancel]"]) {
-    expect(html).toContain(word);
-    expect(readComponent(components.Appointment, input, "a1", undefined, undefined, lang).join()).toContain(
-      word,
-    );
-  }
-  const service = renderInstance("ServiceMenu", components.ServiceMenu.examples[0], "filled", theme, {
-    lang,
-  });
-  expect(service).toContain("[Book]");
-  expect(service).toContain("[３０ min]");
-});
+forIds("Appointment", "ServiceMenu")(
+  "switches booking-specific words and date formatting in the view and reader",
+  () => {
+    const input = {
+      service: "Fern",
+      goto: "details",
+      date: "2026-11-18",
+      time: "10:00",
+      minutes: 30,
+      status: "confirmed",
+      style: "card",
+    };
+    const html = renderInstance("Appointment", input, "filled", theme, { lang });
+    const date = appointmentDate(input.date, lang);
+    expect(date).toContain("２０２６");
+    for (const word of [date, "１０:００", "[Confirmed]", "[３０ min]", "[Reschedule]", "[Cancel]"]) {
+      expect(html).toContain(word);
+      expect(readComponent(components.Appointment, input, "a1", undefined, undefined, lang).join()).toContain(
+        word,
+      );
+    }
+    const service = renderInstance("ServiceMenu", components.ServiceMenu.examples[0], "filled", theme, {
+      lang,
+    });
+    expect(service).toContain("[Book]");
+    expect(service).toContain("[３０ min]");
+  },
+);
 
-it("builds FoodLog's add label from the display word, not the meal key", () => {
+forIds("FoodLog")("builds FoodLog's add label from the display word, not the meal key", () => {
   const input = { meals: [{ meal: "dinner", items: [] }], goto: "food_add" };
   const html = renderInstance("FoodLog", input, "filled", theme, { lang });
   expect(html).toContain('aria-label="[Add] [Evening meal]"');
@@ -145,7 +154,7 @@ it("builds FoodLog's add label from the display word, not the meal key", () => {
   expect(renderInstance("FoodLog", input, "filled", theme)).toContain('aria-label="Add food to dinner"');
 });
 
-it("localizes ingredient controls, quantities and the corresponding reader", () => {
+forIds("Ingredients")("localizes ingredient controls, quantities and the corresponding reader", () => {
   const input = {
     servings: 2,
     groups: [{ items: [{ name: "Seed", amount: 2, unit: "piece" }] }],
@@ -160,7 +169,7 @@ it("localizes ingredient controls, quantities and the corresponding reader", () 
   expect(html).toContain('aria-label="[Fewer]"');
 });
 
-it("uses the same localized clock in BabyLog's visible row and reader", () => {
+forIds("BabyLog")("uses the same localized clock in BabyLog's visible row and reader", () => {
   const input = { log: [{ kind: "sleep", time: "09:15" }] };
   expect(renderInstance("BabyLog", input, "filled", theme, { lang })).toContain("０９:１５");
   expect(readComponent(components.BabyLog, input, "b1", undefined, undefined, lang).join()).toContain(
@@ -168,7 +177,7 @@ it("uses the same localized clock in BabyLog's visible row and reader", () => {
   );
 });
 
-it("keeps localized repeat choices actionable without changing the stored enum", () => {
+forIds("Field")("keeps localized repeat choices actionable without changing the stored enum", () => {
   const controller = createScreenController({
     lang,
     defs: components,
