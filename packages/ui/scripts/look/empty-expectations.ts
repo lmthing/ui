@@ -1,4 +1,5 @@
 import { readdirSync, readFileSync } from "node:fs";
+import { URL } from "node:url";
 
 const docs = new URL("../../../../docs/", import.meta.url);
 

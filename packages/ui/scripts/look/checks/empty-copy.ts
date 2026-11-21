@@ -1,4 +1,4 @@
-import { emptyLine } from "../../../src/catalog/copy";
+import { emptyLine } from "../../../src/catalog";
 import { describe, shown, type FrameCheck, type TextBox } from "./shared";
 
 declare const LOOK_EMPTY_STATES: Readonly<Record<string, string>>;
