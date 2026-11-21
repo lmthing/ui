@@ -41,7 +41,7 @@ export const meta = {
 export const props = z.strictObject({
     ...variantProps(meta.variants),
     style: z.enum(["rings", "score"]).default("rings"),
-    score: z.strictObject({ label: text(16), value: z.number().min(0).max(activityScoreMax) }).optional(),
+    score: z.strictObject({ label: text(16), value: z.int().min(0).max(activityScoreMax) }).optional(),
     rings: z.array(z.strictObject({
       label: text(16), value: z.number().min(0).max(1000000),
       of: z.number().positive().max(1000000), unit: text(8),
@@ -108,24 +108,20 @@ export const probes = [
 ] satisfies Probe[];
 
 const ringTones = ["accent", "good", "warn"] as const;
+const scoreTones = ["accent", "warn", "muted"] as const;
 const numberScaleOf = (value: number, count: number) =>
   value >= (count === 3 ? 1000 : 10000) ? ("compact" as const) : ("display" as const);
 
 const ringNumber = (value: number, count: number) =>
   ({ role: "number", align: "center", tabular: true, numberScale: numberScaleOf(value, count) }) as const;
 
-function ScoreCaption({ label, heading, loading }: { label: string; heading?: boolean; loading: boolean }) {
+function ScoreCaption({ label, loading }: { label: string; loading: boolean }) {
   if (loading)
     return (
       <KitSkeleton shape="figure" inset="none" lines={[{ text: label, role: "caption", align: "center" }]} />
     );
   return (
-    <KitText
-      part={heading ? "score_label" : null}
-      role="caption"
-      tone={heading ? "text" : "muted"}
-      align="center"
-    >
+    <KitText part="score_label" role="label" align="center">
       {label}
     </KitText>
   );
@@ -137,18 +133,20 @@ type TrackProps = Pick<Props<typeof props, typeof meta>, "rings" | "score"> & {
 // prettier-ignore
 function RingTrack({ rings, score, loading, lang }: TrackProps) {
   const tracks = rings.map((ring, index) => ({
-    id: ring.id, ratio: ring.value / ring.of, tone: ringTones[index]!,
+    id: ring.id, ratio: ring.value / ring.of, tone: (score ? scoreTones : ringTones)[index]!,
   }));
   const tracksWithScore = score
     ? [...tracks, { id: "score", ratio: score.value / activityScoreMax, tone: "text" as const }]
     : tracks;
   return (
     <>
-      {score && <ScoreCaption label={score.label} heading loading={loading} />}
+      {score && <ScoreCaption label={score.label} loading={loading} />}
       <KitRadialTrack part="rings" style="rings" loading={loading} rings={tracksWithScore}>
-        {score && <KitText part="score" role="number" numberScale="compact" align="center" tabular>{numberLine(score.value, lang)}</KitText>}
+        {score && <>
+          <KitText part="score" role="number" align="center" tabular>{numberLine(score.value, lang)}</KitText>
+          <KitText part={null} role="caption" tone="muted" align="center">{goalLine(activityScoreMax, lang)}</KitText>
+        </>}
       </KitRadialTrack>
-      {score && <ScoreCaption label={goalLine(activityScoreMax, lang)} loading={loading} />}
     </>
   );
 }
@@ -174,17 +172,17 @@ export function ActivityRings({ rings, score, detail, surface }: Props<typeof pr
                   text: numberLine(ring.value, lang),
                   role: "number",
                   align: "center",
-                  numberScale: numberScaleOf(ring.value, rings.length),
+                  numberScale: score ? "compact" : numberScaleOf(ring.value, rings.length),
                 },
                 { text: full ? `${goalLine(ring.of, lang)} ${ring.unit}` : ring.unit, role: "caption", align: "center" },
               ]}
             />
           ) : (
             <KitRow key={ring.id} item={ring.id} label={ring.label} inline inset="none">
-              <KitText role="caption" tone={ringTones[index]!} align="center" part="label">
+              <KitText role="caption" tone={(score ? scoreTones : ringTones)[index]!} align="center" part="label">
                 {ring.label}
               </KitText>
-              <KitText {...ringNumber(ring.value, rings.length)} part="value">
+              <KitText {...ringNumber(ring.value, rings.length)} {...(score && { numberScale: "compact", emphasis: "hero" })} part="value">
                 {numberLine(ring.value, lang)}
               </KitText>
               {full ? <KitText role="caption" tone="muted" align="center" part="of">

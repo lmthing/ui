@@ -56,7 +56,7 @@ export function workoutSummary(input: Pick<Workout, "interval" | "rpe" | "note">
   const words = healthWordsFor(lang).workout;
   return {
     interval: input.interval === undefined ? undefined : words.interval[input.interval],
-    rpe: input.rpe === undefined ? undefined : words.rpe(numberLine(input.rpe, lang)),
+    rpe: input.rpe === undefined ? undefined : words.rpeScore(numberLine(input.rpe, lang)),
     note: input.note,
   };
 }
@@ -64,8 +64,9 @@ export function workoutSummary(input: Pick<Workout, "interval" | "rpe" | "note">
 export function workoutReading(input: Workout, lang?: string): string[] {
   const words = healthWordsFor(lang).workout;
   const weightLabel = words.weight(words.units[input.unit]);
+  const { interval, rpe, note } = workoutSummary(input, lang);
   return [
-    ...Object.values(workoutSummary(input, lang)).filter((line) => line !== undefined),
+    ...[interval, rpe && words.rpe(rpe), note].filter((line) => line !== undefined),
     ...(input.detail === "brief" ? [] : [words.timeLine(clockLine(input.elapsed ?? 0, lang))]),
     ...input.exercises.flatMap(({ name, sets }) =>
       sets.map((set, at) =>

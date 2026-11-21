@@ -36,6 +36,14 @@ describe("Vitals Wave 6 options", () => {
 describe("Workout Wave 6 options", () => {
   const { props, examples } = components.Workout;
   const input = examples[0]!;
+  it.each([undefined, 0])("rejects a timed circuit round with duration %s", (seconds) => {
+    const circuit = {
+      style: "interval",
+      interval: "circuit",
+      exercises: [{ name: "Swings", sets: [{ done: false, seconds }] }],
+    };
+    expect(props.safeParse(circuit).success).toBe(false);
+  });
   it("labels timed rounds and preserves addresses and optional session details", () => {
     const example = examples.find((sample) => sample.style === "interval")!;
     for (const interval of ["emom", "amrap", "circuit"] as const) {
@@ -45,10 +53,10 @@ describe("Workout Wave 6 options", () => {
       expect(html).toContain("1:00");
       expect(elementAt(html, "home/c1/r1/done_2").attributes).toContain('role="checkbox"');
       const read = readComponent(components.Workout, workout, "w1").join("\n");
-      for (const line of ["Perceived effort · 7/10", "Kept the same pace each minute."]) {
-        expect(html).toContain(line);
-        expect(read).toContain(line);
-      }
+      expect(html).toMatch(/Perceived effort · <span[^>]*>7\/10/);
+      expect(html).toContain("Kept the same pace each minute.");
+      expect(read).toContain("Perceived effort · 7/10");
+      expect(read).toContain("Kept the same pace each minute.");
     }
     expect(props.parse(input).style).toBe("sets");
     for (const fields of [

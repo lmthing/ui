@@ -128,10 +128,10 @@ type Reading = Props<typeof props, typeof meta>["readings"][number];
 function VitalValue({ reading, lang, history }: { reading: Reading; lang: string; history: boolean }) {
   const value = numberLine(reading.value, lang);
   const pair = reading.value2 === undefined ? "" : vitalPairLine(reading.value2, lang);
-  const numberScale = history || `${value}${pair}`.length > 12 ? "compact" : "display";
+  const numberScale = `${value}${pair}`.length > 12 ? "compact" : "display";
   const tone = vitalBand(reading).tone;
   const display = (
-        <KitContent group="response">
+        <KitContent group={history ? "content" : "response"}>
           <KitRow
             inline
             label={reading.unit}
@@ -153,6 +153,9 @@ function VitalValue({ reading, lang, history }: { reading: Reading; lang: string
               </KitText>
             </KitText>
           </KitRow>
+          {reading.context && <KitText role="caption" tone="muted" part="context">
+            {healthWordsFor(lang).vitalLabels.context[reading.context]}
+          </KitText>}
         </KitContent>
   );
   return history ? display : (
@@ -181,7 +184,6 @@ export function Vitals({ readings, goto, surface, detail, style }: Props<typeof 
               {full && <KitText role="caption" tone="muted" tabular part="at">{reading.at}</KitText>}
             </KitGrid>
             <VitalValue reading={reading} lang={lang} history={style === "history"} />
-            {reading.context && <KitText role="caption" tone="muted" part="context">{words.vitalLabels.context[reading.context]}</KitText>}
             <KitText role="caption" tone="muted" part={null}>{vitalRangeLine(reading, lang)}</KitText>
             <KitText role="caption" tone={vitalBand(reading).tone} part={null}>{vitalStatusLine(reading, lang)}</KitText>
           </KitRow>

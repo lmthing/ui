@@ -94,6 +94,9 @@ export const probes = [
 ] satisfies Probe[];
 
 type CycleProps = Props<typeof props, typeof meta>;
+function SymptomsLink({ goto, label }: { goto: string | undefined; label: string }) {
+  return goto && <KitAction label={label} part="symptoms" kind="secondary" goto={goto} full />;
+}
 export function Cycle(input: CycleProps) {
   const { lang, words } = useWords(healthWordsFor);
   const { cycleLabels } = words;
@@ -113,45 +116,32 @@ export function Cycle(input: CycleProps) {
       </KitCard>
     );
   }
-  const symptoms = input.symptoms && (
-    <KitAction
-      label={cycleLabels.symptoms}
-      part="symptoms"
-      kind="secondary"
-      goto={input.symptoms.goto}
-      full
-    />
-  );
   if (input.mode === "pregnancy")
     return (
       <KitCard style="inset" padded part="root" surface={input.surface}>
         <KitContent>
-          <KitText role="heading" part="mode">
+          <KitText role="heading" align="center" part="mode">
             {cycleLabels.pregnancy}
           </KitText>
-          <KitText role="body" tone="muted" part={null}>
+          <KitText role="body" tone="muted" align="center" part={null}>
             {cycleLabels.pregnancyDetail}
           </KitText>
         </KitContent>
-        {symptoms}
+        <SymptomsLink goto={input.symptoms?.goto} label={cycleLabels.symptoms} />
       </KitCard>
     );
-  return (
-    <CycleTrack input={input} full={full}>
-      {symptoms}
-    </CycleTrack>
-  );
+  return <CycleTrack input={input} full={full} />;
 }
 
-type TrackProps = { input: CycleProps; full: boolean; children: ReturnType<typeof KitAction> | undefined };
-function CycleTrack({ input, full, children }: TrackProps) {
+function CycleTrack({ input, full }: { input: CycleProps; full: boolean }) {
   const {
     lang,
     words: { cycleLabels },
   } = useWords(healthWordsFor);
   const conceive = input.mode === "conceive";
   const cycle = cycleEstimate(input, undefined, lang);
-  const [periodTone, fertileTone] = conceive ? (["text", "accent"] as const) : (["accent", "text"] as const);
+  const periodTone = conceive ? "text" : "accent";
+  const fertileTone = conceive ? (full ? "accent" : "muted") : "text";
   const segments = Array.from({ length: input.length }, (_, index) => {
     const day = index + 1;
     const tone: TextTone =
@@ -182,13 +172,13 @@ function CycleTrack({ input, full, children }: TrackProps) {
           <KitText role="label" tone="muted" align="center" part="next">
             {cycleNextLine(cycle.next, lang)}
           </KitText>
-          <KitText role="label" tone="muted" align="center" part="window">
+          <KitText role="label" tone={conceive ? "accent" : "muted"} align="center" part="window">
             {cycleWindowLine(cycle.windowStart, cycle.windowEnd, lang)}
           </KitText>
         </KitContent>
       )}
       <KitAction label={cycleLabels.log} part="log" full />
-      {children}
+      <SymptomsLink goto={input.symptoms?.goto} label={cycleLabels.symptoms} />
       <KitText role="label" tone="muted" align="center" part="disclaimer">
         {cycleLabels.disclaimer}
       </KitText>

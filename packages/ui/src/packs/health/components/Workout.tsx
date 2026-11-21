@@ -77,14 +77,13 @@ export const props = z.strictObject({
   })
   .refine(({ style, interval }) => style === "interval" ? interval !== undefined : interval === undefined, {
     path: ["interval"], message: "Interval style requires an interval format.",
-  })
-  .overwrite((value) => ({ ...value, hasRest: value.rest > 0 }));
+  }).refine(({ interval, exercises }) => interval !== "circuit" ||
+    exercises.every(({ sets }) => sets.every(({ seconds }) => (seconds ?? 0) > 0)),
+    { path: ["exercises"], message: "Every timed circuit round requires positive seconds." })
+    .overwrite((value) => ({ ...value, hasRest: value.rest > 0 }));
+// prettier-ignore
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
-  const exercises = seedTitles(cast, 2, 28, lang).map((name) => ({
-    name,
-    sets: [{ weight: 0, reps: 0, done: false }],
-  }));
-  return { exercises };
+  return { exercises: seedTitles(cast, 2, 28, lang).map((name) => ({ name, sets: [{ weight: 0, reps: 0, done: false }] })) };
 }
 // prettier-ignore
 export const examples = [
@@ -110,8 +109,9 @@ export const probes = [
   read("Mark the first bench press set as done", { address: "w1/r1/done_1", action: "toggle" }),
   read("Change the second bench press set's weight to 45 kg", { address: "w1/r1/weight_2", action: "set" }),
   { ...write("Log an EMOM of two one-minute kettlebell swing rounds, both incomplete, with no rest."),
-    fields: { style: "interval", interval: "emom", "exercises.0.sets.1.seconds": 60 },
-  },
+    fields: { style: "interval", interval: "emom", rest: 0, "exercises.0.sets.length": 2,
+      "exercises.0.sets.0.seconds": 60, "exercises.0.sets.1.seconds": 60,
+      "exercises.0.sets.0.done": false, "exercises.0.sets.1.done": false } },
   { ...write("Log one unfinished bench press set of 40 kg for 8 reps. My perceived effort was 7 out of 10."),
     fields: { rpe: 7 },
   },
@@ -119,7 +119,6 @@ export const probes = [
     fields: { note: "Kept the same pace." },
   },
 ] satisfies Probe[];
-
 type WorkoutProps = Props<typeof props, typeof meta>;
 type Set = WorkoutProps["exercises"][number]["sets"][number];
 // prettier-ignore
@@ -158,7 +157,6 @@ function WorkoutSet({ item, set, pos, unit, stop, interval }: SetProps) {
         </>}</kit.KitText>
       </kit.KitRow>{detail}</>;
 }
-
 // prettier-ignore
 export function Workout({ exercises, unit, rest, elapsed, surface, detail, style, ...options }: WorkoutProps) {
   const full = kit.useVariant("detail", meta.variants.detail, detail) === "full";
@@ -180,7 +178,9 @@ export function Workout({ exercises, unit, rest, elapsed, surface, detail, style
       ) : (
         <>
           {summary.length > 0 && <kit.KitContent>{summary.map(([part, line]) =>
-            <kit.KitText key={part} part={part} role="caption" tone="muted">{line}</kit.KitText>)}</kit.KitContent>}
+            <kit.KitText key={part} part={part} role="caption" tone="muted">{part === "rpe" ? <>
+              {w.rpe("")}<kit.KitText part={null} role="number" numberScale="compact" emphasis="hero" tabular>{line}</kit.KitText>
+            </> : line}</kit.KitText>)}</kit.KitContent>}
           {full && <kit.KitContent>
             <kit.KitText part={null} role="caption" tone="muted">{w.elapsed}</kit.KitText>
             <kit.KitText part="time" role="number" numberScale="compact" tabular>{time}</kit.KitText>
