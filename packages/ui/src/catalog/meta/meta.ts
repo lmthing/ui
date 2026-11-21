@@ -7,6 +7,7 @@ import type { ItemVariants, Session, VariantParts, Variants } from "../types";
 import type { DeviceData, HostCommandMeta, ItemEditPath, ItemEdits, ScreenLike } from "../agent";
 import type { Issue } from "../rules";
 import type * as LiveMeta from "./live";
+import type { Choice, NamedCollection, NestedGroups, NestedPart } from "./collections";
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -19,14 +20,6 @@ type ItemNumericSet = NumericSet & {
   /** Addressed items flatten this wire matrix in row-major order. */
   matrix?: { rows: string; values: string };
 };
-type NestedPart = {
-  prop: string;
-  /** A named control's true value, or a boolean property on the sub-item. */
-  when?: string | { prop: string; equals: boolean };
-} & (
-  | { action: "toggle" | "set"; min?: number; max?: number; integer?: boolean }
-  | { action: "increment" | "decrement"; min: number | string; max: number | string; step: number | string }
-);
 type ComponentSet =
   | (NumericSet & { type?: "number" } & (
         { runtime?: false } | { runtime: true; maxProp: string; initial: number }
@@ -34,7 +27,6 @@ type ComponentSet =
   | { prop: string; type: "date"; min?: string; max?: string }
   | { prop: string; type: "choice"; choices: readonly string[] };
 type RowSelection = "index" | "position" | { field: string };
-type Choice = string | number | { value: string | number; label: string };
 /** A static list or a parsed prop containing the same option shape. */
 type ChoiceSource = readonly Choice[] | { prop: string };
 type NamedSelection = { prop: string; choices: ChoiceSource } & (
@@ -136,10 +128,14 @@ export type Meta = {
       activeParent?: true;
       /** Maximum on toggles across all parent rows, including hidden ones. */
       maxActive?: number;
+      /** Independent policies within each parent, optionally partitioned by a child field. */
+      groups?: NestedGroups;
       clocks?: readonly ClockMeta[];
       parts: Readonly<Record<string, NestedPart>>;
     };
   };
+  /** Optional independent, addressable collections alongside the legacy items. */
+  collections?: Readonly<Record<string, NamedCollection>>;
   select?: SelectMeta; // Flags with runtime: true never enter wire snapshots.
   /** Bind to item checks on a same-screen component. Without an instance id, require a unique source. */
   selectionBinding?: LiveMeta.SelectionBinding;

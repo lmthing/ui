@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { Meta } from "../../meta";
+import { isCollectionItem } from "../../address";
 import { numberLine } from "../../format";
 import { peekLimit, wordsFor } from "../../lang";
 import { migrateLine } from "../../migrations";
@@ -84,6 +85,25 @@ export function componentTexts(
   ];
 }
 
+function renderRow(
+  instance: string,
+  item: Props,
+  schema: ReadSchema | undefined,
+  affordances: Affordance[],
+  nestedKey?: string,
+  groupBy?: string,
+) {
+  const base = `${instance}/${String(item.id)}`;
+  const mine = affordances.filter((a) => a.address === base || a.address.startsWith(`${base}/`));
+  return [
+    String(item.id),
+    itemTexts(schema, item, nestedKey, groupBy).join(" · "),
+    ...mine.map(formatAffordance),
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
 export function readItems(
   meta: Meta,
   schema: ReadSchema,
@@ -106,6 +126,7 @@ export function readItems(
   const group = meta.items?.readGroupBy;
   const groupBy = group && isGroupText(itemSchema?.properties?.[group]) ? group : undefined;
   const exactIds =
+    meta.collections ||
     host ||
     group ||
     meta.items?.move?.derived ||
@@ -113,8 +134,9 @@ export function readItems(
     (meta.deviceData?.length && meta.live?.derive);
   const ids = exactIds && new Set(all.map(({ id }) => String(id)));
   const ownAff = affordances.filter(({ address }) => {
-    if (!key) return true;
     const target = address.slice(instance.length);
+    if (meta.collections && isCollectionItem(target.split("/")[1])) return false;
+    if (!key) return true;
     return ids ? !ids.has(target.split("/")[1] ?? "") : !/^\/r\d+(?:\/|$)/.test(target);
   });
   const line = [head, own.join(" — "), ...ownAff.map(formatAffordance)].filter(Boolean);
@@ -124,22 +146,19 @@ export function readItems(
   const words = wordsFor(lang),
     hidden = all.length - items.length;
   const disclosure = peek && ownAff.some(({ part, action }) => part === "more" && action === "toggle");
-  const render = (item: Props) => {
-    const base = `${instance}/${String(item.id)}`;
-    const mine = affordances.filter((a) => a.address === base || a.address.startsWith(`${base}/`));
-    return [
-      String(item.id),
-      itemTexts(itemSchema, item, meta.items?.nested?.key, groupBy).join(" · "),
-      ...mine.map(formatAffordance),
-    ]
-      .filter(Boolean)
-      .join(" ");
-  };
+  const render = (item: Props) =>
+    renderRow(instance, item, itemSchema, affordances, meta.items?.nested?.key, groupBy);
   const rows = groupBy ? groupItemLines(items, groupBy, render) : items.map(render);
+  const named = Object.entries(meta.collections ?? {}).flatMap(([name, { key }]) =>
+    visibleItems(meta, props, name).map((row) =>
+      renderRow(instance, row, schema.properties?.[key]?.items, affordances),
+    ),
+  );
   return [
     line.join(" "),
     ...rows.map((row) => `  ${row}`),
     ...(hidden ? [`  ${(firstOnly ? words.moreRead : words.peekCount)(numberLine(hidden, lang))}`] : []),
     ...(disclosure ? [`  ${peekOpen ? words.peekLess : words.peekMore}`] : []),
+    ...named.map((row) => `  ${row}`),
   ];
 }

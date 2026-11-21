@@ -11,14 +11,18 @@ import {
   activeParentId,
   emptyDeviceData,
   formatAddress,
+  hasNestedCollectionControls,
   linkedEditKey,
   liveProps,
   nestedControls,
+  nestedCapacityBlocked,
   nestedRemaining,
   projectControls,
   projectLiveInputs,
   validateActionValue,
+  visibleItems,
   type DeviceData,
+  type Definition,
   type Meta,
   type Values,
 } from "../../catalog";
@@ -130,7 +134,7 @@ export function useLiveControls(meta: Meta, props: Values): Values {
   useSyncExternalStore(subscribe, selectionSnapshot, selectionSnapshot);
   return (
     host?.liveControls(meta, props, component) ??
-    (meta.select?.runtime || meta.localState
+    (meta.select?.runtime || meta.localState || meta.collections
       ? liveProps(meta, props, component, {}, true, data)
       : projectLiveInputs(meta, props, component, () => undefined, data))
   );
@@ -165,25 +169,29 @@ export function useDateEdit(address: string, committed: string | undefined, enab
 }
 
 /** PhoneScreen subscribes to the controller store; static renderers use their parsed props. */
-export function useNestedControls(meta: Meta, props: Values) {
+export function useNestedControls(meta: Meta, props: Values, schema?: Definition["props"]) {
   const { controller } = useKit();
   const { screen, component } = usePartContext();
   const get = (part: string) => controller?.store.get(`${screen}/${component}/${part}`);
-  const live = projectControls(meta, props, get);
-  const controls = nestedControls(meta, live, get);
+  const grouped = hasNestedCollectionControls(meta);
+  const live =
+    grouped && controller
+      ? controller.liveControls(meta, props, component)
+      : projectControls(meta, props, get);
+  const visible =
+    grouped && meta.items?.visibleWhen ? new Set(visibleItems(meta, live).map((row) => row.id)) : undefined;
+  const controls = nestedControls(meta, live, get, controller?.defs[meta.id]?.props ?? schema, props);
   const remaining = nestedRemaining(meta, live, controls);
   return {
     parent: activeParentId(meta, live, get),
     remaining,
     controls: controls
-      .filter(({ enabled }) => enabled)
+      .filter(({ enabled, target }) => enabled && (!visible || visible.has(target.split("/")[0])))
       .map((control) => ({
         ...control,
         disabled:
           (control.step !== undefined && control.step.next === undefined) ||
-          (remaining !== undefined &&
-            remaining < (control.togglePeers?.length ?? 0) &&
-            control.item[control.spec.prop] !== true),
+          nestedCapacityBlocked(control, remaining),
       })),
   };
 }

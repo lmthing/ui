@@ -9,10 +9,12 @@ import {
 } from "../index";
 import { moveKey } from "./move";
 import { affordancesOfScreen } from "./record-planning";
-import { selectStep } from "./select-step";
+import { selectStep, type SelectedStep } from "./select-step";
+import { resolveChoice } from "../validate-value";
 
 export function actionValueAddress(address: string, found: Affordance) {
   if (found.nestedStep) return `${address.split("/")[0]}/${found.nestedStep.key}`;
+  if (found.flagKey) return `${address.split("/")[0]}/${found.flagKey}`;
   return found.move ? moveKey(address) : address;
 }
 
@@ -30,8 +32,7 @@ export function findAction(
     ? original.address
     : original.address.replace(new RegExp(`^${screen.id}/`), "").replace(/\/root$/, "");
   const offered = affordancesOfScreen(screen, defs, next, data, now, hostCapture ? original : undefined);
-  const selected = selectStep(screen, defs, original, address, next, data, now);
-  const found = offered.find((a) => a.address === address && a.action === selected.step.action);
+  const found = offered.find((a) => a.address === address && a.action === original.action);
   if (found?.hostReveal)
     return {
       error: { ok: false, code: "not_actionable", at, hint: "Reveal requires a local press" } as const,
@@ -41,6 +42,8 @@ export function findAction(
     const hint = here.length ? `offers ${here.join(", ")}` : "no action at this address";
     return { error: { ok: false, code: "not_actionable", at, hint } as const };
   }
+  const selected =
+    offeredSelection(found, original) ?? selectStep(screen, defs, original, address, next, data, now);
   if (selected.error)
     return { error: { ok: false, code: "invalid_value", at, hint: selected.error } as const };
   const { drive } = found;
@@ -51,4 +54,24 @@ export function findAction(
   if (!destination || destination.hostReveal)
     return { error: { ok: false, code: "not_actionable", at } as const };
   return { address: drive.address, selected, found: destination, drive, step: drive };
+}
+
+function offeredSelection(found: Affordance, step: ActStep): SelectedStep | undefined {
+  const { rowSelection, nestedChoice } = found;
+  if (rowSelection)
+    return {
+      step: { ...step, value: rowSelection.value },
+      error:
+        step.value === undefined || step.value === rowSelection.value
+          ? undefined
+          : "Select the option at this address",
+    };
+  if (nestedChoice) {
+    const choice = resolveChoice(nestedChoice.options, step.value);
+    return {
+      step: { ...step, value: choice?.value },
+      error: choice ? undefined : "Select an allowed value at this address",
+      declared: true,
+    };
+  }
 }

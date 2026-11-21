@@ -1,6 +1,7 @@
 import {
   drawRole,
   isNestedTarget,
+  hasNestedCollectionControls,
   planAct,
   privateMarkKey,
   reportConfirmation,
@@ -143,6 +144,8 @@ export function introducedPart(
     (meta.live?.derive ||
       meta.live?.toggles ||
       meta.localState ||
+      meta.collections ||
+      (hasNestedCollectionControls(meta) && isNestedTarget(meta, target)) ||
       (isNestedTarget(meta, target) && (action.action === "increment" || action.action === "decrement")) ||
       meta.select?.runtime ||
       meta.linkedEdits ||

@@ -62,7 +62,7 @@ type ActionProps = {
   part?: string | null;
   a11y?: string;
   full?: boolean;
-  action?: Exclude<ActionName, "swipe" | "seek" | "flip" | "move">;
+  action?: Exclude<ActionName, "swipe" | "seek" | "flip">;
   value?: string | number | boolean;
   disabled?: boolean;
   copiedLabel?: string;

@@ -10,8 +10,8 @@ import { projectDraw } from "./draw";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
 import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
-import { projectDerivedMoves, projectMoves } from "./action-input";
-import { hasWireNestedControls } from "./nested";
+import { projectCollections, projectDerivedMoves, projectMoves } from "./action-input";
+import { hasWireNestedControls, nestedChoiceSeed } from "./nested";
 import { projectLocalState, projectRecordRuntime } from "./record-runtime";
 import {
   adjustmentAt,
@@ -85,7 +85,7 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
   const seeded = Object.fromEntries(
     [...keys].map((key) => [key, source[key] ?? defaultInput(fieldOf(def.props, key))]),
   );
-  const nested = projectNested(meta, seeded, get);
+  const nested = projectNested(meta, seeded, get, nestedChoiceSeed(meta, def.props, source));
   const wireGet = (part: string) => get(controlValueKey(def, part));
   const adjusted = projectWireAdjustments(def, nested, get);
   const projected = items.set
@@ -153,6 +153,7 @@ export function liveProps(
   props = projectLocalState(meta, projectDraw(meta, props, get), validated, get);
   props = projectLiveInputs(meta, props, instance, get, data, validated);
   props = projectRecordRuntime(meta, props, instance, values, data, now);
+  props = projectCollections(meta, props, get);
   // Reapply to rows that a live or host projection may have replaced.
   if (meta.select?.runtime) props = projectLegacySelection(meta, props, get);
   props = projectDeviceFlags(meta, props, data);

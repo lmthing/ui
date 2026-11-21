@@ -14,6 +14,7 @@ import {
 import { hasRuntimeSets, projectLiveClocks } from "../clocks";
 import { projectDraw, readDraw } from "../draw";
 import { projectParsedControls } from "../live-props";
+import { hasNestedCollectionControls } from "../nested";
 import { nestedRemaining, visibleNestedProps } from "../selection";
 import { projectVisibleItems } from "../visibility";
 import { componentTexts, type ReadSchema } from "./index";
@@ -36,6 +37,8 @@ function readingProps(
   const useLive =
     meta.live ||
     meta.localState ||
+    meta.collections ||
+    hasNestedCollectionControls(meta) ||
     meta.select?.runtime ||
     meta.recordRuntime ||
     meta.linkedEdits ||

@@ -1,4 +1,6 @@
 import {
+  isCollectionItem,
+  nestedPart,
   pickerAt,
   selectionAt,
   selectionError,
@@ -14,6 +16,8 @@ export function selectControl(ctx: ControlContext): ControlChange {
   if (step.action !== "select" || !def.meta.select || def.meta.select.runtime) return { values };
   if (
     Object.hasOwn(def.meta.selections ?? {}, target) ||
+    (def.meta.collections && isCollectionItem(target.split("/")[0])) ||
+    nestedPart(def.meta, target)?.action === "select" ||
     (def.meta.items?.pickers && pickerAt(def.meta, stampItemIds(def.meta, input), target)) ||
     sessionEvent(def.meta, target, step.action) === "answer"
   )

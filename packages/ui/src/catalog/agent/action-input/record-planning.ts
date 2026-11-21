@@ -19,6 +19,7 @@ import { isItemOffer, isSelectAll, projectSelectionBinding, selectionBindingFor 
 import { localValues } from "./select-step";
 import { hostOnlyAddresses, isPrivateMark } from "./host-actions";
 import { hostActionPolicy } from "../host-commands";
+import { hasNestedCollectionControls } from "../nested";
 
 type PlannedAffordance = Affordance & { drive?: ActStep; checks?: readonly Affordance[] };
 
@@ -48,6 +49,7 @@ function usesLiveState(meta: Meta) {
     readSuccess ||
     items?.nested?.activeParent ||
     items?.nested?.maxActive !== undefined ||
+    hasNestedCollectionControls(meta) ||
     live ||
     meta.drives ||
     meta.localState ||
@@ -61,6 +63,7 @@ function usesLiveState(meta: Meta) {
     items?.move ||
     items?.records ||
     items?.pickers ||
+    meta.collections ||
     meta.clear ||
     meta.signOff ||
     hasPlaybackClock(meta) ||
@@ -96,6 +99,7 @@ export function affordancesOfScreen(
       wire,
       schema: def.props,
       host: screen[hostActionPolicy],
+      baselineInput: input,
     });
     const hostOnly = hostOnlyAddresses(def, id, offered);
     const allowed = offered.filter(

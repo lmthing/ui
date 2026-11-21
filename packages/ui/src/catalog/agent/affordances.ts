@@ -1,15 +1,16 @@
 import type { LocalStateEvent, Meta } from "../meta";
 import type { Definition } from "../probes";
 import type { StateName, Tier } from "../types";
-import { choiceValues } from "./validate-value";
+import { choiceValues, type ChoiceOption } from "./validate-value";
 import { adjustmentAt, clockActionValid, clockControlDeclared, hasNumericRoom } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
-import { addressedItems, nestedActions, visibleItems } from "./visibility";
+import { actionAllowedIn, addressedItems, nestedActions, visibleItems } from "./visibility";
 import { sendDraft, type LiveInput } from "./live-inputs";
 import type { SendDraft } from "./act";
 import { boundActionAvailable, isItemOffer } from "./selection-binding";
 import { itemActionOffer, partsOf } from "./action-input";
+import { collectionOffers } from "./collections";
 import type { DeviceData } from "./device-data";
 import { hostOffer, type HostActionPolicy, type HostIntent } from "./host-commands";
 
@@ -28,12 +29,18 @@ export type Affordance = {
   hostIntent?: HostIntent;
   localEvent?: Omit<LocalStateEvent, "value">;
   hostReveal?: true;
+  slotMove?: { key: string; orders: ReadonlyMap<string, string[]> };
+  rowSelection?: { key: string; id: string; value: string | number };
+  flagKey?: string;
+  nestedChoice?: { options: ChoiceOption[]; current: unknown };
+  replaceToggles?: readonly string[];
 };
 type Props = Record<string, unknown>;
 type OfferContext = {
   data?: DeviceData | undefined;
   wire?: Props | undefined;
   schema?: Definition["props"];
+  baselineInput?: unknown;
   clock?: ((target: string, action: string) => boolean) | undefined;
   host?: HostActionPolicy | undefined;
 };
@@ -99,7 +106,7 @@ function itemActionsOf(
     visible && !visible.has(item) ? [] : actionsForItem(meta, props, item, instance, index === 0, context),
   );
   const hidden = visible && new Set(items.filter((item) => !visible.has(item)).map(({ id }) => id));
-  return nestedActions(meta, props, instance, actions, get, includeBlocked).filter(
+  return nestedActions(meta, props, instance, actions, get, includeBlocked, context).filter(
     ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),
   );
 }
@@ -126,13 +133,17 @@ export function affordancesOf(
   const liveClock = runtime || meta.live?.derive || meta.recordRuntime?.actions;
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   const rows = meta.hostCommands ? new Map(items.map((item) => [String(item.id), item])) : undefined;
-  const offered = [...ownActions(meta, props, instance), ...nested].filter((offer) => {
+  const offered = [
+    ...ownActions(meta, props, instance),
+    ...nested,
+    ...collectionOffers(meta, props, instance),
+  ].filter((offer) => {
     const { address, action, part } = offer;
     if (!boundActionAvailable(meta, props, part, action, isItemOffer(instance, offer))) return false;
     const target = address === instance ? "root" : address.slice(instance.length + 1);
     const role = drawRole(meta, target, action);
     const event = sessionEvent(meta, target, action);
-    if (!allowedIn(meta, state, `${part}.${action}`, Boolean(role), feedback)) return false;
+    if (!actionAllowedIn(meta, state, `${part}.${action}`, Boolean(role), feedback)) return false;
     if (context.clock && !context.clock(target, action)) return false;
     if (event && !sessionAvailable(session, event)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
@@ -160,17 +171,6 @@ export function affordancesOf(
     );
     return allowed ? [allowed] : [];
   });
-}
-
-function allowedIn(meta: Meta, state: StateName, pair: string, draw: boolean, feedback: boolean) {
-  const errorOnly = meta.errorActions?.some((allowed) => allowed === pair);
-  if (errorOnly) return state === "error";
-  if (state === "filled") return true;
-  if (state === "empty") return meta.emptyActions?.some((allowed) => allowed === pair);
-  if (state === "loading") return meta.loadingActions?.some((allowed) => allowed === pair);
-  return (
-    (state === "success" || feedback) && (draw || meta.successActions?.some((allowed) => allowed === pair))
-  );
 }
 
 /** Resolve a part against live props, without changing the component's tier. */

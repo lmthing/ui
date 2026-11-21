@@ -33,7 +33,6 @@ type Props = Record<string, unknown>;
 
 const quote = (value: string) => JSON.stringify(value);
 const variantKeys = ["style", "kind", "tone"];
-
 function variantsOf(schema: Json, props: Props): string {
   return variantKeys
     .filter((key) => props[key] !== undefined && props[key] !== schema.properties?.[key]?.default)

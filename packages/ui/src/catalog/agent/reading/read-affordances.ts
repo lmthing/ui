@@ -23,6 +23,7 @@ import { isRuntimeSet, recordClockOffer, setAt } from "../clocks";
 import { itemEditAt, reportEditWire } from "../report-edits";
 import { credentialToggleOn } from "../credential-toggle";
 import type { HostActionPolicy } from "../host-commands";
+import type { ChoiceOption } from "../validate-value";
 
 const risks: Record<string, string> = {
   ok: " !needs-ok",
@@ -42,6 +43,15 @@ function booleanDetail(a: Affordance, value: unknown) {
   if (a.input?.kind !== "boolean" && a.action === "toggle") return `:${value ? "on" : "off"}`;
   if (!a.input && a.action === "check") return `:${value ? "done" : "todo"}`;
   return a.detail;
+}
+
+/** Advertise a label only when copying it back selects this option. */
+function readChoices(options: ChoiceOption[], preferLabel: boolean) {
+  return options.map(({ label, value }) => ({
+    value,
+    offered:
+      label !== undefined && resolveChoice(options, label, preferLabel)?.value === value ? label : value,
+  }));
 }
 
 export function readOffers(
@@ -70,6 +80,7 @@ export function readOffers(
     wire: reportEditWire(def, wire, get),
     schema: def.props,
     host,
+    baselineInput: wire,
   });
   const hostOnly = hostOnlyAddresses(def, instance, offered);
   const visible = offered.filter(({ address }) => !hostOnly?.has(address) && !addresses.has(address));
@@ -99,25 +110,22 @@ export function readAffordances(
   const answers = session?.kind === "rounds" ? session.assessment?.answers : undefined;
   return affordances.map((a) => {
     if (a.hostReveal) return { ...a, detail: risks.ok! };
+    if (a.rowSelection || a.flagKey)
+      return { ...a, detail: `${a.detail}${risks[partTierAt(meta, props, a.part)] ?? ""}` };
     const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
-    const options = a.action === "select" && choiceOptions(meta, props, target);
+    const options = a.nestedChoice?.options ?? (a.action === "select" && choiceOptions(meta, props, target));
     const item = itemEditAt(meta, props, target);
     const picker = pickerAt(meta, props, target);
     const selected = options
-      ? picker
-        ? picker.row[picker.spec.prop]
-        : item?.spec.action === "select"
-          ? item.row[item.spec.prop]
-          : props[selectionOffer(meta, target)!.prop]
+      ? a.nestedChoice
+        ? a.nestedChoice.current
+        : picker
+          ? picker.row[picker.spec.prop]
+          : item?.spec.action === "select"
+            ? item.row[item.spec.prop]
+            : props[selectionOffer(meta, target)!.prop]
       : undefined;
-    // Advertise a label only when copying it back selects this option.
-    const choices =
-      options &&
-      options.map(({ label, value }) => ({
-        value,
-        offered:
-          label !== undefined && resolveChoice(options, label, !!picker)?.value === value ? label : value,
-      }));
+    const choices = options && readChoices(options, !!picker);
     const set = a.action === "set" && setAt(meta, props, target);
     const linked = a.action === "type" && linkedInput(meta, target);
     const value =

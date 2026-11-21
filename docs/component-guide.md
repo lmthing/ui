@@ -57,6 +57,8 @@ The generated view is only a placeholder, not evidence for the model or visual g
    - `items.nested: { key, parts: { [part]: { action: "toggle" | "set", prop, min?, max?, integer?, when? } } }` declares `rN/<part>_M` controls projected into sub-items; `when` names a boolean part on the same sub-item.
    - `read` may use its optional final argument to read the current instance's control values. Keep those values out of Writer props and wire snapshots.
    - `items.nested: { key, parts }` declares `rN/<part>_M` controls projected into sub-items. A part names `action`, `prop` and optional `when` (a boolean part or field on the same sub-item). For `set`, `min`, `max` and `integer` are optional. For `increment` or `decrement`, require `min`, `max` and positive `step`; each is a number or a field name on the sub-item. Step buttons for the same `prop` share one value, clamp at the bounds, and are not offered when they cannot move. Use `useNestedControls` for the live value and disabled state.
+   - A nested `select` writes its `prop` from closed `choices`: a static list, `{ prop }` on the sub-item, or `{ prop, from: "parent" }` on the parent. Options can be values or `{ value, label }` and must match the destination field's schema. Use schema-backed row arrays with stable positions, not derived-only rows. Pass the schema as the third argument to `useNestedControls` when rendering without a controller. A nested `press` names its sub-item's subject field as `prop`, but takes no value and does not edit the field. It fires only at an enabled, existing sub-item.
+   - Give a nested toggle a `group` and declare its `items.nested.groups` policy. `mode: "single"` replaces the active choice unless it is unavailable; `mode: "multi"` takes `max` as a number or `{ prop }` on the parent. With `by`, each distinct sub-item field value gets its own limit inside the parent. Toggle parts writing the same field share one policy. Read `choices`, `policy.remaining` and `disabled` from `useNestedControls`; do not implement a separate limit in the view.
    - `items.reset` names a declared component `press` that always asks for confirmation. It clears item numeric adjustments and nested steps for this instance back to their input seeds, without clearing other controls.
    - Private handoffs declare `session: { kind: "rounds", items, hidden, reveal, hide, restart? }`. Declare `press` on separate reveal and hide parts for tap mode, or `start` and `stop` on the reveal part for `KitFlip` hold mode. Gate those actions by style if both modes exist. A hide veils and advances in one step, with success on the final hide. `sessionState` gives the view the active row; the agent reading omits `hidden` fields even during a reveal. Declare restart in `confirmParts` and `successActions` if offered after completion.
    - `hostCommands.parts` and `hostCommands.items` bind declared `"part.action"` pairs to a host operation, external handoff, or cancellation. Keep local and host-owned actions distinct; a host-owned action does not also run the local handler or follow `goto`.
@@ -103,6 +105,20 @@ their existing behavior.
 For each declared action, identify whether it is a local control, a shared runtime action, a screen
 link or an acknowledged host operation. Test reads and actions from the same live state, with the
 host unavailable, and after cancellation or target replacement.
+## Actionable collections and slots
+
+Use one parsed, tagged row stream when each row has the same lifetime and ordering and only its
+parts or actions differ. Use `meta.collections` when two row sets need independent identities,
+actions or selections, even while both are visible. This also works for one durable row set. The
+legacy `items` declaration can coexist with named collections. `meta.drives` still means forwarding
+an item root press as seek; it does not route collection actions.
+
+| Declaration | Behavior |
+| --- | --- |
+| `collections.<name>: { key, prefix, identity, parts }` | `key` names a parsed row array. Each prefix is unique and uses lowercase letters and digits, starting with a letter. `identity` names a row field other than `id`; enforce unique stable slugs or positive integers in the schema. The runtime stamps `r_<prefix>_<identity>` as `row.id`. Reserve this pattern for rows. A replacement row needs a new identity; edits, filtering and moves retain it. |
+| `actions`, `when`, `visibleWhen`, `toggles`, `select` on a collection | Declare row parts and their actions in the collection, not in `actions.items`. Gates read the row first, then the component; `$first` is relative to that collection. Map `toggle` or `check` parts to boolean fields with `toggles`. `select: { prop, field? }` writes the row id or a unique scalar field to an independent live prop. Use `useLiveControls` for the projected values and `visibleItems(meta, live, name)` for the same rows the reader offers. |
+| `slotMoves.<part>: { mode, locked?, allows? }` | Also declare `move` on that item part. `swap` exchanges two occupants; `reorder` inserts the source at the destination index and shifts intervening rows. Send the exact destination row id from `slotMoveOffer(meta, live, name, row.id, part, state)?.move.choices`, passing `useComponentState()` as `state`. A hidden or locked slot cannot be displaced; `allows(row, destination, props)` must accept every displaced occupant. The dispatcher recomputes destinations for each step. The view and reader show the resulting order; Writer arrays and asset files remain unchanged. |
+| `KitAction` with explicit `select` or `move` | Use an addressed button inside the item. A closed nested choice passes its value; a named row selection can omit the value. For a direct move button, pass an offered destination id as `value`. |
 
 ## Variants
 

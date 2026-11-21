@@ -62,7 +62,7 @@ function offersAt(
       ignoreDisabledPart && policy?.isDisabled
         ? { ...policy, isDisabled: (at: string) => at !== local && policy.isDisabled!(at) }
         : policy;
-    const offerContext = { data, clock, wire, schema: def.props, host };
+    const offerContext = { data, clock, wire, schema: def.props, host, baselineInput: raw };
     const offered = affordancesOf(def.meta, props, id, localValues, state, includeBlocked, offerContext);
     if (hostOnlyAddresses(def, id, offered)?.has(local)) return [];
     const canDrive = (part: string) => !drivenPartBlock(ctx, part);
