@@ -7,7 +7,6 @@ import {
   type CastLike,
   type StateName,
 } from "@lmthing/ui/catalog";
-import { renderers } from "@lmthing/ui/kit";
 import { describe, expect, it } from "vitest";
 import { addressedElements, renderInstance } from "../../../../../test/render";
 import { visibleTexts } from "../../../../../test/variants";
@@ -23,7 +22,6 @@ const screen = (input: object = weeks, state: StateName = "filled") => ({
   components: [{ ...input, id: "s1", c: "Heatmap", state }],
 });
 const defs = { Heatmap: def };
-const hasRenderer = Object.hasOwn(renderers, "Heatmap");
 const maxWeeks = { title: "x".repeat(32), unit: "x".repeat(8), weeks: matrix(26, 7, -1.25) };
 const addresses = (input: object, state: StateName = "filled") =>
   addressedElements(renderInstance("Heatmap", input, state, theme));
@@ -83,7 +81,7 @@ describe("Heatmap fallback and probes", () => {
   });
 
   it("preserves the Calendar month near miss, tier and phone-only passive contract", () => {
-    expect(meta).toMatchObject({ tier: "phone", weight: 2, states: ["filled", "loading"] });
+    expect(meta).toMatchObject({ status: "ready", tier: "phone", weight: 2, states: ["filled", "loading"] });
     expect(meta).not.toHaveProperty("actions");
     expect(meta).not.toHaveProperty("confirmParts");
     expect(probes).toEqual(
@@ -97,8 +95,7 @@ describe("Heatmap fallback and probes", () => {
   });
 });
 
-// The gallery and renderer map expose this view once the model and visual gates are unblocked.
-describe.skipIf(!hasRenderer)("Heatmap states and parts", () => {
+describe("Heatmap states and parts", () => {
   it("draws all 182 static cell roots at the maximum", () => {
     const parts = addresses(maxWeeks);
     for (let i = 1; i <= 182; i++) expect(parts.has(`home/c1/r${i}/root`)).toBe(true);
