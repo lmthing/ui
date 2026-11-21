@@ -1,4 +1,12 @@
-import { createContext, useContext, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import { XStack, isWeb, type TamaguiElement } from "tamagui";
 import { size, space } from "../../../catalog";
 import { useMoveFocus } from "../../interact";
@@ -20,7 +28,8 @@ const noRef = { current: null };
 function useSeatMoveState() {
   const [open, setOpen] = useState<string | null>(null);
   const focus = useRef<string | null>(null);
-  return { open, setOpen, focus };
+  const focusOnOpen = useRef<string | null>(null);
+  return { open, setOpen, focus, focusOnOpen };
 }
 
 const SeatMoveContext = createContext<ReturnType<typeof useSeatMoveState> | null>(null);
@@ -32,7 +41,7 @@ export function SeatMoveScope({ children }: { children: ReactNode }) {
 
 function useSeatMove(address: Address, seat: Seat, openOnly = false) {
   const { interactive, controller } = useKit();
-  const { open, setOpen, focus } = useContext(SeatMoveContext)!;
+  const { open, setOpen, focus, focusOnOpen } = useContext(SeatMoveContext)!;
   const testID = address?.testID;
   const destinations = seat.move?.destinations ?? [];
   const active = Boolean(
@@ -45,9 +54,14 @@ function useSeatMove(address: Address, seat: Seat, openOnly = false) {
   return {
     active,
     expanded: active && open === testID,
-    toggle: () => setOpen((current) => (current === testID ? null : testID!)),
+    toggle: () => {
+      const next = open === testID ? null : (testID ?? null);
+      if (isWeb) focusOnOpen.current = next;
+      setOpen(next);
+    },
     close: () => setOpen((current) => (current === testID ? null : current)),
     focus,
+    focusOnOpen,
     choose: (value: string) => controller!.act({ address: testID!, action: "move", value }),
   };
 }
@@ -92,7 +106,15 @@ export function useSeatMoveTarget(address: Address, seat: Seat) {
 
 export function SeatMoveChoices({ seat }: { seat: Seat }) {
   const address = usePlanningAddress(seat.target, false, false);
-  const { expanded, close, choose, focus } = useSeatMove(address, seat, true);
+  const { expanded, close, choose, focus, focusOnOpen } = useSeatMove(address, seat, true);
+  const first = useRef<TamaguiElement>(null);
+  const testID = address?.testID;
+  useLayoutEffect(() => {
+    // Consume focus only on a human open, not when an agent reparents an open chooser.
+    if (!isWeb || !expanded || focusOnOpen.current !== testID) return;
+    focusOnOpen.current = null;
+    (first.current as HTMLElement | null)?.focus();
+  }, [expanded, focusOnOpen, testID]);
   if (!expanded || !seat.move || !address) return null;
   const returnFocus = () => {
     if (isWeb) focus.current = address.testID;
@@ -101,6 +123,7 @@ export function SeatMoveChoices({ seat }: { seat: Seat }) {
   return (
     <SeatDestinations
       seat={seat}
+      first={first}
       dismiss={returnFocus}
       choose={(destination) => {
         if (choose(destination).ok) returnFocus();
@@ -111,18 +134,16 @@ export function SeatMoveChoices({ seat }: { seat: Seat }) {
 
 function SeatDestinations({
   seat,
+  first,
   choose,
   dismiss,
 }: {
   seat: Seat;
+  first: RefObject<TamaguiElement | null>;
   choose: (destination: string) => void;
   dismiss: () => void;
 }) {
   const ks = useKitStyle();
-  const first = useRef<TamaguiElement>(null);
-  useLayoutEffect(() => {
-    if (isWeb) (first.current as HTMLElement | null)?.focus();
-  }, []);
   const { destinations, label } = seat.move!;
   const escape = (event: { key?: string; stopPropagation(): void; preventDefault(): void }) => {
     if (event.key !== "Escape") return;

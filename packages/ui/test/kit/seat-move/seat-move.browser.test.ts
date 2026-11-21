@@ -71,3 +71,26 @@ it("moves a seated guest by keyboard, click and agent without changing the guest
     await page.close();
   }
 });
+
+it("does not steal focus when an agent moves a guest with an open chooser", async () => {
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await page.addInitScript("globalThis.process ??= { env: {} }; globalThis.__name = (fn) => fn");
+  try {
+    await page.goto(new URL(route, server.resolvedUrls!.local[0]).href);
+    const ari = page.getByTestId("home/c1/r1/root");
+    const bea = page.getByTestId("home/c1/r2/root");
+    const beaFocused = () => bea.evaluate((element) => element === document.activeElement);
+    await ari.press("Enter");
+    await page.keyboard.press("Tab");
+    await page.keyboard.press("Tab");
+    expect(await beaFocused()).toBe(true);
+    const result = await page.evaluate(() =>
+      window.__lmthingUI!.act({ address: "c1/r1", action: "move", value: "Cherry" }),
+    );
+    expect(result.ok).toBe(true);
+    await page.getByRole("button", { name: "Move Ari Shah to Oak" }).waitFor();
+    expect(await beaFocused()).toBe(true);
+  } finally {
+    await page.close();
+  }
+});
