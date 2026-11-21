@@ -140,15 +140,6 @@
       "{\"c\":\"OrderStatus\",\"steps\":[{\"label\":\"Received\",\"time\":\"08:45\"},{\"label\":\"On its way\",\"time\":\"09:30\"},{\"label\":\"Delivered\",\"time\":null}],\"at\":1,\"line\":null,\"seller\":false,\"density\":null,\"surface\":null,\"detail\":\"brief\"}"
     ]
   },
-  "670c7e54e644cd67": {
-    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\no1 OrderStatus[carrier] Current stage: On its way — Received · 11:00 — Treats packed · 11:25 — On its way · 11:50 — Copy tracking number PP450981 — \"Parcel Post\" — \"PP450981\" — photo:local:1 [o1/tracking press]\n  r1 \"Received\"\n  r2 \"Treats packed\"\n  r3 \"On its way\"\n  r4 \"Delivered\"\n\nTask: Press the \"Copy tracking number PP450981\" button for Parcel Post.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
-    "reply": "{\"address\": \"o1/tracking\", \"action\": \"press\"}",
-    "replies": [
-      "{\"address\": \"o1/tracking\", \"action\": \"press\"}",
-      "{\"address\": \"o1/tracking\", \"action\": \"press\"}",
-      "{\"address\": \"o1/tracking\", \"action\": \"press\"}"
-    ]
-  },
   "6b7dfda9c6c56a4d": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nOrderStatus: Follow an order through fulfillment or move it along as the seller.\nprops: { steps: [3..5 { label: text≤16, time?: time HH:MM }], at: int 0..4, line?: text≤48, seller: boolean, style?: carrier|pickup, carrier?: text≤24, trackingNumber?: text≤24, proofPhoto?: photo lib:<tag>|local:<n>, pickupCode?: text≤16, bay?: text≤24, density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\" }\nRule: at is the zero-based current step index and must exist in the steps array. Use a real HH:MM time when known.\nRule: If asked to suppress an authored secondary status sentence, write \"detail\":\"brief\",\"density\":null,\"surface\":null unless a different density or surface was requested. Never emit \"card\" or \"comfortable\" to represent an unset axis. Keep the supplied line.\nRule: Use style \"carrier\" for parcel tracking: carrier, trackingNumber, optional proofPhoto; use steps with times for checkpoints. Use style \"pickup\" with pickupCode and bay (bay or locker label); write seller false for the buyer and the “I’m here” button.\nexample: {\"c\":\"OrderStatus\",\"steps\":[{\"label\":\"Received\",\"time\":\"08:45\"},{\"label\":\"Preparing\",\"time\":\"09:00\"},{\"label\":\"Ready\"}],\"at\":1,\"line\":\"Fern pot · Shop pickup\",\"seller\":true}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Show a buyer's order for pickup at Locker 12 with a scannable pickup code FERN42 and an I'm here button. Show Received, Packed, then Ready as current.",
     "format": {
@@ -957,6 +948,15 @@
       "{\"address\": \"o1/here\", \"action\": \"press\"}",
       "{\"address\": \"o1/here\", \"action\": \"press\"}",
       "{\"address\": \"o1/here\", \"action\": \"press\"}"
+    ]
+  },
+  "f52fc58d39f4984e": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\no1 OrderStatus[carrier] Current stage: On its way — Received · 11:00 — Treats packed · 11:25 — On its way · 11:50 — Copy tracking number PP450981 — Delivery proof — \"Parcel Post\" — \"PP450981\" — photo:local:1 [o1/tracking press]\n  r1 \"Received\"\n  r2 \"Treats packed\"\n  r3 \"On its way\"\n  r4 \"Delivered\"\n\nTask: Press \"Copy tracking number PP450981\". Use the full button part address from its action bracket, not the order address.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"o1/tracking\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"o1/tracking\", \"action\": \"press\"}",
+      "{\"address\": \"o1/tracking\", \"action\": \"press\"}",
+      "{\"address\": \"o1/tracking\", \"action\": \"press\"}"
     ]
   },
   "f7db0fc4748e15d1": {
