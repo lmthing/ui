@@ -45,8 +45,8 @@ export const meta = {
       ],
     };
   },
-  read: (input, _state, lang, data): string[] =>
-    departuresReading(input as z.output<typeof props>, data, lang),
+  read: (input, state, lang, data): string[] =>
+    state === "filled" ? departuresReading(input as z.output<typeof props>, data, lang) : [],
 } as const satisfies c.Meta;
 
 const rowProps = z.strictObject({ line: c.text(6), to: c.text(28) });

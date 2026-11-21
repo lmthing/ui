@@ -161,6 +161,13 @@ describe("Departures read and act", () => {
     expect(brief).not.toContain("4 min late");
   });
 
+  it.each(["empty", "loading"] as const)(
+    "keeps the %s metadata read free of hidden rows and counts even with a service snapshot",
+    (state) => {
+      expect(meta.read(props.parse(board), state, "en", deviceData)).toEqual([]);
+    },
+  );
+
   it("allows a filled row press without linking and rejects non-actions and inactive states", () => {
     const press = { address: "d1/r2", action: "press" } as const;
     expect(planAct(screen(), defs, {}, [press])).toMatchObject({ ok: true, links: [] });
