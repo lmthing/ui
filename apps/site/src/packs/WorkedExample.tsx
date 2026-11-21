@@ -15,6 +15,7 @@ export default function WorkedExample({ id }: { id: string }) {
           <Phone
             key={p.id}
             screen={screen}
+            deviceData={pack.deviceData}
             width={320}
             height={600}
             fixed
