@@ -1067,24 +1067,32 @@ The gallery is a standalone host. It supplies memory parts, local photo/sample m
 callbacks. Live probes need model credentials; replay needs none. During component work use `look`,
 not the shared fixed-port gallery server.
 
-| Runnable command from root                        | Does                                                                                       |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `pnpm gallery`                                    | Generate entries and start the Vite gallery (not used by parallel component tasks)         |
-| `pnpm test`                                       | Generate entries/themes, then catalog and kit Vitest suites including Chrome runtime tests |
-| `pnpm format:check`, `pnpm typecheck`             | Root formatting and workspace TypeScript                                                   |
-| `pnpm build:entries`                              | Scan/generate data and renderer doors                                                      |
-| `pnpm build:catalog`, `pnpm catalog:bundle-check` | Build and check the data-only Node entry                                                   |
-| `pnpm kit:themes --check`                         | Verify generated theme source                                                              |
-| `pnpm llm:check`                                  | Core probes; component/pack/compose/merge and replay flags in 4.13                         |
-| `pnpm look --component <Id>`, `pnpm shoot`        | Automated phone review or gallery capture                                                  |
-| `pnpm --filter @lmthing/ui build`                 | Both ESM entries and declarations                                                          |
-| `pnpm --filter @lmthing/gallery build`            | Vite static build                                                                          |
-| `pnpm check`                                      | format:check, typecheck, rules, test, build:catalog                                        |
+| Runnable command from root                        | Does                                                                               |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `pnpm gallery`                                    | Generate entries and start the Vite gallery (not used by parallel component tasks) |
+| `pnpm test:changed main`                          | Run related Node tests with component and pack filters during task work            |
+| `pnpm test`                                       | Generate entries/themes and run the full Node suite at merge                       |
+| `pnpm test:browser`                               | Run the separate serial Chrome runtime suite                                       |
+| `pnpm format:check`, `pnpm typecheck`             | Root formatting and workspace TypeScript                                           |
+| `pnpm build:entries`                              | Scan/generate data and renderer doors                                              |
+| `pnpm build:catalog`, `pnpm catalog:bundle-check` | Build and check the data-only Node entry                                           |
+| `pnpm kit:themes --check`                         | Verify generated theme source                                                      |
+| `pnpm llm:check`                                  | Core probes; component/pack/compose/merge and replay flags in 4.13                 |
+| `pnpm look --component <Id>`, `pnpm shoot`        | Automated phone review or gallery capture                                          |
+| `pnpm --filter @lmthing/ui build`                 | Both ESM entries and declarations                                                  |
+| `pnpm --filter @lmthing/gallery build`            | Vite static build                                                                  |
+| `pnpm check`                                      | format:check, typecheck, rules, test, build:catalog                                |
 
 Root `dev`, `lint`, `catalog:check` and `build` scripts and catalog watch support are **pending**.
 Package-level builds already work; root `build` is not an existing command.
 
 ## 8. Testing
+
+Droids run `pnpm test:changed main` during task work. It passes changed paths to Vitest's import
+graph, then limits cross-component cases and pack-wide suites to affected components and packs.
+The runner reports the changed paths, selected scope, test count and duration. Shared test
+configuration, the render fixture and the check runner trigger a full Node run. The merge runs
+`pnpm test` once, with no component or pack filter. Browser tests run separately.
 
 | Layer                                        | Built coverage and remaining requirement                                                                                                                                                                                                                                                          |
 | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1135,12 +1143,15 @@ measurement or an import-time gate. RAF animation support is not evidence of dev
 
 - **pnpm:** workspace and `packageManager` pin; Node version in `.nvmrc`.
 - **TypeScript:** strict, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, ES2022/bundler,
-  `customConditions: ["source"]`.
+  `customConditions: ["source"]`. UI typecheck checks an entry-generation stamp (input paths and
+  mtimes, plus generated output state) before rebuilding entries. The stamp and TypeScript's
+  incremental build info live in the UI package's ignored `node_modules/.cache/`.
 - **Prettier:** root scripts; `.prettierignore` ignores Markdown, recordings and generated files.
   Format edited docs explicitly with `pnpm exec prettier --write --ignore-path /dev/null <files>`;
   root `format:check` alone does not check Markdown.
 - **Vitest:** catalog, static kit tests, controller/motion tests and Chrome integration through
-  `scripts/check.ts`.
+  `scripts/build/check.ts`. Task checks use related mode and set `UI_TEST_COMPONENTS` and
+  `UI_TEST_PACKS`; the merge runs the unfiltered suite.
 - **Build:** esbuild for catalog/kit ESM and TypeScript declarations (3). Both entry exports have
   `source` and built conditions; no `./kit/tamagui` subpath, tsup or catalog watch.
 - **Pending ESLint:** flat config with 200-line/60-line limits, no default exports except gallery
