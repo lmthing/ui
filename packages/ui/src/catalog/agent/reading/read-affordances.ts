@@ -1,3 +1,4 @@
+import type { Meta } from "../../meta";
 import type { Definition } from "../../probes";
 import { liveInputKey, pickerAt } from "../live-inputs";
 import { linkedInput } from "../linked-edits";
@@ -6,13 +7,14 @@ import {
   controlValueKey,
   partTierAt,
   resolveChoice,
+  selectionAt,
   selectionOffer,
   sessionActionProps,
   type Affordance,
   type SessionState,
   type Values,
 } from "../index";
-import { setAt } from "../clocks";
+import { isRuntimeSet, setAt } from "../clocks";
 import { itemEditAt } from "../report-edits";
 
 const risks: Record<string, string> = {
@@ -20,6 +22,13 @@ const risks: Record<string, string> = {
   people: " !needs-people",
   service: " !needs-service",
 };
+
+function runtimeRowValue(meta: Meta, props: Values, target: string, fallback: unknown) {
+  const flag = meta.select?.runtime && meta.select.prop;
+  const option = flag && selectionAt(meta, props, target);
+  if (!flag || !option || !option.row) return fallback;
+  return option.row[flag] === true ? option.value : undefined;
+}
 
 /** Describe the offered controls using live values and choices. */
 export function readAffordances(
@@ -34,7 +43,6 @@ export function readAffordances(
   props = sessionActionProps(meta, props, session);
   const answers = session?.kind === "rounds" ? session.assessment?.answers : undefined;
   return affordances.map((a) => {
-    const risk = risks[partTierAt(meta, props, a.part)] ?? "";
     const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
     const options = a.action === "select" && choiceOptions(meta, props, target);
     const item = itemEditAt(meta, props, target);
@@ -64,9 +72,9 @@ export function readAffordances(
           : choices
             ? (choices.find(({ value }) => value === selected)?.offered ?? selected)
             : set
-              ? values[`${instance}/${controlValueKey(def, set.key)}`] === undefined
-                ? undefined
-                : set.value
+              ? isRuntimeSet(set.spec) || values[`${instance}/${controlValueKey(def, set.key)}`] !== undefined
+                ? set.value
+                : undefined
               : a.input?.kind === "text"
                 ? (answers?.[target] ?? values[`${instance}/${liveInputKey(target, "type")}`])
                 : (values[`${a.address}/$draft`] ?? answers?.[target] ?? values[a.address]);
@@ -74,11 +82,12 @@ export function readAffordances(
     if (typeof value === "boolean" && a.action === "toggle") detail = `:${value ? "on" : "off"}`;
     if (!a.input && typeof value === "boolean" && a.action === "check")
       detail = `:${value ? "done" : "todo"}`;
-    if (value !== undefined && ["type", "set", "select"].includes(a.action))
-      detail = ` = ${JSON.stringify(value)}`;
-    if (choices) {
+    const offered = a.action === "select" && !choices ? runtimeRowValue(meta, props, target, value) : value;
+    if (offered !== undefined && ["type", "set", "select"].includes(a.action))
+      detail = ` = ${JSON.stringify(offered)}`;
+    if (choices)
       detail += `${detail ? ";" : ""} choices ${JSON.stringify(choices.map(({ offered }) => offered))}`;
-    }
-    return { ...a, detail: `${detail}${risk}` };
+    if (a.move) detail = ` = ${JSON.stringify(a.move.current)}; choices ${JSON.stringify(a.move.choices)}`;
+    return { ...a, detail: `${detail}${risks[partTierAt(meta, props, a.part)] ?? ""}` };
   });
 }

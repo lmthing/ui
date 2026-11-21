@@ -48,6 +48,8 @@ export function selectStep(
   let props = parseControlProps(def, raw, get);
   if (
     item ||
+    def.meta.select?.runtime ||
+    def.meta.items?.deviceData ||
     def.meta.recordRuntime ||
     def.meta.items?.pickers ||
     Object.hasOwn(def.meta.selections ?? {}, target)

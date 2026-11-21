@@ -3,8 +3,10 @@ import type { Definition } from "../../probes";
 import { repairVariants } from "../../rules";
 import { adjustmentAt, projectAdjustments, setAt } from "../clocks";
 export { localValues, selectStep } from "./select-step";
-export { affordancesOfScreen, stageRecord } from "./record-planning";
+export { stageRecord } from "./record-planning";
 export { stageProgress } from "./progress";
+export { itemActionOffer, moveKey, projectMoves } from "./move";
+export { findAction } from "./offered-actions";
 import { storeLiveInput } from "../live-inputs";
 import {
   controlValueKey,
@@ -29,7 +31,9 @@ export function validateStep(
   key: string,
 ) {
   const edit = setStep(screen, defs, found.address, step.action, values);
-  const limits = edit?.set?.spec ?? nestedSpec(screen, defs, found.address);
+  const limits = found.move
+    ? { type: "choice" as const, choices: found.move.choices }
+    : (edit?.set?.spec ?? nestedSpec(screen, defs, found.address));
   const keypad = step.action === "type" ? keypadInput(screen, defs, found, values) : undefined;
   let result = keypad
     ? resolveKeypadValue(step.value, values[key] ?? keypad.value, keypad)
@@ -116,13 +120,15 @@ export function keypadInput(
 export function stageValue(
   next: Values,
   key: string,
-  found: Affordance,
+  found: Affordance & { checks?: readonly Affordance[] },
   value: unknown,
   edit: ReturnType<typeof setStep>,
   screenId: string,
   links: Extract<ActResult, { ok: true }>["links"],
 ) {
   const { action, detail } = found;
+  for (const check of found.checks ?? [])
+    stageValue(next, `${screenId}/${check.address}`, check, true, undefined, screenId, links);
   if (edit?.adjustment) {
     const { next: amount, atSet } = edit.adjustment;
     if (amount === undefined) return false;

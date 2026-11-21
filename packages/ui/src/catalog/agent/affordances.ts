@@ -1,17 +1,19 @@
 import type { Meta } from "../meta";
 import type { StateName, Tier } from "../types";
 import { choiceValues } from "./validate-value";
-import { adjustmentAt, clockActionValid, clockControlDeclared } from "./clocks";
+import { adjustmentAt, clockActionValid, clockControlDeclared, hasNumericRoom } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
 import { addressedItems, nestedActions, visibleItems } from "./visibility";
 import { sendDraft, type LiveInput } from "./live-inputs";
 import type { SendDraft } from "./act";
-import { partsOf } from "./action-input";
+import { boundActionAvailable, isItemOffer } from "./selection-binding";
+import { itemActionOffer, partsOf } from "./action-input";
 import type { DeviceData } from "./device-data";
 
 export type Affordance = {
   address: string;
+  readAddress?: string;
   part: string;
   action: string;
   detail: string;
@@ -19,8 +21,14 @@ export type Affordance = {
   send?: SendDraft;
   blocked?: "max_active";
   togglePeers?: readonly string[];
+  move?: { current: string; choices: string[] };
 };
 type Props = Record<string, unknown>;
+type OfferContext = {
+  data?: DeviceData | undefined;
+  wire?: Props | undefined;
+  clock?: ((target: string, action: string) => boolean) | undefined;
+};
 type Adjustment = NonNullable<ReturnType<typeof adjustmentAt>>;
 /** Item increments without a numeric setter or a clock are owned by the pure action planner. */
 export function isAdjustOnlyItem(
@@ -41,27 +49,19 @@ function actionsForItem(
   item: Props,
   instance: string,
   first: boolean,
-  data?: DeviceData,
+  { data, wire }: OfferContext,
 ) {
   const { items, when } = meta.actions ?? {};
   const id = String(item.id);
-  const actions = partsOf(
-    items,
-    item,
-    `${instance}/${id}`,
-    when,
-    { ...props, $first: first },
-    meta,
-    true,
-    data,
-  );
-  return actions.filter(({ part, action }) => {
-    const picker = Object.hasOwn(meta.items?.pickers ?? {}, part);
-    const needsChoices =
-      (picker && action === "press") ||
-      (action === "select" && (picker || meta.items?.edits?.[part]?.action === "select"));
-    return !needsChoices || Boolean(choiceValues(meta, props, `${id}/${part}`)?.length);
-  });
+  return partsOf(items, item, `${instance}/${id}`, when, { ...props, $first: first }, meta, true, data, wire)
+    .filter(({ part, action }) => {
+      const picker = Object.hasOwn(meta.items?.pickers ?? {}, part);
+      const needsChoices =
+        (picker && action === "press") ||
+        (action === "select" && (picker || meta.items?.edits?.[part]?.action === "select"));
+      return !needsChoices || Boolean(choiceValues(meta, props, `${id}/${part}`)?.length);
+    })
+    .flatMap((offer) => itemActionOffer(meta, props, item, offer));
 }
 
 /** Every offered action, addressed relative to the screen (`l1/r1/trail`). */
@@ -72,8 +72,7 @@ export function affordancesOf(
   values: Props = {},
   state = (props.state as StateName | undefined) ?? "filled",
   includeBlocked = false,
-  data?: DeviceData,
-  recordClock?: (target: string, action: string) => boolean,
+  context: OfferContext = {},
 ): Affordance[] {
   const get = (part: string) => values[`${instance}/${part}`];
   state = sessionStatus(meta, props, drawStatus(meta, props, state, get), get);
@@ -82,6 +81,8 @@ export function affordancesOf(
   if (meta.errorActions) props = { ...props, state };
   const { parts, when } = meta.actions ?? {};
   const own = partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
+    if ((a.action === "move" && meta.items?.move) || !hasNumericRoom(meta, props, a.part, a.action))
+      return [];
     const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
     if (send !== undefined) return send ? [{ ...a, send }] : [];
     const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
@@ -91,25 +92,24 @@ export function affordancesOf(
   const visible = (meta.items?.visibleWhen || meta.items?.records) && new Set(visibleItems(meta, props));
   // `$first` in a rule is true only for the first item (the top card of a stack).
   const itemActions = items.flatMap((item, index) =>
-    visible && !visible.has(item) ? [] : actionsForItem(meta, props, item, instance, index === 0, data),
+    visible && !visible.has(item) ? [] : actionsForItem(meta, props, item, instance, index === 0, context),
   );
   const runtime = values[`${instance}/$runtime`];
   const nested = nestedActions(meta, props, instance, itemActions, get, includeBlocked);
   const hidden = visible && new Set(items.filter((item) => !visible.has(item)).map(({ id }) => id));
-  const offered = [
-    ...own,
-    ...nested.filter(
-      ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),
-    ),
-  ];
+  const visibleNested = nested.filter(
+    ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),
+  );
   const now = Number(get("$now") ?? Date.now());
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
-  return offered.filter(({ address, action, part }) => {
+  return [...own, ...visibleNested].filter((offer) => {
+    const { address, action, part } = offer;
+    if (!boundActionAvailable(meta, props, part, action, isItemOffer(instance, offer))) return false;
     const target = address === instance ? "root" : address.slice(instance.length + 1);
     const role = drawRole(meta, target, action);
     const event = sessionEvent(meta, target, action);
     if (!allowedIn(meta, state, `${part}.${action}`, Boolean(role), feedback)) return false;
-    if (recordClock && !recordClock(target, action)) return false;
+    if (context.clock && !context.clock(target, action)) return false;
     if (event && !sessionAvailable(session, event)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
     if (
@@ -147,6 +147,6 @@ export function partTierAt(meta: Meta, props: Props, part: string): Tier {
 }
 
 /** Every action names its own address, so a model copies it and never assembles one: `[l1/r1/trail toggle:on]`. */
-export function formatAffordance({ address, action, detail }: Affordance): string {
-  return `[${address} ${action}${detail}]`;
+export function formatAffordance({ address, readAddress = address, action, detail }: Affordance): string {
+  return `[${readAddress} ${action}${detail}]`;
 }
