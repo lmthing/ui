@@ -1,4 +1,6 @@
-// After building the catalog: pnpm --filter @lmthing/ui exec tsx scripts/llm/migration/index.ts
+// Run pnpm build:catalog first: build:entries alone does not update dist/catalog.js.
+// Verify: pnpm --filter @lmthing/ui exec tsx scripts/llm/migration/index.ts
+// Add --refresh only when deliberately re-indexing merged legacy books.
 // Make an index, not new samples. Original books are owned by their component and pack tasks.
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import type * as Catalog from "@lmthing/ui/catalog";
@@ -98,9 +100,13 @@ function indexBook(
 
 function saveIndex(index: LegacyIndex) {
   const formatted = `${JSON.stringify(index, null, 2)}\n`;
+  if (process.argv.includes("--refresh")) {
+    writeFileSync(legacyIndexFile, formatted);
+    return;
+  }
   try {
     if (readFileSync(legacyIndexFile, "utf8") !== formatted)
-      throw new Error("The legacy index is a fixed migration. Refusing to rebind historical evidence.");
+      throw new Error("The legacy index differs. Use --refresh to regenerate it after merging legacy books.");
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
     writeFileSync(legacyIndexFile, formatted, { flag: "wx" });

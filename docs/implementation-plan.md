@@ -722,6 +722,10 @@ the books. It verifies component definitions and exact evidence at the recording
 legacy alias stops working if its samples are replaced. Live calls and exact-request pack
 resumption are unchanged.
 
+When a merge brings in refreshed legacy books, run `pnpm build:catalog` first, then
+`pnpm --filter @lmthing/ui exec tsx scripts/llm/migration/index.ts --refresh`. Review the index
+diff and replay the probes. The migration does not edit the books or call models.
+
 | Command                           | Gate                                                                              |
 | --------------------------------- | --------------------------------------------------------------------------------- |
 | `pnpm llm:check --component <Id>` | Every required component probe passes by majority (2 of 3); 2/3 prints `unstable` |
