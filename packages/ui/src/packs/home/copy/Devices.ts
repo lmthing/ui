@@ -10,6 +10,15 @@ export function deviceValue(value: number, unit: NonNullable<DeviceEntry["unit"]
   return devicePanel.value(numberLine(value, lang), deviceUnits[unit]);
 }
 
+export function thermostatCopy({ mode, coolTemp }: Pick<DeviceEntry, "mode" | "coolTemp">, lang?: string) {
+  const { deviceLabels, thermostat } = homeWordsFor(lang);
+  return {
+    setPoint: mode === undefined && coolTemp === undefined ? deviceLabels.setPoint : thermostat.heating,
+    mode: mode === undefined ? undefined : thermostat.mode(thermostat.modes[mode]),
+    coolTemp: coolTemp === undefined ? undefined : thermostat.cooling(deviceValue(coolTemp, "celsius", lang)),
+  };
+}
+
 export function deviceRange(row: DeviceEntry, lang?: string) {
   if (!row.normal || row.reading === undefined) return;
   const { low, high } = row.normal;

@@ -60,6 +60,7 @@ export const en = {
     repeat === "never"
       ? "Does not repeat"
       : `Every ${form === "one" ? repeatUnits[repeat] : `${count} ${repeatUnits[repeat]}s`}`,
+  careCategory: { pet: "Pet care", plant: "Plant care", car: "Car care", house: "House care" },
   careDate: (label: string, date: string) => `${label} ${date.replace(/ /g, "\u00a0")}`,
   choreLabels: {
     once: "No repeat",
@@ -90,6 +91,12 @@ export const en = {
     lux: "lux",
   },
   deviceFocus: (name: string) => `Focused device: ${name}`,
+  thermostat: {
+    modes: { heat: "Heat", cool: "Cool", auto: "Auto", off: "Off" },
+    mode: (value: string) => `Mode: ${value}`,
+    heating: "Heating set point",
+    cooling: (value: string) => `Cooling set point: ${value}`,
+  },
   devicePanel: {
     preview: "Devices (preview)",
     success: "Command acknowledged",

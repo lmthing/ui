@@ -131,7 +131,9 @@ describe("CareSchedule states and parts", () => {
   it("renders the link and the distinct completion button with the task's addressed details", () => {
     vi.setSystemTime(new Date(2026, 10, 19, 12));
     const html = renderInstance("CareSchedule", examples[0], "filled", theme);
-    for (const part of meta.items.parts) expect(elementAt(html, `home/c1/r1/${part}`)).toBeDefined();
+    for (const part of meta.items.parts.filter((part) => part !== "category"))
+      expect(elementAt(html, `home/c1/r1/${part}`)).toBeDefined();
+    expect(html).not.toContain("home/c1/r1/category");
     const link = elementAt(html, "home/c1/r1/root");
     expect(link.attributes).toContain('role="link"');
     expect(link.children).not.toContainEqual(elementAt(html, "home/c1/r1/done"));

@@ -7,10 +7,11 @@ const switchKinds = ["light", "heat", "plug", "lock", "fan"];
 const levelKinds = ["light", "fan", "blind"];
 const deviceKey = z.string().trim().min(1).max(24);
 export const thermostatBounds = { min: 5, max: 30 } as const;
+const thermostatTemp = z.number().min(thermostatBounds.min).max(thermostatBounds.max);
 const settings = {
   on: z.boolean().optional(),
   level: z.number().min(0).max(100).optional(),
-  temp: z.number().min(thermostatBounds.min).max(thermostatBounds.max).optional(),
+  temp: thermostatTemp.optional(),
 };
 const device = z
   .strictObject({
@@ -18,6 +19,8 @@ const device = z
     name: text(16),
     kind: z.enum(["light", "heat", "plug", "lock", "fan", "blind", "sensor"]),
     ...settings,
+    mode: z.enum(["heat", "cool", "auto", "off"]).optional(),
+    coolTemp: thermostatTemp.optional(),
     reading: z.number().optional(),
     unit: z.enum(["celsius", "percent", "ppm", "lux"]).optional(),
     normal: z.strictObject({ low: z.number(), high: z.number() }).optional(),
@@ -28,6 +31,7 @@ const device = z
       (row.on === undefined ? !switchKinds.includes(row.kind) : switchKinds.includes(row.kind)) &&
       (row.level === undefined || levelKinds.includes(row.kind)) &&
       (row.kind === "heat" ? row.temp !== undefined : row.temp === undefined) &&
+      (row.kind === "heat" || (row.mode === undefined && row.coolTemp === undefined)) &&
       (row.reading === undefined ? row.kind !== "sensor" : ["heat", "sensor"].includes(row.kind)) &&
       (row.kind === "sensor" ? row.unit !== undefined : row.unit === undefined) &&
       (row.normal === undefined || (row.kind === "sensor" && row.normal.low <= row.normal.high)),
@@ -128,6 +132,8 @@ const deviceParts = [
   "reading",
   "level",
   "temp",
+  "mode",
+  "cool_temp",
   "minus",
   "plus",
   "lock",

@@ -2,9 +2,15 @@ import { dateLocaleOf, numberLine, pluralForm, type repeatOptions } from "../../
 import { homeWordsFor } from "../lang";
 
 type CareRepeat = (typeof repeatOptions)[number];
+export const careCategories = ["pet", "plant", "car", "house"] as const;
+type CareCategory = (typeof careCategories)[number];
 type CareSeed = { last: string; repeat: CareRepeat; every: number };
 
 export const { careLabels } = homeWordsFor();
+
+export function careCategory(category: CareCategory | undefined, lang?: string) {
+  return category && homeWordsFor(lang).careCategory[category];
+}
 
 export function careToday(now = new Date()): string {
   return [
@@ -67,10 +73,16 @@ export function careTaskLabel(task: NamedTask): string {
   return task.for ? `${task.title} · ${task.for}` : task.title;
 }
 
-export function careReading(tasks: readonly (CareSeed & NamedTask)[], lang?: string): string[] {
+export function careReading(
+  tasks: readonly (CareSeed & NamedTask & { category?: CareCategory | undefined })[],
+  lang?: string,
+): string[] {
   const today = careToday();
+  const { careLabels: labels } = homeWordsFor(lang);
   return tasks.map((task) => {
     const { repeat, last, next } = careLines(task, today, lang);
-    return [careTaskLabel(task), repeat, last, next, homeWordsFor(lang).careLabels.done].join(" · ");
+    return [careTaskLabel(task), careCategory(task.category, lang), repeat, last, next, labels.done]
+      .filter(Boolean)
+      .join(" · ");
   });
 }

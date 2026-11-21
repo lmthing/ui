@@ -3,7 +3,7 @@ import { formatAddress, numberLine, type Meta, type Props } from "../../../catal
 import { KitAction, KitText, useWords } from "../../../kit";
 import * as kit from "../../../kit";
 import * as home from "..";
-import { deviceRange, deviceValue, focusedDevice } from "../copy";
+import { deviceRange, deviceValue, focusedDevice, thermostatCopy } from "../copy";
 import { homeWordsFor } from "../lang";
 // Core first: Field/slider stores a preference, not live device commands, readings or scenes.
 export const meta = {
@@ -36,7 +36,7 @@ function SetPoint({ row, disabled, focused, reading }: Tile & { reading?: ReactN
   const value = row.temp!;
   const step = meta.items.adjust["plus.increment"].delta;
   const { decrease, increase } = words.devicePanel;
-  const { setPoint } = words.deviceLabels;
+  const { setPoint, mode, coolTemp } = thermostatCopy(row, lang);
   const caption = words.devicePanel.measure(setPoint, words.deviceUnits.celsius);
   const number = numberLine(value, lang);
   const target = (
@@ -47,6 +47,7 @@ function SetPoint({ row, disabled, focused, reading }: Tile & { reading?: ReactN
   );
   return (
     <kit.KitContent>
+      {mode && <DeviceText part="mode" tone="muted" children={mode} />}
       <kit.KitGrid arrange={reading ? "grid" : "rows"}>
         {reading}
         {target}
@@ -62,6 +63,7 @@ function SetPoint({ row, disabled, focused, reading }: Tile & { reading?: ReactN
           <KitAction key={key.part} icon={key.part} kind="secondary" full {...key} />
         ))}
       </kit.KitGrid>
+      {coolTemp && <DeviceText part="cool_temp" tone="muted" children={coolTemp} />}
     </kit.KitContent>
   );
 }

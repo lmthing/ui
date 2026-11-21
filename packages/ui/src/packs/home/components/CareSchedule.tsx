@@ -17,7 +17,7 @@ import {
   usePartContext,
   useWords,
 } from "../../../kit";
-import { careLines, careReading, careTaskLabel, careToday } from "../copy";
+import { careCategories, careCategory, careLines, careReading, careTaskLabel, careToday } from "../copy";
 import { homeWordsFor } from "../lang";
 // Core first: Checklist/default cannot advance recurring care from the last completion date.
 export const meta = {
@@ -28,6 +28,7 @@ export const meta = {
   pick: "Recurring care with last completion and code-derived next due dates. Not today's one-off jobs (Checklist), shared household points (Chores), a person's medicine (Medication), or provider appointments (Appointment).",
   writeHints: [
     "Write last, repeat and every. Next due, overdue and due-today are computed; never write them. Repeat uses the same enum as Field.",
+    "Set category on each task explicitly described as pet, plant, car or house care; otherwise leave category null.",
     'Use arrange "rows" only when asked for one task per line. Keep the repeat, last completion, next due and Done control in either layout; leave surface null unless explicitly requested.',
   ],
   region: "body",
@@ -37,7 +38,10 @@ export const meta = {
   signature: "check_burst",
   realPath: "Care tasks and completion logs stay on the device; notification reminders need permission.",
   variants: { arrange: ["grid", "rows"], surface: ["card", "outlined"] },
-  items: { key: "tasks", parts: ["root", "tile", "title", "for", "icon", "repeat", "last", "next", "done"] },
+  items: {
+    key: "tasks",
+    parts: ["root", "tile", "title", "for", "icon", "category", "repeat", "last", "next", "done"],
+  },
   parts: ["root", "message"],
   states: ["filled", "empty", "success"],
   actions: { items: { done: ["press"], root: ["press"] } },
@@ -54,6 +58,7 @@ export const props = z
         z.strictObject({
           title: text(24),
           for: text(16).optional(),
+          category: z.enum(careCategories).optional(),
           icon,
           repeat: z.enum(repeatOptions),
           every: z.int().min(1).max(12),
@@ -99,6 +104,7 @@ export const examples = [
     ],
   },
   { ...plantCare, arrange: "rows" },
+  { tasks: plantCare.tasks.map((task) => ({ ...task, category: "plant" })) },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("CareSchedule");
 export const probes = [
@@ -113,6 +119,12 @@ export const probes = [
     ),
     variant: { axis: "arrange", value: "rows" },
   },
+  {
+    ...write(
+      "One plant-care task: water the fern every week, last done 12 November 2026. Label that task as plant care and link it to fern.",
+    ),
+    expectProps: { tasks: [{ category: "plant" }] },
+  },
   read("Log that I watered the fern", { address: "c1/r1/done", action: "press" }),
 ] satisfies Probe[];
 type CareProps = Props<typeof props, typeof meta>;
@@ -125,8 +137,10 @@ function CareTile({ task, today, wide, surface }: { task: CareTask; today: strin
     words: { careLabels },
   } = useWords(homeWordsFor);
   const copy = careLines(task, today, lang);
+  const category = careCategory(task.category, lang);
   const dates = (
     <KitContent key="dates">
+      {category && <KitText role="caption" tone="muted" part="category">{category}</KitText>}
       {(["repeat", "last", "next"] as const).map((part) => (
         <KitText key={part} role="caption" tone={part === "next" ? copy.tone : "muted"} part={part}>
           {copy[part]}

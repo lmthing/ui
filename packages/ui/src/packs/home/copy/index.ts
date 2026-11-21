@@ -1,6 +1,15 @@
 export { choreIsDone, choreLines, choreReading } from "./Chores";
 export { rewardAmount, rewardBalanceParts, rewardJarRatio, rewardReading, rewardShortfall } from "./Rewards";
-export { careLabels, careLines, careReading, careTaskLabel, careToday, nextCareDate } from "./CareSchedule";
+export {
+  careCategories,
+  careCategory,
+  careLabels,
+  careLines,
+  careReading,
+  careTaskLabel,
+  careToday,
+  nextCareDate,
+} from "./CareSchedule";
 export { turnReading, visibleTurns } from "./Turns";
 export {
   agendaLabels,
@@ -24,7 +33,14 @@ export {
   babyRunningLine,
   babyTileAction,
 } from "./BabyLog";
-export { deviceLabels, deviceUnits, deviceRange, deviceValue, focusedDevice } from "./Devices";
+export {
+  deviceLabels,
+  deviceUnits,
+  deviceRange,
+  deviceValue,
+  focusedDevice,
+  thermostatCopy,
+} from "./Devices";
 export { cameraControls, cameraEventRows, cameraFrame, cameraReading, cameraStatus } from "./CameraFeed";
 export { homeTimestamp, homeTimestampParts } from "./timestamp";
 export { routineLastRun, routineOrder, routineReading, routineTriggerParts } from "./Routines";

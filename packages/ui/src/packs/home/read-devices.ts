@@ -1,7 +1,7 @@
 import type { z } from "zod";
 import type { StateName } from "../../catalog";
 import type { deviceProps } from ".";
-import { deviceRange, deviceValue, focusedDevice } from "./copy";
+import { deviceRange, deviceValue, focusedDevice, thermostatCopy } from "./copy";
 import { homeWordsFor } from "./lang";
 
 type Input = z.output<typeof deviceProps>;
@@ -16,16 +16,19 @@ function readEntry(row: Entry, enlarged: boolean, grouped: boolean, lang?: strin
       row.secure ? devicePanel.reviewScene(JSON.stringify(devicePanel.secure)) : undefined,
     ];
   const range = deviceRange(row, lang);
+  const thermostat = thermostatCopy(row, lang);
   const unit = row.unit ?? "celsius";
   return [
     row.id,
     grouped ? row.room : undefined,
     row.name,
     row.kind === "lock" ? (row.on ? deviceLabels.locked : deviceLabels.unlocked) : undefined,
-    row.temp === undefined ? undefined : `${deviceLabels.setPoint} ${deviceValue(row.temp, "celsius", lang)}`,
+    thermostat.mode,
+    row.temp === undefined ? undefined : `${thermostat.setPoint} ${deviceValue(row.temp, "celsius", lang)}`,
+    thermostat.coolTemp,
     row.reading === undefined ? undefined : `${deviceLabels.reading} ${deviceValue(row.reading, unit, lang)}`,
     enlarged && row.temp !== undefined
-      ? devicePanel.measure(deviceLabels.setPoint, deviceUnits.celsius)
+      ? devicePanel.measure(thermostat.setPoint, deviceUnits.celsius)
       : undefined,
     enlarged && row.reading !== undefined
       ? devicePanel.measure(deviceLabels.reading, deviceUnits[unit])
