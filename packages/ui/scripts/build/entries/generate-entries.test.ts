@@ -63,7 +63,7 @@ it("imports pack data and views only through the root door", async () => {
   const catalog = await loadCatalog(root);
   expect(catalog.createRegistry({ packs: ["booking"], includeDrafts: true }).ids).toContain("Draft");
   const door = await readFile(join(root, "src/packs/booking/components/index.ts"), "utf8");
-  expect(door.trim().split("\n").slice(1)).toEqual([
+  expect(door.trim().split("\n")).toEqual([
     'export * as Draft from "./Draft";',
     'export * as Ready from "./Ready";',
   ]);

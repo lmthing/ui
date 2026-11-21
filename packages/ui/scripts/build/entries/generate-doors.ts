@@ -5,6 +5,8 @@ import type { Entries } from "./generate-entries";
 
 // These leaf exports are for siblings only; keep the former doors' public surface.
 const internal: Readonly<Record<string, readonly string[]>> = {
+  "kit/base/helpers": ["SkeletonText"],
+  "kit/base/layout": ["RowDecoration", "RowGroupLead", "RowStatusRule"],
   "kit/base/text": [
     "CardStyle",
     "CardStyleContext",

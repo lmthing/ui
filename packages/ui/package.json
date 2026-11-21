@@ -18,6 +18,7 @@
   "scripts": {
     "build": "pnpm build:catalog && tsx scripts/build/build-kit.ts",
     "build:entries": "tsx scripts/build/build-entries.ts",
+    "gen:component": "tsx scripts/build/build-entries.ts --cached && tsx scripts/codegen/run.ts",
     "kit:themes": "tsx scripts/build/build-themes.ts",
     "build:catalog": "pnpm build:entries && tsx scripts/build/bundle-check.ts && pnpm kit:themes",
     "catalog:bundle-check": "tsx scripts/build/build-entries.ts --cached && tsx scripts/build/bundle-check.ts",

@@ -120,7 +120,10 @@ it("discovers added and removed sources in sorted order without changing other d
   await generateEntries(root);
 
   const body = async (folder: string) =>
-    (await readFile(join(src, folder, "index.ts"), "utf8")).trim().split("\n").slice(1);
+    (await readFile(join(src, folder, "index.ts"), "utf8"))
+      .trim()
+      .split("\n")
+      .filter((line) => line.startsWith("export "));
   expect(await body(copy)).toEqual(['export * from "./Zebra";', 'export * from "./helper";']);
   expect(await body(components)).toEqual(['export * as Zebra from "./Zebra";']);
 

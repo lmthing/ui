@@ -6,6 +6,7 @@ import { useKit, useKitStyle } from "../../provider";
 import { MatrixContent, MatrixScroll } from "./matrix-drawing";
 import {
   disabledContent,
+  fittedTableWidth,
   matrixColumnLayout,
   MatrixSelectionContext,
   useCompactMatrix,
@@ -119,26 +120,22 @@ function ScopedCell({ item, ...props }: CellProps & { item?: string }) {
   );
 }
 
-function TableColumn({
-  column,
-  index,
-  props,
-  heights,
-  compact,
-}: {
+type ColumnProps = {
   column?: Column;
   index: number;
   props: TableProps;
   heights: ReturnType<typeof useMatrixHeights>;
   compact: boolean;
-}) {
+  onLayout?: ReturnType<typeof useCompactMatrix>["onHeadingLayout"];
+};
+function TableColumn({ column, index, props, heights, compact, onLayout }: ColumnProps) {
   const heading = !column,
     loading = Boolean(props.loading);
   const selected = useContext(MatrixSelectionContext);
   const active = Boolean(column && (column.id === props.activeColumn || selected.includes(column.id)));
   const fit = props.fitColumns ? { fit: true, rail: heading, divider: compact && index > 0 } : {};
   return (
-    <YStack {...matrixColumnLayout(Boolean(props.fitColumns), heading)}>
+    <YStack {...matrixColumnLayout(Boolean(props.fitColumns), heading)} onLayout={onLayout}>
       <ScopedCell
         loading={loading}
         {...fit}
@@ -177,24 +174,27 @@ function TableColumn({
 export function KitTable({ part = "root", stickyFirst = true, ...props }: TableProps) {
   const ks = useKitStyle();
   const heights = useMatrixHeights(space[ks.density.rowPad]);
-  const { compact, onLayout } = useCompactMatrix(Boolean(props.fitColumns));
+  const { compact, available, onLayout, onHeadingLayout } = useCompactMatrix(Boolean(props.fitColumns));
   const root = { ...usePart(part), onLayout, "aria-busy": Boolean(props.loading) };
-  const layout = { props, heights, compact };
-  const heading = <TableColumn index={-1} {...layout} />;
+  const layout = { props, heights, compact },
+    heading = <TableColumn index={-1} {...layout} onLayout={onHeadingLayout} />;
   const pinned = stickyFirst || props.fitColumns;
+  const columns = props.columns.map((column, index) => (
+    <TableColumn key={column.id} {...{ column, index, ...layout }} />
+  ));
+  const minWidth = fittedTableWidth(columns.length);
+  const overflow = props.fitColumns && available !== undefined && available < minWidth;
   return (
     <XStack {...root} width="100%" minWidth={component.base.none}>
       {pinned && heading}
-      <MatrixScroll
-        label={props.columns.map((column) => column.label).join(", ")}
-        loading={props.loading}
-        fitted={props.fitColumns}
-      >
-        {!pinned && heading}
-        {props.columns.map((column, index) => (
-          <TableColumn key={column.id} column={column} index={index} {...layout} />
-        ))}
-      </MatrixScroll>
+      {props.fitColumns && !overflow ? (
+        columns
+      ) : (
+        <MatrixScroll label={props.columns.map((column) => column.label).join(", ")} loading={props.loading}>
+          {!pinned && heading}
+          {overflow ? <XStack width={minWidth}>{columns}</XStack> : columns}
+        </MatrixScroll>
+      )}
     </XStack>
   );
 }
