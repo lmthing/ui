@@ -1,14 +1,17 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import { watchlistQuote, watchlistReading } from "../copy";
+import { investWordsFor } from "../lang";
 import { dateTime, distinct, recordId, seedAssets, seedTime } from "../seeds";
 
 // Core first: List/value shows saved names and values, not dated prices against watch thresholds.
 export const meta = {
   id: "Watchlist",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "Follow dated investment quotes and see how far they are from my watch thresholds.",
-  pick: "Investment quotes compared with personal price thresholds, with no trade or ownership implied. Not owned positions (Holdings), plain saved names (List), or physical things to buy (Wishlist).",
+  pick: "Use only when dated investment quotes or personal price thresholds belong in the rows. For names and links alone, even stock or fund favourites, use List. Not owned positions (Holdings) or things to buy (Wishlist).",
   writeHints: [
     "Write a dated quote for each item. Provide direction only when there is a target; the target and direction are stored preferences, not a trade. Do not write a computed gap or threshold status.",
     'For targets and signed gaps beside quotes, write "detail":"full","density":null. A request for more detail is not a spacing request. Leave density null unless spacing is explicitly requested, and leave detail null for the default quotes view.',
@@ -20,8 +23,11 @@ export const meta = {
     "On-device watch records and dated quotes are independent of owned positions and shared quote history, and a live feed is optional.",
   variants: { density: ["comfortable", "compact"], detail: ["brief", "full"] },
   variantParts: { "detail.full": { adds: ["target", "gap"] } },
-  parts: ["root", "refresh"],
-  items: { key: "items", parts: ["root", "name", "symbol", "price", "quoted_at", "target", "gap", "remove"] },
+  parts: ["root", "refresh", "refresh_label", "notice"],
+  items: {
+    key: "items",
+    parts: ["root", "name", "symbol", "price", "quoted_at", "target", "gap", "remove", "remove_icon"],
+  },
   confirmParts: ["remove"],
   partTiers: { refresh: "service" },
   states: ["filled", "empty", "loading", "success", "error"],
@@ -31,15 +37,18 @@ export const meta = {
     when: { root: { linked: true }, refresh: { quote_service: true } },
     noGoto: { items: ["remove"] },
   },
+  errorActions: ["refresh.press"],
+  read: (input, state, lang): string[] =>
+    state === "filled" ? watchlistReading(input as z.output<typeof props>, lang) : [],
 } as const satisfies c.Meta;
 
 const item = z
   .strictObject({
-    assetId: recordId,
+    assetId: recordId.meta({ kind: undefined }),
     name: c.text(32),
     symbol: c.text(12),
     price: z.number().nonnegative(),
-    quotedAt: dateTime.meta({ kind: "text" }),
+    quotedAt: dateTime,
     target: z.number().positive().optional(),
     direction: z.enum(["at_or_below", "at_or_above"]).optional(),
     goto: c.screenId.optional(),
@@ -123,3 +132,67 @@ export const probes = [
     action: "press",
   }),
 ] satisfies c.Probe[];
+
+// prettier-ignore
+export function bindWatchlist(hasQuoteService: (instance: string) => boolean): c.Definition {
+  const live = { derive: (_input: Readonly<c.Values>, id: string) => ({ quote_service: hasQuoteService(id) }) };
+  return { props, fallback, examples, probes, meta: { ...meta, live } };
+}
+type WatchProps = c.Props<typeof props, typeof meta>;
+type WatchRow = WatchProps["items"][number];
+type Density = NonNullable<WatchProps["density"]>;
+
+// prettier-ignore
+function QuoteRow({ row, detail, density, state }: { row: WatchRow; detail: WatchProps["detail"]; density: Density; state: c.StateName }) {
+  const context = kit.usePartContext();
+  const { words: { watchlist }, lang } = kit.useWords(investWordsFor);
+  const { price, date, threshold } = watchlistQuote(row, detail, lang);
+  const active = state === "filled", loading = state === "loading";
+  const pricePart = loading
+    ? <kit.KitSkeleton shape="figure" inset="none" content={[["number", price, "end", "compact"]]} />
+    : <kit.KitText part="price" role="number" numberScale="compact" tabular lines={1}>{price}</kit.KitText>;
+  const remove = (active || loading) && <kit.KitAction part="remove" kind="quiet" icon={loading ? undefined : "close"} a11y={watchlist.remove(row.name)} />;
+  const trail = <kit.KitRow label={price} inline trailing={remove}>{pricePart}</kit.KitRow>;
+  return <kit.PartContext.Provider value={{ ...context, item: row.id }}>
+    <kit.KitRow part={null} density={density} label={row.name} inline={state === "error"} trailing={trail}>
+      {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[
+        ["label", row.name], ["caption", [row.symbol, date].join(watchlist.identitySeparator)],
+        ["caption", threshold?.target], ["caption", threshold?.gap],
+      ]} /> : <kit.KitRow item={row.id} label={row.name} goto={active ? row.goto : undefined} inline density={density}>
+        <kit.KitContent density={density}>
+          <kit.KitText part="name" role="label">{row.name}</kit.KitText>
+          <kit.KitText part={null} role="caption" tone="muted">
+            <kit.KitText part="symbol" role="caption" tone="muted">{row.symbol}</kit.KitText>
+            {watchlist.identitySeparator}
+            <kit.KitText part="quoted_at" role="caption" tone="muted">{date}</kit.KitText>
+          </kit.KitText>
+          {threshold && <>
+            <kit.KitText part="target" role="caption" tone="muted">{threshold.target}</kit.KitText>
+            <kit.KitText part="gap" role="caption" tone={threshold.met ? "good" : "muted"}>{threshold.gap}</kit.KitText>
+          </>}
+        </kit.KitContent>
+      </kit.KitRow>}
+    </kit.KitRow>
+  </kit.PartContext.Provider>;
+}
+
+// prettier-ignore
+export function Watchlist(input: WatchProps) {
+  const state = kit.useComponentState();
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  const { quote_service } = kit.useLiveControls(meta, input);
+  const { words: { watchlist } } = kit.useWords(investWordsFor);
+  const failed = state === "error";
+  return <kit.KitCard part="root" density={density} padded={failed}>
+    {state === "empty" || state === "success" || !input.items.length ? (
+        <kit.KitEmpty part="notice" decorativeIcon {...(state === "success" ? { icon: "check", tone: "good", title: watchlist.removed } : {})} />
+      ) : <>
+        {failed && <kit.KitText part="notice" role="body" tone="muted">{watchlist.refreshFailed}</kit.KitText>}
+        {input.items.map((row) => <QuoteRow key={row.id} {...{ row, detail, density, state }} />)}
+        {quote_service === true && (state === "filled" || failed) && (
+          <kit.KitContent inset={failed ? "none" : "md"} density={density}><kit.KitAction part="refresh" kind="quiet" label={watchlist.refresh} /></kit.KitContent>
+        )}
+      </>}
+  </kit.KitCard>;
+}
