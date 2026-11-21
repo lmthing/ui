@@ -41,6 +41,7 @@ function readingProps(
   const timed = projectLiveClocks(meta, reading, get, runtime);
   const useLive =
     meta.live ||
+    meta.recordRuntime ||
     meta.linkedEdits ||
     meta.items?.visibleWhen ||
     Object.values(meta.selections ?? {}).some((s) => s.runtime);

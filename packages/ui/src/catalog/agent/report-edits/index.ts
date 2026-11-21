@@ -43,8 +43,12 @@ export function itemEditAt(meta: Meta, props: Values, target: string) {
 }
 
 export function reportConfirmation(meta: Meta, target: string, action: string) {
+  const item = itemTarget(target);
+  const record =
+    item && meta.confirmParts?.includes(item.part) && own(meta.recordRuntime?.presses, item.part);
   return (
-    action === "press" && (itemEditSpec(meta, target)?.action === "remove" || !!own(meta.signOff, target))
+    action === "press" &&
+    (itemEditSpec(meta, target)?.action === "remove" || !!own(meta.signOff, target) || !!record)
   );
 }
 

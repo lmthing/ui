@@ -6,6 +6,7 @@ import {
   reportConfirmation,
   reportRemovalAt,
   stampItemIds,
+  recordTargetAt,
   type ActStep,
   type StateName,
 } from "../../../catalog";
@@ -26,7 +27,11 @@ function confirmReportAction(state: ActionState, ctx: ActionContext, target: str
 export function confirmationFor(state: ActionState, action: ActStep, ctx: ActionContext) {
   const meta = ctx.defs[ctx.entry.c]!.meta;
   const target = action.address === ctx.entry.id ? "root" : action.address.slice(ctx.entry.id.length + 1);
-  if (reportConfirmation(meta, target, action.action)) return confirmReportAction(state, ctx, target);
+  if (
+    reportConfirmation(meta, target, action.action) &&
+    !meta.recordRuntime?.presses?.[target.split("/")[1]!]
+  )
+    return confirmReportAction(state, ctx, target);
   if (
     action.action === "press" &&
     Object.hasOwn(meta.clearItems ?? {}, target) &&
@@ -51,9 +56,14 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
     local,
     (props.state as StateName | undefined) ?? ctx.entry.state,
   ).find((offered) => offered.address === action.address && offered.action === action.action)?.part;
+  const recordTarget = recordTargetAt(meta, props, action.address, action.action);
   return (part && meta.confirmParts?.includes(part)) ||
     (ctx.entry.c === "Button" && action.action === "press" && ctx.input.confirm)
-    ? showConfirmation(state, ctx.selected, ctx)
+    ? showConfirmation(
+        state,
+        { ...ctx.selected, ...(recordTarget === undefined ? {} : { recordTarget }) },
+        ctx,
+      )
     : undefined;
 }
 const playbackAction: ActionHandler = (state, action, ctx) =>

@@ -9,7 +9,6 @@ import { sendDraft, withLiveInput, type LiveInput } from "./live-inputs";
 import { linkedInput } from "./linked-edits";
 import type { SendDraft } from "./act";
 import { itemEditOffer, reportConfirmation, reportLocked } from "./report-edits";
-
 export type Affordance = {
   address: string;
   part: string;
@@ -22,7 +21,6 @@ export type Affordance = {
 };
 type Props = Record<string, unknown>;
 type Adjustment = NonNullable<ReturnType<typeof adjustmentAt>>;
-
 /** Item increments without a numeric setter or a clock are owned by the pure action planner. */
 export function isAdjustOnlyItem(
   adjustment: Adjustment | undefined,
@@ -49,7 +47,6 @@ function detailOf(action: string, holder: Props, suppressLink: boolean): string 
 }
 
 type When = Record<string, Record<string, string | boolean>> | undefined;
-
 function partsOf(
   spec: Record<string, readonly string[]> | undefined,
   holder: Props,
@@ -80,7 +77,8 @@ function partsOf(
           .map((action) => {
             const target = holder[part];
             const nested = target && typeof target === "object" ? (target as Props) : holder;
-            const itemControl = item && (meta.items?.edits?.[part] || meta.items?.pickers?.[part]);
+            const controls = meta.items?.edits?.[part] || meta.items?.pickers?.[part];
+            const itemControl = item && (controls || meta.recordRuntime?.presses?.[part]);
             const localPress =
               !item &&
               (meta.clear?.[part] ||

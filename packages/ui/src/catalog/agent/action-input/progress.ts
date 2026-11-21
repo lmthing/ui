@@ -2,19 +2,29 @@ import type { Definition } from "../../probes";
 import type { DeviceData } from "../device-data";
 import { drawKey, drawRole, holdIndex, performDraw, storeDraw, type RandomSource } from "../draw";
 import { advanceSession, sessionEvent, sessionKey } from "../session";
-import { liveProps, parseControlProps, type ActStep, type ScreenLike, type Values } from "../index";
+import { stageLinkedEdit } from "../linked-edits";
+import {
+  liveProps,
+  parseControlProps,
+  type ActStep,
+  type Affordance,
+  type ScreenLike,
+  type Values,
+} from "../index";
 import { localValues } from "./select-step";
 
 export function stageProgress(
   screen: ScreenLike,
   defs: Record<string, Definition>,
-  address: string,
+  found: Affordance,
   step: ActStep,
   next: Values,
   random: RandomSource | null,
   data?: DeviceData,
 ): string | undefined {
-  const [id, ...parts] = address.split("/");
+  const linked = stageLinkedEdit(screen, defs, next, found, step.value);
+  if (linked !== undefined) return linked;
+  const [id, ...parts] = step.address.split("/");
   const entry = screen.components.find((item) => item.id === id)!;
   const def = defs[entry.c]!;
   const target = parts.join("/") || "root";

@@ -9,6 +9,7 @@ import { projectDraw } from "./draw";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
 import { applyReportEdits } from "./report-edits";
+import { projectRecordRuntime } from "./record-runtime";
 import {
   adjustmentAt,
   projectAdjustments,
@@ -39,7 +40,6 @@ function wireAdjustmentKey(def: Definition, key: string) {
   const prop = key.slice(key.lastIndexOf("/") + 1);
   return rows instanceof z.ZodArray && fieldOf(unwrapField(rows.element, true), prop) ? `$wire/${key}` : key;
 }
-
 function projectWireAdjustments(def: Definition, input: Values, get: (part: string) => unknown): Values {
   const items = def.meta.items;
   if (!items?.adjust || !Array.isArray(input[items.key])) return input;
@@ -56,7 +56,6 @@ function projectWireAdjustments(def: Definition, input: Values, get: (part: stri
     }),
   };
 }
-
 /** Wire-backed edits go through schema parsing; derived-only rows are overlaid after parsing. */
 export function controlValueKey(def: Definition, key: string): string {
   const items = def.meta.items;
@@ -111,13 +110,11 @@ export function parseControlProps(def: Definition, input: unknown, get?: (part: 
       : repaired;
   return stampItemIds(def.meta, def.props.parse(source) as Values);
 }
-
 /** Shared schema-prop projection for the planner, reader and kit screen. */
 export function projectControls(meta: Meta, props: Values, get: (part: string) => unknown): Values {
   const projected = projectNested(meta, projectSelection(meta, props, get), get);
   return projectComponentSets(meta, projected, get);
 }
-
 /** Preserve parsed values for component setters already applied to the wire. */
 export function projectParsedControls(
   meta: Meta,
@@ -138,6 +135,7 @@ export function liveProps(
   values: Values,
   wireApplied = false,
   data?: DeviceData,
+  now?: number,
 ): Values {
   const get = (part: string) => values[`${instance}/${part}`];
   const { draw, emptyActions, errorActions, successActions, session } = meta;
@@ -155,6 +153,8 @@ export function liveProps(
   }
   props = projectDraw(meta, props, get);
   props = projectLiveInputs(meta, props, instance, get, data);
+  if (meta.recordRuntime)
+    props = projectRecordRuntime(meta, props, values, Number(get("$now") ?? now ?? Date.now()), data);
   if (runtime && meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
     props = { ...props, minus: undefined };
   if (meta.id === "Field" || meta.id === "Search") {

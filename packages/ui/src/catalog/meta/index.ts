@@ -2,5 +2,6 @@ export type { Meta, NumericAdjustments, PackMeta, ArchetypeMeta, Slot } from "./
 export type { PresetMeta, AccentMeta, BaseRoles, AccentRoles } from "./preset-meta";
 export type { Props } from "./props";
 export type { ClockMeta, ClockTrigger, ClockState } from "./clocks";
+export type { RecordContext, RecordRuntime } from "./record-runtime";
 export { packIds, type PackId } from "./pack-ids";
 export { packIndex, type PackIndexEntry } from "./pack-index";
