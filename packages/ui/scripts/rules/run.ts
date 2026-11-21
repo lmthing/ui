@@ -1,7 +1,7 @@
 import { fileURLToPath, URL } from "node:url";
-import { checkRules, formatRules } from "./index";
+import { checkRules, countViolations, formatRules } from "./index";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
-const violations = await checkRules(root);
-console.log(formatRules(root, violations));
-process.exitCode = violations.length ? 1 : 0;
+const issues = await checkRules(root);
+console.log(formatRules(root, issues));
+process.exitCode = countViolations(issues) ? 1 : 0;
