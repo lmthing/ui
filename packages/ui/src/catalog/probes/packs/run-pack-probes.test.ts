@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
-import type { PackMeta } from "../../meta";
+import { packIndex, type PackMeta } from "../../meta";
 import type { PackProbe } from "..";
-import { runPackProbes } from "./index";
+import { packSelectionProbes, runPackProbes } from "./index";
 import { buildPackIndex } from "../../prompt";
 
 it("skips an empty pack index without calling a model", async () => {
@@ -58,4 +58,35 @@ it("explicitly includes draft packs in the full index and uses majority scoring"
     },
   });
   expect(results[0]).toMatchObject({ status: "pass", score: "2/3" });
+});
+
+it.each(packIndex.slice(27))("covers the $id pick and a near miss before scaffolding", ({ id, pick }) => {
+  const cases = packSelectionProbes(id);
+  const positives = cases.filter((probe) => probe.expect.includes(id));
+  const negatives = cases.filter((probe) => !probe.expect.includes(id) && !probe.allow?.includes(id));
+  expect(positives.length).toBeGreaterThanOrEqual(2);
+  expect(
+    negatives.some(({ expect: ids }) =>
+      ids.length ? ids.some((other) => pick.includes(`(${other})`)) : pick.includes("(core)"),
+    ),
+  ).toBe(true);
+  expect(new Set(cases.map(({ idea }) => idea)).size).toBe(cases.length);
+});
+
+it("runs planned probes by id and keeps them when a draft scaffold adds its own", async () => {
+  const authored = { kind: "pack", idea: "Open an email thread list", expect: ["comms"] } as const;
+  const comms = { id: "comms", example: "./example.jsonl", probes: [authored] } satisfies PackMeta;
+  const probes = packSelectionProbes("comms");
+  const callModel = async (prompt: string) => {
+    expect(prompt).toContain("- comms: Direct and workplace communication");
+    expect(prompt).toContain("- workspace: Shared cloud files");
+    const probe = [...probes, authored].find(({ idea }) => prompt.includes(`\n\nIdea: ${idea}\n`))!;
+    return JSON.stringify(probe.expect);
+  };
+  const before = await runPackProbes({ packs: {}, only: ["comms"], callModel, samples: 3 });
+  const after = await runPackProbes({ packs: { comms }, only: ["comms"], callModel, samples: 3 });
+  expect(before).toHaveLength(3);
+  expect(after.slice(0, before.length)).toEqual(before);
+  expect(after.at(-1)?.probe).toEqual(authored);
+  expect(after.every(({ score }) => score === "3/3")).toBe(true);
 });

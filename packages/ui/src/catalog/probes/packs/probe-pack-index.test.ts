@@ -7,7 +7,7 @@ const unscaffolded: Partial<Record<PackId, PackMeta>> = {};
 
 it("offers and scores only indexed packs even when none is scaffolded", () => {
   const index = probePackIndex(unscaffolded);
-  expect(index.ids).toEqual(packIds.slice(0, 27));
+  expect(index.ids).toEqual(packIds);
   expect(index.prompt).toContain("Pick: Selling things for money:");
   expect(index.prompt.split("\n").map((line) => line.split(":")[0])).toEqual(
     [...index.ids].sort().map((id) => `- ${id}`),

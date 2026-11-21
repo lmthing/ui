@@ -38,6 +38,19 @@ it("checks today's pack catalog and a fixture with a competing pack", () => {
   expect(checkPacks(catalog)).toEqual([]);
   expect(checkPacks(fixture())).toEqual([]);
 });
+
+it("checks a Wave 6 scaffold using its shared Director probes while its component is draft", () => {
+  const input = fixture();
+  expect(
+    checkPacks({
+      components: { Slots: { ...component, meta: { ...component.meta, status: "draft" } } },
+      packOf: { Slots: "comms" },
+      packs: { comms: { id: "comms", example: "example.jsonl", probes: [] } },
+      packArchetypes: { comms: input.packArchetypes.booking },
+      packExamples: { comms: input.packExamples.booking },
+    }),
+  ).toEqual([]);
+});
 const coreExclusionFixture = (id: "media" | "data", miss: Pick<PackProbe, "expect" | "allow">) => {
   if (id === "media") {
     const media: PackMeta = catalog.packs.media;
@@ -117,13 +130,19 @@ it.each<[string, (f: Fixture) => unknown]>([
   [
     "allow",
     changePack({
-      probes: [...pack.probes, { kind: "pack", idea: "Reserve", expect: ["booking"], allow: ["comms"] }],
+      probes: [
+        ...pack.probes,
+        { kind: "pack", idea: "Reserve", expect: ["booking"], allow: ["missing" as PackId] },
+      ],
     }),
   ],
   [
     "expect",
     changePack({
-      probes: [...pack.probes, { kind: "pack", idea: "Book a call", expect: ["booking", "comms"] }],
+      probes: [
+        ...pack.probes,
+        { kind: "pack", idea: "Book a call", expect: ["booking", "missing" as PackId] },
+      ],
     }),
   ],
   [

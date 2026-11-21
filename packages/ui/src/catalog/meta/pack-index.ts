@@ -1,5 +1,12 @@
 import type { PackId } from "./pack-ids";
-import { originalPacks, personalPacks, expansionPacks } from "./pack-index-data";
+import {
+  originalPacks,
+  personalPacks,
+  expansionPacks,
+  connectionPacks,
+  discoveryPacks,
+  interestPacks,
+} from "./pack-index-data";
 
 export type PackIndexEntry = { id: PackId; name: string; purpose: string; pick: string };
 
@@ -8,4 +15,7 @@ export const packIndex = [
   ...originalPacks,
   ...personalPacks,
   ...expansionPacks,
+  ...connectionPacks,
+  ...discoveryPacks,
+  ...interestPacks,
 ] as const satisfies readonly PackIndexEntry[];
