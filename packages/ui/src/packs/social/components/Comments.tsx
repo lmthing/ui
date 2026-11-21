@@ -163,9 +163,9 @@ function Comment({ row, density, parent, detail }: Finish & {
   return <kit.KitRow item={row.id} label={label} inline indent={row.reply ? 1 : 0} density={density}>
     <kit.KitContent density={density}>
       <kit.KitContent lead={avatar} leadingAlign="row" density={density}>
-          <kit.KitText part="name" role="label" lines={1} density={density}>{row.name}</kit.KitText>
-          {detail !== "brief" && <kit.KitText part="time" role="caption" tone="muted" lines={1} density={density}>{row.time}</kit.KitText>}
-          <kit.KitText part="text" density={density}>{row.text}</kit.KitText>
+        <kit.KitText part="name" role="label" lines={1} density={density}>{row.name}</kit.KitText>
+        {detail !== "brief" && <kit.KitText part="time" role="caption" tone="muted" lines={1} density={density}>{row.time}</kit.KitText>}
+        <kit.KitText part="text" density={density}>{row.text}</kit.KitText>
       </kit.KitContent>
       <kit.KitGrid fitLast density={density}>
         <CommentActions {...{ row, density }} />

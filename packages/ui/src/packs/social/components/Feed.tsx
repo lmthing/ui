@@ -152,18 +152,22 @@ function FeedLoading({ post, density }: { post: FeedPost; density: c.ThemeDensit
         content={[["label", skeleton.author], ["caption", skeleton.time]]} />
     </kit.KitContent>
     <kit.KitContent group="response" density={density}>
-      {post.image ? <kit.KitGrid fitLast density={density}>
-        {excerpt}
-        <kit.KitSkeleton shape="figure" lead="box" inset="none" content={[]} density={density} />
-      </kit.KitGrid> : excerpt}
+      {post.image ? <kit.KitContent group="response" density={density}>
+        <kit.KitGrid fitLast density={density}>
+          {excerpt}
+          <kit.KitSkeleton shape="figure" lead="box" inset="none" content={[]} density={density} />
+        </kit.KitGrid>
+      </kit.KitContent> : excerpt}
     </kit.KitContent>
-    <kit.KitContent group="response" density={density} leadingAlign="row" lead={<kit.KitSkeleton shape="control" kind="secondary" />}>
-      <kit.KitRow part={null} label="" inline density={density}>
-        <kit.KitContent density={density} leadingAlign="row" lead={
-          <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", skeleton.likes]]} />}>
-          <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", skeleton.comments]]} />
-        </kit.KitContent>
-      </kit.KitRow>
+    <kit.KitContent group={post.image ? "response" : "content"} density={density}>
+      <kit.KitContent group="response" density={density} leadingAlign="row" lead={<kit.KitSkeleton shape="control" kind="secondary" />}>
+        <kit.KitRow part={null} label="" inline density={density}>
+          <kit.KitContent density={density} leadingAlign="row" lead={
+            <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", skeleton.likes]]} />}>
+            <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", skeleton.comments]]} />
+          </kit.KitContent>
+        </kit.KitRow>
+      </kit.KitContent>
     </kit.KitContent>
   </>;
 }
