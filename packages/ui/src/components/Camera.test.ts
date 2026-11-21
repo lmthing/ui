@@ -30,6 +30,7 @@ it.each([
       const live = { "c1/$recording": controller.store.get("home/c1/$recording"), "c1/$adjust/side": controller.store.get("home/c1/$adjust/side") };
       const read = readComponent(components.Camera, { kind, hint: "Aim here" }, "c1", "filled", live).join("\n");
       expect(read).toContain(kind === "video" ? ["Stop recording", "Start recording"][index] : ["Scan back", "Both sides scanned"][index]);
+      if (kind === "document_dual") expect(read).not.toContain("Aim here");
     }
   } finally {
     controller.dispose();
