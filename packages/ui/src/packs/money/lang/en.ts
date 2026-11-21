@@ -28,6 +28,19 @@ export const en = {
   accountSuffix: (last4: string) => ` · ${last4}`,
   accountLabel: (name: string, kind: string, balance: string, last4?: string) =>
     `${name}, ${kind}${last4 ? ` ending in ${last4}` : ""}, ${balance}`,
+  cardControls: {
+    network: { debit: "Debit", credit: "Credit", ebt: "EBT", prepaid: "Prepaid" },
+    last4: (digits: string) => `•••• ${digits}`,
+    expires: (date: string) => `Expires ${date}`,
+    freeze: "Freeze card",
+    online: "Online purchases",
+    atm: "ATM withdrawals",
+    international: "Spending abroad",
+    spendCap: "Per-purchase limit",
+    reveal: "Unlock card details",
+    updated: "Card settings updated",
+    error: "Couldn’t sync card settings",
+  },
   loanLabels: {
     balance: "Remaining balance",
     principal: "Opening principal",

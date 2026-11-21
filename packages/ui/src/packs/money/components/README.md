@@ -11,6 +11,8 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `Split.tsx`
 - `AmountPad.tsx`
 - `PriceChart.tsx`
+- `Loan.tsx`, `Payoff.tsx`
+- `CardControls.tsx`
 
 Rules:
 - Same file shape as `src/components/`: exports `meta`, `props`, `fallback`, `examples`, `probes`, view.

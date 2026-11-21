@@ -7,7 +7,7 @@ Built in step U7 (drafts in U3), wave 2 of the catalog plan. Read `docs/catalog/
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
-- `components/`: `AccountCard.tsx` `Transactions.tsx` `Bills.tsx` `Split.tsx` `AmountPad.tsx` `PriceChart.tsx` `Loan.tsx` `Payoff.tsx`
+- `components/`: `AccountCard.tsx` `Transactions.tsx` `Bills.tsx` `Split.tsx` `AmountPad.tsx` `PriceChart.tsx` `Loan.tsx` `Payoff.tsx` `CardControls.tsx`
 - `archetypes/`: `wallet.ts` `budget.ts` `entry.ts` `split.ts` `invest.ts` `debt.ts`
 
 Rules:
