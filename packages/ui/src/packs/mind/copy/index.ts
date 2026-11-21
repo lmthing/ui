@@ -4,3 +4,12 @@ export { feelingCountLine, feelingPlaceholder, readFeelings } from "./Feelings";
 export { patternReport, readFindings, seededJournal } from "./Patterns";
 export { nightMinutes, readSleepLog, sleepLogLines } from "./SleepLog";
 export { mixRead, mixTimer } from "./Soundscape";
+export {
+  canSaveReflection,
+  emptyReflection,
+  moodChange,
+  moodChoices,
+  readReflection,
+  reflectionRecord,
+  reflectionView,
+} from "./ThoughtRecord";
