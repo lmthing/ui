@@ -66,6 +66,7 @@ it("shares a rail, leaves no placeholder for absent metadata and keeps the loadi
   const wrapped = (await box(narrow)).height;
   expect(wrapped).toBeGreaterThan(typography.body.lineHeight);
   await state("loading");
+  expect(await card.getByRole("progressbar", { name: "Loading" }).count()).toBe(1);
   expect(await recipe("save").count()).toBe(0);
   expect(await card.getByRole("button").count()).toBe(0);
   expect(await recipe("r1/title").count()).toBe(0);

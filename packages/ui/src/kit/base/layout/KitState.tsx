@@ -17,6 +17,22 @@ type StateProps = {
   density?: ThemeDensity | undefined;
 };
 
+function LoadingState({ label, gap, children }: { label: string; gap: number; children: ReactNode }) {
+  return (
+    <YStack accessibilityRole="progressbar" accessibilityLabel={label} aria-busy>
+      <YStack
+        gap={gap}
+        aria-hidden
+        accessibilityElementsHidden
+        pointerEvents="none"
+        {...(isWeb ? { inert: true } : {})}
+      >
+        {children}
+      </YStack>
+    </YStack>
+  );
+}
+
 /** Default state treatment or inline feedback above retained content. */
 export function KitState({ children, loading, retain, message, part = null, icon, density }: StateProps) {
   const state = useComponentState();
@@ -24,16 +40,9 @@ export function KitState({ children, loading, retain, message, part = null, icon
   const gap = space[useVariantDensity(density).contentGap];
   if (state === "loading") {
     return (
-      <YStack
-        gap={gap}
-        aria-busy
-        aria-hidden
-        accessibilityElementsHidden
-        pointerEvents="none"
-        {...(isWeb ? { inert: true } : {})}
-      >
+      <LoadingState label={words.loadingLabel} gap={gap}>
         {loading ?? <KitSkeleton density={density} />}
-      </YStack>
+      </LoadingState>
     );
   }
   if (state === "empty")
