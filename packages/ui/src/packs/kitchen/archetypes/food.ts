@@ -17,6 +17,20 @@ export const food = {
         { id: "f1", c: "FoodLog" },
       ],
     },
+    item: {
+      recipe: [
+        { allow: ["Header"], required: true, variant: "back" },
+        { allow: ["NutritionFacts"], required: true },
+        { allow: ["List"], required: true, variant: "expand" },
+        { allow: ["Button"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header", style: "back" },
+        { id: "n1", c: "NutritionFacts" },
+        { id: "l1", c: "List", style: "expand" },
+        { id: "b1", c: "Button" },
+      ],
+    },
     add: {
       writeHints: [
         'Use one List with surface "card", no style or numbered lead, and simple food rows. Omit or null photo and body; me is false or null.',

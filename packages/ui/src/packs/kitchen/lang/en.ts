@@ -6,6 +6,23 @@ const places = { cupboard: "Cupboard", fridge: "Fridge", freezer: "Freezer" };
 export const en = {
   kcalUnit: "kcal",
   kcalLine: (value: string, unit: string) => `${value} ${unit}`,
+  nutritionFacts: {
+    calories: "Calories",
+    protein: "Protein",
+    carbs: "Carbs",
+    fat: "Fat",
+    macros: "Macronutrients (g)",
+    allergens: "Contains",
+    servings: "Servings",
+    less: "Decrease servings",
+    more: "Increase servings",
+    log: "Log portion",
+    success: "Added to food diary",
+    amount: (value: string, unit: string) => `${value} ${unit}`,
+    line: (label: string, value: string) => `${label}: ${value}`,
+    share: (value: string, percent: string) => `${value} (${percent})`,
+    list: (labels: readonly string[]) => labels.join(", "),
+  },
   cookStepUses: (uses: readonly string[]) => uses.join(" · "),
   cookStepsLabels: {
     timer: "Cooking timer",
