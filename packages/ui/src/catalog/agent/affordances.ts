@@ -90,7 +90,7 @@ export function affordancesOf(
   const own = partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
     if ((a.action === "move" && meta.items?.move) || !hasNumericRoom(meta, props, a.part, a.action))
       return [];
-    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance, get) : undefined;
+    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance, values) : undefined;
     if (send !== undefined) return send ? [{ ...a, send }] : [];
     const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
     return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
@@ -120,7 +120,7 @@ export function affordancesOf(
   ).flatMap((offer) => {
     const media = mediaOffer(meta, instance, offer);
     return media
-      ? mediaAffordance(offer, media, instance, values)
+      ? mediaAffordance(meta, props, offer, media, instance, values)
       : sequenceAffordance(meta, props, instance, offer, get);
   });
 }

@@ -20,9 +20,11 @@ import {
   isDraw,
   isRevealRelease,
   needsConfirmation,
+  mediaContext,
   standaloneEffects,
 } from "./introduced-part";
 import { actionInput, disabledHint } from "./action-input";
+import { matchesMediaConfirmation } from "../media";
 export { drivenPartBlock } from "./introduced-part";
 export { actionsAt } from "./offers";
 
@@ -54,6 +56,8 @@ function prepareStep(
   const selected = ctx.standalone ? action : selectedStep(action, entry, input, def);
   const plan = dispatchPlan(ctx, active, state.values, selected, null, markToken);
   if (!plan.ok) return { error: { ...plan, at } };
+  if (confirmed && !matchesMediaConfirmation(confirmed, plan.media?.[0]))
+    return fail("not_actionable", "The attachment changed");
   const mustMount = ctx.options.requireMounted && !confirmed && !ctx.mounted.has(action.address);
   if (mustMount && !introducedPart(ctx, state, entry, action))
     return fail("not_mounted", "This control is not mounted");
@@ -184,14 +188,4 @@ export function planSteps(
     effects.push(...result.effects);
   }
   return { state, effects, ...execution };
-}
-
-function mediaContext(media: MediaRuntime) {
-  return {
-    playMedia: media.playMedia,
-    seekMedia: media.seekMedia,
-    requestPhoto: media.requestPhoto,
-    mediaEffect: media.effect,
-    attachmentReference: media.attachmentReference,
-  };
 }

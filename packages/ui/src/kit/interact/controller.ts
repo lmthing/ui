@@ -89,7 +89,7 @@ export function createScreenController(options: ControllerOptions & { currency?:
       const unregister = access.registerPart(address);
       return () => {
         unregister();
-        queueMicrotask(media.reconcile);
+        if (options.attachments || options.resolvePlayback) queueMicrotask(media.reconcile);
       };
     },
     deviceDataFor: (component: string, data = options.deviceData) => deviceDataFor(ctx, component, data),
@@ -133,7 +133,16 @@ function lifecycle(
     },
     snapshotScreen: () => {
       const values = ctx.valuesOf();
-      return projectScreen(ctx.screen, ctx.defs, values, ctx.now(), ctx.status.openSheet);
+      return projectScreen(
+        ctx.screen,
+        ctx.defs,
+        values,
+        ctx.now(),
+        ctx.status.openSheet,
+        false,
+        true,
+        ctx.options.deviceData,
+      );
     },
     reset() {
       ctx.status.openSheet = undefined;

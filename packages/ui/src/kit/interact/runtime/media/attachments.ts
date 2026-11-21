@@ -1,36 +1,37 @@
 import {
   attachmentKey,
+  attachmentSource,
   planAct,
   validMediaReference,
   withDisabledSelectionChecks,
-  type AttachmentStatus,
-  type MediaOffer,
 } from "../../../../catalog";
 import type { ControllerContext } from "../index";
-import { attachmentCommand } from "./media-host";
+import { attachmentCommand, sameAttachment, type AttachmentEntry, type AttachmentOffer } from "./media-host";
 
-type Offer = Extract<MediaOffer, { kind: "attachment" }>;
-type Job = { abort: AbortController; token: symbol | undefined };
+type Job = { abort: AbortController; token: symbol | undefined; before?: AttachmentEntry | undefined };
 
-function slot(ctx: ControllerContext, address: string) {
-  const [id, ...target] = ctx.relative(address).split("/");
-  return ctx.key(id!, attachmentKey(target.join("/") || "root"));
+function mirror(ctx: ControllerContext, address: string, entry?: AttachmentEntry) {
+  const [id, ...target] = address.split("/");
+  ctx.store.set(
+    ctx.key(id!, attachmentKey(target.join("/") || "root")),
+    entry && { phase: entry.phase, present: entry.reference !== undefined },
+  );
 }
 
-function admitted(ctx: ControllerContext, offer: Offer, job: Job) {
+function admitted(ctx: ControllerContext, offer: AttachmentOffer, job?: Job) {
   const { address, spec } = offer;
-  if (ctx.options.requireMounted && ctx.mounted.get(address) !== job.token) return false;
+  if (job && ctx.options.requireMounted && ctx.mounted.get(address) !== job.token) return false;
   if (ctx.disabledParts.has(address)) return false;
-  const at = ctx.now();
-  const values = ctx.valuesOf(at);
+  const now = ctx.now();
+  const values = ctx.valuesOf(now);
   const sheet = ctx.status.openSheet;
-  const screen = withDisabledSelectionChecks(
-    ctx.liveScreen(values, sheet, Boolean(sheet), at),
-    ctx.disabledParts,
-  );
   const action = spec.intent === "scan" ? "scan" : "press";
   try {
-    return planAct(
+    const screen = withDisabledSelectionChecks(
+      ctx.liveScreen(values, sheet, Boolean(sheet), now),
+      ctx.disabledParts,
+    );
+    const plan = planAct(
       screen,
       ctx.defs,
       values,
@@ -38,81 +39,87 @@ function admitted(ctx: ControllerContext, offer: Offer, job: Job) {
       null,
       "controller",
       ctx.options.deviceData,
-      at,
-    ).ok;
+      now,
+    );
+    return plan.ok && sameAttachment(offer, plan.media?.[0]);
   } catch {
     return false;
   }
 }
 
-export function createAttachments(ctx: ControllerContext) {
-  const refs = new Map<string, string>();
-  const jobs = new Map<string, Job>();
-  const slots = new Set<string>();
-  const reference = (address: string) => refs.get(`${ctx.screen.id}/${ctx.relative(address)}`);
-  function set(address: string, phase: AttachmentStatus["phase"]) {
-    const key = slot(ctx, address);
-    slots.add(key);
-    ctx.store.set(key, { phase, present: refs.has(address) } satisfies AttachmentStatus);
-    ctx.notifyChange();
-  }
-  async function run(offer: Offer) {
-    const host = ctx.options.attachments;
-    if (!host || ctx.status.disposed) return;
-    const command = attachmentCommand(ctx.screen.id, offer);
-    const { address, source, intent } = command;
-    const job = { abort: new AbortController(), token: ctx.mounted.get(offer.address) };
-    if (!admitted(ctx, offer, job)) return;
-    const previous = jobs.get(address);
-    jobs.set(address, job);
-    previous?.abort.abort();
-    const input = source ? refs.get(source) : undefined;
-    set(address, "pending");
-    const current = () => !ctx.status.disposed && jobs.get(address) === job;
-    let output: Awaited<ReturnType<typeof host.run>> | undefined;
-    try {
-      if (current() && (!source || input !== undefined))
-        output = await host.run({
-          ...command,
-          ...(input ? { reference: input } : {}),
-          signal: job.abort.signal,
-        });
-    } catch {
-      // Errors from the host may contain private provider details.
-    }
-    if (!current()) return;
-    jobs.delete(address);
-    if (!admitted(ctx, offer, job) || (source && refs.get(source) !== input)) {
-      ctx.store.set(slot(ctx, address), refs.has(address) ? { phase: "ready", present: true } : undefined);
-      return;
-    }
-    if (
-      output?.status !== "accepted" ||
-      (output.reference !== undefined && !validMediaReference(output.reference)) ||
-      (output.reference === undefined && (intent === "pick" || intent === "scan"))
-    )
-      return set(address, "error");
-    if (output.reference === undefined) refs.delete(address);
-    else refs.set(address, output.reference);
-    set(address, "ready");
-  }
-  return {
-    run: (offer: Offer) => void run(offer),
-    reference,
-    clear: () => clearAttachments(ctx, refs, jobs, slots),
-  };
+function storeEntry(ctx: ControllerContext, address: string, entry?: AttachmentEntry) {
+  if (entry) ctx.attachmentEntries.set(address, entry);
+  else ctx.attachmentEntries.delete(address);
+  mirror(ctx, address, entry);
 }
 
-function clearAttachments(
-  ctx: ControllerContext,
-  refs: Map<string, string>,
-  jobs: Map<string, Job>,
-  slots: Set<string>,
-) {
-  const pending = [...jobs.values()];
-  jobs.clear();
-  refs.clear();
-  if (slots.size) ctx.store.setMany(Object.fromEntries([...slots].map((key) => [key, undefined])));
-  slots.clear();
-  for (const { abort } of pending) abort.abort();
+async function run(ctx: ControllerContext, jobs: Map<string, Job>, offer: AttachmentOffer) {
+  const host = ctx.options.attachments;
+  if (!host || ctx.status.disposed) return;
+  const { address, spec } = offer;
+  const token = ctx.mounted.get(address);
+  const prior = ctx.attachmentEntries.get(address);
+  const previous = jobs.get(address);
+  const base = previous ? previous.before : prior;
+  const before = base && sameAttachment(base.offer, offer) ? base : undefined;
+  const job: Job = { abort: new AbortController(), token, before };
+  if (!admitted(ctx, offer, job)) return;
+  jobs.set(address, job);
+  previous?.abort.abort();
+  const source = attachmentSource(offer);
+  const input = source ? ctx.attachmentEntries.get(source)?.reference : undefined;
+  const pending: AttachmentEntry = { ...before, offer, phase: "pending" };
+  storeEntry(ctx, address, pending);
+  const current = () => !ctx.status.disposed && jobs.get(address) === job;
+  let output: Awaited<ReturnType<typeof host.run>> | undefined;
+  try {
+    if (current() && admitted(ctx, offer, job))
+      output = await host.run({
+        ...attachmentCommand(ctx.screen.id, offer),
+        ...(input ? { reference: input } : {}),
+        signal: job.abort.signal,
+      });
+  } catch {
+    // Provider errors are not readable data.
+  }
+  if (!current()) return;
+  jobs.delete(address);
+  if (!admitted(ctx, offer, job)) storeEntry(ctx, address, before);
+  else if (
+    output?.status !== "accepted" ||
+    (output.reference !== undefined && !validMediaReference(output.reference)) ||
+    (output.reference === undefined && (spec.intent === "pick" || spec.intent === "scan"))
+  )
+    storeEntry(ctx, address, { ...pending, phase: "error" });
+  else storeEntry(ctx, address, { offer, phase: "ready", reference: output.reference, revision: Symbol() });
+  ctx.notifyChange();
+}
+
+export function createAttachments(ctx: ControllerContext) {
+  const jobs = new Map<string, Job>();
+  return {
+    run: (offer: AttachmentOffer) => void run(ctx, jobs, offer),
+    reference(address: string) {
+      const stored = ctx.attachmentEntries.get(ctx.relative(address));
+      if (stored?.reference && admitted(ctx, stored.offer)) return stored.reference;
+    },
+    reconcile() {
+      for (const [address, job] of jobs) {
+        const entry = ctx.attachmentEntries.get(address);
+        if (!entry || !admitted(ctx, entry.offer, job)) {
+          jobs.delete(address);
+          storeEntry(ctx, address, job.before);
+          job.abort.abort();
+        }
+      }
+    },
+    clear() {
+      const pending = [...jobs.values()];
+      jobs.clear();
+      const addresses = [...ctx.attachmentEntries.keys()];
+      ctx.attachmentEntries.clear();
+      for (const address of addresses) mirror(ctx, address);
+      for (const { abort } of pending) abort.abort();
+    },
+  };
 }

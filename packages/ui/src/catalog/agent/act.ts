@@ -32,7 +32,7 @@ import { sequenceKey, stageSequence } from "./media";
 import type { MediaOffer } from "./media";
 export type ActStep = { address: string; action: string; value?: unknown; recordTarget?: string };
 export type Values = Record<string, unknown>;
-export type SendDraft = { address: string; text: string; audience?: string; attachment?: string };
+export type SendDraft = { address: string; text: string; audience?: string; attachments?: readonly string[] };
 type ActCode = "not_actionable" | "invalid_value" | "random_unavailable" | "max_active";
 export type ActResult =
   | {
@@ -181,7 +181,9 @@ export function planAct(
       (plan.sends ??= []).push({
         ...found.send,
         address: `${screen.id}/${found.send.address}`,
-        ...(found.send.attachment ? { attachment: `${screen.id}/${found.send.attachment}` } : {}),
+        ...(found.send.attachments
+          ? { attachments: found.send.attachments.map((part) => `${screen.id}/${part}`) }
+          : {}),
       });
     changed.push(`${address} ${step.action}${key in next ? ` = ${JSON.stringify(next[key])}` : ""}`);
   }

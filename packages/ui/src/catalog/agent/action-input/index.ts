@@ -43,10 +43,11 @@ export function validateStep(
 ) {
   const edit = setStep(screen, defs, found.address, step.action, values);
   if (found.sequence?.action === "seek") {
-    const { implicit, max } = found.sequence;
+    const { implicit, min, max } = found.sequence;
     const result = validateActionValue(step.action, step.value, undefined, {
       max,
-      ...(implicit === undefined ? {} : { implicit }),
+      min,
+      implicit,
     });
     return { result: result ?? { value: implicit ?? step.value }, edit, limits: undefined };
   }

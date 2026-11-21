@@ -60,6 +60,7 @@ export { planAct, type ActStep, type ActResult, type SendDraft, type Values } fr
 export {
   attachmentKey,
   attachmentOwner,
+  attachmentSource,
   clipKey,
   mediaHostKey,
   mediaOffer,

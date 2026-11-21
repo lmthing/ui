@@ -39,9 +39,18 @@ export type ActionEvent = ActStep & { delivery?: SendDraft };
 export function actionDelivery(action: ActStep): SendDraft | undefined {
   return (action as ActionEvent).delivery;
 }
-export type SendHandler = (text: string, address: string, audience?: string, attachment?: string) => void;
-export function deliverSend({ text, address, audience }: SendDraft, send?: SendHandler, reference?: string) {
-  if (reference !== undefined) send?.(text, address, audience, reference);
+export type SendHandler = (
+  text: string,
+  address: string,
+  audience?: string,
+  attachments?: readonly string[],
+) => void;
+export function deliverSend(
+  { text, address, audience }: SendDraft,
+  send?: SendHandler,
+  references?: readonly string[],
+) {
+  if (references?.length) send?.(text, address, audience, references);
   else if (audience === undefined) send?.(text, address);
   else send?.(text, address, audience);
 }

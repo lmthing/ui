@@ -36,7 +36,7 @@ function open(runtime: ClipRuntime, offer: Offer, reference: string) {
       at: 0,
       onTime: () => {},
       onPlaying: (playing) => {
-        if (runtime.active !== clip || !clip.playing) return;
+        if (runtime.active !== clip || !clip.session || !clip.playing) return;
         if (!playing) clip.playing = false;
         runtime.ctx.store.set(at, playing);
       },

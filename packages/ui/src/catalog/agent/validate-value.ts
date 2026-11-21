@@ -100,7 +100,7 @@ export function validateActionValue(
   limits?: NumericLimits | StringLimits,
   seek?: SeekLimits,
 ): ValueError | null {
-  if (action === "seek" && seek) return validateSequenceSeek(value, seek);
+  if (seek && (action === "seek" || action === "set")) return validateSequenceSeek(value, seek);
   const rule = rules[action];
   if (!rule) return { code: "invalid_value", hint: `unknown action ${action}` };
   if (!rule[0](value)) return { code: "invalid_value", hint: rule[1] };

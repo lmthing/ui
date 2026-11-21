@@ -117,21 +117,25 @@ function ActionContent({
   );
 }
 
-function useActionPress(props: ActionProps, address: string, inactive: boolean) {
-  const kit = useKit();
-  if (!kit.interactive || inactive) return {};
-  if (kit.controller)
-    return {
-      onPress: () =>
-        props.action
-          ? kit.controller!.act({
-              address,
-              action: props.action,
-              ...(props.value === undefined ? {} : { value: props.value }),
-            })
-          : kit.controller!.press(address),
-    };
-  return props.goto ? { onPress: () => kit.onLink?.(props.goto!, address) } : {};
+function useActionPress({ action, value, goto }: ActionProps, address: string, inactive: boolean) {
+  const { interactive, controller, onLink } = useKit();
+  if (!interactive || inactive) return {};
+  if (!controller) return goto ? { onPress: () => onLink?.(goto, address) } : {};
+  const onPress = () =>
+    action
+      ? controller.act({ address, action, ...(value === undefined ? {} : { value }) })
+      : controller.press(address);
+  if (!isWeb || !controller.mediaKeyTarget?.(address)) return { onPress };
+  return {
+    onPress,
+    tabIndex: 0 as const,
+    onKeyDown(event: { key?: string; repeat?: boolean; preventDefault(): void; stopPropagation(): void }) {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (!event.repeat) onPress();
+    },
+  };
 }
 
 export function KitAction({

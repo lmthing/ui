@@ -3,7 +3,14 @@ import { createRoot } from "react-dom/client";
 import { TamaguiProvider } from "tamagui";
 import { z } from "zod";
 import { components, themeName, type Definition } from "@lmthing/ui/catalog";
-import { KitAction, KitPlayback, PartScope, usePartContext, type MediaAdapter } from "@lmthing/ui/kit";
+import {
+  KitAction,
+  KitPlayback,
+  PartScope,
+  useLiveControls,
+  usePartContext,
+  type MediaAdapter,
+} from "@lmthing/ui/kit";
 import { PhoneScreen } from "../../../src/kit/screen";
 import { config } from "../../render";
 
@@ -13,10 +20,14 @@ const definition: Definition = {
   meta: {
     ...components.Button.meta,
     id: "MediaFixture",
-    actions: { items: { clip: ["play", "pause", "stop"] } },
-    items: { key: "clips", parts: ["clip"], media: { playback: { clip: { video: true } } } },
+    actions: { parts: { position: ["seek"] }, items: { clip: ["play", "pause", "stop"], root: ["seek"] } },
+    sequence: { seek: "position", item: "root", cursor: "cursor" },
+    items: { key: "clips", parts: ["clip", "root"], media: { playback: { clip: { video: true } } } },
   },
-  props: z.strictObject({ clips: z.array(z.strictObject({ label: z.string() })) }),
+  props: z.strictObject({
+    clips: z.array(z.strictObject({ label: z.string() })),
+    cursor: z.int().optional(),
+  }),
 };
 const clips = [{ label: "Play first clip" }, { label: "Play second clip" }];
 const screen = { id: "home", components: [{ id: "clips", c: "MediaFixture", clips }] };
@@ -32,14 +43,21 @@ const resolvePlayback = (address: string) => (address.includes("/r1/") ? "first_
 
 function MediaFixture() {
   const scope = usePartContext();
-  return clips.map(({ label }, index) => (
-    <PartScope key={label} {...scope} item={`r${index + 1}`}>
-      <KitPlayback part="clip" style="video">
-        <div>{`Clip ${index + 1} preview`}</div>
-      </KitPlayback>
-      <KitAction part="clip" label={label} />
-    </PartScope>
-  ));
+  const live = useLiveControls(definition.meta, { clips });
+  return (
+    <>
+      <output>{`Frame ${Number(live.cursor) + 1}`}</output>
+      {clips.map(({ label }, index) => (
+        <PartScope key={label} {...scope} item={`r${index + 1}`}>
+          <KitPlayback part="clip" style="video">
+            <div>{`Clip ${index + 1} preview`}</div>
+          </KitPlayback>
+          <KitAction part="clip" label={label} />
+          <KitAction action="seek" label={`Seek to frame ${index + 1}`} />
+        </PartScope>
+      ))}
+    </>
+  );
 }
 
 createRoot(document.getElementById("root")!).render(

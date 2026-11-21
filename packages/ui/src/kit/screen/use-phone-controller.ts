@@ -24,23 +24,9 @@ function useCommittedDeviceData(
 }
 
 export function usePhoneController(props: PhoneScreenProps) {
-  const {
-    screen,
-    defs,
-    interaction,
-    interactive = true,
-    media,
-    resolveMedia,
-    onLink,
-    onAction,
-    onChange,
-    onSend,
-    requestPhoto,
-  } = props;
-  const language = useRef(props.lang);
-  language.current = props.lang;
-  const callbacks = useRef({ onLink, onAction, resolveMedia, onChange, onSend, requestPhoto });
-  callbacks.current = { onLink, onAction, resolveMedia, onChange, onSend, requestPhoto };
+  const { screen, defs, interaction, interactive = true, media, resolveMedia, requestPhoto } = props;
+  const current = useRef(props);
+  current.current = props;
   const localStore = useMemo(() => createInteractionStore(), [screen.id]);
   const store = interaction ?? localStore;
   const hasMediaResolver = Boolean(resolveMedia);
@@ -50,7 +36,7 @@ export function usePhoneController(props: PhoneScreenProps) {
       screen,
       defs,
       get lang() {
-        return language.current;
+        return current.current.lang;
       },
       get deviceData() {
         return committed.deviceData;
@@ -58,13 +44,17 @@ export function usePhoneController(props: PhoneScreenProps) {
       store,
       interactive,
       requireMounted: true,
-      ...phoneCallbacks(callbacks),
-      resolvePlayback: props.resolvePlayback,
-      attachments: props.attachments,
+      ...phoneCallbacks(current),
+      get attachments() {
+        return current.current.attachments;
+      },
+      get resolvePlayback() {
+        return current.current.resolvePlayback;
+      },
       media:
         media ??
         (hasMediaResolver
-          ? browserMediaAdapter((reference) => callbacks.current.resolveMedia?.(reference))
+          ? browserMediaAdapter((reference) => current.current.resolveMedia?.(reference))
           : undefined),
     });
     return { controller, committed };
@@ -72,8 +62,8 @@ export function usePhoneController(props: PhoneScreenProps) {
     screen,
     defs,
     media,
-    props.resolvePlayback,
-    props.attachments,
+    Boolean(props.attachments),
+    Boolean(props.resolvePlayback),
     hasMediaResolver,
     store,
     interactive,
@@ -91,7 +81,10 @@ function phoneCallbacks(callbacks: {
 }): Pick<PhoneScreenProps, "onChange" | "onSend" | "requestPhoto" | "onLink" | "onAction"> {
   return {
     onChange: (changed, values) => callbacks.current.onChange?.(changed, values),
-    onSend: (...args) => callbacks.current.onSend?.(...args),
+    onSend: (text, address, audience, attachments) =>
+      attachments?.length
+        ? callbacks.current.onSend?.(text, address, audience, attachments)
+        : callbacks.current.onSend?.(text, address),
     ...(callbacks.current.requestPhoto
       ? {
           requestPhoto: (address: string) =>

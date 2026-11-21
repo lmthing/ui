@@ -25,7 +25,7 @@ import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
 import { visibleConfirmation } from "./read-controls";
 import { createPrivateMarks } from "./private-mark";
-import { mediaHostGate } from "./media";
+import { mediaHostGate, type AttachmentEntries } from "./media";
 export type Confirmation = {
   message: string;
   kind: "primary" | "secondary" | "quiet" | "danger";
@@ -33,6 +33,7 @@ export type Confirmation = {
   goto?: string;
   step?: ActStep;
   removal?: ReportRemoval;
+  mediaBound?: true;
 };
 export type ControllerOptions = {
   screen: ScreenLike;
@@ -131,13 +132,14 @@ export function createControllerContext(options: ControllerOptions, standalone =
   const { defs, now = Date.now, store = createInteractionStore() } = options;
   const screen = controllerScreen(options, standalone);
   const disabledParts = new Map<string, symbol>();
+  const attachmentEntries: AttachmentEntries = new Map();
   let initial = standalone ? {} : initialValues(screen, defs, now);
   const status = {
     disposed: false,
     openSheet: standalone ? undefined : (store.get(`${screen.id}/$sheet`) as string | undefined),
     confirmation: store.get(`${screen.id}/$confirmation`) as Confirmation | undefined,
   };
-  const host = mediaHostGate(options, screen.id);
+  const host = mediaHostGate(options, screen.id, attachmentEntries);
   const localOnly = standalone && !host && !screen.components.some(({ c }) => defs[c]?.meta.recordRuntime);
   const valuesOf = (at = now()) =>
     localOnly
@@ -173,6 +175,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
     },
     mounted: new Map<string, symbol>(),
     disabledParts,
+    attachmentEntries,
     privateMarks: createPrivateMarks(),
     key: (id: string, part: string) => valueKey(screen.id, id, part),
     relative: (address: string) => relativeAddress(screen.id, address),
@@ -180,7 +183,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
     inputOf: (entry: ScreenComponent) => entryInput(defs, entry),
     notifyChange: () =>
       options.onChange?.(
-        projectScreen(screen, defs, valuesOf(), now(), status.openSheet, true),
+        projectScreen(screen, defs, valuesOf(), now(), status.openSheet, true, true, options.deviceData),
         store.snapshot(),
       ),
   };

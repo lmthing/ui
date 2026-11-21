@@ -8,6 +8,7 @@ type Get = (part: string) => unknown;
 export type SequenceState = { index: number; since?: number; elapsedMs?: number };
 type SequenceOffer = {
   index: number;
+  min?: number | undefined;
   max: number;
   since?: number | undefined;
   elapsedMs?: number | undefined;
@@ -20,14 +21,21 @@ export function sequenceState(meta: Meta, props: Values, get: Get) {
   const spec = meta.sequence;
   if (!spec) return;
   const rows = visibleItems(meta, props);
-  const max = rows.length - 1;
+  const min = spec.first ?? 0;
+  const count = typeof spec.count === "string" ? props[spec.count] : (spec.count ?? rows.length);
+  const max = min + (Number.isSafeInteger(count) && Number(count) > 0 ? Number(count) - 1 : -1);
   const saved = get(sequenceKey) as SequenceState | undefined;
   const seed = props[spec.cursor];
   const interval = spec.controls?.intervalMs;
-  const index = Math.max(0, Math.min(max, saved?.index ?? (Number.isSafeInteger(seed) ? Number(seed) : 0)));
+  const start = spec.controls?.start;
+  const auto = start === true || Boolean(start && props[start.prop] === start.equals);
+  const index = Math.max(
+    min,
+    Math.min(max, saved?.index ?? (Number.isSafeInteger(seed) ? Number(seed) : min)),
+  );
   const since =
-    max >= 0 && interval && Number.isSafeInteger(interval) && interval > 0 ? saved?.since : undefined;
-  return { rows, max, index, since, interval, elapsedMs: saved?.elapsedMs };
+    max >= min && interval && Number.isSafeInteger(interval) && interval > 0 ? saved?.since : undefined;
+  return { rows, min, max, index, since, interval, auto, elapsedMs: saved?.elapsedMs };
 }
 
 export function sequenceAffordance(
@@ -45,35 +53,41 @@ export function sequenceAffordance(
   const own = target === spec.seek;
   const row = spec.item && target !== offer.part && spec.item === offer.part;
   const control = target === spec.controls?.part;
-  const { index, max, since, rows } = state;
-  if (action === "seek" && (own || row)) {
-    const implicit = own ? undefined : rows.findIndex(({ id }) => String(id) === target.split("/")[0]);
-    if (max < 0 || implicit === -1) return [];
+  const { index, min, max, since, rows } = state;
+  if ((action === (spec.seekAction ?? "seek") && own) || (action === "seek" && row)) {
+    const implicit = own ? undefined : min + rows.findIndex(({ id }) => String(id) === target.split("/")[0]);
+    if (max < min || (implicit !== undefined && (implicit < min || implicit > max))) return [];
     return [
       {
         ...offer,
-        detail: implicit === undefined ? ` = ${index}; range 0..${max}` : `:${implicit}`,
-        sequence: { action, index, max, since, implicit },
+        detail: implicit === undefined ? ` = ${index}; range ${min}..${max}` : `:${implicit}`,
+        sequence: { action: "seek", index, min, max, since, implicit },
       },
     ];
   }
-  if (
-    (action === "increment" && (own || target === spec.steps?.next)) ||
-    (action === "decrement" && (own || target === spec.steps?.previous))
-  ) {
-    if (max < 0 || (action === "increment" ? index === max : index === 0)) return [];
-    return [{ ...offer, detail: ` = ${index}`, sequence: { action, index, max, since } }];
+  const step = sequenceStep(spec, target, action);
+  if (step) {
+    if (max < min || (step === "increment" ? index === max : index === min)) return [];
+    const detail = action === "press" ? (step === "increment" ? ":next" : ":previous") : ` = ${index}`;
+    return [{ ...offer, detail, sequence: { action: step, index, min, max, since } }];
   }
   if (!control || (action !== "play" && action !== "pause" && action !== "stop")) return [offer];
-  if (max < 0 || !Number.isSafeInteger(state.interval) || state.interval! <= 0) return [];
+  if (max < min || !Number.isSafeInteger(state.interval) || state.interval! <= 0) return [];
   if (action === "pause" ? since === undefined : action === "play" && since !== undefined) return [];
   return [
     {
       ...offer,
       detail: since === undefined ? ":paused" : ":playing",
-      sequence: { action, index, max, since, interval: state.interval, elapsedMs: state.elapsedMs },
+      sequence: { action, index, min, max, since, interval: state.interval, elapsedMs: state.elapsedMs },
     },
   ];
+}
+
+function sequenceStep(spec: NonNullable<Meta["sequence"]>, target: string, action: string) {
+  if (target === spec.steps?.next && action === "press") return "increment";
+  if (target === spec.steps?.previous && action === "press") return "decrement";
+  if (action === "increment" && (target === spec.seek || target === spec.steps?.next)) return action;
+  if (action === "decrement" && (target === spec.seek || target === spec.steps?.previous)) return action;
 }
 
 export function stageSequence(offer: SequenceOffer, value: unknown, now: number): SequenceState {
@@ -96,7 +110,7 @@ export function stageSequence(offer: SequenceOffer, value: unknown, now: number)
       return cursor > offer.max ? { index: offer.max } : { index: cursor, elapsedMs: elapsed % interval };
     }
     case "stop":
-      return { index: 0 };
+      return { index: offer.min ?? 0 };
   }
 }
 
@@ -108,14 +122,15 @@ export function projectSequence(meta: Meta, props: Values, get: Get) {
     : props;
 }
 
-export type SeekLimits = { max: number; implicit?: number };
+export type SeekLimits = { min?: number | undefined; max: number; implicit?: number | undefined };
 export function validateSequenceSeek(value: unknown, limits: SeekLimits) {
   const invalid = (hint: string) => ({ code: "invalid_value" as const, hint });
   if (limits.implicit !== undefined)
     return value === undefined || value === limits.implicit
       ? null
       : invalid("Use this item's index or no value");
-  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 && value <= limits.max
+  const min = limits.min ?? 0;
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= min && value <= limits.max
     ? null
-    : invalid(`Seek takes an integer from 0 to ${limits.max}`);
+    : invalid(`Use an integer from ${min} to ${limits.max}`);
 }

@@ -12,7 +12,12 @@ import type { MediaSession } from "../../index";
 import type { ControllerContext } from "../index";
 import { createAttachments } from "./attachments";
 import { createClips } from "./clips";
-export { mediaHostGate } from "./media-host";
+export {
+  mediaHostGate,
+  bindMediaConfirmation,
+  matchesMediaConfirmation,
+  type AttachmentEntries,
+} from "./media-host";
 function applyPhoto(ctx: ControllerContext, target: string, reference: string) {
   const step = { address: ctx.relative(target), action: "press" };
   const [id, ...parts] = step.address.split("/");
@@ -135,7 +140,10 @@ export function createMediaRuntime(ctx: ControllerContext) {
     mountMedia,
     activeMedia: clips.session,
     attachmentReference: attachments.reference,
-    reconcile: clips.reconcile,
+    reconcile: () => {
+      attachments.reconcile();
+      clips.reconcile();
+    },
     effect: (offer: MediaOffer, action: string) =>
       offer.kind === "attachment" ? attachments.run(offer) : clips.act(offer, action),
     playMedia: (id: string, playing: boolean) => playMedia(ctx, mountMedia(id), id, playing),

@@ -102,3 +102,84 @@ it("mounts a single discrete clock, preserves pause progress and snapshots the c
     vi.useRealTimers();
   }
 });
+
+it("snapshots the same bounded cursor when the host removes panels", () => {
+  let count = 3;
+  const narrowed: Definition = {
+    ...sequence,
+    meta: {
+      ...sequence.meta,
+      deviceData: ["rows"],
+      items: {
+        ...sequence.meta.items!,
+        deviceData: { rows: (data) => data.rows ?? [], schema: z.strictObject({ hidden: z.boolean() }) },
+      },
+    },
+  };
+  const runtime = createScreenController({
+    defs: { SequenceFixture: narrowed },
+    screen,
+    get deviceData() {
+      return { rows: Array.from({ length: count }, () => ({ hidden: false })) };
+    },
+  });
+  try {
+    expect(runtime.act(seek(2)).ok).toBe(true);
+    count = 1;
+    expect(runtime.read()).toContain("[q/position seek = 0; range 0..0]");
+    expect(runtime.snapshotScreen().components[0]).toMatchObject({
+      cursor: 0,
+      panels: screen.components[0]!.panels,
+    });
+    expect(runtime.act(seek(2)).ok).toBe(false);
+  } finally {
+    runtime.dispose();
+  }
+});
+
+it("supports one-based press navigation and a counted set scrubber without wire items", () => {
+  let now = 0;
+  const counted: Definition = {
+    ...sequence,
+    meta: {
+      ...components.Button.meta,
+      id: "CountedFixture",
+      actions: { parts: { frame: ["set"], previous: ["press"], next: ["press"] } },
+      sequence: {
+        cursor: "frame",
+        first: 1,
+        count: "total",
+        seek: "frame",
+        seekAction: "set",
+        steps: { previous: "previous", next: "next" },
+        controls: { part: "play", intervalMs: 250, start: true },
+      },
+    },
+    props: z.strictObject({ frame: z.int().optional(), total: z.int().min(1) }),
+  };
+  const runtime = createScreenController({
+    defs: { CountedFixture: counted },
+    screen: { id: "s", components: [{ id: "q", c: "CountedFixture", frame: 1, total: 3 }] },
+    now: () => now,
+  });
+  try {
+    expect(runtime.read()).toContain("[q/frame set = 1; range 1..3]");
+    expect(runtime.press("q/previous").ok).toBe(false);
+    expect(runtime.press("q/next").ok).toBe(true);
+    expect(runtime.snapshotScreen().components[0]?.frame).toBe(2);
+    for (const value of [0, 2.5, 4])
+      expect(runtime.act({ address: "q/frame", action: "set", value }).ok).toBe(false);
+    expect(runtime.act({ address: "q/frame", action: "set", value: 3 }).ok).toBe(true);
+    expect(runtime.press("q/next").ok).toBe(false);
+    runtime.reset();
+    now = 1000;
+    runtime.tick();
+    expect(runtime.snapshotScreen().components[0]?.frame).toBe(1);
+    runtime.mount();
+    now = 1250;
+    runtime.tick();
+    expect(runtime.snapshotScreen().components[0]?.frame).toBe(2);
+  } finally {
+    runtime.dispose();
+  }
+});

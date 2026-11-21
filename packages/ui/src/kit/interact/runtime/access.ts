@@ -93,6 +93,24 @@ function clipTap(ctx: ControllerContext, address: string, offered: string[]) {
     ? "pause"
     : "play";
 }
+function mediaKeyTarget(ctx: ControllerContext, address: string) {
+  const local = ctx.relative(address);
+  const [id, ...parts] = local.split("/");
+  const entry = ctx.sourceOf(id!);
+  const meta = entry && ctx.defs[entry.c]?.meta;
+  if (!meta) return false;
+  const target = parts.join("/") || "root";
+  const sequence = meta.sequence;
+  if (
+    sequence &&
+    [sequence.seek, sequence.controls?.part, sequence.steps?.next, sequence.steps?.previous].includes(target)
+  )
+    return true;
+  if (sequence && isPressAction(ctx, local, "seek")) return true;
+  return ["press", "scan", "play", "stop"].some((action) =>
+    [parts.at(-1) ?? "root", "root"].some((part) => mediaOffer(meta, id!, { address: local, part, action })),
+  );
+}
 function read(ctx: ControllerContext, currency?: AppCurrency) {
   const { lang, deviceData } = ctx.options;
   const { cancelLabel, confirmLabel, mediaUnavailable } = wordsFor(lang);
@@ -141,6 +159,7 @@ export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCur
       actionsAt(ctx, address, false, options?.ignoreDisabledPart),
     press: (address: string) => press(ctx, act, address),
     read: () => read(ctx, currency),
+    mediaKeyTarget: (address: string) => mediaKeyTarget(ctx, address),
     canPress: (address: string) => canPress(ctx, address),
     edit(address: string, text: string) {
       const result = act({ address, action: "type", value: text });

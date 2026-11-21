@@ -72,6 +72,7 @@ export function readAffordances(
   props = sessionActionProps(meta, props, session);
   const answers = session?.kind === "rounds" ? session.assessment?.answers : undefined;
   return affordances.map((a) => {
+    if (a.sequence) return { ...a, detail: `${a.detail}${risks[partTierAt(meta, props, a.part)] ?? ""}` };
     const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
     const options = a.action === "select" && choiceOptions(meta, props, target);
     const item = itemEditAt(meta, props, target);
@@ -83,14 +84,7 @@ export function readAffordances(
           ? item.row[item.spec.prop]
           : props[selectionOffer(meta, target)!.prop]
       : undefined;
-    // Advertise a label only when copying it back selects this option.
-    const choices =
-      options &&
-      options.map(({ label, value }) => ({
-        value,
-        offered:
-          label !== undefined && resolveChoice(options, label, !!picker)?.value === value ? label : value,
-      }));
+    const choices = offeredChoices(options, Boolean(picker));
     const set = a.action === "set" && setAt(meta, props, target);
     const linked = a.action === "type" && linkedInput(meta, target);
     const value =
@@ -119,4 +113,16 @@ export function readAffordances(
     if (a.move) detail = ` = ${JSON.stringify(a.move.current)}; choices ${JSON.stringify(a.move.choices)}`;
     return { ...a, detail: `${detail}${risks[partTierAt(meta, props, a.part)] ?? ""}` };
   });
+}
+
+function offeredChoices(options: ReturnType<typeof choiceOptions> | false, preferLabel: boolean) {
+  // Advertise a label only when copying it back selects this option.
+  return (
+    options &&
+    options.map(({ label, value }) => ({
+      value,
+      offered:
+        label !== undefined && resolveChoice(options, label, preferLabel)?.value === value ? label : value,
+    }))
+  );
 }

@@ -26,7 +26,7 @@ const fixture: Definition = {
     },
     live: {
       text: { field: { prop: "draft", max: 20 } },
-      send: { send: { field: "field", attachment: "pick" } },
+      send: { send: { field: "field", attachments: ["pick"] } },
     },
     items: {
       key: "rows",
@@ -78,7 +78,7 @@ it("checks availability, confirmation and transactions before host I/O, and deli
     expect(controller.read()).toContain("[m/export press:export !needs-ok]");
     expect(controller.read()).toContain("[m/send send]");
     expect(controller.act({ address: "m/send", action: "send" }, { agent: true }).ok).toBe(true);
-    expect(onSend).toHaveBeenCalledExactlyOnceWith("", "s/m/field", undefined, "opaque_capture");
+    expect(onSend).toHaveBeenCalledExactlyOnceWith("", "s/m/field", undefined, ["opaque_capture"]);
     expect(controller.press("m/export").ok).toBe(true);
     expect(run).toHaveBeenCalledTimes(1);
     expect(controller.press("confirm/confirm").ok).toBe(true);
@@ -136,7 +136,10 @@ it("plays one addressed clip at a time and drops callbacks after switching or st
     seek: vi.fn(),
     dispose: vi.fn(),
   }));
-  const open = vi.fn<MediaAdapter["open"]>((reference) => sessions[reference === "row_audio" ? 0 : 1]!);
+  const open = vi.fn<MediaAdapter["open"]>((reference, callbacks) => {
+    callbacks.onPlaying(false);
+    return sessions[reference === "row_audio" ? 0 : 1]!;
+  });
   const controller = createScreenController({
     defs,
     screen,
@@ -149,6 +152,7 @@ it("plays one addressed clip at a time and drops callbacks after switching or st
     expect(controller.act({ address: "m/row1", action: "play" }, { dryRun: true }).ok).toBe(true);
     expect(open).not.toHaveBeenCalled();
     expect(controller.press("m/row1").ok).toBe(true);
+    expect(sessions[0]!.play).toHaveBeenCalledOnce();
     expect(controller.activeMedia("s/m/row1")).toBe(sessions[0]);
     expect(controller.press("m/row1").ok).toBe(true);
     expect(sessions[0]!.pause).toHaveBeenCalledOnce();

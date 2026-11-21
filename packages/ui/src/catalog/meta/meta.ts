@@ -117,7 +117,7 @@ export type Meta = {
     toggles?: Readonly<Record<string, string>>; // Named toggle part → live row boolean.
     variants?: ItemVariants;
     clocks?: readonly ClockMeta[];
-    media?: LiveMeta.MediaTargets;
+    media?: LiveMeta.MediaTargets & { identity?: string };
     adjust?: NumericAdjustments;
     /** Confirmed component press part that restores item adjustments and nested step values to their seeds. */
     reset?: string;

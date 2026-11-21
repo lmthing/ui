@@ -59,3 +59,17 @@ it("attaches a clip to its addressed row, switches via the keyboard, and unmount
   await page.getByTestId("second_clip").waitFor({ state: "detached" });
   expect(await page.getByText("Clip 2 preview").count()).toBe(1);
 });
+
+it("lands on the same discrete cursor from pointer, keyboard, and agent", async () => {
+  await page.getByRole("button", { name: "Seek to frame 2" }).press("Space");
+  await expect.poll(() => page.locator("output").textContent()).toBe("Frame 2");
+  await page.getByRole("button", { name: "Seek to frame 1" }).click();
+  await expect.poll(() => page.locator("output").textContent()).toBe("Frame 1");
+  expect(await page.evaluate(() => window.__lmthingUI?.act({ address: "clips/r2", action: "seek" }).ok)).toBe(
+    true,
+  );
+  await expect.poll(() => page.locator("output").textContent()).toBe("Frame 2");
+  expect(await page.evaluate(() => window.__lmthingUI?.read())).toContain(
+    "[clips/position seek = 1; range 0..1]",
+  );
+});

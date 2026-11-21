@@ -109,11 +109,14 @@ export type MediaTargets = {
   playback?: Readonly<Partial<Record<string, { video?: true }>>>;
 };
 
-/** A zero-based sequence over the component's addressed, visible items. */
+/** A bounded cursor over addressed, visible items or a declared frame/page count. */
 export type SequenceMeta = {
-  seek: string;
+  seek?: string;
+  seekAction?: "seek" | "set";
   item?: string;
   cursor: string;
+  first?: 0 | 1;
+  count?: number | string;
   steps?: { previous?: string; next?: string };
-  controls?: { part: string; intervalMs: number };
+  controls?: { part: string; intervalMs: number; start?: true | { prop: string; equals: boolean } };
 };

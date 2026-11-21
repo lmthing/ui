@@ -29,26 +29,34 @@ function frameState(ctx: ControllerContext, values: Values, now: number, mode: "
     if (!def?.meta.sequence) continue;
     const key = ctx.key(id, sequenceKey);
     const saved = values[key] as SequenceState | undefined;
-    if (saved?.since === undefined) continue;
+    if (saved?.since === undefined && (mode !== "mount" || saved || !def.meta.sequence.controls?.start))
+      continue;
     const entry = visible.components.find((entry) => entry.id === id);
     if (mode === "pause" || !entry || (entry.state && entry.state !== "filled")) {
-      changes[key] = { index: saved.index };
+      if (saved) changes[key] = { index: saved.index };
       continue;
     }
     const { id: _id, c: _c, state: _state, ...wire } = entry;
     const get = (part: string) => local[`${id}/${part}`];
     const props = liveProps(def.meta, parseControlProps(def, wire, get), id, local, true, data, now);
-    const { index, max, interval, since } = sequenceState(def.meta, props, get)!;
-    if (since === undefined || !interval || (props.state && props.state !== "filled")) {
-      changes[key] = { index };
+    const { index, min, max, interval, since, auto } = sequenceState(def.meta, props, get)!;
+    const fromTime = since ?? (mode === "mount" && !saved && auto ? now : undefined);
+    if (
+      fromTime === undefined ||
+      !Number.isSafeInteger(interval) ||
+      interval! <= 0 ||
+      max < min ||
+      (props.state && props.state !== "filled")
+    ) {
+      if (saved) changes[key] = { index };
       continue;
     }
-    const elapsed = mode === "mount" ? 0 : Math.max(0, Math.floor((now - since) / interval));
+    const elapsed = mode === "mount" ? 0 : Math.max(0, Math.floor((now - fromTime) / interval!));
     const position = index + elapsed;
-    const from = mode === "mount" ? now : since + elapsed * interval;
+    const from = mode === "mount" ? now : fromTime + elapsed * interval!;
     changes[key] = position > max ? { index: max } : { index: position, since: from };
-    if (position <= max) next = Math.min(next, from + interval);
-    if (position === saved.index && from === saved.since) delete changes[key];
+    if (position <= max) next = Math.min(next, from + interval!);
+    if (position === saved?.index && from === saved.since) delete changes[key];
   }
   return { changes, next };
 }
@@ -72,7 +80,8 @@ export function createSequenceClock(ctx: ControllerContext) {
     }
   };
   const tick = () => update("tick");
-  const enabled = ctx.screen.components.some(({ c }) => ctx.defs[c]?.meta.sequence);
+  const enabled =
+    ctx.options.interactive !== false && ctx.screen.components.some(({ c }) => ctx.defs[c]?.meta.sequence);
   return {
     tick: () => {
       if (enabled) tick();

@@ -6,9 +6,11 @@ it("recognizes named and root parts at the correct owner", () => {
   const meta = {
     media: { attachments: { root: { intent: "pick" } } },
     items: {
+      key: "rows",
+      parts: ["root", "preview"],
       media: { attachments: { root: { intent: "scan" }, preview: { intent: "preview", source: "root" } } },
     },
-  } as Meta;
+  } satisfies Pick<Meta, "media" | "items">;
   const pick = mediaOffer(meta, "m", { address: "m", part: "root", action: "press" });
   const scan = mediaOffer(meta, "m", { address: "m/r1", part: "root", action: "scan" });
   const preview = mediaOffer(meta, "m", { address: "m/r1/preview", part: "preview", action: "press" });
