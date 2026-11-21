@@ -1,4 +1,6 @@
 import type { Meta } from "../../meta";
+import type { Definition } from "../../probes";
+import type { StateName } from "../../types";
 import { isNestedTarget, nestedControls, nestedRemaining, type Affordance, type Values } from "../index";
 import { hasNestedCollectionControls, nestedCapacityBlocked } from "../nested";
 
@@ -9,8 +11,9 @@ export function nestedActions(
   items: Affordance[],
   get: (part: string) => unknown,
   includeBlocked: boolean,
+  schema?: Definition["props"],
 ) {
-  const controls = nestedControls(meta, props, get);
+  const controls = nestedControls(meta, props, get, schema);
   const targets = new Set(controls.map(({ target }) => `${instance}/${target}`));
   const policy = meta.items?.nested;
   const remaining = nestedRemaining(meta, props, controls);
@@ -49,6 +52,16 @@ export function nestedActions(
 }
 
 const valueDetail = (value: unknown) => (value === undefined ? "" : ` = ${JSON.stringify(value)}`);
+
+export function actionAllowedIn(meta: Meta, state: StateName, pair: string, draw = false, feedback = false) {
+  const errorOnly = meta.errorActions?.some((allowed) => allowed === pair);
+  if (errorOnly) return state === "error";
+  if (state === "filled") return true;
+  if (state === "empty") return meta.emptyActions?.some((allowed) => allowed === pair);
+  return (
+    (state === "success" || feedback) && (draw || meta.successActions?.some((allowed) => allowed === pair))
+  );
+}
 
 /** A rule reads from the item first, then from its component. */
 export function matches(

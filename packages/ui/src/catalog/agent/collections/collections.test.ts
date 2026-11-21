@@ -2,7 +2,7 @@ import { expect, it } from "vitest";
 import { z } from "zod";
 import { text } from "../../props";
 import type { Definition } from "../../probes";
-import { planAct, readScreen, type ActStep, type Values } from "../index";
+import { parseControlProps, planAct, readScreen, slotMoveOffer, type ActStep, type Values } from "../index";
 
 const row = z.strictObject({
   key: z.string(),
@@ -164,4 +164,23 @@ it("rechecks locks, compatibility and visibility, including displacements and st
     ],
   };
   expect(planAct(locked, defs, {}, [step("r_card_a/swap", "move", "r_card_c")])).toMatchObject({ ok: false });
+});
+
+it("offers the same moves to the view, the reader and dispatch in success", () => {
+  const { id: _id, c: _c, ...raw } = seed;
+  const props = parseControlProps(def, raw);
+  const success = { ...screen, components: [{ ...seed, state: "success" as const }] };
+  const move = step("r_card_a/swap", "move", "r_card_c");
+  const offer = (meta: Definition["meta"]) =>
+    slotMoveOffer(meta, props, "first", "r_card_a", "swap", "success");
+  expect(offer(def.meta)).toBeUndefined();
+  expect(readScreen(success, defs)).not.toContain("/swap move");
+  expect(planAct(success, defs, {}, [move])).toMatchObject({ ok: false, code: "not_actionable" });
+  const enabled = { ...def, meta: { ...def.meta, successActions: ["swap.move"] as const } };
+  const registry = { CollectionsFixture: enabled };
+  expect(offer(enabled.meta)?.move.choices).toEqual(["r_card_c"]);
+  expect(readScreen(success, registry)).toContain(
+    '[c1/r_card_a/swap move = "r_card_a"; choices ["r_card_c"]]',
+  );
+  expect(planAct(success, registry, {}, [move])).toMatchObject({ ok: true });
 });

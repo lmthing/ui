@@ -5,7 +5,7 @@ import { choiceValues, type ChoiceOption } from "./validate-value";
 import { adjustmentAt, clockActionValid, clockControlDeclared, hasNumericRoom } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
-import { addressedItems, nestedActions, visibleItems } from "./visibility";
+import { actionAllowedIn, addressedItems, nestedActions, visibleItems } from "./visibility";
 import { sendDraft, type LiveInput } from "./live-inputs";
 import type { SendDraft } from "./act";
 import { boundActionAvailable, isItemOffer } from "./selection-binding";
@@ -104,7 +104,7 @@ export function affordancesOf(
     visible && !visible.has(item) ? [] : actionsForItem(meta, props, item, instance, index === 0, context),
   );
   const runtime = values[`${instance}/$runtime`];
-  const nested = nestedActions(meta, props, instance, itemActions, get, includeBlocked);
+  const nested = nestedActions(meta, props, instance, itemActions, get, includeBlocked, context.schema);
   const hidden = visible && new Set(items.filter((item) => !visible.has(item)).map(({ id }) => id));
   const visibleNested = nested.filter(
     ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),
@@ -118,7 +118,7 @@ export function affordancesOf(
     const target = address === instance ? "root" : address.slice(instance.length + 1);
     const role = drawRole(meta, target, action);
     const event = sessionEvent(meta, target, action);
-    if (!allowedIn(meta, state, `${part}.${action}`, Boolean(role), feedback)) return false;
+    if (!actionAllowedIn(meta, state, `${part}.${action}`, Boolean(role), feedback)) return false;
     if (context.clock && !context.clock(target, action)) return false;
     if (event && !sessionAvailable(session, event)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
@@ -133,16 +133,6 @@ export function affordancesOf(
       return (!adjustment?.atSet && !isAdjustOnlyItem(adjustment, action)) || adjustment?.next !== undefined;
     return !adjustment || adjustment.next !== undefined;
   });
-}
-
-function allowedIn(meta: Meta, state: StateName, pair: string, draw: boolean, feedback: boolean) {
-  const errorOnly = meta.errorActions?.some((allowed) => allowed === pair);
-  if (errorOnly) return state === "error";
-  if (state === "filled") return true;
-  if (state === "empty") return meta.emptyActions?.some((allowed) => allowed === pair);
-  return (
-    (state === "success" || feedback) && (draw || meta.successActions?.some((allowed) => allowed === pair))
-  );
 }
 
 /** Resolve a part against live props, without changing the component's tier. */

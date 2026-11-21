@@ -6,6 +6,7 @@ import {
   KitCheck,
   KitRow,
   KitText,
+  useComponentState,
   useLiveControls,
   useNestedControls,
 } from "@lmthing/ui/kit";
@@ -105,6 +106,7 @@ function NestedRows({ input }: { input: View }) {
 
 export function CollectionRuntimeFixture(input: View) {
   const live = useLiveControls(def.meta, input);
+  const state = useComponentState();
   const { notes, links } = def.meta.collections;
   const names = { notes, links };
   return (
@@ -112,7 +114,7 @@ export function CollectionRuntimeFixture(input: View) {
       <NestedRows input={input} />
       {(Object.keys(names) as (keyof typeof names)[]).map((name) =>
         visibleItems<View["notes"][number]>(def.meta, live, name).map((row) => {
-          const destination = slotMoveOffer(def.meta, live, name, row.id, "move")?.move.choices[0];
+          const destination = slotMoveOffer(def.meta, live, name, row.id, "move", state)?.move.choices[0];
           return (
             <KitRow key={row.id} item={row.id} part={null} label={row.title}>
               <KitAction label={row.title} action="select" />

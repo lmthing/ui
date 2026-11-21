@@ -5,7 +5,7 @@ import { hasNestedCollectionControls } from "../nested";
 import { projectNested } from "../selection";
 import { addressedItems, visibleItems } from "../visibility";
 import { partsOf } from "../action-input";
-import { orderedSlots, slotMoveOffer } from "./slot-move";
+import { orderedSlots, slotMoveOfferAt } from "./slot-move";
 
 const selectionKey = (collection: NamedCollection) => `$collection/${collection.prefix}/selected`;
 const flagKey = (id: unknown, prop: string) => `$collection/${String(id)}/${prop}`;
@@ -54,7 +54,7 @@ function collectionOffer(
   const id = String(row.id);
   if (!collection.parts.includes(part)) return [];
   if (action === "move") {
-    const move = slotMoveOffer(meta, props, name, id, part);
+    const move = slotMoveOfferAt(meta, props, name, id, part);
     return move ? [{ ...offer, ...move }] : [];
   }
   if (action === "select") {

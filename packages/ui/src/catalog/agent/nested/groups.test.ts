@@ -20,3 +20,12 @@ it("counts separate positions even when a projection reuses the same child objec
   expect(policies.get("r1/pick_3")).toEqual({ blocked: true, remaining: 0, replace: [] });
   expect(policies.get("r1/pick_1")).toEqual({ blocked: false, remaining: 0, replace: [] });
 });
+
+it("rejects overlapping or undeclared policies on aliases of one field", () => {
+  const groups = { smaller: { mode: "multi", max: 1 }, larger: { mode: "multi", max: 2 } } as const;
+  const first = { action: "toggle", prop: "on", group: "smaller" } as const;
+  for (const group of ["larger", "unknown"])
+    expect(() =>
+      groupPolicies({ key: "children", groups, parts: { first, alias: { ...first, group } } }, {}, []),
+    ).toThrow("each field needs one declared policy");
+});

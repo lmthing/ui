@@ -5,6 +5,21 @@ type Nested = NonNullable<NonNullable<Meta["items"]>["nested"]>;
 type Member = { item: Values; at: number; prop: string; targets: string[]; enabled: boolean };
 type Policy = { remaining: number; blocked: boolean; replace: string[] };
 
+function groupAssignments(nested: Nested) {
+  const byProp = new Map<string, string>();
+  for (const spec of Object.values(nested.parts)) {
+    if (spec.action !== "toggle" || spec.group === undefined) continue;
+    const existing = byProp.get(spec.prop);
+    if (
+      !Object.hasOwn(nested.groups ?? {}, spec.group) ||
+      (existing !== undefined && existing !== spec.group)
+    )
+      throw new Error(`Invalid nested group for ${spec.prop}: each field needs one declared policy`);
+    byProp.set(spec.prop, spec.group);
+  }
+  return byProp;
+}
+
 /** Count selected fields, not aliases, within each partition of this parent. */
 export function groupPolicies(
   nested: Nested,
@@ -12,16 +27,12 @@ export function groupPolicies(
   controls: { item: Values; at: number; spec: Nested["parts"][string]; target: string; enabled: boolean }[],
 ) {
   const policies = new Map<string, Policy>();
+  const byProp = groupAssignments(nested);
   for (const [name, group] of Object.entries(nested.groups ?? {})) {
-    const declared = new Set(
-      Object.values(nested.parts).flatMap((spec) =>
-        spec.action === "toggle" && spec.group === name ? [spec.prop] : [],
-      ),
-    );
     const partitions = new Map<unknown, Member[]>();
     for (const control of controls) {
       const { spec, at } = control;
-      if (spec.action !== "toggle" || !declared.has(spec.prop)) continue;
+      if (spec.action !== "toggle" || byProp.get(spec.prop) !== name) continue;
       const key = group.by === undefined ? undefined : control.item[group.by];
       const members = partitions.get(key) ?? [];
       const alias = members.find((member) => member.at === at && member.prop === spec.prop);

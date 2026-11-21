@@ -1,9 +1,25 @@
 import type { Meta, NamedCollection, SlotMoves } from "../../meta";
+import type { StateName } from "../../types";
 import type { Values } from "../index";
-import { addressedItems, matches } from "../visibility";
+import { boundActionAvailable } from "../selection-binding";
+import { actionAllowedIn, addressedItems, matches } from "../visibility";
 
 /** A view uses these choices for a named move; the dispatcher rechecks the same guards. */
-export function slotMoveOffer(meta: Meta, props: Values, name: string, id: string, part: string) {
+export function slotMoveOffer(
+  meta: Meta,
+  props: Values,
+  name: string,
+  id: string,
+  part: string,
+  state: StateName,
+) {
+  if (!actionAllowedIn(meta, state, `${part}.move`) || !boundActionAvailable(meta, props, part, "move", true))
+    return;
+  return slotMoveOfferAt(meta, meta.errorActions ? { ...props, state } : props, name, id, part);
+}
+
+/** State, binding and clock restrictions are applied by the common affordance filter. */
+export function slotMoveOfferAt(meta: Meta, props: Values, name: string, id: string, part: string) {
   const collection = Object.hasOwn(meta.collections ?? {}, name) ? meta.collections![name] : undefined;
   if (!collection?.parts.includes(part) || !collection.actions?.[part]?.includes("move")) return;
   const rows = addressedItems(meta, props, name);

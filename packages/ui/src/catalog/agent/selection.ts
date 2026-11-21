@@ -141,19 +141,22 @@ export function visibleNestedProps(meta: Meta, props: Values, get: GetValue): Va
 }
 
 /** Keep wire data immutable while replacing only declared sub-item props. */
-export function projectNested(meta: Meta, props: Values, get: GetValue): Values {
+export function projectNested(meta: Meta, props: Values, get: GetValue, choiceSeed?: Values): Values {
   const items = meta.items;
   const nested = items?.nested;
   if (!items || !nested || !Array.isArray(props[items.key])) return props;
+  const choiceParents = choiceSeed && rowsOf(meta, choiceSeed);
   const rows = rowsOf(meta, props).map((row, index) => {
-    const children = row[nested.key];
+    const choiceParent = choiceParents?.[index] ?? row;
+    const choiceChildren = choiceParent[nested.key] as Values[] | undefined;
+    const children = row[nested.key] ?? choiceChildren;
     if (!Array.isArray(children)) return row;
     const id = idOf(meta, row, index);
     const projected = (children as Values[]).map((item, at) => {
       for (const [part, spec] of Object.entries(nested.parts)) {
         if (spec.action === "press") continue;
         const value = get(isNestedStep(spec) ? nestedStepKey(id, at, spec.prop) : `${id}/${part}_${at + 1}`);
-        const choices = nestedChoices(spec, row, item);
+        const choices = nestedChoices(spec, choiceParent, choiceChildren?.[at] ?? item);
         if (choices && !choices.some((choice) => choice.value === value)) continue;
         if (value !== undefined && value !== item[spec.prop]) item = { ...item, [spec.prop]: value };
       }

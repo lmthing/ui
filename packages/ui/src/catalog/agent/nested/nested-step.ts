@@ -1,10 +1,17 @@
 import type { Meta } from "../../meta";
+import type { Definition } from "../../probes";
 import type { Values } from "../index";
 
 type Part = NonNullable<NonNullable<Meta["items"]>["nested"]>["parts"][string];
 type Step = Extract<Part, { action: "increment" | "decrement" }>;
 export const isNestedStep = (spec: Part): spec is Step =>
   spec.action === "increment" || spec.action === "decrement";
+
+/** Use the same normalized options and defaults for wire writes as for offers. */
+export function nestedChoiceSeed(def: Definition, input: Values) {
+  if (Object.values(def.meta.items?.nested?.parts ?? {}).some(({ action }) => action === "select"))
+    return def.props.safeParse(input).data as Values | undefined;
+}
 
 export function hasNestedCollectionControls(meta: Meta) {
   const nested = meta.items?.nested;

@@ -3,6 +3,7 @@ export {
   hasNestedCollectionControls,
   hasWireNestedControls,
   isNestedStep,
+  nestedChoiceSeed,
   nestedStepAt,
   nestedStepKey,
 } from "./nested-step";

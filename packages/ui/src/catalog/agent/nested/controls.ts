@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { Meta } from "../../meta";
 import type { Values } from "../index";
 import { activeParentId, idOf, rowsOf } from "../selection";
@@ -9,15 +10,35 @@ type Nested = NonNullable<NonNullable<Meta["items"]>["nested"]>;
 type Get = (part: string) => unknown;
 type Part = Nested["parts"][string];
 
-export function nestedChoices(spec: Part, parent: Values, item: Values): ChoiceOption[] | undefined {
+type ChoiceField = (prop: string) => z.ZodType | undefined;
+
+export function nestedChoices(
+  spec: Part,
+  parent: Values,
+  item: Values,
+  field?: ChoiceField,
+): ChoiceOption[] | undefined {
   if (spec.action !== "select") return;
   const source = spec.choices;
-  return normalizeChoices(
+  const options = normalizeChoices(
     "prop" in source ? (source.from === "parent" ? parent : item)[source.prop] : source,
   );
+  const valueSchema = field?.(spec.prop);
+  return valueSchema ? options.filter(({ value }) => valueSchema.safeParse(value).data === value) : options;
 }
 
-function controlsForParent(nested: Nested, row: Values, id: string, active: boolean) {
+function rowShape(schema: z.ZodType | undefined): z.ZodObject | undefined {
+  while (
+    schema instanceof z.ZodOptional ||
+    schema instanceof z.ZodNullable ||
+    schema instanceof z.ZodDefault ||
+    schema instanceof z.ZodPrefault
+  )
+    schema = schema.unwrap();
+  if (schema instanceof z.ZodArray && schema.element instanceof z.ZodObject) return schema.element;
+}
+
+function controlsForParent(nested: Nested, row: Values, id: string, active: boolean, field?: ChoiceField) {
   const parts = Object.entries(nested.parts);
   const children = row[nested.key];
   if (!Array.isArray(children)) return [];
@@ -29,7 +50,7 @@ function controlsForParent(nested: Nested, row: Values, id: string, active: bool
         typeof when === "object"
           ? item[when.prop] === when.equals
           : !when || item[nested.parts[when]?.prop ?? when] === true;
-      const choices = nestedChoices(spec, row, item);
+      const choices = nestedChoices(spec, row, item, field);
       const peers =
         (nested.groups || nested.maxActive !== undefined) && spec.action === "toggle"
           ? parts.filter(([, peer]) => peer.action === "toggle" && peer.prop === spec.prop)
@@ -50,18 +71,28 @@ function controlsForParent(nested: Nested, row: Values, id: string, active: bool
       };
     }),
   );
-  const policies = nested.groups && groupPolicies(nested, row, controls);
+  const grouped =
+    nested.groups || parts.some(([, spec]) => spec.action === "toggle" && spec.group !== undefined);
+  const policies = grouped ? groupPolicies(nested, row, controls) : undefined;
   return controls.map((control) => ({ ...control, policy: policies?.get(control.target) }));
 }
 
 /** Enumerate real sub-items and attach shared availability used by kit and the planner. */
-export function nestedControls(meta: Meta, props: Values, get?: Get) {
+export function nestedControls(meta: Meta, props: Values, get?: Get, schema?: z.ZodObject) {
   const nested = meta.items?.nested;
   if (!nested) return [];
   const activeParent = activeParentId(meta, props, get);
+  const parent = rowShape(schema?.shape[meta.items!.key]);
+  const child = rowShape(parent?.shape[nested.key]);
   return rowsOf(meta, props).flatMap((row, index) => {
     const id = idOf(meta, row, index);
-    return controlsForParent(nested, row, id, !nested.activeParent || id === activeParent);
+    return controlsForParent(
+      nested,
+      row,
+      id,
+      !nested.activeParent || id === activeParent,
+      child && ((prop) => child.shape[prop]),
+    );
   });
 }
 

@@ -13,6 +13,7 @@ import {
   projectLiveInputs,
   visibleItems,
   type DeviceData,
+  type Definition,
   type Meta,
   type Values,
 } from "../../catalog";
@@ -75,7 +76,7 @@ export function useControlValue<T>(address: string, fallback: T): T {
 }
 
 /** PhoneScreen subscribes to the controller store; static renderers use their parsed props. */
-export function useNestedControls(meta: Meta, props: Values) {
+export function useNestedControls(meta: Meta, props: Values, schema?: Definition["props"]) {
   const { controller } = useKit();
   const { screen, component } = usePartContext();
   const get = (part: string) => controller?.store.get(`${screen}/${component}/${part}`);
@@ -86,7 +87,7 @@ export function useNestedControls(meta: Meta, props: Values) {
       : projectControls(meta, props, get);
   const visible =
     grouped && meta.items?.visibleWhen ? new Set(visibleItems(meta, live).map((row) => row.id)) : undefined;
-  const controls = nestedControls(meta, live, get);
+  const controls = nestedControls(meta, live, get, controller?.defs[meta.id]?.props ?? schema);
   const remaining = nestedRemaining(meta, live, controls);
   return {
     parent: activeParentId(meta, live, get),

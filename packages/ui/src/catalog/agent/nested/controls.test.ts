@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 import { z } from "zod";
 import type { Definition } from "../../probes";
-import { planAct, readScreen, type ActStep } from "../index";
+import { planAct, projectControlInput, readScreen, type ActStep } from "../index";
 
 const child = z.strictObject({
   enabled: z.boolean(),
@@ -158,5 +158,41 @@ it("replaces a single choice atomically without clearing other partitions or a l
   expect(planAct(refreshed, singleDefs, {}, [act("r1/pick_2", "toggle")])).toMatchObject({
     ok: false,
     code: "max_active",
+  });
+});
+
+it("uses defaulted choices for validated wire edits, never just a live overlay", () => {
+  const parent = z
+    .strictObject({
+      choices: z.array(z.string()).default(["a", "b", "c"]),
+      children: z.array(child.extend({ chosen: z.enum(["a", "b"]) })),
+      full: z.boolean().default(false),
+    })
+    .refine(({ children, full }) => !full || children.every(({ chosen }) => chosen === "a"));
+  const defaulted = { ...def, props: z.strictObject({ rows: z.array(parent) }) };
+  const registry = { NestedFixture: defaulted };
+  const raw = { rows: [{ children: [childAt("x")] }] };
+  const input = { id: screen.id, components: [{ id: seed.id, c: seed.c, ...raw }] };
+  const reading = readScreen(input, registry);
+  expect(reading).toContain('[c1/r1/choice_1 select = "a"; choices ["a","b"]]');
+  const select = (value: string) => act("r1/choice_1", "select", value);
+  expect(planAct(input, registry, {}, [select("c")])).toMatchObject({ ok: false, code: "invalid_value" });
+  const result = planAct(input, registry, {}, [select("b")]);
+  if (!result.ok) throw new Error(JSON.stringify(result));
+  const wire = projectControlInput(defaulted, raw, (part) => result.values[`home/c1/${part}`]);
+  expect(defaulted.props.parse(wire).rows[0]?.children[0]?.chosen).toBe("b");
+  const constrained = {
+    ...input,
+    components: [
+      {
+        ...input.components[0]!,
+        rows: [{ ...raw.rows[0]!, full: true }],
+      },
+    ],
+  };
+  expect(planAct(constrained, registry, {}, [select("b")])).toMatchObject({
+    ok: false,
+    code: "invalid_value",
+    hint: "Value conflicts with component props",
   });
 });

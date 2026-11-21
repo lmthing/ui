@@ -11,7 +11,7 @@ import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
 import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
 import { projectCollections, projectDerivedMoves, projectMoves } from "./action-input";
-import { hasWireNestedControls } from "./nested";
+import { hasWireNestedControls, nestedChoiceSeed } from "./nested";
 import { projectRecordRuntime } from "./record-runtime";
 import {
   adjustmentAt,
@@ -85,7 +85,7 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
   const seeded = Object.fromEntries(
     [...keys].map((key) => [key, source[key] ?? defaultInput(fieldOf(def.props, key))]),
   );
-  const nested = projectNested(meta, seeded, get);
+  const nested = projectNested(meta, seeded, get, nestedChoiceSeed(def, source));
   const wireGet = (part: string) => get(controlValueKey(def, part));
   const adjusted = projectWireAdjustments(def, nested, get);
   const projected = items.set
