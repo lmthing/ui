@@ -4,7 +4,15 @@ export type CommerceWords = {
   currentOrderStage: (stage: string) => string;
   emptyProducts: string;
   orderComplete: string;
+  tracking: { copy: (id: string) => string; proof: string; pickup: (code: string) => string; here: string };
+  claimed: string;
+  deals: string;
+  offerExpired: string;
   priceChange: (was: string, price: string) => string;
+  cartBar: {
+    view: string;
+    count: (formatted: string, singular: boolean) => string;
+  };
   product: {
     stock: (count: string) => string;
     stockField: string;
@@ -14,6 +22,9 @@ export type CommerceWords = {
     unsave: string;
     add: string;
     added: string;
+    aisle: (aisle: string) => string;
+    storeStock: (count: string) => string;
+    scan: string;
   };
   cart: {
     empty: string;
@@ -47,7 +58,31 @@ export type CommerceWords = {
   promoEnds: string;
   copyPromoCode: (code: string) => string;
   variantUnavailable: string;
+  shadeDepth: Record<"fair" | "light" | "medium" | "deep", string>;
+  shadeUndertone: Record<"cool" | "neutral" | "warm", string>;
   variantReading: (label: string, details: readonly string[]) => string;
+  sizeGuide: {
+    size: string;
+    unit: string;
+    units: Record<"cm" | "in", string>;
+    fit: string;
+    fitWords: readonly [string, string, string];
+    reference: (size: string) => string;
+  };
+  savedList: {
+    move: string;
+    remove: (name: string) => string;
+    claim: string;
+    claimItem: (name: string) => string;
+    target: string;
+    alert: (name: string) => string;
+    previous: (price: string) => string;
+    priceDrop: (amount: string) => string;
+    blank: string;
+    priceGap: string;
+    success: string;
+    error: string;
+  };
 };
 
 export const en = {
@@ -56,7 +91,20 @@ export const en = {
   currentOrderStage: (stage) => `Current stage: ${stage}`,
   emptyProducts: "No products to show",
   orderComplete: "Order complete",
+  tracking: {
+    copy: (id) => `Copy tracking number ${id}`,
+    proof: "Delivery proof",
+    pickup: (code) => `Pickup code: ${code}`,
+    here: "I’m here",
+  },
+  claimed: "Claimed",
+  deals: "Deals",
+  offerExpired: "Offer ended",
   priceChange: (was, price) => `${was} → ${price}`,
+  cartBar: {
+    view: "View basket",
+    count: (formatted, singular) => `${formatted} ${singular ? "item" : "items"}`,
+  },
   product: {
     stock: (count) => `Only ${count} left`,
     stockField: "stock",
@@ -66,6 +114,9 @@ export const en = {
     unsave: "Remove from saved items",
     add: "Add to basket",
     added: "Added to basket",
+    aisle: (aisle) => `Aisle ${aisle}`,
+    storeStock: (count) => `${count} in store`,
+    scan: "Scan barcode",
   },
   cart: {
     empty: "Your basket is empty",
@@ -99,5 +150,29 @@ export const en = {
   promoEnds: "ends",
   copyPromoCode: (code) => `Copy ${code}`,
   variantUnavailable: "Sold out",
+  shadeDepth: { fair: "Fair", light: "Light", medium: "Medium", deep: "Deep" },
+  shadeUndertone: { cool: "Cool", neutral: "Neutral", warm: "Warm" },
   variantReading: (label, details) => [label, ...details].join(" · "),
+  sizeGuide: {
+    size: "Size",
+    unit: "Measurement units",
+    units: { cm: "cm", in: "in" },
+    fit: "Fit",
+    fitWords: ["Runs small", "True to size", "Runs large"],
+    reference: (size) => `Reference size: ${size}`,
+  },
+  savedList: {
+    move: "To basket",
+    remove: (name) => `Remove ${name} from saved items`,
+    claim: "Claimed",
+    claimItem: (name) => `Claim ${name}`,
+    target: "Target price",
+    alert: (name) => `Target price for ${name}`,
+    previous: (price) => `Was ${price}`,
+    priceDrop: (amount) => `${amount} less`,
+    blank: "\u00a0",
+    priceGap: "\u00a0\u00a0",
+    success: "Saved list updated",
+    error: "Could not update saved items",
+  },
 } satisfies CommerceWords;

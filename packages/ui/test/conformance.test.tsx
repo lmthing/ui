@@ -1,4 +1,4 @@
-// Every ready component, every example, every declared state, every preset and mode:
+// Every ready component, every example and state, in each selected preset and mode:
 // renders, stamps its root and item addresses once, and draws empty and loading the shared way.
 import { describe, expect, it } from "vitest";
 import {
@@ -16,11 +16,11 @@ import {
   type DeviceData,
   type Meta,
   type StateName,
-  type ThemeChoice,
 } from "@lmthing/ui/catalog";
 import { kitThemes, renderers } from "@lmthing/ui/kit";
 import { addressedElements, config, exampleDeviceData, renderExample } from "./render";
 import { selectedIds } from "../scripts/build";
+import { conformanceThemes, modes } from "./themes";
 import {
   derivedItemIds,
   derivedItemIssues,
@@ -30,7 +30,7 @@ import {
 } from "./variants";
 
 const ready = selectedIds(Object.keys(renderers) as ComponentName[], import.meta.url);
-const modes = ["light", "dark"] as const;
+const themes = conformanceThemes(presets, accents[0].id);
 
 function stampExampleItems(meta: Meta, props: Record<string, unknown>) {
   const { draw, items } = meta;
@@ -123,58 +123,54 @@ describe.each(ready)("%s conformance", (id) => {
   const states: readonly StateName[] = meta.states ?? ["filled"];
   const { items } = meta;
 
-  it.each(presets.flatMap((preset) => modes.map((mode) => ({ preset: preset.id, mode }))))(
-    "renders every example and state in $preset $mode",
-    ({ preset, mode }) => {
-      const theme = { preset, mode, accent: accents[0]!.id } as ThemeChoice;
-      let derivedExample = false,
-        drawnRows = 0;
-      for (const example of examples) {
-        for (const state of states) {
-          const {
-            html,
-            props: parsed,
-            deviceData,
-          } = renderExample(id, example, state, theme, { thing: "walk", previewSelection: true });
-          if (isExampleHidden(meta, state, deviceData)) {
-            expect(addressedElements(html).size).toBe(0);
-            continue;
+  it.each(themes)("renders every example and state in $preset $mode", (theme) => {
+    let derivedExample = false,
+      drawnRows = 0;
+    for (const example of examples) {
+      for (const state of states) {
+        const {
+          html,
+          props: parsed,
+          deviceData,
+        } = renderExample(id, example, state, theme, { thing: "walk", previewSelection: true });
+        if (isExampleHidden(meta, state, deviceData)) {
+          expect(addressedElements(html).size).toBe(0);
+          continue;
+        }
+        expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
+        if (state === "empty") expectEmptyCopy(meta, parsed, html, deviceData);
+        if (state === "loading") expect(html).toContain(loadingLabel);
+        if (
+          items &&
+          meta.deviceData?.length &&
+          !Array.isArray(parsed[items.key]) &&
+          meta.draw?.kind !== "faces"
+        ) {
+          const addresses = renderedAddresses(html);
+          expect(derivedItemIssues(meta, parsed, addresses)).toEqual([]);
+          if (state === "filled") {
+            expect(deviceData, "Derived item examples need a declared device fixture").toBeDefined();
+            derivedExample = true;
+            drawnRows += derivedItemIds(addresses).length;
           }
-          expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
-          if (state === "empty") expectEmptyCopy(meta, parsed, html, deviceData);
-          if (state === "loading") expect(html).toContain(loadingLabel);
-          if (
-            items &&
-            meta.deviceData?.length &&
-            !Array.isArray(parsed[items.key]) &&
-            meta.draw?.kind !== "faces"
-          ) {
-            const addresses = renderedAddresses(html);
-            expect(derivedItemIssues(meta, parsed, addresses)).toEqual([]);
-            if (state === "filled") {
-              expect(deviceData, "Derived item examples need a declared device fixture").toBeDefined();
-              derivedExample = true;
-              drawnRows += derivedItemIds(addresses).length;
-            }
-            continue;
-          }
-          if (state === "filled" && items) {
-            const props = stampExampleItems(meta, parsed);
-            const rows = props[items.key] as { id: string }[];
-            const { hidden, issues } = peekForExample(meta, props, html);
-            expect(issues).toEqual([]);
-            if (items.visible === "first")
-              expect(html).not.toContain(`data-testid="home/c1/${items.prefix ?? "r"}2/root"`);
-            const pageHidesRoots =
-              props.overflow === "page" && meta.variantParts?.["overflow.page"]?.hides?.includes("root");
-            if (!pageHidesRoots)
-              for (const { id } of items.visible === "first" ? rows.slice(0, 1) : rows)
-                if (!hidden.includes(id)) expect(html).toContain(`data-testid="home/c1/${id}/root"`);
-          }
+          continue;
+        }
+        if (state === "filled" && items) {
+          const props = stampExampleItems(meta, parsed);
+          const rows = props[items.key] as { id: string }[];
+          const { hidden, issues } = peekForExample(meta, props, html);
+          expect(issues).toEqual([]);
+          if (items.visible === "first")
+            expect(html).not.toContain(`data-testid="home/c1/${items.prefix ?? "r"}2/root"`);
+          const pageHidesRoots =
+            props.overflow === "page" && meta.variantParts?.["overflow.page"]?.hides?.includes("root");
+          if (!pageHidesRoots)
+            for (const { id } of items.visible === "first" ? rows.slice(0, 1) : rows)
+              if (!hidden.includes(id)) expect(html).toContain(`data-testid="home/c1/${id}/root"`);
         }
       }
-      if (derivedExample)
-        expect(drawnRows, "At least one filled device fixture must render items").toBeGreaterThan(0);
-    },
-  );
+    }
+    if (derivedExample)
+      expect(drawnRows, "At least one filled device fixture must render items").toBeGreaterThan(0);
+  });
 });

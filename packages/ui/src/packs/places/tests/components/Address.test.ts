@@ -96,11 +96,11 @@ describe("Address fallback", () => {
 });
 
 describe("Address states and parts", () => {
-  it("draws all supplied filled parts and the three named buttons, with a decorative map", () => {
+  it("draws all supplied filled parts and the three named buttons, with a static map preview", () => {
     expect(meta.states).toEqual(["filled"]);
     const parts = draw(nursery);
     for (const part of meta.parts) expect(parts.has(`home/c1/${part}`)).toBe(true);
-    expect(parts.get("home/c1/map")?.attributes).toContain('aria-hidden="true"');
+    expect(parts.get("home/c1/map")?.attributes).not.toContain('role="button"');
     for (const [part, label] of [
       ["copy", "Copy address"],
       ["directions", "Directions"],

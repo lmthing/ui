@@ -26,7 +26,7 @@ export const packIds = [
   "property",
   "invest",
   "books",
-  // Wave 6: registered for scaffolds, not yet in the Director index.
+  // Wave 6
   "comms",
   "assistant",
   "workspace",

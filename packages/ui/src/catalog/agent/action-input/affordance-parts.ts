@@ -83,6 +83,7 @@ export function partsOf(
             const localPress =
               !item &&
               (meta.clear?.[part] ||
+                meta.items?.reset === part ||
                 meta.linkedEdits?.swap.part === part ||
                 reportConfirmation(meta, part, action));
             const suppressLink = Boolean(

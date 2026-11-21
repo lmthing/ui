@@ -17,11 +17,13 @@ export type ActionName =
   | "flip"
   | "move"
   | "send"
-  | "scan";
+  | "scan"
+  | "copy";
 export type ScreenAction = "back" | "tab" | "scroll";
 /** Store-backed inputs and derived gates, applied to parsed props, never to Writer input. */
 export type LiveActionInputs = {
   text?: Readonly<Record<string, { prop: string; max: number }>>;
+  /** Item check or toggle part → the parsed boolean projected before deriving live props. */
   checks?: Readonly<Record<string, string>>;
   /** Send part → declared text input and optional audience prop, captured at the admitted step. */
   send?: Readonly<Record<string, { field: string; audience?: string }>>;
@@ -39,6 +41,8 @@ export type ActionSpec = {
    * matches only the first item.
    */
   when?: Record<string, Record<string, string | boolean>>;
+  /** Component toggle part → credential prop. A grant applies only to the exact credential. */
+  credentialToggles?: Readonly<Record<string, string>>;
   /** These presses ignore their component/item's inherited `goto`, but not a link on the part itself. */
   noGoto?: { parts?: readonly string[]; items?: readonly string[] };
 };

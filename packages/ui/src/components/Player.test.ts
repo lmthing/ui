@@ -10,7 +10,7 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-import { renderInstance } from "../../test/render";
+import { elementAt, renderInstance, styleAt } from "../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.Player;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -45,7 +45,10 @@ describe("Player schema", () => {
     { ...base, at: -1 },
     { ...base, at: 721 },
     { ...base, style: "radio" },
-    { ...base, style: "compact" },
+    { ...base, style: "compact", mode: "video" },
+    { ...base, mode: "radio" },
+    { ...base, speed: 0 },
+    { ...base, speed: 5 },
     { ...base, detail: "none" },
     { ...base, autoplay: true },
     { ...base, color: "red" },
@@ -59,7 +62,7 @@ describe("Player schema", () => {
   });
   it("types view props and keeps the media reference out of drawing", () => {
     type ViewProps = Props<typeof props, typeof meta>;
-    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"audio" | "video">();
+    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"audio" | "video" | "compact">();
     expectTypeOf<ViewProps["seconds"]>().toEqualTypeOf<number>();
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
   });
@@ -119,6 +122,15 @@ describe("Player fallback, metadata and actions", () => {
   });
 });
 
+it("reads the live position and playing state for each Player independently", () => {
+  const live = { "p1/play": true, "p1/scrubber": 300, "p2/play": false, "p3/$runtime": true };
+  const read = (instance: string) =>
+    readComponent(components.Player, examples[0], instance, "filled", live).join("\n");
+  expect(read("p1")).toContain("5:00 — -7:00 — Playing");
+  expect(read("p2")).toContain("Paused");
+  expect(read("p3")).toContain("Paused");
+});
+
 describe("Player rendering", () => {
   it.each(examples.map((example) => [example.style, example] as const))(
     "draws %s with every control",
@@ -140,6 +152,23 @@ describe("Player rendering", () => {
   });
   it("draws a skeleton while loading", () => {
     expect(renderInstance("Player", examples[0], "loading", theme)).toContain('aria-busy="true"');
+  });
+  it("mounts mode-only video with the original player actions", () => {
+    expect(props.parse({ ...base, mode: "video" }).style).toBe("video");
+    const rendered = renderInstance("Player", { ...base, mode: "video" }, "filled", theme);
+    expect(rendered).toContain("Video");
+    expect(rendered).toContain('data-testid="home/c1/play"');
+  });
+  it("draws the controls over the poster, and keeps legacy audio controls outside the artwork", () => {
+    const video = renderInstance("Player", examples[1], "filled", theme);
+    const frame = elementAt(video, "home/c1/root").children[0]!;
+    expect(styleAt(video, frame)).toContain("position:relative");
+    expect(frame.children[0]!.attributes).toContain('data-testid="home/c1/artwork"');
+    expect(styleAt(video, frame.children[1]!)).toContain("position:absolute");
+    const audio = renderInstance("Player", examples[0], "filled", theme);
+    expect(elementAt(audio, "home/c1/root").children[0]!.attributes).toContain(
+      'data-testid="home/c1/artwork"',
+    );
   });
   it("does not hide artwork merely because density is compact", () => {
     const standard = { ...examples[0], density: "compact" };

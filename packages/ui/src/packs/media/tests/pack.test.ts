@@ -48,28 +48,28 @@ const recipes = {
   "reader/highlights": ["Header", "Search", "Highlights"],
 };
 
-it("isolates generated Media entries and never offers MiniPlayer to the Writer", () => {
+it("offers the ready Media pack only when selected and keeps MiniPlayer out of the Writer", () => {
   expect(createRegistry().resolve("Article")).toBe("Article");
   expect(Object.hasOwn(packOf, "Article")).toBe(false);
   const live = createRegistry({ packs: ["media"] });
-  const ready = packReady("media");
+  expect(packReady("media")).toBe(true);
   const owned = Object.entries(packOf)
     .filter(([, owner]) => owner === "media")
     .map(([id]) => id);
   expect(owned.sort()).toEqual([...ids].sort());
   expect(scoped.ids.filter((id) => !core.ids.includes(id)).sort()).toEqual([...ids].sort());
-  if (!ready) expect(live.ids).toEqual(core.ids);
+  expect(live.ids).toEqual(scoped.ids);
   const draftFormat = JSON.stringify(writerFormat(scoped));
   const liveFormat = JSON.stringify(writerFormat(live));
   for (const id of ids) {
     expect(core.ids).not.toContain(id);
     expect(draftFormat.includes(`"const":"${id}"`)).toBe(id !== "MiniPlayer");
-    expect(liveFormat.includes(`"const":"${id}"`)).toBe(ready && id !== "MiniPlayer");
+    expect(liveFormat.includes(`"const":"${id}"`)).toBe(id !== "MiniPlayer");
   }
   for (const id of ["library", "collection", "reader"]) {
     expect(Object.hasOwn(core.archetypes, id)).toBe(false);
     expect(Object.hasOwn(scoped.archetypes, id)).toBe(true);
-    expect(Object.hasOwn(live.archetypes, id)).toBe(ready);
+    expect(Object.hasOwn(live.archetypes, id)).toBe(true);
   }
 });
 

@@ -122,12 +122,17 @@ describe("Article states and parts", () => {
   });
 });
 
-it("draws fixed papers and scales prose without moving its link", () => {
+it.each(["comfortable", "compact"] as const)("scales prose on fixed papers at %s density", (density) => {
   const sizes = ["small", "normal", "large"] as const;
   const papers = ["light", "sepia", "dark"] as const;
   const swatches = ["white", "beige", "black"] as const;
   const fonts = sizes.map((fontScale, index) => {
-    const html = renderInstance("Article", { ...sample, paper: papers[index], fontScale }, "filled", theme);
+    const html = renderInstance(
+      "Article",
+      { ...sample, paper: papers[index], fontScale, density },
+      "filled",
+      theme,
+    );
     const parts = addressedElements(html);
     expect(parts.get(`${prefix}/root`)?.attributes).toContain(`kit-swatch-${swatches[index]}`);
     expect(parts.get(`${prefix}/r1/root`)?.attributes).toContain('role="link"');

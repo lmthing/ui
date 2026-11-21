@@ -2,6 +2,7 @@ import { startVitest } from "vitest/node";
 import { fileURLToPath, URL } from "node:url";
 import { webResolve } from "../look";
 import { knownFailureReporter } from "./known-failures";
+import { conformanceThemeSet } from "../../test/themes";
 import { checkOptions, nodeTests, browserTests, nodeTestOptions } from "./check-options";
 
 function changedSummary(started: number, count: number) {
@@ -19,6 +20,7 @@ export async function check() {
     : undefined;
   if (selection?.empty) return changedSummary(started, 0);
   if (!selection) console.log(options.browser ? "Browser tests: serial files" : "Node tests: full suite");
+  if (!options.browser) console.log(`Conformance themes: ${conformanceThemeSet(process.env)}`);
   const runner = await startVitest(
     "test",
     options.filters,

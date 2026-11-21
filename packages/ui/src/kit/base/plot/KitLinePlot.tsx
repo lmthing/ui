@@ -8,8 +8,15 @@ import { plotGeometry, type LinePlotProps } from "./linePlotGeometry";
 import { PlotDrawing } from "./PlotDrawing";
 import { PlotLabel, PlotLabels, PlotTargets } from "./PlotParts";
 
-function PlotAxis({ series, goal, height, loading }: LinePlotProps & { height: number }) {
-  const geometry = plotGeometry(series, goal);
+function PlotAxis({
+  geometry,
+  height,
+  loading,
+}: {
+  geometry: ReturnType<typeof plotGeometry>;
+  height: number;
+  loading: boolean;
+}) {
   return (
     <YStack width={size.control.md} height={height} position="relative">
       {geometry.ticks.map((value, i) => (
@@ -30,7 +37,7 @@ export function KitLinePlot({ part = "root", loading = false, style = "full", ..
   const { lang } = useWords();
 
   const [width, setWidth] = useState<number>(component.base.emptyMinHeight);
-  const geometry = plotGeometry(props.series, props.goal),
+  const geometry = plotGeometry(props.series, props.goal, props.band, props.baseline),
     thing = useEmptyThing();
   const single = !geometry.empty && geometry.last === undefined;
   const height = style === "compact" || single ? component.base.sparkHeight * 2 : component.base.ringLg;
@@ -58,14 +65,14 @@ export function KitLinePlot({ part = "root", loading = false, style = "full", ..
       ) : (
         <>
           <XStack gap={space.sm}>
-            {style === "full" && <PlotAxis {...props} height={height} loading={loading} />}
+            {style === "full" && <PlotAxis geometry={geometry} height={height} loading={loading} />}
             <YStack
               flex={1}
               minWidth={component.base.none}
               height={height}
               onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
             >
-              <PlotDrawing {...props} loading={loading} width={width} height={height} />
+              <PlotDrawing {...props} geometry={geometry} loading={loading} width={width} height={height} />
             </YStack>
           </XStack>
           <PlotLabels {...props} style={style} loading={loading} />

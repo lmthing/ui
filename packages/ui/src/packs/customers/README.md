@@ -6,7 +6,7 @@ Built in step U5 (drafts in U3), wave 1 of the catalog plan. Read `docs/catalog/
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
-- `components/`: `ClientCard.tsx` `ClientHistory.tsx` `Invoice.tsx` `PaymentStatus.tsx` `Loyalty.tsx` `Agreement.tsx`
+- `components/`: `ClientCard.tsx` `ClientHistory.tsx` `Invoice.tsx` `PaymentStatus.tsx` `Loyalty.tsx` `Agreement.tsx` `FollowUpQueue.tsx` `SavedItems.tsx`
 - The worked example and archetypes also use core `Review` (no pack-owned export).
 - `archetypes/`: `clients.ts` `client.ts` `invoice.ts` `reputation.ts`
 

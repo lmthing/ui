@@ -4,9 +4,24 @@ import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { z } from "zod";
-// prettier-ignore
-import { affordancesOf, components, isDeviceDataVisible, moneyLine, pickerAt, readComponent, readScreen, stampItemIds,
-  themeName, writerFormatFor, type Affordance, type AppCurrency, type ComponentName, type Definition, type ScreenLike, type ThemeChoice } from "@lmthing/ui/catalog";
+import {
+  affordancesOf,
+  components,
+  driveAffordances,
+  isDeviceDataVisible,
+  moneyLine,
+  pickerAt,
+  readComponent,
+  readScreen,
+  stampItemIds,
+  themeName,
+  writerFormatFor,
+  type AppCurrency,
+  type ComponentName,
+  type Definition,
+  type ScreenLike,
+  type ThemeChoice,
+} from "@lmthing/ui/catalog";
 import {
   createAgentAccess,
   createInteractionStore,
@@ -18,11 +33,13 @@ import {
   useAppCurrency,
   useWords,
 } from "@lmthing/ui/kit";
-import { addressedElements, config, hasStepTarget, renderExample } from "./render";
+import { addressedElements, config, renderExample } from "./render";
 import { selectedIds } from "../scripts/build";
 import { decode, peekForExample, visibleTexts } from "./variants";
-import { hasColumnTarget } from "./kit/column-target";
+import { PhoneScreen } from "../src/kit/screen";
+import { expectTarget } from "./kit/reading-target";
 import { seatMoveReading } from "./kit/seat-move";
+import { DateFixture, dateDefinition, dateDefs, dateScreen, dateTheme } from "./kit/kit-input-date";
 
 const props = z.strictObject({ value: z.number() });
 function Fixture({ value }: z.infer<typeof props>) {
@@ -109,40 +126,29 @@ it("does not take the app currency from Writer props or interaction values", () 
 
 const ready = selectedIds(Object.keys(renderers) as ComponentName[], import.meta.url);
 const theme = { preset: "calm", mode: "light", accent: "moss" } as never;
-const roles: Record<string, string[]> = {
-  press: ["button", "link"],
-  toggle: ["switch", "checkbox", "button"],
-  check: ["checkbox"],
-  select: ["radio", "tab", "button", "option", "radiogroup"],
-  swipe: ["button"],
-  flip: ["button"],
-  increment: ["button"],
-  decrement: ["button"],
-  move: ["button"],
-  start: ["button"],
-  stop: ["button"],
-  dismiss: ["button"],
-  send: ["button"],
-  play: ["button"],
-  pause: ["button"],
-  seek: ["slider"],
-  type: ["textbox", "searchbox"],
-  set: ["slider", "spinbutton"],
-};
 
 function labels(html: string): string[] {
   return [...html.matchAll(/aria-label="([^"]*)"/g)].map((m) => decode(m[1]!));
 }
 
-function expectTarget(read: string, addressed: ReturnType<typeof addressedElements>, offer: Affordance) {
-  const { address, action, part } = offer;
-  expect(read, `${address} is missing from the read`).toContain(`[${address} ${action}`);
-  const element = addressed.get(`home/${address}${part === "root" ? "/root" : ""}`);
-  expect(element, `${address} offers ${action} but is not on screen`).toBeDefined();
-  if (element && (hasStepTarget(element, action) || hasColumnTarget(element, action))) return;
-  const role = element?.attributes.match(/\brole="([^"]+)"/)?.[1];
-  expect(roles[action] ?? [], `${address} has role ${role ?? "none"}`).toContain(role);
-}
+it("accepts a named, addressed date textbox for the date set offered in the read", () => {
+  const html = renderToStaticMarkup(
+    <TamaguiProvider config={config} defaultTheme={themeName(dateTheme)}>
+      <PhoneScreen defs={dateDefs} renderers={{ DateFixture }} screen={dateScreen} theme={dateTheme} />
+    </TamaguiProvider>,
+  );
+  const offers = affordancesOf(dateDefinition.meta, dateDefinition.examples[0]!, "c1", {});
+  expect(offers.map(({ address, action }) => [address, action])).toEqual([["c1/date", "set"]]);
+  const read = readScreen(dateScreen, dateDefs);
+  const meta = dateDefinition.meta;
+  expectTarget(read, addressedElements(html), offers[0]!, meta);
+  expect(() =>
+    expectTarget(read, addressedElements(html.replace('data-set-kind="date"', "")), offers[0]!, meta),
+  ).toThrow("c1/date has role textbox");
+  expect(() =>
+    expectTarget(read, addressedElements(html), offers[0]!, { ...meta, set: { date: { prop: "on" } } }),
+  ).toThrow("c1/date has role textbox");
+});
 
 it("accepts addressed KitSeatMap guest buttons for the move action offered in the read", () => {
   const { html, text, offers } = seatMoveReading();
@@ -165,7 +171,9 @@ describe.each(ready)("%s reads as text and can be acted on", (id) => {
     const seen = visibleTexts(html);
     const named = labels(html);
     const props = stampItemIds(def.meta, parsed);
-    const offers = affordancesOf(def.meta, props, "c1", {}, undefined, false, { schema: def.props });
+    const declared = affordancesOf(def.meta, props, "c1", {}, undefined, false, { schema: def.props });
+    // A standalone example has no same-screen seek target.
+    const offers = driveAffordances(def.meta, props, "c1", declared);
     // Inline pickers disclose their options on demand, but the reader offers them immediately.
     const choices = offers.flatMap(({ action, address }) => {
       const picker = action === "select" ? pickerAt(def.meta, props, address.slice("c1/".length)) : undefined;
@@ -183,7 +191,8 @@ describe.each(ready)("%s reads as text and can be acted on", (id) => {
     expect(issues).toEqual([]);
     const addressed = addressedElements(html);
     for (const affordance of offers) {
-      if (!hidden.includes(affordance.address.split("/")[1]!)) expectTarget(read, addressed, affordance);
+      if (!hidden.includes(affordance.address.split("/")[1]!))
+        expectTarget(read, addressed, affordance, def.meta);
     }
   });
 });

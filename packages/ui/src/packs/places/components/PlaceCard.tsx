@@ -103,61 +103,60 @@ type Density = NonNullable<PlaceCardProps["density"]>;
 const nameRole = (density: Density) => (density === "compact" ? "title" : "heading");
 
 // prettier-ignore
-function VenueDetail({ input, copy, density }: { input: PlaceCardProps; copy: PlaceCopy; density: Density }) {
+function VenueDetail({ input, copy, density, thumb }: { input: PlaceCardProps; copy: PlaceCopy; density: Density; thumb?: string | undefined }) {
   const { name, category, rating } = input;
   const { opening, price, distance } = copy;
-  const stars = rating === undefined ? undefined : (
-    <kit.KitScaleTrack style="stars" value={rating} labels={copy.ratingLabels} readonly compact />
-  );
-  const score = stars && (
-    <kit.KitContent lead={stars} lineRole="body" density={density}>
-      <kit.KitText role="number" numberScale="compact" part="rating" tabular lines={1} density={density}>{copy.rating}</kit.KitText>
-    </kit.KitContent>
-  );
-  const badge = opening && (
-    <kit.KitTrail part="open_state" kind="badge" value={opening.text} tone={opening.tone} density={density} />
-  );
   return (
     <kit.KitContent density={density}>
       <kit.KitGrid fitLast density={density}>
-        <kit.KitText role={nameRole(density)} part="name" density={density}>{name}</kit.KitText>
-        <kit.KitIcon name="chevron_right" decorative />
-      </kit.KitGrid>
-      <kit.KitText part="category" tone="muted" density={density}>{category}</kit.KitText>
-      {(score || badge || price || distance) && (
         <kit.KitContent density={density}>
-          {score && badge ? <kit.KitGrid fitLast density={density}>{score}{badge}</kit.KitGrid> : score || (
-            badge && <kit.KitContent lead={badge} leadingAlign="row" density={density}>{null}</kit.KitContent>
-          )}
-          {(price || distance) && <kit.KitGrid fitLast density={density}>
-            {price && <kit.KitText role="label" tone="muted" part="price_level" density={density}>{price}</kit.KitText>}
-            {distance && <kit.KitText role="label" tone="muted" part="distance" density={density}>{distance}</kit.KitText>}
-          </kit.KitGrid>}
+          <kit.KitText role={nameRole(density)} part="name" density={density}>{name}</kit.KitText>
+          <kit.KitText part="category" tone="muted" density={density}>{category}</kit.KitText>
         </kit.KitContent>
+        <kit.KitContent density={density} leadingAlign="row" lead={thumb && <kit.KitPhoto part="photo" shape="thumb" photo={thumb} label={name} />}>
+          <kit.KitIcon name="chevron_right" decorative />
+        </kit.KitContent>
+      </kit.KitGrid>
+      {(rating !== undefined || price || opening || distance) && (
+        <kit.KitGrid density={density}>
+          <kit.KitContent density={density}>
+            {rating !== undefined && <kit.KitContent lineRole="body" density={density}
+              lead={<kit.KitText role="number" numberScale="compact" part="rating" tabular lines={1} density={density}>{copy.rating}</kit.KitText>}>
+              <kit.KitScaleTrack style="stars" value={rating} labels={copy.ratingLabels} readonly compact />
+            </kit.KitContent>}
+            {price && <kit.KitText role="label" tone="muted" part="price_level" density={density}>{price}</kit.KitText>}
+          </kit.KitContent>
+          <kit.KitContent density={density}>
+            {opening && <kit.KitText role="label" tone={opening.tone} part="open_state" density={density}>{opening.text}</kit.KitText>}
+            {distance && <kit.KitText role="label" tone="muted" part="distance" density={density}>{distance}</kit.KitText>}
+          </kit.KitContent>
+        </kit.KitGrid>
       )}
     </kit.KitContent>
   );
 }
 
 // prettier-ignore
-function VenueLoading({ input, copy, density }: { input: PlaceCardProps; copy: PlaceCopy; density: Density }) {
+function VenueLoading({ input, copy, density, thumb }: { input: PlaceCardProps; copy: PlaceCopy; density: Density; thumb?: string | undefined }) {
   const { words } = kit.useWords(placesWordsFor);
-  const score = copy.rating && <kit.KitSkeleton shape="figure" inset="none" density={density}
-    content={[["number", words.ratingSkeleton(copy.rating), "start", "compact"]]} />;
-  const badge = copy.opening && <kit.KitTrail part="open_state" kind="badge" value={copy.opening.text} density={density} />;
   return (
     <kit.KitContent density={density}>
-      <kit.KitSkeleton shape="figure" inset="none" density={density}
-        content={[[nameRole(density), input.name], ["body", input.category]]} />
-      <kit.KitContent density={density}>
-        {score && badge ? <kit.KitGrid fitLast density={density}>{score}{badge}</kit.KitGrid> : score || (
-          badge && <kit.KitContent lead={badge} leadingAlign="row" density={density}>{null}</kit.KitContent>
-        )}
-        {(copy.price || copy.distance) && <kit.KitGrid fitLast density={density}>
-          {copy.price && <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", copy.price]]} />}
-          {copy.distance && <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", copy.distance]]} />}
-        </kit.KitGrid>}
-      </kit.KitContent>
+      {thumb ? (
+        <kit.KitGrid fitLast density={density}>
+          <kit.KitSkeleton shape="figure" inset="none" density={density}
+            content={[[nameRole(density), input.name], ["body", input.category]]} />
+          <kit.KitSkeleton shape="figure" inset="none" density={density} lead="box" content={[]} />
+        </kit.KitGrid>
+      ) : <kit.KitSkeleton shape="figure" inset="none" density={density}
+        content={[[nameRole(density), input.name], ["body", input.category]]} />}
+      {(copy.rating || copy.price || copy.opening || copy.distance) && (
+        <kit.KitGrid density={density}>
+          <kit.KitSkeleton shape="figure" inset="none" density={density}
+            content={[["number", copy.rating && words.ratingSkeleton(copy.rating), "start", "compact"], ["label", copy.price]]} />
+          <kit.KitSkeleton shape="figure" inset="none" density={density}
+            content={[["label", copy.opening?.text], ["label", copy.distance]]} />
+        </kit.KitGrid>
+      )}
     </kit.KitContent>
   );
 }
@@ -171,18 +170,20 @@ export function PlaceCard(input: PlaceCardProps) {
   const { lang } = kit.useWords(placesWordsFor);
   const copy = placeCardCopy(input, kit.useDeviceData(), lang);
   const photo = media === "cover" && input.photo && resolvePhoto?.(input.photo) ? input.photo : undefined;
+  const thumb = density === "compact" ? photo : undefined;
   return (
     <kit.KitCard part="root" padded density={density} {...(loading ? {} : { goto, label: name })}>
       {photo &&
+        !thumb &&
         (loading ? (
           <kit.KitSkeleton shape="media" aspect="wide" inset="none" content={[]} density={density} />
         ) : (
           <kit.KitPhoto part="photo" shape="wide" photo={photo} label={name} />
         ))}
       {loading ? (
-        <VenueLoading input={input} {...{ copy, density }} />
+        <VenueLoading input={input} {...{ copy, density, thumb }} />
       ) : (
-        <VenueDetail input={input} {...{ copy, density }} />
+        <VenueDetail input={input} {...{ copy, density, thumb }} />
       )}
     </kit.KitCard>
   );

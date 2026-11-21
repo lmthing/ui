@@ -6,6 +6,7 @@ import {
   migrateLine,
   placeholderTitle,
   stampItemIds,
+  variants,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
@@ -165,7 +166,8 @@ describe("Gallery view", () => {
     for (const [index, entry] of parsed.photos.entries()) {
       const base = `home/c1/r${index + 1}`;
       expect(elementAt(html, `${base}/photo`).attributes).toContain('role="img"');
-      expect(styleAt(html, `${base}/photo`)).toContain(`aspect-ratio:${parsed.style === "carousel" || parsed.aspect === "wide" ? 16 / 9 : 1}`);
+      const ratio = parsed.aspect === "tall" ? variants.aspect.tall : parsed.style === "carousel" || parsed.aspect === "wide" ? variants.aspect.wide : variants.aspect.square;
+      expect(styleAt(html, `${base}/photo`)).toContain(`aspect-ratio:${ratio}`);
       expect(html.includes(`data-testid="${base}/caption"`)).toBe(Boolean(entry.caption));
       if (entry.caption) expect(html).toContain(entry.caption);
     }

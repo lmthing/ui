@@ -16,7 +16,7 @@ export const meta = createMeta(
     ],
     month: [
       ...timelineHint,
-      'Use "Monthly appointments" for the Header title and "Tap a marked day for its agenda" as its subtitle. The Calendar itself shows the month and selected day. Keep all Header axes null.',
+      'Use "Monthly appointments" for the Header title. In its subtitle, name the selected date and count its supplied appointments, e.g. "Nov 18 agenda below · 1 appointment". This connects the marked month overview to the selected day’s agenda directly below it. Do not promise that tapping a date loads a new agenda. Keep all Header axes null.',
       'Mark the supplied appointment dates with tone good. The Timeline is only the agenda for the supplied selected day: exclude every other day even when marked on the Calendar. Retain each title and time, put a readable date first and purpose second in meta (e.g. "Nov 18 · Routine review"), and leave done and all Timeline axes null.',
     ],
   },

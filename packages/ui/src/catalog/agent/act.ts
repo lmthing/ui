@@ -4,10 +4,10 @@ import { migrateScreen } from "../migrations";
 import type { Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
 import {
+  actionValueAddress,
   controlsAreValid,
   findAction,
   localValues,
-  moveKey,
   type selectStep,
   stageProgress,
   stageRecord,
@@ -28,6 +28,7 @@ import { stageLinkedEdit } from "./linked-edits";
 import { stageReportEdit } from "./report-edits";
 import { stageInlinePress } from "./live-inputs";
 import { stageRecordAction, withRecordScreen } from "./record-runtime";
+import { stageCredentialToggle } from "./credential-toggle";
 export type ActStep = { address: string; action: string; value?: unknown; recordTarget?: string };
 export type Values = Record<string, unknown>;
 export type SendDraft = { address: string; text: string; audience?: string };
@@ -42,7 +43,6 @@ export type ActResult =
       driven?: ActStep[];
     }
   | { ok: false; code: ActCode; at: number; hint?: string };
-
 /** A mounted controller already stages clocks through its action table. */
 function stageStandaloneClock(
   screen: ScreenLike,
@@ -69,7 +69,6 @@ function stageStandaloneClock(
   const changes = clockChanges(meta, props, get, target, step, now);
   for (const [part, value] of Object.entries(changes)) next[`${screen.id}/${id}/${part}`] = value;
 }
-
 function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
   const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
   return liveProps(def.meta, parsed, id, local, true, data);
@@ -105,6 +104,7 @@ function stepProgress(
   const record = stageRecord(screen, defs, next, step, snapshot, now);
   if (record !== undefined) return record ? "" : false;
   return (
+    stageCredentialToggle(screen, defs, next, step) ??
     stageLinkedEdit(screen, defs, next, found, step.value) ??
     stageProgress(screen, defs, step.address, step, next, random, snapshot)
   );
@@ -140,11 +140,7 @@ function stageControl(
     return { ok: false, code: "invalid_value", hint: "Value conflicts with component props" };
 }
 
-/**
- * Plans a list of steps against a screen without changing anything: every step must name an offered
- * action with a valid value. All or nothing: the first bad step returns its index and no values, so
- * a caller commits `values` only when `ok`. Pass `null` to validate draws without using entropy.
- */
+/** Plans without mutation; commit values only on success. Pass `null` to validate draws without entropy. */
 export function planAct(
   input: ScreenLike,
   defs: Record<string, Definition>,
@@ -170,10 +166,15 @@ export function planAct(
     if (action.error) return action.error;
     const { address, selected, found, drive, step } = action;
     if (drive) (plan.driven ??= []).push(drive);
-    const key = `${screen.id}/${found.move ? moveKey(address) : address}`;
+    const key = `${screen.id}/${actionValueAddress(address, found)}`;
     const validated = { key, ...selected, ...validateStep(screen, defs, found, step, next, key) };
     const { result } = validated;
     if ("code" in result) return { ok: false, at, ...result };
+    // Clipboard text is a host effect, not a value to persist or echo back.
+    if (step.action === "copy") {
+      changed.push(`${address} copy`);
+      continue;
+    }
     const resolved = { ...step, address, value: result.value };
     const record = stageRecordAction(screen, defs, next, resolved, now, snapshot);
     if (record && "error" in record) return { ok: false, code: "invalid_value", at, hint: record.error };

@@ -157,17 +157,14 @@ export function MatrixContent({ children, loading }: { children: ReactNode; load
 export function MatrixScroll({
   children,
   loading = false,
-  fitted,
   label,
 }: {
   children: ReactNode;
   loading?: boolean | undefined;
-  fitted?: boolean | undefined;
   label: string;
 }) {
   const scroll = useRef<{ getScrollableNode?: () => HTMLElement }>(null);
   const kit = useKit();
-  if (fitted) return <>{children}</>;
   return (
     <ScrollView
       ref={scroll as never}

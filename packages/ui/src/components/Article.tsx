@@ -69,7 +69,7 @@ export const examples = [
   {
     title: "Before the first walk",
     style: "book", paper: "sepia", fontScale: "large", photo: "lib:dogs",
-    body: "## At the door\nBefore clipping on the lead, let Clover sniff it while you pack a bowl and spare bag.\n\n- Check the gate latch.\n- Keep the first loop *short and familiar*.\n\nOpen the [park route](screen:park_route) before setting out.",
+    body: "## At the door\nBefore clipping on the lead, let Clover sniff it while you pack a bowl and spare bag.\n\n- Check the gate latch.\n- Keep the loop *familiar*.\n\nOpen the [park route](screen:park_route) before setting out.",
   },
   {
     style: "response", paper: "dark", fontScale: "small",
@@ -102,7 +102,8 @@ type ArticleProps = c.Props<typeof props, typeof meta> & {
   links: { id: string; goto: string }[];
 };
 const paperSwatch = { light: "white", sepia: "beige", dark: "black" } as const;
-const bodyRole = { normal: "body", small: "label", large: "heading" } as const;
+// Heading and body share a size on the kit scale; title is the next larger text step.
+const bodyRole = { normal: "body", small: "label", large: "title" } as const;
 type Layout = { input: ArticleProps; density: c.ThemeDensity; loading: boolean };
 // prettier-ignore
 function ArticleHeader({ input, density, loading }: Layout) {
@@ -110,7 +111,7 @@ function ArticleHeader({ input, density, loading }: Layout) {
   const { by: author, date, time } = articleHeader(input, lang);
   const by = input.style === "response" ? undefined : author;
   const separator = words.article.metadataSeparator;
-  const titleRole = input.style === "book" ? "display" : "title";
+  const titleRole = "title";
   const label = { role: "label", tone: "muted", density } as const;
   if (loading) return <kit.KitSkeleton shape="figure" inset="none" {...{ density }}
     content={[[titleRole, input.title], ["label", by], ["label", date ? `${date}${separator}${time}` : time]]} />;
