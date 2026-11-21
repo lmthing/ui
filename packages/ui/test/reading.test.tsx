@@ -35,6 +35,7 @@ import { existsSync } from "node:fs";
 import { addressedElements, config, hasStepTarget, renderExample } from "./render";
 import { selectedIds } from "../scripts/build";
 import { decode, peekForExample, visibleTexts } from "./variants";
+import { hasColumnTarget } from "./kit/column-target";
 
 const props = z.strictObject({ value: z.number() });
 function Fixture({ value }: z.infer<typeof props>) {
@@ -130,6 +131,7 @@ const roles: Record<string, string[]> = {
   flip: ["button"],
   increment: ["button"],
   decrement: ["button"],
+  move: ["button"],
   start: ["button"],
   stop: ["button"],
   dismiss: ["button"],
@@ -178,7 +180,11 @@ describe.each(ready)("%s reads as text and can be acted on", (id) => {
       const testId = `home/${affordance.address}${affordance.part === "root" ? "/root" : ""}`;
       const element = addressed.get(testId);
       expect(element, `${affordance.address} offers ${affordance.action} but is not on screen`).toBeDefined();
-      if (element && hasStepTarget(element, affordance.action)) continue;
+      if (
+        element &&
+        (hasStepTarget(element, affordance.action) || hasColumnTarget(element, affordance.action))
+      )
+        continue;
       const role = element?.attributes.match(/\brole="([^"]+)"/)?.[1];
       expect(roles[affordance.action] ?? [], `${affordance.address} has role ${role ?? "none"}`).toContain(
         role,
