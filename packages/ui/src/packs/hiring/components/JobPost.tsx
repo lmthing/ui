@@ -34,7 +34,15 @@ export const meta = {
   states: ["filled", "loading", "success", "error"],
   actions: {
     parts: { save: ["toggle"], apply: ["press"], publish: ["press"] },
+    when: { apply: { acceptingApplications: true } },
     noGoto: { parts: ["publish"] },
+  },
+  live: {
+    derive: ({ closes }) => {
+      const now = new Date();
+      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+      return { acceptingApplications: typeof closes !== "string" || closes >= today };
+    },
   },
   writeHints: [
     "Pay is optional, numeric, and min must be at most max. Do not write currency or whether the opening is closed. Apply opens the form, not an outbound submission.",

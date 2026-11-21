@@ -88,16 +88,19 @@ export const props = z.strictObject({
 });
 
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
+  const [row] = seedRows(input, 1);
   return {
-    applications: seedRows(input, 3).map((row, i) => ({
-      applicationId: `application_${i + 1}`,
-      role: row.title(32),
-      employer: row.detail(32),
-      stage: "applied",
-      outcome: "active",
-      applied: seedDate,
-      goto: seedGoto,
-    })),
+    applications: [
+      {
+        applicationId: "application_1",
+        role: row!.title(32),
+        employer: row!.detail(32),
+        stage: "applied",
+        outcome: "active",
+        applied: seedDate,
+        goto: seedGoto,
+      },
+    ],
   };
 }
 
@@ -150,8 +153,8 @@ export const probes: c.Probe[] = [
     "Track my applications to several employers, with hiring stage, last contact and a dated follow-up I can log against each role.",
   ),
   choose(
-    "Give me a plain checklist of errands for my job search, like update my CV and charge my laptop, with no application records or dates.",
-    "Checklist",
+    "Show three employers as short, tappable rows, each with the role title and a status badge. No follow-up dates, contact history or logging.",
+    "List",
   ),
   write(
     "Track my active Trot Summer dog walker application, submitted 2027-04-06, in interview, last contact 2027-04-12, with a thank-you note due 2027-04-13. Also show the saved Assistant trainer opening at Coast Dogs, not applied. Link each role to its details.",

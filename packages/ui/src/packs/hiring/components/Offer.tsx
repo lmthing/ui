@@ -66,7 +66,6 @@ export const props = z.strictObject({
   conditions: z.array(c.text(100)).min(0).max(6),
   status: z.enum(["draft", "sent", "accepted", "declined", "withdrawn"]),
   goto: c.screenId,
-  style: z.enum(["letter", "card"]).default("letter"),
 });
 
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
@@ -116,7 +115,6 @@ export const examples: z.input<typeof props>[] = [
     conditions: [],
     status: "draft",
     goto: "mara_edit",
-    style: "card",
     density: "compact",
   },
 ] satisfies z.input<typeof props>[];

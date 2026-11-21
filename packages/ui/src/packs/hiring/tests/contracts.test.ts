@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   components,
   packOf,
@@ -163,4 +163,22 @@ it("does not offer terminal, missing-link or non-navigation actions as available
   const tracker = readComponent(Applications, Applications.examples[0], "a1").join("\n");
   expect(tracker).toContain("[a1/r1/withdraw press]");
   expect(tracker).not.toContain("[a1/r2/followup ");
+});
+
+it("offers Apply through the local closing date, but not after it", () => {
+  const job = { ...JobPost.examples[0], closes: "2027-04-30" };
+  vi.useFakeTimers();
+  try {
+    vi.setSystemTime(new Date(2027, 3, 30, 23, 59));
+    expect(readComponent(JobPost, job, "j1").join("\n")).toContain("[j1/apply press→apply]");
+    vi.setSystemTime(new Date(2027, 4, 1, 0, 0));
+    const closed = readComponent(JobPost, job, "j1").join("\n");
+    expect(closed).not.toContain("[j1/apply ");
+    expect(closed).toContain("[j1/save toggle");
+    expect(readComponent(JobPost, { ...job, closes: undefined }, "j1").join("\n")).toContain(
+      "[j1/apply press→apply]",
+    );
+  } finally {
+    vi.useRealTimers();
+  }
 });

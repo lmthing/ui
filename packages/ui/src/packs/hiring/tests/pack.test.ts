@@ -69,37 +69,46 @@ describe("hiring recipes and worked example", () => {
         expect(scoreComposition(JSON.stringify(defaults), meta, layout, defs).issues).toEqual([]);
       }
     }
-    const selected = hiring.defaultLines("hiring_job_hunt", "hiring_application", cast).components;
-    expect(selected.find(({ c }) => c === "Applications")).toMatchObject({ surface: "card" });
+    const listed: CastLike = {
+      things: [{ type: "application", fields: ["role", "employer"] }],
+      items: [
+        { id: "one", type: "application", sample: true, role: "Proofreader", employer: "Harbour Press" },
+        { id: "two", type: "application", sample: true, role: "Bookbinder", employer: "North Studio" },
+      ],
+    };
+    const selected = hiring.defaultLines("hiring_job_hunt", "hiring_application", listed).components;
+    const application = selected.find(({ c }) => c === "Applications");
+    expect(application).toMatchObject({ surface: "card" });
+    expect(application?.applications).toMatchObject([{ role: "Proofreader", employer: "Harbour Press" }]);
     expect(selected.at(-1)?.c).toBe("Note");
   });
+});
 
-  it("validates each worked-example line and shares one consistent application record", () => {
-    expect(example).toBe(readFileSync(new URL("../example.jsonl", import.meta.url), "utf8"));
-    expect(example).toBe(packExamples.hiring);
-    const defs: Record<string, Definition> = components;
-    const lines = example
-      .trimEnd()
-      .split("\n")
-      .map((line) => JSON.parse(line));
-    expect(lines.map(({ c }) => c)).toEqual(["Header", ...ids]);
-    for (const { c, id, ...props } of lines) {
-      expect(id).toMatch(/^[a-z][a-z0-9_]*$/);
-      expect(defs[c]!.props.safeParse(props).success).toBe(true);
-    }
-    const [, job, pipeline, candidate, interview, offer, tracker] = lines;
-    expect(pipeline).toMatchObject({ jobId: job.jobId, title: job.title });
-    expect(pipeline.applicants).toHaveLength(8);
-    const { applicationId, name, role, applied, outcome, stage } = candidate;
-    expect(candidate).toMatchObject({ jobId: job.jobId, role: job.title });
-    expect(pipeline.applicants).toContainEqual(
-      expect.objectContaining({ applicationId, name, applied, outcome, stage }),
-    );
-    expect(interview).toMatchObject({ applicationId, candidate: name, role });
-    expect(offer).toMatchObject({ applicationId, candidate: name, role, hoursPerWeek: 20 });
-    expect(tracker.applications).toHaveLength(6);
-    expect(tracker.applications).toContainEqual(
-      expect.objectContaining({ applicationId, role, applied, outcome, stage }),
-    );
-  });
+it("validates each worked-example line and shares one consistent application record", () => {
+  expect(example).toBe(readFileSync(new URL("../example.jsonl", import.meta.url), "utf8"));
+  expect(example).toBe(packExamples.hiring);
+  const defs: Record<string, Definition> = components;
+  const lines = example
+    .trimEnd()
+    .split("\n")
+    .map((line) => JSON.parse(line));
+  expect(lines.map(({ c }) => c)).toEqual(["Header", ...ids]);
+  for (const { c, id, ...props } of lines) {
+    expect(id).toMatch(/^[a-z][a-z0-9_]*$/);
+    expect(defs[c]!.props.safeParse(props).success).toBe(true);
+  }
+  const [, job, pipeline, candidate, interview, offer, tracker] = lines;
+  expect(pipeline).toMatchObject({ jobId: job.jobId, title: job.title });
+  expect(pipeline.applicants).toHaveLength(8);
+  const { applicationId, name, role, applied, outcome, stage } = candidate;
+  expect(candidate).toMatchObject({ jobId: job.jobId, role: job.title });
+  expect(pipeline.applicants).toContainEqual(
+    expect.objectContaining({ applicationId, name, applied, outcome, stage }),
+  );
+  expect(interview).toMatchObject({ applicationId, candidate: name, role });
+  expect(offer).toMatchObject({ applicationId, candidate: name, role, hoursPerWeek: 20 });
+  expect(tracker.applications).toHaveLength(6);
+  expect(tracker.applications).toContainEqual(
+    expect.objectContaining({ applicationId, role, applied, outcome, stage }),
+  );
 });
