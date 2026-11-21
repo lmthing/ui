@@ -53,7 +53,7 @@ export function clockChanges(
   const changes: Values = {};
   const clocks = clockTargets(meta, props);
   for (const clock of clocks) {
-    if (clock.spec.kind === "until") continue;
+    if (clock.spec.kind === "until" || clock.spec.commitOnStop) continue;
     for (const operation of ["start", "stop", "reset"] as const) {
       const trigger = clock.spec[operation];
       if (!trigger || trigger.action !== step.action || clockTriggerTarget(clock, trigger) !== target)

@@ -1,0 +1,133 @@
+import { expect, it, vi } from "vitest";
+import { z } from "zod";
+import { planAct, projectDeviceData, readScreen, type Definition } from "../index";
+import { createAgentAccess, createInteractionStore, createScreenController } from "../../../kit/interact";
+
+const props = z.strictObject({
+  scope: z.string(),
+  revision: z.int().min(1).max(3),
+  rows: z
+    .array(
+      z.strictObject({
+        ref: z.string(),
+        title: z.string(),
+        date: z.iso.date().optional(),
+        goto: z.string().optional(),
+      }),
+    )
+    .max(4),
+});
+const seed = {
+  scope: "a",
+  revision: 1,
+  rows: [
+    { ref: "x", title: "First", goto: "next" },
+    { ref: "y", title: "Second" },
+  ],
+};
+const def: Definition = {
+  props,
+  meta: {
+    id: "Baseline",
+    purpose: "",
+    pick: "",
+    region: "body",
+    group: "input",
+    weight: 1,
+    tier: "phone",
+    realPath: "",
+    deviceData: ["gates", "acceptance"],
+    actions: { items: { accept: ["check"], remove: ["press"] } },
+    items: {
+      key: "rows",
+      parts: ["accept", "remove"],
+      records: {
+        keys: ["ref"],
+        parts: { accept: { action: "check", date: "date" }, remove: { action: "press", remove: true } },
+        revision: "revision",
+        canRemove: (row, input, data) =>
+          !data.gates?.some(
+            (gate) =>
+              (gate as { scope: string }).scope === input.scope && (gate as { ref: string }).ref === row.ref,
+          ),
+        localDate: (now) => new Date(now - 4 * 3600000).toISOString().slice(0, 10),
+        snapshot: {
+          kind: "acceptance",
+          keys: ["scope", "ref"],
+          record: ({ ref, date }, { scope }) => ({ scope, ref, date }),
+          include: ({ date }) => date !== undefined,
+        },
+      },
+    },
+  },
+  examples: [],
+  probes: [],
+  fallback: () => seed,
+};
+const defs = { Baseline: def };
+const screen = { id: "edit", components: [{ id: "b1", c: "Baseline", ...seed }] };
+const now = () => Date.parse("2026-03-08T02:00:00Z");
+const check = { address: "b1/r1/accept", action: "check" };
+const remove = { address: "b1/r1/remove", action: "press" };
+const confirm = { address: "confirm/confirm", action: "press" };
+const cancel = { address: "confirm/cancel", action: "dismiss" };
+
+it("records or clears a local date, revision and shared snapshot in the same store notification", () => {
+  const store = createInteractionStore();
+  const unrelated = { scope: "b", ref: "x", date: "2026-03-07" };
+  const data = { acceptance: [unrelated] };
+  const onLink = vi.fn();
+  const runtime = createScreenController({ screen, defs, store, now, deviceData: data, onLink });
+  const observer = createScreenController({
+    screen: { ...screen, id: "observe" },
+    defs,
+    store,
+    deviceData: data,
+  });
+  const readings: unknown[] = [];
+  store.subscribe(() =>
+    readings.push([
+      runtime.snapshotScreen().components[0]?.revision,
+      observer.deviceDataFor("b1").acceptance,
+    ]),
+  );
+  expect(planAct(screen, defs, {}, [check]).ok).toBe(true);
+  expect(runtime.act(check).ok).toBe(true);
+  expect(readings).toEqual([[1, [unrelated]]]);
+  expect(runtime.act(cancel).ok).toBe(true);
+  expect(runtime.act([check, confirm, { ...remove, address: "absent" }]).ok).toBe(false);
+  expect(runtime.act([check, confirm], { dryRun: true }).ok).toBe(true);
+  expect(readings).toHaveLength(2);
+  expect(runtime.act([check, confirm]).ok).toBe(true);
+  expect(readings[2]).toEqual([2, [unrelated, { scope: "a", ref: "x", date: "2026-03-07" }]]);
+  expect(runtime.read()).toContain("[b1/r1/accept check:done]");
+  expect(runtime.act([check, confirm]).ok).toBe(true);
+  expect(readings[3]).toEqual([3, [unrelated]]);
+  expect(runtime.read()).toContain("[b1/r1/accept check:todo]");
+  expect(runtime.act([check, confirm]).ok).toBe(false);
+  expect(readings).toHaveLength(4);
+  expect(data.acceptance).toEqual([unrelated]);
+  expect(onLink).not.toHaveBeenCalled();
+});
+
+it("rechecks gate references on confirmation and preserves other addressed rows on removal", () => {
+  const data = {
+    gates: [] as { scope: string; ref: string }[],
+    acceptance: [{ scope: "a", ref: "x", date: "2026-03-07" }],
+  };
+  const store = createInteractionStore();
+  const agent = createAgentAccess({ defs, store, current: () => screen, deviceData: data });
+  expect(agent.act(remove).ok).toBe(true);
+  data.gates.push({ scope: "a", ref: "x" });
+  expect(agent.act(confirm).ok).toBe(false);
+  expect(agent.act(cancel).ok).toBe(true);
+  expect(readScreen(screen, defs, {}, undefined, data)).not.toContain("[b1/r1/remove press]");
+  expect(planAct(screen, defs, {}, [remove], null, "planner", data).ok).toBe(false);
+  data.gates[0]!.scope = "b";
+  expect(agent.act([remove, confirm]).ok).toBe(true);
+  expect(agent.read()).not.toContain("[b1/r1/remove press]");
+  expect(agent.read()).toContain("[b1/r2/remove press]");
+  expect(projectDeviceData(data, store.snapshot("elsewhere"))?.acceptance).toEqual([]);
+  store.reset("edit");
+  expect(projectDeviceData(data, store.snapshot("elsewhere"))?.acceptance).toEqual(data.acceptance);
+});

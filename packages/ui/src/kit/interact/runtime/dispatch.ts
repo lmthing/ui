@@ -1,4 +1,4 @@
-import { hasPlaybackClock, wordsFor, type ActStep, type Values } from "../../../catalog";
+import { hasPlaybackClock, hasRecordClock, wordsFor, type ActStep, type Values } from "../../../catalog";
 import type { ActOptions, ActReply } from "../index";
 import { actionFailure } from "../actions";
 import { snapshotPlanning, type ControllerContext } from "./context";
@@ -50,7 +50,8 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
       state.values[`${ctx.screen.id}/$agentMode`] = Boolean(opts.agent);
       // A mounted action's planning timestamp must not freeze subsequent detached playback reads.
       for (const { c, id } of ctx.screen.components)
-        if (ctx.defs[c] && hasPlaybackClock(ctx.defs[c]!.meta)) state.values[ctx.key(id, "$now")] = undefined;
+        if (ctx.defs[c] && (hasPlaybackClock(ctx.defs[c]!.meta) || hasRecordClock(ctx.defs[c]!.meta)))
+          state.values[ctx.key(id, "$now")] = undefined;
     }
     if (!ctx.standalone || state.confirmation || planning.status.confirmation)
       state.values[`${ctx.screen.id}/$confirmation`] = state.confirmation;

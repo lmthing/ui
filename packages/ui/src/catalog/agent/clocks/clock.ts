@@ -137,10 +137,14 @@ export function projectClocks(
   if (state === "filled" && playbackCompletion !== undefined) return { ...props, state: playbackCompletion };
   return state === undefined ? props : { ...props, state };
 }
-/** Detached reads project opted-in playback clocks, but do not start legacy clocks. */
 export function projectLiveClocks(meta: Meta, props: Values, get: (part: string) => unknown, all: boolean) {
-  if (!all && !hasPlaybackClock(meta)) return props;
-  return projectClocks(meta, props, get, Number(get("$now") ?? Date.now()), all ? "all" : "playback");
+  const records = meta.clocks?.filter(({ commitOnStop }) => commitOnStop);
+  if (!all && !hasPlaybackClock(meta) && !records?.length) return props;
+  const now = Number(get("$now") ?? Date.now());
+  if (!all && records?.length) props = projectClocks({ ...meta, clocks: records }, props, get, now, "legacy");
+  return all || hasPlaybackClock(meta)
+    ? projectClocks(meta, props, get, now, all ? "all" : "playback")
+    : props;
 }
 /** Shared addresses (for example stop-all) are valid if any owning clock can act. */
 export function clockControlDeclared(meta: Meta, target: string, action: string, playbackOnly = false) {
