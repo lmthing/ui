@@ -16,6 +16,7 @@ import {
   selectionBindingFor,
   sessionEvent,
   withDisabledSelectionChecks,
+  withRecordScreen,
 } from "../../../catalog";
 import type { ActStep, AppCurrency, StateName } from "../../../catalog";
 import { actionFailure } from "../actions";
@@ -69,19 +70,16 @@ function actionsAt(
     );
     const { id: _id, c: _c, state: _state, ...raw } = entry;
     const get = (part: string) => localValues[`${id}/${part}`];
-    const data = atDeviceTime(projectDeviceData(ctx.options.deviceData, values), now);
+    const projected = projectDeviceData(ctx.options.deviceData, values);
+    const data = withRecordScreen(atDeviceTime(projected, now), ctx.screen);
     const live = liveProps(def.meta, parseControlProps(def, raw, get), id, localValues, true, data);
     const selection = selectionBindingFor(screen, ctx.defs, def.meta, id, localValues, data);
     const props = projectSelectionBinding(def.meta, live, selection?.view);
     const clock = recordClockOffer(def, raw, props, get, data, now, values);
     const wire = reportEditWire(def, raw, get);
     const state = (props.state as StateName | undefined) ?? entry.state;
-    const offered = affordancesOf(def.meta, props, id, localValues, state, includeBlocked, {
-      data,
-      clock,
-      wire,
-      schema: def.props,
-    });
+    const offerContext = { data, clock, wire, schema: def.props };
+    const offered = affordancesOf(def.meta, props, id, localValues, state, includeBlocked, offerContext);
     const canDrive = (part: string) => !drivenPartBlock(ctx, part);
     const target = driveTarget(def.meta, screen, ctx.defs, localValues, data, canDrive);
     return driveAffordances(def.meta, props, id, offered, target)

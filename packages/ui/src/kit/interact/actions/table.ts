@@ -8,12 +8,14 @@ import {
   projectDeviceData,
   projectSelectionBinding,
   recordClaimAt,
+  recordActionAt,
   reportConfirmation,
   reportEditWire,
   reportRemovalAt,
   selectionBindingFor,
   stampItemIds,
   recordTargetAt,
+  withRecordScreen,
   type ActStep,
   type StateName,
 } from "../../../catalog";
@@ -61,9 +63,9 @@ function confirmRecordAction(state: ActionState, action: ActStep, ctx: ActionCon
     ]),
   );
   const parsed = parseControlProps(def, wire, (part) => local[`${id}/${part}`]);
-  const data = projectDeviceData(ctx.options.deviceData, state.values);
+  const data = withRecordScreen(projectDeviceData(ctx.options.deviceData, state.values), ctx.screen);
   const props = liveProps(def.meta, parsed, id, local, true, data, ctx.now());
-  const recordTarget = recordTargetAt(def.meta, props, action.address, action.action);
+  const recordTarget = recordTargetAt(def.meta, props, action.address, action.action, ctx.screen);
   return recordTarget === undefined
     ? rejected(state, ctx.at, "not_actionable", "No record at this address")
     : showConfirmation(state, { ...ctx.selected, recordTarget }, ctx);
@@ -75,7 +77,7 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
   const { meta } = def;
   const target = action.address === ctx.entry.id ? "root" : action.address.slice(ctx.entry.id.length + 1);
   if (reportConfirmation(meta, target, action.action))
-    return isRecordPress(meta, action.address, action.action)
+    return isRecordPress(meta, action.address, action.action) || recordActionAt(meta, target, action.action)
       ? confirmRecordAction(state, action, ctx)
       : confirmReportAction(state, ctx, target);
   if (

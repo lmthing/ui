@@ -103,6 +103,7 @@ export function affordancesOf(
     ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),
   );
   const now = Number(get("$now") ?? Date.now());
+  const liveClock = runtime || meta.live?.derive || meta.recordRuntime?.actions;
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   return [...own, ...visibleNested].filter((offer) => {
     const { address, action, part } = offer;
@@ -115,7 +116,7 @@ export function affordancesOf(
     if (event && !sessionAvailable(session, event)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
     if (
-      (runtime || meta.live?.derive || clockControlDeclared(meta, target, action, true)) &&
+      (liveClock || clockControlDeclared(meta, target, action, true)) &&
       !clockActionValid(meta, props, target, action, get, now)
     )
       return false;

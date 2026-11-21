@@ -1,5 +1,14 @@
 import { expect, it } from "vitest";
-import { components, planAct, readComponent, readScreen, type ScreenLike } from "@lmthing/ui/catalog";
+import {
+  checkScreen,
+  components,
+  packOf,
+  packs,
+  planAct,
+  readComponent,
+  readScreen,
+  type ScreenLike,
+} from "@lmthing/ui/catalog";
 import { checkMatchScore } from "..";
 
 it("reads the stamped player and tie identities next to their available actions", () => {
@@ -65,13 +74,13 @@ it("checks match scores against only goals on the corresponding side", () => {
   };
   expect(checkMatchScore(screen)).toEqual([]);
   expect(checkMatchScore({ ...screen, components: [screen.components[0]!] })).toEqual([]);
+  const inconsistent = {
+    ...screen,
+    components: [{ ...screen.components[0]!, homeScore: 0, awayScore: 1 }, screen.components[1]!],
+  };
   expect(
-    checkMatchScore({
-      ...screen,
-      components: [{ ...screen.components[0]!, homeScore: 0, awayScore: 1 }, screen.components[1]!],
-    }),
-  ).toEqual([
-    "Home score does not match the seeded home goals.",
-    "Away score does not match the seeded away goals.",
-  ]);
+    checkScreen(inconsistent, components, { packContext: { packOf, packs } })
+      .filter(({ code }) => code === "S.match_score")
+      .map(({ address }) => address),
+  ).toEqual(["match/s1/home_score", "match/s1/away_score"]);
 });
