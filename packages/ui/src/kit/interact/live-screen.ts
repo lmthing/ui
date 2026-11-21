@@ -56,6 +56,21 @@ function projectItems(entry: Entry, parsed: Values, get: (part: string) => unkno
       done: get(`r${index + 1}/check`) ?? row.done ?? false,
     }));
 }
+
+function omitDerivedSelection(def: Definition, result: Entry) {
+  const { meta } = def;
+  const part = meta.select?.prop;
+  if (
+    part &&
+    !Object.hasOwn(def.props.shape, part) &&
+    (meta.items?.nested?.activeParent ||
+      meta.live?.derive ||
+      meta.items?.edits ||
+      meta.items?.deviceData ||
+      meta.recordRuntime)
+  )
+    delete result[part];
+}
 function projectEntry(
   entry: Entry,
   screen: ScreenLike,
@@ -82,9 +97,7 @@ function projectEntry(
   if (entry.c === "Composer" && get("field") !== undefined)
     result.value = String(get("field")).length ? String(get("field")) : undefined;
   Object.assign(result, projectControls(meta, result, get));
-  const derivedSelection =
-    (meta.items?.nested?.activeParent || meta.live?.derive || meta.items?.edits) && meta.select?.prop;
-  if (derivedSelection && !Object.hasOwn(def.props.shape, derivedSelection)) delete result[derivedSelection];
+  omitDerivedSelection(def, result);
   if (["Counter", "Scale"].includes(entry.c) && get("$value") !== undefined) result.value = get("$value");
   projectItems(entry, parsed, get, result);
   Object.assign(result, projectAdjustments(meta, result, get));

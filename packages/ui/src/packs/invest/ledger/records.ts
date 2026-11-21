@@ -1,0 +1,112 @@
+import { z } from "zod";
+import { screenId, text } from "../../../catalog";
+
+const id = z
+  .string()
+  .max(24)
+  .regex(/^[a-z0-9]+(?:_[a-z0-9]+)*$/);
+const at = z.iso
+  .datetime({ offset: true })
+  .refine((value) => Number.isFinite(time(value)) && !/\.\d{4}/.test(value), {
+    message: "Use a valid instant with at most millisecond precision",
+  });
+const nonnegative = z.number().nonnegative();
+const amount = z.number().positive();
+const link = screenId.optional();
+const position = z.strictObject({
+  assetId: id,
+  name: text(32),
+  symbol: text(12),
+  class: z.enum(["equity", "bond", "fund", "crypto", "other"]),
+  units: nonnegative,
+  unitCost: nonnegative,
+  goto: link,
+});
+const quote = z.strictObject({ assetId: id, price: nonnegative });
+const event = { id, at, voided: z.boolean().optional(), goto: link };
+const manual = z.union([
+  z.strictObject({ ...event, kind: z.enum(["deposit", "withdrawal", "fee"]), amount }),
+  z.strictObject({
+    ...event,
+    kind: z.enum(["buy", "sell"]),
+    assetId: id,
+    units: amount,
+    unitPrice: nonnegative,
+    fee: nonnegative.optional(),
+  }),
+]);
+const distribution = z
+  .strictObject({
+    id,
+    assetId: id,
+    entitledAt: at,
+    payOn: z.iso.date(),
+    perUnit: amount,
+    withheld: nonnegative.optional(),
+    receivedAt: at.optional(),
+    goto: link,
+  })
+  .refine(
+    ({ payOn, entitledAt }) => Number.isFinite(time(entitledAt)) && payOn >= ledgerDay(time(entitledAt)),
+  );
+
+/** The host supplies the complete portfolio, independently of the visible component. */
+export const portfolioRecord = z.strictObject({
+  portfolioId: id,
+  since: at,
+  openingCash: nonnegative,
+  openingContributed: z.number(),
+  positions: z.array(position),
+  entries: z.array(manual),
+  quotes: z.array(quote.extend({ quotedAt: at })),
+  distributions: z.array(distribution),
+});
+export const performanceSample = z.strictObject({ at, quotes: z.array(quote) });
+const receipt = { id, at, revision: z.number().int().positive() };
+export const ledgerOperation = z.union([
+  z.strictObject({ ...receipt, kind: z.literal("receive"), basis: z.string().optional() }),
+  z.strictObject({ ...receipt, kind: z.literal("reverse"), receiptAt: at }),
+  z.strictObject({ kind: z.literal("void"), id, at }),
+]);
+
+export type Portfolio = z.infer<typeof portfolioRecord>;
+export type Sample = z.infer<typeof performanceSample>;
+export type Manual = z.infer<typeof manual>;
+export type Distribution = z.infer<typeof distribution>;
+export type LedgerOperation = z.infer<typeof ledgerOperation>;
+export type Receipt = { id: string; revision: number; at: string; reversedAt?: string };
+export function latestReceipt(receipts: readonly Receipt[], id: string) {
+  for (let i = receipts.length - 1; i >= 0; i--) if (receipts[i]!.id === id) return receipts[i];
+}
+export const time = (date: string) => Date.parse(date);
+export const quoteKey = (assetId: string, at: string) => `${assetId}/${time(at)}`;
+export const ledgerDay = (instant: number) => new Date(instant).toISOString().slice(0, 10);
+export const ordered = <T extends { at: string }>(events: readonly T[]) =>
+  [...events].sort((a, b) => time(a.at) - time(b.at));
+
+export type LedgerResult<T> = { ok: true; value: T } | { ok: false; error: string };
+export const invalid = (error: string): LedgerResult<never> => ({ ok: false, error });
+export const valid = <T>(value: T): LedgerResult<T> => ({ ok: true, value });
+
+function unique<T>(rows: readonly T[], key: (row: T) => string) {
+  return new Set(rows.map(key)).size === rows.length;
+}
+
+export function validateSeed(portfolio: Portfolio, now: number) {
+  const { positions, entries, distributions, quotes, since } = portfolio;
+  if (time(since) > now) return "Opening statement is in the future";
+  if (!unique(positions, (p) => p.assetId) || !unique([...entries, ...distributions], (r) => r.id))
+    return "Duplicate ledger record";
+  const assets = new Set(positions.map((p) => p.assetId));
+  const outOfBounds = (at: string) => time(at) < time(since) || time(at) > now;
+  if (entries.some((e) => outOfBounds(e.at))) return "Trade or cash entry is outside the statement";
+  if (entries.some((e) => "assetId" in e && !assets.has(e.assetId))) return "Unknown trade instrument";
+  if (distributions.some((d) => !assets.has(d.assetId))) return "Unknown dividend instrument";
+  const seen = new Map<string, number>();
+  for (const quote of quotes) {
+    if (!assets.has(quote.assetId)) return "Unknown quote instrument";
+    const key = quoteKey(quote.assetId, quote.quotedAt);
+    if (seen.has(key) && seen.get(key) !== quote.price) return "Conflicting quotes at the same time";
+    seen.set(key, quote.price);
+  }
+}
