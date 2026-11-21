@@ -154,12 +154,14 @@ describe("Checkout read and act", () => {
       deviceData: { basket: [{ total: 16 }] },
     });
     expect(runtime.read()).toContain("$16");
+    expect(runtime.read()).toContain('[c1/mode select = "Delivery"; choices ["Pickup","Delivery","Table"]]');
+    expect(runtime.read()).toContain('[c1/method select = "Card"; choices ["Card","Cash","Wallet"]]');
     expect(runtime.read()).toContain("[c1/place press !needs-service]");
     expect(runtime.read()).toContain("[c1/address press]");
-    for (const method of ["wallet", "cash"]) {
+    for (const method of ["wallet", "Cash"]) {
       expect(runtime.act(select("method", method))).toMatchObject({ ok: true });
       expect(runtime.read()).toContain(
-        method === "cash" ? "[c1/place press]" : "[c1/place press !needs-service]",
+        method === "Cash" ? "[c1/place press]" : "[c1/place press !needs-service]",
       );
     }
     expect(runtime.act(select("mode", "pickup"))).toMatchObject({ ok: true });
