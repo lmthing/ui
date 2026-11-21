@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { packIds } from "@lmthing/ui/catalog";
 import { describe, expect, it } from "vitest";
 import { readPackTable } from "./pack-table";
 import { readPlanned, readWaves } from "./plan-docs";
@@ -20,6 +22,15 @@ describe("pack docs", () => {
     expect(wave6?.packs).toHaveLength(30);
     expect(wave6?.packs).toContain("comms");
     expect(wave6?.packs).toContain("perks");
+  });
+  it("registers every planned pack and has a folder README for each Wave 6 pack", () => {
+    const waves = readWaves(`${docs}build-plan.md`);
+    expect([...packIds].sort()).toEqual(waves.flatMap((wave) => wave.packs).sort());
+    const wave6 = waves.find(({ wave }) => wave === 6)!;
+    for (const id of wave6.packs) {
+      const readme = new URL(`../../../packages/ui/src/packs/${id}/README.md`, import.meta.url);
+      expect(existsSync(readme), `${id} has a pack README`).toBe(true);
+    }
   });
   it("reads planned components with their group and tier", () => {
     const planned = readPlanned(`${docs}play.md`);
