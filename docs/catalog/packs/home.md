@@ -31,7 +31,7 @@ The first plan's draft `Subject`, `CareLog` and `Household` are dropped: they we
 and `People` again. No separate `Climate`, `Scenes` or sensor component is added: the existing `Devices`
 heat control can be focused, and its room grid can hold sensors and saved scene commands.
 
-## Components (7)
+## Components (9)
 
 ### `Chores` · planned · input · phone
 
@@ -71,6 +71,7 @@ each with when it was last done, when it is next due, overdue in `bad`, and a do
 - Signature: `check_burst` (the same moment as core `Checklist`).
 - Parts → actions: tasks `done press`, tasks `root press`. · States: filled, empty, success.
 - Real path: tasks on the device; reminders need notifications (`ok`).
+- Wave 6 options: add optional `category` (`pet`, `plant`, `car`, `house`).
 
 ### `Turns` · planned · data · phone
 
@@ -106,6 +107,7 @@ sleeps, and today's log under them with the time since the last of each.
   `minutes` number optional, `amount` text(10) optional, 0–12; `running` (`none` or a kind).
 - Parts → actions: tiles `root start`, tiles `root stop`, log items `root press`. · States: filled, empty.
 - Real path: entries on the device; two parents sharing needs a shared app.
+- Wave 6 options: add `pumping` and `solids` to `kind`, plus optional host-computed `nextWindow` (`kind`, `at`, `sub`) for nap prediction.
 
 ### `Devices` · planned · input · service
 
@@ -140,6 +142,25 @@ and minus/plus controls; a sensor shows its reading, normal range and a code-der
   error (offline or a failed/partly applied scene). Disabled controls stay readable.
 - Real path: a host adapter maps local device keys to a smart-home service and supplies readings,
   availability and command acknowledgements. Without it this is a labelled mock, never a real switch.
+- Wave 6 options: add `mode` (`heat`, `cool`, `auto`, `off`) and optional `coolTemp` for `kind: "heat"` thermostats.
+
+### `CameraFeed` · planned · content · service
+A connected smart-home camera or baby-monitor card showing the room name, armed or privacy mode pill and a host-supplied live frame preview. Controls let the user switch arming mode, hold or tap talk-back, trigger a deterrent siren after confirmation and browse recent motion or doorbell events.
+- Pick: viewing a connected home security camera or baby monitor with arming mode and motion events. Not taking a device photo (`Camera`), playing local media (`Player`), or toggling switches and thermostats (`Devices`).
+- Writes: `cameraId` text(24), `room` text(20), `mode` (`home`, `away`, `disarmed`, `privacy`), `preview` photo optional, `live` boolean (default false), `audioOn` boolean (default false), `events` of `id` text(24), `kind` (`motion`, `person`, `doorbell`, `sound`), `at` ISO datetime with offset, `clip` photo optional, 0–6; `style`.
+- Styles: `live` (default, large frame preview with talk, siren, mode controls and recent events), `events` (compact header over chronological motion event rows).
+- Parts → actions: `mode select`, `audio toggle`, `talk press`, `siren press`, events `root press`. `meta.confirmParts: ["siren"]`; `meta.partTiers: { talk: "ok" }`.
+- States: filled, empty (no recent events), loading (connecting feed), success (mode updated), error (camera offline or stream failed).
+- Real path: a connected smart-home camera service streams preview frames and motion clips; two-way talk also requires microphone permission (`ok`).
+
+### `Routines` · planned · input · service
+Automated smart-home rules listing each routine's trigger condition such as a schedule, sunrise, arrival or sensor reading beside a summary of its target device actions. Each routine carries an enable switch, its last-run timestamp and a manual run trigger.
+- Pick: managing automated trigger-condition rules across connected home devices. Not manual one-tap scenes (`Devices`), human tasks (`CareSchedule`, `Chores`), or form repeat rules (`Field[repeat]`).
+- Writes: `routines` of `id` text(24), `name` text(28), `triggerKind` (`schedule`, `sunrise_sunset`, `arrival`, `sensor`), `triggerSummary` text(36), `actionsSummary` text(48), `enabled` boolean, `lastRun` ISO datetime with offset optional, `goto` optional, 1–6; `style`.
+- Styles: `rules` (default, trigger conditions, action summaries and enable switches), `activity` (compact list emphasizing last-run times and manual run triggers).
+- Parts → actions: routines `enabled toggle`, routines `run press`, routines `root press` (opens `goto`).
+- States: filled, empty, loading, success (routine toggled or triggered), error (hub offline or action failed).
+- Real path: a connected smart-home automation service stores trigger rules and executes device commands via the host adapter.
 
 ## Archetypes (5)
 
@@ -149,7 +170,7 @@ and minus/plus controls; a sensor shows its reading, normal range and a code-der
 | `kids`    | Points and prizes              | `jar`                                  | Header, Rewards, Chores                                                                                                                                                    |
 | `care`    | Looking after a thing          | `subject`, `all`, `photo`              | `subject`: Header[back], Profile, KeyValue, CareSchedule, Timeline[history] · `all`: Header, Chips, CareSchedule · `photo`: Header, Camera, Note, Button                   |
 | `baby`    | The baby's day                 | `today`                                | Header, BabyLog, Stats                                                                                                                                                     |
-| `house`   | The house's devices and scenes | `rooms`, `home_control`, `home_scenes` | `rooms`: Header, Segmented, Devices[tiles], Note · `home_control`: Header[back], Devices[focused], Note · `home_scenes`: Header, Devices[tiles] (saved scenes first), Note |
+| `house`   | The house's devices and scenes | `rooms`, `home_control`, `home_scenes`, `cameras`, `routines` | `rooms`: Header, Segmented, Devices[tiles], Note · `home_control`: Header[back], Devices[focused], Note · `home_scenes`: Header, Devices[tiles] (saved scenes first), Note · `cameras`: Header, CameraFeed, Note · `routines`: Header, Routines, Note |
 
 ## Worked example: Ledge, extended
 
@@ -170,7 +191,10 @@ one parent running them on one phone works too.
 
 ## Build notes
 
-- Order: `CareSchedule`, `Chores`, `Rewards`, `Turns`, `Agenda`, `BabyLog`, `Devices`.
+- Order: `CareSchedule`, `Chores`, `Rewards`, `Turns`, `Agenda`, `BabyLog`, `Devices`, then Wave 6 additions `CameraFeed` and `Routines`.
+- **Wave 6 additions & options:**
+  - Added `CameraFeed` (`content`, `service`) for live smart-camera and baby-monitor previews, arming modes, talk/siren and motion event logs, and `Routines` (`input`, `service`) for automated trigger-condition rules across home devices.
+  - Option/style upgrades: `Devices` gains `mode` (`heat`, `cool`, `auto`, `off`) and optional `coolTemp` on thermostats; `BabyLog` gains `pumping` and `solids` kinds plus optional host-computed `nextWindow` nap prediction; `CareSchedule` gains optional `category` (`pet`, `plant`, `car`, `house`).
 - Dates that follow from a repeat (next due, overdue) are computed by code; the model writes the first date.
 - Widen `Devices`, do not add component files. Compose thermostat controls from kit number/slider
   bases, scene tiles from action bases, and sensor readings/ranges from data bases; no dial-specific
