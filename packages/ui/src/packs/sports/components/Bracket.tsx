@@ -118,15 +118,20 @@ export function Bracket(input: BracketProps) {
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   return (
-    <kit.KitCard
-      part="root"
-      padded
-      {...{ density, surface }}
-      {...(state === "loading" ? { label: c.wordsFor(lang).loadingLabel } : {})}
-    >
-      <kit.KitText part="title" role="heading" emphasis="quiet" tone="muted" density={density}>
-        {words.bracket.title}
-      </kit.KitText>
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      {state === "loading" ? (
+        <kit.KitSkeleton
+          shape="figure"
+          inset="none"
+          density={density}
+          emphasis="quiet"
+          content={[["heading", words.bracket.title]]}
+        />
+      ) : (
+        <kit.KitText part="title" role="heading" emphasis="quiet" tone="muted" density={density}>
+          {words.bracket.title}
+        </kit.KitText>
+      )}
       <kit.KitBracket
         part="bracket"
         loading={state === "loading"}

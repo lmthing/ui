@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   components,
   createRegistry,
+  loadingLabel,
   packReady,
   placeholderTitle,
   planAct,
@@ -104,7 +105,10 @@ describe("Bracket rendering and actions", () => {
     expect([...render({ ...sample, surface: "outlined", density: "compact" }).keys()]).toEqual([
       ...keys.keys(),
     ]);
-    expect([...render(sample, "loading").keys()].sort()).toEqual(["bracket", "root", "title"].map(address));
+    expect([...render(sample, "loading").keys()].sort()).toEqual(["bracket", "root"].map(address));
+    const loading = renderInstance("Bracket", sample, "loading", theme);
+    expect(loading).toContain(`aria-label="${loadingLabel}"`);
+    expect(loading).not.toContain(">Ledge Rovers<");
   });
 
   it("reads the same teams and scores, and allows only filled tie presses", () => {
