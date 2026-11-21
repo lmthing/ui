@@ -90,7 +90,6 @@ function readKeypads(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
   const header = readScreen({ ...screen, components: [] }, defs, values, lang);
-  const snapshot = projectDeviceData(deviceData, values);
   return [
     header,
     ...screen.components.flatMap(({ id, c, state, ...props }) => {
