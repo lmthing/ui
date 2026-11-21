@@ -37,19 +37,20 @@ export const meta = {
   states: ["filled", "empty", "loading", "success", "error"],
   actions: {
     items: { root: ["press"], followup: ["check"], withdraw: ["press"] },
-    when: { followup: { canFollowUp: true }, withdraw: { outcome: "active" } },
+    when: { followup: { followUp: "pending" }, withdraw: { outcome: "active" } },
     noGoto: { items: ["withdraw"] },
   },
   live: {
     derive: ({ applications }): c.Values => ({
       applications: (applications as z.output<typeof props>["applications"]).map((row) => ({
         ...row,
-        canFollowUp: row.outcome === "active" && row.next !== undefined,
+        followUp: row.outcome === "active" && row.next !== undefined ? "pending" : "none",
       })),
     }),
   },
   writeHints: [
     "Leave applied absent for saved roles. Supply next when nextAt is present. Do not write calculated due notices, day counts, urgency or totals.",
+    'For a request to show application cards, write surface "card" and density null. Only set density to "compact" when the user separately asks for tighter spacing; never write "comfortable" as a default.',
   ],
 } as const satisfies c.Meta;
 

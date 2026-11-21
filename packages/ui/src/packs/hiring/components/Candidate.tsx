@@ -63,6 +63,7 @@ export const meta = {
   },
   writeHints: [
     "Findings are explicitly recorded by a human. Default to unreviewed when no finding is supplied; never infer qualifications, assign a score or rank candidates.",
+    'For a findings-only view, keep authored evidence in the data and set detail to "brief". Write density null unless the person separately asks for tighter spacing.',
   ],
 } as const satisfies c.Meta;
 

@@ -7,8 +7,8 @@ export const meta = {
   id: "ApplicantPipeline",
   status: "draft",
   group: "data",
-  purpose: "Move applicants through the active hiring stages for one opening.",
-  pick: "Move applicants for one opening through applied, screening, interview and offer stages; terminal outcomes leave the board. Not a plain applicant list (List), a generic board (Board), or the seeker's tracker (Applications).",
+  purpose: "Manage counted hiring lanes and move active applicants between stages for one opening.",
+  pick: "A hiring board: each stage has its own lane and count, with active applicants movable between lanes. Not one vertical list of names, static status badges and profile links (List), a generic board (Board), or the seeker's tracker (Applications).",
   region: "body",
   weight: 3,
   dense: true,
@@ -126,7 +126,7 @@ export const probes: c.Probe[] = [
     "For one job, group applicants into counted stages from applied to offer. Let me move active applicants and take closed applications off the board.",
   ),
   choose(
-    "Show three applicants as a simple list with names, stage badges and links to their profiles. I do not need columns or to move anybody.",
+    "Show the people who applied in one vertical list. Each row has a name, a small status badge and a chevron to open their profile. Keep it flat: no stage groups, counts or moving rows.",
     "List",
   ),
   write(

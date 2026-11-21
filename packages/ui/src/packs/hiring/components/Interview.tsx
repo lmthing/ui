@@ -2,6 +2,8 @@ import { z } from "zod";
 import * as c from "../../../catalog";
 import { seedApplicationId, seedDate, seedGoto, seedRows, seedTime } from "../seeds";
 
+const httpsUrl = z.url({ protocol: /^https$/, hostname: /.+/ });
+
 // Core first: Timeline/hours shows a day's meetings but cannot show one linked interview's lifecycle and actions.
 export const meta = {
   id: "Interview",
@@ -68,9 +70,9 @@ export const props = z.strictObject({
   minutes: z.int().min(5).max(240),
   format: z.enum(["in_person", "phone", "video"]),
   place: c.text(36).optional(),
-  link: z
-    .url({ protocol: /^https$/, hostname: /.+/ })
-    .max(200)
+  link: c
+    .text(200)
+    .refine((value) => /^https:\/\//i.test(value) && httpsUrl.safeParse(value).success, "Use an HTTPS URL")
     .optional(),
   interviewers: z.array(c.text(24)).min(1).max(6),
   status: z.enum(["proposed", "confirmed", "completed", "cancelled"]),

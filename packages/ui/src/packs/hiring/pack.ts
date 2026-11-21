@@ -22,7 +22,7 @@ export const pack = {
     },
     {
       kind: "choose",
-      need: "Display four barista openings as short, tappable rows, each with a title and a department subtitle. No full posting, pay terms or other controls.",
+      need: "Show four vacancies in one vertical list of short tappable rows. Each row has a job title, department subtitle and chevron to the details. No featured preview or full posting.",
       expect: "List",
     },
   ],

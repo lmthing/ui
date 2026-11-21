@@ -120,6 +120,7 @@ it("rejects invalid interviews, offers and follow-ups", () => {
         { ...interview, time: "24:00" },
         { ...interview, minutes: 241 },
         { ...interview, link: "http://example.org/meeting" },
+        { ...interview, link: "https://not a host" },
         { ...interview, link: `https://example.org/${"x".repeat(200)}` },
       ],
     ],
@@ -166,6 +167,7 @@ it("does not offer terminal, missing-link or non-navigation actions as available
   const offer = readComponent(Offer, Offer.examples[1], "o1").join("\n");
   expect(offer).not.toContain("[o1/withdraw ");
   const tracker = readComponent(Applications, Applications.examples[0], "a1").join("\n");
+  expect(tracker).toContain("[a1/r1/followup check]");
   expect(tracker).toContain("[a1/r1/withdraw press]");
   expect(tracker).not.toContain("[a1/r2/followup ");
 });

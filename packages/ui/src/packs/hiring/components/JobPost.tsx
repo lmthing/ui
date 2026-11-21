@@ -8,7 +8,7 @@ export const meta = {
   status: "draft",
   group: "content",
   purpose: "Read, save or open an application for one job opening.",
-  pick: "One full job opening with work arrangement, pay terms, requirements and a closing date. Not a featured role (Card), a list of openings (List), an available shift (OpenShift), or goods for sale (Product).",
+  pick: "The full terms and application window of one job opening: work arrangement, pay, requirements and deadline. Not a photo-and-teaser preview linking to the terms elsewhere (Card), a list of openings (List), an available shift (OpenShift), or goods for sale (Product).",
   region: "body",
   weight: 2,
   tier: "phone",
@@ -123,7 +123,7 @@ export const probes: c.Probe[] = [
     "Show one job opening with an hourly pay range, work arrangement, requirements, an apply link and a closing date.",
   ),
   choose(
-    "Spotlight the summer role with a large photo, a short teaser and a link to the full details. No application terms on this screen.",
+    "On the welcome screen, put a tappable preview with one photo, the role title and a one-line teaser. The entire preview opens a separate details screen; don't show pay, requirements or application controls here.",
     "Card",
   ),
   write(
