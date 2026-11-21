@@ -118,12 +118,12 @@ export const en = {
   documentTax: (label: string, percent: string) => `${label} (${percent})`,
   kitchenLabels: { newItem: "Type a new grocery item", timer: "Cooking timer" },
   passCard: {
-    empty: "No pass saved",
     invalid: "This code can’t be read",
     qr: "Pass QR code",
     copy: "Copy code",
     copied: "Code copied",
     reveal: "Show member ID",
+    hide: "Hide member ID",
     brighten: "Scanner view",
     mask: (tail: string) => `••••${tail ? ` ${tail}` : ""}`,
     expiry: (date: string) => `Expires ${date}`,
@@ -132,7 +132,6 @@ export const en = {
     used: "Used",
   },
   fileList: {
-    empty: "No files attached",
     error: "Attachments unavailable",
     format: { pdf: "PDF", doc: "DOC", sheet: "XLS", zip: "ZIP", audio: "AUD", other: "File" },
     pages: (count: string, form: LDMLPluralRule) => `${count} ${form === "one" ? "page" : "pages"}`,

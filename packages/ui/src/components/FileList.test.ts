@@ -122,7 +122,7 @@ describe("FileList actions and states", () => {
     expect(read).toContain("240 kB");
     expect(read).not.toMatch(/4 pages|demo_care/);
     expect(draw(seed, "loading").has("home/c1/r1/download")).toBe(false);
-    expect(draw(seed, "empty").get("home/c1/message")?.text).toEqual(["No files attached"]);
+    expect(draw(seed, "empty").get("home/c1/message")?.text).toEqual(["Nothing here yet"]);
     expect(draw(seed, "error").get("home/c1/message")?.text).toEqual(["Attachments unavailable"]);
   });
 });

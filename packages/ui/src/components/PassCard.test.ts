@@ -1,6 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
-import { affordancesOf, components, readComponent, stampItemIds, type CastLike } from "@lmthing/ui/catalog";
-import { createScreenController } from "@lmthing/ui/kit";
+import {
+  affordancesOf,
+  components,
+  credentialToggleOn,
+  readComponent,
+  stampItemIds,
+  type CastLike,
+} from "@lmthing/ui/catalog";
+import { createInteractionStore, createScreenController } from "@lmthing/ui/kit";
 import { addressedElements, renderInstance } from "../../test/render";
 
 const def = components.PassCard;
@@ -100,8 +107,36 @@ describe("PassCard actions and states", () => {
       "This code can’t be read",
     ]);
     expect(draw(seed, "error").get("home/c1/message")?.text).toEqual(["This code can’t be read"]);
-    expect(draw(seed, "empty").get("home/c1/message")?.text).toEqual(["No pass saved"]);
+    expect(draw(seed, "empty").get("home/c1/message")?.text).toEqual(["Nothing here yet"]);
     expect(draw(seed, "loading").has("home/c1/code")).toBe(false);
+  });
+
+  it("never reveals a replacement member ID at the same screen address or serializes the grant", () => {
+    const store = createInteractionStore();
+    const address = "home/c1/reveal";
+    const open = (memberId: string) =>
+      createScreenController({
+        store,
+        defs: { PassCard: def },
+        screen: { id: "home", components: [{ ...seed, id: "c1", c: "PassCard", memberId }] },
+      });
+    const first = open("DEMO-A0642");
+    expect(first.act({ address, action: "toggle" })).toMatchObject({ ok: true });
+    expect(credentialToggleOn(store.get(address), "DEMO-A0642")).toBe(true);
+    first.dispose();
+    const replacement = open("DEMO-B0642");
+    try {
+      expect(replacement.read()).toContain("[c1/reveal toggle:off]");
+      expect(credentialToggleOn(store.get(address), "DEMO-B0642")).toBe(false);
+      expect(replacement.act({ address, action: "toggle" })).toMatchObject({ ok: true });
+      const grant = store.get(address);
+      expect(credentialToggleOn(grant, "DEMO-B0642")).toBe(true);
+      expect(credentialToggleOn(grant, "DEMO-A0642")).toBe(false);
+      expect(credentialToggleOn(JSON.parse(JSON.stringify(grant)), "DEMO-B0642")).toBe(false);
+      expect(replacement.read()).not.toContain("DEMO-B0642");
+    } finally {
+      replacement.dispose();
+    }
   });
 });
 

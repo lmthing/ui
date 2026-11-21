@@ -21,6 +21,7 @@ import {
 } from "../index";
 import { isRuntimeSet, recordClockOffer, setAt } from "../clocks";
 import { itemEditAt, reportEditWire } from "../report-edits";
+import { credentialToggleOn } from "../credential-toggle";
 
 const risks: Record<string, string> = {
   ok: " !needs-ok",
@@ -108,7 +109,12 @@ export function readAffordances(
                 ? (answers?.[target] ?? values[`${instance}/${liveInputKey(target, "type")}`])
                 : (values[`${a.address}/$draft`] ?? answers?.[target] ?? values[a.address]);
     let detail = a.detail;
-    if (typeof value === "boolean" && a.action === "toggle") detail = `:${value ? "on" : "off"}`;
+    if (a.action === "toggle") {
+      const fields = meta.actions?.credentialToggles;
+      const credential = fields && Object.hasOwn(fields, target) ? fields[target] : undefined;
+      if (credential) detail = credentialToggleOn(values[a.address], props[credential]) ? ":on" : ":off";
+      else if (typeof value === "boolean") detail = `:${value ? "on" : "off"}`;
+    }
     if (!a.input && typeof value === "boolean" && a.action === "check")
       detail = `:${value ? "done" : "todo"}`;
     const offered = a.action === "select" && !choices ? runtimeRowValue(meta, props, target, value) : value;

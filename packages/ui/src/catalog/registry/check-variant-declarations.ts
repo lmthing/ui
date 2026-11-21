@@ -50,7 +50,7 @@ const legacyStyles: Readonly<Partial<Record<string, Readonly<Record<string, stri
   Spinner: { strip: "Wheel alternative changes the draw mechanism, not collection arrangement" },
   Trivia: { card: "Question and answer reveal layout, not just surface treatment" },
   PassCard: { card: "Membership layout versus coupon, centered code, or transit balance" },
-  FileList: { rows: "Inline attachment actions versus a separate card footer, not collection arrangement" },
+  FileList: { rows: "Grouped attachments with inline metadata, not separate cards with page badges" },
 };
 const itemAxes = { tone: true, mark: true, trail: true } satisfies Record<keyof ItemVariants, true>;
 
