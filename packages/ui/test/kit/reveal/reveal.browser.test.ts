@@ -41,10 +41,24 @@ afterAll(async () => {
 
 it("shows all zone labels and the reading in the calm phone view", async () => {
   const band = page.getByTestId("home/f1/band");
-  for (const label of ["60", "Reading", "Low", "Middle", "High"]) {
+  for (const label of ["60", "Reading", "Low (0–25)", "Middle (25–75)", "High (75–100)"]) {
     expect(await band.getByText(label, { exact: true }).isVisible()).toBe(true);
   }
   expect(await band.evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true);
+});
+
+it("revokes an in-flight approval when the mounted reveal button becomes disabled", async () => {
+  const reveal = page.getByRole("button", { name: "Reveal value" });
+  const value = page.getByTestId("home/f1/root");
+  await reveal.click();
+  await expect.poll(() => value.textContent()).toBe("Waiting for authentication");
+  await page.getByRole("button", { name: "Disable reveal" }).click();
+  await expect.poll(() => value.textContent()).toBe("Value masked");
+  expect(await reveal.isDisabled()).toBe(true);
+  await page.evaluate(() => window.finishRevealFixture("approved"));
+  expect(await page.getByText(fakeSecret, { exact: true }).count()).toBe(0);
+  await page.getByRole("button", { name: "Enable reveal" }).click();
+  expect(await reveal.isEnabled()).toBe(true);
 });
 
 it("draws denial, temporary success and unavailable without exposing the secret to the agent", async () => {

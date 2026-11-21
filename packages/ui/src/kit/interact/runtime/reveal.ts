@@ -83,16 +83,15 @@ export function createReveal(ctx: ControllerContext) {
   const eligible = (address: string) =>
     interactive !== false && (!requireMounted || ctx.mounted.has(address)) && offersReveal(ctx, address);
   const { request, revoke, reconcile, status, attempts, listeners } = trackAttempts(ctx, eligible);
-  const isRevealPress = ({ address, action }: ActStep) => {
-    if (action !== "press") return false;
+  const isRevealControl = (address: string) => {
     const entry = ctx.sourceOf(ctx.relative(address).split("/")[0]!);
-    return entry && ctx.defs[entry.c]?.meta.actions?.reveal && offersReveal(ctx, address);
+    return Boolean(entry && ctx.defs[entry.c]?.meta.actions?.reveal && offersReveal(ctx, address, true));
   };
   const dispatch =
     (act: Act): Act =>
     (steps, opts) => {
       const list = Array.isArray(steps) ? steps : [steps];
-      const index = list.findIndex(isRevealPress);
+      const index = list.findIndex(({ address, action }) => action === "press" && isRevealControl(address));
       if (index < 0) return act(steps, opts);
       const step = list[index]!;
       const address = ctx.relative(step.address);
@@ -112,7 +111,7 @@ export function createReveal(ctx: ControllerContext) {
       for (const address of attempts.keys()) revoke(address);
     },
     view: {
-      isRevealControl: (address: string) => Boolean(isRevealPress({ address, action: "press" })),
+      isRevealControl,
       subscribeReveal(listener: () => void) {
         listeners.add(listener);
         return () => {

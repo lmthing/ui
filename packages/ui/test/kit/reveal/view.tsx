@@ -20,10 +20,19 @@ const copy = {
 };
 function RevealFixture({ code }: { code?: string }) {
   const state = useAuthenticatedReveal("reveal");
+  const [disabled, setDisabled] = useState(false);
   return (
     <>
       <KitText part="root">{state === "revealed" ? code : copy[state]}</KitText>
-      <KitAction action="press" part="reveal" label={state === "revealed" ? "Hide value" : "Reveal value"} />
+      <KitAction
+        action="press"
+        part="reveal"
+        disabled={disabled}
+        label={state === "revealed" ? "Hide value" : "Reveal value"}
+      />
+      <button type="button" onClick={() => setDisabled(!disabled)}>
+        {disabled ? "Enable reveal" : "Disable reveal"}
+      </button>
       <KitRangeBand
         part="band"
         label="Reading"
@@ -31,7 +40,7 @@ function RevealFixture({ code }: { code?: string }) {
         max={100}
         value={60}
         zones={[
-          { label: "Low", from: 0, to: 25, tone: "bad" },
+          { label: "Low", from: 0, to: 25, tone: "warn" },
           { label: "Middle", from: 25, to: 75, tone: "warn" },
           { label: "High", from: 75, to: 100, tone: "good" },
         ]}

@@ -131,7 +131,7 @@ describe("KitRangeBand zones", () => {
       expect(style).toContain(`var(--${tone})`);
     }
     expect(styleAt(html, marker!)).toContain("left:70%");
-    expect(html).toMatch(/>First<.*>Middle<.*>Last</s);
+    expect(html).toMatch(/>First \(200–400\)<.*>Middle \(400–700\)<.*>Last \(700–900\)</s);
     expect(html.match(/data-testid=/g)).toHaveLength(1);
   });
 
@@ -142,7 +142,7 @@ describe("KitRangeBand zones", () => {
     expect(styleAt(html, zones[1]!)).toContain("var(--line)");
     expect(styleAt(html, zones[1]!)).toContain("left:20%");
     expect(elementAt(html, "home/c1/band").children[2]!.attributes).toContain('aria-hidden="true"');
-    expect(render({ ...props, value: NaN })).not.toContain(">First<");
+    expect(render({ ...props, value: NaN })).not.toContain(">First (");
   });
 
   it("keeps the old band for an empty list and skips invalid and out-of-scale intervals", () => {
@@ -156,5 +156,18 @@ describe("KitRangeBand zones", () => {
     const html = render({ ...props, zones });
     expect(drawing(html).children[0]!.children).toHaveLength(1);
     expect(html).not.toMatch(/Invalid|Out of scale|Reversed|NaN/);
+  });
+
+  it("separates adjacent zones with identical tones and identifies them by bounds", () => {
+    const html = render({ ...props, zones: props.zones.map((zone) => ({ ...zone, tone: "warn" })) });
+    const [first, second, third] = drawing(html).children[0]!.children;
+    expect(styleAt(html, first!)).not.toContain("border-left-width");
+    for (const zone of [second!, third!]) {
+      expect(styleAt(html, zone)).toContain("var(--warn)");
+      expect(styleAt(html, zone)).toContain(`border-left-width:${component.base.borderWidth}px`);
+      expect(styleAt(html, zone)).toContain("border-left-color:var(--bg)");
+    }
+    expect(html).toContain("Middle (400–700)");
+    expect(html).toContain("Last (700–900)");
   });
 });

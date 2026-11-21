@@ -36,6 +36,7 @@ export function useActionPress(
   { action, value, goto }: { action?: string | undefined; value?: unknown; goto?: string | undefined },
   address: string,
   inactive: boolean,
+  reveal: boolean,
 ) {
   const { interactive, controller, onLink } = useKit();
   if (!interactive || inactive) return {};
@@ -44,7 +45,7 @@ export function useActionPress(
     action
       ? controller.act({ address, action, ...(value === undefined ? {} : { value }) })
       : controller.press(address);
-  if (!isWeb || (action && action !== "press") || !controller.isRevealControl(address)) return { onPress };
+  if (!isWeb || !reveal) return { onPress };
   return {
     onPress,
     tabIndex: 0,
@@ -60,6 +61,17 @@ export function useActionPress(
       if (!event.repeat) onPress();
     },
   };
+}
+
+/** Disabled reveal buttons close the controller gate as well as removing their handlers. */
+export function useRevealControl(address: string, action: string | undefined, disabled: boolean) {
+  const { controller, interactive } = useKit();
+  const reveal = interactive && (!action || action === "press") && controller?.isRevealControl(address);
+  useLayoutEffect(
+    () => (reveal && disabled ? controller?.registerDisabledPart(address) : undefined),
+    [address, controller, disabled, reveal],
+  );
+  return Boolean(reveal);
 }
 
 /** Host currency, if configured on the same controller that reads this screen. */

@@ -89,8 +89,8 @@ function actionsAt(
 ) {
   return offersAt(ctx, address, includeBlocked, ignoreDisabledPart).map(({ action }) => action);
 }
-export function offersReveal(ctx: ControllerContext, address: string) {
-  return offersAt(ctx, address).some(({ hostReveal }) => hostReveal === true);
+export function offersReveal(ctx: ControllerContext, address: string, ignoreDisabledPart = false) {
+  return offersAt(ctx, address, false, ignoreDisabledPart).some(({ hostReveal }) => hostReveal === true);
 }
 function press(ctx: ControllerContext, act: Act, address: string) {
   const local = ctx.relative(address);

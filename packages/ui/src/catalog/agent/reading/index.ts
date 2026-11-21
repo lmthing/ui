@@ -7,7 +7,7 @@ import { formatAffordance, visibleItems, type Affordance } from "../index";
 import { groupItemLines } from "./group-item-lines";
 import { secretPlaceholder } from "./secret-props";
 export { readAffordances } from "./read-affordances";
-export { redactSecretProps } from "./secret-props";
+export { redactSecretProps, sessionForRead } from "./secret-props";
 
 type Props = Record<string, unknown>;
 export type ReadSchema = {
@@ -16,7 +16,10 @@ export type ReadSchema = {
   kind?: string;
   default?: unknown;
   type?: string;
+  const?: unknown;
   anyOf?: ReadSchema[];
+  oneOf?: ReadSchema[];
+  allOf?: ReadSchema[];
 };
 
 export function migrateInput(component: string, input: unknown) {

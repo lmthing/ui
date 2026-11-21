@@ -17,6 +17,7 @@ import {
   readAffordances,
   readItems,
   redactSecretProps,
+  sessionForRead,
   type ReadSchema as Json,
 } from "./reading";
 import { projectVisibleItems } from "./visibility";
@@ -94,14 +95,6 @@ function readProgress(session: SessionState | undefined, lang?: string): string[
   return [`correct ${assessment.correct}`, `score ${numberLine(right, lang)}/${numberLine(of, lang)}`];
 }
 
-/** A feedback view can use the solution without making it part of the agent's read. */
-function sessionForRead(meta: Meta, session: SessionState | undefined) {
-  const hidden = meta.session?.kind === "rounds" ? meta.session.assessment?.readHidden : undefined;
-  if (!hidden?.length || session?.kind !== "rounds") return session;
-  const item = Object.fromEntries(Object.entries(session.item).filter(([key]) => !hidden.includes(key)));
-  return { ...session, item };
-}
-
 /** Read addressed text and affordances, without styling or secrets (plan 4.12). */
 export function readComponent(
   def: Definition,
@@ -142,7 +135,7 @@ export function readComponent(
     return [
       [head, ...(state === "empty" ? readDraw(draw) : []), ...affordances.map(formatAffordance)].join(" "),
     ];
-  const readable = sessionForRead(meta, session);
+  const readable = sessionForRead(meta, schema, session);
   const round = readable?.kind === "rounds" ? readable : undefined;
   const roundKey = round && meta.session?.items;
   const key = meta.items?.key === roundKey ? undefined : meta.items?.key;

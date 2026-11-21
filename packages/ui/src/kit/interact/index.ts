@@ -13,6 +13,7 @@ export {
   useLiveControls,
   useMoveFocus,
   useNestedControls,
+  useRevealControl,
 } from "./use-control";
 export { useSwipe, swipeDirection } from "./use-swipe";
 export { actionDelivery, type ActionEvent } from "./actions";

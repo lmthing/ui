@@ -5,7 +5,7 @@ import { XStack, styled, isWeb } from "tamagui";
 import { component, radius, size, space, type as typography, type IconName } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { useComponentState, usePart } from "../../part";
-import { useActionPress } from "../../interact";
+import { useActionPress, useRevealControl } from "../../interact";
 import { KitIcon, KitText, shifted, type IconTone, type TextTone } from "../text";
 
 export type ActionKind = "primary" | "secondary" | "quiet" | "danger";
@@ -153,10 +153,11 @@ export function KitAction({
     !(action
       ? kit.controller.actionsAt(address.testID).includes(action)
       : kit.controller.canPress(address.testID));
-  const inactive = loading || disabled || Boolean(blocked);
+  const reveal = useRevealControl(address.testID, action, disabled || loading);
+  const inactive = loading || disabled || (!reveal && Boolean(blocked));
   const captionTone = loading ? "text" : inactive ? inactiveTone[kind] : tone;
   const fill = loading ? (kind === "quiet" ? "transparent" : "$line") : inactiveSurface[kind];
-  const handlers = useActionPress({ action, value, goto }, address.testID, inactive);
+  const handlers = useActionPress({ action, value, goto }, address.testID, inactive, reveal);
   return (
     <Frame
       {...address}
