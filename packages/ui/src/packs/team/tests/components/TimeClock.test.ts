@@ -142,6 +142,9 @@ describe("TimeClock states, parts and reading", () => {
     expect(reading).toContain("2:35:00");
     expect(reading).not.toContain(" press]");
   });
+});
+
+describe("TimeClock host records", () => {
   it("keeps the active controls but omits metrics when the host supplies no records", () => {
     const html = renderInstance("TimeClock", active, "filled", theme);
     const parts = addressedElements(html);
