@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { planAct } from "@lmthing/ui/catalog";
+import { planAct, type Definition } from "@lmthing/ui/catalog";
 import { createAgentAccess, createScreenController, type AuthenticateReveal } from "@lmthing/ui/kit";
 import { createPreviewController } from "../../../../../apps/gallery/app/draw";
 import { defs, entry, fakeSecret, revealStep, screen } from "./fixture";
@@ -47,6 +47,7 @@ it("admits only one local press, prompts once, and expires a grant without publi
   expect(agent.act(revealStep, { agent: false })).toMatchObject({ ok: false });
   expect(planAct(screen, defs, {}, [revealStep])).toMatchObject({ ok: false });
   expect(runtime.act([revealStep, { address: "b1", action: "press" }])).toMatchObject({ ok: false });
+  expect(runtime.act(revealStep, undefined, Symbol())).toMatchObject({ ok: false });
   expect(runtime.act({ ...revealStep, value: fakeSecret })).toMatchObject({ ok: false });
   expect(runtime.act(revealStep, { dryRun: true })).toMatchObject({ ok: true, dryRun: true });
   expect(authenticate).not.toHaveBeenCalled();
@@ -134,12 +135,26 @@ it("scopes row grants and makes a second press hide the active reveal", async ()
   runtime.dispose();
 });
 
-it("uses the deterministic gallery host for a synthetic example", async () => {
-  const { id: _id, c: _c, ...input } = entry;
-  const runtime = createPreviewController(defs.RevealFixture, input, "example", { state: "filled" })!;
-  expect(runtime.press("example/c1/reveal").ok).toBe(true);
-  await Promise.resolve();
-  expect(runtime.revealStatus("example/c1/reveal")).toBe("revealed");
-  expect(runtime.read()).not.toContain(fakeSecret);
-  runtime.dispose();
-});
+it.each([false, true])(
+  "uses the deterministic gallery host with a selection binding: %s",
+  async (selectionBound) => {
+    const { id: _id, c: _c, ...input } = entry;
+    const fixture = defs.RevealFixture;
+    const def: Definition = selectionBound
+      ? {
+          ...fixture,
+          meta: {
+            ...fixture.meta,
+            selectionBinding: { component: "Table", check: "pick", all: "all", requireSelection: true },
+          },
+        }
+      : fixture;
+    const runtime = createPreviewController(def, input, "example", { state: "filled" })!;
+    expect(runtime.read()).toContain("[c1/reveal press !needs-ok]");
+    expect(runtime.press("example/c1/reveal").ok).toBe(true);
+    await Promise.resolve();
+    expect(runtime.revealStatus("example/c1/reveal")).toBe("revealed");
+    expect(runtime.read()).not.toContain(fakeSecret);
+    runtime.dispose();
+  },
+);

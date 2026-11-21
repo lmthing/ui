@@ -50,6 +50,10 @@ function expectEmptyCopy(meta: Meta, input: Record<string, unknown>, html: strin
   for (const line of lines) expect(visible).toContain(line);
 }
 
+function isExampleHidden(meta: Meta, state: StateName, data?: DeviceData) {
+  return (meta.selectionBinding?.requireSelection && state === "empty") || !isDeviceDataVisible(meta, data);
+}
+
 it("stamps runtime faces from the declared count without a Writer item array", () => {
   const meta: Meta = {
     ...components.List.meta,
@@ -131,8 +135,8 @@ describe.each(ready)("%s conformance", (id) => {
             html,
             props: parsed,
             deviceData,
-          } = renderExample(id, example, state, theme, { thing: "walk" });
-          if (!isDeviceDataVisible(meta, deviceData)) {
+          } = renderExample(id, example, state, theme, { thing: "walk", previewSelection: true });
+          if (isExampleHidden(meta, state, deviceData)) {
             expect(addressedElements(html).size).toBe(0);
             continue;
           }

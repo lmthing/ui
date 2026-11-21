@@ -7,6 +7,7 @@ export {
 } from "./affordances";
 export { checkDriveDeclaration, driveAffordances, driveTarget, type CanDrive } from "./drives";
 export { readComponent, readScreen, type ScreenLike } from "./read";
+export { hostOnlyParts, hostOnlyAddresses, privateMarkKey, redactPrivateMarks } from "./action-input";
 export { appCurrencySchema, moneyFractionDigits, parseAppCurrency, type AppCurrency } from "./app-currency";
 export {
   atDeviceTime,
@@ -73,6 +74,7 @@ export {
   type RandomSource,
 } from "./draw";
 export { selectionAt, selectionError, selectionChanges, projectSelection } from "./selection";
+export { itemCounterReset } from "./nested";
 export {
   projectSelectionBinding,
   selectionBindingFor,

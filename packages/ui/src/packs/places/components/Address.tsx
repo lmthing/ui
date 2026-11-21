@@ -54,6 +54,7 @@ const nurseryAddress = {
   phone: "0117 496 0124",
   note: "Use the side gate by the shed.",
 };
+const previewPin = { id: "r1", x: 0.5, y: 0.45, selected: true } as const;
 export const examples = [
   nurseryAddress,
   { lines: ["Juniper Dog Park", "8 Linden Road", "Bristol BS8 2BE"] },
@@ -115,18 +116,26 @@ export function Address(input: c.Props<typeof props, typeof meta>) {
       </kit.KitContent>
       <kit.KitContent density={density} group="response">
         <kit.KitGrid density={density}>
-          <kit.KitMapTile count={1} part="map" />
-          <kit.KitContent density={density}>
-            <kit.KitAction full part="directions" action="press" label={words.addressDirections} />
-            <kit.KitAction full part="copy" action="press" kind="secondary" label={words.addressCopy} />
-          </kit.KitContent>
+          <kit.KitMapTile part="map" pins={[{ ...previewPin, label: words.addressMapPreview }]} />
+          <kit.KitGrid arrange="rows">
+            <kit.KitAction
+              full
+              part="directions"
+              action="press"
+              kind="secondary"
+              label={words.addressDirections}
+            />
+            <kit.KitAction full part="copy" action="press" kind="quiet" label={words.addressCopy} />
+          </kit.KitGrid>
         </kit.KitGrid>
         {callLabel && (
-          <kit.KitRow inline part="call" role="button" label={callLabel} density={density}>
-            <kit.KitText role="label" tone="accent" part={null} density={density}>
-              {callLabel}
-            </kit.KitText>
-          </kit.KitRow>
+          <kit.KitContent group="response" density={density}>
+            <kit.KitRow inline part="call" role="button" label={callLabel} density={density}>
+              <kit.KitText role="label" tone="accent" part={null} density={density}>
+                {callLabel}
+              </kit.KitText>
+            </kit.KitRow>
+          </kit.KitContent>
         )}
       </kit.KitContent>
     </kit.KitCard>

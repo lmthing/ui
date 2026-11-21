@@ -50,6 +50,11 @@ function revealOffer(address: string, part: string, action: string) {
   return { address, part, action, detail: "", hostReveal: true as const };
 }
 
+function nestedHolder(holder: Props, part: string) {
+  const target = holder[part];
+  return target && typeof target === "object" ? (target as Props) : holder;
+}
+
 export function partsOf(
   spec: Record<string, readonly string[]> | undefined,
   holder: Props,
@@ -82,13 +87,13 @@ export function partsOf(
             const address = part === "root" ? base : `${base}/${part}`;
             if (action === "press" && meta.actions?.reveal?.[item ? "items" : "parts"]?.includes(part))
               return revealOffer(address, part, action);
-            const target = holder[part];
-            const nested = target && typeof target === "object" ? (target as Props) : holder;
+            const nested = nestedHolder(holder, part);
             const record = item ? recordEdit(meta, part) : undefined;
             const flag = item && part === "root" && meta.select?.runtime ? meta.select.prop : undefined;
             const localPress =
               !item &&
               (meta.clear?.[part] ||
+                meta.items?.reset === part ||
                 meta.linkedEdits?.swap.part === part ||
                 reportConfirmation(meta, part, action));
             const suppressLink = Boolean(

@@ -5,6 +5,7 @@ import {
   createAct,
   createAccess,
   createReveal,
+  privateMarkRegistration,
   discardHiddenConfirmation,
   type ControllerContext,
   type ControllerOptions,
@@ -72,7 +73,8 @@ export function createScreenController(options: ControllerOptions & { currency?:
   const clock = createClock(ctx, () => discardHiddenConfirmation(ctx));
   const media = createMediaRuntime(ctx);
   const reveal = createReveal(ctx);
-  const act = reveal.dispatch(createAct(ctx, media, clock.scheduleClock));
+  const dispatch = createAct(ctx, media, clock.scheduleClock);
+  const act = reveal.dispatch(dispatch);
   return {
     defs: ctx.defs,
     store: ctx.store,
@@ -83,6 +85,7 @@ export function createScreenController(options: ControllerOptions & { currency?:
     mountMedia: media.mountMedia,
     tick: clock.tick,
     ...createAccess(ctx, act, currency, reveal.revoke),
+    registerPrivateMarkPart: privateMarkRegistration(ctx, dispatch),
     ...reveal.view,
     deviceDataFor: (component: string, data = options.deviceData) => deviceDataFor(ctx, component, data),
     get deviceData() {

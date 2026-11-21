@@ -6,8 +6,8 @@ import { migrateLine } from "../../migrations";
 import { formatAffordance, visibleItems, type Affordance } from "../index";
 import { groupItemLines } from "./group-item-lines";
 import { secretPlaceholder } from "./secret-props";
-export { readAffordances } from "./read-affordances";
-export { redactSecretProps, sessionForRead } from "./secret-props";
+export { readAffordances, readOffers } from "./read-affordances";
+export { redactSecretProps, roundHide, sessionForRead } from "./secret-props";
 
 type Props = Record<string, unknown>;
 export type ReadSchema = {

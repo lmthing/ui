@@ -1,8 +1,7 @@
-import type { ActStep } from "../../../../catalog";
 import { actionFailure } from "../../actions";
-import type { ActOptions, ActReply } from "../../index";
 import { offersReveal } from "../access";
 import type { ControllerContext } from "../context";
+import type { createAct } from "../dispatch";
 
 type AuthResult = "approved" | "denied" | "unavailable";
 export type AuthenticateReveal = (request: { address: string; tier: "ok" }) => Promise<AuthResult>;
@@ -13,7 +12,7 @@ type Attempt = {
   expires?: number;
   timer?: ReturnType<typeof setTimeout>;
 };
-type Act = (steps: ActStep | ActStep[], opts?: ActOptions) => ActReply;
+type Act = ReturnType<typeof createAct>;
 const revealMs = 15_000;
 
 function trackAttempts(ctx: ControllerContext, eligible: (address: string) => boolean) {
@@ -89,7 +88,8 @@ export function createReveal(ctx: ControllerContext) {
   };
   const dispatch =
     (act: Act): Act =>
-    (steps, opts) => {
+    (steps, opts, markToken) => {
+      if (markToken !== undefined) return act(steps, opts, markToken);
       const list = Array.isArray(steps) ? steps : [steps];
       const index = list.findIndex(({ address, action }) => action === "press" && isRevealControl(address));
       if (index < 0) return act(steps, opts);

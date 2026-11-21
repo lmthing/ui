@@ -23,7 +23,7 @@ export function llmsTxt(data: Data): string {
   return [
     "# lmthing/ui",
     "",
-    `> A typed catalog of ${data.stats.core} core UI components and ${data.packs.length} domain packs that models pick and fill as JSON lines, and a kit that draws them. There is no code, colour or size in a line.`,
+    `> A typed catalog of ${data.stats.core} core UI components and live domain packs. Models pick and fill components as JSON lines, and the kit draws them. There is no code, colour or size in a line.`,
     "",
     "How to use this catalog: to build a screen, read writing.md, pick components from the sections below, and write one JSON line per component, validated against the schema in catalog.json. To act on a screen, read reading.md. Every component page lists its props, a JSON Schema, its parts and actions, and examples as wire lines. Everything here is generated from the repository on every build.",
     "",

@@ -43,10 +43,12 @@ export function redactSecretProps(schema: ReadSchema, props: Record<string, unkn
   return safe;
 }
 
-/** Keep the active round's second copy just as safe as the row in the declared collection. */
+export const roundHide = (meta: Meta) => meta.session?.kind === "rounds" && meta.session.hide !== undefined;
+
+/** Omit hidden fields and redact the active round in both copies seen by the reader. */
 export function sessionForRead(meta: Meta, schema: ReadSchema, session: SessionState | undefined) {
   if (meta.session?.kind !== "rounds" || session?.kind !== "rounds") return session;
-  const hidden = meta.session.assessment?.readHidden;
+  const hidden = roundHide(meta) ? meta.session.hidden : meta.session.assessment?.readHidden;
   const visible = hidden?.length
     ? Object.fromEntries(Object.entries(session.item).filter(([key]) => !hidden.includes(key)))
     : session.item;

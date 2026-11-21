@@ -5,10 +5,11 @@ import {
   clockControlDeclared,
   driveAffordances,
   driveTarget,
+  hostOnlyAddresses,
   isPlaybackAction,
   liveProps,
-  parseAddress,
   parseControlProps,
+  privateMarkKey,
   projectDeviceData,
   projectSelectionBinding,
   recordClockOffer,
@@ -30,7 +31,7 @@ import {
 import { createAct, discardHiddenConfirmation } from "./dispatch";
 import { createMediaRuntime } from "./media";
 import { drivenPartBlock } from "./planning";
-import { readControls } from "./read-controls";
+import { isKeypad, readControls } from "./read-controls";
 type Act = (step: ActStep) => ActReply;
 const pressActions = "press select toggle check increment decrement start stop send dismiss".split(" ");
 function offersAt(
@@ -42,6 +43,7 @@ function offersAt(
   const local = ctx.relative(address),
     id = local.split("/")[0]!;
   if (ctx.status.disposed || (!ignoreDisabledPart && ctx.disabledParts.has(local))) return [];
+  if (ctx.privateMarks.has(local) || ctx.store.get(privateMarkKey(ctx.screen.id, local))) return [];
   if (ctx.confirmationFor()) {
     if (local === "confirm/confirm") return [{ action: "press" }];
     return ["confirm/cancel", "confirm/close"].includes(local) ? [{ action: "dismiss" }] : [];
@@ -74,6 +76,7 @@ function offersAt(
     const state = (props.state as StateName | undefined) ?? entry.state;
     const offerContext = { data, clock, wire, schema: def.props };
     const offered = affordancesOf(def.meta, props, id, localValues, state, includeBlocked, offerContext);
+    if (hostOnlyAddresses(def, id, offered)?.has(local)) return [];
     const canDrive = (part: string) => !drivenPartBlock(ctx, part);
     const target = driveTarget(def.meta, screen, ctx.defs, localValues, data, canDrive);
     return driveAffordances(def.meta, props, id, offered, target).filter((item) => item.address === local);
@@ -81,13 +84,8 @@ function offersAt(
     return [];
   }
 }
-function actionsAt(
-  ctx: ControllerContext,
-  address: string,
-  includeBlocked = false,
-  ignoreDisabledPart = false,
-) {
-  return offersAt(ctx, address, includeBlocked, ignoreDisabledPart).map(({ action }) => action);
+function actionsAt(ctx: ControllerContext, address: string, ignoreDisabledPart = false) {
+  return offersAt(ctx, address, false, ignoreDisabledPart).map(({ action }) => action);
 }
 export function offersReveal(ctx: ControllerContext, address: string, ignoreDisabledPart = false) {
   return offersAt(ctx, address, false, ignoreDisabledPart).some(({ hostReveal }) => hostReveal === true);
@@ -103,7 +101,7 @@ function press(ctx: ControllerContext, act: Act, address: string) {
       action: local === "confirm/confirm" ? "press" : "dismiss",
     });
   }
-  const offered = actionsAt(ctx, address, true);
+  const offered = offersAt(ctx, address, true).map(({ action }) => action);
   const tap = offered.find((item) => isPressAction(ctx, local, item));
   const action =
     tap ??
@@ -140,7 +138,17 @@ function read(ctx: ControllerContext, currency?: AppCurrency) {
   const visible = ctx.liveScreen(values, sheet, Boolean(sheet), now);
   const data = atDeviceTime(deviceData, now);
   const canDrive = ctx.standalone ? undefined : (part: string) => !drivenPartBlock(ctx, part);
-  const reading = readControls(visible, ctx.defs, values, lang, ctx.disabledParts, data, currency, canDrive);
+  const reading = readControls(
+    visible,
+    ctx.defs,
+    values,
+    lang,
+    ctx.disabledParts,
+    data,
+    currency,
+    canDrive,
+    ctx.privateMarks,
+  );
   if (ctx.standalone) return reading;
   return [
     reading,
@@ -148,12 +156,6 @@ function read(ctx: ControllerContext, currency?: AppCurrency) {
       .filter((entry) => ctx.store.get(ctx.key(entry.id, "error")))
       .map((entry) => `${entry.id} ${mediaUnavailable}`),
   ].join("\n");
-}
-function isKeypad(ctx: ControllerContext, full: string) {
-  const address = parseAddress(full);
-  const entry = address?.component && ctx.sourceOf(address.component);
-  const parts = entry ? ctx.defs[entry.c]?.props.meta()?.keypadParts : undefined;
-  return Array.isArray(parts) && parts.includes(address?.part ?? "root");
 }
 export function createStandaloneAccess(options: ControllerOptions, currency?: AppCurrency) {
   const ctx = createControllerContext(options, true);
@@ -167,7 +169,7 @@ export function createAccess(
 ) {
   return {
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>
-      actionsAt(ctx, address, false, options?.ignoreDisabledPart),
+      actionsAt(ctx, address, options?.ignoreDisabledPart),
     press: (address: string) => press(ctx, act, address),
     read: () => read(ctx, currency),
     canPress: (address: string) =>

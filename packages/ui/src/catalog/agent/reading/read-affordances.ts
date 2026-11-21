@@ -1,8 +1,12 @@
 import type { Meta } from "../../meta";
 import type { Definition } from "../../probes";
+import type { StateName } from "../../types";
+import { hostOnlyAddresses } from "../action-input";
+import { driveAffordances, type driveTarget } from "../drives";
 import { liveInputKey, pickerAt } from "../live-inputs";
 import { linkedInput } from "../linked-edits";
 import {
+  affordancesOf,
   choiceOptions,
   controlValueKey,
   partTierAt,
@@ -11,11 +15,12 @@ import {
   selectionOffer,
   sessionActionProps,
   type Affordance,
+  type DeviceData,
   type SessionState,
   type Values,
 } from "../index";
-import { isRuntimeSet, setAt } from "../clocks";
-import { itemEditAt } from "../report-edits";
+import { isRuntimeSet, recordClockOffer, setAt } from "../clocks";
+import { itemEditAt, reportEditWire } from "../report-edits";
 
 const risks: Record<string, string> = {
   ok: " !needs-ok",
@@ -35,6 +40,30 @@ function initialDetail(affordance: Affordance, value: unknown) {
   if (affordance.action === "toggle") return `:${value ? "on" : "off"}`;
   if (!affordance.input && affordance.action === "check") return `:${value ? "done" : "todo"}`;
   return affordance.detail;
+}
+
+export function readOffers(
+  def: Definition,
+  wire: unknown,
+  instance: string,
+  props: Values,
+  state: StateName,
+  values: Values,
+  addresses: ReadonlySet<string>,
+  data?: DeviceData,
+  target?: ReturnType<typeof driveTarget>,
+) {
+  const get = (part: string) => values[`${instance}/${part}`];
+  const offered = affordancesOf(def.meta, props, instance, values, state, false, {
+    data,
+    clock: recordClockOffer(def, wire as Values, props, get, data, undefined, values),
+    wire: reportEditWire(def, wire, get),
+    schema: def.props,
+  });
+  const hostOnly = hostOnlyAddresses(def, instance, offered);
+  const visible = offered.filter(({ address }) => !hostOnly?.has(address) && !addresses.has(address));
+  const destination = target && !addresses.has(target.address) ? target : undefined;
+  return driveAffordances(def.meta, props, instance, visible, destination);
 }
 
 /** Describe the offered controls using live values and choices. */

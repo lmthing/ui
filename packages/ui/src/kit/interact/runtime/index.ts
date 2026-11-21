@@ -11,3 +11,9 @@ export { createAct, discardHiddenConfirmation } from "./dispatch";
 export { createAccess, createStandaloneAccess, offersReveal } from "./access";
 export { readControls } from "./read-controls";
 export { createReveal, type AuthenticateReveal } from "./reveal";
+export {
+  privateMarkRegistration,
+  PrivateMarkContext,
+  type PrivateMarkAdapter,
+  type PrivateMarkSurfaceProps,
+} from "./private-mark";

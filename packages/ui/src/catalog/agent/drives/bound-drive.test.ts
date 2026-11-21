@@ -1,6 +1,6 @@
 import { expect, it, vi } from "vitest";
 import { z } from "zod";
-import { components, type Definition } from "@lmthing/ui/catalog";
+import { components, hostOnlyParts, planAct, readScreen, type Definition } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { checkStep, selectionFixture } from "../../probes/fixtures";
 
@@ -48,4 +48,24 @@ it("offers a driven seek only while the destination's bound selection permits a 
   } finally {
     runtime.dispose();
   }
+});
+
+it("does not offer or plan a drive to a host-only destination", () => {
+  const Player = {
+    ...components.Player,
+    meta: { ...components.Player.meta, ...hostOnlyParts({ parts: ["scrubber"] }) },
+  };
+  const defs = { ChaptersFixture: chapterList, Player };
+  const screen = {
+    id: "home",
+    components: [
+      { id: "c1", c: chapterList.meta.id, chapters: [{ at: 12 }] },
+      { id: "p1", c: "Player", media: "lib:fixture", title: "Recording", seconds: 30 },
+    ],
+  };
+  expect(readScreen(screen, defs)).not.toContain("[c1/r1 press]");
+  expect(planAct(screen, defs, {}, [{ address: "c1/r1", action: "press" }])).toMatchObject({
+    ok: false,
+    code: "not_actionable",
+  });
 });
