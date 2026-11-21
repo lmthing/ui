@@ -2,9 +2,8 @@ import { z } from "zod";
 // prettier-ignore
 import { clock, isoDate, itemsOf, placeholderTitle, probesFor, screenId, text, timeOfDayLine,
   thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
-// prettier-ignore
-import { KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitIcon, KitRow, KitText,
-  KitTrack, useComponentState, useWords } from "../../../kit";
+import { KitAction, KitCard, KitContent, KitEmpty, useComponentState, useWords } from "../../../kit";
+import { TimelineFlow, type TimelineFlowGroup } from "../../../kit/timeline";
 import {
   agendaDay,
   agendaAttendees,
@@ -121,47 +120,41 @@ export const probes = [
     variant: { axis: "group", value: "none" },
   },
 ] satisfies Probe[];
-function AgendaEvent({ event, heading, laterDay }: { event: Entry; heading: boolean; laterDay: boolean }) {
-  const {
-    lang,
-    words: { agendaLabels },
-  } = useWords(homeWordsFor);
-  return (
-    <KitRow item={event.id} role="button" label={agendaReading(event, "", lang)} inline>
-      {heading && (
-        <KitContent group={laterDay ? "response" : "content"}>
-          <KitText role="label" tone="muted" part="date">
-            {agendaDay(event.date, lang)}
-          </KitText>
-        </KitContent>
-      )}
-      <KitContent>
-        <KitGrid columns={2} fitLast>
-          <KitText part="title">{event.title}</KitText>
-          <KitIcon name="chevron_right" scale="sm" decorative />
-        </KitGrid>
-        <KitTrack part="who" label={agendaPeople(event.who, lang)}>
-          <KitText part="time" role="caption" tone="muted" tabular lines={1}>
-            {event.time ? timeOfDayLine(event.time, lang) : agendaLabels.allDay}
-          </KitText>
-          <KitIcon name="user" scale="sm" decorative />
-          <KitText part={null} role="caption" tone="muted" lines={1}>
-            {agendaAttendees(event.who, lang)}
-          </KitText>
-        </KitTrack>
-        {event.conflict && (
-          <KitText part="conflict" role="caption" tone="warn">
-            {agendaLabels.conflict}
-          </KitText>
-        )}
-      </KitContent>
-    </KitRow>
-  );
+function AgendaEvents({ entries, headings, lang }: { entries: Entry[]; headings: boolean; lang: string }) {
+  const { agendaLabels } = homeWordsFor(lang);
+  type Group = Omit<TimelineFlowGroup, "rows"> & { rows: TimelineFlowGroup["rows"][number][] };
+  const groups = new Map<string | undefined, Group>();
+  for (const event of entries) {
+    const date = headings ? event.date : undefined;
+    let group = groups.get(date);
+    if (!group) {
+      group = { rows: [], ...(date ? { date: { part: "date", text: agendaDay(date, lang) } } : {}) };
+      groups.set(date, group);
+    }
+    group.rows.push({
+      kind: "summary",
+      item: event.id,
+      label: agendaReading(event, "", lang),
+      slots: {
+        title: { part: "title", text: event.title },
+        time: { part: "time", text: event.time ? timeOfDayLine(event.time, lang) : agendaLabels.allDay },
+        byline: {
+          part: "who",
+          label: agendaPeople(event.who, lang),
+          text: agendaAttendees(event.who, lang),
+          icon: "user",
+        },
+        ...(event.conflict ? { status: { part: "conflict", text: agendaLabels.conflict } } : {}),
+      },
+    });
+  }
+  return <TimelineFlow groups={[...groups.values()]} />;
 }
 
 export function Agenda({ entries, goto, group, surface }: AgendaProps) {
   const state = useComponentState();
   const {
+    lang,
     words: { agendaLabels },
   } = useWords(homeWordsFor);
   if (state === "empty")
@@ -174,10 +167,7 @@ export function Agenda({ entries, goto, group, surface }: AgendaProps) {
     );
   return (
     <KitCard part="root" padded {...{ surface }}>
-      {entries.map((event, index) => {
-        const heading = group === "dates" && entries[index - 1]?.date !== event.date;
-        return <AgendaEvent key={event.id} event={event} heading={heading} laterDay={index > 0} />;
-      })}
+      <AgendaEvents entries={entries} headings={group === "dates"} lang={lang} />
       <KitContent group="response">
         <KitAction label={agendaLabels.add} part="add" goto={goto} kind="secondary" full />
       </KitContent>
