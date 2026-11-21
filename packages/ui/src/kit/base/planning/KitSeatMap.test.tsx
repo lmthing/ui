@@ -102,6 +102,36 @@ it("keeps descriptive drawing ids separate from controller item ids", () => {
   expect(elementAt(html, "home/c1/r8/seat").attributes).toContain('aria-label="Ari"');
 });
 
+it("keeps a seat drawing inert when move has no destination, valid address or controller offer", () => {
+  const controller = createScreenController({ defs: components, screen: { id: "home", components: [] } });
+  const move = { destinations: ["Elm"], label: (destination: string) => destination };
+  const options = [
+    {
+      ...tables[0],
+      seats: [
+        { ...tables[0].seats[0], move },
+        {
+          id: "r3",
+          label: "Bea",
+          initials: "BE",
+          target: { part: "root" },
+          move: { ...move, destinations: [] },
+        },
+        { id: "outer-seat", label: "Cam", initials: "CA", target: { part: "root" }, move },
+      ],
+    },
+  ];
+  try {
+    const html = render({ tables: options }, controller);
+    expect(elementAt(html, "home/c1/r1/seat_1").attributes).toContain('aria-disabled="true"');
+    expect(elementAt(html, "home/c1/r3/root").attributes).toContain('role="img"');
+    expect(html).not.toMatch(/outer-seat|aria-expanded="true"/);
+    expect(render({ tables: options, loading: true }, controller)).not.toMatch(/role="button"|aria-expanded/);
+  } finally {
+    controller.dispose();
+  }
+});
+
 it("dispatches touch and keyboard activation through the controller at the seat's supplied address", async () => {
   const controller = createScreenController({ defs: components, screen: { id: "home", components: [] } });
   const press = vi.spyOn(controller, "press");
