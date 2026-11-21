@@ -192,7 +192,7 @@ export function Cart(input: CartProps) {
         <BasketLine key={line.id} {...{ line, density, detail, loading }} />)}</kit.KitGrid>
       <kit.KitContent group={density === "compact" ? "content" : "response"} {...{ density }}>
         <kit.KitLayoutText line={{ text: cart.promo, role: "meta", tone: "muted" }} {...{ density }} />
-        {loading ? <kit.KitSkeleton shape="control" kind="secondary" full inset="none" /> : <kit.KitInput part="promo" label={cart.promo} hint="" compact />}
+        {loading ? <kit.KitSkeleton shape="control" kind="secondary" label={cart.promo} full inset="none" /> : <kit.KitInput part="promo" label={cart.promo} hint="" compact />}
       </kit.KitContent>
       <BasketTotals {...{ input, density, loading }} />
     </>}

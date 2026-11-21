@@ -193,7 +193,7 @@ export function ProductGrid(input: GridProps) {
     </kit.KitContent></kit.KitCard>}
     <kit.KitGrid list listRowGap="cards" {...{ arrange }} density={menu ? density : "comfortable"}>
       {items.map((item, index) => {
-        const pair = items[index ^ 1], offerSlot = !menu && (pair?.was !== undefined || !!pair?.badge);
+        const pair = items[index % 2 === 0 ? index + 1 : index - 1], offerSlot = !menu && (pair?.was !== undefined || !!pair?.badge);
         return <kit.PartScope key={item.id} {...context} item={item.id}><Tile {...{ item, menu, density, deals, offerSlot }} /></kit.PartScope>;
       })}
     </kit.KitGrid></kit.KitCard>;
