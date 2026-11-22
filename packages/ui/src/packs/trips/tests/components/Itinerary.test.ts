@@ -147,6 +147,7 @@ describe("Itinerary parts and read/act", () => {
     expect(full.get("home/c1/r1/stop_1")?.attributes).toContain('role="link"');
     expect(full.get("home/c1/r1/date")?.text.join("")).toMatch(/Thu,? 4 Mar/);
     expect(full.get("home/c1/r1/place")?.text).toContain("Tokyo");
+    expect(full.get("home/c1/r2/stop_2_time")?.text).toContain("Time TBD");
     expect(full.get(duration)?.text).toContain("2 h 10 min");
     expect([...addresses({ surface: "outlined", density: "compact" }).keys()]).toEqual([...full.keys()]);
     expect([...addresses({ detail: "brief" }).keys()]).toEqual(
