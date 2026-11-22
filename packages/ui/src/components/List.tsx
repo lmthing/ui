@@ -7,7 +7,7 @@ const trailPart = { adds: ["trail"] } as const;
 export const meta = {
   id: "List", group: "content", status: "ready",
   purpose: "Several things of the same kind, each one tappable.",
-  pick: "The person's entries of one kind, in tappable rows to scan by name and open one. Choose this when no photos are requested. Not one featured thing (Card), browsing photos (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).",
+  pick: "The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).",
   writeHints: [
     'Use null for all unrequested List and row axes. Data such as status, urgency or recency does not request a mark or tone. If asked to highlight, use mark "highlight" on at most one in three rows (none in a one- or two-row list).',
     'Use style "expand" with a body on every FAQ row or "shelf" with a photo on every sideways rail row. Photos use references like "lib:plants" or "local:1". The water icon is "drop".',

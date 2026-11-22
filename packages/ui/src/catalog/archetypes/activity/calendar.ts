@@ -16,7 +16,7 @@ export const meta = createMeta(
     ],
     month: [
       ...timelineHint,
-      'Use the same specific title for the screen and Header, naming what is scheduled and in which month, e.g. "November appointments". In Header.sub, explain the calendar dots and name the selected-day agenda, e.g. "Dots show events · Nov 18 agenda". Use literal null for Header.detail, Header.emphasis and Header.density so the subtitle stays visible.',
+      'Use the same specific title for the screen and Header, naming what is scheduled and in which month, e.g. "November appointments". In Header.sub, explain the calendar dots and name the selected date and its event count, e.g. "Event dots · Nov 18: 1 appointment". Use literal null for Header.detail, Header.emphasis and Header.density so the subtitle stays visible.',
       'Then show the full Calendar as month_calendar with the supplied month and year, its selected date, and tone good on every supplied event date. Follow it with selected_day_agenda, a Timeline of only that date’s events in time order. Use short month-and-day dates, not ISO dates, before each supplied purpose in meta, e.g. "Nov 18 · Routine review". Do not promise that tapping another date refreshes the agenda. Keep Timeline.detail, Timeline.density and every item’s done null.',
     ],
   },
