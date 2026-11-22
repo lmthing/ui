@@ -143,6 +143,13 @@ describe("Departures states and parts", () => {
     expect(parts.has(`${root}/more`)).toBe(false);
   });
 
+  it("keeps the overflow count directly after the rows when a service alert is present", () => {
+    const input = examples[2]!;
+    const data = meta.previewDeviceData({ input, state: "filled" });
+    const parts = draw(input, "filled", data);
+    expect([...parts.keys()].slice(-2)).toEqual([`${root}/more`, `${root}/alerts`]);
+  });
+
   it("renders an inert empty message or loading shape instead of any row targets", () => {
     const empty = draw(board, "empty");
     expect([...empty.keys()]).toEqual(["home/c1/root", "home/c1/stop", "home/c1/empty"]);

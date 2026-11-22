@@ -114,28 +114,21 @@ export function Address(input: c.Props<typeof props, typeof meta>) {
         )}
       </kit.KitContent>
       <kit.KitContent density={density} group="response">
-        <kit.KitGrid density={density}>
+        <kit.KitGrid fitLast density={density}>
           <kit.KitMapTile part="map" pins={[{ ...previewPin, label: words.addressMapPreview }]} />
-          <kit.KitGrid arrange="rows">
+          <kit.KitContent density={density}>
             <kit.KitAction
-              full
-              part="directions"
               action="press"
+              part="directions"
               kind="secondary"
               label={words.addressDirections}
             />
-            <kit.KitAction full part="copy" action="press" kind="quiet" label={words.addressCopy} />
-          </kit.KitGrid>
-        </kit.KitGrid>
-        {callLabel && (
-          <kit.KitContent group="response" density={density}>
-            <kit.KitRow inline part="call" role="button" label={callLabel} density={density}>
-              <kit.KitText role="label" tone="accent" part={null} density={density}>
-                {callLabel}
-              </kit.KitText>
-            </kit.KitRow>
+            <kit.KitAction action="press" part="copy" kind="quiet" label={words.addressCopy} />
+            {callLabel && (
+              <kit.KitAction action="press" part="call" kind="quiet" label={callLabel} contentParts={{}} />
+            )}
           </kit.KitContent>
-        )}
+        </kit.KitGrid>
       </kit.KitContent>
     </kit.KitCard>
   );
