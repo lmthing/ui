@@ -8,17 +8,16 @@ import {
   KitText,
   PartScope,
   kitFonts,
-  kitThemes,
   kitTokens,
+  themeFor,
   useKit,
 } from "@lmthing/ui/kit";
 
-const roles = kitThemes.kit_calm_light_moss;
 const config = createTamagui({
   tokens: createTokens(kitTokens),
   fonts: kitFonts,
   defaultFont: "humanist",
-  themes: { kit_calm_light_moss: { ...roles, color: roles.text, background: roles.bg } },
+  themes: { kit_calm_light_moss: themeFor("kit_calm_light_moss") },
 });
 
 function Preference() {

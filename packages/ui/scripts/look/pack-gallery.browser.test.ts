@@ -1,24 +1,46 @@
 import { existsSync, readdirSync } from "node:fs";
-import { URL } from "node:url";
+import { mkdir, mkdtemp, rm } from "node:fs/promises";
+import { fileURLToPath, URL } from "node:url";
 import { afterAll, beforeAll, expect, it } from "vitest";
-import { createServer, type ViteDevServer } from "vite";
+import { build, preview, type PreviewServer } from "vite";
 import type { Browser, Page } from "playwright-core";
-import { components, packOf, presets, type Definition } from "@lmthing/ui/catalog";
+import {
+  components,
+  ink,
+  moss,
+  packOf,
+  paper,
+  presets,
+  themeRoles,
+  warm,
+  type Definition,
+} from "@lmthing/ui/catalog";
 import { galleryConfig, launchChrome } from "./index";
 
 const folder = new URL("../../src/packs/", import.meta.url);
 const packs = readdirSync(folder).filter((name) => existsSync(new URL(`${name}/pack.ts`, folder)));
 const defs: Record<string, Definition> = components;
-let server: ViteDevServer, browser: Browser;
+let server: PreviewServer, browser: Browser, outDir: string;
 
 beforeAll(async () => {
-  server = await createServer(galleryConfig(0));
-  await server.listen();
+  // This suite navigates every route in sequence. Serve the same bundle as the web build rather
+  // than requesting the entire Vite development module graph again on each navigation.
+  const shots = new URL("../../shots/", import.meta.url);
+  await mkdir(shots, { recursive: true });
+  outDir = await mkdtemp(fileURLToPath(new URL("pack-gallery-", shots)));
+  const options = {
+    ...galleryConfig(0),
+    build: { outDir },
+    preview: { host: "127.0.0.1", port: 0 },
+  };
+  await build(options);
+  server = await preview(options);
   browser = await launchChrome();
 }, 60000);
 afterAll(async () => {
   await browser?.close();
   await server?.close();
+  if (outDir) await rm(outDir, { recursive: true, force: true });
 });
 
 async function overview(page: Page, pack: string, ids: string[]) {
@@ -69,3 +91,39 @@ it.each(packs)(
   },
   120000,
 );
+
+it("registers preview palettes only when the gallery requests them", async () => {
+  const page = await browser.newPage();
+  try {
+    const url = server.resolvedUrls!.local[0]!;
+    await page.goto(`${url}?pack=commerce`);
+    const card = page.getByTestId("component_Cart");
+    await card.waitFor();
+    const dark = "t_kit_warm_dark_moss";
+    expect(
+      await page.evaluate(
+        (selector) =>
+          Array.from(document.styleSheets).some((sheet) =>
+            Array.from(sheet.cssRules).some((rule) => rule.cssText.includes(`.${selector}`)),
+          ),
+        dark,
+      ),
+    ).toBe(false);
+    await card.getByRole("button", { name: /Show all/ }).click();
+    const darkPreview = card.locator(`.${dark}`).first();
+    await darkPreview.waitFor();
+    const bg = (el: Element) => getComputedStyle(el).getPropertyValue("--bg").trim();
+    expect(await darkPreview.evaluate(bg)).toBe(themeRoles(warm, moss, "dark").bg);
+    await card.getByRole("button", { name: "Hide variants" }).click();
+    await card.getByRole("button", { name: /Show all/ }).click();
+    expect(await darkPreview.evaluate(bg)).toBe(themeRoles(warm, moss, "dark").bg);
+
+    await page.goto(`${url}?controls=numbers&preset=paper&mode=dark&accent=ink`);
+    const control = page.getByTestId("controls/c1/value");
+    const accent = (el: Element) => getComputedStyle(el).getPropertyValue("--accent").trim();
+    expect(await control.evaluate(bg)).toBe(themeRoles(paper, ink, "dark").bg);
+    expect(await control.evaluate(accent)).toBe(themeRoles(paper, ink, "dark").accent);
+  } finally {
+    await page.close();
+  }
+});

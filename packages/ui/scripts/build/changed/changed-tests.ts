@@ -177,7 +177,6 @@ export async function prepareChangedRun(root: string, base: string) {
   const empty = !reasons.length && !files.length;
   if (empty) return { empty };
   await buildCachedEntries(root);
-  await import("../build-themes");
   const plan = reasons.length ? undefined : relatedSelection(root, files);
   if (plan) {
     process.env.UI_TEST_COMPONENTS = plan.ids.join(",");

@@ -71,7 +71,7 @@ packages/ui/
   src/components/   PascalCase definitions and views; adjacent prompt Markdown and tests
   src/kit/
     provider/       KitProvider, context, useKit, useKitStyle, environment, useEnvironment
-    tamagui/        tokens, fonts, animations, themes.generated, theme-name
+    tamagui/        tokens, fonts, animations, theme-for, theme-name
     base/           exported bases and helpers (5.4)
     part/           part-context, usePart
     screen/         Screen, PhoneScreen
@@ -383,7 +383,7 @@ tints must retain their existing contrast.
 
 **Shapes.** Presets are plain data: id, mood, font, optional heading font, numbers, weight, shape, density, surface and
 light/dark base roles. Current surfaces are `soft`, `solid`, `hairline`; `weight` is `regular` or
-`strong`. Accents supply `accent`, `accentSoft` and `onAccent`. Generated themes merge those role sets.
+`strong`. Accents supply `accent`, `accentSoft` and `onAccent`. Theme lookup merges those role sets.
 Raw colours belong only in tokens and themes.
 
 `KitStyle` is everything a preset changes that is not a colour, derived from the preset by a pure function and handed to `KitProvider`:
@@ -596,8 +596,8 @@ reports for every entry/block.
 
 ### 4.10 Checks
 
-`scripts/check.ts` runs Vitest; `pnpm test` generates entries/themes first. `build:catalog` runs the
-data-only bundle check. A unified `pnpm catalog:check` command is **pending**. Existing checks are
+`scripts/check.ts` runs Vitest; `pnpm test` generates entries first. `build:catalog` runs the
+data-only bundle and full contrast checks. A unified `pnpm catalog:check` command is **pending**. Existing checks are
 distributed, not all implemented by one script.
 
 | Requirement                                                                   | Status                                                                                                                                                   |
@@ -877,18 +877,21 @@ are not proof of native support. Dependency choices belong in `docs/dependencies
 The public package exports only `./catalog` and `./kit`, not `./kit/tamagui`.
 
 ```ts
-import { kitTokens, kitThemes, kitFonts, kitSprings, kitFontAssets } from "@lmthing/ui/kit";
+import { kitTokens, kitFonts, themeFor, themeName } from "@lmthing/ui/kit";
 
+const name = themeName(selectedTheme);
 const config = createTamagui({
   tokens: createTokens({ ...kitTokens, ...hostTokens }),
-  themes: { ...kitThemes, ...hostThemes },
+  themes: { ...hostThemes, [name]: themeFor(name) },
   fonts: { ...kitFonts, ...hostFonts },
 });
 ```
 
-Host tokens use their own prefix. `kitThemes` is committed generated data from
-`scripts/build-themes.ts`, named `kit_<preset>_<mode>_<accent>`. The script writes current themes or
-checks staleness with `--check`; it does not implement compact generation.
+Host tokens use their own prefix. `themeFor` resolves and caches one palette named
+`kit_<preset>_<mode>_<accent>` from catalog roles. Register only the themes a host is about to display.
+Web hosts can use Tamagui's `addTheme` before displaying a newly selected theme. Server-rendered hosts
+include the selected themes when they create the config. The catalog build still checks contrast for
+all 288 names; it no longer writes a generated theme table.
 
 Font families are Inter, Source Sans 3, Nunito, Fraunces headings with Source Serif 4 text, and Barlow
 Condensed numbers. Gallery loads them through Fontsource. `kitFontAssets` is empty. **Pending:**
@@ -896,9 +899,7 @@ bundled OFL font files for host native loaders such as `expo-font`.
 
 `kitSprings` exports plain configs for host animation/stage worklets. Current kit motion uses the
 RAF spring driver in `kit/motion`; it is not a configured Reanimated/CSS Tamagui animation driver.
-**Pending:** native/Tamagui driver integration and measured compact mode. If the
-full web size exceeds the budget, `build-themes --compact` must emit 24 preset/mode themes with accent
-role overrides and the same API.
+**Pending:** native/Tamagui driver integration and the full kit web size gate.
 
 ### 5.3 Provider and host interfaces
 
@@ -1210,12 +1211,12 @@ not the shared fixed-port gallery server.
 | ------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | `pnpm gallery`                                    | Generate entries and start the Vite gallery (not used by parallel component tasks) |
 | `pnpm test:changed main`                          | Run related Node tests with component and pack filters during task work            |
-| `pnpm test`                                       | Generate entries/themes and run the full Node suite at merge                       |
+| `pnpm test`                                       | Generate entries and run the full Node suite at merge                              |
 | `pnpm test:browser`                               | Run the separate serial Chrome runtime suite                                       |
 | `pnpm format:check`, `pnpm typecheck`             | Root formatting and workspace TypeScript                                           |
 | `pnpm build:entries`                              | Scan/generate data and renderer doors                                              |
 | `pnpm build:catalog`, `pnpm catalog:bundle-check` | Build and check the data-only Node entry                                           |
-| `pnpm kit:themes --check`                         | Verify generated theme source                                                      |
+| `pnpm kit:themes --check`                         | Verify contrast across all 288 themes without generating source                   |
 | `pnpm llm:check`                                  | Core probes; component/pack/compose/merge and replay flags in 4.13                 |
 | `pnpm look --component <Id>`, `pnpm shoot`        | Automated phone review or gallery capture                                          |
 | `pnpm --filter @lmthing/ui build`                 | Both ESM entries and declarations                                                  |
@@ -1287,7 +1288,7 @@ mid-range Android and an iPhone about three years old.
 | Morph                                 | 60 fps; under 5% dropped frames                                           |
 | Part registration                     | Under one frame/screen, batched                                           |
 | Runtime report                        | 150 ms typical, 300 ms maximum after mount                                |
-| Kit plus all themes in web build      | Under 250 KB compressed at 288 themes; compact mode if over               |
+| Kit plus theme data in web build      | Under 250 KB compressed with 288 themes available on demand              |
 | Catalog import, fresh Node process    | Under 50 ms; no validation/top-level work beyond data/schema construction |
 | Read 9 components plus 6-row list     | ≤300 tokens, under 5 ms                                                   |
 | Read app outline                      | ≤15 tokens/screen                                                         |
@@ -1392,7 +1393,7 @@ lmthing Phase 0; one developer doing both adds that time. These are not current 
       Default: the optional licensed bundle; no image model.
 - [ ] **Full preset/accent values:** finish the 12×12 design, or explicitly revise the target.
       Default: finish it and pass contrast. Only 3×2 is built; this is not approval to lower the count.
-- [ ] **Compact themes:** 288 full themes, or 24 preset/mode themes with accent overrides.
+- [x] **On-demand themes:** 288 names backed by shared preset and accent roles, verified at build time.
       Default: full until the size measurement requires compact; neither full coverage nor compact exists.
 - [ ] **Hook ownership:** current `PhoneScreen` installs `window.__lmthingUI` on mount and deletes its
       own hook on cleanup. Keep that convenience, or let only hosts expose access through `onReady`.

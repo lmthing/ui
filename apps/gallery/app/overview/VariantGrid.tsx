@@ -1,6 +1,7 @@
 import { XStack } from "tamagui";
-import { presets, space, type ComponentName } from "@lmthing/ui/catalog";
-import { cellKey, cellsOf, modes } from "./gallery-data";
+import { space, type ComponentName } from "@lmthing/ui/catalog";
+import { gridThemes } from "../../index";
+import { cellKey, cellsOf } from "./gallery-data";
 import { Preview } from "./Preview";
 
 export function VariantGrid({
@@ -14,25 +15,20 @@ export function VariantGrid({
   mode?: string | null;
   responsive?: boolean;
 }) {
+  const cells = cellsOf(id);
   return (
     <XStack flexWrap="wrap" gap={space.xl} testID={`variants_${id}`}>
-      {presets
-        .filter((item) => !preset || item.id === preset)
-        .flatMap((item) =>
-          modes
-            .filter((value) => !mode || value === mode)
-            .flatMap((value) =>
-              cellsOf(id).map((cell) => (
-                <Preview
-                  key={`${item.id}_${value}_${cellKey(cell)}`}
-                  cell={cell}
-                  preset={item.id}
-                  mode={value}
-                  responsive={responsive}
-                />
-              )),
-            ),
-        )}
+      {gridThemes(preset, mode).flatMap(({ preset, mode }) =>
+        cells.map((cell) => (
+          <Preview
+            key={`${preset}_${mode}_${cellKey(cell)}`}
+            cell={cell}
+            preset={preset}
+            mode={mode}
+            responsive={responsive}
+          />
+        )),
+      )}
     </XStack>
   );
 }
