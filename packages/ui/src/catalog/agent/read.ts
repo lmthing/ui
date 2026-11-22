@@ -1,4 +1,4 @@
-import { liveProps, parseControlProps } from "./live-props";
+import { liveProps, localValues, parseControlProps } from "./live-props";
 import { z } from "zod";
 import type { Definition } from "../probes";
 import type { StateName } from "../types";
@@ -28,7 +28,7 @@ import {
 import { driveTarget, projectDriveObservation, type CanDrive } from "./drives";
 import { captureDeviceTime, isDeviceDataVisible, projectDeviceData, type DeviceData } from "./device-data";
 import { withRecordScreen } from "./record-runtime";
-import { redactPrivateMarks } from "./action-input";
+import { redactPrivateMarks } from "./private-controls";
 import { hostActionPolicy, readHostOperations, type HostActionPolicy } from "./host-commands";
 
 type Props = Record<string, unknown>;
@@ -114,9 +114,7 @@ export function readScreen(
   const migrated = migrateScreen(screen, { variantOnly: true, includeSavedRing: true });
   deviceData = withRecordScreen(captureDeviceTime(defs, deviceData), migrated);
   const snapshot = projectDeviceData(deviceData, redactPrivateMarks(values).values);
-  const local = Object.fromEntries(
-    Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
-  );
+  const local = localValues(screen.id, values);
   const { values: safe, addresses } = redactPrivateMarks(local);
   const header = `screen ${screen.id}${screen.title ? ` ${quote(screen.title)}` : ""}`;
   const lines = migrated.components.flatMap(({ id, c, state, ...props }) => {

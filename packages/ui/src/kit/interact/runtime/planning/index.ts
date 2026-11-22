@@ -1,28 +1,28 @@
-import { isLocalAnchorAction, type ActStep, type RandomSource } from "../../../../catalog";
+import {
+  drawRole,
+  isLocalAnchorAction,
+  privateMarkKey,
+  reportConfirmation,
+  sessionEvent,
+  type ActStep,
+  type RandomSource,
+} from "../../../../catalog";
 import {
   actionFailure,
   confirmationAction,
   confirmationFor,
+  deliverSend,
   handlerFor,
   navigationAction,
+  type ActionContext,
   type ActionResult,
   type ActionState,
 } from "../../actions";
 import type { ControllerContext, MediaRuntime } from "../index";
-import {
-  dispatchPlan,
-  drivenPartBlock,
-  hostCaptureEffects,
-  isDraw,
-  isRevealRelease,
-  needsConfirmation,
-  runAnchor,
-  standaloneEffects,
-} from "./introduced-part";
-import { prepareStep, type PreparedAction } from "./prepare-step";
-import { runHostCommand } from "./host-command";
+import { dispatchPlan, prepareStep, type PreparedAction } from "./prepare-step";
+import { runHostCommand } from "../host";
 import { holdFailure } from "../hold";
-export { driveAccess, inactive } from "./introduced-part";
+export { inactive } from "./prepare-step";
 
 function runControl({ state, context, localEvent }: PreparedAction, selected: ActStep, address: string) {
   const { links, screen } = context;
@@ -123,4 +123,76 @@ export function planSteps(
     effects.push(...result.effects);
   }
   return { state, effects, ...execution };
+}
+
+function drivenPartBlock(ctx: ControllerContext, address: string, action?: string) {
+  if (ctx.privateMarks.has(address) || ctx.store.get(privateMarkKey(ctx.screen.id, address)))
+    return { code: "not_actionable", hint: "Private control" };
+  if (ctx.disabledParts.has(address)) return { code: "disabled", hint: "This control is disabled" };
+  if (action && isLocalAnchorAction(action) && !ctx.anchors.has(address))
+    return { code: "not_mounted", hint: "This anchor is not mounted" };
+  if (ctx.options.requireMounted && !ctx.mounted.has(address))
+    return { code: "not_mounted", hint: "This control is not mounted" };
+}
+
+export function driveAccess(ctx: ControllerContext) {
+  return (part: string, observe?: true, action?: string) =>
+    observe ? !ctx.privateMarks.has(part) : !drivenPartBlock(ctx, part, action);
+}
+
+function runAnchor(
+  ctx: ControllerContext,
+  before: ActionState,
+  state: ActionState,
+  address: string,
+  action: "focus" | "jump",
+  at: number,
+): ActionResult {
+  const block = drivenPartBlock(ctx, address, action);
+  if (block) return { state: before, effects: [], error: actionFailure(at, block.code, block.hint) };
+  return { state, effects: [() => ctx.anchors.get(address)?.(action)] };
+}
+
+function needsConfirmation(ctx: ControllerContext, { entry, selected }: ActionContext) {
+  if (!ctx.standalone) return true;
+  const meta = ctx.defs[entry.c]!.meta;
+  const { successActions, errorActions, live } = meta;
+  const part = selected.address.split("/").slice(1).join("/") || "root";
+  if (meta.draw?.kind === "deck" && drawRole(meta, part, selected.action) === "reset") return true;
+  if (selected.action === "press" && meta.items?.reset === part) return true;
+  if (reportConfirmation(meta, part, selected.action)) return true;
+  if (successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits || meta.localState)
+    return true;
+  return Boolean(sessionEvent(meta, part, selected.action));
+}
+
+function isDraw({ entry, defs, selected }: ActionContext) {
+  const target = selected.address.split("/").slice(1).join("/") || "root";
+  const role = drawRole(defs[entry.c]!.meta, target, selected.action);
+  return role === "draw" || role === "redraw";
+}
+
+/** The planner has staged the mark already; don't send its canonical address through other controls. */
+function hostCaptureEffects({ selected, screen, options }: ActionContext) {
+  return [() => options.onAction?.({ ...selected, address: `${screen.id}/${selected.address}` })];
+}
+
+function standaloneEffects({ links, anchors, send, options }: ActionContext) {
+  const effects = links.map(
+    ({ goto, address }) =>
+      () =>
+        options.onLink?.(goto, address),
+  );
+  if (send) effects.push(() => deliverSend(send, options.onSend));
+  for (const { address, action } of anchors ?? []) effects.push(() => options.onAnchor?.(address, action));
+  return effects;
+}
+
+/** Releasing a private hold cannot be blocked by an unrelated confirmation. */
+function isRevealRelease(ctx: ControllerContext, action: ActStep) {
+  if (action.action !== "stop") return false;
+  const [id, ...parts] = action.address.split("/");
+  const entry = ctx.sourceOf(id!);
+  const meta = entry && ctx.defs[entry.c]?.meta;
+  return !!meta && sessionEvent(meta, parts.join("/") || "root", action.action) === "hide";
 }

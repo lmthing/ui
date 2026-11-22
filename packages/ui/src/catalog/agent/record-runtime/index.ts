@@ -1,10 +1,11 @@
 import type { Meta } from "../../meta";
 import type { Definition } from "../../probes";
 import { deviceTimeOf, selectDeviceData, type DeviceData } from "../device-data";
-import { liveProps, parseControlProps } from "../live-props";
+import { liveProps, localValues, parseControlProps, projectLiveInput } from "../live-props";
 import { addressedItems } from "../visibility";
 import type { ActStep, ScreenLike, Values } from "../index";
-export { defineLocalState, localEventOffer, projectLocalState, stageLocalEvent } from "./local-state";
+import { hasRecordClock, recordClockInput, stageRecordClock } from "../clocks";
+import { isRecordAction, recordRequestAllowed } from "../report-edits";
 
 export const isRecordJournal = (key: string) => key.startsWith("$record:");
 const addressOf = (screen: string, key: string) =>
@@ -124,4 +125,31 @@ export function stageRecordAction(
   if (!("error" in plan) && plan.operation !== undefined && (!component || step.recordTarget !== undefined))
     next[key] = [...input.journal, plan.operation];
   return plan;
+}
+
+export function stageRecordControl(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  next: Values,
+  step: ActStep,
+  data: DeviceData | undefined,
+  now: number,
+) {
+  const [id, ...parts] = step.address.split("/");
+  const { c, id: _id, state: _state, ...raw } = screen.components.find((entry) => entry.id === id)!;
+  const def = defs[c]!;
+  const target = parts.join("/") || "root";
+  const record = isRecordAction(def.meta, target, step.action);
+  if (!record && !hasRecordClock(def.meta)) return;
+  const base = `${screen.id}/${id}`;
+  const get = (part: string) => next[`${base}/${part}`];
+  const props = projectLiveInput(def, raw, id!, localValues(screen.id, next), data, now);
+  if (record) return recordRequestAllowed(def.meta, props, target, step); // Intent only until confirmation.
+  return stageRecordClock(
+    recordClockInput(def, raw, props, get, data, now, next),
+    next,
+    base,
+    target,
+    step.action,
+  );
 }

@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { inLocalWeek } from "./local-week";
+import { inLocalWeek } from "./timestamp";
 
 it("uses local Monday boundaries across a daylight-saving transition", () => {
   const week = "2026-03-02";
