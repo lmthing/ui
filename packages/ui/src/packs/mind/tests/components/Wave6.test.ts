@@ -14,7 +14,7 @@ describe("Breathe grounding", () => {
     expect([...addressedElements(html).keys()]).toEqual(
       ["root", "phase", "grounding", "step", "next"].map((part) => instance + part),
     );
-    expect(html).toContain("Notice five things you can see.");
+    expect(html).toContain("Look for five things.");
     expect(elementAt(html, instance + "next").attributes).toContain('aria-label="Next sense"');
     const completed = renderInstance("Breathe", input, "success", theme);
     expect(completed).toContain("Grounding complete");
