@@ -122,8 +122,11 @@ function ReceiptItem({ row, density, surface, currency }: {
   const loading = kit.useComponentState() === "loading", canOpen = Boolean(row.file || row.goto);
   const [amount, ...details] = receiptDetails(row, currency, lang);
   const skeleton = <kit.KitSkeleton shape="control" kind="quiet" />;
-  const groups = [["date", "category"], ["allocation", "allocated_amount"], ["tags", "file"]]
-    .map((parts) => parts.flatMap((part) => details.filter((detail) => detail.part === part)));
+  const groups = [["date", "category"], ["allocation", "allocated_amount"]]
+    .map((parts) => details.filter(({ part }) => parts.includes(part)));
+  const evidence = ["tags", "file"].flatMap((part) => details.filter((detail) => detail.part === part))
+    .map(({ part, line }) => <kit.KitLayoutText key={part}
+      line={{ part, text: line, role: "caption", tone: "muted" }} {...{ density }} />);
   const draw = (group: (typeof groups)[number]) => {
     if (!group.length) return null;
     const key = group[0]!.part;
@@ -150,7 +153,10 @@ function ReceiptItem({ row, density, surface, currency }: {
           <kit.KitLayoutText line={{ part: "amount", text: amount?.line, role: "figure", compact: true, tabular: true }}
             align="end" {...{ density }} />
         </kit.KitGrid>
-        <kit.KitContent rhythm="flush" density={density}>{groups.map(draw)}</kit.KitContent>
+        <kit.KitContent rhythm="flush" density={density}>
+          {groups.map(draw)}
+          {evidence.length === 2 ? <kit.KitGrid fitLast density={density}>{evidence}</kit.KitGrid> : evidence}
+        </kit.KitContent>
       </kit.KitContent>
     </kit.KitRow>
   </kit.KitRow>;
