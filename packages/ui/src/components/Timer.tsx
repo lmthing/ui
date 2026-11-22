@@ -1,26 +1,13 @@
 import { useVariant, useWords, KitAction, KitCard, KitContent, KitGrid, KitRow, KitText } from "../kit";
-import {
-  wordsFor,
-  probesFor,
-  clip,
-  clockLine,
-  clock,
-  isoDate,
-  leftLine,
-  localeOf,
-  placeholderTitle,
-  text,
-  thingOf,
-  variantProps,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
+// prettier-ignore
+import { wordsFor, probesFor, clip, clockLine, clock, isoDate, leftLine, localeOf, placeholderTitle,
+  text, thingOf, variantProps, type FallbackInput, type Meta, type Probe, type Props,
 } from "../catalog";
 import { z } from "zod";
 
 export const meta = {
   id: "Timer",
+  status: "ready",
   signature: "timer_spin",
   group: "data",
   purpose: "Measure time remaining or elapsed, with controls to start and stop.",
@@ -28,13 +15,14 @@ export const meta = {
   writeHints: [
     'A shortened running time sets only figures "short"; keep exact seconds and write density as JSON null unless tighter spacing was requested. Do not output default axis values.',
     'A countdown to a calendar date uses style "until", a date in until, and null for seconds; down and up use seconds instead.',
+    'A stopwatch with an elapsed-time target uses style "up" and goal in seconds. Keep elapsed seconds separate from the goal.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "A countdown or stopwatch based on timestamps stored on the phone.",
   variants: { density: ["comfortable", "compact"], figures: ["exact", "short"] },
-  parts: ["root", "time", "label", "start", "stop"],
+  parts: ["root", "time", "label", "start", "stop", "goal"],
   states: ["filled"],
   clocks: [
     {
@@ -71,7 +59,8 @@ export const meta = {
     const value = input as z.output<typeof props>;
     if (state !== "filled") return [];
     if (value.style === "until") return [leftLine(untilMs(value), lang)];
-    return [`${timerLine(value, lang)} ${value.style}`, timerLabels.start, timerLabels.stop];
+    const goal = value.goal === undefined ? [] : [timerGoal(value.goal, lang)];
+    return [`${timerLine(value, lang)} ${value.style}`, ...goal, timerLabels.start, timerLabels.stop];
   },
 } as const satisfies Meta;
 
@@ -81,6 +70,7 @@ export const props = z
     style: z.enum(["down", "up", "until"]).default("down"),
     label: text(24),
     seconds: z.number().int().min(0).max(86400).optional(),
+    goal: z.number().int().min(1).max(86400).optional(),
     until: isoDate.optional(),
     at: clock.optional(),
   })
@@ -96,6 +86,7 @@ export const props = z
     path: ["at"],
     message: "Time is for until",
   })
+  .refine(({ style, goal }) => style === "up" || goal === undefined, { path: ["goal"] })
   // Derived, never written: start and stop exist only for down and up.
   .overwrite((value) => ({ ...value, controls: value.style !== "until" }));
 
@@ -114,6 +105,8 @@ function timerLine(
   );
 }
 
+const timerGoal = (goal: number, lang?: string) => wordsFor(lang).goal(clockLine(goal, lang));
+
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   return {
     style: "up",
@@ -128,6 +121,7 @@ export const examples = [
   { style: "until", label: "Our wedding day", until: "2030-06-14", at: "14:00" },
   { style: "up", label: "Walk timer", seconds: 1260, density: "compact" },
   { style: "up", label: "Walk timer", seconds: 1260, figures: "short" },
+  { style: "up", label: "Walk timer", seconds: 1260, goal: 1800 },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Timer");
@@ -143,25 +137,33 @@ export const probes = [
     variant: { axis: "figures", value: "short" },
   },
   read("Start the timer", { address: "t1/start", action: "start" }),
+  {
+    ...write("Count up from 21 minutes elapsed on the walk and show a 30-minute goal."),
+    expectProps: { style: "up", seconds: 1260, goal: 1800 },
+  },
 ] satisfies Probe[];
 
+// prettier-ignore
 export function Timer(input: Props<typeof props, typeof meta>) {
-  const { style, label, figures } = input;
+  const { style, label, figures, goal } = input;
   const density = useVariant("density", meta.variants.density, input.density);
   const { lang, words } = useWords();
   const { timerLabels } = words;
   const controls = style !== "until";
   const value = controls ? timerLine(input, lang) : leftLine(untilMs(input), lang);
   const [amount, ...suffix] = value.split(" ");
-  const start = <KitAction label={timerLabels.start} kind="primary" part="start" full />;
-  const stop = <KitAction label={timerLabels.stop} kind="secondary" part="stop" full />;
+  const start = <KitAction label={timerLabels.start} kind={goal === undefined ? "primary" : "secondary"} part="start" full />;
+  const stop = <KitAction label={timerLabels.stop} kind={goal === undefined ? "secondary" : "quiet"} part="stop" full />;
   const readout = (
     <>
       <KitText role="number" align="center" tabular part="time" density={density}>
         {amount}
         {(!controls || figures === "short") && (
-          <KitText role="caption" tone="muted" part={null}>{` ${suffix.join(" ")}`}</KitText>
+          <KitText role={goal === undefined ? "caption" : "label"} tone="muted" part={null}>{` ${suffix.join(" ")}`}</KitText>
         )}
+        {goal !== undefined && <KitText role="label" tone="muted" part="goal">
+          {`\u2002${timerGoal(goal, lang)}`}
+        </KitText>}
       </KitText>
       <KitText role="body" tone="muted" align="center" part="label" density={density}>
         {label}
@@ -178,19 +180,11 @@ export function Timer(input: Props<typeof props, typeof meta>) {
         <KitContent density={density}>{readout}</KitContent>
       )}
       {controls &&
-        (density === "compact" ? (
-          <KitContent group="response" density={density}>
-            <KitGrid columns={2} density={density}>
-              {start}
-              {stop}
-            </KitGrid>
-          </KitContent>
-        ) : (
-          <>
-            {start}
-            {stop}
-          </>
-        ))}
+        (density === "compact"
+          ? <KitContent group="response" density={density}>
+              <KitGrid columns={2} density={density}>{start}{stop}</KitGrid>
+            </KitContent>
+          : <>{start}{stop}</>)}
     </KitCard>
   );
 }

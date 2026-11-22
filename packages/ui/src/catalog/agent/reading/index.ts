@@ -5,6 +5,7 @@ import { numberLine } from "../../format";
 import { peekLimit, wordsFor } from "../../lang";
 import { migrateLine } from "../../migrations";
 import { formatAffordance, visibleItems, type Affordance, type SessionState } from "../index";
+import { matches } from "../visibility";
 import { groupItemLines } from "./group-item-lines";
 import { secretPlaceholder } from "./secret-props";
 export { readAffordances, readOffers } from "./read-affordances";
@@ -65,6 +66,7 @@ export function itemTexts(
   item: Props,
   nestedKey?: string,
   omit?: string,
+  secrets?: readonly string[],
 ): string[] {
   const nested =
     nestedKey && Array.isArray(item[nestedKey])
@@ -72,13 +74,19 @@ export function itemTexts(
           textsOf(schema?.properties?.[nestedKey]?.items, child),
         )
       : [];
-  return [...textsOf(schema, item, omit), ...nested];
+  return [...textsOf(schema, item, omit, secrets), ...nested];
 }
 
-function textsOf(schema: ReadSchema | undefined, value: Props, omit?: string): string[] {
+function textsOf(
+  schema: ReadSchema | undefined,
+  value: Props,
+  omit?: string,
+  secrets?: readonly string[],
+): string[] {
   return Object.entries(schema?.properties ?? {}).flatMap(([key, field]) => {
     if (key === omit || field.read === false) return [];
     const v = value[key];
+    if (secrets?.includes(key)) return typeof v === "string" ? [secretPlaceholder] : [];
     if (field.kind === "text" && typeof v === "string") return [JSON.stringify(v)];
     if (field.kind === "photo" && typeof v === "string") return [`photo:${v.replace(/^lib:/, "")}`];
     if (field.kind === "secret" && typeof v === "string") return [secretPlaceholder];
@@ -110,16 +118,24 @@ function renderRow(
   affordances: Affordance[],
   nestedKey?: string,
   groupBy?: string,
+  secrets?: readonly string[],
 ) {
   const base = `${instance}/${String(item.id)}`;
   const mine = affordances.filter((a) => a.address === base || a.address.startsWith(`${base}/`));
   return [
     String(item.id),
-    itemTexts(schema, item, nestedKey, groupBy).join(" · "),
+    itemTexts(schema, item, nestedKey, groupBy, secrets).join(" · "),
     ...mine.map(formatAffordance),
   ]
     .filter(Boolean)
     .join(" ");
+}
+
+function itemSchemaOf(schema: ReadSchema, key: string | undefined, host: Meta["items"]) {
+  if (!key) return;
+  return host?.deviceData
+    ? (z.toJSONSchema(host.deviceData.schema, { unrepresentable: "any" }) as ReadSchema)
+    : schema.properties?.[key]?.items;
 }
 
 export function readItems(
@@ -136,13 +152,13 @@ export function readItems(
 ) {
   const all = key ? visibleItems(meta, props) : [];
   const host = meta.items?.deviceData;
-  const itemSchema = !key
-    ? undefined
-    : host
-      ? (z.toJSONSchema(host.schema, { unrepresentable: "any" }) as ReadSchema)
-      : schema.properties?.[key]?.items;
+  const itemSchema = itemSchemaOf(schema, key, meta.items);
   const group = meta.items?.readGroupBy;
-  const groupBy = group && isGroupText(itemSchema?.properties?.[group]) ? group : undefined;
+  const secrets = meta.items?.readSecrets;
+  const groupBy =
+    group && !secrets?.fields.includes(group) && isGroupText(itemSchema?.properties?.[group])
+      ? group
+      : undefined;
   const exactIds =
     meta.collections ||
     host ||
@@ -164,8 +180,10 @@ export function readItems(
   const words = wordsFor(lang),
     hidden = all.length - items.length;
   const disclosure = peek && ownAff.some(({ part, action }) => part === "more" && action === "toggle");
-  const render = (item: Props) =>
-    renderRow(instance, item, itemSchema, affordances, meta.items?.nested?.key, groupBy);
+  const render = (item: Props) => {
+    const redact = secrets && matches(secrets.when, item, props) ? secrets.fields : undefined;
+    return renderRow(instance, item, itemSchema, affordances, meta.items?.nested?.key, groupBy, redact);
+  };
   const rows = groupBy ? groupItemLines(items, groupBy, render) : items.map(render);
   const named = Object.entries(meta.collections ?? {}).flatMap(([name, { key }]) =>
     visibleItems(meta, props, name).map((row) =>

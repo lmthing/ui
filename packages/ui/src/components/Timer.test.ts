@@ -1,18 +1,12 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-
-import {
-  affordancesOf,
-  components,
-  createRegistry,
-  readComponent,
-  leftLine,
-  type CastLike,
+import { renderInstance } from "../../test/render";
+// prettier-ignore
+import { affordancesOf, components, createRegistry, readComponent, leftLine, type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
 
 const { props, meta, examples, fallback, probes } = components.Timer;
 const input = { label: "Activity", seconds: 600 };
-
 describe("Timer schema", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
@@ -68,7 +62,6 @@ describe("Timer schema", () => {
     expectTypeOf<ViewProps>().not.toHaveProperty("rows");
   });
 });
-
 describe("Timer fallback", () => {
   it("validates empty, full, mixed and malformed cast content", () => {
     const casts: CastLike[] = [
@@ -100,7 +93,6 @@ describe("Timer fallback", () => {
     expect(fallback({ cast: casts[5]! }).label).toBe("Item one");
   });
 });
-
 describe("Timer metadata and probes", () => {
   it("declares the required parts, state and actions", () => {
     expect(meta).toMatchObject({
@@ -109,7 +101,7 @@ describe("Timer metadata and probes", () => {
       region: "body",
       weight: 2,
       tier: "phone",
-      parts: ["root", "time", "label", "start", "stop"],
+      parts: ["root", "time", "label", "start", "stop", "goal"],
       states: ["filled"],
       actions: { parts: { start: ["start"], stop: ["stop"] } },
     });
@@ -147,7 +139,7 @@ describe("Timer metadata and probes", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     for (const id of ["Timer", "Counter"])
       expect(probes.find((probe) => probe.kind === "choose" && probe.expect === id)).toBeDefined();
-    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(3);
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(4);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Timer" });
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       screen: 0,
@@ -156,7 +148,19 @@ describe("Timer metadata and probes", () => {
     });
   });
 });
-
+// prettier-ignore
+it("shows the elapsed target without changing the stopwatch, including once elapsed passes the goal", () => {
+  const stopwatch = { label: "Walk", style: "up", seconds: 1860 };
+  const withGoal = { ...stopwatch, goal: 1800 };
+  const rendered = renderInstance("Timer", withGoal, "filled", { preset: "calm", mode: "light", accent: "moss" });
+  expect(rendered).toContain('data-testid="home/c1/goal"');
+  expect(rendered).toContain("of 30:00");
+  expect(readComponent(components.Timer, withGoal, "t1").join()).toContain("31:00 up — of 30:00");
+  for (const goal of [0, 0.5, 86401]) expect(props.safeParse({ ...stopwatch, goal }).success).toBe(false);
+  expect(props.safeParse({ ...withGoal, style: "down" }).success).toBe(false);
+  expect(props.safeParse({ style: "until", label: "Walk", until: "2030-06-14", goal: 60 }).success).toBe(false);
+  expect(affordancesOf(meta, props.parse(withGoal), "t1")).toEqual(affordancesOf(meta, props.parse(stopwatch), "t1"));
+});
 describe("Timer metadata and probes", () => {
   it("shortens the visible duration without rounding the clock or changing its actions", () => {
     const exact = props.parse({ ...input, seconds: 3723 });

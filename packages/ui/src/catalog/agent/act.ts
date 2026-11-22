@@ -7,8 +7,9 @@ import {
   expireProgress,
   findAction,
   type selectStep,
-  stageStepProgress,
   stageItemAdjustment,
+  stageSecretReveal,
+  stageStepProgress,
   stageValue,
   validateStep,
 } from "./action-input";
@@ -110,6 +111,7 @@ function stageControl(
   }: ReturnType<typeof validateStep> & ReturnType<typeof selectStep> & { key: string },
 ): Omit<Extract<ActResult, { ok: false }>, "at"> | undefined {
   const { address, action, value } = resolved;
+  if (stageSecretReveal(screen, defs, next, resolved, key)) return;
   const { owner, snapshot, now } = timing;
   let adjusted = edit
     ? undefined

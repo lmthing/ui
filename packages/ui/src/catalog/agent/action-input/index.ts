@@ -22,6 +22,9 @@ export {
   privateMarkKey,
   redactPrivateMarks,
   registerPrivateMark,
+  secretRevealKey,
+  secretRevealMatches,
+  stageSecretReveal,
   type PrivateMarks,
 } from "./host-actions";
 import { storeLiveInput } from "../live-inputs";
