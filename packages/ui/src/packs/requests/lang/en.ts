@@ -3,6 +3,17 @@ import type { LDMLPluralRule } from "../../../catalog";
 const scope = { one: "one affected", several: "several affected", site: "whole site" };
 
 export const en = {
+  slaPolicy: {
+    policy: "SLA rules",
+    response: "First response",
+    resolution: "Resolution",
+    pending: "Pending",
+    met: "Target met",
+    breached: "Target missed",
+    paused: "Paused",
+    success: "Both targets met",
+    error: "SLA breached",
+  },
   queue: {
     views: { active: "Show active", completed: "Show completed" },
     viewLabel: "Request view",
