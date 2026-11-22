@@ -177,13 +177,9 @@ export function Ticket(input: TicketProps) {
   </kit.KitContent> : <>
     <kit.KitCode part="code" value={input.number} label={ticket.code(input.number)} />
     <kit.KitContent group="response" align="center" density={density}>
-      <kit.KitText part={null} role="caption" tone="muted" align="center" density={density}>
-        <kit.KitText part="number" role="body" emphasis="strong" density={density} tabular>
-          {input.number}
-        </kit.KitText>
-        {detail === "full" && <>{ticket.stampSeparator}<kit.KitText part="hint" role="caption"
-          tone="muted" density={density}>{ticket.hint}</kit.KitText></>}
-      </kit.KitText>
+      <kit.KitFigure value={{ part: "number", text: input.number, role: "body", strong: true }}
+        {...(detail === "full" ? { unit: { part: "hint", text: ticket.hint } } : {})}
+        align="center" density={density} />
     </kit.KitContent>
     {input.transfer && <kit.KitActionFooter density={density}>
       <kit.KitAction part="transfer" label={ticket.transfer} kind="secondary" />
