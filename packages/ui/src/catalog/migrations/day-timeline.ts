@@ -11,8 +11,10 @@ import {
 
 export type MigrationOptions = {
   variantComponents?: readonly string[];
-  /** Only apply prop moves; do not admit retired component IDs into the caller's scope. */
+  /** Only apply prop moves unless a stored-input reader opts in below. */
   variantOnly?: boolean;
+  /** Read a saved Ring without changing the caller's handling of other retired IDs. */
+  includeSavedRing?: true;
 };
 // Enable each staged migration here in the same change that adopts the component schema.
 const adoptedVariants: readonly string[] = [
@@ -49,9 +51,9 @@ const isBlock = (value: unknown): value is Record<string, unknown> =>
 /** Preserve component ids, state, links, tones and time ordering while migrating the retired shape. */
 export function migrateLine<T extends Record<string, unknown>>(
   line: T,
-  { variantComponents = adoptedVariants, variantOnly = false }: MigrationOptions = {},
+  { variantComponents = adoptedVariants, variantOnly = false, includeSavedRing }: MigrationOptions = {},
 ): T | (Record<string, unknown> & { c: string }) {
-  if (!variantOnly) {
+  if (!variantOnly || includeSavedRing) {
     const retired = migrateRingV1(line);
     if (retired !== line) return retired;
   }

@@ -16,5 +16,6 @@ it.each([
     bars: [{ label: "Watered", value: 3, of: 5 }],
   });
   expect(migrateLine(original, { variantOnly: true })).toBe(original);
+  expect(migrateLine(original, { variantOnly: true, includeSavedRing: true })).toEqual(line);
   expect(migrateLine(line)).toEqual(line);
 });
