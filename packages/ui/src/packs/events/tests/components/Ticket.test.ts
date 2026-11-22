@@ -34,7 +34,6 @@ describe("Ticket contract and boundaries", () => {
   it("defaults to full start-aligned content and trims authored text", () => {
     expect(props.parse({ ...example, holder: ` ${example.holder} ` })).toMatchObject({
       detail: "full",
-      align: "start",
       holder: example.holder,
     });
     type ViewProps = Props<typeof props, typeof meta>;
@@ -111,10 +110,7 @@ describe("Ticket parts and states", () => {
     expect(full.get(address("code"))?.attributes).toContain(`aria-label="${words.code(example.number)}"`);
     expect(full.get(address("code"))?.children.some(({ tag }) => tag === "svg")).toBe(true);
     expect(full.get(address("number"))?.text).toEqual([example.number]);
-    for (const input of [
-      { ...example, align: "center" },
-      { ...example, density: "compact" },
-    ])
+    for (const input of [{ ...example }, { ...example }])
       expect([...addressedElements(render(input)).keys()]).toEqual([...full.keys()]);
     const brief = { ...example, detail: "brief" };
     expect([...addressedElements(render(brief)).keys()]).toEqual(

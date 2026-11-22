@@ -1,0 +1,20 @@
+export const words = {
+  cabinSeats: {
+    seat: (row: string, col: string) => `${row}${col}`,
+    status: { open: "Available", occupied: "Occupied", extra: "Extra legroom", selected: "Selected" },
+    exit: "Exit row",
+    details: (...details: (string | undefined)[]) => details.filter(Boolean).join(" · "),
+    legendExtra: "* Extra legroom",
+    legendExit: "Flag: exit row",
+    extraLabel: (col: string) => `${col}*`,
+    upgradeLabel: "Upgrade fee",
+    upgrade: (label: string, fee: string) => `${label}: ${fee}`,
+    confirm: "Confirm seat",
+    choose: "Choose a seat to see its details.",
+    empty: "Seat map unavailable",
+    success: "Seat confirmed",
+    successSeat: (seat: string) => `Seat ${seat} confirmed`,
+    error: "Seat assignment failed",
+    pending: "Confirming your seat",
+  },
+};

@@ -36,7 +36,6 @@ describe("Seating schema", () => {
   it("trims text and stamps entries only at runtime", () => {
     const parsed = props.parse({ tables: [{ ...oak!, label: " Oak " }], unseated: [" Deepa Shah "] });
     expect(parsed).toMatchObject({
-      surface: "card",
       detail: "full",
       entries: [
         { kind: "table", label: "Oak" },
@@ -52,7 +51,7 @@ describe("Seating schema", () => {
   it.each([
     { tables: [] }, { tables: Array(21).fill(oak) }, { tables: [oak, { ...birch, label: " Oak " }] },
     { unseated: Array(21).fill("Guest") }, { unseated: [" "] }, { unseated: ["x".repeat(25)] },
-    { color: "red" }, { entries: [] }, { density: "tiny" }, { detail: "hidden" },
+    { color: "red" }, { entries: [] }, { density: "compact" }, { surface: "card" }, { detail: "hidden" },
   ])("rejects invalid input %o", (input) => expect(props.safeParse({ ...example, ...input }).success).toBe(false));
   // prettier-ignore
   it.each([

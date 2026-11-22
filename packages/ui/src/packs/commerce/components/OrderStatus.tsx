@@ -3,24 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { nextOrderStage, orderStatusReading } from "../copy";
 import { commerceWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-OrderStatus.generated";
 
 // Core first: Steps/default guides the current person through a process, not order progress with stage times and a seller handoff.
 export const meta = {
   id: "OrderStatus",
   status: "ready",
   group: "data",
-  purpose: "Follow an order through fulfillment or move it along as the seller.",
-  pick: "Track fulfillment milestones on one goods order, with timestamps and a seller's next-stage action. Not a multi-step form (Steps), a map (DeliveryTracker), or an order receipt (OrderSummary).",
-  writeHints: [
-    "at is the zero-based current step index and must exist in the steps array. Use a real HH:MM time when known.",
-    'If asked to suppress an authored secondary status sentence, write "detail":"brief","density":null,"surface":null unless a different density or surface was requested. Never emit "card" or "comfortable" to represent an unset axis. Keep the supplied line.',
-    'Use style "carrier" for parcel tracking: carrier, trackingNumber, optional proofPhoto; use steps with times for checkpoints. Use style "pickup" with pickupCode and bay (bay or locker label); write seller false for the buyer and the “I’m here” button.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "The seller changes the order on their device; the buyer needs a shared app to see changes live.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["line"] } },
   // prettier-ignore
   parts: ["root", "track", "status", "line", "next", "next_label", "carrier", "tracking",
@@ -170,8 +167,8 @@ export function OrderStatus(input: OrderStatusProps) {
   const { at, steps, line } = input;
   const state = kit.useComponentState();
   const { words } = kit.useWords(commerceWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const complete = state === "success";
   const current = complete ? steps.length - 1 : at;

@@ -30,7 +30,6 @@ describe("Soundscape schema and boundaries", () => {
     const raw = { timer: 120, sounds: Array(count).fill({ ...sound, label: ` ${label} `, level: 10 }) };
     expect(props.parse(raw)).toMatchObject({
       arrange: "grid",
-      surface: "card",
       sounds: Array(count).fill({ ...sound, label, level: 10 }),
       timer: 120,
     });

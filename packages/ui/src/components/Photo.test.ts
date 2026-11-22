@@ -19,7 +19,6 @@ describe("Photo schema", () => {
   it("applies defaults and trims the optional caption", () => {
     expect(props.parse({ photo: "lib:entry", caption: "  Morning light  " })).toEqual({
       aspect: "wide",
-      bleed: "inset",
       detail: "full",
       photo: "lib:entry",
       caption: "Morning light",

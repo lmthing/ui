@@ -5,24 +5,21 @@ import * as kit from "../../../kit";
 import { isCompletedRequest, requestGroups, queueCounts, queueSnapshot, requestLines, requestSkeleton,
   requestQueueReading, requestStatuses, requestUrgencies, type QueueRecord } from "../copy";
 import { requestsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-RequestQueue.generated";
 
 // Core first: List/trail badge cannot switch lifecycle views or order by urgency and deadline.
 export const meta = {
   id: "RequestQueue",
   status: "ready",
   group: "data",
-  purpose: "Find the next service request to work on by urgency and deadline.",
-  pick: "An operator's active and completed service tickets, grouped by lifecycle status and ordered by urgency and deadline. Not a short tappable badge list (List), arbitrary stages (Board), or one rental repair (Request).",
-  writeHints: [
-    'Write 1–6 records across both views, only from the brief. An explicit request for one flat queue with no status headings requires group "none", not null. Only set density when spacing is requested.',
-    "Never write display order, age, overdue or counts.",
-    "Use date and HH:MM for opening; dueAt requires due. Omit both if there is no deadline.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "The operator's request records live on the device; sharing changes needs a shared app.",
-  variants: { density: ["comfortable", "compact"], group: ["sections", "none"] },
+  variants: { group: ["sections", "none"] },
   variantParts: { "group.none": { hides: ["status_heading"], adds: ["status"] } },
   parts: ["root", "view", "count", "status_heading", "retry", "empty", "error", "more"],
   items: {
@@ -172,7 +169,7 @@ function QueueRows({ rows, now, density, grouped, loading = false }: {
 export function RequestQueue(input: QueueProps) {
   const state = kit.useComponentState(), { thing } = kit.usePartContext();
   const { lang, words: { queue } } = kit.useWords(requestsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const grouped = kit.useVariant("group", meta.variants.group, input.group) === "sections";
   const { view } = input, rows = c.visibleItems<QueueRowProps>(meta, input);
   const { more, now } = queueSnapshot(kit.useDeviceData(), view), counts = queueCounts(rows.length, more, lang);

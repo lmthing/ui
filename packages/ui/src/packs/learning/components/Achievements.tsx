@@ -3,28 +3,24 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { badgeMilestone, readBadgeMilestones } from "../copy";
 import { learningWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Achievements.generated";
 
 // Core first: Streak/default cannot list distinct earned and locked milestones with dates and criteria.
 export const meta = {
   id: "Achievements",
   status: "ready",
   group: "data",
-  purpose: "See the learning badges you earned and how to unlock the rest.",
-  pick: "A grid of learning milestone badges with earned dates and unlock criteria. Not consecutive days of a habit (Streak), photos (Gallery) or redeemable rewards (Rewards).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Learning milestones are checked on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     arrange: ["grid", "rows"],
   },
-  writeHints: [
-    "Use earned for the date an earned badge was awarded. For locked badges leave earned null and put any unlock criterion in how.",
-    'When asked for one badge per row, set arrange to "rows", density to null and surface to null. Never write "comfortable" or "card" as defaults. Only set density or surface when the person explicitly requests a spacing or surface treatment.',
-  ],
+  writeHints: prompt.writeHints,
   parts: ["root", "empty"],
   items: { key: "badges", parts: ["root", "title", "icon", "earned", "how"] },
   states: ["filled", "empty"],
@@ -152,8 +148,8 @@ function Badge({
 }
 
 export function Achievements(input: AchievementsProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   const state = kit.useComponentState();
   const thing = kit.useEmptyThing();

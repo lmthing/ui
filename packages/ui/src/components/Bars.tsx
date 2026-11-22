@@ -1,32 +1,53 @@
-// prettier-ignore
 import {
-  useWords, KitBars, KitCard, KitContent, KitGrid, KitHeader, KitShare, KitSkeleton, KitState,
-  KitText, useComponentState, useVariant,
+  useWords,
+  KitBars,
+  KitCard,
+  KitContent,
+  KitGrid,
+  KitHeader,
+  KitShare,
+  KitSkeleton,
+  KitState,
+  KitText,
+  useComponentState,
+  useKit,
 } from "../kit";
 import { z } from "zod";
-// prettier-ignore
 import {
-  probesFor, clip, itemsOf, icon, localeOf, placeholderTitle, text, thingOf, titleOf, screenId,
-  totalLine, numberLine, wordsFor, variantProps, type ThemeDensity, type FallbackInput, type Meta,
-  type Probe, type Props,
+  probesFor,
+  clip,
+  itemsOf,
+  icon,
+  localeOf,
+  placeholderTitle,
+  text,
+  thingOf,
+  titleOf,
+  screenId,
+  totalLine,
+  numberLine,
+  wordsFor,
+  variantProps,
+  type ThemeDensity,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
 } from "../catalog";
+import { prompt } from "../entry/prompt-Bars.generated";
 export const meta = {
   id: "Bars",
   status: "ready",
   signature: "bars_grow",
   group: "data",
-  purpose: "Compare counts or amounts across days or categories, using the actual counted or measured unit.",
-  pick: "Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).",
-  writeHints: [
-    'A plain comparison or share breakdown always leaves detail and density null, even if no total is mentioned. Only an explicit request to hide the combined total sets detail "brief"; keep all points and leave density null unless tighter spacing was also requested.',
-    "Columns compare one measured unit. Column point labels are at most four characters: abbreviate day/category names (Mon, Tue, Fern, Mons).",
-    'For "share", use labels up to sixteen characters; optionally give a point an icon or goto screen. In "columns", active is a zero-based index and status is a short subline.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Amounts grouped by day or category from records in the on-device database.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["total"] } },
   items: { key: "points", parts: ["root", "label"] },
   parts: ["root", "title", "total", "status"],
@@ -104,33 +125,46 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
-// prettier-ignore
 const fullExamples = [
   {
     title: "Water used",
     unit: "L",
-    points: [{ label: "W1", value: 2 }, { label: "W2", value: 4 }, { label: "W3", value: 3 }, { label: "W4", value: 5 }],
+    points: [
+      { label: "W1", value: 2 },
+      { label: "W2", value: 4 },
+      { label: "W3", value: 3 },
+      { label: "W4", value: 5 },
+    ],
   },
   {
     title: "Weekly walks",
     unit: "walks",
     points: [
-      { label: "Mon", value: 3 }, { label: "Tue", value: 5 }, { label: "Wed", value: 4 }, { label: "Thu", value: 2 },
-      { label: "Fri", value: 6 }, { label: "Sat", value: 2 }, { label: "Sun", value: 1 },
+      { label: "Mon", value: 3 },
+      { label: "Tue", value: 5 },
+      { label: "Wed", value: 4 },
+      { label: "Thu", value: 2 },
+      { label: "Fri", value: 6 },
+      { label: "Sat", value: 2 },
+      { label: "Sun", value: 1 },
     ],
   },
   {
     style: "share",
     title: "Where it went",
     unit: "€",
-    points: [{ label: "Groceries", value: 240 }, { label: "Rent", value: 800 }, { label: "Fun", value: 120 }],
+    points: [
+      { label: "Groceries", value: 240 },
+      { label: "Rent", value: 800 },
+      { label: "Fun", value: 120 },
+    ],
   },
 ] satisfies z.input<typeof props>[];
 
 export const examples = [
   ...fullExamples,
   { ...fullExamples[1]!, detail: "brief" },
-  { ...fullExamples[2]!, density: "compact" },
+  { ...fullExamples[2]! },
   { ...fullExamples[1]!, active: 1, status: "Busier than usual" },
   {
     style: "share",
@@ -143,28 +177,58 @@ export const examples = [
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Bars");
-// prettier-ignore
 export const probes = [
   choose("Compare how many walks I did each day this week, Monday through Sunday"),
   choose("Show how many plants I have, how many I watered today and how many are due", "Stats"),
   write("Show this week's walk counts, measured in walks: Mon 3, Tue 5, Wed 4, Thu 2, Fri 6, Sat 2, Sun 1"),
-  write("Show how this month's spending splits across Groceries €240, Rent €800 and Fun €120 in one stacked bar of shares, not a series of columns."),
-  { ...write("Compare Mon 3, Tue 5 and Wed 4 walks. Keep the point labels but hide the combined total."), variant: { axis: "detail", value: "brief" } },
-  { ...write('Compare arrivals in columns labelled exactly "8a", "9a", and "10a", with values 3, 8, and 6. Highlight the 8a column as current.'), expectProps: { active: 0 } },
-  { ...write("Compare arrivals at 8am: 3 and 9am: 8. Under the title, show the status Busier than usual."), expectProps: { status: "Busier than usual" } },
-  { ...write('Use one stacked share bar. The first legend label must be exactly "Park", with a separate value of 15 minutes and a tree icon. The second label must be exactly "River", with a separate value of 25 minutes and a waves icon. Park opens the screen whose ID is park.'),
-    expectProps: { style: "share", points: [{ label: "Park", value: 15, icon: "tree", goto: "park" }, { label: "River", value: 25, icon: "waves" }] } },
+  write(
+    "Show how this month's spending splits across Groceries €240, Rent €800 and Fun €120 in one stacked bar of shares, not a series of columns.",
+  ),
+  {
+    ...write("Compare Mon 3, Tue 5 and Wed 4 walks. Keep the point labels but hide the combined total."),
+    variant: { axis: "detail", value: "brief" },
+  },
+  {
+    ...write(
+      'Compare arrivals in columns labelled exactly "8a", "9a", and "10a", with values 3, 8, and 6. Highlight the 8a column as current.',
+    ),
+    expectProps: { active: 0 },
+  },
+  {
+    ...write("Compare arrivals at 8am: 3 and 9am: 8. Under the title, show the status Busier than usual."),
+    expectProps: { status: "Busier than usual" },
+  },
+  {
+    ...write(
+      'Use one stacked share bar. The first legend label must be exactly "Park", with a separate value of 15 minutes and a tree icon. The second label must be exactly "River", with a separate value of 25 minutes and a waves icon. Park opens the screen whose ID is park.',
+    ),
+    expectProps: {
+      style: "share",
+      points: [
+        { label: "Park", value: 15, icon: "tree", goto: "park" },
+        { label: "River", value: 25, icon: "waves" },
+      ],
+    },
+  },
   read("Open Park", { address: "c1/r1", action: "press" }, 6),
 ] satisfies Probe[];
 type TotalProps = { value: number; unit?: string | undefined; compact?: boolean; density: ThemeDensity };
-// prettier-ignore
 function Total({ value, unit, compact = false, density }: TotalProps) {
   const { lang, words } = useWords();
   const role = compact ? "body" : "caption";
   return (
     <KitContent density={density} rhythm="flush">
-      <KitText {...{ role, density }} tone="muted" align="end" part={null}>{words.moneyLabels.total}</KitText>
-      <KitText role="number" numberScale={compact ? "compact" : "display"} tone="muted" align="end" part="total" density={density}>
+      <KitText {...{ role, density }} tone="muted" align="end" part={null}>
+        {words.moneyLabels.total}
+      </KitText>
+      <KitText
+        role="number"
+        numberScale={compact ? "compact" : "display"}
+        tone="muted"
+        align="end"
+        part="total"
+        density={density}
+      >
         {numberLine(value, lang)}
         {unit && <KitText {...{ role, density }} tone="muted" part={null}>{` ${unit}`}</KitText>}
       </KitText>
@@ -172,29 +236,60 @@ function Total({ value, unit, compact = false, density }: TotalProps) {
   );
 }
 
-// prettier-ignore
 export function Bars(input: Props<typeof props, typeof meta>) {
   const { style, title, unit, points, detail, active, status } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const { lang } = useWords();
   const state = useComponentState();
   if (state === "loading" || state === "empty") {
-    return <KitCard part="root" padded density={density}>
-      {state === "loading" ? <KitSkeleton shape="bars" points={points} title={title} share={style === "share"} density={density} />
-        : <KitState part="title" density={density} />}
-    </KitCard>;
+    return (
+      <KitCard part="root" padded density={density}>
+        {state === "loading" ? (
+          <KitSkeleton
+            shape="bars"
+            points={points}
+            title={title}
+            share={style === "share"}
+            density={density}
+          />
+        ) : (
+          <KitState part="title" density={density} />
+        )}
+      </KitCard>
+    );
   }
   const total = points.reduce((sum, point) => sum + point.value, 0);
   const shareOf = (value: number, total: number) => shareLine(value, total, lang);
   const subline = currentLine(active === undefined ? undefined : points[active]!.label, status, lang);
-  const heading = subline ? <KitHeader title={{ text: title, part: "title" }} meta={{ text: subline, part: "status" }} density={density} />
-    : <KitText role="heading" part="title" density={density}>{title}</KitText>;
+  const heading = subline ? (
+    <KitHeader
+      title={{ text: title, part: "title" }}
+      meta={{ text: subline, part: "status" }}
+      density={density}
+    />
+  ) : (
+    <KitText role="heading" part="title" density={density}>
+      {title}
+    </KitText>
+  );
   return (
     <KitCard part="root" padded density={density}>
-      {detail === "brief" ? heading : <KitGrid density={density}>
-        {heading}<Total value={total} unit={unit} compact={style === "share"} density={density} /></KitGrid>}
-      {style === "share" ? <KitShare points={largestFirst(points).map((point) => ({ ...point, press: Boolean(point.goto) }))} percentOf={shareOf} />
-        : <KitBars points={points} {...(active !== undefined ? { highlight: active } : {})} />}
+      {detail === "brief" ? (
+        heading
+      ) : (
+        <KitGrid density={density}>
+          {heading}
+          <Total value={total} unit={unit} compact={style === "share"} density={density} />
+        </KitGrid>
+      )}
+      {style === "share" ? (
+        <KitShare
+          points={largestFirst(points).map((point) => ({ ...point, press: Boolean(point.goto) }))}
+          percentOf={shareOf}
+        />
+      ) : (
+        <KitBars points={points} {...(active !== undefined ? { highlight: active } : {})} />
+      )}
     </KitCard>
   );
 }

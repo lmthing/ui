@@ -3,23 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { wishCopy, wishReading } from "../copy";
 import { inventoryWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Wishlist.generated";
 
 // Core first: Checklist/default cannot keep a target price and priority or add a purchase to owned stock.
 export const meta = {
   id: "Wishlist",
   status: "ready",
   group: "input",
-  purpose: "Prioritize things you want to buy and mark what you acquire.",
-  pick: "A personal list of desired purchases with target prices, priority or an acquisition action that adds an owned record. Not simple jobs to tick off (Checklist), gifts guests claim (Registry), or products for sale (ProductGrid).",
-  writeHints: [
-    "price and target are numeric amounts without a currency. Priority is a whole number from 1 to 3.",
-    'If asked to hide the target price, write "detail":"brief" and keep the supplied target; write "surface":null and "density":null unless the person requests those axes. Otherwise use "detail":null unless explicitly requested. Never write "surface":"card" or a named density just to fill an unset field.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Wishes and acquired records live on the device; price tracking would need a service.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["target"] } },
   parts: ["root", "empty"],
   items: {
@@ -114,7 +112,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type WishlistProps = c.Props<typeof props, typeof meta>;
-type WishRowProps = Pick<WishlistProps, "surface" | "detail"> & {
+type WishRowProps = Pick<WishlistProps, "detail"> & { surface: c.SurfaceFinish } & {
   row: WishlistProps["items"][number];
   density: c.ThemeDensity;
 };
@@ -155,8 +153,8 @@ function WishRow({ row, density, surface, detail }: WishRowProps) {
 
 export function Wishlist(input: WishlistProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   if (state === "empty")
     return (

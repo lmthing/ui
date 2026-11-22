@@ -155,7 +155,7 @@ it("preserves stock and storage addresses and tiered or confirmed actions", () =
 it("rejects wrong enum values, limits, derived fields and raw photo URLs", () => {
   const cases = [
     ["Things", { items: Array(13).fill(components.Things.examples[0]!.items[0]) }],
-    ["Things", { filter: "missing" }],
+    ["Things", { filter: "out_of_stock" }],
     ["Storage", { path: Array(5).fill("Spot") }],
     ["Loans", { loans: [{ ...components.Loans.examples[0]!.loans[0], overdue: true }] }],
     [

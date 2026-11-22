@@ -12,24 +12,22 @@ import {
 } from "../copy";
 import { eventsWordsFor } from "../lang";
 import { seedTitles } from "../seeds";
+import { prompt } from "../../../entry/prompt-Seating.generated";
 
 // Core first: MapPins/default cannot represent round and long tables, seat capacity or guest moves.
 export const meta = {
   id: "Seating",
   status: "ready",
   group: "input",
-  purpose: "Arrange guests at tables and see who still needs a seat.",
-  pick: "A seating plan of round or long tables with guest initials, available seats and a tray of unseated guests. Not locations on a geographic map (MapPins), an invitation roster (GuestList) or a staff rota (Roster).",
-  writeHints: [
-    "Each table's guests array may be empty and cannot exceed seats. Table labels must be distinct; unseated is an array of names, not a number.",
-    'Use detail "brief" only when asked to omit the overall seated count; keep the tables, seats and unseated tray. Use JSON null for density and surface unless separately requested; do not spell out their defaults.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "The seating plan is stored on the organiser's device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["summary"] } },
   parts: ["root", "summary", "map", "tray", "empty"],
   items: {
@@ -108,8 +106,6 @@ export const examples = [
     unseated: ["Deepa Shah"],
   },
   {
-    density: "compact",
-    surface: "outlined",
     tables: [{ label: "Long table", shape: "long", seats: 6, guests: ["Imani Cole", "Hugo Wells"] }],
     unseated: [],
   },
@@ -157,8 +153,8 @@ export function Seating(input: View) {
   const { lang, words: { seating: words } } = kit.useWords(eventsWordsFor);
   const { state, screen, component } = kit.usePartContext();
   const open = kit.useControlValue<string | undefined>(`${screen}/${component}/${c.pickerKey}`, undefined);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const live = kit.useLiveControls(meta, input) as View;
   if (state === "empty") return <kit.KitCard part="root" {...{ density, surface }}>

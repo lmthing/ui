@@ -13,25 +13,23 @@ import {
 } from "../copy";
 import { eventsWordsFor } from "../lang";
 import { seedTitles } from "../seeds";
+import { prompt } from "../../../entry/prompt-Sessions.generated";
 
 // Core first: Timeline/hours shows duration blocks but cannot filter event tracks, show capacity or bookmark talks.
 export const meta = {
   id: "Sessions",
   status: "ready",
   group: "data",
-  purpose: "Find sessions across an event's tracks and bookmark a personal agenda.",
-  pick: "Multi-room or multi-stage sessions at one event, with track filters, capacity and personal bookmarks. Not a single-track day (Timeline), a holiday itinerary (Itinerary) or weekly classes (Timetable).",
-  writeHints: [
-    "Give each session a distinct id and a track from tracks. Use HH:MM with end later than start. If supplied together, booked cannot exceed capacity. Do not write remaining capacity or conflicts.",
-    'Use style "mine" for the bookmarked agenda. Use detail "brief" only to hide speaker names; keep writing any supplied speaker names. Leave density, surface and detail null unless requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath:
     "The schedule and bookmarks live on the device; live capacity and agenda sync use a shared event app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["speaker"] } },
   parts: ["root", "track", "empty", "feedback"],
   items: {
@@ -127,7 +125,7 @@ export const examples = [
     ],
   },
   {
-    style: "mine", surface: "outlined", selectedTrack: "Talks",
+    style: "mine", selectedTrack: "Talks",
     tracks: ["Talks", "Demos"],
     sessions: [
       { id: "lighting", title: "Lighting on location", track: "Talks", start: "13:00", end: "13:45", room: "Elm Room", speaker: "Hugo Wells", saved: true },
@@ -161,7 +159,7 @@ export const probes = [
 
 type SessionsProps = c.Props<typeof props, typeof meta>;
 type SessionRow = ReturnType<typeof projectSessions>["sessions"][number];
-type Density = SessionsProps["density"];
+type Density = c.ThemeDensity;
 
 function TrackFilter({
   tracks,
@@ -258,8 +256,8 @@ export function Sessions(input: SessionsProps) {
   const state = kit.useComponentState();
   const live = kit.useLiveControls(meta, input);
   const { lang, words } = kit.useWords(eventsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const rows = chronologicalSessions(c.visibleItems<SessionRow>(meta, live));
   const mine = input.style === "mine";
   const empty = sessionEmpty(mine, lang);

@@ -25,7 +25,6 @@ describe("MiniPlayer schema and boundaries", () => {
     const title = "t".repeat(40);
     expect(props.parse({ ...playing, title: ` ${title} `, at: 36000, seconds: 36000 })).toMatchObject({
       title,
-      surface: "card",
       at: 36000,
       seconds: 36000,
     });
@@ -97,7 +96,7 @@ describe("MiniPlayer fallback and metadata", () => {
 describe("MiniPlayer states and parts", () => {
   it("draws the filled state and retains all addresses across finish variants", () => {
     expect(meta.states).toEqual(["filled"]);
-    for (const input of [playing, paused, { ...playing, density: "compact" }]) {
+    for (const input of [playing, paused, { ...playing }]) {
       const html = renderInstance("MiniPlayer", input, "filled", theme);
       expect([...addressedElements(html).keys()].sort()).toEqual(
         meta.parts.map((part) => `${prefix}${part}`).sort(),
@@ -119,8 +118,8 @@ describe("MiniPlayer states and parts", () => {
   });
 
   it.each([
-    [playing, "Pause", "0:45 · -7:15"],
-    [paused, "Play", "0:12 · -4:23"],
+    [playing, "Pause", "0:45 · 7:15 left"],
+    [paused, "Play", "0:12 · 4:23 left"],
   ] as const)("labels the transport control and shows elapsed and remaining time", (input, label, time) => {
     const html = renderInstance("MiniPlayer", input, "filled", theme);
     expect(elementAt(html, `${prefix}play`).attributes).toContain(`aria-label="${label}"`);
@@ -130,8 +129,8 @@ describe("MiniPlayer states and parts", () => {
 
 describe("MiniPlayer read and act", () => {
   it.each([
-    [playing, "pause", "play", "Playing — 0:45 · -7:15"],
-    [paused, "play", "pause", "Paused — 0:12 · -4:23"],
+    [playing, "pause", "play", "Playing — 0:45 · 7:15 left"],
+    [paused, "play", "pause", "Paused — 0:12 · 4:23 left"],
   ] as const)(
     "offers only the correct playback action, separate from navigation",
     (input, action, other, timing) => {

@@ -80,7 +80,7 @@ describe("Interview contract and fallback", () => {
 describe("Interview parts, states, read and act", () => {
   it("keeps details and stable parts across both finish axes", () => {
     const drawn = parts();
-    expect([...parts({ ...full, surface: "plain", density: "compact" }).keys()]).toEqual([...drawn.keys()]);
+    expect([...parts({ ...full }).keys()]).toEqual([...drawn.keys()]);
     expect(drawn.get("home/i1/time")?.text).toContain("09:30–10:00");
     expect(reading()).toContain("09:30–10:00");
     expect(reading()).toContain("With Jo Ellis and Ari Lane");

@@ -3,24 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { listingCopy, listingReading } from "../copy";
 import { inventoryWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Listing.generated";
 
 // Core first: Card/plain cannot express an asking period and structured property facts with contact and save.
 export const meta = {
   id: "Listing",
   status: "ready",
   group: "content",
-  purpose: "Review an offer to rent or buy real estate, then save it or contact the advertiser.",
-  pick: "A dwelling actually offered for rent or sale, with beds, baths, floor area or lease terms. For a single notice or any other photo-and-text preview that opens more, choose Card instead. Not a venue to visit (PlaceCard) or goods for sale (Product).",
-  writeHints: [
-    "Price is a number without a currency, per is month/week for rent and none for sale. Area uses m2 or ft2; photos go in a separate Gallery.",
-    'For an ordinary listing with a description, end with "detail":null,"density":null,"surface":null. Keep the supplied about text.',
-    'Only an explicit request to hide the description sets "detail":"brief"; keep about in the data. Hiding it does not request density or surface. Set those only for explicit spacing or surface requests.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Listings live on the device; contacting the advertiser requires a service.",
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "plain"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["about"] } },
   // prettier-ignore
   parts: ["root", "title", "price", "per", "beds", "baths", "area", "area_unit",
@@ -161,8 +158,8 @@ function ListingLoading({ input, copy, density }: { input: ListingProps; copy: L
 // prettier-ignore
 export function Listing(input: ListingProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { screen, component } = kit.usePartContext();
   const saved = kit.useControlValue(`${screen}/${component}/save`, false);

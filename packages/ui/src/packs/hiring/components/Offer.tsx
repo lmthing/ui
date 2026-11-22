@@ -1,21 +1,21 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import { payPeriods, seedApplicationId, seedDate, seedGoto, seedRows } from "../seeds";
+import { prompt } from "../../../entry/prompt-Offer.generated";
 
 // Core first: Amount/inline shows one pay number but cannot hold employment terms or their response.
 export const meta = {
   id: "Offer",
   status: "draft",
   group: "content",
-  purpose: "Review proposed employment terms and manage the offer and its response.",
-  pick: "An employment offer with pay, hours, start date, conditions, response deadline and status. Not pay alone (Amount), a discount (Promo), a client agreement (Agreement) or a quote (Invoice).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 2,
   tier: "phone",
   partTiers: { send: "service", accept: "people", decline: "people", withdraw: "service" },
   realPath:
     "The phone holds drafts and logged outcomes, sending needs an outside service, and actual responses need a shared app.",
-  variants: { density: ["comfortable", "compact"] },
   parts: [
     "root",
     "candidate",
@@ -46,13 +46,10 @@ export const meta = {
     },
     noGoto: { parts: ["accept", "decline", "withdraw"] },
   },
-  writeHints: [
-    "Write numeric pay in the brief's currency, not currency text. Record only a supplied response status; acceptance does not mean hired. Do not write a calculated expiry flag.",
-  ],
+  writeHints: prompt.writeHints,
 } as const satisfies c.Meta;
 
 export const props = z.strictObject({
-  ...c.variantProps(meta.variants),
   offerId: c.text(32),
   applicationId: c.text(32),
   candidate: c.text(24),
@@ -115,7 +112,6 @@ export const examples: z.input<typeof props>[] = [
     conditions: [],
     status: "draft",
     goto: "mara_edit",
-    density: "compact",
   },
 ] satisfies z.input<typeof props>[];
 

@@ -1,0 +1,20 @@
+export const words = {
+  followUpLabels: {
+    quote: "Quote",
+    invoice: "Invoice",
+    checkin: "Check-in",
+    renewal: "Renewal",
+    overdue: "Overdue",
+    today: "Due today",
+    upcoming: "Upcoming",
+    done: "Done",
+    due: (status: string, date: string) => `${status} · ${date}`,
+    reason: (kind: string, note?: string) => (note ? `${kind} · ${note}` : kind),
+    mark: (name: string) => `Mark ${name} done`,
+    marked: (name: string) => `${name}: done`,
+    snooze: (name: string) => `Snooze ${name}`,
+    remind: (name: string) => `Remind ${name}`,
+    success: "Follow-up updated",
+    error: "Reminder wasn’t sent",
+  },
+};
