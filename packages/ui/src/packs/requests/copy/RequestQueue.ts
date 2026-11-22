@@ -38,12 +38,17 @@ export const isCompletedRequest = (status: Status) => status === "resolved" || s
 
 type QueueData = { now?: unknown; overflow?: unknown; mine?: unknown; mineOverflow?: unknown };
 
-export function queueSnapshot(data: DeviceData | undefined, view: QueueView, personal = false) {
+export function queueSnapshot(data: DeviceData | undefined, view: QueueView, personal = false, live = false) {
   const record = data?.requestQueue?.[0] as QueueData | undefined;
   const { now, overflow, mineOverflow } = record ?? {};
   const count = ((personal ? mineOverflow : overflow) as Partial<Record<QueueView, unknown>>)?.[view];
   return {
-    now: typeof now === "number" && Number.isFinite(new Date(now).getTime()) ? now : previewNow,
+    now:
+      typeof now === "number" && Number.isFinite(new Date(now).getTime())
+        ? now
+        : live
+          ? Date.now()
+          : previewNow,
     more: typeof count === "number" && Number.isSafeInteger(count) && count > 0 ? count : 0,
   };
 }
@@ -162,7 +167,12 @@ export function requestQueueReading(
   personal = false,
 ): string[] {
   const words = requestsWordsFor(lang).queue;
-  const { more, now } = queueSnapshot(data, view, personal);
+  const { more, now } = queueSnapshot(
+    data,
+    view,
+    personal,
+    rows.some(({ sla }) => Boolean(sla)),
+  );
   const counts = queueCounts(rows.length, more, lang);
   return [
     ...(personal ? [words.mine] : []),

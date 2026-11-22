@@ -6,26 +6,28 @@ import type { ThreadProps } from "./RequestThread";
 type Finish = Pick<ThreadProps, "density" | "detail">;
 
 // prettier-ignore
-export function ThreadEntry({ row, detail, density, lang }: Finish & { row: ThreadProps["entries"][number]; lang: string }) {
-  const { event, fact, date, time, audience } = threadEntryCopy(row, detail, lang);
-  const { photo: photoLabel, file: fileLabel } = requestsWordsFor(lang).thread;
-  return <kit.KitRow item={row.id} label={fact ?? event ?? row.by} goto={row.goto}
+export function ThreadEntry({ row, detail, density, lang }: Finish & { row: ThreadProps["entries"][number] & { fileName?: string }; lang: string }) {
+  const { event, fact, date, time, audience, fileLabel } = threadEntryCopy(row, detail, lang);
+  const { photo: photoLabel } = requestsWordsFor(lang).thread;
+  const loading = kit.useComponentState() === "loading";
+  return <kit.KitRow {...(loading ? { part: null } : { item: row.id, goto: row.goto })}
+    label={fact ?? event ?? row.by}
     density={row.kind === "message" ? "comfortable" : density}
     tone={row.kind === "message" ? "muted" : undefined}
-    trailing={row.goto && <kit.KitIcon name="chevron_right" tone="muted" scale="sm" decorative />}>
+    trailing={!loading && row.goto && <kit.KitIcon name="chevron_right" tone="muted" scale="sm" decorative />}>
     <kit.KitContent lineRole="body" density={density}>
-      {event && <kit.KitText part={null} role="label">{event}</kit.KitText>}
-      {fact && <kit.KitText part="event_detail" role="body">{fact}</kit.KitText>}
-      <kit.KitText part="by" role={event ? "caption" : "label"} tone={event ? "muted" : "text"}>{row.by}</kit.KitText>
-      {row.text && <kit.KitText part="text" role="body">{row.text}</kit.KitText>}
-      <kit.KitText part={null} role="caption" tone="muted">
+      <kit.KitLayoutText line={{ text: event, role: "meta" }} />
+      <kit.KitLayoutText line={{ text: fact, part: "event_detail" }} />
+      <kit.KitLayoutText line={{ text: row.by, part: "by", role: event ? "caption" : "meta", tone: event ? "muted" : "text" }} />
+      <kit.KitLayoutText line={{ text: row.text, part: "text" }} />
+      {loading ? <kit.KitLayoutText line={{ text: `${time} ${date}`, role: "caption" }} /> : <kit.KitText part={null} role="caption" tone="muted">
         <kit.KitText part="time" role="caption" tone="muted" tabular>{time}</kit.KitText>{" "}
         <kit.KitText part="date" role="caption" tone="muted">{date}</kit.KitText>
-      </kit.KitText>
-      <kit.KitText part="audience" role="caption" tone="muted">{audience}</kit.KitText>
-      {row.photo && <><kit.KitPhoto part="photo" photo={row.photo} label={photoLabel} />
-        <kit.KitText part={null} role="caption" tone="muted">{photoLabel}</kit.KitText></>}
-      {row.file && <kit.KitLayoutText line={{ text: fileLabel, part: "file", role: "caption", tone: "muted" }} density={density} />}
+      </kit.KitText>}
+      <kit.KitLayoutText line={{ text: audience, part: "audience", role: "caption", tone: "muted" }} />
+      {row.photo && <><kit.KitPhoto part={loading ? null : "photo"} photo={row.photo} label={photoLabel} loading={loading} />
+        <kit.KitLayoutText line={{ text: photoLabel, role: "caption", tone: "muted" }} /></>}
+      <kit.KitLayoutText line={{ text: fileLabel, part: "file", role: "caption", tone: "muted" }} density={density} />
     </kit.KitContent>
   </kit.KitRow>;
 }

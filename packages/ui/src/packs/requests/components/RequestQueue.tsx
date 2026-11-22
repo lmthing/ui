@@ -162,13 +162,16 @@ export function RequestQueue(input: QueueProps) {
   const grouped = kit.useVariant("group", meta.variants.group, input.group) === "sections";
   const { view, style } = input, personal = style === "mine";
   const rows = c.visibleItems<QueueRowProps>(meta, kit.useLiveControls(meta, input));
-  const { more, now } = queueSnapshot(kit.useDeviceData(), view, personal), counts = queueCounts(rows.length, more, lang);
+  const { more, now } = queueSnapshot(kit.useDeviceData(), view, personal, rows.some(({ sla }) => Boolean(sla)));
+  const counts = queueCounts(rows.length, more, lang);
   const empty = (personal ? queue.mineEmpty : queue.empty)[view];
   return <kit.KitCard part="root" density={density} padded inset="none">
     {state === "loading" ? <>
       <kit.KitContent inset="md">
         {personal && <kit.KitHeader title={{ text: queue.mine, part: "mine" }} density={density} />}
-        <kit.KitSkeleton shape="control" full kind="secondary" label={queue.viewLabel} />
+        <kit.KitGrid columns={2} density={density}>
+          {meta.selections.view.choices.map((key) => <kit.KitSkeleton key={key} shape="control" full kind="secondary" label={queue.views[key]} />)}
+        </kit.KitGrid>
         <kit.KitSkeleton shape="figure" inset="none" content={[["caption", counts.count]]} />
       </kit.KitContent>
       {rows.length ? <rowsView.QueueRows {...{ rows, now, density, grouped, personal }} loading /> : <kit.KitSkeleton rows={1} lead="none" density={density} />}

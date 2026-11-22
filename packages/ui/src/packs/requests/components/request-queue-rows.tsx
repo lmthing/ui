@@ -28,7 +28,8 @@ function QueueRow({ row, now, density, grouped, loading }: {
     {!grouped && <kit.KitText part="status" {...sub}>{line.status}</kit.KitText>}
     {compact && place && who ? <kit.KitText part={null} {...sub}>{place}{queue.separator}{who}</kit.KitText> : <>{place}{who}</>}
     {line.due && <kit.KitText part="due" {...sub} tone={line.overdue ? "bad" : "muted"}>{line.due}</kit.KitText>}
-    {line.breach && <kit.KitTrail kind="badge" part="sla_breached" value={line.breach} tone="bad" density={density} />}
+    {line.breach && <kit.KitRow part={null} inline inset="none" label={line.breach} leadingAlign="row"
+      leading={<kit.KitTrail kind="badge" part="sla_breached" value={line.breach} tone="bad" density={density} />}>{null}</kit.KitRow>}
   </kit.KitRow>;
 }
 

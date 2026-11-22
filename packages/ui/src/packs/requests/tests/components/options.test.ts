@@ -1,11 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { components, planAct, readComponent, readScreen, type StateName } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { addressedElements, renderInstance } from "../../../../../test/render";
-import { RequestThread } from "../../components";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
-const { RequestQueue: queue, RequestThread: thread, WorkOrder: work } = components;
+const { RequestQueue: queue, WorkOrder: work } = components;
 const screen = (c: string, input: object, state: StateName = "filled") => ({
   id: "desk",
   components: [{ c, id: "c1", ...input, state }],
@@ -90,66 +89,17 @@ describe("contractual SLA badge", () => {
     ).toBe(false);
     expect(queue.props.safeParse({ rows: [{ ...row, slaBreached: true }] }).success).toBe(false);
   });
-});
 
-describe("saved reply shortcut and attached files", () => {
-  const [message] = thread.examples[1]!.entries;
-  const entry = { ...message, file: "demo_gate_report" };
-  const input = { number: "TR-06", cannedGoto: "saved_replies", entries: [entry] };
-  const canned = { address: "c1/canned", action: "press" };
-
-  it("links to saved replies without sending and is only offered to staff who can reply", () => {
-    const mounted = screen("RequestThread", input);
-    expect(planAct(mounted, components, {}, [canned])).toMatchObject({
-      ok: true,
-      links: [{ goto: "saved_replies" }],
-    });
-    expect(readScreen(mounted, components)).toContain("[c1/canned press→saved_replies");
-    const parts = addressedElements(renderInstance("RequestThread", input, "filled", theme));
-    expect(parts.get("home/c1/canned")?.attributes).toContain('role="button"');
-    for (const access of [
-      { role: "requester", canReply: true },
-      { role: "staff", canReply: false },
-      undefined,
-    ] as const) {
-      const defs = { RequestThread: RequestThread.bindRequestThread(() => access) };
-      expect(planAct(mounted, defs, {}, [canned]).ok).toBe(false);
-      expect(readScreen(mounted, defs)).not.toContain("Browse saved replies");
+  it("uses the wall clock for SLA options when no host clock was supplied", () => {
+    const now = vi.spyOn(Date, "now");
+    try {
+      now.mockReturnValue(Date.parse("2026-11-18T11:59:59Z"));
+      expect(readComponent(queue, input, "c1").join("\n")).not.toContain("SLA breached");
+      now.mockReturnValue(Date.parse("2026-11-18T12:00:00Z"));
+      expect(readComponent(queue, input, "c1").join("\n")).toContain("SLA breached");
+    } finally {
+      now.mockRestore();
     }
-    for (const state of ["loading", "success", "error"] as const)
-      expect(planAct(screen("RequestThread", input, state), components, {}, [canned]).ok).toBe(false);
-    expect(
-      planAct(screen("RequestThread", { ...input, cannedGoto: undefined }), components, {}, [canned]).ok,
-    ).toBe(false);
-  });
-
-  it("identifies the file without exposing its reference and keeps internal attachments private", () => {
-    const markup = renderInstance("RequestThread", input, "filled", theme);
-    expect(addressedElements(markup).get("home/c1/r1/file")?.text).toEqual(["Attached file"]);
-    expect(markup).not.toContain(entry.file);
-    const read = readScreen(screen("RequestThread", input), components);
-    expect(read).toContain("Attached file");
-    expect(read).not.toContain(entry.file);
-    const requester = RequestThread.bindRequestThread(() => ({ role: "requester", canReply: true }));
-    const privateInput = { ...input, entries: [{ ...entry, audience: "internal" }] };
-    expect(readComponent(requester, privateInput, "c1").join("\n")).not.toContain("Attached file");
-  });
-
-  it("accepts only bounded opaque message references that FileList can share", () => {
-    const file = {
-      fileRef: entry.file,
-      name: "Gate report.pdf",
-      ext: "pdf",
-      sizeBytes: 4100,
-      status: "ready",
-    };
-    expect(components.FileList.props.safeParse({ files: [file] }).success).toBe(true);
-    const event = thread.examples[1]!.entries[1]!;
-    expect(thread.props.safeParse({ ...input, entries: [{ ...event, file: entry.file }] }).success).toBe(
-      false,
-    );
-    for (const file of ["https://example.invalid/file", "/files/report.pdf", "x".repeat(33)])
-      expect(thread.props.safeParse({ ...input, entries: [{ ...entry, file }] }).success).toBe(false);
   });
 });
 

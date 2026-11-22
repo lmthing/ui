@@ -1,8 +1,16 @@
-import { appointmentDate, timeOfDayLine, type StateName } from "../../../catalog";
+import {
+  appointmentDate,
+  timeOfDayLine,
+  type DeviceData,
+  type StateName,
+  type Values,
+} from "../../../catalog";
 import { requestsWordsFor, type RequestsWords } from "../lang";
 
 type Words = RequestsWords["thread"];
 type Status = keyof Words["statuses"];
+export const threadAudiences = ["requester", "internal"] as const;
+export type ThreadAccess = { role: "staff" | "requester"; canReply: boolean };
 type Entry = {
   id?: string;
   by: string;
@@ -16,8 +24,40 @@ type Entry = {
   order?: string | undefined;
   photo?: string | undefined;
   file?: string | undefined;
+  fileName?: string | undefined;
   text?: string | undefined;
 };
+
+function fileName(data: DeviceData | undefined, ref: unknown) {
+  if (typeof ref !== "string") return;
+  for (const file of data?.requestFiles ?? []) {
+    if (!file || typeof file !== "object") continue;
+    const { fileRef, name } = file as { fileRef?: unknown; name?: unknown };
+    if (fileRef !== ref || typeof name !== "string") continue;
+    const title = name.trim();
+    if (title && title.length <= 48 && !/[/\\]/.test(title)) return title;
+  }
+}
+
+export function threadGates(input: Readonly<Values>, access?: ThreadAccess, data?: DeviceData): Values {
+  const choices: readonly string[] = !access?.canReply
+    ? []
+    : access.role === "staff"
+      ? threadAudiences
+      : ["requester"];
+  const draft = choices.length ? input.draft : undefined;
+  const entries = (input.entries as Values[])
+    .filter(({ audience }) => access?.role === "staff" || audience === "requester")
+    .map((entry) => (entry.file ? { ...entry, fileName: fileName(data, entry.file) } : entry));
+  return {
+    draft,
+    entries,
+    audience_choices: choices,
+    replyable: choices.length > 0,
+    canBrowseReplies: access?.role === "staff" && access.canReply && typeof input.cannedGoto === "string",
+    sendable: choices.includes(String(input.audience)) && typeof draft === "string" && Boolean(draft.trim()),
+  };
+}
 
 export function threadOrder<T extends Entry>(entries: readonly T[]): T[] {
   return [...entries].sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
@@ -38,6 +78,7 @@ export function threadEntryCopy(entry: Entry, detail: "full" | "brief", lang?: s
     date: appointmentDate(entry.date, lang),
     time: timeOfDayLine(entry.time, lang),
     audience: words.audiences[entry.audience],
+    fileLabel: entry.file ? (entry.fileName ? words.namedFile(entry.fileName) : words.file) : undefined,
   };
 }
 
@@ -50,35 +91,14 @@ type Thread = {
   canBrowseReplies?: boolean;
 };
 
-export function threadLoading({ number, entries, detail }: Thread, lang?: string) {
-  const { thread: words } = requestsWordsFor(lang);
-  return [
-    { lines: [{ role: "heading" as const, text: words.heading(number) }] },
-    ...threadOrder(entries).map((entry) => {
-      const { event, fact, date, time, audience } = threadEntryCopy(entry, detail, lang);
-      return { title: event ?? entry.by, sub: fact ?? entry.text, meta: `${time} ${date} · ${audience}` };
-    }),
-  ];
-}
-
 export function threadRead(input: unknown, state: StateName, lang?: string): string[] {
   const { number, entries, detail, draft, audience_choices, canBrowseReplies } = input as Thread;
   const { thread: words } = requestsWordsFor(lang);
   return [
     words.heading(number),
     ...threadOrder(entries).map((entry) => {
-      const { event, fact, date, time, audience } = threadEntryCopy(entry, detail, lang);
-      return [
-        entry.id,
-        event,
-        fact,
-        entry.by,
-        time,
-        date,
-        audience,
-        entry.photo && words.photo,
-        entry.file && words.file,
-      ]
+      const { event, fact, date, time, audience, fileLabel } = threadEntryCopy(entry, detail, lang);
+      return [entry.id, event, fact, entry.by, time, date, audience, entry.photo && words.photo, fileLabel]
         .filter(Boolean)
         .join(" · ");
     }),

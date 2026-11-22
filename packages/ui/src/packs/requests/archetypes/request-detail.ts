@@ -23,6 +23,9 @@ export const request_detail = {
       ],
     },
     requests_updates: {
+      writeHints: [
+        "Use an optional FileList only for authorized attachments on visible messages; reuse those messages' opaque file references.",
+      ],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
         { allow: ["Card"], required: true },
