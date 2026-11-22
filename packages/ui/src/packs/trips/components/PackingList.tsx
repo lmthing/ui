@@ -13,22 +13,10 @@ import {
   type Probe,
   type Props,
 } from "../../../catalog";
+// prettier-ignore
 import {
-  KitCard,
-  KitCheck,
-  KitContent,
-  KitFigure,
-  KitGrid,
-  KitInput,
-  KitMeter,
-  KitRow,
-  KitRowGroup,
-  KitState,
-  KitText,
-  useComponentState,
-  useLiveControls,
-  useVariant,
-  useWords,
+  KitCard, KitCheck, KitContent, KitFigure, KitGrid, KitInput, KitMeter, KitRow, KitRowGroup, KitState,
+  KitText, useComponentState, useLiveControls, useVariant, useWords,
 } from "../../../kit";
 import { packingProgress, packingQuantity, packingRead, packingRows } from "../copy";
 import { tripsWordsFor } from "../lang";

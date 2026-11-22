@@ -151,7 +151,7 @@ export function Clocks(input: c.Props<typeof props, typeof meta>) {
             <kit.KitContent
               key={id}
               density={density}
-              group={!inRows && density === "comfortable" && index >= columns ? "response" : "content"}
+              group={!inRows && index >= columns ? "response" : "content"}
             >
               <kit.KitRow
                 item={id}

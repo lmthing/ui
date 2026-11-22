@@ -117,8 +117,11 @@ function ConverterField({ part, label, text, result, loading, density, hint }: {
 }) {
   return (
     <kit.KitContent {...{ density }} group={part === "to" ? "response" : "content"} rhythm="flush">
-      <kit.KitContent inset="md" density={density}>
-        <kit.KitLayoutText line={{ text: label, role: "caption", tone: result ? "accent" : "muted", strong: Boolean(result) }} density={density} />
+      <kit.KitContent inset="md" density={density} rhythm="flush">
+        {result && text ? (
+          <kit.KitFigure density={density} value={{ text, tone: "accent", lines: 1 }}
+            unit={{ text: label, lines: 1 }} />
+        ) : <kit.KitLayoutText line={{ text: label, role: "caption", tone: "muted" }} density={density} />}
       </kit.KitContent>
       {loading ? (
         <kit.KitRow part={part} label={label} surface="outlined" inline lineRole="body">

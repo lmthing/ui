@@ -165,14 +165,10 @@ function WeatherLoading({ place, density, detail }: { place: string; density: De
   </>;
 }
 
+// prettier-ignore
 function WeatherHeading({ place, heading, density }: { place: string; heading: string; density: Density }) {
-  return (
-    <kit.KitHeader
-      title={{ text: place, part: "place", role: "body", strong: true }}
-      meta={{ text: heading, role: "body" }}
-      density={density}
-    />
-  );
+  return <kit.KitHeader title={{ text: place, part: "place", role: "body", strong: true }}
+    meta={{ text: heading, role: "body" }} density={density} />;
 }
 
 // prettier-ignore

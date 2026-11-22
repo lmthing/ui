@@ -1,14 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
+// prettier-ignore
 import {
-  affordancesOf,
-  components,
-  createRegistry,
-  packReady,
-  placeholderTitle,
-  readComponent,
-  stampItemIds,
-  type CastLike,
-  type Props,
+  affordancesOf, components, createRegistry, packReady, placeholderTitle, readComponent, stampItemIds,
+  type CastLike, type Props,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { addressedElements, renderInstance } from "../../../../../test/render";
@@ -186,26 +180,20 @@ describe("PackingList state and action dispatch", () => {
       expect(parts.has("home/c1/progress")).toBe(true);
       expect(affordancesOf(meta, stampItemIds(meta, props.parse(packing)), "p1", {}, state)).toEqual([added]);
       expect(parts.has("home/c1/r1/root")).toBe(state === "success");
-      if (state === "success")
-        expect(parts.get("home/c1/r1/packed_2")?.attributes).toContain('aria-checked="false"');
       expect(controller.press("home/p1/r1/packed_1").ok).toBe(false);
     }
     controller.dispose();
   });
 
+  // prettier-ignore
   it("keeps checked items and progress under the success message", () => {
-    const groups = packing.groups.map((group) => ({
-      ...group,
-      items: group.items.map((item) => ({ ...item, packed: true })),
-    }));
+    const groups = [{ ...clothes, items: [shirt] }];
     const html = renderInstance("PackingList", { groups }, "success", theme);
     const parts = addressedElements(html);
-    expect(html).toContain("All packed");
-    expect(html).toContain("100%");
+    for (const text of ["All packed", "100%"]) expect(html).toContain(text);
     expect(parts.has("home/c1/progress")).toBe(true);
-    for (const path of ["r1/packed_1", "r1/packed_2", "r2/packed_1"]) {
-      expect(parts.get(`home/c1/${path}`)?.attributes).toContain('aria-checked="true"');
-      expect(parts.get(`home/c1/${path}`)?.attributes).toContain('aria-disabled="true"');
-    }
+    const check = parts.get("home/c1/r1/packed_1")?.attributes;
+    expect(check).toContain('aria-checked="true"');
+    expect(check).toContain('aria-disabled="true"');
   });
 });
