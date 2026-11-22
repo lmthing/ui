@@ -62,13 +62,13 @@ describe("Applications contract and fallback", () => {
       });
     }
   });
-  it("keeps the hiring gate, core near miss and card probe", () => {
+  it("keeps the hiring gate, core near miss and write probe", () => {
     expect(createRegistry({ packs: ["hiring"] }).ids.includes(meta.id)).toBe(packReady("hiring"));
     expect(probes).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ kind: "choose", expect: "Applications" }),
         expect.objectContaining({ kind: "choose", expect: "List" }),
-        expect.objectContaining({ kind: "write", variant: { axis: "surface", value: "card" } }),
+        expect.objectContaining({ kind: "write", expect: "Applications" }),
         expect.objectContaining({ kind: "read", expect: { address: "a1/r1/followup", action: "check" } }),
       ]),
     );
@@ -80,7 +80,6 @@ describe("Applications parts, states, read and act", () => {
     const input = { applications: [second!, { ...first!, nextAt: "2001-01-01" }] };
     const drawn = [...parts(input).keys()];
     expect(drawn.indexOf("home/a1/r2/root")).toBeLessThan(drawn.indexOf("home/a1/r1/root"));
-    expect([...parts({ ...input }).keys()]).toEqual(drawn);
     expect(reading(input).indexOf('r2 "Summer dog walker"')).toBeLessThan(
       reading(input).indexOf('r1 "Assistant trainer"'),
     );

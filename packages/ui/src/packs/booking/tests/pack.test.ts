@@ -52,9 +52,9 @@ describe("booking scaffold", () => {
     for (const id of ["ServiceMenu", "Slots"] as const) {
       const { c: _c, id: _id, ...input } = workedBooking.find((line) => line.c === id);
       expect(input).not.toHaveProperty("style");
-      expect(components[id].props.parse(input)).toMatchObject(
-        id === "ServiceMenu" ? { style: undefined } : { arrange: "grid" },
-      );
+      const parsed = components[id].props.parse(input);
+      if (id === "ServiceMenu") expect(parsed).not.toHaveProperty("surface");
+      else expect(parsed).toMatchObject({ arrange: "grid" });
     }
     const slots = readComponent(components.Slots, components.Slots.examples[0], "s1").join("\n");
     expect(slots).toContain("09:30 (taken)");
