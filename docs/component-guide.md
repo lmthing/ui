@@ -19,6 +19,22 @@ the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs
 
 ## The file, in order
 
+For a new catalog entry, start with `pnpm gen:component <pack|core> <Name>` from `packages/ui`
+(or `pnpm --filter @lmthing/ui gen:component <pack|core> <Name>` from the workspace root).
+It reads the named section of `docs/catalog/`, writes a `draft` component and test, and
+creates component-specific copy and English label keys. It leaves existing components,
+including their probes, alone. For a pack, it also wires the component through the pack door.
+Use explicit types (`text(n)`, `number`, `integer`, `boolean`, dates and references),
+backticked enum choices, and explicit array bounds (`items` of fields, `1–6`). Name
+shared axes in `Styles`, for example `density: comfortable, compact` with the values
+in backticks. Ambiguous shorthand, nested repeated collections, conditional schemas
+and custom runtime state names may need to be scaffolded by hand.
+
+Check the draft against the full entry before building the view: supply real examples,
+replace the probe prompts and check the read address, implement conditional actions and
+variant part changes, and move the label keys into the owning `lang/en.ts` dictionary.
+The generated view is only a placeholder, not evidence for the model or visual gates.
+
 1. **Imports.** Only `zod`, `../catalog` and `../kit`. Never `tamagui`, `react-native` or lucide
    directly: those live behind kit bases.
 2. **`meta`**: a plain object, `as const satisfies Meta`.
@@ -34,6 +50,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs
    - `select` declares the selected prop, row value (`index`, `position`, or `{ field }`), optional row `flags` mode and fixed named `parts` values.
    - `items.toggles: { save: "saved" }` maps a named item toggle at `rN/save` to a boolean row field. Also declare `save: ["toggle"]` in `actions.items`. The store value overlays the addressed row before `live.derive` and `items.visibleWhen`; it does not change wire props. Use `useLiveControls` to draw from the same live rows.
    - `items.readSecrets: { fields, when }` replaces matching row fields with `(secret)` in the agent read, including after a visual reveal. Bind a row reveal toggle to its current content with `items.revealSecrets: { part, fields }` and read the grant with `secretRevealMatches`; a reused address does not reveal replacement content. Do not pass secret text as an action value.
+   - For a masked credential, declare the value with `kind: "secret"` and bind the named component toggle with `actions.credentialToggles: { reveal: "memberId" }`. Use `credentialToggleOn` with the control value and current credential; an old or serialized grant does not disclose a different credential. The read exposes the action and its state, never the full credential.
    - `clocks` on meta, items or items.nested declares time sources, live props, start/stop/reset and zero behavior. `adjust` on meta or items maps `"part.action"` to `{ prop, delta, min?, max? }` for a numeric prop or live clock; see `src/catalog/meta/README.md` and keep projected values inside the prop schema's bounds.
    - `items.nested: { key, parts: { [part]: { action: "toggle" | "set", prop, min?, max?, integer?, when? } } }` declares `rN/<part>_M` controls projected into sub-items; `when` names a boolean part on the same sub-item.
    - `read` may use its optional final argument to read the current instance's control values. Keep those values out of Writer props and wire snapshots.
@@ -105,6 +122,24 @@ Choose only axes and values that visibly change this component. These are candid
 See `src/components/Card.tsx` for Card finish and content axes and `src/components/List.tsx` for
 List's grouped rows, peek disclosure, inherited trail and per-row tone and mark.
 
+## Reusing a core renderer in a pack
+
+A view may also import an internal renderer through its kit folder's `index.ts`, such as
+`src/kit/timeline`. Pass named, typed data slots, not a second component definition, arbitrary
+children or model-supplied layout. The adapter formats copy, resolves variants and state, and
+supplies the owner's existing part names and stamped row ids. A missing slot adds no addressed
+part; an all-day label is an explicit time slot, not the default for a missing time.
+
+Keep the parent screen/component context. For a bounded list inside an item, use that item's
+stamped id and one declared part per position (for example `r1/stop_2`), never a synthetic child
+component or item id. Bind actions with the ordinary kit bases to the parent's controller.
+The owner keeps fallback, reading, action metadata, live values, tier and host data; even fold
+state is resolved by the owner and passed into the renderer.
+
+Keep the strict Writer schema and existing recipes unchanged. Test legacy recipe replay, drawn
+parts and action verbs at the old addresses, including hidden or absent slots. The Timeline
+pilot shares event rows and date/rail layout without replacing Agenda or Itinerary on the wire.
+
 ## Words and language
 
 `KitProvider` and `PhoneScreen` take the app's BCP-47 `lang`; the default is English.
@@ -121,6 +156,38 @@ language file. To add a language, write a complete dictionary that `satisfies Wo
 Unregistered words fall back to English. Only English ships at launch.
 
 ## Kit bases (the only building blocks)
+
+### Layout recipes
+
+Use `KitHeader` for heading plus supporting text, `KitMetaLine` for a row title and its metadata,
+`KitRowGroup` for a shared rail with separators, `KitFigure` for a figure and its caption, and
+`KitActionFooter` to attach actions to the group they belong to. The frame sets the outer gutter.
+The rail aligns leading and trailing slots; title-to-meta spacing stays smaller than group spacing.
+Absent slots take no space unless a row group deliberately reserves the leading rail.
+
+Use only the kit scale: title, body, meta, figure and caption. Existing `KitText` roles and compact
+figures map to that scale; use a kit role rather than sizing text in a view. Use `KitState` for
+empty, loading, error and success. It takes the same layout in both filled and loading states:
+describe the slots once, then let the recipe draw text or inert placeholders. Use an inline status
+for operations that leave useful content on screen. Keep existing parts, reading and actions.
+Only override a state treatment when the catalog doc calls for it, and do not invent a retry
+action. Test the kit geometry separately from host fixture data such as photos.
+
+| Recipe | Slots |
+| --- | --- |
+| `KitHeader`, `KitMetaLine` | `title`, optional `meta` (one or more lines), `align`, `density`. A line supplies `text`, optional `part`, semantic `role` and finish. |
+| `KitLayoutText` | One semantic `line`, with optional `align` and `density`; the same descriptor draws a loading bar. |
+| `KitRowGroup` | Row children, optional `leadingWidth="avatar"` to reserve a common rail, `spacing` (`rows` or `groups`), `separators` (default on), `density`. |
+| `KitFigure` | `value` and optional `unit`, or `media`; optional `caption`, `align`, `density`. |
+| `KitActionFooter` | Action children, optional `align` and `density`. A missing action takes no space. |
+| `KitState` | Filled children, optional shaped `loading`, `message`, `part`, `icon`, `density`; `retain` keeps children visible with an inline error or success message. |
+
+Inside a padded frame use `KitRow inset="none"` so the frame owns the gutter. A passive `inline`
+row can use `fitContent` to avoid reserving a control-height slot. This never shrinks links or buttons.
+In loading, keep the slots and use the inert treatment of `KitLayoutText`, `KitPhoto`, `KitIcon`,
+`KitTrail` and `KitAction`; preserve any existing measurement-only addresses.
+
+### Base reference
 
 This table covers every base exported by `src/kit/base/index.ts`, including its exported helpers.
 `KitOverlay` is internal to screen rendering, not a component building block.
@@ -273,3 +340,18 @@ Then the look must pass `docs/visual-rubric.md`: look at every PNG yourself, the
 `ui-reviewer` subagent (`.factory/droids/ui-reviewer.md`) to review it with fresh eyes, fix, and
 repeat until it answers `APPROVED` (at most 3 rounds). The orchestrating agent then looks at the final
 screenshots once, approves and merges.
+
+For pack acceptance, start with `pnpm look --component <Id> --widths 390 --preset calm --mode light`.
+Use the part names in `issues.json` to find the source. Use tight spacing inside a label/value
+pair and more space before the next group; put the first row close to its heading. Use at most
+three text sizes per item, and use end alignment for numeric columns even with tabular digits.
+Use a danger or neutral treatment for negative actions rather than the primary accent. Check
+that meaningful text fits without clipping or ellipsis; a wholly offscreen item in a scroll
+region is not clipped text. When the component brief requires a specific empty message, pass it
+from the language copy to `KitEmpty` instead of letting it show the shared neutral line.
+
+Document this requirement on the component's `States:` line as `empty (reason)` in its catalog
+brief. The acceptance reviews also call for specific copy in these existing cases:
+
+- `Approval`: empty (no requests waiting for a decision).
+- `TravelDocs`: empty (no travel documents).

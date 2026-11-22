@@ -19,6 +19,7 @@ export function KitContent({
   leadingAlign = "line",
   inset = "none",
   group = "content",
+  rhythm = "close",
   align = "start",
   density,
   emphasis,
@@ -33,6 +34,7 @@ export function KitContent({
   inset?: "none" | "md";
   /** A response group separates from the preceding content without changing its internal gap. */
   group?: "content" | "response";
+  rhythm?: "close" | "flush";
   align?: AxisValue<"align">;
   children: ReactNode;
 } & TextFinish) {
@@ -46,7 +48,10 @@ export function KitContent({
     >
       {lead &&
         (leadingAlign === "row" ? <Edge alignSelf="center">{lead}</Edge> : <Edge height={line}>{lead}</Edge>)}
-      <Text gap={space.xs} {...(align === "center" ? { alignItems: variants.align.center.content } : {})}>
+      <Text
+        gap={rhythm === "flush" ? component.base.none : space.xs}
+        {...(align === "center" ? { alignItems: variants.align.center.content } : {})}
+      >
         {children}
       </Text>
     </Frame>

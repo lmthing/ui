@@ -1,13 +1,15 @@
 import { createHash } from "node:crypto";
-import { mkdir, mkdtemp, readdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
-import { join, relative } from "node:path";
+import { glob, mkdir, mkdtemp, readdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
+import { join, matchesGlob, relative } from "node:path";
 
 const cache = "node_modules/.cache";
 const inputs = [
   "src/components",
   "src/surfaces",
   "src/packs",
+  "src/catalog/copy",
   "src/catalog/meta/pack-ids.ts",
+  "src/kit/base",
   "scripts/build/entries",
   "scripts/build/cache/cached-entries.ts",
   "package.json",
@@ -15,6 +17,7 @@ const inputs = [
   "../../package.json",
   "../../pnpm-lock.yaml",
 ];
+const doorPaths = ["src/packs/*/{components,copy}/index.ts", "src/{kit/base,catalog/copy}/index.ts"];
 
 const missing = (error: unknown) => (error as NodeJS.ErrnoException)?.code === "ENOENT";
 
@@ -52,9 +55,16 @@ const inputFingerprint = (root: string) =>
   fingerprint(
     root,
     inputs,
-    (name) => !name.startsWith("scripts/") || (name.endsWith(".ts") && !name.endsWith(".test.ts")),
+    (name) =>
+      (!name.startsWith("scripts/") || (name.endsWith(".ts") && !name.endsWith(".test.ts"))) &&
+      !(name.endsWith("/index.ts") && doorPaths.some((path) => matchesGlob(name, path))),
   );
-const outputFingerprint = (root: string) => fingerprint(root, ["src/entry"], (name) => name.endsWith(".ts"));
+
+async function outputFingerprint(root: string) {
+  const paths = ["src/entry"];
+  for await (const door of glob(doorPaths, { cwd: root })) paths.push(door);
+  return fingerprint(root, paths, (name) => name.endsWith(".ts"));
+}
 
 async function publishStamp(folder: string, target: string, value: string) {
   await mkdir(folder, { recursive: true });

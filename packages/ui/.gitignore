@@ -1,1 +1,5 @@
 node_modules/.cache/
+/src/packs/*/components/index.ts
+/src/packs/*/copy/index.ts
+/src/kit/base/index.ts
+/src/catalog/copy/index.ts

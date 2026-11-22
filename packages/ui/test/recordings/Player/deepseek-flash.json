@@ -207,6 +207,214 @@
       "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":null,\"repeat\":null,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}"
     ]
   },
+  "1efead721f768da4": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPlayer: Listen to or watch one recording, with play, skip and a scrubber.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", style?: audio|video|compact=\"audio\", mode?: audio|music|podcast|video|live, speed?: num 0.25..4, liked?: boolean, shuffle?: boolean, repeat?: boolean, loop?: boolean, media: media lib:<tag>|local:<n>, title: text≤40, sub?: text≤40, photo?: photo lib:<tag>|local:<n>, seconds: int 1..36000, at?: int 0..9007199254740991 }\nRule: Hiding only the cover artwork sets detail \"brief\" and density null. Keep the photo reference and playback controls. Never output default axis values; density is compact only when tighter spacing was specifically requested.\nRule: The media field is the recording reference. Use style \"video\" for the original video layout or \"compact\" for one audio row. Mode is the recording type; write it only when requested. Speed is a multiplier (1.5 for 1.5×).\nexample: {\"c\":\"Player\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Play the 12-minute Evening wind-down recording from lib:wind_down. Keep lib:plants as its cover photo but hide the artwork, without changing the spacing or playback controls.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Player",
+              "enum": [
+                "Player"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "audio",
+                    "video",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "mode": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "audio",
+                    "music",
+                    "podcast",
+                    "video",
+                    "live"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "speed": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0.25,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "liked": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "shuffle": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "repeat": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "loop": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "type": "string",
+              "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "sub": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 36000
+            },
+            "at": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "style",
+            "mode",
+            "speed",
+            "liked",
+            "shuffle",
+            "repeat",
+            "loop",
+            "media",
+            "title",
+            "sub",
+            "photo",
+            "seconds",
+            "at"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":null}",
+    "replies": [
+      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":null}",
+      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":null}",
+      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":null}"
+    ]
+  },
   "2d3a13544640b15c": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPlayer: Listen to or watch one recording, with play, skip and a scrubber.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", style?: audio|video=\"audio\", media: media lib:<tag>|local:<n>, title: text≤40, sub?: text≤40, photo?: photo lib:<tag>|local:<n>, seconds: int 1..36000, at?: int 0..9007199254740991 }\nRule: Hiding only the cover artwork sets detail \"brief\" and density null. Keep the photo reference and playback controls. Never output default axis values; density is compact only when tighter spacing was specifically requested.\nRule: The media field is the recording reference, not a presentation choice. Use style \"video\" only for a video recording.\nexample: {\"c\":\"Player\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Play the 12-minute Evening wind-down recording from lib:wind_down. Keep lib:plants as its cover photo but hide the artwork, without changing the spacing or playback controls.",
     "format": {
@@ -335,7 +543,7 @@
     "reply": "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":null}",
     "replies": [
       "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":null}",
-      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":0}",
+      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":null}",
       "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":null}"
     ]
   },
@@ -485,8 +693,8 @@
     "reply": "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}",
     "replies": [
       "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}",
-      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}",
-      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}"
+      "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
+      "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}"
     ]
   },
   "4676f2e099f8d802": {
@@ -619,6 +827,214 @@
       "{\"c\":\"Player\",\"density\":\"comfortable\",\"detail\":\"full\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
       "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"full\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
       "{\"c\":\"Player\",\"density\":\"comfortable\",\"detail\":\"full\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}"
+    ]
+  },
+  "566b241937e5cce9": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPlayer: Listen to or watch one recording, with play, skip and a scrubber.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", style?: audio|video|compact=\"audio\", mode?: audio|music|podcast|video|live, speed?: num 0.25..4, liked?: boolean, shuffle?: boolean, repeat?: boolean, loop?: boolean, media: media lib:<tag>|local:<n>, title: text≤40, sub?: text≤40, photo?: photo lib:<tag>|local:<n>, seconds: int 1..36000, at?: int 0..9007199254740991 }\nRule: Hiding only the cover artwork sets detail \"brief\" and density null. Keep the photo reference and playback controls. Never output default axis values; density is compact only when tighter spacing was specifically requested.\nRule: The media field is the recording reference. Use style \"video\" for the original video layout or \"compact\" for one audio row. Mode is the recording type; write it only when requested. Speed is a multiplier (1.5 for 1.5×).\nexample: {\"c\":\"Player\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Play the recording Evening wind-down by Guided breathing, 12 minutes long, already 4 minutes in",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Player",
+              "enum": [
+                "Player"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "audio",
+                    "video",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "mode": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "audio",
+                    "music",
+                    "podcast",
+                    "video",
+                    "live"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "speed": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0.25,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "liked": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "shuffle": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "repeat": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "loop": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "type": "string",
+              "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "sub": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 36000
+            },
+            "at": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "style",
+            "mode",
+            "speed",
+            "liked",
+            "shuffle",
+            "repeat",
+            "loop",
+            "media",
+            "title",
+            "sub",
+            "photo",
+            "seconds",
+            "at"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}",
+    "replies": [
+      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}",
+      "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"audio\",\"mode\":\"audio\",\"speed\":1.5,\"liked\":true,\"shuffle\":false,\"repeat\":false,\"loop\":false,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}",
+      "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}"
     ]
   },
   "6c937b85d81161d2": {
@@ -1174,6 +1590,214 @@
       "{\"address\": \"p1/play pause\", \"action\": \"pause\"}"
     ]
   },
+  "d1f29cbec875fe0c": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPlayer: Listen to or watch one recording, with play, skip and a scrubber.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", style?: audio|video|compact=\"audio\", mode?: audio|music|podcast|video|live, speed?: num 0.25..4, liked?: boolean, shuffle?: boolean, repeat?: boolean, loop?: boolean, media: media lib:<tag>|local:<n>, title: text≤40, sub?: text≤40, photo?: photo lib:<tag>|local:<n>, seconds: int 1..36000, at?: int 0..9007199254740991 }\nRule: Hiding only the cover artwork sets detail \"brief\" and density null. Keep the photo reference and playback controls. Never output default axis values; density is compact only when tighter spacing was specifically requested.\nRule: The media field is the recording reference. Use style \"video\" for the original video layout or \"compact\" for one audio row. Mode is the recording type; write it only when requested. Speed is a multiplier (1.5 for 1.5×).\nexample: {\"c\":\"Player\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Play the 38-second Park walk recap from lib:voice_note explicitly as a podcast, with a single compact audio row. Use 1.5× speed, mark it liked and loop it. Leave shuffle and repeat off.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Player",
+              "enum": [
+                "Player"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "audio",
+                    "video",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "mode": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "audio",
+                    "music",
+                    "podcast",
+                    "video",
+                    "live"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "speed": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0.25,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "liked": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "shuffle": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "repeat": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "loop": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "type": "string",
+              "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "sub": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 36000
+            },
+            "at": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "style",
+            "mode",
+            "speed",
+            "liked",
+            "shuffle",
+            "repeat",
+            "loop",
+            "media",
+            "title",
+            "sub",
+            "photo",
+            "seconds",
+            "at"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":false,\"repeat\":false,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}",
+    "replies": [
+      "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":false,\"repeat\":false,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}",
+      "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":null,\"repeat\":null,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}",
+      "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":null,\"repeat\":null,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}"
+    ]
+  },
   "d3cb2ccfc4852795": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nPlayer: Listen to or watch one recording, with play, skip and a scrubber.\nprops: { style?: audio|video|compact=\"audio\", media: media lib:<tag>|local:<n>, title: text≤40, sub?: text≤40, photo?: photo lib:<tag>|local:<n>, seconds: int 1..36000, at?: int 0..9007199254740991 }\nexample: {\"c\":\"Player\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}\n\nBrief: Play the recording Evening wind-down by Guided breathing, 12 minutes long, already 4 minutes in",
     "format": {
@@ -1402,11 +2026,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Player\",\"density\":null,\"detail\":\"full\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
+    "reply": "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
     "replies": [
-      "{\"c\":\"Player\",\"density\":null,\"detail\":\"full\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
-      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
-      "{\"c\":\"Player\",\"density\":null,\"detail\":\"full\",\"style\":\"audio\",\"media\":\"local:1\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"local:2\",\"seconds\":720,\"at\":245}"
+      "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
+      "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
+      "{\"c\":\"Player\",\"density\":null,\"detail\":\"full\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}"
     ]
   },
   "de725e4e18a1b4ec": {

@@ -21,6 +21,7 @@ import {
 } from "../index";
 import { isRuntimeSet, recordClockOffer, setAt } from "../clocks";
 import { itemEditAt, reportEditWire } from "../report-edits";
+import { credentialToggleOn } from "../credential-toggle";
 
 const risks: Record<string, string> = {
   ok: " !needs-ok",
@@ -57,6 +58,14 @@ export function readOffers(
   const visible = offered.filter(({ address }) => !hostOnly?.has(address) && !addresses.has(address));
   const destination = target && !addresses.has(target.address) ? target : undefined;
   return driveAffordances(def.meta, props, instance, visible, destination);
+}
+
+function toggleDetail(meta: Meta, props: Values, offer: Affordance, target: string, value: unknown) {
+  if (offer.action !== "toggle") return offer.detail;
+  const fields = meta.actions?.credentialToggles;
+  const credential = fields && Object.hasOwn(fields, target) ? fields[target] : undefined;
+  if (credential) return credentialToggleOn(value, props[credential]) ? ":on" : ":off";
+  return typeof value === "boolean" ? (value ? ":on" : ":off") : offer.detail;
 }
 
 /** Describe the offered controls using live values and choices. */
@@ -107,8 +116,7 @@ export function readAffordances(
               : a.input?.kind === "text"
                 ? (answers?.[target] ?? values[`${instance}/${liveInputKey(target, "type")}`])
                 : (values[`${a.address}/$draft`] ?? answers?.[target] ?? values[a.address]);
-    let detail = a.detail;
-    if (typeof value === "boolean" && a.action === "toggle") detail = `:${value ? "on" : "off"}`;
+    let detail = toggleDetail(meta, props, a, target, value);
     if (!a.input && typeof value === "boolean" && a.action === "check")
       detail = `:${value ? "done" : "todo"}`;
     const offered = a.action === "select" && !choices ? runtimeRowValue(meta, props, target, value) : value;

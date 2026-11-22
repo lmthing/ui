@@ -29,6 +29,7 @@ import { stageLinkedEdit } from "./linked-edits";
 import { stageReportEdit } from "./report-edits";
 import { stageInlinePress } from "./live-inputs";
 import { stageRecordAction, withRecordScreen } from "./record-runtime";
+import { stageCredentialToggle } from "./credential-toggle";
 export type ActStep = { address: string; action: string; value?: unknown; recordTarget?: string };
 export type Values = Record<string, unknown>;
 export type SendDraft = { address: string; text: string; audience?: string };
@@ -104,6 +105,7 @@ function stepProgress(
   const record = stageRecord(screen, defs, next, step, snapshot, now);
   if (record !== undefined) return record ? "" : false;
   return (
+    stageCredentialToggle(screen, defs, next, step) ??
     stageLinkedEdit(screen, defs, next, found, step.value) ??
     stageProgress(screen, defs, step.address, step, next, random, snapshot)
   );

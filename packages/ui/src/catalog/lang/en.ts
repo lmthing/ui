@@ -26,6 +26,7 @@ export const en = {
   swipeCard: "swipe card",
   thisMonth: "This month",
   saved: "Saved",
+  operationFailed: "Something went wrong",
   checkValue: "Check this value",
   fieldToggle: { on: "on", off: "off" },
   fieldChoiceError: "Choose an available field option",
@@ -150,6 +151,28 @@ export const en = {
   documentField: (label: string, value: string) => `${label} · ${value}`,
   documentTax: (label: string, percent: string) => `${label} (${percent})`,
   kitchenLabels: { newItem: "Type a new grocery item", timer: "Cooking timer" },
+  passCard: {
+    invalid: "This code can’t be read",
+    qr: "Pass QR code",
+    copy: "Copy code",
+    copied: "Code copied",
+    reveal: "Show member ID",
+    hide: "Hide member ID",
+    mask: (tail: string) => `••••${tail ? ` ${tail}` : ""}`,
+    expiry: (date: string) => `Expires ${date}`,
+    balance: "Balance",
+    ready: "Ready to scan",
+    used: "Used",
+  },
+  fileList: {
+    error: "Attachments unavailable",
+    format: { pdf: "PDF", doc: "DOC", sheet: "XLS", zip: "ZIP", audio: "AUD", other: "File" },
+    pages: (count: string, form: LDMLPluralRule) => `${count} ${form === "one" ? "page" : "pages"}`,
+    status: { ready: "", downloading: "Downloading", missing: "File missing" },
+    download: (name: string) => `Download ${name}`,
+    remove: (name: string) => `Remove ${name}`,
+    separator: " · ",
+  },
 };
 
 export type Words = typeof en;
