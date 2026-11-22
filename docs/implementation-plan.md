@@ -350,16 +350,15 @@ This repo owns the token values.
 | `tokens/motion.ts`     | Durations `fast` 120, `base` 220, `slow` 420 ms. Springs `snappy` (stiffness 420, damping 34), `gentle` (180, 24), `bouncy` (300, 14; fixed configs)                                                              |
 | `tokens/component.ts`  | Tokens that belong to one component, named by it (`Ring.stroke`, `Bars.barWidth`, `Slots.chipHeight`). The only home for a number a view needs that no shared scale covers                                        |
 | `themes/presets/*.ts`  | One file per preset: mood, type family, shape (sharp, soft, round), density, surface treatment, role values for light and dark                                                                                    |
-| `themes/accents.ts`    | 2 built accents; 12 required (**pending**), each with `accent`, `accentSoft`, `onAccent` for light and dark                                                                                                       |
+| `themes/accents.ts`    | 12 accents, each with `accent`, `accentSoft`, `onAccent` for light and dark                                                                                                                                        |
 | `themes/theme-name.ts` | `themeName({ preset, accent, mode })` → `kit_<preset>_<mode>_<accent>`                                                                                                                                            |
 | `themes/kit-style.ts`  | `KitStyle` and `kitStyleOf(preset)`: what a preset changes besides colour (corner shift, font pairing, density, surface treatment) as plain data                                                                  |
 
 A theme is preset plus accent plus mode, plus the app-wide `density` and `motion` (4.2a). The model
 picks names and never a colour. `tokens/variants.ts` maps the shared variant axes to tokens per preset.
 
-**Pending full set:** 12 presets × 12 accents × 2 modes = 288 themes. The built set is `calm`, `bold`,
-`editorial` × `moss`, `sky` × light/dark = 12. Theme tests derive counts from the built arrays;
-they do not assert 288. The preset table and accent list below retain the full requirement.
+**Full set built:** 12 presets × 12 accents × 2 modes = 288 themes. The theme tests assert the
+published ids and all 288 unique names.
 
 | Preset      | Mood                             | Type                       | Shape | Surfaces                    |
 | ----------- | -------------------------------- | -------------------------- | ----- | --------------------------- |
@@ -378,8 +377,9 @@ they do not assert 288. The preset table and accent list below retain the full r
 
 Accents: `moss`, `forest`, `teal`, `sky`, `indigo`, `violet`, `rose`, `coral`, `amber`, `sand`, `slate`, `ink`, each defining `accent`, `accentSoft` and `onAccent` for light and dark.
 
-Accent and preset colour values are designed in step U1. Each one must pass the contrast rules: text on background at least 7:1, muted text and text on accent at least 4.5:1, in all 288 combinations. `scripts/contrast.ts` checks the built combinations separately; wiring it into the unified catalog
-check and covering all 288 combinations are **pending**.
+The unified `pnpm build:catalog` check runs `scripts/build/contrast.ts` for all 288 combinations:
+text on background must reach 7:1, muted text and text on accent must reach 4.5:1, and semantic
+tints must retain their existing contrast.
 
 **Shapes.** Presets are plain data: id, mood, font, numbers, weight, shape, density, surface and
 light/dark base roles. Current surfaces are `soft`, `solid`, `hairline`; `weight` is `regular` or
@@ -609,7 +609,7 @@ distributed, not all implemented by one script.
 | Every archetype default passes `checkScreen`                                  | Core 35-layout tests for empty/full casts; **pending** real pack defaults                                                                                |
 | Each pack has purpose/pick, ≥2 archetypes and valid worked JSON Lines         | `checkPacks` checks present packs only; empty real pack catalog passes. **Pending:** real content and R1/R2 example path                                 |
 | Strict writer scope, no component aliases or alias-conflict check             | 2026-11-18 design, 4.6; parallel implementation                                                                                                          |
-| Theme roles and contrast for all 288 combinations                             | Roles/count tests cover built arrays; standalone contrast script. **Pending:** full set and contrast wiring                                              |
+| Theme roles and contrast for all 288 combinations                             | Theme tests assert the full set; `pnpm build:catalog` runs contrast for all 288.                                                                           |
 | Prompt estimates/snapshots and model gates                                    | Estimate gates, component replay, explicit pack and compose runners. **Pending:** full reports and unified gate wiring                                   |
 | Declared/inferred actions match mounted parts and roles                       | Filled-example reading tests; `actions.when`, part tiers and confirmation-part pack checks. **Pending:** generic action checks across all runtime states |
 | Readers cover every state, text and budgets                                   | Filled-example text/action agreement; **pending** all-state snapshots, custom-reader coverage and budgets                                                |
@@ -896,7 +896,7 @@ bundled OFL font files for host native loaders such as `expo-font`.
 
 `kitSprings` exports plain configs for host animation/stage worklets. Current kit motion uses the
 RAF spring driver in `kit/motion`; it is not a configured Reanimated/CSS Tamagui animation driver.
-**Pending:** native/Tamagui driver integration, all 288 themes and measured compact mode. If the
+**Pending:** native/Tamagui driver integration and measured compact mode. If the
 full web size exceeds the budget, `build-themes --compact` must emit 24 preset/mode themes with accent
 role overrides and the same API.
 
@@ -1243,9 +1243,9 @@ The separate theme-role, CSS and count checks always cover the full built theme 
 | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Catalog unit (Vitest)                        | Schemas/examples/fallbacks, rules, addresses, migrations, core defaults, action planning and synthetic pack scanner/generator checks. **Pending:** repair lookup/R1/R2 tests and real pack/surface content                                                                                        |
 | Prompt snapshots (Vitest)                    | Real core/fixture-index snapshots and write-entry parity checks. **Pending:** all real pack blocks and token measurement reports                                                                                                                                                                  |
-| Contrast                                     | Standalone script for built themes. **Pending:** all 288 and check/CI wiring                                                                                                                                                                                                                      |
+| Contrast                                     | `pnpm build:catalog` runs the contrast script for all 288 themes; `pnpm check` includes the catalog build.                                                                                                                                                                                          |
 | Type inference                               | Strict TypeScript and typed schema outputs. **Pending:** dedicated `expect-type` assertions for `Props`/item ids and rejected extra props                                                                                                                                                         |
-| Kit conformance (Vitest/static HTML)         | Every example/state, root and item roots, variant addresses; first accent with the selected preset/mode matrix. Theme-role/count test derives built arrays. **Pending:** each part's memory-registry registration and independent ready-view/all-288 assertions                                       |
+| Kit conformance (Vitest/static HTML)         | Every example/state, root and item roots, variant addresses; first accent with the selected preset/mode matrix. **Pending:** each part's memory-registry registration and independent ready-view/all-288 assertions                                                                                  |
 | Reading/actions (Vitest/static HTML)         | Filled-example visible/read text agreement and offered action role/address agreement. **Pending:** every state, deltas, runtime marks, schema-valid read-probe values and reader budgets                                                                                                          |
 | Kit unit/controller (Vitest)                 | Store/planner, live controls, modal/confirmation/media, motion interpolation and defaults. **Pending:** runtime detector faults, revisions and settlement                                                                                                                                         |
 | Browser runtime (Vitest + Playwright Chrome) | Three runtime tests plus eight live-control tests: taps/keyboard/agent paths, fields/replies, timers, tabs, swipes and host photos. **Pending:** exhaustive action parity/logs, stale/settle/navigation and native gates                                                                          |
@@ -1335,7 +1335,7 @@ The required PR workflow remains:
 2. `pnpm typecheck`.
 3. `pnpm lint` (requires the pending root script/config).
 4. `pnpm test`.
-5. `pnpm catalog:check` (pending unified script, contrast, budgets and bundle wiring).
+5. `pnpm build:catalog` (includes contrast and bundle checks; reader/action budgets pending).
 6. `pnpm kit:themes --check`.
 7. `pnpm build` (pending root orchestration; package builds exist).
 8. Live probes when component/pack/archetype/prompt content changes, replay otherwise; environment
@@ -1343,8 +1343,8 @@ The required PR workflow remains:
 9. Static gallery build and Playwright baseline screenshots with artifacts.
 10. Compressed kit/theme size report and gates in §9.
 
-`pnpm check` wires formatting, types, the code rules (`pnpm rules`), tests and catalog build. It does not run the
-standalone contrast script, visual baseline/axe checks or size/performance gates. A tagged
+`pnpm check` wires formatting, types, the code rules (`pnpm rules`), tests and catalog build, including contrast.
+It does not run visual baseline/axe checks or the kit size/performance gates. A tagged
 Changesets release workflow stays pending/disabled until registry/licence decisions in §14.
 
 ## 12. Using it from lmthing
@@ -1368,7 +1368,7 @@ pack lists live in [docs/catalog/](catalog/README.md); build waves, prerequisite
 | Step                                  | Status                                                                                                                                                                                                                                                                                              | Remaining gate and phase                                                                                                                                                                          |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **U0. Bootstrap**                     | **Partly done:** workspace, TS, Prettier, Vitest, generation, esbuild/bundle check and Vite skeleton exist; lint, Changesets and CI remain                                                                                                                                                          | Rules reject forbidden imports and 61-line functions; file and folder size findings warn only. Bundle rejects a React fixture; CI green. Phase 0                                                  |
-| **U1. Catalog foundations**           | **Partly done:** metadata, helpers, tokens, addresses, screen rules, core registry/defaults, readers and probes exist; full themes, repair lookups/R1/R2, version/deprecation and readApp/deltas/budgets remain                                                                                     | Unified catalog check, 288-theme contrast report, address properties, reader/action budgets. Phase 0                                                                                              |
+| **U1. Catalog foundations**           | **Partly done:** metadata, helpers, tokens, addresses, screen rules, core registry/defaults, readers, probes and all 288 themes exist; repair lookups/R1/R2, version/deprecation and readApp/deltas/budgets remain                                                                                     | Unified catalog check, 288-theme contrast report, address properties, reader/action budgets. Phase 0                                                                                              |
 | **U2. Kit foundations**               | **Partly done:** views/bases/provider/parts, browser controller, environment hooks, shared motion and browser motion/reduced-motion acceptance exist; native host/device acceptance, complete revisions/settle/registry coverage, full theme load, axe and size gates remain                        | Web/iOS/Android render and action parity; all declared parts, all themes and web size measured. Phase 0                                                                                           |
 | **U3. Prompt entries for everything** | **Partly done:** core entries/probes/snapshots, estimated budgets, pack tooling and all 35 passing compose/rubric gates with test replay exist; real pack/surface drafts and aggregate/regression gates remain                                                                                      | All drafts have complete metadata/schema/actions/tiers/fallback/examples/probes, catalog check except draft views; real prompt budgets and required live gates. Phase 0 bake-off                  |
 | **U4. First 24 of the core**          | **Partly done:** the first 24 schemas/views and associated core archetypes exist; ten validated full-screen fixtures and complete interaction/visual acceptance remain                                                                                                                              | All 24 ready and every state/action/screenshot accepted in each preset. Phase 1                                                                                                                   |
