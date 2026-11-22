@@ -42,14 +42,16 @@ it("resumes unchanged pack samples, including failures, and calls changed prompt
   expect(await call("same", 0, undefined, probe)).toBe("failed");
   expect(await call("same", 1, undefined, probe)).toBe("fresh");
   expect(live).toHaveBeenCalledTimes(3);
-  const changed = { ...probe, definition: { changed: true } };
+  const changed = { ...probe, definition: { changed: true }, samples: 3 };
   expect(await call("same", 0, undefined, changed)).toBe("failed");
   expect(await call("changed", 0, undefined, changed)).toBe("fresh");
   expect(live).toHaveBeenCalledTimes(3);
   expect(await call("same", 2, undefined, changed)).toBe("fresh");
-  await expect(replayBook("List", "model", book)("same", 0, undefined, changed)).rejects.toThrow(
-    "No recording",
-  );
+  expect(await call("same", 1, undefined, changed)).toBe("fresh");
+  expect(live).toHaveBeenCalledTimes(4);
+  const replay = replayBook("List", "model", book);
+  for (const [sample, reply] of ["failed", "fresh", "fresh"].entries())
+    expect(await replay("same", sample, undefined, changed)).toBe(reply);
 });
 it("hashes the sent format and preserves unformatted choose/read keys", () => {
   const format = writerFormatFor(components.List),
@@ -65,15 +67,18 @@ it("hashes the sent format and preserves unformatted choose/read keys", () => {
   expect(keyOf(model, prompt, format)).not.toBe(keyOf(model, prompt, writerFormatFor(components.Header)));
 });
 
-it("resumes a legacy exact request without stamping today's offline identity onto the reply", async () => {
-  const book = { [keyOf("model", "same")]: { prompt: "same", reply: "old" } };
-  const live = vi.fn(async () => "fresh");
-  expect(await recordingCall("model", book, live, true)("same", 0, undefined, probe)).toBe("old");
-  expect(live).not.toHaveBeenCalled();
-  await expect(replayBook("List", "model", book)("same", 0, undefined, probe)).rejects.toThrow(
-    "No recording",
-  );
-});
+it.each([recordingKey("model", "same", undefined, probe), keyOf("model", "same")])(
+  "replays reused evidence under a new probe id and preserves the entry at %s",
+  async (oldKey) => {
+    const book = { [oldKey]: { prompt: "same", reply: "old" } };
+    const current = { ...probe, id: "List/choose/see plants" };
+    const live = vi.fn(async () => "fresh");
+    expect(await recordingCall("model", book, live, true)("same", 0, undefined, current)).toBe("old");
+    expect(live).not.toHaveBeenCalled();
+    expect(await replayBook("List", "model", book)("same", 0, undefined, current)).toBe("old");
+    expect(book[oldKey]).toEqual({ prompt: "same", reply: "old" });
+  },
+);
 
 it("does not use a legacy alias after the archived reply is replaced under the same request hash", async () => {
   const old = keyOf("model", "same");
