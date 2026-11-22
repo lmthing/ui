@@ -9,7 +9,7 @@ export const client = {
   defaultLayout: "overview",
   layouts: {
     overview: {
-      writeHints: [portraitHint],
+      writeHints: ['Start the client overview with Header.style set to "back", never null.', portraitHint],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
         { allow: ["ClientCard"], required: true },
