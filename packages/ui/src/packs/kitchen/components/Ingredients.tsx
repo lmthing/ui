@@ -72,98 +72,246 @@ export function fallback({ cast, lang }: catalog.FallbackInput): z.input<typeof 
     groups: [{ items: items.length ? items : [{ name: catalog.placeholderTitle(0, lang), unit: "none" }] }],
   };
 }
-// prettier-ignore
-const supper = { servings: 4, system: "metric", groups: [
-  { label: "Sauce", items: [{ name: "Tomatoes", amount: 600, unit: "g", note: "Chopped" }] },
-  { label: "Layers", items: [
-    { name: "Lasagne sheets", amount: 8, unit: "piece", note: "Oven ready" },
-    { name: "Mozzarella", amount: 125, unit: "g", note: "Torn" },
-  ] },
-] } satisfies z.input<typeof props>;
-// prettier-ignore
+const supper = {
+  servings: 4,
+  system: "metric",
+  groups: [
+    { label: "Sauce", items: [{ name: "Tomatoes", amount: 600, unit: "g", note: "Chopped" }] },
+    {
+      label: "Layers",
+      items: [
+        { name: "Lasagne sheets", amount: 8, unit: "piece", note: "Oven ready" },
+        { name: "Mozzarella", amount: 125, unit: "g", note: "Torn" },
+      ],
+    },
+  ],
+} satisfies z.input<typeof props>;
 export const examples = [
-  supper, { ...supper, detail: "brief" },
+  supper,
+  { ...supper, detail: "brief" },
   // Trot: breakfast before the walking round.
   {
-    servings: 2, system: "us",
-    groups: [{ items: [
-      { name: "Oats", amount: 1, unit: "cup" },
-      { name: "Milk", amount: 0.5, unit: "cup" },
-      { name: "Cinnamon", unit: "pinch" },
-    ] }],
+    servings: 2,
+    system: "us",
+    groups: [
+      {
+        items: [
+          { name: "Oats", amount: 1, unit: "cup" },
+          { name: "Milk", amount: 0.5, unit: "cup" },
+          { name: "Cinnamon", unit: "pinch" },
+        ],
+      },
+    ],
   },
-  { servings: 4, style: "prep", groups: [{ label: "Layers", items: [
-    { name: "Lasagne sheets", amount: 8, unit: "piece", note: "Oven ready", allergens: ["Wheat", "Egg"] },
-    { name: "Mozzarella", amount: 125, unit: "g", note: "Torn", allergens: ["Milk"], swap: "Use dairy-free cheese" },
-  ] }] },
+  {
+    servings: 4,
+    style: "prep",
+    groups: [
+      {
+        label: "Layers",
+        items: [
+          {
+            name: "Lasagne sheets",
+            amount: 8,
+            unit: "piece",
+            note: "Oven ready",
+            allergens: ["Wheat", "Egg"],
+          },
+          {
+            name: "Mozzarella",
+            amount: 125,
+            unit: "g",
+            note: "Torn",
+            allergens: ["Milk"],
+            swap: "Use dairy-free cheese",
+          },
+        ],
+      },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = catalog.probesFor("Ingredients");
-// prettier-ignore
 export const probes = [
   choose("Scale the grouped ingredients in my recipe from four servings to six and tick what I have"),
   choose("Tick off three household jobs, without quantities or serving controls", "Checklist"),
-  write("A four-serving lasagne with sauce: 600 g tomatoes, and layers: eight lasagne sheets; use metric units"),
+  write(
+    "A four-serving lasagne with sauce: 600 g tomatoes, and layers: eight lasagne sheets; use metric units",
+  ),
   {
-    ...write("Show ingredients for four servings: 600 g tomatoes, chopped. Keep Chopped as a preparation note but hide notes on the screen."),
+    ...write(
+      "Show ingredients for four servings: 600 g tomatoes, chopped. Keep Chopped as a preparation note but hide notes on the screen.",
+    ),
     variant: { axis: "detail", value: "brief" },
   },
   write("For two servings, list 100 g of dried pasta. On the pasta, show wheat and egg as allergen chips."),
   write("For two servings, list 100 g of butter and show a substitution hint on it: Use olive oil."),
-  write("Use the prep layout for two servings. Show 100 g tomatoes and show the preparation note Diced beside the ingredient."),
+  write(
+    "Use the prep layout for two servings. Show 100 g tomatoes and show the preparation note Diced beside the ingredient.",
+  ),
   read("Increase the recipe servings by one", { address: "i1/servings", action: "increment" }),
   read("Tick that I have the tomatoes", { address: "i1/r1/have", action: "check" }),
 ] satisfies catalog.Probe[];
 type Row = z.output<typeof ingredient> & { id: string; have: boolean };
 type ViewProps = catalog.Props<typeof props, typeof meta> & { rows: Row[]; servingsShown?: number };
 type RowProps = Pick<ViewProps, "system" | "detail" | "style"> & { row: Row; scale: number };
-// prettier-ignore
-function IngredientRow({ row, scale, system, detail, style }: RowProps) {
+function IngredientQuantity({ row, scale, system, style }: Omit<RowProps, "detail">) {
   const { lang, words } = kit.useWords(kitchenWordsFor);
   const quantity = copy.ingredientAmount(row, scale, system, lang);
-  const note = detail === "full" && row.note && <kit.KitText role="label" tone="muted" part="note">{row.note}</kit.KitText>;
+  const prep = style === "prep";
+  const unit = quantity.unit && (
+    <kit.KitText role="label" tone="muted" part={prep && quantity.amount ? "unit" : null}>
+      {prep && quantity.amount ? words.nutritionFacts.unitSuffix(quantity.unit) : quantity.unit}
+    </kit.KitText>
+  );
+  const number = quantity.amount && (
+    <kit.KitText role="number" numberScale="compact" part="amount" align={prep ? "end" : "start"}>
+      {quantity.amount}
+      {prep && unit}
+    </kit.KitText>
+  );
+  return prep && number ? (
+    number
+  ) : prep && unit ? (
+    <kit.KitText role="label" part="unit" align="end" children={unit} />
+  ) : (
+    <kit.KitTrack part={quantity.unit ? "unit" : "quantity"}>
+      {number}
+      {unit}
+    </kit.KitTrack>
+  );
+}
+
+function IngredientRow({ row, scale, system, detail, style }: RowProps) {
+  const { words } = kit.useWords(kitchenWordsFor);
+  const note = detail === "full" && row.note && (
+    <kit.KitText role="label" tone="muted" part="note">
+      {row.note}
+    </kit.KitText>
+  );
   const name = <kit.KitText part="name">{row.name}</kit.KitText>;
   const prep = style === "prep";
-  const unit = quantity.unit && <kit.KitText role="label" tone="muted" part={prep && quantity.amount ? "unit" : null}>
-    {prep && quantity.amount ? words.nutritionFacts.unitSuffix(quantity.unit) : quantity.unit}</kit.KitText>;
-  const number = quantity.amount && <kit.KitText role="number" numberScale="compact" part="amount" align={prep ? "end" : "start"}>
-    {quantity.amount}{prep && unit}</kit.KitText>;
-  const amount = prep && number ? number : prep && unit
-    ? <kit.KitText role="label" part="unit" align="end" children={unit} />
-    : <kit.KitTrack part={quantity.unit ? "unit" : "quantity"}>{number}{unit}</kit.KitTrack>;
+  const amount = <IngredientQuantity {...{ row, scale, system, style }} />;
   return (
-    <kit.KitRow item={row.id} label={row.name} inline
-      leading={<kit.KitCheck done={row.have} part="have" label={row.name} />}>
-      {prep ? <kit.KitGrid columns={2}><kit.KitContent>{name}{note}</kit.KitContent>{amount}</kit.KitGrid> : <>{name}{amount}{note}</>}
-      {!!row.allergens?.length && <kit.KitTrack part="allergens" label={words.nutritionFacts.allergens}>
-        {row.allergens.map((label, index) => <kit.KitTrail key={index} part={allergenParts[index]!} kind="badge" tone="text" value={label} />)}
-      </kit.KitTrack>}
-      {row.swap && <kit.KitText role="label" tone="muted" part="swap">{words.ingredientSwap(row.swap)}</kit.KitText>}
+    <kit.KitRow
+      item={row.id}
+      label={row.name}
+      inline
+      leading={<kit.KitCheck done={row.have} part="have" label={row.name} />}
+    >
+      {prep ? (
+        <kit.KitGrid columns={2}>
+          <kit.KitContent>
+            {name}
+            {note}
+          </kit.KitContent>
+          {amount}
+        </kit.KitGrid>
+      ) : (
+        <>
+          {name}
+          {amount}
+          {note}
+        </>
+      )}
+      {!!row.allergens?.length && (
+        <kit.KitTrack part="allergens" label={words.nutritionFacts.allergens}>
+          {row.allergens.map((label, index) => (
+            <kit.KitTrail key={index} part={allergenParts[index]!} kind="badge" tone="text" value={label} />
+          ))}
+        </kit.KitTrack>
+      )}
+      {row.swap && (
+        <kit.KitText role="label" tone="muted" part="swap">
+          {words.ingredientSwap(row.swap)}
+        </kit.KitText>
+      )}
     </kit.KitRow>
   );
 }
-// prettier-ignore
 function Servings({ value, brief, prep }: { value: number; brief: boolean; prep: boolean }) {
-  const { lang, words: { ingredientsLabels } } = kit.useWords(kitchenWordsFor);
-  const count = <kit.KitText role="number" part="value" numberScale={prep ? "compact" : "display"} children={catalog.numberLine(value, lang)} />;
+  const {
+    lang,
+    words: { ingredientsLabels },
+  } = kit.useWords(kitchenWordsFor);
+  const count = (
+    <kit.KitText
+      role="number"
+      part="value"
+      numberScale={prep ? "compact" : "display"}
+      children={catalog.numberLine(value, lang)}
+    />
+  );
   const label = <kit.KitText role="label" tone="muted" part={null} children={ingredientsLabels.servings} />;
   const split = brief || prep;
-  const controls = <kit.KitTrack part="controls">
-    {!split && count}
-    {copy.servingControls.map(({ label, ...control }) => (
-      <kit.KitAction key={control.action} {...control} a11y={ingredientsLabels[label]}
-        kind="quiet" disabled={value === control.bound} />
-    ))}
-  </kit.KitTrack>;
+  const controls = (
+    <kit.KitTrack part="controls">
+      {!split && count}
+      {copy.servingControls.map(({ label, ...control }) => (
+        <kit.KitAction
+          key={control.action}
+          {...control}
+          a11y={ingredientsLabels[label]}
+          kind="quiet"
+          disabled={value === control.bound}
+        />
+      ))}
+    </kit.KitTrack>
+  );
   return (
     <kit.KitRow label={ingredientsLabels.servings} {...(brief ? { density: "compact" as const } : {})}>
-      {split ? <kit.KitGrid fitLast><kit.KitContent>{count}{label}</kit.KitContent>{controls}</kit.KitGrid> : <>{controls}{label}</>}
+      {split ? (
+        <kit.KitGrid fitLast>
+          <kit.KitContent>
+            {count}
+            {label}
+          </kit.KitContent>
+          {controls}
+        </kit.KitGrid>
+      ) : (
+        <>
+          {controls}
+          {label}
+        </>
+      )}
     </kit.KitRow>
   );
 }
-// prettier-ignore
-export function Ingredients({ servings: seed, servingsShown = seed, system: initial, groups, rows, detail: choice, style }: ViewProps) {
+function IngredientSystem({ system }: Pick<ViewProps, "system">) {
+  const {
+    words: { ingredientsLabels },
+  } = kit.useWords(kitchenWordsFor);
+  return (
+    <kit.KitRow label={ingredientsLabels.system}>
+      <kit.KitTrack part="system" look="segments" role="radiogroup" label={ingredientsLabels.system}>
+        {(["metric", "us"] as const).map((choice) => (
+          <kit.KitChip
+            key={choice}
+            item={null}
+            label={ingredientsLabels[choice]}
+            value={copy.ingredientsLabels[choice]}
+            on={system === choice}
+            role="radio"
+            look="segment"
+          />
+        ))}
+      </kit.KitTrack>
+    </kit.KitRow>
+  );
+}
+
+export function Ingredients({
+  servings: seed,
+  servingsShown = seed,
+  system: initial,
+  groups,
+  rows,
+  detail: choice,
+  style,
+}: ViewProps) {
   const detail = kit.useVariant("detail", meta.variants.detail, choice);
-  const { words: { ingredientsLabels } } = kit.useWords(kitchenWordsFor);
+  const {
+    words: { ingredientsLabels },
+  } = kit.useWords(kitchenWordsFor);
   const { screen, component } = kit.usePartContext();
   const address = `${screen}/${component}`;
   const servings = kit.useControlValue(`${address}/$adjust/servingsShown`, servingsShown);
@@ -173,18 +321,21 @@ export function Ingredients({ servings: seed, servingsShown = seed, system: init
   return (
     <kit.KitCard style="inset" part="root">
       <Servings value={servings} brief={detail === "brief"} prep={style === "prep"} />
-      <kit.KitRow label={ingredientsLabels.system}>
-        <kit.KitTrack part="system" look="segments" role="radiogroup" label={ingredientsLabels.system}>
-          {(["metric", "us"] as const).map((choice) => <kit.KitChip key={choice} item={null} label={ingredientsLabels[choice]} value={copy.ingredientsLabels[choice]} on={system === choice} role="radio" look="segment" />)}
-        </kit.KitTrack>
-      </kit.KitRow>
+      <IngredientSystem system={system} />
       {groups.map((group, groupIndex) => (
         <kit.KitContent key={`group_${groupIndex}`} inset="md" group="response">
           {group.label && <kit.KitText role="label" tone="muted" part={null} children={group.label} />}
           <kit.KitGrid arrange="rows" list={detail === "brief"} listRowGap="cards">
             {group.items.map(() => {
               const row = rows[index++]!;
-              return <IngredientRow key={row.id} row={row} scale={servings / seed} {...{ system, detail, style }} />;
+              return (
+                <IngredientRow
+                  key={row.id}
+                  row={row}
+                  scale={servings / seed}
+                  {...{ system, detail, style }}
+                />
+              );
             })}
           </kit.KitGrid>
         </kit.KitContent>

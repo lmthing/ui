@@ -1,7 +1,19 @@
 import { z } from "zod";
-// prettier-ignore
-import { clock, isoDate, itemsOf, placeholderTitle, probesFor, screenId, text, timeOfDayLine,
-  thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props,
+import {
+  clock,
+  isoDate,
+  itemsOf,
+  placeholderTitle,
+  probesFor,
+  screenId,
+  text,
+  timeOfDayLine,
+  thingOf,
+  titleOf,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
   variantProps,
 } from "../../../catalog";
 import { KitAction, KitCard, KitContent, KitEmpty, useComponentState, useWords } from "../../../kit";
@@ -57,8 +69,8 @@ export const props = z
 type Entry = ReturnType<typeof agendaEntries>[number] & { id: string };
 type AgendaProps = Props<typeof props, typeof meta> & { entries: Entry[] };
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
-  const thing = thingOf(cast),
-    items = itemsOf(cast, 6);
+  const thing = thingOf(cast);
+  const items = itemsOf(cast, 6);
   return {
     days: [
       {

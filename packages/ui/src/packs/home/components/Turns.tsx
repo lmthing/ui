@@ -71,8 +71,8 @@ const withVisiblePeople = (value: z.output<typeof schema>) => ({
 export const props = schema.overwrite(withVisiblePeople) as typeof schema &
   z.ZodType<ReturnType<typeof withVisiblePeople>, z.input<typeof schema>>;
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
-  const thing = thingOf(cast),
-    items = itemsOf(cast, 6);
+  const thing = thingOf(cast);
+  const items = itemsOf(cast, 6);
   const people = items.map((item, index) => ({
     name: titleOf(item, 16, thing) ?? placeholderTitle(index, lang),
   }));

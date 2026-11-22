@@ -165,19 +165,51 @@ export function vatRead(input: unknown, state: c.StateName, lang?: string, data?
 }
 
 // Synthetic ledger for the worked examples.
-// prettier-ignore
 export function previewVat({ input, state }: { input: c.Values; state: c.StateName }): c.DeviceData {
   const { from, to, schemeRef } = input as Period;
   const care = from === "2026-10-01";
-  return { books_vat_snapshots: [{
-    from, to, schemeRef, scheme: "domestic_cash", version: "cash_v1", currency: "GBP",
-    rates: { standard: 0.2 }, reconciled: true, saved: state === "success",
-    entries: [
-      { sourceRef: "sales", date: from, kind: "sale", category: care ? "Plant care" : "Dog walks",
-        netMinor: care ? 468000 : 126000, vatCode: "standard" },
-      { sourceRef: "supplies", date: to, kind: "purchase", category: care ? "Nursery supplies" : "Walking gear",
-        netMinor: care ? 138000 : 160000, vatCode: "standard" },
-      ...(!care ? [{ sourceRef: "drawings", date: to, kind: "excluded", category: "Personal costs", netMinor: 6200 }] : []),
+  return {
+    books_vat_snapshots: [
+      {
+        from,
+        to,
+        schemeRef,
+        scheme: "domestic_cash",
+        version: "cash_v1",
+        currency: "GBP",
+        rates: { standard: 0.2 },
+        reconciled: true,
+        saved: state === "success",
+        entries: [
+          {
+            sourceRef: "sales",
+            date: from,
+            kind: "sale",
+            category: care ? "Plant care" : "Dog walks",
+            netMinor: care ? 468000 : 126000,
+            vatCode: "standard",
+          },
+          {
+            sourceRef: "supplies",
+            date: to,
+            kind: "purchase",
+            category: care ? "Nursery supplies" : "Walking gear",
+            netMinor: care ? 138000 : 160000,
+            vatCode: "standard",
+          },
+          ...(!care
+            ? [
+                {
+                  sourceRef: "drawings",
+                  date: to,
+                  kind: "excluded",
+                  category: "Personal costs",
+                  netMinor: 6200,
+                },
+              ]
+            : []),
+        ],
+      },
     ],
-  }] };
+  };
 }
