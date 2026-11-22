@@ -34,6 +34,30 @@ export const reader = {
         { id: "c1", c: "ChapterList" },
       ],
     },
+    transcript: {
+      recipe: [
+        { allow: ["Header"], required: true, variant: "back" },
+        { allow: ["Player"], required: true },
+        { allow: ["Transcript"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header", style: "back" },
+        { id: "p1", c: "Player" },
+        { id: "t1", c: "Transcript", style: "spoken" },
+      ],
+    },
+    identify: {
+      recipe: [
+        { allow: ["Header"], required: true },
+        { allow: ["AudioMatch"], required: true },
+        { allow: ["Note"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header" },
+        { id: "a1", c: "AudioMatch" },
+        { id: "n1", c: "Note" },
+      ],
+    },
     highlights: {
       recipe: [
         { allow: ["Header"], required: true },
@@ -50,6 +74,20 @@ export const reader = {
 } as const satisfies ArchetypeMeta;
 
 export const probes = [
+  {
+    kind: "compose",
+    archetype: "reader",
+    layout: "identify",
+    brief:
+      'Title the screen Identify music. Under it put a microphone-based song recognition control with no track and no history. Finish with this short tip: "Hold your phone near the sound."',
+  },
+  {
+    kind: "compose",
+    archetype: "reader",
+    layout: "transcript",
+    brief:
+      'Use a back heading and play A Quiet Morning (lib:quiet_morning, 1440 seconds). Below the scrubber put the actual spoken lines from Ada, synced to the audio: at 0 seconds "Take a moment to settle in." and at 5 seconds "Let the silence have its turn." Let me tap a line to jump to it.',
+  },
   {
     kind: "compose",
     archetype: "reader",

@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { collectionReading, collectionSummary } from "../../copy";
+import { collectionExtraReading, collectionReading, collectionSummary } from "../../copy";
 
 it("uses the count, kind and sum of the recording lengths", () => {
   expect(collectionSummary({ style: "episodes", items: [{ seconds: 2400 }, { seconds: 1200 }] }, "en")).toBe(
@@ -31,5 +31,21 @@ it("reads the summary and the seeded follow label", () => {
     "1 track · 10 min",
     "Play all",
     "Following",
+  ]);
+});
+
+it("formats rating and count independently, preserving locale digits and author order", () => {
+  expect(collectionExtraReading({ ratingCount: 1 }, "en")).toEqual(["1 rating"]);
+  expect(collectionExtraReading({ rating: 4.5, tags: ["A", "B"] }, "ar-EG")).toEqual([
+    "٤٫٥ out of ٥",
+    "A · B",
+  ]);
+});
+
+it("labels book timings and uses a book-specific label for the existing play action", () => {
+  expect(collectionReading({ style: "tracks", items: [{ seconds: 600 }] }, false, "en", "book")).toEqual([
+    "1 chapter · 10 min",
+    "Play audiobook",
+    "Follow",
   ]);
 });

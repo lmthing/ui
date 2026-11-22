@@ -121,6 +121,12 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
   Loan: [{ from: "style", values: { summary: { detail: "brief" }, schedule: { detail: "full" } } }],
   Payoff: [{ from: "style", values: { plan: { detail: "full" }, compact: { detail: "brief" } } }],
   Slots: [{ from: "style", values: { grid: { arrange: "grid" }, list: { arrange: "rows" } } }],
+  Library: [
+    {
+      from: "style",
+      values: { grid: { arrange: "grid" }, list: { arrange: "rows" }, shelf: { arrange: "strip" } },
+    },
+  ],
   ServiceMenu: [
     { from: "style", values: { rows: { surface: "card" } } },
     { from: "style", values: { cards: { surface: "card" } }, retainStyle: true },
