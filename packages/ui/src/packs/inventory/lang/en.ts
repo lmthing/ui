@@ -25,7 +25,7 @@ export const en = {
     code: (code: string) => `Box code: ${code}`,
     qr: (code: string) => `QR code for box ${code}`,
     fragile: "Fragile",
-    boxSeparator: " · ",
+    boxSeparator: " — ",
     status: { packing: "Packing", sealed: "Sealed", in_transit: "In transit", unpacked: "Unpacked" },
     countUnit: (form: Intl.LDMLPluralRule) => (form === "one" ? " item" : " items"),
   },

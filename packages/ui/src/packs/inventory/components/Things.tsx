@@ -104,7 +104,6 @@ export const examples = [
   { arrange: "rows", items: ledge },
   { filter: "missing", items: [
       { name: "Spare lead", qty: 0, where: "Van bin", goto: "lead" },
-      { name: "Travel bowl", qty: 1, goto: "bowl" },
   ], scan: { goto: "scan_inventory" } },
   { items: [{ ...ledge[0], serial: "LEDGE-042", condition: "worn" }, ledge[1]] },
   { style: "audit", items: [
