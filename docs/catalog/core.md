@@ -22,7 +22,8 @@ Native host hooks provide keyboard height, safe-area insets, reduced-motion pref
 handling and focused-input scrolling. Native device acceptance is **not verified**: no iOS/Android host
 or device setup is available in this session. Composition, browser motion and affected component visual gates pass.
 
-Component size cleanup is still needed where metadata, examples and probes push a file beyond the 200-line guide.
+There is no hard file-size limit. Lint warns above 400 lines per file; functions remain limited to 60 lines.
+Keep a component's definition and view together and split code by responsibility, not line count.
 
 ### Remaining core work
 

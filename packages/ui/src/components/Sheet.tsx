@@ -116,15 +116,15 @@ const walkDetails = {
   ],
   action: { label: "Open booking", goto: "booking" },
 } satisfies z.input<typeof props>;
-// prettier-ignore
 const fernMenu = {
-  style: "menu", title: "Fern",
+  style: "menu",
+  title: "Fern",
   items: [
-    { label: "Edit", icon: "pencil", goto: "edit_plant" }, { label: "Share", icon: "share" },
+    { label: "Edit", icon: "pencil", goto: "edit_plant" },
+    { label: "Share", icon: "share" },
     { label: "Remove", icon: "trash", tone: "bad" },
   ],
 } satisfies z.input<typeof props>;
-// prettier-ignore
 export const examples = [
   walkDetails,
   {
@@ -158,7 +158,6 @@ export const probes = [
   read("Choose Hall", { address: "s1/r3", action: "select" }, 1),
 ] satisfies Probe[];
 
-// prettier-ignore
 export function Sheet(input: Props<typeof props, typeof meta>) {
   const { style, title, sub, items, at, action } = input;
   const density = useKit().density;
@@ -167,25 +166,50 @@ export function Sheet(input: Props<typeof props, typeof meta>) {
     <KitSheet title={title} sub={sub} closeLabel={closeLabel}>
       {items.map((row, index) => {
         const time = style === "detail" && /(?:^|\s)\d{1,2}:\d{2}\b/.test(row.value ?? "");
-        return <KitRow
-          key={row.id}
-          item={row.id}
-          label={row.label}
-          inset="none"
-          inline={density === "compact" && style === "detail" && !row.goto}
-          density={density}
-          goto={row.goto}
-          leading={
-            row.icon ? <KitIcon name={row.icon} tone={row.tone === "neutral" ? "muted" : row.tone} part="icon" /> : undefined
-          }
-          trailing={style === "picker" && index === at ? <KitTrail kind="check" /> : undefined}
-          {...(style === "detail" ? {} : { role: "button" as const })}
-        >
-          <KitText role="body" tone={row.tone === "neutral" ? "text" : row.tone} part="label" density={density}>{row.label}</KitText>
-          {row.meta && <KitText role="caption" tone="muted" part="meta" density={density}>{row.meta}</KitText>}
-          {row.value && <KitText role={time ? "number" : "body"} numberScale="compact" tabular={time}
-            tone={time ? "text" : "muted"} part="value" density={density}>{row.value}</KitText>}
-        </KitRow>
+        return (
+          <KitRow
+            key={row.id}
+            item={row.id}
+            label={row.label}
+            inset="none"
+            inline={density === "compact" && style === "detail" && !row.goto}
+            density={density}
+            goto={row.goto}
+            leading={
+              row.icon ? (
+                <KitIcon name={row.icon} tone={row.tone === "neutral" ? "muted" : row.tone} part="icon" />
+              ) : undefined
+            }
+            trailing={style === "picker" && index === at ? <KitTrail kind="check" /> : undefined}
+            {...(style === "detail" ? {} : { role: "button" as const })}
+          >
+            <KitText
+              role="body"
+              tone={row.tone === "neutral" ? "text" : row.tone}
+              part="label"
+              density={density}
+            >
+              {row.label}
+            </KitText>
+            {row.meta && (
+              <KitText role="caption" tone="muted" part="meta" density={density}>
+                {row.meta}
+              </KitText>
+            )}
+            {row.value && (
+              <KitText
+                role={time ? "number" : "body"}
+                numberScale="compact"
+                tabular={time}
+                tone={time ? "text" : "muted"}
+                part="value"
+                density={density}
+              >
+                {row.value}
+              </KitText>
+            )}
+          </KitRow>
+        );
       })}
       {action && <KitAction label={action.label} kind="primary" goto={action.goto} part="action" full />}
     </KitSheet>
