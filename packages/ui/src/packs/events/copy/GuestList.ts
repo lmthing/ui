@@ -1,7 +1,8 @@
 import { numberLine, type StateName, type Values } from "../../../catalog";
 import { eventsWordsFor } from "../lang";
 
-export const guestStatuses = ["yes", "no", "maybe", "waiting"] as const;
+const standardStatuses = ["yes", "no", "maybe", "waiting"] as const;
+export const guestStatuses = [...standardStatuses, "pending_approval", "waitlisted"] as const;
 type Status = (typeof guestStatuses)[number];
 type Guest = {
   name: string;
@@ -11,7 +12,14 @@ type Guest = {
   diet?: string | undefined;
 };
 type Detail = "full" | "brief" | undefined;
-const tones = { yes: "good", no: "muted", maybe: "warn", waiting: "muted" } as const;
+const tones = {
+  yes: "good",
+  no: "muted",
+  maybe: "warn",
+  waiting: "muted",
+  pending_approval: "warn",
+  waitlisted: "muted",
+} as const;
 
 export function groupGuests<T extends Guest>(guests: readonly T[]) {
   const groups = new Map<string | number, { party?: string | undefined; rows: T[] }>();
@@ -26,9 +34,11 @@ export function groupGuests<T extends Guest>(guests: readonly T[]) {
 
 export function guestStats(guests: readonly Guest[], lang?: string) {
   const { guestList } = eventsWordsFor(lang);
-  return guestStatuses.map((key) => {
-    const count = numberLine(guests.filter(({ status }) => status === key).length, lang);
-    return { key, count, line: guestList.stat(count, guestList.status[key]) };
+  return guestStatuses.flatMap((key) => {
+    const total = guests.filter(({ status }) => status === key).length;
+    if (!total && (key === "pending_approval" || key === "waitlisted")) return [];
+    const count = numberLine(total, lang);
+    return [{ key, count, line: guestList.stat(count, guestList.status[key]) }];
   });
 }
 
@@ -56,6 +66,8 @@ export function guestListReading(
   const { guestList } = eventsWordsFor(lang);
   const stats = guestStats(guests, lang).map(({ line }) => line);
   if (guests.some(({ status }) => status === "waiting")) stats.push(guestList.remind);
+  if (guests.some(({ status }) => status === "pending_approval"))
+    stats.push(guestList.approve, guestList.decline);
   return [
     stats.join(guestList.separator),
     ...groupGuests(guests).map(({ rows, party }) =>
@@ -63,7 +75,11 @@ export function guestListReading(
         party ?? rows[0]!.name,
         rows.map((row) => {
           const { plus, diet } = guestFacts(row, detail, lang);
-          return guestList.guest(row.name, plus, row.status, diet);
+          const label =
+            row.status === "pending_approval" || row.status === "waitlisted"
+              ? guestList.status[row.status]
+              : row.status;
+          return guestList.guest(row.name, plus, label, diet);
         }),
       ),
     ),

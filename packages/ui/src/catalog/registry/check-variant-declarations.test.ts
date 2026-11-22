@@ -149,7 +149,7 @@ it("rejects declarations for undeclared values and finish part changes", () => {
 });
 
 it("rejects duplicate style vocabulary outside the temporary existing-component allowlist", () => {
-  for (const value of ["centered", "hero", "square", "wide", "tall", "grid", "strip"]) {
+  for (const value of ["centered", "hero", "square", "wide", "tall", "grid", "strip", "badge"]) {
     const bad = {
       ...fixture,
       props: fixture.props.extend({ style: z.enum(["different", value]).default("different") }),
