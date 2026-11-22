@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { filterCount, filterReading, wordsFor } from "../catalog";
 import {
   itemsOf,
   clip,
@@ -14,15 +15,13 @@ import {
   type Meta,
   type Probe,
   type Props,
-} from "../../../catalog";
-import * as kit from "../../../kit";
-import { filterCount, filterReading } from "../copy";
-import { dataWordsFor } from "../lang";
+} from "../catalog";
+import * as kit from "../kit";
 
 // Core first: Chips/filter narrows by a few labels, not by several fields with separately opened pickers.
 export const meta = {
   id: "FilterBar",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Search and narrow records by several fields, then clear the filters together.",
   pick: "Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).",
@@ -87,7 +86,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   }
   return {
     hint: clip(searchLine(thing?.type, lang), 40) ?? searchLine(undefined, lang),
-    filters: [{ label: clip(dataWordsFor(lang).filterLabel, 14) ?? dataWordsFor().filterLabel, options }],
+    filters: [{ label: clip(wordsFor(lang).filterLabel, 14) ?? wordsFor().filterLabel, options }],
   };
 }
 
@@ -136,7 +135,7 @@ type ViewProps = Props<typeof props, typeof meta> & { query?: string };
 function FilterPickers({ filters }: Pick<ViewProps, "filters">) {
   const { screen, component } = kit.usePartContext();
   const open = kit.useControlValue<string | undefined>(`${screen}/${component}/${pickerKey}`, undefined);
-  const { words } = kit.useWords(dataWordsFor);
+  const { words } = kit.useWords();
   return (
     <kit.KitScroll part="filters" label={words.filterList} bounded={open !== undefined}>
       {filters.map(({ id, label, options, value }) => (
@@ -150,7 +149,7 @@ export function FilterBar(input: ViewProps) {
   const { density: requestedDensity, detail, surface } = input;
   const density = kit.useVariant("density", meta.variants.density, requestedDensity);
   const { hint, filters, query, sort } = kit.useLiveControls(meta, input) as ViewProps;
-  const { lang, words } = kit.useWords(dataWordsFor);
+  const { lang, words } = kit.useWords();
   return (
     <kit.KitCard padded density={density} surface={surface}>
       <kit.KitContent>
@@ -167,17 +166,21 @@ export function FilterBar(input: ViewProps) {
                 {filterCount(filters, lang)}
               </kit.KitText>
             )}
-            {sort && (
-              <kit.KitText part="sort" role="caption" tone="muted">
-                {words.filterSort(sort)}
-              </kit.KitText>
-            )}
           </kit.KitContent>
         </kit.KitContent>
         <kit.KitContent inset="md" density={density}>
           <kit.KitAction part="clear" action="press" kind="quiet" label={words.filterClear} />
         </kit.KitContent>
       </kit.KitGrid>
+      {sort && (
+        <kit.KitContent inset="md" density={density}>
+          <kit.KitContent inset="md" density={density}>
+            <kit.KitText part="sort" role="caption" tone="muted">
+              {words.filterSort(sort)}
+            </kit.KitText>
+          </kit.KitContent>
+        </kit.KitContent>
+      )}
     </kit.KitCard>
   );
 }
