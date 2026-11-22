@@ -8,6 +8,174 @@
       "Playlist"
     ]
   },
+  "1237ed6c265fdc2f": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPlaylist: Choose an ordered track or episode and see its playback progress.\nprops: { density?: comfortable|compact, surface?: card|plain|outlined=\"card\", detail?: full|brief=\"full\", style?: tracks|episodes=\"tracks\", items: [1..6 { title: text≤32, sub?: text≤36, seconds: int 1..36000, played: num 0..1, photo?: photo lib:<tag>|local:<n>, goto: id snake_case }], playing?: int 0..5 }\nRule: Use style \"episodes\" for dated episodes with a description line in sub, otherwise \"tracks\" for numbered tracks. If no episode note or date is supplied, set sub to null. The playing index is zero-based; omit it unless one is playing.\nRule: Seconds are whole recording lengths; played is a fraction from zero to one. Each row opens its own player screen.\nRule: Default to \"detail\":null,\"density\":null,\"surface\":null. Only when explicitly asked to hide episode notes, write \"detail\":\"brief\"; keep the supplied notes in sub and leave density and surface null unless independently requested.\nexample: {\"c\":\"Playlist\",\"playing\":0,\"items\":[{\"title\":\"Choosing a pot\",\"seconds\":245,\"played\":0.3,\"goto\":\"choose_a_pot\"},{\"title\":\"When to water\",\"seconds\":390,\"played\":0,\"goto\":\"water_the_fern\"}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Show the two episodes Choosing a pot, 245 seconds and 30 percent played, opens choose_a_pot, and Watering without guessing, 390 seconds and unplayed, opens water_the_fern. The first is playing.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Playlist",
+              "enum": [
+                "Playlist"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "tracks",
+                    "episodes"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "items": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "sub": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 36
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "seconds": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 36000
+                  },
+                  "played": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "title",
+                  "sub",
+                  "seconds",
+                  "played",
+                  "photo",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "playing": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 5
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "style",
+            "items",
+            "playing"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Playlist\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"episodes\",\"items\":[{\"title\":\"Choosing a pot\",\"sub\":null,\"seconds\":245,\"played\":0.3,\"photo\":null,\"goto\":\"choose_a_pot\"},{\"title\":\"Watering without guessing\",\"sub\":null,\"seconds\":390,\"played\":0,\"photo\":null,\"goto\":\"water_the_fern\"}],\"playing\":0}",
+    "replies": [
+      "{\"c\":\"Playlist\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"episodes\",\"items\":[{\"title\":\"Choosing a pot\",\"sub\":null,\"seconds\":245,\"played\":0.3,\"photo\":null,\"goto\":\"choose_a_pot\"},{\"title\":\"Watering without guessing\",\"sub\":null,\"seconds\":390,\"played\":0,\"photo\":null,\"goto\":\"water_the_fern\"}],\"playing\":0}",
+      "{\"c\":\"Playlist\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"episodes\",\"items\":[{\"title\":\"Choosing a pot\",\"sub\":null,\"seconds\":245,\"played\":0.3,\"photo\":null,\"goto\":\"choose_a_pot\"},{\"title\":\"Watering without guessing\",\"sub\":null,\"seconds\":390,\"played\":0,\"photo\":null,\"goto\":\"water_the_fern\"}],\"playing\":0}",
+      "{\"c\":\"Playlist\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"episodes\",\"items\":[{\"title\":\"Choosing a pot\",\"sub\":null,\"seconds\":245,\"played\":0.3,\"photo\":null,\"goto\":\"choose_a_pot\"},{\"title\":\"Watering without guessing\",\"sub\":null,\"seconds\":390,\"played\":0,\"photo\":null,\"goto\":\"water_the_fern\"}],\"playing\":0}"
+    ]
+  },
   "284666bd9adada8d": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPlaylist: Choose an ordered track or episode and see its playback progress.\nprops: { density?: comfortable|compact, surface?: card|plain|outlined=\"card\", detail?: full|brief=\"full\", style?: tracks|episodes=\"tracks\", items: [1..6 { title: text≤32, sub?: text≤36, seconds: int 1..36000, played: num 0..1, photo?: photo lib:<tag>|local:<n>, goto: id snake_case }], playing?: int 0..5 }\nRule: Use style \"episodes\" for dated episodes with a description line in sub, otherwise \"tracks\" for numbered tracks. The playing index is zero-based; omit it unless one is playing.\nRule: Seconds are whole recording lengths; played is a fraction from zero to one. Each row opens its own player screen.\nRule: Use detail \"brief\" only to hide the episode notes; keep the notes in sub. Leave density and surface null unless requested.\nexample: {\"c\":\"Playlist\",\"playing\":0,\"items\":[{\"title\":\"Choosing a pot\",\"seconds\":245,\"played\":0.3,\"goto\":\"choose_a_pot\"},{\"title\":\"When to water\",\"seconds\":390,\"played\":0,\"goto\":\"water_the_fern\"}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Show the two episodes Choosing a pot, 245 seconds and 30 percent played, opens choose_a_pot, and Watering without guessing, 390 seconds and unplayed, opens water_the_fern. The first is playing.",
     "format": {
@@ -174,6 +342,174 @@
       "{\"c\":\"Playlist\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"episodes\",\"items\":[{\"title\":\"Choosing a pot\",\"sub\":\"Episode 1\",\"seconds\":245,\"played\":0.3,\"photo\":null,\"goto\":\"choose_a_pot\"},{\"title\":\"Watering without guessing\",\"sub\":\"Episode 2\",\"seconds\":390,\"played\":0,\"photo\":null,\"goto\":\"water_the_fern\"}],\"playing\":0}",
       "{\"c\":\"Playlist\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"episodes\",\"items\":[{\"title\":\"Choosing a pot\",\"sub\":null,\"seconds\":245,\"played\":0.3,\"photo\":null,\"goto\":\"choose_a_pot\"},{\"title\":\"Watering without guessing\",\"sub\":null,\"seconds\":390,\"played\":0,\"photo\":null,\"goto\":\"water_the_fern\"}],\"playing\":0}",
       "{\"c\":\"Playlist\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"episodes\",\"items\":[{\"title\":\"Choosing a pot\",\"sub\":\"Choosing a pot\",\"seconds\":245,\"played\":0.3,\"photo\":null,\"goto\":\"choose_a_pot\"},{\"title\":\"Watering without guessing\",\"sub\":\"Watering without guessing\",\"seconds\":390,\"played\":0,\"photo\":null,\"goto\":\"water_the_fern\"}],\"playing\":0}"
+    ]
+  },
+  "2a7e149302e498d0": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPlaylist: Choose an ordered track or episode and see its playback progress.\nprops: { density?: comfortable|compact, surface?: card|plain|outlined=\"card\", detail?: full|brief=\"full\", style?: tracks|episodes=\"tracks\", items: [1..6 { title: text≤32, sub?: text≤36, seconds: int 1..36000, played: num 0..1, photo?: photo lib:<tag>|local:<n>, goto: id snake_case }], playing?: int 0..5 }\nRule: Use style \"episodes\" for dated episodes with a description line in sub, otherwise \"tracks\" for numbered tracks. If no episode note or date is supplied, set sub to null. The playing index is zero-based; omit it unless one is playing.\nRule: Seconds are whole recording lengths; played is a fraction from zero to one. Each row opens its own player screen.\nRule: Default to \"detail\":null,\"density\":null,\"surface\":null. Only when explicitly asked to hide episode notes, write \"detail\":\"brief\"; keep the supplied notes in sub and leave density and surface null unless independently requested.\nexample: {\"c\":\"Playlist\",\"playing\":0,\"items\":[{\"title\":\"Choosing a pot\",\"seconds\":245,\"played\":0.3,\"goto\":\"choose_a_pot\"},{\"title\":\"When to water\",\"seconds\":390,\"played\":0,\"goto\":\"water_the_fern\"}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: List the separate podcast episodes Sniff break (1080 seconds, fully played, opens sniff_break, note A quieter route) and After the rain (820 seconds, unplayed, opens after_rain, note Wet weather tips). Show their length, playback progress and download controls, but hide the episode notes.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Playlist",
+              "enum": [
+                "Playlist"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "tracks",
+                    "episodes"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "items": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "sub": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 36
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "seconds": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 36000
+                  },
+                  "played": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "title",
+                  "sub",
+                  "seconds",
+                  "played",
+                  "photo",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "playing": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 5
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "style",
+            "items",
+            "playing"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Playlist\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":\"episodes\",\"items\":[{\"title\":\"Sniff break\",\"sub\":\"A quieter route\",\"seconds\":1080,\"played\":1,\"photo\":null,\"goto\":\"sniff_break\"},{\"title\":\"After the rain\",\"sub\":\"Wet weather tips\",\"seconds\":820,\"played\":0,\"photo\":null,\"goto\":\"after_rain\"}],\"playing\":null}",
+    "replies": [
+      "{\"c\":\"Playlist\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":\"episodes\",\"items\":[{\"title\":\"Sniff break\",\"sub\":\"A quieter route\",\"seconds\":1080,\"played\":1,\"photo\":null,\"goto\":\"sniff_break\"},{\"title\":\"After the rain\",\"sub\":\"Wet weather tips\",\"seconds\":820,\"played\":0,\"photo\":null,\"goto\":\"after_rain\"}],\"playing\":null}",
+      "{\"c\":\"Playlist\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":\"episodes\",\"items\":[{\"title\":\"Sniff break\",\"sub\":\"A quieter route\",\"seconds\":1080,\"played\":1,\"photo\":null,\"goto\":\"sniff_break\"},{\"title\":\"After the rain\",\"sub\":\"Wet weather tips\",\"seconds\":820,\"played\":0,\"photo\":null,\"goto\":\"after_rain\"}] ,\"playing\":null}",
+      "{\"c\":\"Playlist\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":\"episodes\",\"items\":[{\"title\":\"Sniff break\",\"sub\":\"A quieter route\",\"seconds\":1080,\"played\":1,\"photo\":null,\"goto\":\"sniff_break\"},{\"title\":\"After the rain\",\"sub\":\"Wet weather tips\",\"seconds\":820,\"played\":0,\"photo\":null,\"goto\":\"after_rain\"}] , \"playing\":null}"
     ]
   },
   "3181bf80ebcb5c80": {

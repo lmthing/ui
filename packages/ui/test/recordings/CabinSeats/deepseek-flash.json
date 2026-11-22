@@ -1,0 +1,1199 @@
+{
+  "CabinSeats%2Fchoose%2FLet%20me%20pick%20among%20three%20airfare%20options%3A%20Saver%20with%20no%20changes%2C%20Standard%20with%20one%20change%2C%20and%20Flexible%20with%20refundable%20tickets.%20Show%20what%20each%20fare%20includes./055eab3a8b9b1f2b/b7013c7742891b71": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- BagTracker: See where my checked bags were scanned and where to collect them. Pick: Track several checked bags by tag across airline scan checkpoints. Not guided steps (Steps), trip packing (PackingList), parcels (DeliveryTracker) or retail orders (OrderStatus).\n- CabinSeats: Choose or change a numbered seat on a flight or train. Pick: Pick or change a numbered seat on a flight or train using an aisle map, with optional upgrade fees. Not fare tier options (Choice), banquet tables (Seating), or cinema seats (SeatPicker).\n- Clocks: Compare local time in several places with the time back home. Pick: Current local clock times in two to four named time zones, with offsets from home. Not elapsed or remaining time (Timer) or scheduled events (Timeline).\n- Converter: Convert between home and local currencies by entering either amount. Pick: Convert two editable amounts between home and destination currencies with a swap control. Not displaying one sum (Amount) or entering an expense (AmountPad).\n- FlightStatus: Track one booked flight's live status, airport details and progress. Pick: Live operational status, gate updates and progress for one specific flight. Not static facts (KeyValue), a boarding pass (Reservation) or airport-wide boards (Departures).\n- Itinerary: See the whole trip day by day, including stops and travel between them. Pick: A whole trip grouped into foldable dated days with places, timed stops and travel legs. Not a single day's time order (Timeline), a path through places (Route), or a family week (Agenda).\n- PackingList: Pack by category or person, track quantities and see what remains. Pick: Items to put in luggage, grouped by category or traveller, with optional quantities and an overall packed share. Not everyday tasks (Checklist) or shopping for groceries (GroceryList).\n- Reservation: Keep a travel confirmation, reference and gate pass together. Pick: One travel or lodging confirmation, with a copyable reference, optional seat and optional scannable pass. Not simple label/value facts (KeyValue), booking a provider (Appointment), running an event (Ticket), or buying goods (OrderSummary).\n- TravelDocs: Keep travel documents together and see whether they expire near the trip. Pick: A travel document wallet with owners, masked numbers and expiry warnings. Not facts about one thing (KeyValue) or warranties for belongings (Warranties).\n- Weather: See the forecast or typical weather for the place and dates of a trip. Pick: A place's local weather or trip forecast, including conditions and rain chance. Not personal figures (Stats) or a series showing a trend (Sparkline).\n\nNeed, in the person's words: \"Let me pick among three airfare options: Saver with no changes, Standard with one change, and Flexible with refundable tickets. Show what each fare includes.\"\nReply with only the component id, nothing else.",
+    "reply": "Choice",
+    "replies": [
+      "Choice",
+      "Choice",
+      "Choice"
+    ]
+  },
+  "CabinSeats%2Fchoose%2FLet%20me%20pick%20among%20three%20airfare%20options%3A%20Saver%20with%20no%20changes%2C%20Standard%20with%20one%20change%2C%20and%20Flexible%20with%20refundable%20tickets.%20Show%20what%20each%20fare%20includes./8ab3d0d765337fef/b7013c7742891b71": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- BagTracker: See where my checked bags were scanned and where to collect them. Pick: Track several checked bags by tag across airline scan checkpoints. Not guided steps (Steps), trip packing (PackingList), parcels (DeliveryTracker) or retail orders (OrderStatus).\n- CabinSeats: Choose or change a numbered seat on a flight or train. Pick: Pick or change a numbered seat on a flight or train using an aisle map, with optional upgrade fees. Not fare tier options (Choice), banquet tables (Seating), or cinema seats (SeatPicker).\n- Clocks: Compare local time in several places with the time back home. Pick: Current local clock times in two to four named time zones, with offsets from home. Not elapsed or remaining time (Timer) or scheduled events (Timeline).\n- Converter: Convert between home and local currencies by entering either amount. Pick: Convert two editable amounts between home and destination currencies with a swap control. Not displaying one sum (Amount) or entering an expense (AmountPad).\n- FlightStatus: Track one booked flight's live status, airport details and progress. Pick: Live operational status, gate updates and progress for one specific flight. Not static facts (KeyValue), a boarding pass (Reservation) or airport-wide boards (Departures).\n- Itinerary: See the whole trip day by day, including stops and travel between them. Pick: A whole trip grouped into foldable dated days with places, timed stops and travel legs. Not a single day's time order (Timeline), a path through places (Route), or a family week (Agenda).\n- PackingList: Pack by category or person, track quantities and see what remains. Pick: Items to put in luggage, grouped by category or traveller, with optional quantities and an overall packed share. Not everyday tasks (Checklist) or shopping for groceries (GroceryList).\n- Reservation: Keep a travel confirmation, reference and gate pass together. Pick: One travel or lodging confirmation, with a copyable reference, optional seat and optional scannable pass. Not simple label/value facts (KeyValue), booking a provider (Appointment), running an event (Ticket), or buying goods (OrderSummary).\n- TravelDocs: Keep travel documents together and see whether they expire near the trip. Pick: A travel document wallet with owners, masked numbers and expiry warnings. Not facts about one thing (KeyValue) or warranties for belongings (Warranties).\n- Weather: See the forecast or typical weather for the place and dates of a trip. Pick: A place's local weather or trip forecast, including conditions and rain chance. Not personal figures (Stats) or a series showing a trend (Sparkline).\n\nNeed, in the person's words: \"Let me pick among three airfare options: Saver with no changes, Standard with one change, and Flexible with refundable tickets. Show what each fare includes.\"\nReply with only the component id, nothing else.",
+    "reply": "Choice",
+    "replies": [
+      "Choice",
+      "Choice",
+      "Choice"
+    ]
+  },
+  "CabinSeats%2Fchoose%2FLet%20me%20pick%20among%20three%20airfare%20options%3A%20Saver%20with%20no%20changes%2C%20Standard%20with%20one%20change%2C%20and%20Flexible%20with%20refundable%20tickets.%20Show%20what%20each%20fare%20includes./cfacbcbcbb78bf50/b7013c7742891b71": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- BagTracker: See where my checked bags were scanned and where to collect them. Pick: Track several checked bags by tag across airline scan checkpoints. Not guided steps (Steps), trip packing (PackingList), parcels (DeliveryTracker) or retail orders (OrderStatus).\n- CabinSeats: Choose or change a numbered seat on a flight or train. Pick: Pick or change a numbered seat on a flight or train using an aisle map, with optional upgrade fees. Not fare tier options (Choice), banquet tables (Seating), or cinema seats (SeatPicker).\n- Clocks: Compare local time in several places with the time back home. Pick: Current local clock times in two to four named time zones, with offsets from home. Not elapsed or remaining time (Timer) or scheduled events (Timeline).\n- Converter: Convert between home and local currencies by entering either amount. Pick: Convert two editable amounts between home and destination currencies with a swap control. Not displaying one sum (Amount) or entering an expense (AmountPad).\n- FlightStatus: Track one booked flight's live status, airport details and progress. Pick: Live operational status, gate updates and progress for one specific flight. Not static facts (KeyValue), a boarding pass (Reservation) or airport-wide boards (Departures).\n- Itinerary: See the whole trip day by day, including stops and travel between them. Pick: A whole trip grouped into foldable dated days with places, timed stops and travel legs. Not a single day's time order (Timeline), a path through places (Route), or a family week (Agenda).\n- PackingList: Pack by category or person, track quantities and see what remains. Pick: Items to put in luggage, grouped by category or traveller, with optional quantities and an overall packed share. Not everyday tasks (Checklist) or shopping for groceries (GroceryList).\n- Reservation: Keep a travel confirmation, reference and gate pass together. Pick: One travel or lodging confirmation, with a copyable reference, optional seat and optional scannable pass. Not simple label/value facts (KeyValue), booking a provider (Appointment), running an event (Ticket), or buying goods (OrderSummary).\n- TravelDocs: Keep travel documents together and see whether they expire near the trip. Pick: A travel document wallet with owners, masked numbers and expiry warnings. Not facts about one thing (KeyValue) or warranties for belongings (Warranties).\n- Weather: See the forecast or typical weather for the place and dates of a trip. Pick: A place's local weather or trip forecast, including conditions and rain chance. Not personal figures (Stats) or a series showing a trend (Sparkline).\n\nNeed, in the person's words: \"Let me pick among three airfare options: Saver with no changes, Standard with one change, and Flexible with refundable tickets. Show what each fare includes.\"\nReply with only the component id, nothing else.",
+    "reply": "Choice",
+    "replies": [
+      "Choice",
+      "Choice",
+      "Choice"
+    ]
+  },
+  "CabinSeats%2Fchoose%2FLet%20me%20pick%20the%20seat%20in%20my%20flight's%20numbered%20rows%20and%20lettered%20columns.%20Show%20the%20aisle%2C%20occupied%20seats%2C%20exit%20rows%20and%20the%20upgrade%20fee%20before%20I%20confirm./2c95aa851a2eb07e/eb39567873c90fbb": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- BagTracker: See where my checked bags were scanned and where to collect them. Pick: Track several checked bags by tag across airline scan checkpoints. Not guided steps (Steps), trip packing (PackingList), parcels (DeliveryTracker) or retail orders (OrderStatus).\n- CabinSeats: Choose or change a numbered seat on a flight or train. Pick: Pick or change a numbered seat on a flight or train using an aisle map, with optional upgrade fees. Not fare tier options (Choice), banquet tables (Seating), or cinema seats (SeatPicker).\n- Clocks: Compare local time in several places with the time back home. Pick: Current local clock times in two to four named time zones, with offsets from home. Not elapsed or remaining time (Timer) or scheduled events (Timeline).\n- Converter: Convert between home and local currencies by entering either amount. Pick: Convert two editable amounts between home and destination currencies with a swap control. Not displaying one sum (Amount) or entering an expense (AmountPad).\n- FlightStatus: Track one booked flight's live status, airport details and progress. Pick: Live operational status, gate updates and progress for one specific flight. Not static facts (KeyValue), a boarding pass (Reservation) or airport-wide boards (Departures).\n- Itinerary: See the whole trip day by day, including stops and travel between them. Pick: A whole trip grouped into foldable dated days with places, timed stops and travel legs. Not a single day's time order (Timeline), a path through places (Route), or a family week (Agenda).\n- PackingList: Pack by category or person, track quantities and see what remains. Pick: Items to put in luggage, grouped by category or traveller, with optional quantities and an overall packed share. Not everyday tasks (Checklist) or shopping for groceries (GroceryList).\n- Reservation: Keep a travel confirmation, reference and gate pass together. Pick: One travel or lodging confirmation, with a copyable reference, optional seat and optional scannable pass. Not simple label/value facts (KeyValue), booking a provider (Appointment), running an event (Ticket), or buying goods (OrderSummary).\n- TravelDocs: Keep travel documents together and see whether they expire near the trip. Pick: A travel document wallet with owners, masked numbers and expiry warnings. Not facts about one thing (KeyValue) or warranties for belongings (Warranties).\n- Weather: See the forecast or typical weather for the place and dates of a trip. Pick: A place's local weather or trip forecast, including conditions and rain chance. Not personal figures (Stats) or a series showing a trend (Sparkline).\n\nNeed, in the person's words: \"Let me pick the seat in my flight's numbered rows and lettered columns. Show the aisle, occupied seats, exit rows and the upgrade fee before I confirm.\"\nReply with only the component id, nothing else.",
+    "reply": "CabinSeats",
+    "replies": [
+      "CabinSeats",
+      "CabinSeats",
+      "CabinSeats"
+    ]
+  },
+  "CabinSeats%2Fchoose%2FLet%20me%20pick%20the%20seat%20in%20my%20flight's%20numbered%20rows%20and%20lettered%20columns.%20Show%20the%20aisle%2C%20occupied%20seats%2C%20exit%20rows%20and%20the%20upgrade%20fee%20before%20I%20confirm./8e161f13018c8397/eb39567873c90fbb": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- BagTracker: See where my checked bags were scanned and where to collect them. Pick: Track several checked bags by tag across airline scan checkpoints. Not guided steps (Steps), trip packing (PackingList), parcels (DeliveryTracker) or retail orders (OrderStatus).\n- CabinSeats: Choose or change a numbered seat on a flight or train. Pick: Pick or change a numbered seat on a flight or train using an aisle map, with optional upgrade fees. Not fare tier options (Choice), banquet tables (Seating), or cinema seats (SeatPicker).\n- Clocks: Compare local time in several places with the time back home. Pick: Current local clock times in two to four named time zones, with offsets from home. Not elapsed or remaining time (Timer) or scheduled events (Timeline).\n- Converter: Convert between home and local currencies by entering either amount. Pick: Convert two editable amounts between home and destination currencies with a swap control. Not displaying one sum (Amount) or entering an expense (AmountPad).\n- FlightStatus: Track one booked flight's live status, airport details and progress. Pick: Live operational status, gate updates and progress for one specific flight. Not static facts (KeyValue), a boarding pass (Reservation) or airport-wide boards (Departures).\n- Itinerary: See the whole trip day by day, including stops and travel between them. Pick: A whole trip grouped into foldable dated days with places, timed stops and travel legs. Not a single day's time order (Timeline), a path through places (Route), or a family week (Agenda).\n- PackingList: Pack by category or person, track quantities and see what remains. Pick: Items to put in luggage, grouped by category or traveller, with optional quantities and an overall packed share. Not everyday tasks (Checklist) or shopping for groceries (GroceryList).\n- Reservation: Keep a travel confirmation, reference and gate pass together. Pick: One travel or lodging confirmation, with a copyable reference, optional seat and optional scannable pass. Not simple label/value facts (KeyValue), booking a provider (Appointment), running an event (Ticket), or buying goods (OrderSummary).\n- TravelDocs: Keep travel documents together and see whether they expire near the trip. Pick: A travel document wallet with owners, masked numbers and expiry warnings. Not facts about one thing (KeyValue) or warranties for belongings (Warranties).\n- Weather: See the forecast or typical weather for the place and dates of a trip. Pick: A place's local weather or trip forecast, including conditions and rain chance. Not personal figures (Stats) or a series showing a trend (Sparkline).\n\nNeed, in the person's words: \"Let me pick the seat in my flight's numbered rows and lettered columns. Show the aisle, occupied seats, exit rows and the upgrade fee before I confirm.\"\nReply with only the component id, nothing else.",
+    "reply": "CabinSeats",
+    "replies": [
+      "CabinSeats",
+      "CabinSeats",
+      "CabinSeats"
+    ]
+  },
+  "CabinSeats%2Fchoose%2FLet%20me%20pick%20the%20seat%20in%20my%20flight's%20numbered%20rows%20and%20lettered%20columns.%20Show%20the%20aisle%2C%20occupied%20seats%2C%20exit%20rows%20and%20the%20upgrade%20fee%20before%20I%20confirm./db0ac787b8d4e341/eb39567873c90fbb": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- BagTracker: See where my checked bags were scanned and where to collect them. Pick: Track several checked bags by tag across airline scan checkpoints. Not guided steps (Steps), trip packing (PackingList), parcels (DeliveryTracker) or retail orders (OrderStatus).\n- CabinSeats: Choose or change a numbered seat on a flight or train. Pick: Pick or change a numbered seat on a flight or train using an aisle map, with optional upgrade fees. Not fare tier options (Choice), banquet tables (Seating), or cinema seats (SeatPicker).\n- Clocks: Compare local time in several places with the time back home. Pick: Current local clock times in two to four named time zones, with offsets from home. Not elapsed or remaining time (Timer) or scheduled events (Timeline).\n- Converter: Convert between home and local currencies by entering either amount. Pick: Convert two editable amounts between home and destination currencies with a swap control. Not displaying one sum (Amount) or entering an expense (AmountPad).\n- FlightStatus: Track one booked flight's live status, airport details and progress. Pick: Live operational status, gate updates and progress for one specific flight. Not static facts (KeyValue), a boarding pass (Reservation) or airport-wide boards (Departures).\n- Itinerary: See the whole trip day by day, including stops and travel between them. Pick: A whole trip grouped into foldable dated days with places, timed stops and travel legs. Not a single day's time order (Timeline), a path through places (Route), or a family week (Agenda).\n- PackingList: Pack by category or person, track quantities and see what remains. Pick: Items to put in luggage, grouped by category or traveller, with optional quantities and an overall packed share. Not everyday tasks (Checklist) or shopping for groceries (GroceryList).\n- Reservation: Keep a travel confirmation, reference and gate pass together. Pick: One travel or lodging confirmation, with a copyable reference, optional seat and optional scannable pass. Not simple label/value facts (KeyValue), booking a provider (Appointment), running an event (Ticket), or buying goods (OrderSummary).\n- TravelDocs: Keep travel documents together and see whether they expire near the trip. Pick: A travel document wallet with owners, masked numbers and expiry warnings. Not facts about one thing (KeyValue) or warranties for belongings (Warranties).\n- Weather: See the forecast or typical weather for the place and dates of a trip. Pick: A place's local weather or trip forecast, including conditions and rain chance. Not personal figures (Stats) or a series showing a trend (Sparkline).\n\nNeed, in the person's words: \"Let me pick the seat in my flight's numbered rows and lettered columns. Show the aisle, occupied seats, exit rows and the upgrade fee before I confirm.\"\nReply with only the component id, nothing else.",
+    "reply": "CabinSeats",
+    "replies": [
+      "CabinSeats",
+      "CabinSeats",
+      "CabinSeats"
+    ]
+  },
+  "CabinSeats%2Fread%2FPreview%20seat%2012A%2C%20the%20extra-legroom%20seat%20in%20the%20exit%20row.%20Do%20not%20confirm%20it%20yet./302bc0c550a6b4d6/a231accf9c379108": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 CabinSeats Confirm seat — * Extra legroom · Flag: exit row — 10 — 10A · Occupied — r10002 10B · Available — r10003 10C · Available — 10D · Occupied — 11 — r11001 11A · Available — 11B · Occupied — 11C · Occupied — r11004 11D · Available — 12 — r12001 12A · Extra legroom · Exit row — A* — r12002 12B · Available · Exit row — r12003 12C · Selected · Exit row — r12004 12D · Extra legroom · Exit row — D* — 13 — 13A · Occupied — r13002 13B · Available — r13003 13C · Available — 13D · Occupied — 14 — r14001 14A · Available — 14B · Occupied — 14C · Occupied — r14004 14D · Available — Upgrade fee: $35 — \"NH 212 Economy\" — \"Sam\"\n  r10002 [c1/r10002 select]\n  r10003 [c1/r10003 select]\n  r11001 [c1/r11001 select]\n  r11004 [c1/r11004 select]\n  r12001 [c1/r12001 select]\n  r12002 [c1/r12002 select]\n  r12003 [c1/r12003 select]\n  r12004 [c1/r12004 select]\n  r13002 [c1/r13002 select]\n  r13003 [c1/r13003 select]\n  r14001 [c1/r14001 select]\n  r14004 [c1/r14004 select]\n\nTask: Preview seat 12A, the extra-legroom seat in the exit row. Do not confirm it yet.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"c1/r12001\", \"action\": \"select\"}",
+    "replies": [
+      "{\"address\": \"c1/r12001\", \"action\": \"select\"}",
+      "{\"address\": \"c1/r12001\", \"action\": \"select\"}",
+      "{\"address\": \"c1/r12001\", \"action\": \"select\"}"
+    ]
+  },
+  "CabinSeats%2Fread%2FPreview%20seat%2012A%2C%20the%20extra-legroom%20seat%20in%20the%20exit%20row.%20Do%20not%20confirm%20it%20yet./413952523cb92b08/a231accf9c379108": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 CabinSeats Confirm seat — * Extra legroom · Flag: exit row — 10 — 10A · Occupied — r10002 10B · Available — r10003 10C · Available — 10D · Occupied — 11 — r11001 11A · Available — 11B · Occupied — 11C · Occupied — r11004 11D · Available — 12 — r12001 12A · Extra legroom · Exit row — A* — r12002 12B · Available · Exit row — r12003 12C · Selected · Exit row — r12004 12D · Extra legroom · Exit row — D* — 13 — 13A · Occupied — r13002 13B · Available — r13003 13C · Available — 13D · Occupied — 14 — r14001 14A · Available — 14B · Occupied — 14C · Occupied — r14004 14D · Available — Upgrade fee: $35 — \"NH 212 Economy\" — \"Sam\"\n  r10002 [c1/r10002 select]\n  r10003 [c1/r10003 select]\n  r11001 [c1/r11001 select]\n  r11004 [c1/r11004 select]\n  r12001 [c1/r12001 select]\n  r12002 [c1/r12002 select]\n  r12003 [c1/r12003 select]\n  r12004 [c1/r12004 select]\n  r13002 [c1/r13002 select]\n  r13003 [c1/r13003 select]\n  r14001 [c1/r14001 select]\n  r14004 [c1/r14004 select]\n\nTask: Preview seat 12A, the extra-legroom seat in the exit row. Do not confirm it yet.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"c1/r12001\", \"action\": \"select\"}",
+    "replies": [
+      "{\"address\": \"c1/r12001\", \"action\": \"select\"}",
+      "{\"address\": \"c1/r12001\", \"action\": \"select\"}",
+      "{\"address\": \"c1/r12001\", \"action\": \"select\"}"
+    ]
+  },
+  "CabinSeats%2Fread%2FPreview%20seat%2012A%2C%20the%20extra-legroom%20seat%20in%20the%20exit%20row.%20Do%20not%20confirm%20it%20yet./742e80e0a05e736a/0d3ecef7f15f4562": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 CabinSeats Confirm seat — Star: extra legroom · Flag: exit row — 10 — 10A · Occupied — r1 10B · Available — r2 10C · Available — 10D · Occupied — 11 — r3 11A · Available — 11B · Occupied — 11C · Occupied — r4 11D · Available — 12 — r5 12A · Extra legroom · Exit row — r6 12B · Available · Exit row — r7 12C · Selected · Exit row — r8 12D · Extra legroom · Exit row — 13 — 13A · Occupied — r9 13B · Available — r10 13C · Available — 13D · Occupied — 14 — r11 14A · Available — 14B · Occupied — 14C · Occupied — r12 14D · Available — Upgrade fee: $35 — \"NH 212 Economy\" — \"Sam\"\n  r1 [c1/r1 select]\n  r2 [c1/r2 select]\n  r3 [c1/r3 select]\n  r4 [c1/r4 select]\n  r5 [c1/r5 select]\n  r6 [c1/r6 select]\n  r7 [c1/r7 select]\n  r8 [c1/r8 select]\n  r9 [c1/r9 select]\n  r10 [c1/r10 select]\n  r11 [c1/r11 select]\n  r12 [c1/r12 select]\n\nTask: Preview seat 12A, the extra-legroom seat in the exit row. Do not confirm it yet.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"c1/r5\", \"action\": \"select\"}",
+    "replies": [
+      "{\"address\": \"c1/r5\", \"action\": \"select\"}",
+      "{\"address\": \"c1/r5\", \"action\": \"select\"}",
+      "{\"address\": \"c1/r5\", \"action\": \"select\"}"
+    ]
+  },
+  "CabinSeats%2Fwrite%2FShow%20Economy%20seating%20for%20Sam.%20Columns%20are%20A%2C%20B%2C%20aisle%2C%20C%2C%20D.%20Row%2011%20has%20A%20occupied%20and%20B%2C%20C%20and%20D%20open.%20Row%2012%20is%20an%20exit%20row%3A%20A%20and%20D%20extra%20legroom%20at%2045%20each%2C%20B%20open%20and%20C%20selected%20at%2035.%20Row%2013%20seats%20are%20all%20open./5e0efa3050dfdbfc/88d0deb32e98ff4d": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCabinSeats: Choose or change a numbered seat on a flight or train.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", cabin: text≤24, columns: [2..10 any], rows: [1..20 { row: int 1..99, exit?: boolean=false, seats: [1..10 { col: id snake_case, status: open|occupied|extra|selected, fee?: num 0.. }] }], passenger?: text≤24 }\nRule: List unique lettered columns in display order; use \"\" only for aisle gaps. Use unique row numbers and distinct existing columns in each row. Only one seat can be selected. Do not invent fees; omit them if unknown.\nRule: Use detail \"brief\" only to zoom to the selected row and its neighbours. Leave unrequested variant axes null.\nexample: {\"c\":\"CabinSeats\",\"cabin\":\"NH 212 Economy\",\"passenger\":\"Sam\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":10,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\"},{\"col\":\"B\",\"status\":\"open\"},{\"col\":\"C\",\"status\":\"open\"},{\"col\":\"D\",\"status\":\"occupied\"}]},{\"row\":11,\"seats\":[{\"col\":\"A\",\"status\":\"open\"},{\"col\":\"B\",\"status\":\"occupied\"},{\"col\":\"C\",\"status\":\"occupied\"},{\"col\":\"D\",\"status\":\"open\"}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\"},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\"},{\"col\":\"B\",\"status\":\"open\"},{\"col\":\"C\",\"status\":\"open\"},{\"col\":\"D\",\"status\":\"occupied\"}]},{\"row\":14,\"seats\":[{\"col\":\"A\",\"status\":\"open\"},{\"col\":\"B\",\"status\":\"occupied\"},{\"col\":\"C\",\"status\":\"occupied\"},{\"col\":\"D\",\"status\":\"open\"}]}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show Economy seating for Sam. Columns are A, B, aisle, C, D. Row 11 has A occupied and B, C and D open. Row 12 is an exit row: A and D extra legroom at 45 each, B open and C selected at 35. Row 13 seats are all open.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "CabinSeats",
+              "enum": [
+                "CabinSeats"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "cabin": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "columns": {
+              "minItems": 2,
+              "maxItems": 10,
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "const": ""
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Za-z]{1,2}$"
+                  }
+                ]
+              }
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 20,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "row": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 99
+                  },
+                  "exit": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "seats": {
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "col": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z]{1,2}$"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "open",
+                            "occupied",
+                            "extra",
+                            "selected"
+                          ]
+                        },
+                        "fee": {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "col",
+                        "status",
+                        "fee"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "row",
+                  "exit",
+                  "seats"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "passenger": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "cabin",
+            "columns",
+            "rows",
+            "passenger"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":null,\"detail\":null,\"cabin\":\"Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}",
+    "replies": [
+      "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":null,\"detail\":null,\"cabin\":\"Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}",
+      "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":null,\"detail\":null,\"cabin\":\"Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}",
+      "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"cabin\":\"NH 212 Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}"
+    ]
+  },
+  "CabinSeats%2Fwrite%2FShow%20Economy%20seating%20for%20Sam.%20Columns%20are%20A%2C%20B%2C%20aisle%2C%20C%2C%20D.%20Row%2011%20has%20A%20occupied%20and%20B%2C%20C%20and%20D%20open.%20Row%2012%20is%20an%20exit%20row%3A%20A%20and%20D%20extra%20legroom%20at%2045%20each%2C%20B%20open%20and%20C%20selected%20at%2035.%20Row%2013%20seats%20are%20all%20open./a9877a98a52e3ef0/88d0deb32e98ff4d": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCabinSeats: Choose or change a numbered seat on a flight or train.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", cabin: text≤24, columns: [2..10 any], rows: [1..20 { row: int 1..99, exit?: boolean=false, seats: [1..10 { col: id snake_case, status: open|occupied|extra|selected, fee?: num 0.. }] }], passenger?: text≤24 }\nRule: List unique lettered columns in display order; use \"\" only for aisle gaps. Use unique row numbers and distinct existing columns in each row. Only one seat can be selected. Do not invent fees; omit them if unknown.\nRule: Use detail \"brief\" only to zoom to the selected row and its neighbours. Leave unrequested variant axes null.\nexample: {\"c\":\"CabinSeats\",\"cabin\":\"NH 212 Economy\",\"passenger\":\"Sam\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":10,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\"},{\"col\":\"B\",\"status\":\"open\"},{\"col\":\"C\",\"status\":\"open\"},{\"col\":\"D\",\"status\":\"occupied\"}]},{\"row\":11,\"seats\":[{\"col\":\"A\",\"status\":\"open\"},{\"col\":\"B\",\"status\":\"occupied\"},{\"col\":\"C\",\"status\":\"occupied\"},{\"col\":\"D\",\"status\":\"open\"}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\"},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\"},{\"col\":\"B\",\"status\":\"open\"},{\"col\":\"C\",\"status\":\"open\"},{\"col\":\"D\",\"status\":\"occupied\"}]},{\"row\":14,\"seats\":[{\"col\":\"A\",\"status\":\"open\"},{\"col\":\"B\",\"status\":\"occupied\"},{\"col\":\"C\",\"status\":\"occupied\"},{\"col\":\"D\",\"status\":\"open\"}]}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show Economy seating for Sam. Columns are A, B, aisle, C, D. Row 11 has A occupied and B, C and D open. Row 12 is an exit row: A and D extra legroom at 45 each, B open and C selected at 35. Row 13 seats are all open.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "CabinSeats",
+              "enum": [
+                "CabinSeats"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "cabin": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "columns": {
+              "minItems": 2,
+              "maxItems": 10,
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "const": ""
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Za-z]{1,2}$"
+                  }
+                ]
+              }
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 20,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "row": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 99
+                  },
+                  "exit": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "seats": {
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "col": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z]{1,2}$"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "open",
+                            "occupied",
+                            "extra",
+                            "selected"
+                          ]
+                        },
+                        "fee": {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "col",
+                        "status",
+                        "fee"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "row",
+                  "exit",
+                  "seats"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "passenger": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "cabin",
+            "columns",
+            "rows",
+            "passenger"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":\"card\",\"detail\":\"brief\",\"cabin\":\"Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}",
+    "replies": [
+      "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":\"card\",\"detail\":\"brief\",\"cabin\":\"Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}",
+      "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":\"card\",\"detail\":null,\"cabin\":\"NH 212 Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}",
+      "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":null,\"detail\":null,\"cabin\":\"NH 212 Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}"
+    ]
+  },
+  "CabinSeats%2Fwrite%2FShow%20Economy%20seating%20for%20Sam.%20Columns%20are%20A%2C%20B%2C%20aisle%2C%20C%2C%20D.%20Row%2011%20has%20A%20occupied%20and%20B%2C%20C%20and%20D%20open.%20Row%2012%20is%20an%20exit%20row%3A%20A%20and%20D%20extra%20legroom%20at%2045%20each%2C%20B%20open%20and%20C%20selected%20at%2035.%20Row%2013%20seats%20are%20all%20open./c61208276f8c3d5e/88d0deb32e98ff4d": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCabinSeats: Choose or change a numbered seat on a flight or train.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", cabin: text≤24, columns: [2..10 any], rows: [1..20 { row: int 1..99, exit?: boolean=false, seats: [1..10 { col: id snake_case, status: open|occupied|extra|selected, fee?: num 0.. }] }], passenger?: text≤24 }\nRule: List unique lettered columns in display order; use \"\" only for aisle gaps. Use unique row numbers and distinct existing columns in each row. Only one seat can be selected. Do not invent fees; omit them if unknown.\nRule: Use detail \"brief\" only to zoom to the selected row and its neighbours. Leave unrequested variant axes null.\nexample: {\"c\":\"CabinSeats\",\"cabin\":\"NH 212 Economy\",\"passenger\":\"Sam\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":10,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\"},{\"col\":\"B\",\"status\":\"open\"},{\"col\":\"C\",\"status\":\"open\"},{\"col\":\"D\",\"status\":\"occupied\"}]},{\"row\":11,\"seats\":[{\"col\":\"A\",\"status\":\"open\"},{\"col\":\"B\",\"status\":\"occupied\"},{\"col\":\"C\",\"status\":\"occupied\"},{\"col\":\"D\",\"status\":\"open\"}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\"},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\"},{\"col\":\"B\",\"status\":\"open\"},{\"col\":\"C\",\"status\":\"open\"},{\"col\":\"D\",\"status\":\"occupied\"}]},{\"row\":14,\"seats\":[{\"col\":\"A\",\"status\":\"open\"},{\"col\":\"B\",\"status\":\"occupied\"},{\"col\":\"C\",\"status\":\"occupied\"},{\"col\":\"D\",\"status\":\"open\"}]}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show Economy seating for Sam. Columns are A, B, aisle, C, D. Row 11 has A occupied and B, C and D open. Row 12 is an exit row: A and D extra legroom at 45 each, B open and C selected at 35. Row 13 seats are all open.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "CabinSeats",
+              "enum": [
+                "CabinSeats"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "cabin": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "columns": {
+              "minItems": 2,
+              "maxItems": 10,
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "const": ""
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Za-z]{1,2}$"
+                  }
+                ]
+              }
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 20,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "row": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 99
+                  },
+                  "exit": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "seats": {
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "col": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z]{1,2}$"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "open",
+                            "occupied",
+                            "extra",
+                            "selected"
+                          ]
+                        },
+                        "fee": {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "col",
+                        "status",
+                        "fee"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "row",
+                  "exit",
+                  "seats"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "passenger": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "cabin",
+            "columns",
+            "rows",
+            "passenger"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":\"card\",\"detail\":\"brief\",\"cabin\":\"NH 212 Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}",
+    "replies": [
+      "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":\"card\",\"detail\":\"brief\",\"cabin\":\"NH 212 Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}",
+      "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":\"card\",\"detail\":null,\"cabin\":\"NH 212 Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}",
+      "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":null,\"detail\":null,\"cabin\":\"NH 212 Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}"
+    ]
+  },
+  "CabinSeats%2Fwrite%2FShow%20Economy%20seating%20for%20Sam.%20Columns%20are%20A%2C%20B%2C%20aisle%2C%20C%2C%20D.%20Row%2011%20has%20A%20occupied%20and%20B%2C%20C%20and%20D%20open.%20Row%2012%20is%20an%20exit%20row%3A%20A%20and%20D%20extra%20legroom%20at%2045%20each%2C%20B%20open%20and%20C%20selected%20at%2035.%20Row%2013%20seats%20are%20all%20open.%20Zoom%20in%20to%20the%20preselected%20row%20and%20the%20rows%20immediately%20above%20and%20below%20it%2C%20without%20changing%20the%20seating%20data%20or%20styling./2d85f4ec351f2e6f/c1832387b725ee5d": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCabinSeats: Choose or change a numbered seat on a flight or train.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", cabin: text≤24, columns: [2..10 any], rows: [1..20 { row: int 1..99, exit?: boolean=false, seats: [1..10 { col: id snake_case, status: open|occupied|extra|selected, fee?: num 0.. }] }], passenger?: text≤24 }\nRule: List unique lettered columns in display order; use \"\" only for aisle gaps. Use unique row numbers and distinct existing columns in each row. Only one seat can be selected. Do not invent fees; omit them if unknown.\nRule: Use detail \"brief\" only to zoom to the selected row and its neighbours. Leave unrequested variant axes null.\nexample: {\"c\":\"CabinSeats\",\"cabin\":\"NH 212 Economy\",\"passenger\":\"Sam\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":10,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\"},{\"col\":\"B\",\"status\":\"open\"},{\"col\":\"C\",\"status\":\"open\"},{\"col\":\"D\",\"status\":\"occupied\"}]},{\"row\":11,\"seats\":[{\"col\":\"A\",\"status\":\"open\"},{\"col\":\"B\",\"status\":\"occupied\"},{\"col\":\"C\",\"status\":\"occupied\"},{\"col\":\"D\",\"status\":\"open\"}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\"},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\"},{\"col\":\"B\",\"status\":\"open\"},{\"col\":\"C\",\"status\":\"open\"},{\"col\":\"D\",\"status\":\"occupied\"}]},{\"row\":14,\"seats\":[{\"col\":\"A\",\"status\":\"open\"},{\"col\":\"B\",\"status\":\"occupied\"},{\"col\":\"C\",\"status\":\"occupied\"},{\"col\":\"D\",\"status\":\"open\"}]}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show Economy seating for Sam. Columns are A, B, aisle, C, D. Row 11 has A occupied and B, C and D open. Row 12 is an exit row: A and D extra legroom at 45 each, B open and C selected at 35. Row 13 seats are all open. Zoom in to the preselected row and the rows immediately above and below it, without changing the seating data or styling.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "CabinSeats",
+              "enum": [
+                "CabinSeats"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "cabin": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "columns": {
+              "minItems": 2,
+              "maxItems": 10,
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "const": ""
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Za-z]{1,2}$"
+                  }
+                ]
+              }
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 20,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "row": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 99
+                  },
+                  "exit": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "seats": {
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "col": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z]{1,2}$"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "open",
+                            "occupied",
+                            "extra",
+                            "selected"
+                          ]
+                        },
+                        "fee": {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "col",
+                        "status",
+                        "fee"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "row",
+                  "exit",
+                  "seats"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "passenger": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "cabin",
+            "columns",
+            "rows",
+            "passenger"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"cabin\":\"NH 212 Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}",
+    "replies": [
+      "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"cabin\":\"NH 212 Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}",
+      "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"cabin\":\"NH 212 Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}",
+      "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"cabin\":\"NH 212 Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}"
+    ]
+  },
+  "CabinSeats%2Fwrite%2FShow%20Economy%20seating%20for%20Sam.%20Columns%20are%20A%2C%20B%2C%20aisle%2C%20C%2C%20D.%20Row%2011%20has%20A%20occupied%20and%20B%2C%20C%20and%20D%20open.%20Row%2012%20is%20an%20exit%20row%3A%20A%20and%20D%20extra%20legroom%20at%2045%20each%2C%20B%20open%20and%20C%20selected%20at%2035.%20Row%2013%20seats%20are%20all%20open.%20Zoom%20in%20to%20the%20preselected%20row%20and%20the%20rows%20immediately%20above%20and%20below%20it%2C%20without%20changing%20the%20seating%20data%20or%20styling./9e4db8c4605fe8ea/c1832387b725ee5d": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCabinSeats: Choose or change a numbered seat on a flight or train.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", cabin: text≤24, columns: [2..10 any], rows: [1..20 { row: int 1..99, exit?: boolean=false, seats: [1..10 { col: id snake_case, status: open|occupied|extra|selected, fee?: num 0.. }] }], passenger?: text≤24 }\nRule: List unique lettered columns in display order; use \"\" only for aisle gaps. Use unique row numbers and distinct existing columns in each row. Only one seat can be selected. Do not invent fees; omit them if unknown.\nRule: Use detail \"brief\" only to zoom to the selected row and its neighbours. Leave unrequested variant axes null.\nexample: {\"c\":\"CabinSeats\",\"cabin\":\"NH 212 Economy\",\"passenger\":\"Sam\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":10,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\"},{\"col\":\"B\",\"status\":\"open\"},{\"col\":\"C\",\"status\":\"open\"},{\"col\":\"D\",\"status\":\"occupied\"}]},{\"row\":11,\"seats\":[{\"col\":\"A\",\"status\":\"open\"},{\"col\":\"B\",\"status\":\"occupied\"},{\"col\":\"C\",\"status\":\"occupied\"},{\"col\":\"D\",\"status\":\"open\"}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\"},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\"},{\"col\":\"B\",\"status\":\"open\"},{\"col\":\"C\",\"status\":\"open\"},{\"col\":\"D\",\"status\":\"occupied\"}]},{\"row\":14,\"seats\":[{\"col\":\"A\",\"status\":\"open\"},{\"col\":\"B\",\"status\":\"occupied\"},{\"col\":\"C\",\"status\":\"occupied\"},{\"col\":\"D\",\"status\":\"open\"}]}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show Economy seating for Sam. Columns are A, B, aisle, C, D. Row 11 has A occupied and B, C and D open. Row 12 is an exit row: A and D extra legroom at 45 each, B open and C selected at 35. Row 13 seats are all open. Zoom in to the preselected row and the rows immediately above and below it, without changing the seating data or styling.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "CabinSeats",
+              "enum": [
+                "CabinSeats"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "cabin": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "columns": {
+              "minItems": 2,
+              "maxItems": 10,
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "const": ""
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Za-z]{1,2}$"
+                  }
+                ]
+              }
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 20,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "row": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 99
+                  },
+                  "exit": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "seats": {
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "col": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z]{1,2}$"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "open",
+                            "occupied",
+                            "extra",
+                            "selected"
+                          ]
+                        },
+                        "fee": {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "col",
+                        "status",
+                        "fee"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "row",
+                  "exit",
+                  "seats"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "passenger": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "cabin",
+            "columns",
+            "rows",
+            "passenger"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"cabin\":\"NH 212 Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}",
+    "replies": [
+      "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"cabin\":\"NH 212 Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}",
+      "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"cabin\":\"NH 212 Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":null,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":null,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}",
+      "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"cabin\":\"NH 212 Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}"
+    ]
+  },
+  "CabinSeats%2Fwrite%2FShow%20Economy%20seating%20for%20Sam.%20Columns%20are%20A%2C%20B%2C%20aisle%2C%20C%2C%20D.%20Row%2011%20has%20A%20occupied%20and%20B%2C%20C%20and%20D%20open.%20Row%2012%20is%20an%20exit%20row%3A%20A%20and%20D%20extra%20legroom%20at%2045%20each%2C%20B%20open%20and%20C%20selected%20at%2035.%20Row%2013%20seats%20are%20all%20open.%20Zoom%20in%20to%20the%20preselected%20row%20and%20the%20rows%20immediately%20above%20and%20below%20it%2C%20without%20changing%20the%20seating%20data%20or%20styling./c087c2ef1aff4621/c1832387b725ee5d": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCabinSeats: Choose or change a numbered seat on a flight or train.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", cabin: text≤24, columns: [2..10 any], rows: [1..20 { row: int 1..99, exit?: boolean=false, seats: [1..10 { col: id snake_case, status: open|occupied|extra|selected, fee?: num 0.. }] }], passenger?: text≤24 }\nRule: List unique lettered columns in display order; use \"\" only for aisle gaps. Use unique row numbers and distinct existing columns in each row. Only one seat can be selected. Do not invent fees; omit them if unknown.\nRule: Use detail \"brief\" only to zoom to the selected row and its neighbours. Leave unrequested variant axes null.\nexample: {\"c\":\"CabinSeats\",\"cabin\":\"NH 212 Economy\",\"passenger\":\"Sam\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":10,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\"},{\"col\":\"B\",\"status\":\"open\"},{\"col\":\"C\",\"status\":\"open\"},{\"col\":\"D\",\"status\":\"occupied\"}]},{\"row\":11,\"seats\":[{\"col\":\"A\",\"status\":\"open\"},{\"col\":\"B\",\"status\":\"occupied\"},{\"col\":\"C\",\"status\":\"occupied\"},{\"col\":\"D\",\"status\":\"open\"}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\"},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\"},{\"col\":\"B\",\"status\":\"open\"},{\"col\":\"C\",\"status\":\"open\"},{\"col\":\"D\",\"status\":\"occupied\"}]},{\"row\":14,\"seats\":[{\"col\":\"A\",\"status\":\"open\"},{\"col\":\"B\",\"status\":\"occupied\"},{\"col\":\"C\",\"status\":\"occupied\"},{\"col\":\"D\",\"status\":\"open\"}]}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show Economy seating for Sam. Columns are A, B, aisle, C, D. Row 11 has A occupied and B, C and D open. Row 12 is an exit row: A and D extra legroom at 45 each, B open and C selected at 35. Row 13 seats are all open. Zoom in to the preselected row and the rows immediately above and below it, without changing the seating data or styling.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "CabinSeats",
+              "enum": [
+                "CabinSeats"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "cabin": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "columns": {
+              "minItems": 2,
+              "maxItems": 10,
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "const": ""
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Za-z]{1,2}$"
+                  }
+                ]
+              }
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 20,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "row": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 99
+                  },
+                  "exit": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "seats": {
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "col": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z]{1,2}$"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "open",
+                            "occupied",
+                            "extra",
+                            "selected"
+                          ]
+                        },
+                        "fee": {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "col",
+                        "status",
+                        "fee"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "row",
+                  "exit",
+                  "seats"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "passenger": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "cabin",
+            "columns",
+            "rows",
+            "passenger"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"cabin\":\"NH 212 Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}",
+    "replies": [
+      "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"cabin\":\"NH 212 Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}",
+      "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"cabin\":\"NH 212 Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}",
+      "{\"c\":\"CabinSeats\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"cabin\":\"NH 212 Economy\",\"columns\":[\"A\",\"B\",\"\",\"C\",\"D\"],\"rows\":[{\"row\":11,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"occupied\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]},{\"row\":12,\"exit\":true,\"seats\":[{\"col\":\"A\",\"status\":\"extra\",\"fee\":45},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"selected\",\"fee\":35},{\"col\":\"D\",\"status\":\"extra\",\"fee\":45}]},{\"row\":13,\"exit\":false,\"seats\":[{\"col\":\"A\",\"status\":\"open\",\"fee\":null},{\"col\":\"B\",\"status\":\"open\",\"fee\":null},{\"col\":\"C\",\"status\":\"open\",\"fee\":null},{\"col\":\"D\",\"status\":\"open\",\"fee\":null}]}],\"passenger\":\"Sam\"}"
+    ]
+  }
+}

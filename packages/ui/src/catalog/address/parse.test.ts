@@ -13,7 +13,7 @@ describe("address grammar", () => {
   it("round-trips combinations of screen, component, item and part", () => {
     for (const screen of ["home", "my_plants", "walks_2"]) {
       for (const component of ["l1", "plant_list"]) {
-        for (const item of ["r1", "r20", "r999"]) {
+        for (const item of ["r1", "r20", "r999", "r_notes_1", "r_links_source_a"]) {
           for (const part of ["root", "title", "trail"]) {
             const address = { screen, component, item, part };
             expect(parseAddress(formatAddress(address))).toEqual(address);
@@ -32,6 +32,8 @@ describe("address grammar", () => {
     "home/~after:",
     "home/~after:l1/title",
     "home/l1/title/root",
+    "home/l1/r_notes_/root",
+    "home/l1/r_notes_a__b/root",
     "home//title",
   ])("rejects malformed %s", (value) => expect(parseAddress(value)).toBeNull());
   it("climbs through every ancestor, including gaps and direct parts", () => {

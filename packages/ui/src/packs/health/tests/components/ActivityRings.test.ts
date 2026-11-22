@@ -110,10 +110,10 @@ describe("ActivityRings fallback and contract", () => {
     expect(meta.signature).toBe("ring_fill");
     expect(meta.realPath).toContain("read permission");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
-    expect(meta.pick).toContain("Ring");
+    expect(meta.pick).toContain("Progress");
     expect(meta.pick).toContain("Progress");
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
-    expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Ring")).toBeDefined();
+    expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Progress")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "ActivityRings" });
     expect(affordancesOf(meta, stampItemIds(meta, props.parse(input)), "a1")).toEqual([]);
   });

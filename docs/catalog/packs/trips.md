@@ -24,7 +24,7 @@ for a class, festival weekend, backpacking route, a honeymoon itinerary (with `e
 The draft `TripBudget` and `Countdown` are dropped: a trip budget is the `money` pack (`Split`, `Progress`),
 and a countdown is `Timer` style `until`.
 
-## Components (7)
+## Components (10)
 
 ### `Itinerary` · planned · data · phone
 The whole trip day by day: each day as a heading with its date and place, its stops with times, and the
@@ -68,6 +68,7 @@ days, with rain chance in `warn` when high.
 - Writes: `place` text(24), `from` and `to` dates optional (the trip's days; beyond the forecast range it
   shows typical weather for the month). The forecast comes from a weather service.
 - States: filled, loading, error and offline (drawn like core `Empty` kinds). · Real path: a weather service.
+- Wave 6 note: standalone weather apps migrate to the Wave 6 `weather` pack; `trips/Weather` stays intact here for trip overview forecasts.
 
 ### `TravelDocs` · planned · data · phone
 The documents for the trip: passport, visa, insurance, licence, vaccination; each with whose it is, its
@@ -97,6 +98,35 @@ night there.
   Times and differences are computed.
 - States: filled. · Real path: the device's clock and time zone data.
 
+### `FlightStatus` · planned · data · service
+Live operational monitor for one booked flight showing the flight number, airline, origin-to-destination progress arc, status pill ("On time", "Delayed", "Boarding", "Landed"), scheduled versus estimated departure and arrival times, terminal, gate, baggage claim, and an optional inbound aircraft link. Refreshing polls updated airline telemetry; tapping the inbound flight opens the preceding leg when linked.
+- Pick: live operational status, gate updates, and progress of one specific booked flight. Not static booking confirmations or boarding passes (`Reservation`), and not airport-wide departure boards (places `Departures`).
+- Writes: `flight` text(10), `airline` text(24), `origin` text(4), `originCity` text(20), `destination` text(4), `destinationCity` text(20), `scheduledDep` HH:MM, `estimatedDep` HH:MM optional, `scheduledArr` HH:MM, `estimatedArr` HH:MM optional, `status` (`scheduled`, `on_time`, `delayed`, `boarding`, `in_air`, `landed`, `cancelled`), `progress` number 0–1 optional, `terminal` text(8) optional, `gate` text(8) optional, `baggage` text(12) optional, `inboundFlight` text(10) optional, `inboundGoto` optional, `style`. Delay minutes and status tone are computed by code from scheduled versus estimated times and `status`.
+- Styles: `card` (default, route progress arc, status pill, times, and gate/terminal grid), `compact` (single-strip status, gate, and departure time).
+- Parts → actions: `refresh press`, `inbound press` (opens `inboundGoto` when linked).
+- States: filled, loading, error (airline feed unavailable).
+- Real path: live flight status, gate changes, and airborne progress fetched from an aviation status service.
+
+### `BagTracker` · planned · data · service
+Checked luggage custody chain displaying each bag's tag ID, weight, and sequential scan milestones ("Checked in", "Security", "Loaded", "Unloaded", "Carousel") with timestamps and airport locations. Carousel claim numbers surface upon arrival, and reporting a missing bag opens a delayed-luggage claim after confirmation.
+- Pick: tracking checked luggage across airport scan checkpoints. Not courier parcel delivery on a map (places `DeliveryTracker`), retail order fulfillment (commerce `OrderStatus`), or trip packing (`PackingList`).
+- Writes: `bags` of `tag` text(16), `label` text(24) optional, `weight` text(12) optional, `flight` text(10) optional, `carousel` text(12) optional, `steps` of `stage` (`checked_in`, `security`, `loaded`, `in_transit`, `unloaded`, `carousel`), `at` text(16) optional, `location` text(24) optional, `done` boolean, 1–6, 1–4; `reportGoto` optional; `style`. Current active stage and next milestone are computed by code from the scan sequence.
+- Styles: `timeline` (default, step track with timestamped scan rows), `compact` (latest scan stage and carousel badge per bag).
+- Parts → actions: bags `root select` (switches active bag), `refresh press`, `report press` (goes to `reportGoto`). `meta.confirmParts: ["report"]`.
+- States: filled, empty (no checked bags linked), loading, success (delivered to baggage carousel), error (delayed or missing scan alert).
+- Real path: baggage custody scans and carousel assignments synced from the airline's baggage-handling service.
+
+### `CabinSeats` · planned · input · service
+Interactive aircraft or train cabin seat grid laid out in numbered rows and lettered columns with aisle gaps, distinguishing standard, extra-legroom, exit-row, occupied, and selected seats. Tapping an open seat previews the seat label, attributes, and upgrade fee delta before confirming selection.
+- Pick: picking or changing a numbered seat on a plane or train. Not banquet event tables (events `Seating`), cinema auditorium seats (watch `SeatPicker`), or fare tier options (`Choice`).
+- Writes: `cabin` text(24), `columns` text(2) each 2–10 (aisle gaps marked as `""`), `rows` of `row` integer 1–99, `exit` boolean (default false), `seats` of `col` text(2), `status` (`open`, `occupied`, `extra`, `selected`), `fee` number ≥ 0 optional, 1–10, 1–20; `passenger` text(24) optional, `style`. Selected seat label and upgrade fee total are computed by code; rendered with `KitSeatGrid`.
+- Styles: `cabin` (default, full row-by-column grid with aisle spacing and legend), `compact` (zoomed section around the selected row).
+- Parts → actions: seats `root select`, `confirm press`.
+- States: filled, empty (seat map unavailable), loading, success (seat confirmed), error (seat taken or assignment failed).
+- Real path: live cabin inventory and seat fees fetched and reserved through the carrier's booking service.
+- Renderer: reuse the Trips `CabinSeats` view adapter over `SeatPlan` / `KitSeatGrid`. Keep the single selection, fee preview and confirm policy in Trips. The adapter is not a Writer entry.
+- Density: `meta.dense: true`, weight 3; multi-row cabin seat matrices hold up to 20 rows and 10 columns.
+
 ## Archetypes (5)
 
 | Archetype | Job | Layouts | Recipe |
@@ -121,9 +151,11 @@ group's shared plan needs a shared app.
 
 ## Build notes
 
-- Order: `Itinerary`, `Reservation`, `PackingList`, `TravelDocs`, `Weather`, `Clocks`, `Converter`.
+- Order: `Itinerary`, `Reservation`, `PackingList`, `TravelDocs`, `Weather`, `Clocks`, `Converter`; Wave 6 additions follow in order: `FlightStatus`, `BagTracker`, `CabinSeats`.
 - `Itinerary` reads one line per day ("Tue 4 Mar Kyoto: 09:00 Fushimi Inari, train 25 min, 13:00 Nishiki").
 - `TravelDocs` uses the core `secret` helper, so numbers never reach a model.
+- Wave 6 migration & option upgrades: standalone forecast apps move to the Wave 6 `weather` pack (`trips/Weather` remains intact here for trip overview screens, while trip apps needing full hourly/radar forecasts load `trips` + `weather`). On existing components: `Reservation` adds optional `terminal` text(8), `gate` text(8), `boarding` HH:MM, `zone` text(10), `baggage` text(12), and `status` (`on_time`, `delayed`, `boarding`, `checked_in`, `cancelled`); `Converter` extends `currencies` to a 3–6 ISO currency switcher; `PackingList` adds optional `who` text(16) per item; `Itinerary` adds optional `cost` number and `ref` text(12) linking to `Reservation`.
+- Wave 6 boundaries: commercial lodging search and fare calendars belong in `stays`; turn-by-turn street and transit routing belongs in `navigation`. `CabinSeats` shares `SeatPlan` with `watch/SeatPicker`.
 
 ## Open questions
 

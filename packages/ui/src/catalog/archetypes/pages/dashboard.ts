@@ -3,7 +3,7 @@ import type { ArchetypeMeta } from "../recipe";
 export const meta = createMeta(
   "dashboard",
   "How things are going",
-  { rings: "Header Stats Ring List", charts: "Header Stats Bars List" },
+  { rings: "Header Stats Progress:ring List", charts: "Header Stats Bars List" },
   {
     rings: [
       "Make the List a way to open the underlying records: include each record's supplied detail and a goto for that record. Keep the default navigation trail unless another trail is explicitly requested.",

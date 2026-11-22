@@ -22,9 +22,11 @@ kanban for a project.
 - Two to four headline numbers: `Stats` (the first plan's `Kpi` is dropped as its duplicate).
 - Amounts across up to seven categories: `Bars`; shares of a whole: `Bars` style `share` (the first plan's
   `Donut` is dropped for it); progress against targets: `Progress`.
-- A few one-word filters: `Chips`; switching views: `Segmented`; finding by name: `Search`.
+- A few one-word filters: `Chips`; switching views: `Segmented`; finding by name: `Search`. In Wave 6,
+  `FilterBar` is proposed for **Core promotion** so `realestate`, `ticketing`, `stays`, `commerce`,
+  `auto`, `places`, `hiring` and `data` can share multi-field filtering without cross-pack dependency.
 
-## Components (7)
+## Components (9)
 
 ### `Table` · planned · data · phone
 Rows and columns for many records: a sticky first column, sortable headers, numbers right-aligned, status
@@ -37,6 +39,7 @@ sideways when wider than the phone.
   `goto` optional, 1–20; `sort` column index optional; `selectable` boolean.
 - Parts → actions: `header select` (sort), rows `root press`, rows `pick check` (with `selectable`).
 - States: filled, empty, loading. · Real path: a query over records on the device. · Kit: `KitTable`.
+- Wave 6 options: add `style: "compact" | "grouped"`, `summaryRow` (`sum`, `avg`, `count` footer), and `export press` (`meta.partTiers: { export: "service" }`).
 
 ### `Board` · planned · data · phone
 Columns of cards for stages (To do, Doing, Done; New, Quoted, Won), each card with a title, a tag, a person
@@ -46,7 +49,8 @@ and an optional value, a count and value total per column, cards movable between
 - Writes: `columns` of `label` text(14), 2–5; `cards` of `title` text(32), `column` index, `tag` text(12)
   optional, `who` text(16) optional, `value` number optional, `goto`, 1–16. Column totals are computed.
 - Parts → actions: cards `root press`, cards `root move` (to a column label). · States: filled, empty.
-- Real path: records with a stage field on the device. · Kit: `KitColumns`.
+- Real path: records with a stage field on the device. · Renderer: `StageBoard` over `KitColumns`.
+- Wave 6 options: add `style: "list"` (vertical collapsible stage stacks for mobile), `wipLimit` per column (`warn`/`bad` tone), and optional `swimlane`.
 
 ### `FilterBar` · planned · input · phone
 The controls above a table or board: a search box, up to four filter buttons each opening its own small
@@ -57,6 +61,7 @@ picker, the active filter count, the sort order and a clear action.
   1–4; `sort` text(20) optional. The pickers are drawn by `FilterBar` itself, not a `Sheet`.
 - Parts → actions: `field type`, filters `root select` (an option label), `clear press`.
 - States: filled. · Real path: a query built on the device.
+- Wave 6 note: proposed for **Core promotion** so search and multi-filter screens across packs reuse one control without cross-pack dependencies.
 
 ### `LineChart` · planned · data · phone
 One to three series over time as lines with labelled axes and the latest values; tapping reads a point.
@@ -66,6 +71,7 @@ One to three series over time as lines with labelled axes and the latest values;
   text(16), `values` numbers matching `labels`, 1–3.
 - Parts → actions: points `root select` (reads the value). · States: filled, empty, loading.
 - Real path: values aggregated from records on the device.
+- Wave 6 options: add `style: "area"`, `goal` threshold line (`KitLinePlot`), and `range` (`7d`, `30d`, `90d`, `1y`).
 
 ### `Heatmap` · planned · data · phone
 A grid of cells shaded by value, as weeks of days (contribution style) or weekdays by two-hour blocks (busy
@@ -94,13 +100,32 @@ a link to the record.
 - Writes: `entries` of `who` text(20), `photo`, `text` text(80), `time` text(12), `goto`, 1–6.
 - Parts → actions: items `root press`. · States: filled, empty, loading.
 - Real path: a change log kept by a shared app.
+- Wave 6 options: add `kind` filter and optional `diff` (`old -> new`) field line.
+
+### `Funnel` · planned · data · phone
+An ordered two-to-six stage conversion breakdown displaying each stage's label, record count and optional monetary value beside horizontal bars scaled to the top stage. Step-to-step conversion percentages and overall conversion are computed automatically between stages.
+- Pick: stage-by-stage drop-off and conversion rates across a sequential pipeline. Not independent categories (`Bars`), 100% part-to-whole shares (`Bars[share]`), or movable stage cards (`Board`).
+- Writes: `title` text(32), `stages` of `label` text(20), `count` number ≥ 0, `value` number ≥ 0 optional, `goto` optional, 2–6; `unit` text(12) optional; `style`. Stage-to-step conversion percentages, overall conversion rate and bar ratios are computed by code.
+- Styles: `bars` (default, scaled horizontal stage bars with conversion labels), `compact` (summary rows with step conversion pills).
+- Parts → actions: stages `root press` (drills down when linked).
+- States: filled, empty, loading.
+- Real path: stage counts and totals aggregated from stored records on the device.
+
+### `SavedViews` · planned · input · phone
+Up to six named filter, sort and layout presets such as "Low stock" or "Overdue" with code-computed item counts per view. Tapping switches the active query view while saving or deleting manages presets cleanly.
+- Pick: switching, saving or managing named query presets across records. Not ephemeral query controls (`FilterBar`), single-axis tags (`Chips`), or fixed screen tabs (`Segmented`).
+- Writes: `views` of `id` text(24), `label` text(20), `summary` text(36) optional, `layout` (`table`, `cards`, `board`) optional, 1–6; `activeId` text(24) optional; `canSave` boolean (default true); `style`. Matching item counts per view are computed by code from the dataset.
+- Styles: `chips` (default, horizontal preset strip with computed count badges), `list` (rows showing filter summaries with save and remove controls).
+- Parts → actions: views `root select`, `save press`, views `remove press`. `meta.confirmParts: ["remove"]`.
+- States: filled, empty, loading, success (preset saved or removed).
+- Real path: saved filter and sort presets stored locally on the device.
 
 ## Archetypes (3)
 
 | Archetype | Job | Layouts | Recipe |
 | --- | --- | --- | --- |
-| `admin_list` | All records of one kind | `table`, `cards` | `table`: Header, FilterBar, Table, BulkActions · `cards`: Header, FilterBar, List |
-| `report` | How it is going | `charts`, `patterns` | `charts`: Header, Segmented, Stats, LineChart, Bars[share] · `patterns`: Header, Heatmap, Bars |
+| `admin_list` | All records of one kind | `table`, `cards` | `table`: Header, SavedViews, FilterBar, Table, BulkActions · `cards`: Header, SavedViews, FilterBar, List |
+| `report` | How it is going | `charts`, `funnel`, `patterns` | `charts`: Header, Segmented, Stats, LineChart, Bars[share] · `funnel`: Header, Segmented, Funnel, Note · `patterns`: Header, Heatmap, Bars |
 | `board` | Work by stage | `kanban` | Header, FilterBar, Board |
 
 ## Worked example: Stockroom
@@ -116,9 +141,13 @@ Signature: `bars_grow`.
 
 ## Build notes
 
-- Order: `Table`, `FilterBar`, `LineChart`, `Board`, `BulkActions`, `Heatmap`, `ActivityLog`.
+- Order: `Table`, `FilterBar`, `LineChart`, `Board`, `BulkActions`, `Heatmap`, `ActivityLog`, then Wave 6 additions `Funnel` and `SavedViews`.
 - `Table` and `Board` read compactly: a header line and one line per row, cells separated by `·`.
 - Charts are drawn by kit bases; the model writes values only, never axes, ticks or colours.
+- **Wave 6 additions & options:**
+  - Added `Funnel` (`data`, `phone`) for 2–6 stage conversion drop-off breakdowns and `SavedViews` (`input`, `phone`) for up to six named query/layout presets.
+  - Proposed Core promotion: `FilterBar` moves to Core so multi-field search and filter bars are shared across packs.
+  - Option/style upgrades: `Table` gains `style: "compact" | "grouped"`, `summaryRow` (`sum`, `avg`, `count`) and `export press` (`service`); `Board` gains `style: "list"`, `wipLimit` per column (`warn`/`bad`) and optional `swimlane`; `LineChart` gains `style: "area"`, `goal` threshold line (`KitLinePlot`) and `range` (`7d`, `30d`, `90d`, `1y`); `ActivityLog` gains `kind` filter and optional `diff` line.
 
 ## Open questions
 

@@ -6,27 +6,19 @@ import {
   emptyLine,
   packReady,
   readComponent,
+  space,
   stampItemIds,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import {
-  addressedElements,
-  elementAt,
-  renderInstance,
-  type RenderedElement,
-} from "../../../../../test/render";
+import { addressedElements, elementAt, renderInstance, styleAt } from "../../../../../test/render";
 
 const def = components.Comments;
 const { meta, props, examples, fallback, probes } = def;
 const input = examples[0]!;
 const seed = input.comments[0]!;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
-
-function iconCount(node: RenderedElement): number {
-  return Number(node.tag === "svg") + node.children.reduce((count, child) => count + iconCount(child), 0);
-}
 
 describe("Comments schema", () => {
   it.each(examples)("parses each domain example", (example) =>
@@ -111,9 +103,11 @@ describe("Comments states, parts and reading", () => {
         ...comments.flatMap((_, i) => meta.items.parts.map((part) => `home/c1/r${i + 1}/${part}`)),
       ].sort(),
     );
-    expect(comments.map((_, i) => iconCount(elementAt(html, `home/c1/r${i + 1}/root`)))).toEqual([
-      2, 3, 3, 2,
-    ]);
+    const indent = new RegExp(`padding-(left|inline-start):${space.xl}px`);
+    comments.forEach(({ reply }, index) => {
+      const content = elementAt(html, `home/c1/r${index + 1}/root`).children[0]!;
+      expect(indent.test(styleAt(html, content))).toBe(reply);
+    });
     expect(parts.get("home/c1/r3/root")?.attributes).toContain("Lee replying to Sam");
     expect(parts.get("home/c1/r2/text")?.text).toEqual([reply.text]);
     expect(parts.get("home/c1/r2/likes")?.text).toEqual(["1"]);

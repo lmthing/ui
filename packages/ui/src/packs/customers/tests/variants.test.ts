@@ -114,7 +114,7 @@ if (selectedIds(ids).includes("Review")) {
       return fill ? [styleAt(html, fill)] : node.children.flatMap(tracks);
     };
     expect(tracks(breakdown)).toHaveLength(5);
-    expect(tracks(breakdown)[3]).toContain("width:50%");
+    expect(tracks(breakdown)[1]).toContain("width:50%");
   });
   it("keeps stable review and reply addresses when hiding the business response", () => {
     const def = components.Review;

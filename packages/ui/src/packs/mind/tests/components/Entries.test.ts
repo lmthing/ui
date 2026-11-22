@@ -46,7 +46,7 @@ describe("Entries schema and boundaries", () => {
     { entries: [{ ...note, id: "r1" }] },
     { entries: [note], color: "red" },
     { entries: [note], detail: "large" },
-    { entries: [note], style: "compact" },
+    { entries: [note], style: "dense" },
   ])("rejects invalid or presentation-owned input", (input) =>
     expect(props.safeParse(input).success).toBe(false),
   );

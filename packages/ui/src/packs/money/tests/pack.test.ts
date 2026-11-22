@@ -26,31 +26,41 @@ import {
 import { example, pack } from "..";
 import { addressedElements, renderInstance } from "../../../../test/render";
 
-const ids = ["AccountCard", "Transactions", "Bills", "Split", "AmountPad", "PriceChart", "Loan", "Payoff"];
+const established = [
+  "AccountCard",
+  "Transactions",
+  "Bills",
+  "Split",
+  "AmountPad",
+  "PriceChart",
+  "Loan",
+  "Payoff",
+];
+const ids = [...established, "CardControls", "MoneyTransfer", "CreditScore"];
 const definitions = components as Record<string, Definition>;
 const neutral = { things: [], items: [] };
 
-it("publishes all ready Money components only when Money is selected", () => {
+it("publishes the selected Money pack only when every component is ready", () => {
   expect(packs.money).toEqual(pack);
-  expect(packReady("money")).toBe(true);
+  const ready = packReady("money");
+  expect(ready).toBe(ids.every((id) => definitions[id]?.meta.status === "ready"));
   expect(
     buildPackIndex()
       .split("\n")
       .some((line) => line.startsWith("- money: ")),
-  ).toBe(true);
+  ).toBe(ready);
   const core = createRegistry();
   const live = createRegistry({ packs: ["money"] });
-  expect(live.ids.filter((id) => !core.resolve(id)).sort()).toEqual([...ids].sort());
+  expect(live.ids.filter((id) => !core.resolve(id)).sort()).toEqual(ready ? [...ids].sort() : []);
   const coreFormat = JSON.stringify(writerFormat(core));
   const liveFormat = JSON.stringify(writerFormat(live));
   for (const id of ids) {
     expect(packOf[id as keyof typeof packOf]).toBe("money");
     expect(coreFormat).not.toContain(`"const":"${id}"`);
-    expect(liveFormat).toContain(`"const":"${id}"`);
-    expect(definitions[id]?.meta.status).toBe("ready");
+    expect(liveFormat.includes(`"const":"${id}"`)).toBe(ready);
   }
   expect(liveFormat).not.toContain('"const":"Appointment"');
-  expect(Object.hasOwn(live.archetypes, "wallet")).toBe(true);
+  expect(Object.hasOwn(live.archetypes, "wallet")).toBe(ready);
   expect(pack.probes.filter((probe) => probe.kind === "pack")).toHaveLength(3);
   expect(pack.probes.some((probe) => probe.kind === "choose" && core.ids.includes(probe.expect))).toBe(true);
 });
@@ -71,7 +81,7 @@ it("validates the pack, archetypes and every exact worked-example line", () => {
     expect(id).toMatch(/^[a-z][a-z0-9_]*$/);
     expect(registry.schema(registry.resolve(c)!)?.safeParse(input).success, c).toBe(true);
   }
-  for (const id of selectedIds(ids)) expect(lines.some((line) => line.c === id)).toBe(true);
+  for (const id of selectedIds(established)) expect(lines.some((line) => line.c === id)).toBe(true);
   expect(lines.find((line) => line.c === "Loan")).toMatchObject({ detail: "full" });
   expect(lines.find((line) => line.c === "Loan")).not.toHaveProperty("style");
   const debt = (packArchetypes.money as readonly ArchetypeMeta[]).find(({ id }) => id === "debt");
@@ -159,7 +169,7 @@ it.each(cases)(
     const name = part.split("/").at(-1)!;
     const adds = id === "Loan";
     expect(def.meta.variantParts).toMatchObject({
-      [`${axis}.${value}`]: { [adds ? "adds" : "hides"]: [name] },
+      [`${axis}.${value}`]: { [adds ? "adds" : "hides"]: id === "Transactions" ? [name, "receipt"] : [name] },
     });
     const addresses = (props: unknown) =>
       [...addressedElements(renderInstance(id, props, "filled", theme)).keys()].sort();

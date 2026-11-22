@@ -5,7 +5,7 @@ import type * as Catalog from "@lmthing/ui/catalog";
 const { runProbes, mergePairs, mergeDecision } = (await import(
   new URL("../../dist/catalog.js", import.meta.url).href
 )) as typeof Catalog;
-import { keyOf, readBook, writeBook, replayCall } from "./recordings";
+import { recordingCall, readBook, writeBook, replayCall } from "./recordings";
 import type { ProbeModel } from "./llm.config";
 type Evidence = {
   pair: string;
@@ -38,16 +38,9 @@ async function checkModel(
   const book = readBook("CoreMerges", model.id);
   const call = replay
     ? replayCall("CoreMerges", model.id)
-    : async (prompt: string, sample = 0) => {
-        const reply = await liveCall(model, prompt),
-          key = keyOf(model.id, prompt);
-        const replies = sample === 0 ? [] : [...(book[key]?.replies ?? [])];
-        replies[sample] = reply;
-        book[key] = { prompt, reply: replies[0]!, replies };
-        return reply;
-      };
+    : recordingCall(model.id, book, (prompt) => liveCall(model, prompt));
 
-  for (const pair of mergePairs) failures += await checkPair(defs, model, pair, call, book, evidence);
+  for (const pair of mergePairs) failures += await checkPair(defs, model, pair, call, evidence);
   if (!replay) writeBook("CoreMerges", model.id, book);
   return failures;
 }
@@ -56,7 +49,6 @@ async function checkPair(
   model: ProbeModel,
   pair: (typeof mergePairs)[number],
   call: ReturnType<typeof replayCall>,
-  book: ReturnType<typeof readBook>,
   evidence: Evidence,
 ) {
   const scoped = defs.map((def) =>
@@ -64,9 +56,16 @@ async function checkPair(
       ? { ...def, probes: pair.probes.filter((probe) => probe.expect === def.meta.id) }
       : def,
   );
+  const replies = new Map<string, string[]>();
   const results = await runProbes({
     defs: scoped,
-    callModel: call,
+    callModel: async (prompt, sample, format, probe) => {
+      const reply = await call(prompt, sample, format, probe);
+      const samples = replies.get(prompt) ?? [];
+      samples[sample] = reply;
+      replies.set(prompt, samples);
+      return reply;
+    },
     only: [...pair.ids],
     samples: model.samples,
   });
@@ -80,7 +79,7 @@ async function checkPair(
       expected: result.probe.expect as string,
       ...(result.score ? { score: result.score } : {}),
       status: result.status,
-      replies: book[keyOf(model.id, result.prompt)]?.replies ?? [result.reply],
+      replies: replies.get(result.prompt) ?? [result.reply],
     })),
   });
   for (const result of results)

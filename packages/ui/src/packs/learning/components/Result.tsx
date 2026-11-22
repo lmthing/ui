@@ -10,7 +10,7 @@ export const meta = {
   status: "ready",
   group: "data",
   purpose: "See a practice score and review the mistakes before trying again.",
-  pick: "A finished quiz or practice outcome: score, time, points, mistakes to review and a retry. Not independent summary numbers (Stats), a goal (Ring), confirmation (Success) or a sports score (Scoreboard).",
+  pick: "A finished quiz or practice outcome: score, time, points, mistakes to review and a retry. Not independent summary numbers (Stats), a goal (Progress), confirmation (Success) or a sports score (Scoreboard).",
   writeHints: [
     "Write right and of as counts, not a percentage. Do not write a wrong count or score label. Include only supplied mistakes, never more than of minus right.",
     'Do not emit visual defaults such as "card", "hero", or "comfortable". Write surface, emphasis, and density as null unless separately requested.',

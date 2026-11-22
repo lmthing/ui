@@ -30,7 +30,7 @@ each is core plus an option. `JobPost` earns its place with numeric pay terms an
 `Offer` with proposed employment terms and responses; `Applications` with dated follow-ups per application.
 `ApplicantPipeline` holds hiring stages and terminal outcomes, not generic cards or sales leads.
 
-## Components (6)
+## Components (8)
 
 ### `JobPost` · planned · content · phone
 One opening in full: role, employer, work arrangement, pay range, requirements and how to apply, with a
@@ -47,6 +47,7 @@ closing-date notice. Saving it is local; applying opens a form, not a submission
 - Real path: an opening stored on the phone; publishing needs a job-board or website service.
 - Metadata: `meta.partTiers: { publish: "service" }`. Code checks `min ≤ max`, formats pay with
   `moneyLine` and the brief's currency, computes closed from `closes`, and disables apply when closed.
+- Wave 6 options: add `benefits` (`0–4` chips) and `easyApply` boolean badge.
 
 ### `ApplicantPipeline` · planned · data · phone
 Applicants for one opening in four stage columns, each with a count: applied, screening, interview,
@@ -60,8 +61,8 @@ offer. Moving an applicant changes their active stage; hired, rejected and withd
 - Parts → actions: active applicants `root press`, active applicants `root move` (to a stage label).
 - States: filled, empty, loading, error (a change could not be saved).
 - Real path: application records on the phone; the host moves only active records between active stages.
-- Metadata: `meta.dense: true`, weight 3. Reuse `KitColumns`, a shared kit base, not data `Board`.
-  Code derives column counts and terminal-outcome counts from records; stage labels come from shared copy.
+- Metadata: `meta.dense: true`, weight 3. The `ApplicantLanes` adapter uses `StageBoard` over `KitColumns`, not data `Board`.
+  Hiring derives lane and terminal-outcome counts, localizes stage labels and supplies legal move values for active applicants.
 
 ### `Candidate` · planned · content · phone
 One person's application for one opening: submitted date, stage, outcome and an evidence review.
@@ -72,7 +73,7 @@ Each criterion shows a reviewer's finding and supporting evidence, never an auto
   `applied` date, `stage` and `outcome` (the `ApplicantPipeline` enums), `criteria` of `label` text(32),
   `finding` (`unreviewed`, `needs_evidence`, `meets`, `gap`), `evidence` text(80) optional, 1–6;
   `interviewGoto`, `offerGoto` (screen ids), `style`.
-- Styles: `review` (default), `summary` (condensed findings).
+- Styles: `review` (default), `summary` (condensed findings), `panel` (Wave 6: multi-interviewer criterion findings side by side without numeric AI scoring).
 - Parts → actions: criteria `finding select`, criteria `evidence type`, `interview press`, `offer press`
   (go to their targets), `hire press`, `reject press`, `withdraw press`.
 - States: filled, loading, success (decision recorded), error (save failed).
@@ -80,6 +81,7 @@ Each criterion shows a reviewer's finding and supporting evidence, never an auto
   decisions, not messages. Hire sets the outcome, without creating a team record.
 - Metadata: `meta.confirmParts: ["reject", "withdraw"]`. Terminal outcomes disable further stage moves;
   no ranking, inferred qualifications or findings derived from protected characteristics.
+- Wave 6 options: add `resume press` alongside `style: "panel"`.
 
 ### `Interview` · planned · content · phone
 One arranged interview: the application, date, time, duration, format, interviewers, place or call link,
@@ -90,13 +92,14 @@ and confirmation status, with edit and cancel. It records an agreed time, not av
   `time` HH:MM, `minutes` 5–240, `format` (`in_person`, `phone`, `video`), `place` text(36) optional,
   `link` (validated HTTPS URL, text(200)) optional, `interviewers` text(24) each 1–6,
   `status` (`proposed`, `confirmed`, `completed`, `cancelled`), `goto` (edit form), `style`.
-- Styles: `card` (default), `summary` (all details with an edit link).
+- Styles: `card` (default), `summary` (all details with an edit link), `checklist` (Wave 6: interview prep guide).
 - Parts → actions: `edit press`, `cancel press`, `complete press`, `invite send`, `join press`.
 - States: filled, loading, success (updated or invitation sent), error (send or save failed).
 - Real path: a meeting record entered on the phone after agreeing a time; invitations and opening the
   call link need outside services. No availability lookup, calendar sync or dependency on `booking`.
 - Metadata: `meta.partTiers: { invite: "service", join: "service" }`,
   `meta.confirmParts: ["cancel"]`. Code computes end time and past-date notices, not confirmation.
+- Wave 6 options: add `reschedule press` alongside `style: "checklist"`.
 
 ### `Offer` · planned · content · phone
 Proposed employment terms: recipient and role, pay, hours, start date, conditions, response deadline and
@@ -133,15 +136,36 @@ Follow-ups due today or overdue rise to the top; outcomes remain visible in hist
   and clears its next action/date, without sending anything or changing the hiring stage.
 - Metadata: `meta.confirmParts: ["withdraw"]`. Code derives due notices, order and elapsed days;
   no model-written totals or urgency badges. Withdrawal here is a local recorded outcome, not a notice.
+- Wave 6 options: add `source` text(20) and optional `payRange`.
+
+### `JobFeed` · planned · content · phone
+A scannable list of open roles showing each job title, employer, workplace pill (`remote`, `hybrid`, `onsite`), formatted pay range and easy-apply badge. Seekers can bookmark roles locally or tap through to view full terms and apply.
+- Pick: browsing multiple open job listings with pay and workplace mode. Not one opening in full (`JobPost`), plain lists (`List`), or already-applied tracking (`Applications`).
+- Writes: `jobs` of `jobId` text(32), `title` text(32), `employer` text(32), `place` text(28) optional, `workplace` (`onsite`, `hybrid`, `remote`), `pay` of `min` and `max` numbers ≥ 0 and `per` (`hour`, `month`, `year`) optional, `easyApply` boolean, `saved` boolean, `posted` date, `goto`, 1–6; `style`. Pay ranges format with `moneyLine` and the brief's currency; posted age is computed by code.
+- Styles: `rows` (default, compact job feed rows with workplace pills and save toggles), `cards` (spacious role cards with employer line and easy-apply badges).
+- Parts → actions: jobs `root press` (opens `goto`), jobs `save toggle`, jobs `apply press` (`meta.partTiers: { apply: "service" }` when submitting externally).
+- States: filled, empty, loading, success (saved), error (feed load failed).
+- Real path: cached or saved job openings stored on the seeker's phone; fetching live openings or submitting external applications uses a job-board service.
+- Renderer: use `FeedRow` for employer, role, posted age, and save/apply accessories. Hiring owns pay formatting and apply gating.
+
+### `ResumeProfile` · planned · content · phone
+A job seeker's structured CV card presenting their headline, an open-to-work toggle, dated work experience and education entries, up to twelve skill chips and an attached CV label. Seekers can update visibility, open the CV preview or jump to edit details before applying.
+- Pick: presenting structured work history, education, skills and an attached CV for job search. Not bare identity (`Profile`), employer applicant review (`Candidate`), or flat facts (`KeyValue`).
+- Writes: `name` text(24), `headline` text(60), `location` text(28) optional, `openToWork` boolean, `experience` of `role` text(32), `org` text(32), `start` text(10), `end` text(10) optional, `summary` text(120) optional, 0–6; `education` of `credential` text(36), `school` text(32), `year` text(8) optional, 0–4; `skills` text(20) each 0–12; `cvLabel` text(32) optional; `editGoto` optional; `style`.
+- Styles: `full` (default, full experience, education, skill chips and CV link), `compact` (headline, open-to-work switch, latest role and top skills).
+- Parts → actions: `open toggle`, `edit press` (goes to `editGoto`), `cv press`, `share press`. `meta.partTiers: { share: "service" }`.
+- States: filled, empty, loading, success (profile updated), error (save or share failed).
+- Real path: structured CV details stored locally on the seeker's phone; sharing a profile or CV link uses the phone's share sheet or a job-board service.
+- Density: `meta.dense: true`, weight 3; a CV holds experience entries, education lines and up to twelve skill chips.
 
 ## Archetypes (4)
 
 | Archetype | Job | Layouts | Recipe |
 | --- | --- | --- | --- |
-| `hiring_openings` | Open roles and one role's terms | `hiring_roles`, `hiring_post` | `hiring_roles`: Header, Search, Chips, List, Button · `hiring_post`: Header[back], JobPost, Note |
+| `hiring_openings` | Open roles and one role's terms | `hiring_roles`, `hiring_post` | `hiring_roles`: Header, Search, Chips, JobFeed, Button · `hiring_post`: Header[back], JobPost, Note |
 | `hiring_pipeline` | Recruiting for one opening | `hiring_stages`, `hiring_interview_day` | `hiring_stages`: Header, Chips, ApplicantPipeline, Button · `hiring_interview_day`: Header, Calendar[week], Timeline[hours], Note |
 | `hiring_candidate` | Review, meet and make an offer | `hiring_review`, `hiring_meeting`, `hiring_terms` | `hiring_review`: Header[back], Candidate, KeyValue, Checklist, Button · `hiring_meeting`: Header[back], Interview, KeyValue, Composer[entry], Button · `hiring_terms`: Header[back], Offer, Amount, Note |
-| `hiring_job_hunt` | My applications and follow-ups | `hiring_tracker`, `hiring_application` | `hiring_tracker`: Header, Search, Chips, Applications, Button · `hiring_application`: Header[back], Applications[cards], Timeline[history], Offer |
+| `hiring_job_hunt` | My applications and follow-ups | `hiring_tracker`, `hiring_application`, `hiring_resume` | `hiring_tracker`: Header, Search, Chips, Applications, Button · `hiring_application`: Header[back], Applications[cards], Timeline[history], Offer · `hiring_resume`: Header, ResumeProfile, Button |
 
 Layout ids are hiring-prefixed to be unique across packs; each archetype's `defaultLayout` is its first
 listed layout. The application layout binds one selected application and shows its offer only if present;
@@ -166,7 +190,10 @@ call links, sending offers and notifying withdrawal are `service` parts; actual 
 
 ## Build notes
 
-- Order: `JobPost`, `Applications`, `Candidate`, `ApplicantPipeline`, `Interview`, `Offer`.
+- Order: `JobPost`, `Applications`, `Candidate`, `ApplicantPipeline`, `Interview`, `Offer`, then Wave 6 additions `JobFeed` and `ResumeProfile`.
+- **Wave 6 additions & options:**
+  - Added `JobFeed` (`content`, `phone`) for scannable job listings with workplace pills, pay ranges, easy-apply badges and bookmarks, and `ResumeProfile` (`content`, `phone`) for structured CVs with experience, education, skill chips and open-to-work toggle.
+  - Option/style upgrades: `Candidate` gains `style: "panel"` (multi-interviewer side-by-side criteria without numeric AI scoring) and `resume press`; `Interview` gains `style: "checklist"` (prep guide) and `reschedule press`; `JobPost` gains `benefits` (`0–4` chips) and `easyApply` badge; `Applications` gains `source` text(20) and optional `payRange`.
 - No pack imports another. Recruiting stops at hired; staff, shifts and payroll stay outside this pack.
 - One host application record backs stage/outcome across views; validate repeated seed records for
   consistency. Dates are `YYYY-MM-DD`; meeting times use the brief's local time zone.

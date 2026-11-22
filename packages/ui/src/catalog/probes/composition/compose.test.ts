@@ -147,32 +147,42 @@ describe("composition scoring", () => {
     ).toBeGreaterThan(0);
     expect(scoreComposition("invalid JSON", meta, "thread", components).issues.length).toBeGreaterThan(0);
   });
-  it("scores independent samples by majority and enforces the rubric threshold", async () => {
-    const screen = JSON.stringify(createRegistry().defaultLines("chat", "thread", cast));
-    const result = await runComposeProbes({
-      archetypes: [archetypes.chat.meta],
-      defs: components,
-      cast,
-      samples: 3,
-      rubric: true,
-      callModel: async (prompt, sample) =>
-        prompt.startsWith("Evaluate")
-          ? JSON.stringify({ clarity: 5, focus: 4, flow: 4, content: 4, structure: 4 })
-          : sample === 2
-            ? "bad"
-            : screen,
-    });
-    expect(result[0]).toMatchObject({ status: "pass", score: "2/3" });
-    const failed = await runComposeProbes({
-      archetypes: [archetypes.chat.meta],
-      defs: components,
-      cast,
-      rubric: true,
-      callModel: async (prompt) =>
-        prompt.startsWith("Evaluate")
-          ? JSON.stringify({ clarity: 5, focus: 4, flow: 2, content: 4, structure: 4 })
-          : screen,
-    });
-    expect(failed[0]?.status).toBe("fail");
-  });
+  const atBar = { clarity: 4.5, focus: 4, flow: 3.5, content: 4, structure: 4 };
+  const lowMinimum = { clarity: 5, focus: 5, flow: 3, content: 5, structure: 5 };
+  const lowAverage = { clarity: 4, focus: 4, flow: 3.5, content: 4, structure: 4 };
+  it.each([
+    {
+      votes: [lowMinimum, atBar, atBar],
+      status: "pass",
+      score: "3/3",
+      detail: "unstable: rubric passed 2/3",
+    },
+    { votes: [atBar, lowMinimum, lowAverage], status: "fail", score: "3/3", detail: "1/3 rated samples" },
+    { votes: [atBar, null, atBar], status: "pass", score: "2/3", detail: "unstable: Expected a screen" },
+    { votes: [lowAverage, null, atBar], status: "fail", score: "2/3", detail: "1/2 rated samples" },
+    { votes: [null, atBar, null], status: "fail", score: "1/3", detail: "Expected a screen" },
+  ])(
+    "requires both majorities ($score mechanically valid; $detail)",
+    async ({ votes, status, score, detail }) => {
+      const screen = createRegistry().defaultLines("chat", "thread", cast);
+      const rated: number[] = [];
+      const [result] = await runComposeProbes({
+        archetypes: [archetypes.chat.meta],
+        defs: components,
+        cast,
+        rubric: true,
+        callModel: async (prompt, sample, format, probe) => {
+          if (format) return votes[sample] ? JSON.stringify({ ...screen, title: `Sample ${sample}` }) : "bad";
+          const index = Number(probe.id.split("/").at(-1));
+          expect(probe.id).toBe(`rubric/chat/thread//${index}`);
+          expect(sample).toBe(0);
+          expect(prompt).toContain(`"Sample ${index}"`);
+          rated.push(index);
+          return JSON.stringify(votes[index]);
+        },
+      });
+      expect(rated).toEqual(votes.flatMap((vote, index) => (vote ? [index] : [])));
+      expect(result).toMatchObject({ status, score, rubric: votes, detail: expect.stringContaining(detail) });
+    },
+  );
 });

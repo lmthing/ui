@@ -1,4 +1,4 @@
-import { accents, presets, themeName, themeRoles } from "../../src/catalog";
+import { accents, presets, themeName, themeRoles } from "../../src/catalog/themes";
 
 function luminance(color: string) {
   const channels = [1, 3, 5].map((offset) => {

@@ -8,8 +8,16 @@ describe("Field rendering", () => {
   const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
   it.each(examples)("draws unique parts and the actual control value", (example) => {
     const html = renderInstance("Field", example, "filled", theme);
-    for (const part of ["root", "label", "field"]) {
+    const controls =
+      example.kind === "range" ? ["lower", "upper"] : example.kind === "voice" ? ["voice"] : ["field"];
+    for (const part of ["root", "label", ...controls]) {
       expect(html.match(new RegExp(`data-testid="home/c1/${part}"`, "g"))).toHaveLength(1);
+    }
+    if (example.kind === "range" || example.kind === "voice") {
+      const role = example.kind === "range" ? "slider" : "button";
+      for (const part of controls)
+        expect(elementAt(html, `home/c1/${part}`).attributes).toContain(`role="${role}"`);
+      return;
     }
     const field = html.match(/<[^>]*data-testid="home\/c1\/field"[^>]*>/)?.[0];
     const role =

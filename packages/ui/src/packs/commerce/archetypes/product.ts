@@ -41,6 +41,23 @@ export const product = {
         { id: "s1", c: "Scale", style: "stars", readonly: true },
       ],
     },
+    sizing: {
+      writeHints: [
+        'Start with {"c":"Header","style":"back",…}. Set "style":"back" explicitly; a plain header does not provide the back action.',
+        'SizeGuide columns are measurement names only, such as ["Chest","Sleeve"]. Put the size label in each row’s "size" field, not in columns. Give every row exactly one value per column, e.g. {"size":"Small","values":[36,24]}. Set the source unit once.',
+        'Use VariantPicker with "style":"size" and one option per offered size. Mark each option’s availability.',
+      ],
+      recipe: [
+        { allow: ["Header"], required: true, variant: "back" },
+        { allow: ["SizeGuide"], required: true },
+        { allow: ["VariantPicker"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header", style: "back" },
+        { id: "s1", c: "SizeGuide" },
+        { id: "v1", c: "VariantPicker" },
+      ],
+    },
   },
 } as const satisfies ArchetypeMeta;
 
@@ -57,5 +74,12 @@ export const probes = [
     layout: "variants",
     brief:
       "See one product with its photos, stock and add control, choose its size, and show a read-only rating.",
+  },
+  {
+    kind: "compose",
+    archetype: "product",
+    layout: "sizing",
+    brief:
+      "Compare a jacket's measurements by size in inches or centimetres before choosing an available size.",
   },
 ] satisfies ComposeProbe[];

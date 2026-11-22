@@ -1,20 +1,45 @@
 import { z } from "zod";
 import type { Meta } from "../../meta";
+import { isCollectionItem } from "../../address";
 import { numberLine } from "../../format";
 import { peekLimit, wordsFor } from "../../lang";
 import { migrateLine } from "../../migrations";
-import { formatAffordance, visibleItems, type Affordance } from "../index";
-import { groupItemLines } from "./group-item-lines";
-export { readAffordances } from "./read-affordances";
+import { formatAffordance, visibleItems, type Affordance, type SessionState } from "../index";
+import { matches } from "../visibility";
+import { secretPlaceholder } from "./secret-props";
+export { readAffordances, readOffers } from "./read-affordances";
+export { readContent } from "./component-content";
+export { redactSecretProps } from "./secret-props";
+
+const variantKeys = ["style", "kind", "tone"];
+
+export function variantsOf(schema: ReadSchema, props: Props): string {
+  return variantKeys
+    .filter((key) => props[key] !== undefined && props[key] !== schema.properties?.[key]?.default)
+    .filter((key) => !(key === "tone" && props[key] === "neutral"))
+    .map((key) => `[${String(props[key])}]`)
+    .join("");
+}
+
+export function readProgress(session: SessionState | undefined, lang?: string): string[] {
+  const assessment = session?.kind === "rounds" && session.assessment;
+  if (!assessment || assessment.correct === undefined) return [];
+  const { right, of } = assessment.score;
+  return [`correct ${assessment.correct}`, `score ${numberLine(right, lang)}/${numberLine(of, lang)}`];
+}
 
 type Props = Record<string, unknown>;
 export type ReadSchema = {
   properties?: Record<string, ReadSchema>;
   items?: ReadSchema;
   kind?: string;
+  read?: false;
   default?: unknown;
   type?: string;
+  const?: unknown;
   anyOf?: ReadSchema[];
+  oneOf?: ReadSchema[];
+  allOf?: ReadSchema[];
 };
 
 export function migrateInput(component: string, input: unknown) {
@@ -40,6 +65,7 @@ export function itemTexts(
   item: Props,
   nestedKey?: string,
   omit?: string,
+  secrets?: readonly string[],
 ): string[] {
   const nested =
     nestedKey && Array.isArray(item[nestedKey])
@@ -47,16 +73,22 @@ export function itemTexts(
           textsOf(schema?.properties?.[nestedKey]?.items, child),
         )
       : [];
-  return [...textsOf(schema, item, omit), ...nested];
+  return [...textsOf(schema, item, omit, secrets), ...nested];
 }
 
-function textsOf(schema: ReadSchema | undefined, value: Props, omit?: string): string[] {
+function textsOf(
+  schema: ReadSchema | undefined,
+  value: Props,
+  omit?: string,
+  secrets?: readonly string[],
+): string[] {
   return Object.entries(schema?.properties ?? {}).flatMap(([key, field]) => {
-    if (key === omit) return [];
+    if (key === omit || field.read === false) return [];
     const v = value[key];
+    if (secrets?.includes(key)) return typeof v === "string" ? [secretPlaceholder] : [];
     if (field.kind === "text" && typeof v === "string") return [JSON.stringify(v)];
     if (field.kind === "photo" && typeof v === "string") return [`photo:${v.replace(/^lib:/, "")}`];
-    if (field.kind === "secret" && typeof v === "string") return ["(secret)"];
+    if (field.kind === "secret" && typeof v === "string") return [secretPlaceholder];
     if (field.type === "object" && v && typeof v === "object") return textsOf(field, v as Props);
     return [];
   });
@@ -78,6 +110,33 @@ export function componentTexts(
   ];
 }
 
+function renderRow(
+  instance: string,
+  item: Props,
+  schema: ReadSchema | undefined,
+  affordances: Affordance[],
+  nestedKey?: string,
+  groupBy?: string,
+  secrets?: readonly string[],
+) {
+  const base = `${instance}/${String(item.id)}`;
+  const mine = affordances.filter((a) => a.address === base || a.address.startsWith(`${base}/`));
+  return [
+    String(item.id),
+    itemTexts(schema, item, nestedKey, groupBy, secrets).join(" · "),
+    ...mine.map(formatAffordance),
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function itemSchemaOf(schema: ReadSchema, key: string | undefined, host: Meta["items"]) {
+  if (!key) return;
+  return host?.deviceData
+    ? (z.toJSONSchema(host.deviceData.schema, { unrepresentable: "any" }) as ReadSchema)
+    : schema.properties?.[key]?.items;
+}
+
 export function readItems(
   meta: Meta,
   schema: ReadSchema,
@@ -92,18 +151,25 @@ export function readItems(
 ) {
   const all = key ? visibleItems(meta, props) : [];
   const host = meta.items?.deviceData;
-  const itemSchema = !key
-    ? undefined
-    : host
-      ? (z.toJSONSchema(host.schema, { unrepresentable: "any" }) as ReadSchema)
-      : schema.properties?.[key]?.items;
+  const itemSchema = itemSchemaOf(schema, key, meta.items);
   const group = meta.items?.readGroupBy;
-  const groupBy = group && isGroupText(itemSchema?.properties?.[group]) ? group : undefined;
-  const exactIds = host || group || meta.items?.visibleWhen || (meta.deviceData?.length && meta.live?.derive);
-  const ids = exactIds && new Set(all.map(({ id }) => String(id)));
+  const secrets = meta.items?.readSecrets;
+  const groupBy =
+    group && !secrets?.fields.includes(group) && isGroupText(itemSchema?.properties?.[group])
+      ? group
+      : undefined;
+  const exactIds =
+    meta.collections ||
+    host ||
+    group ||
+    meta.items?.move?.derived ||
+    meta.items?.visibleWhen ||
+    (meta.deviceData?.length && meta.live?.derive);
+  const ids = (exactIds || meta.sequence || meta.items?.media) && new Set(all.map(({ id }) => String(id)));
   const ownAff = affordances.filter(({ address }) => {
-    if (!key) return true;
     const target = address.slice(instance.length);
+    if (meta.collections && isCollectionItem(target.split("/")[1])) return false;
+    if (!key) return true;
     return ids ? !ids.has(target.split("/")[1] ?? "") : !/^\/r\d+(?:\/|$)/.test(target);
   });
   const line = [head, own.join(" — "), ...ownAff.map(formatAffordance)].filter(Boolean);
@@ -114,21 +180,41 @@ export function readItems(
     hidden = all.length - items.length;
   const disclosure = peek && ownAff.some(({ part, action }) => part === "more" && action === "toggle");
   const render = (item: Props) => {
-    const base = `${instance}/${String(item.id)}`;
-    const mine = affordances.filter((a) => a.address === base || a.address.startsWith(`${base}/`));
-    return [
-      String(item.id),
-      itemTexts(itemSchema, item, meta.items?.nested?.key, groupBy).join(" · "),
-      ...mine.map(formatAffordance),
-    ]
-      .filter(Boolean)
-      .join(" ");
+    const redact = secrets && matches(secrets.when, item, props) ? secrets.fields : undefined;
+    return renderRow(instance, item, itemSchema, affordances, meta.items?.nested?.key, groupBy, redact);
   };
   const rows = groupBy ? groupItemLines(items, groupBy, render) : items.map(render);
+  const named = Object.entries(meta.collections ?? {}).flatMap(([name, { key }]) =>
+    visibleItems(meta, props, name).map((row) =>
+      renderRow(instance, row, schema.properties?.[key]?.items, affordances),
+    ),
+  );
   return [
     line.join(" "),
     ...rows.map((row) => `  ${row}`),
     ...(hidden ? [`  ${(firstOnly ? words.moreRead : words.peekCount)(numberLine(hidden, lang))}`] : []),
     ...(disclosure ? [`  ${peekOpen ? words.peekLess : words.peekMore}`] : []),
+    ...named.map((row) => `  ${row}`),
   ];
+}
+
+/** Keep first appearance order and every row's original address; unnamed rows stay separate. */
+function groupItemLines(items: Props[], field: string, render: (item: Props) => string): string[] {
+  const groups = new Map<string, string[]>();
+  const lines: string[][] = [];
+  for (const item of items) {
+    const label = item[field];
+    if (typeof label !== "string" || !label.trim()) {
+      lines.push([render(item)]);
+      continue;
+    }
+    const group = groups.get(label);
+    if (group) group.push(render(item));
+    else {
+      const parts = [`${JSON.stringify(label)}: ${render(item)}`];
+      groups.set(label, parts);
+      lines.push(parts);
+    }
+  }
+  return lines.map((line) => line.join("; "));
 }

@@ -14,6 +14,7 @@ import {
   type TextFinish,
   type TextTone,
 } from "../text";
+import { RowDecoration, RowGroupLead, RowStatusRule } from "../layout";
 const Frame = styled(XStack, { alignItems: "center", minHeight: size.control.md });
 const Content = styled(XStack, { flex: component.base.bodyFlex, alignItems: "flex-start" });
 // Leading and trailing items centre on the title's first line, not on the middle of the text stack.
@@ -43,6 +44,8 @@ type RowProps = {
   leadingWidth?: "avatar" | undefined;
   /** An inset-free, tightly spaced row inside an already padded surface. */
   inline?: boolean;
+  /** Shrink a passive inline row to its contents. Interactive rows keep the touch target. */
+  fitContent?: boolean;
   addressed?: boolean;
   part?: string | null;
   /** Horizontal inset: `md` (a row in a card) or `none` (a cell in a `KitGrid`, which spaces its own columns). */
@@ -66,43 +69,6 @@ function useRowSurface(tone: RowProps["tone"], rowTone: TextTone | undefined, su
   };
 }
 
-function RowDecoration({ fade = false, fresh = false }: { fade?: boolean; fresh?: boolean }) {
-  const ks = useKitStyle();
-  return (
-    <YStack
-      position="absolute"
-      top={component.base.none}
-      right={component.base.none}
-      bottom={component.base.none}
-      left={component.base.none}
-      borderRadius={shifted("md", ks.radiusShift)}
-      {...(fade
-        ? { backgroundColor: "$raised", opacity: component.base.stackFade }
-        : {
-            borderWidth: fresh ? component.base.borderWidth : component.base.strongBorder,
-            borderColor: "$accent",
-          })}
-      pointerEvents="none"
-      aria-hidden
-    />
-  );
-}
-
-function RowStatusRule({ tone }: { tone: "good" | "warn" | "bad" }) {
-  return (
-    <YStack
-      position="absolute"
-      left={space.xs}
-      top={space.sm}
-      bottom={space.sm}
-      width={component.base.strongBorder}
-      backgroundColor={tintOf(tone).borderColor}
-      pointerEvents="none"
-      aria-hidden
-    />
-  );
-}
-
 function useRowStatus(tone: TextTone | undefined, inset: boolean, surface: RowProps["surface"]) {
   const dark = useThemeName().includes("dark");
   const semantic = tone === "good" || tone === "warn" || tone === "bad";
@@ -119,7 +85,9 @@ function useRowPress(address: string, part: RowProps["part"], goto: RowProps["go
 export function Row(props: RowProps) {
   const { children, leading, trailing, goto, label, role, expanded, selected } = props;
   const { tone, rowTone, surface, mark, density, emphasis, lineRole = "body" } = props;
-  const { leadingAlign = "line", leadingWidth, inline = false, addressed = true } = props;
+  const { leadingAlign = "line", inline = false, addressed = true } = props;
+  const groupLead = useContext(RowGroupLead);
+  const leadingWidth = props.leadingWidth ?? groupLead;
   const { part = "root", inset = "md", indent } = props;
   const line = typography[useTextStep({ density, emphasis })(lineRole)].lineHeight;
   const ks = useKitStyle();
@@ -138,6 +106,7 @@ export function Row(props: RowProps) {
       {...(addressed && part !== null ? address : {})}
       {...useRowSurface(tone, semanticTone ?? (selected ? "accent" : undefined), surface)}
       paddingVertical={inline ? component.base.none : space[spacing.rowPad]}
+      {...(inline && props.fitContent && !actionRole ? { minHeight: line } : {})}
       paddingHorizontal={inline || inset === "none" ? component.base.none : space.md}
       borderRadius={shifted("md", ks.radiusShift)}
       accessibilityRole={actionRole ?? (role === "group" && label ? "group" : undefined)}
@@ -156,16 +125,11 @@ export function Row(props: RowProps) {
         minHeight={inline ? line : Math.max(line, size.control.md - space[spacing.rowPad] * 2)}
       >
         <RowLabelContext.Provider value={label}>
-          {leading && (
-            <Edge
-              {...(leadingAlign === "row" ? { alignSelf: "center" as const } : { height: line })}
-              {...(leadingWidth === "avatar" ? { width: size.avatar.md } : {})}
-            >
-              {leading}
-            </Edge>
-          )}
-          <YStack flex={component.base.bodyFlex}>{children}</YStack>
-          {trailing && <RowTrailing line={line}>{trailing}</RowTrailing>}
+          {(leading || groupLead) && <RowLeading {...{ leading, leadingAlign, leadingWidth, line }} />}
+          <RowGroupLead.Provider value={undefined}>
+            <YStack flex={component.base.bodyFlex}>{children}</YStack>
+            {trailing && <RowTrailing line={line}>{trailing}</RowTrailing>}
+          </RowGroupLead.Provider>
         </RowLabelContext.Provider>
       </Content>
       {status && <RowStatusRule tone={status} />}
@@ -173,6 +137,22 @@ export function Row(props: RowProps) {
         <RowDecoration fresh={!selected && mark === "new"} />
       )}
     </Frame>
+  );
+}
+
+function RowLeading({
+  leading,
+  leadingAlign,
+  leadingWidth,
+  line,
+}: Pick<RowProps, "leading" | "leadingAlign" | "leadingWidth"> & { line: number }) {
+  return (
+    <Edge
+      {...(leadingAlign === "row" ? { alignSelf: "center" as const } : { height: line })}
+      {...(leadingWidth === "avatar" ? { width: size.avatar.md } : {})}
+    >
+      {leading}
+    </Edge>
   );
 }
 

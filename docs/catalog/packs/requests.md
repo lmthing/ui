@@ -36,7 +36,7 @@ to data `Board` and `Table`; appointments to `booking`, client records and invoi
 borrowing and stock balances to `inventory`, recurring household care to `home`, staff leave to `team`.
 These are optional combinations, never dependencies or off-pack recipe slots.
 
-## Components (5)
+## Components (7)
 
 ### `RequestQueue` · planned · data · phone
 
@@ -54,6 +54,7 @@ The operator switches between active and completed work and opens a report, not 
   Counts, age, overdue, headings and order come from records and the clock; the host supplies overflow counts.
 - States: filled, empty, loading, error (retry).
 - Real path: an operator's request records on the device; other people seeing changes need a shared app.
+- Renderer: use stacked `StageBoard` lanes for counted status groups without move controls. The Requests adapter owns urgency/deadline order, active/completed filtering and row links.
 
 ### `RequestTriage` · planned · input · phone
 
@@ -134,6 +135,25 @@ The requester accepts or reopens with a reason, keeping the old resolution in hi
 - States: filled, loading, success (accepted), error (unfinished work, missing reason or save failed).
 - Real path: a resolution saved on the operator's device; requester acceptance and reopening use a shared app.
 
+### `SlaPolicy` · planned · data · phone
+A ticket service-level agreement tracker showing the request's policy tier (such as "P1 Urgent" or "Standard 24h"), whether the first-response target is met or still open, a live resolution countdown bar, and a breach warning when a target passes. Remaining durations and breach flags are computed by code from timestamps and policy rules rather than written by the model.
+- Pick: tracking contractual response and resolution SLA targets on one active request. Not a generic countdown (`Timer[until]`), a full operational queue (`RequestQueue`), or static policy facts (`KeyValue`).
+- Writes: `requestRef` text(32), `tier` text(24), `openedAt` ISO datetime with offset, `responseDueAt` ISO datetime with offset, `respondedAt` ISO datetime with offset optional, `resolutionDueAt` ISO datetime with offset, `resolvedAt` ISO datetime with offset optional, `paused` boolean (default false), `policyGoto` optional, `style`. Remaining time, met/breached state, and meter ratio are computed by code from the timestamps and host clock.
+- Styles: `card` (default, policy tier badge, first-response row, and resolution countdown bar), `compact` (single-row SLA badge and remaining countdown).
+- Parts → actions: `policy press` (opens SLA rules via `policyGoto` when linked).
+- States: filled, loading, success (response and resolution targets met), error (SLA breached).
+- Real path: contractual SLA deadlines computed locally by the host from the request's policy tier and event timestamps, or synced from a shared service desk.
+
+### `CannedReplies` · planned · input · phone
+Categorized standard response templates—such as "Need photo", "Parts ordered", or "Scheduled visit"—displaying category filter chips, template titles, and preview snippets. Tapping an insert control copies the macro into the active reply draft without sending it automatically.
+- Pick: selecting and inserting reusable support or maintenance reply templates into a draft. Not typing a blank reply (`Composer`), browsing generic rows (`List`), or displaying the request stream (`RequestThread`).
+- Writes: `categories` text(16) each 0–5, `templates` of `title` text(28), `category` text(16) optional, `body` text(240), 1–12; `activeCategory` text(16) optional, `style`. Category filtering is computed locally by code.
+- Styles: `list` (default, category chips above template preview rows), `compact` (compact title chips for fast insertion).
+- Parts → actions: `category select`, templates `insert press` (populates the screen's draft without sending), templates `root press` (previews full template body).
+- States: filled, empty (no saved macros), loading.
+- Real path: reusable reply templates saved on the operator's device or shared team library; sending still runs through `RequestThread`.
+- Density: `meta.dense: true`, weight 3; macro libraries hold up to twelve categorized response templates.
+
 ## Archetypes (3)
 
 | Archetype        | Job                                     | Layouts                                                                                              | Recipe                                                                                                                                                                                                                                                                                                                       |
@@ -169,8 +189,10 @@ The first showcase uses labelled sample participants.
 
 ## Build notes
 
-- Order: `RequestQueue`, `RequestTriage`, `WorkOrder`, `RequestThread`, `RequestResolution`; scaffold only.
-  All use body region, weight 2 except dense `WorkOrder` at 3; recipes stay at 3–9 components and weight ≤12.
+- Order: `RequestQueue`, `RequestTriage`, `WorkOrder`, `RequestThread`, `RequestResolution`; Wave 6 additions follow in order: `SlaPolicy`, `CannedReplies`.
+  All use body region, weight 2 except dense `WorkOrder` and `CannedReplies` at 3; recipes stay at 3–9 components and weight ≤12.
+- Wave 6 option upgrades on existing components: `RequestQueue` adds `style: "mine"` and computed `slaBreached` badge; `RequestTriage` adds `assign select` to route and assign in one step; `RequestThread` adds `canned press` shortcut and optional `file` attachment ref (pairing with Core `FileList`); `WorkOrder` adds optional `assetRef` and `signOff` required boolean on finish.
+- Wave 6 boundaries: client billing stays in `customers`, appointments in `booking`, and gig courier dispatch in `dispatch`.
 - Strict `writerFormat(registry)` accepts scoped ids and bounded props, no aliases or off-pack fallbacks.
   Each component needs two examples, choose/write/read probes and kit-only rendering for every state.
   The eventual `example.jsonl` validates and renders in three presets.

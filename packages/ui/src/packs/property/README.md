@@ -7,7 +7,7 @@ Built in step U5 (drafts in U3), wave to be decided of the catalog plan. Read `d
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
-- `components/`: `Units.tsx` `RentRoll.tsx` `Viewings.tsx` `Inspections.tsx` `Meters.tsx`
+- `components/`: `Units.tsx` `RentRoll.tsx` `Viewings.tsx` `Inspections.tsx` `Meters.tsx` `RentalApplication.tsx` `LeaseRenewal.tsx`
 - `archetypes/`: `portfolio_units.ts` `unit.ts` `rent_month.ts` `inspection.ts`
 
 Rules:

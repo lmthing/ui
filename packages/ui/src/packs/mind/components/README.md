@@ -12,6 +12,7 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `SleepLog.tsx`
 - `Soundscape.tsx`
 - `Patterns.tsx`
+- `ThoughtRecord.tsx`
 
 Rules:
 - Same file shape as `src/components/`: exports `meta`, `props`, `fallback`, `examples`, `probes`, view.

@@ -12,14 +12,14 @@ it.each([
 });
 it("checks file and README limits at the boundary", () => {
   const sources = [
-    { file: "/ui/src/ok.ts", source: "x\n".repeat(200) },
-    { file: "/ui/src/long.ts", source: "x\n".repeat(201) },
+    { file: "/ui/src/ok.ts", source: "x\n".repeat(400) },
+    { file: "/ui/src/long.ts", source: "x\n".repeat(401) },
     { file: "/ui/src/a/README.md", source: "x\n".repeat(20) },
     { file: "/ui/src/b/README.md", source: "x\n".repeat(21) },
   ];
-  expect(checkLimits("/ui", sources).map(({ rule, file }) => [rule, file])).toEqual([
-    ["file-lines", "/ui/src/long.ts"],
-    ["readme-lines", "/ui/src/b/README.md"],
+  expect(checkLimits("/ui", sources)).toEqual([
+    { rule: "file-lines", file: "/ui/src/long.ts", line: 1, detail: "401 lines > 400" },
+    { rule: "readme-lines", file: "/ui/src/b/README.md", line: 1, detail: "21 lines > 20" },
   ]);
 });
 it("counts immediate files only and exempts only the named folders", () => {
@@ -34,4 +34,24 @@ it("counts immediate files only and exempts only the named folders", () => {
     ["/ui/src/big", "13 immediate files > 12"],
     ["/ui/src/components/nested", "13 immediate files > 12"],
   ]);
+});
+
+it.each([
+  ["src/packs/health/components", true],
+  ["src/packs/x/components", true],
+  ["src/packs/x/tests", true],
+  ["src/packs/x/tests/components", true],
+  ["src/packs/x", false],
+  ["src/packs/x/lang", false],
+  ["src/packs/x/components/nested", false],
+  ["src/packs/x/tests/copy", false],
+  ["src/packs/x/tests/components/nested", false],
+  ["src/packs/x/nested/components", false],
+  ["src/other/packs/x/components", false],
+])("applies the pack folder exemption to %s (exempt: %s)", (folder, exempt) => {
+  const path = `/ui/${folder}`;
+  const sources = Array.from({ length: 13 }, (_, i) => ({ file: `${path}/${i}.ts`, source: "" }));
+  expect(checkLimits("/ui", sources)).toEqual(
+    exempt ? [] : [{ rule: "folder-files", file: path, line: 1, detail: "13 immediate files > 12" }],
+  );
 });

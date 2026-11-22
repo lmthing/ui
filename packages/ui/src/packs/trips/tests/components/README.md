@@ -1,7 +1,10 @@
 # Trips component tests
 
+- `BagTracker.test.ts` covers scan bounds, addressed states, selection, refresh and confirmed reports.
+- `CabinSeats.test.ts` covers grid bounds, zoom, seat previews, and reservation confirmation.
 - `Clocks.test.ts` covers its read-only contract, addressed clock data, and variants.
 - `Converter.test.ts` covers Writer bounds, fallback, parts, states and read/act.
+- `FlightStatus.test.ts` covers schedule bounds, variants, states and linked inbound actions.
 - `Itinerary.test.ts` covers schema bounds, fallback, addressed states, variants and read/act.
 - `PackingList.test.ts` covers packing schema, variants, rendering, and actions.
 - `Reservation.test.ts` covers ticket bounds, states, parts, reading and actions.

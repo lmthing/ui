@@ -1,7 +1,8 @@
 # Core components plan
 
-The core is the set of components every app can use: **45 components, 44 model choices**. Six were added
-to the first 40 and `DayTimeline` was folded into `Timeline`; `Sparkline` stays separate. `TabBar` is
+The core is the set of components every app can use. The catalog also includes two newer entries
+not described below, `FileList` and `PassCard`. The standalone `Ring` has been folded into
+`Progress[ring]`, and `DayTimeline` into `Timeline[hours]`; `Sparkline` stays separate. `TabBar` is
 code-owned and stays out of choose and write prompts. Entry format and tier names: [README](README.md).
 Built behavior follows `packages/ui/src/components/*.tsx` as of 2026-11-18; the files win if they change.
 
@@ -63,11 +64,12 @@ released when the screen leaves. The gallery's `?runtime=1` page provides a loca
 | --- | --- | --- |
 | **Added, built** (6) | `Sheet`, `Composer`, `Progress`, `Choice`, `Amount`, `Player` | Gaps no option on a built component can close; pending details are marked in each entry |
 | **Merged** (1 retired id) | `DayTimeline` → `Timeline` style `hours` | The recorded near miss was unstable; section 3 records the mapping |
+| **Merged** (1 retired id) | `Ring` → `Progress` style `ring` | A single circular goal shares the same amount and target contract as horizontal bars |
 | **Built options** (12) | `List`, `Card`, `Gallery`, `Empty`, `Timer`, `Field`, `Scale`, `Button`, `Success`, `People`, `Timeline`, `Bars` | Shelves, accordions, leaderboards, shares, carousels, badges, toasts, ratings, countdowns, repeats, stacks and confirmations; pending details stay in the spec |
 | **Kept** (27) | Everything else, including `Stats` and `Sparkline` (`TabBar` gains code-owned count badges) | Already covers its need with a clear `pick`; the Sparkline merge gate said retain |
 
 **Sections and groups.** The headings in section 4 follow the plan's table (4.4): structure 4, content 11,
-data 10, input 8, action 4, beyond phone 4, signature 3, escape 1 = **45**. Each entry's header gives the
+data 9, input 8, action 4, beyond phone 4, signature 3, escape 1 = **44**. Each entry's header gives the
 `meta.group` from the code, which differs for beyond-phone and signature components (`MapPins` is group
 `data`, `Bubbles` is `content`, and so on).
 
@@ -79,7 +81,7 @@ data 10, input 8, action 4, beyond phone 4, signature 3, escape 1 = **45**. Each
 - **`Composer`.** `Field` is one line (`value` text(40)). Journals, reviews, notes, feedback and every chat
   reply need several lines, and `Bubbles` has no way to type.
 - **`Progress`.** Linear bars against targets (macros, budget categories, course progress, storage) are in 10
-  of 16 app categories. `Ring` is one goal; stacking rings to fake it looks wrong.
+  of 16 app categories. `Progress[ring]` is one goal; stacking rings to fake it looks wrong.
 - **`Choice`.** Options that carry a sentence each (plans, quiz answers, onboarding questions, "how do you
   want to be reminded?"). `Chips` hold text(16); `Field` `choice` is 2 to 4 short options inside a form.
 - **`Amount`.** Money appears in commerce, money, booking, customers, trips, events and inventory. Built once
@@ -168,20 +170,25 @@ that stays disabled while the box is empty.
 
 ### `Progress` · built · data · phone · body · weight 2
 
-One to five labelled bars, each filled toward its own target, with the amount and target written beside it.
-A bar past its target turns to its `over` tone.
+Show one or more measured amounts against their own targets, in horizontal bars or a single ring.
 
-- **Pick:** progress toward several targets at once (calories, protein, carbs; spent against budget per
-  category; lessons per course). Not one main goal (`Ring`), not amounts compared with each other with no
-  targets (`Bars`), not place in a sequence of steps (`Steps`).
-- **Writes:** `bars` of `label` text(20), `value` number ≥ 0, `of` number > 0, `unit` text(8) optional,
-  `over` (`warn` default, `good`, `bad`), `goto` optional, 1–5; `style`.
-- **Styles:** `stack` (label left, amount right, a full-width bar under each), `compact` (label and bar on
-  one tight line each, for a short strip between other components).
-- **Parts → actions:** items `root press` (linked bars only). · **States:** filled, empty, loading.
+- **Pick:** a ratio with a target, not comparisons without targets (`Bars`), independent summary
+  numbers (`Stats`), ordered stages (`Steps`), or concentric daily goals (`ActivityRings`).
+- **Writes:** `bars` of `label`, `value` number ≥ 0, `of` number > 0. The `bars` style accepts one to
+  five rows with labels text(20), optional `unit` text(8), `tone` (`warn` default, `good`, `bad`)
+  for amounts past the target, and optional `goto`. The `ring` style accepts one row with a label
+  text(24) and optional top-level `sub` text(48). Omit row extras on rings. The shared defaults
+  `tone: "warn"` and `figures: "exact"` are accepted if sent explicitly.
+- **Styles:** `bars` (default) and `ring` (a circular goal with the amount inside). Both support
+  `density`; bars support `figures`. On rings, `emphasis: "hero"` enlarges the figure and
+  `detail: "brief"` hides the stored caption without dropping it.
+- **Parts → actions:** items `root press` on linked bars only. Rings expose top-level `ring`,
+  `value`, `label`, `sub` and `root`, with no actions or item addresses. · **States:** filled, empty,
+  loading. · **Ring signature:** `ring_fill`.
 - **Real path:** amounts summed from records on the device, each compared with a target stored there.
 - **Read:** `"Protein" 62 of 120 g · "Carbs" 180 of 200 g`.
-- **Kit work:** `KitProgressBar` (track `$line`, fill `$accent` or tone, clamped), a `progress` skeleton.
+- **Compatibility:** the saved-input migration converts old `Ring` lines to `Progress[ring]` with
+  legacy sizes normalized, preserving instance IDs and part addresses. `Ring` is not a live Writer ID.
 
 ### `Choice` · built · input · phone · body · weight 2
 
@@ -283,7 +290,7 @@ A small heading above a group of content, with one optional link on the right ("
 
 ### `Steps` · built · structure · phone · top · weight 1
 Where the person is in a short sequence: dots, a segmented bar or numbered circles, with an optional label.
-- Pick: a flow of 2 to 6 screens. Not progress toward an amount (`Progress`, `Ring`).
+- Pick: a flow of 2 to 6 screens. Not progress toward an amount (`Progress`).
 - Writes: `count` 2–6, `at` 1–6, `label` text(32) optional. · Styles: `dots`, `bar`, `numbered`.
 
 ### `TabBar` · built · structure · phone · bottom · weight 1 · code-owned
@@ -375,22 +382,16 @@ A calm, centred message on a screen with nothing in it yet, with an icon badge.
 ### `Player` · built · pending: variant layouts/read status · content · phone · body · weight 3
 See section 2.
 
-### Data (10)
+### Data (9)
 
 ### `Stats` · built · data · phone · body · weight 2
 Two to four numbers as tiles or one inline row, each with a label, unit and an optional trend arrow.
-- Pick: a few summary numbers side by side, money included. Not one sum as the point (`Amount`), not one goal
-  (`Ring`), not targets per category (`Progress`).
+- Pick: a few summary numbers side by side, money included. Not one sum as the point (`Amount`) or
+  measured amounts against targets (`Progress`).
 - Writes: `tiles` of label text(20), value text(8), unit text(8) optional, trend (`up`, `down`, `flat`)
   optional, 2–4.
 - Styles: `tiles` (default), `inline`. A latest value with a small line is `Sparkline`, not a Stats style.
 - States: filled, empty, loading. · Signature: `count_up`.
-
-### `Ring` · built · data · phone · body · weight 2
-A ring filling toward one goal with the amount written inside.
-- Pick: how far toward one main goal. Not several targets (`Progress`), not a sequence (`Steps`).
-- Writes: `value`, `of`, `label` text(24), `sub` text(48). · Styles: `md`, `lg`. · States: filled, loading.
-- Signature: `ring_fill`.
 
 ### `Bars` · built · pending: share icons/press/order · data · phone · body · weight 2
 Two to seven columns comparing amounts across days or categories under a title, the largest in accent; or
@@ -636,3 +637,61 @@ Shared copy in `catalog/copy.ts`: send, cancel, confirm, close, undo, retry, off
 - **More merges?** Use section 3's evidence gate. `DayTimeline` is merged; `Sparkline` stays.
 - **Are 44 model choices too many for the cheapest model?** Default: no, because overlap is what hurts.
   Keep measuring near misses; fix `pick` lines before adding choices.
+
+## 9. Wave 6 planned core additions, promotions & options
+
+Based on the Wave 6 Google Play Store top-app audit across 32 app categories, 17 game categories, Kids, and Wear OS, two cross-domain core components, three pack-to-core promotions, fifteen targeted option upgrades, and the `copy` action are scheduled alongside the Wave 6 packs so no domain pack ever depends on another pack.
+
+### Planned core components (2)
+
+### `PassCard` · planned · content · phone
+A digital pass, membership card, coupon, or transit pass displaying issuer branding, holder or account identifier (masked by default with reveal), scannable barcode or QR code via `KitCode`, live balance or points figure, up to four summary facts, and a high-brightness barcode zoom toggle.
+- Pick: a scannable membership card, digital coupon, voucher code, or transit/insurance ID card shown across 3+ unrelated domains. Not a rich event admission stub (events `Ticket` / ticketing `EventPass`), not a travel boarding document with gates/legs (trips `Reservation`), and not a full loyalty tier wallet (dining `RewardsWallet`).
+- Writes: `issuer` text(28), `title` text(32), `memberName` text(24) optional, `memberId` text(24) optional, `masked` boolean (default true), `code` text(64) optional, `codeKind` (`qr`, `barcode`), `balance` number optional, `pointsLabel` text(20) optional, `facts` of `label` text(16), `value` text(24), 0–4, `expiresAt` date optional, `used` boolean (default false), `style`.
+- Styles: `card` (default, membership or insurance card with barcode toggle), `coupon` (tinted offer card with barcode and expiry), `code` (large centered QR/barcode with copyable code), `transit` (transit fare pass with balance and tap status).
+- Parts → actions: `root press`, `reveal toggle` (masked ID), `code copy`, `bright toggle` (high-brightness scanner view).
+- States: filled, empty (`Empty` when no pass saved), loading, error (invalid or unreadable code payload).
+- Real path: stored locally on device with host-resolved `KitCode` barcode rendering; never fabricates valid carrier, payment, or clinical insurer credentials.
+
+### `FileList` · planned · content · ok
+A bounded list of 1–6 non-image file attachments (`pdf`, `doc`, `sheet`, `zip`, `audio`, `other`) showing format badge, filename, human-readable size, optional page count or duration, and preview, download/share, or remove actions. Prevents `Photo` and `Gallery` misuse for PDFs, CVs, contracts, invoices, and email attachments.
+- Pick: 1–6 attached documents or binary files with size and format metadata. Not photos (`Gallery`, `Photo`), not an interactive file explorer tree (workspace `DriveTree`, utilities `FileBrowser`), and not personal ID vault records with expiries (paperwork `Documents`).
+- Writes: `files` of `fileRef` text(32), `name` text(48), `ext` (`pdf`, `doc`, `sheet`, `zip`, `audio`, `other`), `sizeBytes` number ≥ 0, `pages` integer ≥ 1 optional, `status` (`ready`, `downloading`, `missing`), `goto` optional, 1–6; `removable` boolean (default false), `style`. Code formats `sizeBytes` consistently; models never invent download URLs.
+- Styles: `rows` (default, compact attachment rows with action icons), `cards` (wider preview tiles with page count badge).
+- Parts → actions: files `root press` (preview), files `download press`, files `remove press`. `meta.confirmParts: ["remove"]`; `meta.partTiers: { download: "service" }`.
+- States: filled, empty, loading, error (missing local file or failed transfer).
+- Real path: host document picker (`ok`) and share/download adapter (`service`); preview opens host native viewer.
+
+### Core promotions from existing packs (3)
+
+The three components below are promoted from domain packs into Core in Wave 6 Step 0 once Wave 5 stabilizes, eliminating pack-to-pack pressure across search, discovery, and reading apps. Existing copies remain documented inside their original Wave 3–5 pack specs until Wave 6 Step 0 migrates their imports and adds core near-miss probes.
+
+| Component | Origin pack | Group / Tier | Why promoted to Core & additions in Wave 6 |
+| --- | --- | --- | --- |
+| `FilterBar` | `data` | `input` / `phone` | Search box + up to 4 picker filters + sort selector + active filter count; needed across `realestate`, `ticketing`, `stays`, `commerce`, `auto`, `places`, `hiring`, and `data`. |
+| `Review` | `customers` | `content` / `people` | Average star score + 5-bar histogram + review/reply rows; gains optional `photos`, `fitScale` (apparel fit), `spoiler` toggle (books/film), and `verified` pill for `commerce`, `places`, `media`, `stays`, `dining`, `marketplace`, `beauty`, and `booking`. |
+| `Article` | `media` | `content` / `phone` | Long-form formatted markdown/prose (`style`: `article`, `book`, `response`) with headings, quotes, callouts, optional `paper` (`light`, `sepia`, `dark`) and `fontScale`; needed across `media`, `news`, `reference`, `assistant`, `workspace`, `projects`, and `learning`. |
+
+*(Watchlist: `BeforeAfter` starts in `studio` and `LiveRoom` starts in `social`; either promotes to Core only if future `Canvas` misses show cross-pack overlap.)*
+
+### Core component option upgrades (15 targeted extensions)
+
+| Core component | Proposed option (`style` / `kind` / `prop`) | Domains unblocked |
+| --- | --- | --- |
+| `Player` | Complete pending frame-overlaid `video` controls, 1-row `compact` audio, and play/pause read mark; add `mode` (`audio`, `music`, `podcast`, `video`, `live`), `speed`, `liked`, `shuffle`, `repeat`, `loop` | `media`, `watch`, `news`, `learning`, ringtones |
+| `Camera` | Add `kind: "video"` (with `start`/`stop` shutter) and `kind: "document_dual"` (front+back guided scan) | `studio`, `money` (check deposit), `paperwork`, `auto`, `medical` |
+| `Gallery` | Add `aspect: "tall"` (`["auto", "wide", "tall"]`) reusing `KitPhoto` portrait ratio | Wallpapers, `studio`, `watch`, `curation` |
+| `List` | Allow `aspect: ["square", "wide", "tall"]`, `progress` (`0–1`), and `badge` on `style: "shelf"`; add `style: "grid"` (2-col quick cards) plus `unread` and `pinned` row props | `media`, `watch`, `workspace`, `comms`, `learning` |
+| `Bubbles` | Add optional `style` (`direct`, `group`, `broadcast`), `sender`, `avatar`, `time`, `status` (`sent`, `delivered`, `read`), `replyTo`, `attachment` (`photo`, `voice`, `file`), `reactions` | `comms`, `social`, `dating`, `medical` |
+| `Composer` | Complete pending empty/sent states; add optional `attach` boolean, `voice` boolean (`partTiers: { voice: "ok" }`), `attachments` chips, `replyingTo`, and `style: "prompt"` | `comms`, `assistant`, `learning`, `mind`, `utilities` |
+| `Field` | Complete pending `ok` tier on `kind: "photo"`; add `kind: "range"` (dual-thumb min–max `KitSlider`) and `kind: "voice"` (`ok` mic capture via `KitMicCapture`) | `dating`, `realestate`, `commerce`, `stays`, `utilities` |
+| `Calendar` | Add `range: boolean` (check-in to check-out two-date selection) | `trips`, `stays`, `booking`, `events`, `property` |
+| `Route` | Add `mode` (`walk`, `bike`, `car`, `transit`, `flight`) and `duration` text(12) | `places`, `trips`, `navigation`, `health` |
+| `Bars` | Complete pending `share` icons/press/order; add `active` bar index + `status` subline on `columns` (live venue busyness) | `places`, `dining`, `health` |
+| `KeyValue` | Add optional `masked: boolean` with reveal toggle (`(secret)` read mark) | `money`, `auto`, `paperwork`, `security` |
+| `Card` | Complete pending corner `badge`; add optional `reward` / `duration` pill option | `perks`, `commerce`, survey/earn apps |
+| `Timer` | Add optional `goal` seconds prop on `style: "up"` (elapsed vs target fasting or session window) | `health`, `projects` |
+| `People` | Add `style: "rail"` (horizontal strip with `online`, `ring`, `statusText` bubble) | `comms`, `dating`, `social` |
+| `MapPins` | Add `userLocation` boolean (`ok`) and `selected` index to align with `KitMapTile` | `places`, `realestate`, `navigation` |
+
+Action vocabulary addition: Wave 6 formalizes `copy` (in [README.md](README.md)) across core and packs (`PassCard`, `KeyValue[masked]`, `security`, `utilities`, `assistant`, `trips`, `social`, `puzzles`).

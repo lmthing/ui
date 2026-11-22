@@ -10,7 +10,7 @@ export const example = `{"id":"h1","c":"Header","title":"Nest","sub":"Education 
 {"id":"d1","c":"Dividends","portfolioId":"education","distributions":[{"id":"mar_distribution","assetId":"global_fund","entitledAt":"2026-03-01T00:00:00Z","payOn":"2026-03-10","perUnit":1,"withheld":2,"receivedAt":"2026-03-10T09:00:00Z"}]}
 {"id":"i1","c":"InvestmentActivity","portfolioId":"education","since":"2026-01-01T00:00:00Z","openingCash":0,"openingContributed":0,"entries":[{"id":"first_deposit","at":"2026-01-02T09:00:00Z","kind":"deposit","amount":1000},{"id":"first_buy","at":"2026-01-02T10:00:00Z","kind":"buy","assetId":"global_fund","units":10,"unitPrice":80}],"goto":"record_trade"}
 {"id":"w1","c":"Watchlist","detail":"full","items":[{"assetId":"income_fund","name":"Income Fund","symbol":"IFD","price":55,"quotedAt":"2026-03-01T16:00:00Z","target":50,"direction":"at_or_below"}]}
-{"id":"r1","c":"Ring","value":1108,"of":5000,"label":"Education"}
+{"id":"r1","c":"Progress","style":"ring","bars":[{"value":1108,"of":5000,"label":"Education"}]}
 {"id":"a2","c":"Amount","label":"Funded amount","value":1108}
 {"id":"p2","c":"Progress","bars":[{"value":1108,"of":5000,"label":"Education"},{"value":600,"of":900,"label":"Travel"}]}
 `;

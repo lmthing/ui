@@ -37,9 +37,9 @@ The scope table is the full requirement, not a claim that each row is complete.
 3. **One file per component.** Each id has one file, named after it, holding its data (`meta`, `props`, `fallback`, `examples`) and its view. The view's prop types come from the file's own schema. A non-draft file without a view fails a test.
 4. **Host owns the world.** The kit never navigates or measures the stage. It keeps ephemeral interaction state and invokes host callbacks for links, photos and media. Hosts own persistence and outside effects; render issue detectors remain pending.
 5. **Peer dependencies, not bundled ones.** React, React Native Web, Tamagui, Lucide icons and SVG are current kit peers. React Native and Reanimated peers are **pending** (5.1). The catalog entry depends on `zod` only.
-6. **Small files, plain code.** At most 200 lines per code file and 60 per function. Lint enforcement is **pending**. Named exports only (default exports only in the gallery's route files), plain functions and plain data, no classes. Other folders import a folder only through its `index.ts`.
+6. **Plain code, grouped by purpose.** At most 60 lines per function. No hard code file-size limit; `pnpm rules` warns above 400 lines per file or 12 files per non-exempt folder. Named exports only (default exports only in the gallery's route files), plain functions and plain data, no classes. Other folders import a folder only through its `index.ts`. `pnpm build:entries` generates the gitignored re-export doors for pack `components/` and `copy/`, `kit/base/` and `catalog/copy/`. Edit the source modules, not those doors. Doors with logic stay hand-written.
 7. **Agents read and act like people.** Every screen has a compact text form generated from the same data it is drawn from, and every part that people can touch has typed actions. An agent action runs exactly the code a human touch runs. Agents never need raw DOM or screenshots.
-8. **Generic where it costs nothing.** Nothing here mentions THING, takes, trailers or sessions. Tiers and `realPath` are required on every component because any app generator needs to know what a part depends on. Signature metadata is optional.
+8. **Compose shared runtime primitives.** A component declares its needs using the primitives in 4.12 and 5.9. Keep component-specific rules in its definition, not in a new runtime mechanism. Add a primitive only when the existing set cannot express a distinct shared contract. Nothing here depends on THING, takes, trailers or app sessions. Tiers and `realPath` are required; signature metadata is optional.
 9. **Developable alone.** The gallery host, runtime fixtures and probe runner work without lmthing. Worked pack apps and the model-text repair pipeline (4.14) remain pending. The app and harness depend on this repo and never the other way round.
 
 ## 3. Repository layout
@@ -97,8 +97,8 @@ archetypes, not the scaffold `kit/signature` and `kit/archetypes` folders.
 import catalog, kit and peers. Kit imports catalog and peers. Gallery imports the package; photos
 stands alone. Nothing imports from `apps/`.
 
-**Two entries from the same files.** `scripts/build-entries.ts` calls the reusable scanner/generator
-in `scripts/entries/`. It finds component data exports (`meta`, `props`, `fallback`, `examples`,
+**Two entries from the same files.** `scripts/build/build-entries.ts` calls the reusable scanner/generator
+in `scripts/build/entries/`. It finds component data exports (`meta`, `props`, `fallback`, `examples`,
 `probes`) and ready views, rejects missing exports and duplicate ids, and collects pack metadata,
 archetypes and JSON Lines examples. Generated exports include `components`, `ComponentName`, `packOf`,
 `packs`, `packArchetypes`, inlined `packExamples`, `createRegistry` and a no-argument `buildPackIndex`.
@@ -167,6 +167,16 @@ Hosts can carry those fields, but the current kit and reader do not consume them
 
 One file per component, `src/components/<Id>.tsx`, holds its data and view. Pack components follow
 the same shape. [The component guide](component-guide.md) and `List.tsx` / `List.test.ts` are binding.
+
+Start a new catalog definition with `pnpm gen:component <pack|core> <Id>` in `packages/ui`.
+The generator reads the component's catalog entry and scaffolds the routine contract:
+bounded props, metadata and the core-first distinction, copy and language keys, tests,
+and probe skeletons. It never replaces an existing component. The catalog docs drive the
+draft; the finished component still owns its behavior, wording, probes, and view.
+
+Core and pack component folders (`src/components` and `src/packs/<pack>/components`) are exempt from
+the 12-file folder limit. So are the pack per-component test folders, `src/packs/<pack>/tests` and
+`src/packs/<pack>/tests/components`. These exemptions do not extend to other subfolders.
 
 | Export     | What it is                                                                                                    |
 | ---------- | ------------------------------------------------------------------------------------------------------------- |
@@ -511,6 +521,30 @@ There is no `meta.aliases`, alias lookup step, `R2.alias`, `R2.off_pack` or alia
 `registry.resolve` tries exact id, case/separator-insensitive id, then migration aliases through
 `legacyTarget`, restricted to the scope. Migration aliases for renamed/merged components stay.
 
+**Renderer reuse for packs.** A pack may use a core component's internal kit renderer without
+adding a catalog entry. The owning component adapts parsed and projected view data to a typed
+slot map (such as date, time, title, byline and status). The renderer uses the owning component's
+part context and the supplied stamped item ids and part names. Nested targets are finite named
+parts derived from the owner's bounded arrays; they do not create another level of item ids.
+The owner alone defines fallback, reading, actions, live state, tiers and host data. The renderer
+draws those values and binds existing targets through kit bases; it does not register a component
+or own another controller or store.
+
+Writer lines remain flat. Neither renderer slots nor nested component JSON appear in the Writer
+schema. The first adapters are Agenda's dated event list and Itinerary's foldable day rails over
+Timeline's event renderer. Keep their legacy ids, parts, action verbs and recipes, including the
+distinction between all-day events and untimed stops. Renderer adoption does not retire an id.
+
+Before a Wave 6 scaffold, check both shipped and planned definitions for equivalent drawing.
+Share `SeatPlan` for cabin and cinema grids (`KitSeatGrid`) and assigned event seating
+(`KitSeatMap`). Selection, holds, confirmation and guest moves stay separate owner behaviors,
+not visual variants. Share `StageBoard` over `KitColumns` for counted lanes: only the owner
+can offer move destinations, and a sorted queue can use the lanes without any move controls.
+Share `FeedRow` and `DateRows` for authored streams and dated entries. The owner keeps order,
+filtering, visibility, tiers and actions; the renderer only places named slots under existing
+addresses. Exercise missing slots and inert loading as well as filled rows. No new Director
+scope or Writer fields follow from shared drawing.
+
 ### 4.7 Lookups for repairs
 
 **Pending:** `nearestIcon(name)` (edit distance and synonyms, else neutral `dot`),
@@ -555,8 +589,8 @@ writerFormat(registry) // strict line schema, the 2026-11-18 design (4.6)
 70-token cap. Choice blocks include purpose and pick, not schemas.
 
 Ordinary blocks sort by group then id; the pack index sorts by id. Code-owned components are
-excluded. Live choose prompts preserve definition order to keep existing recording keys. They use
-the same choice prose, not the same sorted block.
+excluded. Live choose prompts preserve definition order. They use the same choice prose, not the
+same sorted block.
 
 The implemented gates use `ceil(codePoints / 4)`, not an o200k tokenizer:
 
@@ -566,7 +600,7 @@ The implemented gates use `ceil(codePoints / 4)`, not an o200k tokenizer:
 
 Tests snapshot the real core and pack-index fixtures, and assert recorded write-entry parity. Synthetic packs copy core prose;
 they are not real-pack coverage. **Pending:** real pack blocks/snapshots, tokenizer measurements and
-reports for every entry/block, and cache-order unification once recordings can be refreshed.
+reports for every entry/block.
 
 ### 4.10 Checks
 
@@ -668,6 +702,26 @@ unknown components. `planAct` validates offered actions and generic values befor
 changes. It returns new values, links and compact changes, or the first failure index. Kit controllers
 add live/runtime checks; callers do not treat the pure planner as a complete dispatcher.
 
+**Shared primitives.** Definitions compose these contracts rather than registering a new
+dispatcher. Addresses, action names, Writer schemas and reader text are unchanged by the
+choice of primitive. The kit side of each contract is in [5.9](#59-reading-and-acting-the-kit-side).
+
+| Primitive | Catalog declaration and contract |
+| --- | --- |
+| Host command with result | `hostCommands.parts` / `.items` bind a declared action to a command, external handoff or cancellation. Requests come from validated props and the addressed subject, not arbitrary `act` payloads. The adapter policy decides offers. Only declared acknowledgement fields and the visible subject's operation status are readable. `goto` remains routing, not a command or URL. |
+| Local state and projection | `live` projects text, checks, toggles, setters and derived flags. `defineLocalState` validates a bounded seed and each addressed event, stages the next state, and projects only public props. `linkedEdits`, selection bindings, draws, rounds and buzz are shared patterns in this family, not new dispatchers. `drives` routes declared same-screen controls, observations and anchors. |
+| Collections and nested items | `items` keeps the legacy positional row contract; `collections` gives independent row sets durable ids and separate selection, toggle and movement state. `items.nested` projects controls into a parent's children, enforcing choice, step and group limits. Date spans, item pickers, derived moves, slot moves and row edits use the addressed row and its live gates; never reinterpret an address after filtering or reordering. |
+| Media | `media`, `items.media` and `sequence` declare addressed playback, attachments and cursor controls. Offers bind the current owner and, for attachment reuse, the source revision. The planner stages intent and cursor values, not I/O or private references. |
+| Secrets and private input | `secret`, `items.readSecrets`, and hidden round fields are not exposed by a reveal. Credential and row reveal toggles bind a memory-only grant to the current content. `actions.reveal`, `authenticatedCopy`, `privateInput`, `privateVerify` and host-only captures retain their local trust boundary; `act` does not accept secret payloads for these controls. Public keypads only edit their declared drafts. |
+| Clocks and journals | `clocks` declares timestamp, timer and playback projections at component, row or nested scope. Clock transitions use one sampled time; stop journals validate a row before appending, and cannot append twice for one session. Local-week checks use calendar boundaries without redefining elapsed time. `deviceData` supplies declared host snapshots; record edits and `recordRuntime` stage and project schema-checked changes by durable target. |
+
+Offer generation uses the parsed wire seed plus staged projection, state gates and current host
+policy. The mounted kit adds eligibility checks; it does not define a separate set of component
+offers. For compatibility, when there is no projected state, the detached planner ignores wire
+state for definitions without a runtime state opt-in; mounted lookup honors it. A component-specific
+rule belongs in its schema, reducer, gate, record builder or public projection. It does not select
+another runtime path by component id.
+
 **Pending reader API:** `readScreen(screen, registry, { depth, address, since, values, marks })`,
 `readApp({ name, sections, screens })`, and deltas (new/changed components whole, removals as `- id`,
 unchanged screen header only). Runtime clipping/offscreen marks and complete state summaries remain
@@ -694,10 +748,11 @@ Write probes use the same strict `writerFormat(registry)` as production Writers 
 design. Current transport is being updated in parallel; prose is not the output constraint.
 
 `runComposeProbes` runs every layout with three independent samples. A mechanical majority must pass.
-With `rubric: true`, a model rates the first valid sample for clarity, focus, flow, content and
-structure (1–5); all ratings must be ≥3.5 and average ≥4.0. `llm:check --compose` enables it and records
-under `test/recordings/Archetypes/<model>.json`. All 35 current layout/rubric gates pass and
-`test/archetypes.test.ts` replays them in `pnpm test`. Layout `writeHints` and shared
+With `rubric: true`, a model rates each mechanically valid sample once for clarity, focus, flow,
+content and structure (1–5). A majority of the rated samples must have all ratings ≥3.5 and an
+average ≥4.0, in addition to the mechanical majority. `llm:check --compose` enables it and records
+under `test/recordings/Archetypes/<model>.json`; `test/archetypes.test.ts` replays it in `pnpm test`.
+Layout `writeHints` and shared
 `scripts/compose-casts.ts` supply writing guidance and archetype/layout-specific content to live and
 replay runs. `--compose --layout archetype/layout,...` filters named layouts. Rich
 include/exclude/expected-primary checks, per-rule
@@ -707,8 +762,20 @@ across a full app belongs to harness evals. Visual craft requires screenshots, n
 **Live and replay.** `scripts/llm.config.ts` is the only model routing table: one required light model,
 `deepseek-flash`, with three samples. Direct Azure REST uses environment credentials, not a provider
 SDK. Transient transport failures retry at most four attempts with exponential backoff; these are
-not extra sampled model answers. Recordings key a hash of model id and prompt, storing the prompt,
-first reply and sample replies. Replay is deterministic.
+not extra sampled model answers. Offline replay keys each model's evidence by probe id and a
+fingerprint of the probe and its own definition (schema, metadata and model-facing text), not the
+shared catalog listing. The definition includes local validation rules not expressible in JSON
+Schema, but not the draft/ready flag. Replay prefers a complete recording of the exact prompt and
+reports prompt drift once per probe when it uses evidence from a different listing. A changed
+probe or own definition still needs new evidence. Recordings retain the exact prompt, sent format
+and all sample replies. A fixed offline index binds compatible legacy evidence without rewriting
+the books. It verifies component definitions and exact evidence at the recording commits, and a
+legacy alias stops working if its samples are replaced. Live calls and exact-request pack
+resumption are unchanged.
+
+When a merge brings in refreshed legacy books, run `pnpm build:catalog` first, then
+`pnpm --filter @lmthing/ui exec tsx scripts/llm/migration/index.ts --refresh`. Review the index
+diff and replay the probes. The migration does not edit the books or call models.
 
 | Command                           | Gate                                                                              |
 | --------------------------------- | --------------------------------------------------------------------------------- |
@@ -722,8 +789,8 @@ first reply and sample replies. Replay is deterministic.
 Do not repeat unchanged probes for luck. Reword purpose/pick/write hints, improve schemas/examples,
 then run once per change. Never weaken probes or edit another component to hide a conflict.
 
-`pnpm test` replays required component/pack recordings. `test/known/<Id>.md` skips component replay and
-marks its reading test `it.fails` until fixed. This is an explicit open-problem bypass, not a pass.
+`pnpm test` replays required component/pack recordings. Listed failures still run and are
+quarantined as described in Testing (8); a quarantined failure is not a pass.
 `pnpm test` also replays all 35 compose/rubric gates from real recordings;
 `--compose --replay` can check them explicitly.
 
@@ -758,6 +825,45 @@ repair; gallery does not yet load a full JSON Lines fixture suite through this p
 The pipeline stops at R2. Region sorting, primary demotion, extras, flows/waves, cast checks and
 rewrite id carry-over stay in host R3–R6. Once built, `assembleScreen` serves worked examples,
 composition and gallery fixtures; compose must still count issues before any R3 repair.
+
+#### Retirement manifests
+
+Before retiring a catalog id, record its replacement, saved-input migration, address and action
+mapping, compatibility fixtures, canonical recipe changes, and choose/write/read/compose deltas.
+Update live recipes and probes at the cutover; do not advertise a legacy alias to the Writer.
+
+##### Progress family (approved 2026-11-21; core cutover implemented, health follow-up)
+
+| Legacy id                | Saved line migration                                                                                                                                                                                   | Addresses and actions                                                                                                                                            |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Ring`                   | `Progress`, `style: "ring"`, `bars: [{ label, value, of }]`; retain `sub`, `density`, `emphasis` and `detail`. Normalize old `md`/`lg` before changing the id.                                         | Keep `root`, `ring`, `value`, `label` and `sub` at component level; `detail: "brief"` hides but does not discard `sub`. No row `press` or synthetic row address. |
+| Health `ActivityRings`   | `Progress`, `style: "rings"`, retaining two or three ordered `rings` rows with `label`, `value`, `of` and `unit`, plus `surface` and `detail`. Keep daily-target intent, row limits and number bounds. | Keep `root`, `rings`, and `rN` with `label`, `value`, `of` and `unit`; brief hides only the target caption (`of`). No new actions.                               |
+| `Progress` (not retired) | Missing `style` means `"bars"`. Keep the existing `stack`/`compact` and row `over` migrations.                                                                                                         | Keep bar labels, amounts, units, over-target tone and linked row `press` at the original addresses.                                                              |
+
+- **Migration scope:** Add a versioned, idempotent step to stored line/screen/JSONL and applicable
+  replay loading paths, not live Writer validation. Preserve component ids and order, stamped row
+  prefixes, states, tiers and link destinations. Normalize optional nulls; an explicitly supplied
+  destination axis wins over a legacy style. No control-store key changes are needed when the
+  original addresses and verbs still resolve. Leave health `Cycle` separate.
+- **Compatibility fixtures:** Round-trip legacy `md`/`lg` and explicit finish axes, a hidden saved
+  caption, and two- and three-row health specs with distinct units and over-target values. Compare
+  filled/loading parts, brief reads, snapshot reloads and layout weight/adjacency, including
+  formerly distinct ids that become adjacent `Progress` instances. Keep the default bars' empty
+  state and verify it offers no linked row action. Verify `read()` and `act()` at the old
+  addresses, including a linked bar at `p1/r2` and no ring action.
+- **Canonical data:** Update core `detail`, `dashboard` and `checklist` recipes where they allow
+  `Ring`. Set `Progress[ring]` in money `wallet/goal` and invest `goals/invest_goal`, including
+  defaults, hints and the invest worked example. Set `Progress[rings]` in health `today/rings`,
+  including its defaults and worked example. Keep existing instance ids and check embedded
+  component ids and property patch paths for old shapes.
+- **Prompts and probes:** Retire `Ring` first while `ActivityRings` and the health `today/rings`
+  recipe stay live. Then retire `ActivityRings` and move its intent and recipe to `Progress[rings]`.
+  Before removing each id, compare saved-spec fixtures and prompt sizes. Retarget health and the
+  cross-pack `Rewards`, `Challenge` and `CreditScore` near misses and affected compose gates.
+  Remove the retired id from other components' pick text at each cutover. Keep paired gates for a
+  bare ratio, a single bar, a single ring, two to three rings, independent `Stats` and ordinal
+  `Steps`. Assert the component, requested style, exact goal values, units and caption storage
+  even in brief mode. Record one live run of the affected probes for each change.
 
 ## 5. The kit entry (`@lmthing/ui/kit`)
 
@@ -874,6 +980,22 @@ strong text. No raw colours, pixel values or z-index outside tokens/themes.
 No component sub-themes; studio tier tints belong to the host. **Pending enforcement:** lint rejects
 raw values, preset comparisons and view handlers, and runtime contrast guards cover role/tone pairs.
 The current screenshot checker covers rendered contrast, not that complete runtime contract.
+
+### 5.4b Layout recipes and states
+
+Compose the kit's header, title-and-meta line, separated row group, captioned figure and action
+footer. The outer frame owns its gutter, the group owns separation, and the row owns its rails
+and close spacing. Empty slots do not create gaps; reserve a rail only to align sibling rows.
+Figures and units share a baseline. There is one semantic type scale: title, body, meta, figure
+and caption. Legacy text roles are kit-owned treatments of those roles, not additional steps a
+component can set. Density, emphasis and theme mapping stay in the kit.
+
+Use the kit's default empty, loading, error and success treatments. Share slot geometry between
+filled and loading; loading draws no text or controls. Retain usable content when the state
+describes an operation on that content. Only override the treatment when the component's catalog
+doc specifies it, and only show retry when an enabled action is declared. Layout is not a wire
+change: preserve reading, addresses and actions. Test missing metadata, retained error and success,
+filled/loading parity, and last-column reachability separately from gallery fixture quality.
 
 ### 5.5 Views
 
@@ -996,6 +1118,19 @@ Batches plan each step in order with updated local state. Failed validation comm
 effects; `dryRun` reports changes only. External media/photo effects can complete later, so this is
 validation atomicity, not a transaction over host I/O.
 
+**Primitive ownership in the kit.** Use [4.12](#412-reading-and-acting-the-catalog-side) for the
+declarations. Bases register addressed parts and draw projected props; they do not duplicate
+the rules below.
+
+| Primitive | Kit contract |
+| --- | --- |
+| Host command with result | The host owns admission, execution and acknowledgement. Stage requests with the batch, then run after commit. Keep only the latest operation per subject and abort on cancellation, replacement or teardown; ignore stale completion. External handoffs require a separate mounted human confirmation. Parent admission is a host grant, never a navigation side effect. |
+| Local state and projection | `useLiveControls` draws the same public projection used to make offers. A reducer owns its event exclusively. Same-screen drives recheck the addressed destination; bound focus and jump run on a mounted anchor after commit. An action introduced by an earlier staged step still has to become newly offered before the batch can use it. |
+| Collections and nested items | Use `visibleItems`, `slotMoveOffer` and `useNestedControls` for the same rows, destinations and disabled states the dispatcher checks. A stable collection id survives reorder; an existing positional address is not a substitute for durable host identity. |
+| Media | `MediaAdapter`, playback resolution and the attachment host own sessions and references. Prepare after validation, and release or ignore work if its owner changes. The view attaches the active element to the committed mount without opening a new session when the frame changes. Microphone capture requires a mounted, locally admitted start and releases on physical stop or cancellation. |
+| Secrets and private input | One private-control lifecycle handles local reveal, authenticated copy, keypad verification and revocation. Private drafts and authentication results stay outside interaction snapshots; private capture references are stripped from agent reads. Grant expiration, replacement, unmount and reset must not expose previous content. |
+| Clocks and journals | The controller samples time for a batch and schedules mounted ticking; projections do not mutate the journal. Stopping or confirming an edit stages a validated record for the current owner. Host snapshots, including stale flags, reach only definitions that declare them. |
+
 ```ts
 const agent = createAgentAccess({ defs, store, current, onLink, runtime });
 agent.read(): string;
@@ -1067,24 +1202,38 @@ The gallery is a standalone host. It supplies memory parts, local photo/sample m
 callbacks. Live probes need model credentials; replay needs none. During component work use `look`,
 not the shared fixed-port gallery server.
 
-| Runnable command from root                        | Does                                                                                       |
-| ------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `pnpm gallery`                                    | Generate entries and start the Vite gallery (not used by parallel component tasks)         |
-| `pnpm test`                                       | Generate entries/themes, then catalog and kit Vitest suites including Chrome runtime tests |
-| `pnpm format:check`, `pnpm typecheck`             | Root formatting and workspace TypeScript                                                   |
-| `pnpm build:entries`                              | Scan/generate data and renderer doors                                                      |
-| `pnpm build:catalog`, `pnpm catalog:bundle-check` | Build and check the data-only Node entry                                                   |
-| `pnpm kit:themes --check`                         | Verify generated theme source                                                              |
-| `pnpm llm:check`                                  | Core probes; component/pack/compose/merge and replay flags in 4.13                         |
-| `pnpm look --component <Id>`, `pnpm shoot`        | Automated phone review or gallery capture                                                  |
-| `pnpm --filter @lmthing/ui build`                 | Both ESM entries and declarations                                                          |
-| `pnpm --filter @lmthing/gallery build`            | Vite static build                                                                          |
-| `pnpm check`                                      | format:check, typecheck, rules, test, build:catalog                                        |
+| Runnable command from root                        | Does                                                                               |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `pnpm gallery`                                    | Generate entries and start the Vite gallery (not used by parallel component tasks) |
+| `pnpm test:changed main`                          | Run related Node tests with component and pack filters during task work            |
+| `pnpm test`                                       | Generate entries/themes and run the full Node suite at merge                       |
+| `pnpm test:browser`                               | Run the separate serial Chrome runtime suite                                       |
+| `pnpm format:check`, `pnpm typecheck`             | Root formatting and workspace TypeScript                                           |
+| `pnpm build:entries`                              | Scan/generate data and renderer doors                                              |
+| `pnpm build:catalog`, `pnpm catalog:bundle-check` | Build and check the data-only Node entry                                           |
+| `pnpm kit:themes --check`                         | Verify generated theme source                                                      |
+| `pnpm llm:check`                                  | Core probes; component/pack/compose/merge and replay flags in 4.13                 |
+| `pnpm look --component <Id>`, `pnpm shoot`        | Automated phone review or gallery capture                                          |
+| `pnpm --filter @lmthing/ui build`                 | Both ESM entries and declarations                                                  |
+| `pnpm --filter @lmthing/gallery build`            | Vite static build                                                                  |
+| `pnpm check`                                      | format:check, typecheck, rules, test, build:catalog                                |
 
 Root `dev`, `lint`, `catalog:check` and `build` scripts and catalog watch support are **pending**.
 Package-level builds already work; root `build` is not an existing command.
 
 ## 8. Testing
+
+Droids run `pnpm test:changed main` during task work. It passes changed paths to Vitest's import
+graph, then limits cross-component cases and pack-wide suites to affected components and packs.
+The runner reports the changed paths, selected scope, test count and duration. Shared test
+configuration, the render fixture and the check runner trigger a full Node run. The merge runs
+`pnpm test` once, with no component or pack filter. Browser tests run separately.
+
+Routine conformance runs (including task work and merges) render in calm/light only. Unset
+`UI_TEST_THEMES` or set it to `calm-light` for that default. For each pack's acceptance and the core
+recordings refresh, run both conformance suites for the components being accepted or refreshed with
+`UI_TEST_THEMES=all`, so every component is checked in every built preset and mode before acceptance.
+The separate theme-role, CSS and count checks always cover the full built theme set.
 
 | Layer                                        | Built coverage and remaining requirement                                                                                                                                                                                                                                                          |
 | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1092,7 +1241,7 @@ Package-level builds already work; root `build` is not an existing command.
 | Prompt snapshots (Vitest)                    | Real core/fixture-index snapshots and write-entry parity checks. **Pending:** all real pack blocks and token measurement reports                                                                                                                                                                  |
 | Contrast                                     | Standalone script for built themes. **Pending:** all 288 and check/CI wiring                                                                                                                                                                                                                      |
 | Type inference                               | Strict TypeScript and typed schema outputs. **Pending:** dedicated `expect-type` assertions for `Props`/item ids and rejected extra props                                                                                                                                                         |
-| Kit conformance (Vitest/static HTML)         | Existing renderer ids, every example/declared state × built presets/light/dark, first accent; exactly one root and expected item roots. Theme-role/count test derives built arrays. **Pending:** every declared part's memory-registry registration and independent ready-view/all-288 assertions |
+| Kit conformance (Vitest/static HTML)         | Every example/state, root and item roots, variant addresses; first accent with the selected preset/mode matrix. Theme-role/count test derives built arrays. **Pending:** each part's memory-registry registration and independent ready-view/all-288 assertions                                       |
 | Reading/actions (Vitest/static HTML)         | Filled-example visible/read text agreement and offered action role/address agreement. **Pending:** every state, deltas, runtime marks, schema-valid read-probe values and reader budgets                                                                                                          |
 | Kit unit/controller (Vitest)                 | Store/planner, live controls, modal/confirmation/media, motion interpolation and defaults. **Pending:** runtime detector faults, revisions and settlement                                                                                                                                         |
 | Browser runtime (Vitest + Playwright Chrome) | Three runtime tests plus eight live-control tests: taps/keyboard/agent paths, fields/replies, timers, tabs, swipes and host photos. **Pending:** exhaustive action parity/logs, stale/settle/navigation and native gates                                                                          |
@@ -1103,10 +1252,22 @@ Package-level builds already work; root `build` is not an existing command.
 | Accessibility/native                         | Base roles and browser keyboard tests exist. **Pending:** axe-core no-violation suite, native RN testing/assistive-tech/device acceptance                                                                                                                                                         |
 | Performance                                  | **Pending:** reference-device and fresh-process import/reader/size/settle measurements before release                                                                                                                                                                                             |
 
+Run the pack acceptance look gate in calm light at 390px before visual review. Automate recurring
+rubric findings against the rendered parts: keep a label and its value closer than the next group,
+use at most three sizes per item, right-align numeric columns, keep negative actions off the
+positive accent, show complete text, keep the first item close to its heading, and use specific
+empty copy when the component brief calls for it. Give each detector both a failing and a passing
+browser fixture. Use existing part addresses or DOM semantics rather than changing the renderer just
+to make a check possible. Where the DOM cannot express intent, record the documented expectation in
+the checker instead of guessing from arbitrary text.
+
 There is no Jest, `jest-expo` or React Native Testing Library setup. Vitest with static HTML is the
 current kit test tool; native behavioural coverage remains a requirement, not a claim made by those
-tests. `test/known/<Id>.md` bypasses replay and records expected reading failures (4.13).
-A suite that passes with these files does not prove those components' acceptance. The UI suite has
+tests. `test/known/failures.json` lists existing failures by exact test file and full test name
+with a reason and an owner task ID. Missing pack recordings have one entry per pack, owned by its
+acceptance task. Tests still run: `KNOWN` failures do not block the merge gate, but any new failure
+does. `KNOWN-FIXED` means the listed test passed in full and its entry must be removed; set
+`UI_KNOWN_STRICT=1` to make that warning fail the run. The UI suite has
 2,372 tests, including composition replay and browser motion. Chrome suites use `CHROME` or
 `/usr/bin/google-chrome`; set `CHROME` to an installed binary when that default is absent.
 
@@ -1135,15 +1296,20 @@ measurement or an import-time gate. RAF animation support is not evidence of dev
 
 - **pnpm:** workspace and `packageManager` pin; Node version in `.nvmrc`.
 - **TypeScript:** strict, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, ES2022/bundler,
-  `customConditions: ["source"]`.
+  `customConditions: ["source"]`. UI typecheck checks an entry-generation stamp (input paths and
+  mtimes, plus generated output state) before rebuilding entries. The stamp and TypeScript's
+  incremental build info live in the UI package's ignored `node_modules/.cache/`.
 - **Prettier:** root scripts; `.prettierignore` ignores Markdown, recordings and generated files.
   Format edited docs explicitly with `pnpm exec prettier --write --ignore-path /dev/null <files>`;
   root `format:check` alone does not check Markdown.
 - **Vitest:** catalog, static kit tests, controller/motion tests and Chrome integration through
-  `scripts/check.ts`.
+  `scripts/build/check.ts`. Task checks use related mode and set `UI_TEST_COMPONENTS` and
+  `UI_TEST_PACKS`; the merge runs the unfiltered suite.
 - **Build:** esbuild for catalog/kit ESM and TypeScript declarations (3). Both entry exports have
   `source` and built conditions; no `./kit/tamagui` subpath, tsup or catalog watch.
-- **Pending ESLint:** flat config with 200-line/60-line limits, no default exports except gallery
+- **Rules audit:** `pnpm rules` fails functions over 60 lines. It warns, without failing, on files
+  over 400 lines and folders over 12 immediate files outside the existing exemptions.
+- **Pending ESLint:** flat config with no default exports except gallery
   entry/route files, folder-door/import boundaries, no raw colours/pixels/z-index, no preset/accent
   comparisons in views, and no component handlers bypassing bases. Catalog only imports itself/Zod;
   kit imports catalog/peers; components/packs/surfaces import both; `node:*` only in scripts; no app
@@ -1197,7 +1363,7 @@ pack lists live in [docs/catalog/](catalog/README.md); build waves, prerequisite
 
 | Step                                  | Status                                                                                                                                                                                                                                                                                              | Remaining gate and phase                                                                                                                                                                          |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **U0. Bootstrap**                     | **Partly done:** workspace, TS, Prettier, Vitest, generation, esbuild/bundle check and Vite skeleton exist; lint, Changesets and CI remain                                                                                                                                                          | Lint rejects forbidden imports/201-line fixture; bundle rejects a React fixture; CI green. Phase 0                                                                                                |
+| **U0. Bootstrap**                     | **Partly done:** workspace, TS, Prettier, Vitest, generation, esbuild/bundle check and Vite skeleton exist; lint, Changesets and CI remain                                                                                                                                                          | Rules reject forbidden imports and 61-line functions; file and folder size findings warn only. Bundle rejects a React fixture; CI green. Phase 0                                                  |
 | **U1. Catalog foundations**           | **Partly done:** metadata, helpers, tokens, addresses, screen rules, core registry/defaults, readers and probes exist; full themes, repair lookups/R1/R2, version/deprecation and readApp/deltas/budgets remain                                                                                     | Unified catalog check, 288-theme contrast report, address properties, reader/action budgets. Phase 0                                                                                              |
 | **U2. Kit foundations**               | **Partly done:** views/bases/provider/parts, browser controller, environment hooks, shared motion and browser motion/reduced-motion acceptance exist; native host/device acceptance, complete revisions/settle/registry coverage, full theme load, axe and size gates remain                        | Web/iOS/Android render and action parity; all declared parts, all themes and web size measured. Phase 0                                                                                           |
 | **U3. Prompt entries for everything** | **Partly done:** core entries/probes/snapshots, estimated budgets, pack tooling and all 35 passing compose/rubric gates with test replay exist; real pack/surface drafts and aggregate/regression gates remain                                                                                      | All drafts have complete metadata/schema/actions/tiers/fallback/examples/probes, catalog check except draft views; real prompt budgets and required live gates. Phase 0 bake-off                  |

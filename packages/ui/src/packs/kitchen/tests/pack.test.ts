@@ -27,7 +27,7 @@ import { PhoneScreen, type PhoneScreenProps } from "@lmthing/ui/kit";
 import { config } from "../../../../test/render";
 import { example } from "../index";
 
-const ids = [
+const exampleIds = [
   "Ingredients",
   "CookSteps",
   "MealPlan",
@@ -36,11 +36,12 @@ const ids = [
   "FoodLog",
   "KitchenTimers",
 ] as const;
+const ids = [...exampleIds, "NutritionFacts"] as const;
 const layouts = {
-  recipe: ["overview", "cook"],
+  recipe: ["overview", "nutrition", "cook"],
   mealweek: ["week"],
   groceries: ["list", "pantry"],
-  food: ["day", "add"],
+  food: ["day", "item", "add"],
   recipes: ["browse"],
 };
 const cast = { things: [], items: [] };
@@ -55,28 +56,31 @@ it("publishes the ready pack to the Director and only the selected Writer", () =
   const core = createRegistry();
   const live = createRegistry({ packs: ["kitchen"] });
   const other = createRegistry({ packs: ["booking"] });
-  expect(packReady("kitchen")).toBe(true);
-  expect(buildPackIndex()).toMatch(/^- kitchen:/m);
-  expect(live.ids.filter((id) => !core.ids.includes(id)).sort()).toEqual([...ids].sort());
+  const ready = defsReady();
+  for (const id of exampleIds) expect(definitions[id]!.meta.status).toBe("ready");
+  expect(packReady("kitchen")).toBe(ready);
+  expect(/^- kitchen:/m.test(buildPackIndex())).toBe(ready);
+  expect(live.ids.filter((id) => !core.ids.includes(id)).sort()).toEqual(ready ? [...ids].sort() : []);
   expect(live.ids.filter((id) => core.ids.includes(id))).toEqual(core.ids);
   const unselected = [core, other].map((registry) => JSON.stringify(writerFormat(registry)));
   const liveFormat = JSON.stringify(writerFormat(live));
   for (const id of ids) {
-    expect(definitions[id]!.meta.status).toBe("ready");
     expect(packOf[id as keyof typeof packOf]).toBe("kitchen");
-    expect(liveFormat).toContain(`"const":"${id}"`);
+    expect(liveFormat.includes(`"const":"${id}"`)).toBe(ready);
     for (const format of unselected) expect(format).not.toContain(`"const":"${id}"`);
   }
   for (const id of Object.keys(layouts)) {
     expect(Object.hasOwn(core.archetypes, id)).toBe(false);
     expect(Object.hasOwn(other.archetypes, id)).toBe(false);
-    expect(Object.hasOwn(live.archetypes, id)).toBe(true);
+    expect(Object.hasOwn(live.archetypes, id)).toBe(ready);
   }
 });
+
+const defsReady = () => ids.every((id) => definitions[id]?.meta.status === "ready");
 it("checks pack metadata, every layout, defaults and core-only dependencies", () => {
   expect(checkPacks({ components, packs, packOf, packExamples, packArchetypes })).toEqual([]);
   expect(checkArchetypes({ components, packOf, packArchetypes, archetypes })).toEqual([]);
-  const registry = createRegistry({ packs: ["kitchen"] });
+  const registry = createRegistry({ packs: ["kitchen"], includeDrafts: true });
   expect(packArchetypes.kitchen).toHaveLength(5);
   for (const meta of packArchetypes.kitchen as readonly ArchetypeMeta[]) {
     expect(meta).not.toHaveProperty("status");
@@ -95,7 +99,7 @@ it("checks pack metadata, every layout, defaults and core-only dependencies", ()
   expect(packs.kitchen.probes).toContainEqual(expect.objectContaining({ kind: "choose", expect: "Timer" }));
 });
 it("keeps food search in one card and recipe browsing in separate cards", () => {
-  const registry = createRegistry({ packs: ["kitchen"] });
+  const registry = createRegistry({ packs: ["kitchen"], includeDrafts: true });
   const food = registry.defaultLines("food", "add", cast).components.find(({ c }) => c === "List");
   const recipes = registry.defaultLines("recipes", "browse", cast).components.find(({ c }) => c === "List");
   expect(food).toMatchObject({ surface: "card" });
@@ -103,7 +107,7 @@ it("keeps food search in one card and recipe browsing in separate cards", () => 
   expect(recipes).toMatchObject({ style: "cards" });
 });
 it("keeps the recipe cover and the shared two-column facts grid", () => {
-  const registry = createRegistry({ packs: ["kitchen"] });
+  const registry = createRegistry({ packs: ["kitchen"], includeDrafts: true });
   const facts = registry
     .defaultLines("recipe", "overview", cast)
     .components.find(({ c }) => c === "KeyValue");
@@ -123,7 +127,7 @@ it("validates every worked-example line and the root example door", async () => 
     expect(typeof id).toBe("string");
     expect(definitions[c]!.props.safeParse(input).success).toBe(true);
   }
-  for (const id of ids) expect(lines.some((line) => line.c === id)).toBe(true);
+  for (const id of exampleIds) expect(lines.some((line) => line.c === id)).toBe(true);
 });
 it.each(["calm", "bold", "editorial"] as const)("renders every Supper line in %s", (preset) => {
   const screen = { id: "supper", components: exampleLines(example) };

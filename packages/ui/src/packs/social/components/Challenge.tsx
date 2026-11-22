@@ -4,13 +4,13 @@ import * as kit from "../../../kit";
 import { challengeCopy, challengeReading } from "../copy";
 import { socialWordsFor } from "../lang";
 
-// Core first: Ring/default cannot show a group total, a personal contribution and top contributors together.
+// Core first: Progress/ring cannot show a group total, a personal contribution and top contributors together.
 export const meta = {
   id: "Challenge",
   status: "ready",
   group: "data",
   purpose: "Join a shared goal and track the group’s and your own progress.",
-  pick: "A group challenge with a shared goal, deadline, group total, personal contribution and up to three leaders. Not a personal goal (Ring) or a full leaderboard (List).",
+  pick: "A group challenge with a shared goal, deadline, group total, personal contribution and up to three leaders. Not a personal goal (Progress) or a full leaderboard (List).",
   writeHints: [
     "goal must be positive. total, mine and top values are measured in the same unit. top is ordered highest first; use [] when no leaders are given. Write the ending date, not days remaining.",
     'Use JSON null for density and surface unless explicitly asked to change spacing or finish. Do not write "comfortable" or "card" just because they are defaults.',
@@ -87,7 +87,7 @@ export const probes = [
   ),
   choose(
     "Show just my personal watering goal as a circle that fills up as I finish. No group or other people.",
-    "Ring",
+    "Progress",
   ),
   write(
     "Make a November group goal to root 30 cuttings by 2026-11-30. We have 18 plants together, four from me. I’ve joined; open log_cuttings when I log more.",
@@ -110,12 +110,12 @@ function ChallengeProgress({ input, words, density }: {
 }) {
   return <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>
     <kit.KitGrid fitLast density={density}>
-      <kit.KitText part="total" role="number" numberScale="compact" density="comfortable">{words.total}</kit.KitText>
-      <kit.KitText part={null} role="caption" tone={words.reached ? "good" : "muted"}>{words.group}</kit.KitText>
+      <kit.KitText part="total" role="heading" density="comfortable" tabular>{words.total}</kit.KitText>
+      <kit.KitText part={null} role="label" tone={words.reached ? "good" : "muted"}>{words.group}</kit.KitText>
     </kit.KitGrid>
     <kit.KitStepsTrack part="track" style="bar" count={1} at={Math.min(1, input.total / input.goal)} />
-    <kit.KitText part="goal" role="caption" tone="muted">{words.goal}</kit.KitText>
-    <kit.KitText part="mine" role="caption" tone="muted">{words.mine}</kit.KitText>
+    <kit.KitText part="goal" role="label" tone="muted">{words.goal}</kit.KitText>
+    <kit.KitText part="mine" role="label" tone="muted">{words.mine}</kit.KitText>
   </kit.KitContent>;
 }
 
@@ -123,27 +123,38 @@ function ChallengeProgress({ input, words, density }: {
 function ChallengeRankings({ top, words, density, lang }: {
   top: ChallengeProps["top"]; words: ChallengeText; density: c.ThemeDensity; lang: string;
 }) {
-  const scope = kit.usePartContext();
   if (!words.top) return null;
   return <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>
-    <kit.KitText part="top" role="caption" tone="muted" density={density}>{words.top}</kit.KitText>
-    <kit.KitGrid arrange="rows" list listRowGap={density === "compact" ? "group" : "cards"} density={density}>
+    <kit.KitText part="top" role="label" tone="muted" density={density}>{words.top}</kit.KitText>
+    <kit.KitGrid arrange="rows" list density={density}>
       {top.map(({ id, name }, index) => {
         const { score, label } = words.leaders[index]!;
-        const rank = <kit.KitText part="rank" role="caption" tone="muted" tabular>{c.numberLine(index + 1, lang)}</kit.KitText>;
-        return <kit.PartContext.Provider key={id} value={{ ...scope, item: id }}>
-          <kit.KitCard part="root" style="plain" label={label}>
-            <kit.KitGrid fitLast density={density}>
-              <kit.KitContent lead={rank} leadingAlign="row" density={density}>
-                <kit.KitText part="name" role="caption" lines={1}>{name}</kit.KitText>
-              </kit.KitContent>
-              <kit.KitText part="value" role="number" numberScale="compact" emphasis="quiet" density={density} tabular>{score}</kit.KitText>
-            </kit.KitGrid>
-          </kit.KitCard>
-        </kit.PartContext.Provider>;
+        const rank = <kit.KitText part="rank" role="label" tone="muted" tabular>{c.numberLine(index + 1, lang)}</kit.KitText>;
+        const value = <kit.KitContent inset="md" density={density}>
+          <kit.KitText part="value" role="number" numberScale="compact" density={density} tabular>{score}</kit.KitText>
+        </kit.KitContent>;
+        return <kit.KitRow key={id} item={id} label={label} leading={rank} trailing={value} inset="none" density={density}>
+          <kit.KitText part="name" role="body" density={density} lines={1}>{name}</kit.KitText>
+        </kit.KitRow>;
       })}
     </kit.KitGrid>
   </kit.KitContent>;
+}
+
+// prettier-ignore
+function ChallengeAction({ input, words, density }: {
+  input: ChallengeProps; words: ChallengeText; density: c.ThemeDensity;
+}) {
+  const { controller, interactive } = kit.useKit();
+  const part = input.joined ? "log" : "join";
+  const label = words.action;
+  if (words.ended && (controller || !interactive)) return (
+    <kit.KitRow part={part} role="button" inline {...{ label, density }}>
+      <kit.KitText part={`${part}_label`} role="label" tone="accent">{label}</kit.KitText>
+    </kit.KitRow>
+  );
+  return <kit.KitAction {...{ part, label }} goto={input.joined ? input.goto : undefined}
+    kind={words.ended ? "quiet" : "primary"} full={!words.ended} />;
 }
 
 // prettier-ignore
@@ -158,13 +169,12 @@ export function Challenge(input: ChallengeProps) {
     <kit.KitContent density={density}>
       <kit.KitText part="title" role="heading" density="comfortable">{input.title}</kit.KitText>
       <kit.KitText part="days_left" role="label" density={density}>{words.daysLeft}</kit.KitText>
-      <kit.KitText part="ends" role="caption" tone="muted" density={density}>{words.ends}</kit.KitText>
+      <kit.KitText part="ends" role="label" tone="muted" density={density}>{words.ends}</kit.KitText>
     </kit.KitContent>
     <ChallengeProgress {...{ input, words, density }} />
     <ChallengeRankings top={input.top} {...{ words, density, lang }} />
     <kit.KitContent group="response" density={density}>
-      <kit.KitAction part={input.joined ? "log" : "join"} label={words.action}
-        goto={input.joined ? input.goto : undefined} full />
+      <ChallengeAction {...{ input, words, density }} />
     </kit.KitContent>
   </kit.KitCard>;
 }

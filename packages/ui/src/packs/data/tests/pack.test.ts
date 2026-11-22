@@ -12,14 +12,16 @@ import {
   packOf,
   packReady,
   readComponent,
+  readPrompt,
   writerFormat,
   type ArchetypeMeta,
   type CastLike,
   type Definition,
 } from "@lmthing/ui/catalog";
+import { createPreviewController, previewComponent } from "../../../../../../apps/gallery/app/draw";
 import { adminListProbes, boardProbes, reportProbes, example } from "..";
 
-const ids = ["Table", "Board", "FilterBar", "LineChart", "Heatmap", "BulkActions", "ActivityLog"] as const;
+const ids = ["Table", "Board", "LineChart", "Heatmap", "BulkActions", "ActivityLog"] as const;
 const draft = createRegistry({ packs: ["data"], includeDrafts: true });
 const empty: CastLike = { things: [], items: [] };
 const full: CastLike = {
@@ -40,6 +42,8 @@ it("scopes generated Writer choices and keeps drafts out of live registries", ()
   const format = JSON.stringify(writerFormat(draft));
   const liveFormat = JSON.stringify(writerFormat(live));
   expect(draft.ids.filter((id) => id in packOf).sort()).toEqual([...ids].sort());
+  expect(createRegistry().resolve("FilterBar")).toBe("FilterBar");
+  expect(Object.hasOwn(packOf, "FilterBar")).toBe(false);
   for (const id of ids) {
     expect(packOf[id]).toBe("data");
     expect(core.resolve(id)).toBeUndefined();
@@ -60,7 +64,7 @@ it("validates the example byte for byte and parses every line", () => {
     expect(draft.schema(c)?.safeParse(input).success, c).toBe(true);
   }
   expect(new Set(lines.map(({ id }) => id)).size).toBe(lines.length);
-  for (const id of ids) expect(lines.some(({ c }) => c === id)).toBe(true);
+  for (const id of [...ids, "FilterBar"]) expect(lines.some(({ c }) => c === id)).toBe(true);
   expect(lines.find(({ c }) => c === "Table")).toMatchObject({ selectable: true, sort: 1 });
   expect(lines.find(({ c }) => c === "Table").rows).toHaveLength(20);
   expect(lines.find(({ c }) => c === "Bars").style).toBe("share");
@@ -120,10 +124,14 @@ it.each(ids)("%s validates examples and fallbacks and has well-formed probes", (
   if (def.meta.actions) expect(reads.length).toBeGreaterThan(0);
   for (const {
     screen,
+    task,
     expect: { address, action },
   } of reads) {
     const instance = address.split("/")[0]!;
-    expect(readComponent(def, def.examples[screen], instance).join("\n")).toContain(`[${address} ${action}`);
+    const reading = def.meta.selectionBinding
+      ? readPrompt(def, screen, instance, task)
+      : readComponent(def, def.examples[screen], instance).join("\n");
+    expect(reading).toContain(`[${address} ${action}`);
   }
   expect(def.props.safeParse({ ...(def.examples[0] as object), colour: "#ff0000" }).success).toBe(false);
 });
@@ -162,12 +170,29 @@ it("rejects inconsistent shapes, invalid references and values beyond the plan l
 it("routes only dangerous bulk actions through confirmation and hides all actions when empty", () => {
   const def: Definition = components.BulkActions;
   const input = def.examples[0];
-  const read = readComponent(def, input, "b1").join("\n");
+  const probe = def.probes.find((probe) => probe.kind === "read")!;
+  const read = readPrompt(def, probe.screen, "b1", probe.task);
   expect(def.meta.confirmParts).toContain("confirm");
   expect(def.meta.confirmParts).not.toContain("root");
+  expect(read).toContain("source Table");
+  expect(read).toContain("[source/r1/pick check:done]");
+  expect(read).toContain("[source/r2/pick check:todo]");
+  expect(read).toContain("1 selected — Select all [b1/all press]");
   expect(read).toContain("[b1/r1 press]");
   expect(read).not.toContain("[b1/r1/confirm press]");
   expect(read).not.toContain("[b1/r2 press]");
   expect(read).toContain("[b1/r2/confirm press]");
+  expect(readComponent(def, input, "b1").join("\n")).not.toContain(" press]");
   expect(readComponent(def, input, "b1", "empty").join("\n")).not.toContain(" press]");
+});
+
+it("previews the bar with a real checked row without seeding the empty example", () => {
+  const def: Definition = components.BulkActions;
+  for (const example of def.examples) {
+    const input = def.props.parse(example) as Record<string, unknown>;
+    const preview = createPreviewController(def, input, "home", { state: "filled" });
+    expect(preview?.read()).toContain(`1 selected — Select all [${previewComponent}/all press]`);
+    expect(preview?.snapshotScreen().components.map(({ c }) => c)).toEqual(["Table", "BulkActions"]);
+    expect(createPreviewController(def, input, "home", { state: "empty" })).toBeUndefined();
+  }
 });

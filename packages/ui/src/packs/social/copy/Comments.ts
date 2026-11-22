@@ -17,7 +17,8 @@ export function commentReading(input: unknown, state: StateName, lang?: string):
   const entries = comments.map(({ name, likes, reply }, index) => {
     if (!reply) parent = name;
     const author = reply && parent ? words.comments.replyAuthor(name, parent) : name;
-    return `r${index + 1}: ${[author, commentLikeCopy(likes, lang).line].join(words.feed.countSeparator)}`;
+    const details = [author, commentLikeCopy(likes, lang).line, words.comments.replyTarget(name)];
+    return `r${index + 1}: ${details.join(words.feed.countSeparator)}`;
   });
-  return [...entries, words.comments.reply];
+  return entries;
 }

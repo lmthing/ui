@@ -11,6 +11,7 @@ export const en = {
     move: "Move to",
     moveStages: { applied: "applied", screening: "screening", interview: "interview", offer: "offer" },
     destination: (stage: string, name: string) => `Move ${name} to ${stage}`,
+    outcomes: (counts: readonly string[]) => counts.join(" · "),
     count: (label: string, count: string) => `${label}: ${count}`,
     countLabel: (label: string) => `${label}: `,
     separator: " · ",

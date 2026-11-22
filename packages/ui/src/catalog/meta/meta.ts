@@ -1,32 +1,26 @@
-import type { ActionName, ActionSpec, Component, ComponentId, StateName, Tier } from "../types";
-import type { PackProbe, ChooseProbe } from "../probes";
-import type { PackId } from "./pack-ids";
+import type { ActionName, ActionSpec, StateName, Tier } from "../types";
 import type { ClockMeta } from "./clocks";
 import type { RecordEdits } from "./record-edits";
 import type { ItemVariants, Session, VariantParts, Variants } from "../types";
-import type { DeviceData, ItemEditPath, ItemEdits, ScreenLike } from "../agent";
-import type { Issue } from "../rules";
+import type { DateSpanSelection, DeviceData, HostCommandMeta, ItemEditPath, ItemEdits } from "../agent";
 import type * as LiveMeta from "./live";
+import type { Choice, NamedCollection, NestedGroups, NestedPart } from "./collections";
+import type { DriveBindings, NumericRange } from "./runtime";
 export type NumericAdjustments = Readonly<
-  Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
+  Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number } & NumericRange>>
 >;
-type Draw =
-  | { kind: "faces"; press: string; count: string; sides: string; hold?: string }
-  | { kind: "pick"; press: string; pool: string; repeat?: string; reset?: string }
-  | { kind: "partition"; press: string; redraw?: string; players: string; teams: string; locked?: string };
-type NumericSet = { prop: string; min?: number; max?: number; integer?: boolean };
+type NumericSet = { prop: string; integer?: boolean } & NumericRange;
 type ItemNumericSet = NumericSet & {
   /** Addressed items flatten this wire matrix in row-major order. */
   matrix?: { rows: string; values: string };
 };
 type ComponentSet =
   | (NumericSet & { type?: "number" } & (
-        { runtime?: false } | { runtime: true; maxProp: string; initial: number }
+        { runtime?: false } | { runtime: true; maxProp?: string; initial: number }
       ))
   | { prop: string; type: "date"; min?: string; max?: string }
   | { prop: string; type: "choice"; choices: readonly string[] };
 type RowSelection = "index" | "position" | { field: string };
-type Choice = string | number | { value: string | number; label: string };
 /** A static list or a parsed prop containing the same option shape. */
 type ChoiceSource = readonly Choice[] | { prop: string };
 type NamedSelection = { prop: string; choices: ChoiceSource } & (
@@ -65,10 +59,12 @@ export type Meta = {
   realPath: string;
   dense?: true;
   confirmParts?: readonly string[];
-  drives?: string; // Forward item root presses as a seek to the item's `at` seconds.
+  drives?: string | DriveBindings; // A component id preserves legacy item-root seek.
   variants?: Variants;
   variantParts?: VariantParts;
   clocks?: readonly ClockMeta[];
+  media?: LiveMeta.MediaTargets;
+  sequence?: LiveMeta.SequenceMeta;
   adjust?: NumericAdjustments;
   /** Part/action pairs from `actions` that are also available in `empty`. */
   emptyActions?: readonly `${string}.${ActionName}`[];
@@ -79,7 +75,9 @@ export type Meta = {
   /** Read visible content and the read summary in success, not just the header and available actions. */
   readSuccess?: true;
   /** Runtime-only chance control. Input keys refer to validated props, never to result props. */
-  draw?: Draw;
+  draw?: LiveMeta.Draw;
+  /** Monotonic round timing for an item press and a component reset press. */
+  buzz?: { press: string; reset: string };
   /** Runtime-only progress through a roster or deck; keys name seed props and declared press parts. */
   session?: Session;
   /**
@@ -93,21 +91,29 @@ export type Meta = {
   clear?: Readonly<Record<string, { text: readonly string[]; pickers: readonly string[] }>>;
   /** Confirmed component press part → wire prop holding the sign-off timestamp. */
   signOff?: Readonly<Record<string, string>>;
-  /** `visible: "first"` draws and reads only the first item, with a count of the rest. */
   items?: {
     key: string;
     parts: readonly string[];
     prefix?: string;
     /** Replace this runtime collection with validated, addressed host rows, not Writer props. */
     deviceData?: LiveMeta.DeviceRows;
-    visible?: "all" | "first";
+    visible?: "all" | "first"; // "first" draws and reads only the first item and counts the rest.
     /** Read visible rows sharing the value of this readable text field on one addressed line. */
     readGroupBy?: string;
+    /** This wire collection has item addresses only in the matching component structure. */
+    addressedWhen?: Readonly<Record<string, string | boolean>>;
+    /** Replace these item fields with the secret marker when the shared read condition matches. */
+    readSecrets?: { fields: readonly string[]; when: Readonly<Record<string, string | boolean>> };
+    revealSecrets?: { part: string; fields: readonly string[] };
     /** Match the addressed row first, then its component. Filter only after stamping. */
     visibleWhen?: Readonly<Record<string, string | boolean>>;
+    toggles?: Readonly<Record<string, string>>; // Named toggle part → live row boolean.
     variants?: ItemVariants;
     clocks?: readonly ClockMeta[];
+    media?: LiveMeta.MediaTargets & { identity?: string };
     adjust?: NumericAdjustments;
+    /** Confirmed component press part that restores item adjustments and nested step values to their seeds. */
+    reset?: string;
     /** Item parts backed by wire props. Photo and remove use the declared press actions. */
     edits?: ItemEdits;
     /** Confirmed edits of whole wire records in the item collection. */
@@ -117,7 +123,7 @@ export type Meta = {
     /** Locate the row's wire owner; required for host row edits, otherwise defaults to the stamped index. */
     editPath?: ItemEditPath;
     /** Item-root move by index into { label } columns, or by ordered values of a wire row enum. */
-    move?: { column: string; columns: string } | { field: string; values: readonly string[] };
+    move?: LiveMeta.ItemMove;
     /** Item parts with a numeric `set`; adjustments to the same prop share its value and bounds. */
     set?: Readonly<Record<string, ItemNumericSet>>;
     nested?: {
@@ -126,24 +132,18 @@ export type Meta = {
       activeParent?: true;
       /** Maximum on toggles across all parent rows, including hidden ones. */
       maxActive?: number;
+      /** Independent policies within each parent, optionally partitioned by a child field. */
+      groups?: NestedGroups;
       clocks?: readonly ClockMeta[];
-      parts: Readonly<
-        Record<
-          string,
-          {
-            action: "toggle" | "set";
-            prop: string;
-            min?: number;
-            max?: number;
-            integer?: boolean;
-            /** A named control's true value, or a boolean property on the sub-item. */
-            when?: string | { prop: string; equals: boolean };
-          }
-        >
-      >;
+      parts: Readonly<Record<string, NestedPart>>;
     };
   };
+  /** Optional independent, addressable collections alongside the legacy items. */
+  collections?: Readonly<Record<string, NamedCollection>>;
   select?: SelectMeta; // Flags with runtime: true never enter wire snapshots.
+  dateSpan?: DateSpanSelection;
+  /** Declared component press parts that signal an in-screen drawing to reveal a local anchor. */
+  jump?: readonly string[];
   /** Bind to item checks on a same-screen component. Without an instance id, require a unique source. */
   selectionBinding?: LiveMeta.SelectionBinding;
   /** Named component parts with independent destinations and explicit offers. */
@@ -159,6 +159,8 @@ export type Meta = {
   deviceDataWake?: LiveMeta.DeviceDataWake;
   /** Runtime projections and row presses backed by declared host records and a staged journal. */
   recordRuntime?: LiveMeta.RecordRuntime;
+  /** Pure, bounded instance state, advanced by declared local actions only. */
+  localState?: LiveMeta.LocalStateRuntime;
   /** Pure visibility rule over the declared host records. A false result hides the whole component. */
   deviceDataVisible?: (data: DeviceData) => boolean;
   /** Deterministic synthetic records for preview, conformance and read-probe fixtures only. */
@@ -172,29 +174,5 @@ export type Meta = {
   status?: "draft" | "ready";
   /** Built by code (e.g. TabBar); stays readable but has no choose/write prompts or probes. */
   codeOwned?: boolean;
-};
-/** Pure check over canonical entries with parsed props. Report stable `S.*` codes. */
-export type PackScreenValidator = (screen: ScreenLike) => readonly Issue[];
-export type PackMeta = {
-  id: PackId;
-  example: string;
-  probes: readonly (PackProbe | ChooseProbe)[];
-  screenValidators?: readonly PackScreenValidator[];
-  hostRecords?: LiveMeta.HostRecords;
-};
-export type Slot = {
-  allow: readonly ComponentId[];
-  required: boolean;
-  min?: number;
-  max?: number;
-  variant?: string;
-};
-export type ArchetypeMeta = {
-  id: string;
-  job: string;
-  layouts: Record<
-    string,
-    { recipe: readonly Slot[]; defaults: readonly Component[]; writeHints?: readonly string[] }
-  >;
-  defaultLayout: string;
-};
+} & HostCommandMeta;
+export type { ArchetypeMeta, PackMeta, PackScreenValidator, Slot } from "./pack-meta";

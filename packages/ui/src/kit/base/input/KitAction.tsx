@@ -1,16 +1,34 @@
-import { useState } from "react";
+import { useId, useLayoutEffect, useState } from "react";
+import { XStack, styled, isWeb, VisuallyHidden } from "tamagui";
+import {
+  component,
+  layoutType,
+  motion,
+  radius,
+  size,
+  space,
+  type as typography,
+  type ActionName,
+  type IconName,
+} from "../../../catalog";
+import {
+  useActionPress as useActionDispatch,
+  useCopyFeedback,
+  usePrivateStatusAt,
+  useRevealControl,
+} from "../../interact";
 import { useAnimatedValue } from "../../motion";
-import { motion } from "../../../catalog";
-import { XStack, styled, isWeb } from "tamagui";
-import { component, radius, size, space, type as typography, type IconName } from "../../../catalog";
+import { useComponentState, usePart, usePartContext, usePartDisabled } from "../../part";
 import { useKit, useKitStyle } from "../../provider";
-import { useComponentState, usePart } from "../../part";
+import { useSequenceHold, type HoldToPause } from "../controls";
 import { KitIcon, KitText, shifted, type IconTone, type TextTone } from "../text";
 
 export type ActionKind = "primary" | "secondary" | "quiet" | "danger";
+const webCopyButton = { tag: "button", type: "button" } as const;
 const Frame = styled(XStack, {
   alignItems: "center",
   justifyContent: "center",
+  borderWidth: component.base.none,
   minHeight: size.control.md,
   minWidth: size.control.md,
   gap: space.sm,
@@ -26,9 +44,7 @@ const Frame = styled(XStack, {
       },
     },
     iconOnly: { true: { paddingHorizontal: space.xs }, false: { paddingHorizontal: space.lg } },
-    loading: {
-      true: { borderColor: "$line" },
-    },
+    loading: { true: { borderColor: "$line" } },
   } as const,
 });
 const toneOf: Record<ActionKind, TextTone & IconTone> = {
@@ -43,52 +59,133 @@ const inactiveSurface = {
   quiet: "transparent",
   danger: "$badSoft",
 } as const;
-const inactiveTone: Record<ActionKind, TextTone & IconTone> = {
-  primary: "text",
-  secondary: "muted",
-  quiet: "muted",
-  danger: "bad",
-};
 type ActionProps = {
   label?: string | undefined;
   icon?: IconName | undefined;
   kind?: ActionKind;
   goto?: string | undefined;
-  part?: string;
+  part?: string | null;
+  /** When supplied, only these explicit parts are drawn for the label and icon. */
+  contentParts?: { label?: string; icon?: string };
   a11y?: string;
   full?: boolean;
-  action?:
-    | "press"
-    | "dismiss"
-    | "play"
-    | "pause"
-    | "toggle"
-    | "select"
-    | "check"
-    | "set"
-    | "type"
-    | "increment"
-    | "decrement"
-    | "start"
-    | "stop"
-    | "send"
-    | "scan";
+  action?: Exclude<ActionName, "swipe" | "flip">;
   value?: string | number | boolean;
   disabled?: boolean;
+  copiedLabel?: string;
+  /** Copy from the host binding, not a rendered `value`. */
+  hostCopy?: boolean;
+  /** Tap still activates this part; a continuous press temporarily pauses the addressed sequence. */
+  holdToPause?: HoldToPause;
 };
+
+function useActionAvailability(
+  address: string,
+  part: string | null,
+  action: string | undefined,
+  disabled: boolean,
+) {
+  const { interactive, controller } = useKit();
+  const { component: id, item } = usePartContext();
+  const hostPart = part !== null && controller?.hasHostCommandsAt?.(id, part, item !== undefined) === true;
+  useLayoutEffect(
+    () => (disabled && hostPart ? controller?.registerDisabledPart(address) : undefined),
+    [address, controller, disabled, hostPart],
+  );
+  const offered =
+    interactive &&
+    controller &&
+    (action
+      ? controller.actionsAt(address, { ignoreDisabledPart: hostPart }).includes(action)
+      : controller.canPress(address, { ignoreDisabledPart: hostPart }));
+  const blocked = usePartDisabled(part === null ? undefined : address);
+  const loading = useComponentState() === "loading" && !offered;
+  return {
+    loading,
+    inactive: loading || disabled || blocked || Boolean(interactive && controller && !offered),
+  };
+}
+
+function useActionPress(
+  props: { action: ActionProps["action"]; value: ActionProps["value"]; goto: ActionProps["goto"] },
+  address: string,
+  inactive: boolean,
+  reveal: boolean,
+) {
+  const kit = useKit();
+  const [pressed, setPressed] = useState(false);
+  const still = kit.environment.reduceMotion || kit.environment.agentMode;
+  const scale = useAnimatedValue(pressed && !still ? motion.pressScale : 1, still);
+  const dispatch = useActionDispatch(props, address, inactive, reveal);
+  if (!kit.interactive || inactive) return { scale };
+  return { scale, onPressIn: () => setPressed(true), onPressOut: () => setPressed(false), ...dispatch };
+}
+
+function useCopyState(address: string | undefined, value: unknown, hostCopy: boolean, disabled: boolean) {
+  const local = useCopyFeedback(address, hostCopy ? undefined : value, disabled, hostCopy);
+  const host = usePrivateStatusAt(hostCopy ? address : undefined, "copy");
+  return {
+    missing: Boolean(address && !hostCopy && (typeof value !== "string" || !value.length)),
+    copied: local || host === "approved",
+  };
+}
+
+function useActionBehavior({
+  goto,
+  part = "root",
+  action,
+  value,
+  disabled = false,
+  hostCopy = false,
+  holdToPause,
+}: ActionProps) {
+  const address = usePart(part ?? undefined, part !== null);
+  const { loading, inactive: unavailable } = useActionAvailability(address.testID, part, action, disabled);
+  const copy = action === "copy";
+  const reveal = useRevealControl(address.testID, part === null ? "none" : action, disabled || loading);
+  const feedback = useCopyState(
+    copy && part !== null ? address.testID : undefined,
+    value,
+    hostCopy,
+    loading || disabled,
+  );
+  const inactive = part === null || unavailable || feedback.missing;
+  const handlers = useActionPress({ action, value, goto }, address.testID, inactive, reveal);
+  const blocked = usePartDisabled(holdToPause ? address.testID : undefined);
+  const hold = useSequenceHold(
+    holdToPause,
+    address.testID,
+    { tap: !inactive, hold: part !== null && !disabled && !loading && !blocked },
+    () => {
+      if ("onPress" in handlers) handlers.onPress?.();
+    },
+  );
+  return {
+    address,
+    loading,
+    inactive: inactive && !hold.enabled,
+    copy,
+    copied: feedback.copied && !inactive,
+    status: hold.status,
+    handlers: holdToPause ? hold.events : handlers,
+  };
+}
 
 function ActionContent({
   label,
   icon,
   part,
+  contentParts,
   tone,
   loading,
   quiet,
-}: Pick<ActionProps, "label" | "icon" | "part"> & {
+}: Pick<ActionProps, "label" | "icon" | "part" | "contentParts"> & {
   tone: TextTone & IconTone;
   loading: boolean;
   quiet: boolean;
 }) {
+  const labelPart = contentParts ? contentParts.label : `${part}_label`;
+  const iconPart = contentParts ? contentParts.icon : `${part}_icon`;
   return (
     <XStack position="relative" alignItems="center">
       <XStack
@@ -101,12 +198,16 @@ function ActionContent({
             name={icon}
             tone={tone}
             scale={label ? "sm" : "md"}
-            part={`${part}_icon`}
-            decorative={loading}
+            {...(iconPart ? { part: iconPart } : {})}
+            decorative={loading || part === null || !iconPart}
           />
         )}
         {label && (
-          <KitText role="label" tone={tone} part={loading ? null : `${part}_label`}>
+          <KitText
+            role={layoutType.meta}
+            tone={tone}
+            part={loading || part === null ? null : (labelPart ?? null)}
+          >
             {label}
           </KitText>
         )}
@@ -115,7 +216,7 @@ function ActionContent({
         <XStack
           position="absolute"
           width="100%"
-          height={typography.label.size * 0.6}
+          height={typography[layoutType.meta].size * 0.6}
           backgroundColor="$line"
           borderRadius={radius.sm}
         />
@@ -124,77 +225,57 @@ function ActionContent({
   );
 }
 
-function useActionPress(props: ActionProps, address: string, inactive: boolean) {
-  const kit = useKit();
-  if (!kit.interactive || inactive) return {};
-  if (kit.controller)
-    return {
-      onPress: () =>
-        props.action
-          ? kit.controller!.act({
-              address,
-              action: props.action,
-              ...(props.value === undefined ? {} : { value: props.value }),
-            })
-          : kit.controller!.press(address),
-    };
-  return props.goto ? { onPress: () => kit.onLink?.(props.goto!, address) } : {};
-}
-
-export function KitAction({
-  label,
-  icon,
-  kind = "primary",
-  goto,
-  part = "root",
-  a11y,
-  full = false,
-  action,
-  value,
-  disabled = false,
-}: ActionProps) {
-  const kit = useKit();
+export function KitAction(props: ActionProps) {
+  const {
+    label,
+    icon,
+    kind = "primary",
+    part = "root",
+    contentParts,
+    a11y,
+    full,
+    copiedLabel,
+    holdToPause,
+  } = props;
   const ks = useKitStyle();
-  const address = usePart(part);
-  const loading = useComponentState() === "loading";
+  const { address, loading, inactive, copy, copied, status, handlers } = useActionBehavior(props);
   const tone = kind === "quiet" && icon === "close" ? "muted" : toneOf[kind];
-  const [pressed, setPressed] = useState(false);
-  const pressScale = useAnimatedValue(
-    pressed && !kit.environment.reduceMotion && !kit.environment.agentMode ? motion.pressScale : 1,
-    kit.environment.reduceMotion || kit.environment.agentMode,
-  );
-  const blocked =
-    kit.interactive &&
-    kit.controller &&
-    !(action
-      ? kit.controller.actionsAt(address.testID).includes(action)
-      : kit.controller.canPress(address.testID));
-  const inactive = loading || disabled || Boolean(blocked);
-  const captionTone = loading ? "text" : inactive ? inactiveTone[kind] : tone;
+  const inactiveTone = kind === "primary" ? "text" : kind === "danger" ? "bad" : "muted";
+  const captionTone = loading ? "text" : inactive ? inactiveTone : copied ? "good" : tone;
   const fill = loading ? (kind === "quiet" ? "transparent" : "$line") : inactiveSurface[kind];
-  const handlers = useActionPress({ action, value, goto } as ActionProps, address.testID, inactive);
+  const statusId = useId();
   return (
-    <Frame
-      {...address}
-      kind={kind}
-      backgroundColor={inactive ? fill : undefined}
-      loading={loading}
-      scale={pressScale}
-      {...(kit.interactive && !inactive
-        ? { onPressIn: () => setPressed(true), onPressOut: () => setPressed(false) }
-        : {})}
-      iconOnly={!label}
-      borderRadius={label ? shifted("md", ks.radiusShift) : radius.pill}
-      {...(full ? { alignSelf: "stretch" } : { alignSelf: "flex-start" })}
-      accessibilityRole={loading ? undefined : "button"}
-      aria-busy={loading || undefined}
-      {...(!isWeb ? { accessibilityState: { disabled: inactive } } : {})}
-      aria-disabled={inactive || undefined}
-      {...(inactive ? { tabIndex: -1 } : {})}
-      accessibilityLabel={label ?? a11y}
-      {...handlers}
-    >
-      <ActionContent {...{ label, icon, part, tone: captionTone, loading, quiet: kind === "quiet" }} />
-    </Frame>
+    <>
+      <Frame
+        {...(part === null ? {} : address)}
+        kind={kind}
+        backgroundColor={inactive ? fill : copied ? "$goodSoft" : undefined}
+        loading={loading}
+        iconOnly={!label}
+        {...(isWeb && copy && !loading ? webCopyButton : {})}
+        borderRadius={label ? shifted("md", ks.radiusShift) : radius.pill}
+        alignSelf={full ? "stretch" : "flex-start"}
+        accessibilityRole={loading ? undefined : "button"}
+        aria-busy={loading || undefined}
+        {...(!isWeb ? { accessibilityState: { disabled: inactive } } : {})}
+        {...(inactive ? { "aria-disabled": true, tabIndex: -1 } : {})}
+        accessibilityLabel={(copied ? copiedLabel : undefined) ?? label ?? a11y}
+        aria-live={copy ? "polite" : undefined}
+        aria-describedby={isWeb && status ? statusId : undefined}
+        {...handlers}
+      >
+        <ActionContent
+          label={copied && label ? (copiedLabel ?? label) : label}
+          icon={copied && icon ? "check" : icon}
+          {...{ part, tone: captionTone, loading, quiet: kind === "quiet" }}
+          {...(contentParts ? { contentParts } : {})}
+        />
+      </Frame>
+      {isWeb && holdToPause && (
+        <VisuallyHidden id={statusId} aria-live="polite" aria-atomic>
+          {status}
+        </VisuallyHidden>
+      )}
+    </>
   );
 }

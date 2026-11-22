@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { URL } from "node:url";
-import { accents, presets, themeName, themeRoles } from "../../src/catalog";
+import { accents, presets, themeName, themeRoles } from "../../src/catalog/themes";
 
 export async function buildThemes() {
   const entries = presets.flatMap((preset) =>

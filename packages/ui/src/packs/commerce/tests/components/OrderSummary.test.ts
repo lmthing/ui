@@ -161,7 +161,7 @@ describe("OrderSummary states and parts", () => {
 describe("OrderSummary read and act", () => {
   it("reads fulfillment, quantities and computed amounts with only one action", () => {
     const read = readComponent(def, pickup, "o1").join("\n");
-    for (const text of ["Order #PL-104", "Pickup · Glasshouse counter", "Qty 2", "$12.00 / each", "$41.25"])
+    for (const text of ["Order #PL-104", "Pickup · Glasshouse counter", "Qty 2", "$12.00 each", "$41.25"])
       expect(read).toContain(text);
     expect(read.match(/\[o1\S* press[^\]]*\]/g)).toEqual(["[o1/reorder press]"]);
     const brief = readComponent(def, { ...pickup, detail: "brief" }, "o1").join("\n");
