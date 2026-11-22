@@ -143,7 +143,7 @@ describe("Timer metadata and probes", () => {
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Counter");
-    expect(meta.pick).toContain("Ring");
+    expect(meta.pick).toContain("Progress");
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     for (const id of ["Timer", "Counter"])
       expect(probes.find((probe) => probe.kind === "choose" && probe.expect === id)).toBeDefined();

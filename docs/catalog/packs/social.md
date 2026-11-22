@@ -88,7 +88,7 @@ avatar stack, and "Going" or "Interested".
 ### `Challenge` · planned · data · people
 A group challenge: its goal ("Walk 100 km in November"), days left, the group's total as a bar, the person's
 own part, and the top three.
-- Pick: a shared goal a group works toward. Not one's own goal (`Ring`), not a full ranking (`List` style
+- Pick: a shared goal a group works toward. Not one's own goal (`Progress[ring]`), not a full ranking (`List` style
   `ranked`).
 - Writes: `title` text(40), `goal` number, `unit` text(8), `total` number, `mine` number, `ends` date,
   `top` of `name` text(20), `value` number, 0–3; `joined` boolean; `goto` (where `log` leads). Days left are

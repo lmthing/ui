@@ -52,7 +52,7 @@ Each child's points or pocket money as a jar filling up, and a shelf of prizes w
 claimable when the jar holds enough.
 
 - Pick: points earned and spent on prizes. Not a business's stamp card (customers `Loyalty`), not one's own
-  goal (`Ring`), not badges for milestones (learning `Achievements`).
+  goal (`Progress[ring]`), not badges for milestones (learning `Achievements`).
 - Writes: `kids` of `name` text(16), `photo`, `points` number, `goto`, 1–4; `prizes` of `title` text(24),
   `cost` number, `icon`, 1–6; `money` boolean (points are pocket money).
 - Parts → actions: prizes `claim press` (in `confirmParts`), kids `root press`. · States: filled, success.

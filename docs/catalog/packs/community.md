@@ -19,7 +19,7 @@ community garden committee, amateur society.
 
 - A noticeboard: a pinned `Card` above a `SectionTitle` and `List`; `List[expand]` opens longer notices.
   An urgent notice is a `Banner`. Drop `Notices`: pinning is host ordering, not a new component.
-- A fundraising goal: `Ring` with `Amount`, or `Progress` for several funds. Drop `Campaign`: the host
+- A fundraising goal: `Progress[ring]` with `Amount`, or `Progress` for several funds. Drop `Campaign`: the host
   sums contributions, and a core `Button` opens the contribution form or payment service.
 - A small directory: `People[rows]`; officers: `People[stack]`; one member: `Profile` and `KeyValue`.
 - Meeting dates and the agenda: `Calendar`, `Timeline[day]`, `List`; drafting notes: `Composer[entry]`.

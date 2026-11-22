@@ -151,7 +151,7 @@ export function planAct(
     const preview = planAct(input, defs, values, steps, null, clockOwner, data, now, () => 0);
     if (!preview.ok) return preview;
   }
-  const migrated = migrateScreen(input, { variantOnly: true });
+  const migrated = migrateScreen(input, { variantOnly: true, includeSavedRing: true });
   const plan: Extract<ActResult, { ok: true }> = { ok: true, values: { ...values }, changed: [], links: [] };
   for (const [at, original] of steps.entries()) {
     const snapshot = withRecordScreen(projectDeviceData(data, plan.values), migrated);

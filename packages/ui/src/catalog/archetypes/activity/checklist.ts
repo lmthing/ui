@@ -5,14 +5,14 @@ export const meta = createMeta(
   "Independent jobs to tick off",
   {
     simple: "Header Checklist Note Button",
-    progress: "Header Ring Checklist Button",
+    progress: "Header Progress:ring Checklist Button",
   },
   {
     simple: [
       "Checklist item meta is at most 24 characters. Abbreviate intervals, for example every 7d. Header title and Button label are also at most 24.",
     ],
     progress: [
-      "Checklist item meta and Ring label are at most 24 characters. Abbreviate intervals rather than copying a long care sentence.",
+      "Checklist item meta and circular progress label are at most 24 characters. Abbreviate intervals rather than copying a long care sentence.",
     ],
   },
 ) satisfies ArchetypeMeta;

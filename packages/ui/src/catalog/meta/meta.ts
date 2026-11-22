@@ -100,6 +100,8 @@ export type Meta = {
     visible?: "all" | "first"; // "first" draws and reads only the first item and counts the rest.
     /** Read visible rows sharing the value of this readable text field on one addressed line. */
     readGroupBy?: string;
+    /** This wire collection has item addresses only in the matching component structure. */
+    addressedWhen?: Readonly<Record<string, string | boolean>>;
     /** Match the addressed row first, then its component. Filter only after stamping. */
     visibleWhen?: Readonly<Record<string, string | boolean>>;
     toggles?: Readonly<Record<string, string>>; // Named toggle part → live row boolean.

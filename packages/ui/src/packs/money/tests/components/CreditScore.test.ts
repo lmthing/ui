@@ -61,6 +61,6 @@ it("offers refresh and only linked factor rows, not loading or error actions", (
 });
 
 it("names a core near miss and enters the registry only with a complete pack", () => {
-  expect(def.probes).toContainEqual(expect.objectContaining({ kind: "choose", expect: "Ring" }));
+  expect(def.probes).toContainEqual(expect.objectContaining({ kind: "choose", expect: "Progress" }));
   expect(createRegistry({ packs: ["money"] }).ids.includes("CreditScore")).toBe(packReady("money"));
 });
