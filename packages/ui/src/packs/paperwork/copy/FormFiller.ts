@@ -1,5 +1,13 @@
 import { z } from "zod";
-import { defineLocalState, isoDate, numberLine, text, type StateName, type Values } from "../../../catalog";
+import {
+  defineLocalState,
+  isoDate,
+  numberLine,
+  text,
+  type DeviceData,
+  type StateName,
+  type Values,
+} from "../../../catalog";
 import { paperworkWordsFor } from "../lang";
 import { attachment } from "../seeds";
 
@@ -136,11 +144,23 @@ export function formReading(input: unknown, state: StateName, lang?: string) {
   const visible = fields.filter(({ shown }) => shown);
   return [
     words.privateFile,
+    words.progress,
     formCount(formProgress(fields), lang),
+    words.preview,
     ...(visible.length ? [] : [words.noneRequired]),
-    ...visible.map(({ label, status }) =>
-      words.reading(label, words[status === "done" ? "complete" : "incomplete"]),
-    ),
+    ...visible.flatMap(({ label, required, status, value }) => [
+      words.reading(
+        required ? words.requiredLabel(label) : label,
+        words[status === "done" ? "complete" : "incomplete"],
+      ),
+      ...(typeof value === "string" && value.trim() ? [JSON.stringify(value)] : []),
+    ]),
+    words.save,
+    words.clear,
     ...(!canSave ? [invalid ? words.invalid : words.blocked] : []),
   ];
+}
+
+export function formFailure(data: DeviceData, instance: string) {
+  return data.formPreviewFailures?.includes(instance) === true;
 }

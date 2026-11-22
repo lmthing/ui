@@ -82,13 +82,14 @@ describe("FormFiller visible form", () => {
   });
 });
 
-it("validates live edits by kind, accepts corrected dates, and does not read private values", () => {
+it("validates live edits by kind and only reads the visible field values, not the document reference", () => {
   const view = controller(form, {
     hostCommands: { commands: { formFillerSaveCopy: { allows, run: accepted } } },
   });
   try {
     expect(view.read()).toContain("2 of 4");
-    expect(view.read()).not.toMatch(/lib:ledge_access|Mina Shaw|f1\/save press/);
+    expect(view.read()).not.toMatch(/lib:ledge_access|f1\/save press/);
+    expect(view.read()).toContain('"Mina Shaw"');
     expect(act(view, "r4/field", "type", "not a checkbox").ok).toBe(false);
     expect(act(view, "r1/check", "check").ok).toBe(false);
     expect(act(view, "r1/field", "type", "x".repeat(81)).ok).toBe(false);
@@ -99,7 +100,7 @@ it("validates live edits by kind, accepts corrected dates, and does not read pri
     expect(act(view, "r4/check", "check").ok).toBe(true);
     expect(view.read()).toContain("4 of 4");
     expect(view.read()).toContain("[f1/save press]");
-    expect(view.read()).not.toContain("2028-02-29");
+    expect(view.read()).toContain('"2028-02-29"');
     expect(act(view, "r4/check", "check", false).ok).toBe(true);
     expect(view.read()).not.toContain("[f1/save press]");
   } finally {

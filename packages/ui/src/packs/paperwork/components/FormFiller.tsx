@@ -2,7 +2,7 @@ import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 // prettier-ignore
-import { fieldStatus, formCopyRequest, formCount, formDraft, formField, formGates, formLimit, formProgress, formReading } from "../copy";
+import { fieldStatus, formCopyRequest, formCount, formDraft, formFailure, formField, formGates, formLimit, formProgress, formReading } from "../copy";
 import { paperworkWordsFor } from "../lang";
 import { attachment, seedFile, seedRows } from "../seeds";
 
@@ -40,6 +40,10 @@ export const meta = {
   states: ["empty", "filled", "loading", "success", "error"],
   readSuccess: true,
   read: formReading,
+  deviceData: ["formPreviewFailures"],
+  previewDeviceData: ({ input, state }): c.DeviceData => ({
+    formPreviewFailures: state === "error" && input.document === examples[1]?.document ? ["c1"] : [],
+  }),
   localState: formDraft,
   live: { derive: formGates },
   hostCommands: {
@@ -90,11 +94,9 @@ export const examples = [
   {
     title: "Trot office access form",
     document: "lib:trot_access",
-    detail: "brief",
     fields: [
       { label: "Applicant name", kind: "text", required: true, value: "Alex Reed" },
       { label: "Access start date", kind: "date", required: true, value: "2026-11-24" },
-      { label: "Badge count", kind: "number", value: "2" },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -211,7 +213,9 @@ export function FormFiller(input: View) {
   const accepted = save && operation?.status === "accepted";
   const failed = operation?.status === "rejected";
   const display = saving ? "loading" : accepted ? "success" : failed ? "error" : state;
-  const message = display === "success" ? words.saved : display === "error" ? (!failed || save ? words.failed : words.previewFailed) : words.empty;
+  const previewFailure = formFailure(kit.useDeviceData(), scope.component);
+  const message = display === "success" ? words.saved : display === "error" ?
+    (failed ? save ? words.failed : words.previewFailed : previewFailure ? words.previewFailed : words.failed) : words.empty;
   const body = <kit.PartScope {...scope} state={saving ? "loading" : state}><FormBody {...{ form, density }} /></kit.PartScope>;
   return <kit.KitCard part="root" padded {...{ density, surface }}>
     <kit.PartScope {...scope} state={display}>

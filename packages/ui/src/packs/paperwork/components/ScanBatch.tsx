@@ -2,7 +2,7 @@ import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 // prettier-ignore
-import { scanBatchGates, scanBatchReading, scanBatchRequest, scanCount, scanDraft, scanLimit, scanPage, scanPageLabel } from "../copy";
+import { scanBatchGates, scanBatchReading, scanBatchRequest, scanCount, scanDraft, scanFailure, scanLimit, scanPage, scanPageLabel } from "../copy";
 import { paperworkWordsFor } from "../lang";
 import { seedRows } from "../seeds";
 
@@ -46,6 +46,10 @@ export const meta = {
   states: ["empty", "filled", "loading", "success", "error"],
   readSuccess: true,
   read: scanBatchReading,
+  deviceData: ["scanPermissionFailures"],
+  previewDeviceData: ({ input, state }) => ({
+    scanPermissionFailures: state === "error" && input.style === "review" ? ["c1"] : [],
+  }),
   localState: scanDraft,
   live: { derive: scanBatchGates },
   hostCommands: {
@@ -142,7 +146,7 @@ function PageControls({ page, index, target, density }: Tile & { target: View["p
 }
 
 // prettier-ignore
-function PageTile({ page, index, review, active, density }: Tile & { review: boolean; active: boolean }) {
+function PageTile({ page, index, review, active, move, density }: Tile & { review: boolean; active: boolean; move: boolean }) {
   const scope = kit.usePartContext(), loading = kit.useComponentState() === "loading";
   const { lang, words: { scanBatch: words } } = kit.useWords(paperworkWordsFor);
   const label = scanPageLabel(index, lang);
@@ -152,8 +156,10 @@ function PageTile({ page, index, review, active, density }: Tile & { review: boo
     <kit.KitMetaLine {...{ density }} title={{ text: label, part: "page", role: "meta", strong: true, tabular: true }}
       meta={{ text: page.label, part: "label" }} />
   </kit.KitContent>;
-  return <kit.PartScope {...scope} item={page.id}>
-    {review ? <kit.KitRow part={loading ? null : "preview"} role={scope.state === "error" ? "text" : "button"} inline inset="none" label={a11y}>{photo}</kit.KitRow> : photo}
+  const content = review ? <kit.KitRow part={loading ? null : "preview"}
+    role={scope.state === "error" ? "text" : "button"} inline inset="none" label={a11y}>{photo}</kit.KitRow> : photo;
+  return <kit.PartScope {...scope} item={page.id}>{move || loading ? content :
+    <kit.KitRow part="root" role="text" inline fitContent inset="none" label={a11y}>{content}</kit.KitRow>}
   </kit.PartScope>;
 }
 
@@ -163,7 +169,8 @@ function Pages({ input, active, density }: { input: View; active: string | undef
   const loading = kit.useComponentState() === "loading", review = input.style === "review";
   const { pages } = input;
   const selected = pages.find((row) => row.id === active) ?? pages[0];
-  const tile = (page: View["pages"][number], index: number) => <PageTile key={page.id} {...{ page, index, review, density }} active={review && selected === page} />;
+  const tile = (page: View["pages"][number], index: number) => <PageTile key={page.id} {...{ page, index, review, density }}
+    active={review && selected === page} move={pages.length > 1 && (!review || selected === page)} />;
   const controls = (page: View["pages"][number], index: number) => <PageControls {...{ page, index, density }} target={pages[index ? index - 1 : 1]} />;
   const tiles = review ? pages.map(tile) : pages.map((page, index) =>
     <kit.KitContent key={page.id} {...{ density }}>{tile(page, index)}{controls(page, index)}</kit.KitContent>);
@@ -199,7 +206,8 @@ export function ScanBatch(input: View) {
   const failed = state === "error" || save?.status === "rejected" || capture?.status === "rejected";
   const empty = state === "empty" || (state === "filled" && !live.pages.length);
   const display = done ? "success" : saving ? "loading" : failed ? "error" : empty ? "empty" : state;
-  const message = done ? words.saved : failed ? (save?.status === "rejected" || (state === "error" && live.pages.length) ? words.saveFailed : words.scanFailed) : words.empty;
+  const permissionFailure = scanFailure(kit.useDeviceData(), scope.component);
+  const message = done ? words.saved : failed ? (save?.status === "rejected" || (state === "error" && live.pages.length && !permissionFailure) ? words.saveFailed : words.scanFailed) : words.empty;
   const tray = <kit.PartScope {...scope} state={saving ? "loading" : state}>
     <Pages input={live} active={projected.active} {...{ density }} />
   </kit.PartScope>;

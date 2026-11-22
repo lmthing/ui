@@ -13,6 +13,12 @@ describe("ScanBatch copy", () => {
       "filled",
       "en",
     );
-    expect(reading).toEqual(["1 page", "r1 Page 1: Cover: (private file)"]);
+    expect(reading).toEqual([
+      "Scanned pages",
+      "1 page",
+      "r1 Page 1: Cover: (private file)",
+      "Add page",
+      "Save PDF",
+    ]);
   });
 });

@@ -21,8 +21,12 @@ describe("FormFiller copy and validation", () => {
     expect(formCount(formProgress(live.fields), "en")).toBe("0 of 0");
     expect(formReading(live, "filled", "en")).toEqual([
       "(private file)",
+      "Fields completed",
       "0 of 0",
+      "Preview original",
       "This form has no required fields",
+      "Save copy",
+      "Clear fields",
     ]);
     expect(formCopyRequest(live)).toMatchObject({ fields1: '[["Optional","number","31"]]' });
   });

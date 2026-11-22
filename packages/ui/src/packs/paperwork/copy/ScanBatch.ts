@@ -4,6 +4,7 @@ import {
   numberLine,
   pluralForm,
   text,
+  type DeviceData,
   type StateName,
   type Values,
 } from "../../../catalog";
@@ -78,14 +79,23 @@ export function scanPageLabel(index: number, lang?: string) {
   return paperworkWordsFor(lang).scanBatch.page(numberLine(index + 1, lang));
 }
 
+export function scanFailure(data: DeviceData, instance: string) {
+  return data.scanPermissionFailures?.includes(instance) === true;
+}
+
 export function scanBatchReading(input: unknown, state: StateName, lang?: string) {
-  const { pages, active, style, detail } = input as Draft & { style: string; detail?: string };
+  const { pages, active, style, detail, title } = input as Draft & {
+    style: string;
+    detail?: string;
+    title?: string;
+  };
   const words = paperworkWordsFor(lang).scanBatch;
   if (state === "success") return [words.saved];
   if (state === "empty" || (state === "filled" && !pages.length)) return [words.empty, words.add];
   if (state === "error") return [pages.length ? words.saveFailed : words.scanFailed];
   if (state !== "filled") return [];
   return [
+    ...(title ? [] : [words.title]),
     scanCount(pages.length, lang),
     ...(style === "review" && pages.length
       ? [
@@ -107,5 +117,7 @@ export function scanBatchReading(input: unknown, state: StateName, lang?: string
         label && detail !== "brief" ? words.pageLabel(label, words.privateFile) : words.privateFile,
       ),
     ),
+    ...(pages.length < scanLimit ? [words.add] : []),
+    words.save,
   ];
 }
