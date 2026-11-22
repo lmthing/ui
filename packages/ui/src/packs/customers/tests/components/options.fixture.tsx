@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { TamaguiProvider } from "tamagui";
-import { components, type ActStep, type ScreenLike } from "@lmthing/ui/catalog";
-import { PhoneScreen, renderers } from "@lmthing/ui/kit";
+import type { ActStep, ScreenLike } from "@lmthing/ui/catalog";
+import { PhoneScreen } from "@lmthing/ui/kit";
 import { config } from "../../../../../test/render";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -61,8 +61,6 @@ function Options() {
       <output id="clipboard">{clipboard}</output>
       <output id="actions">{steps.join("\n")}</output>
       <PhoneScreen
-        defs={components}
-        renderers={renderers}
         theme={theme}
         screen={screen}
         onAction={onAction}

@@ -1,11 +1,15 @@
 import type { ArchetypeMeta } from "../../../catalog";
 
+const portraitHint =
+  'ClientCard needs a photo reference even when no client photo is supplied: use photo "local:1" as the neutral placeholder. Leave media null unless the portrait is explicitly hidden.';
+
 export const client = {
   id: "client",
   job: "One client fully",
   defaultLayout: "overview",
   layouts: {
     overview: {
+      writeHints: [portraitHint],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
         { allow: ["ClientCard"], required: true },
@@ -22,6 +26,7 @@ export const client = {
       ],
     },
     history: {
+      writeHints: [portraitHint],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
         { allow: ["ClientCard"], required: true },

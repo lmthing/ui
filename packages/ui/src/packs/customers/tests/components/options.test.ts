@@ -86,7 +86,7 @@ it("computes invoice savings, discounted tax, and balance after deposit; cadence
     ["deposit", "$7.50"],
     ["balance", "$31.28"],
     ["recurring", "Repeats quarterly"],
-  ]) {
+  ] as const) {
     expect(partText(html, part)).toBe(value);
     expect(text).toContain(value);
   }
