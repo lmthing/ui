@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 import { scopeCanRemove, scopeCopy, scopeLocalDate, scopeReading } from "../copy";
 import { projectsWordsFor } from "../lang";
 import { seedFriday, seedLabels, unique } from "../seeds";
+import { prompt } from "../../../entry/prompt-Scope.generated";
 
 // Core first: KeyValue/default cannot record acceptance per deliverable or distinguish baseline exclusions.
 // prettier-ignore
@@ -11,15 +12,12 @@ export const meta = {
   id: "Scope",
   status: "ready",
   group: "input",
-  purpose: "Agree what one project delivers, how to accept it, and what is excluded.",
-  pick: "A project's versioned deliverables with testable acceptance conditions, accepted marks and exclusions. Not generic facts (KeyValue), terms signed once (Agreement), or an approval queue (Approval).",
-  writeHints: [
-    'Each deliverable needs a distinct supplied ref and a testable acceptance condition. Include acceptedAt only for a recorded acceptance; leave acceptance counts and overdue status to code. Use style "baseline" to show exclusions in a separate section.',
-    'To hide only dates, set detail "brief" and retain due and acceptedAt in the data. Use null for density unless tighter spacing was requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath: "Versioned scope and acceptance dates live on the device; client acceptance requires a shared host.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["due", "accepted_at"] } },
   parts: ["root", "revision", "accepted", "excluded", "empty", "complete"],
   items: {
@@ -123,7 +121,7 @@ type Words = ReturnType<typeof projectsWordsFor>["scope"];
 
 // prettier-ignore
 function Deliverable({ copy, density, w, loading, editable, removable }: {
-  copy: Row; density: View["density"]; w: Words; loading: boolean; editable: boolean; removable: boolean;
+  copy: Row; density: c.ThemeDensity; w: Words; loading: boolean; editable: boolean; removable: boolean;
 }) {
   const { row, due, acceptedAt, overdue } = copy, scope = kit.usePartContext();
   const check = loading ? <kit.KitSkeleton shape="control" kind="quiet" /> :
@@ -154,7 +152,7 @@ function Deliverable({ copy, density, w, loading, editable, removable }: {
 export function Scope(seed: View) {
   const input = kit.useLiveControls(meta, seed) as View;
   const state = kit.useComponentState(), { lang, words: { scope: w } } = kit.useWords(projectsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail), data = kit.useDeviceData();
   const copy = scopeCopy({ ...input, detail }, lang, data), loading = state === "loading";
   return <kit.KitCard part="root" style="inset" padded density={density}>

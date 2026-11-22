@@ -22,11 +22,11 @@ import {
   probesFor,
   screenId,
   text,
-  variantProps,
   type CastLike,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import { seedTitles } from "..";
 import {
@@ -36,23 +36,22 @@ import {
   measurementRanges,
   measurementReading,
 } from "../copy";
+import { prompt } from "../../../entry/prompt-Measurements.generated";
 
 // Core first: Sparkline/default cannot show a long measurement series with a goal line and range tabs.
 export const meta = {
   id: "Measurements",
   status: "ready",
   group: "data",
-  purpose: "Follow a body measurement's long-term history against a goal across selectable time ranges.",
-  pick: "Long body-measurement history with a dashed goal reference, latest value, change and month/quarter/year switching. Not today's weight with a tiny recent trend and no goal or range switching (Sparkline), progress toward a total (Progress), a holding's price (PriceChart), or business series (LineChart).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath:
     "Measurements typed on the device; a scale or health-store import needs read permission, and is not medical advice.",
-  writeHints: [
-    "Write surface null unless asked for an outline. Do not write the default surface card. Use detail brief to hide the change since the first reading; keep all measurement points and any supplied goal.",
-  ],
-  variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
+  writeHints: prompt.writeHints,
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["change"] } },
   parts: ["root", "label", "latest", "change", "goal", "plot", "range", "add"],
   states: ["filled", "empty", "loading"],
@@ -147,7 +146,8 @@ function MeasurementSummary({ label, copy, full, unit }: {
 }
 
 // prettier-ignore
-export function Measurements({ label, unit, points, goal, range, goto, surface, detail }: Props<typeof props, typeof meta>) {
+export function Measurements({ label, unit, points, goal, range, goto, detail  }: Props<typeof props, typeof meta>) {
+  const surface = "card";
   const full = useVariant("detail", meta.variants.detail, detail) === "full";
   const { lang, words } = useWords(healthWordsFor);
   const { measurementLabels } = words;

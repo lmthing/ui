@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { cardChannels, cardControlsCopy, cardControlsReading } from "../copy";
 import { moneyWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-CardControls.generated";
 
 const channelSchema = z.strictObject({ online: z.boolean(), atm: z.boolean(), international: z.boolean() });
 const channelControls = c.defineLocalState({
@@ -47,17 +48,14 @@ export const meta = {
   id: "CardControls",
   status: "ready",
   group: "input",
-  purpose: "Freeze a payment card and control where and how much it can spend.",
-  pick: "Freeze one payment card or control its spending channels and cap. Not ordinary app settings (List), account balances (AccountCard), or paying bills (Bills).",
-  writeHints: [
-    "Use a demo card reference and four trailing digits only. Never invent or ask for a card number or CVV. A spend cap needs a positive maxCap at least as large as spendCap.",
-    'Use detail "brief" only when the person asks to hide the slider or reveal. A requested limit needs default full detail: output detail null. Leave density and surface null unless requested; never output surface "card" for a payment card.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "service",
   realPath: "The issuer applies card controls; revealing protected details requires host device unlock.",
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "outlined"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["spend_cap", "reveal"] } },
   parts: [
     "root",
@@ -302,9 +300,8 @@ export function CardControls(input: View) {
     lang,
     words: { cardControls: words },
   } = kit.useWords(moneyWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const live = kit.useLiveControls(meta, input) as View;
   const copy = cardControlsCopy(live, lang);
   const body = (
@@ -324,7 +321,7 @@ export function CardControls(input: View) {
     </kit.KitContent>
   );
   return (
-    <kit.KitCard part="root" surface={surface} density={density} padded>
+    <kit.KitCard part="root" density={density} padded>
       <kit.KitState
         part="status"
         retain

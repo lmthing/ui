@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 import { historyRows, meterEntries, meterSeries, meterSummary, readMeters, validMeterSeries } from "../copy";
 import { propertyWordsFor } from "../lang";
 import { dateTime, distinct, ref, seedLabels } from "../seeds";
+import { prompt } from "../../../entry/prompt-Meters.generated";
 
 // Core first: Field/number cannot validate cumulative readings or derive consumption over each meter's history.
 // prettier-ignore
@@ -11,19 +12,15 @@ export const meta = {
   id: "Meters",
   status: "ready",
   group: "input",
-  purpose: "Record cumulative utility readings and compare usage between readings for each meter.",
-  pick: "Cumulative utility meter readings and computed consumption between dated readings by meter. Not entering one number (Field), a short trend (Sparkline), body measurements (Measurements), or smart device controls (Devices).",
-  writeHints: [
-    "Use snake_case refs. Each reading points to a meter in this line; no duplicate instants or decreasing values on the same meter. A replacement or reset requires a different meterRef.",
-    'Write cumulative values (not differences or estimated bills), offset datetimes and an addGoto. Use "history" for interval readings, otherwise the meter register.',
-    'Write null for all unrequested variant axes, not their defaults. For a register that hides the previous cumulative value, use detail "brief"; keep all readings. If only brief detail is requested, write density null and surface null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Manual meter series live on the device, without a smart-meter service or bill calculation.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["previous"] } },
   parts: ["root", "title", "selector", "empty", "status", "sub", "add", "add_label"],
   items: { key: "entries", parts: ["root", "title", "latest", "previous", "at", "value", "usage", "photo", "evidence"], visibleWhen: { visible: true } },
@@ -97,7 +94,7 @@ export const examples = [
       { readingRef: "willow_nov", meterRef: "willow_electric", at: "2026-11-18T08:00:00Z", value: 1246 },
       { readingRef: "willow_water_nov", meterRef: "willow_water", at: "2026-11-18T08:00:00Z", value: 17.5 },
     ], addGoto: "add_reading" },
-  historyExample, { ...historyExample, density: "compact" },
+  historyExample, { ...historyExample },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Meters");
@@ -114,7 +111,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type MetersProps = c.Props<typeof props, typeof meta>;
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 // prettier-ignore
 function meterDisplay(input: MetersProps, selection: unknown): Pick<MetersProps, "style" | "entries"> {
   const selected = input.meters.find((meter) => meter.meterRef === selection)?.meterRef;
@@ -175,10 +172,10 @@ export function Meters(input: MetersProps) {
   const { screen, component, thing } = kit.usePartContext();
   const state = kit.useComponentState();
   const selection = kit.useControlValue<unknown>(`${screen}/${component}/$meterRef`, undefined);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const display = { ...input, ...meterDisplay(input, selection) };
-  return <kit.KitCard part="root" padded surface={input.surface} density={density}>
+  return <kit.KitCard part="root" padded surface={"card"} density={density}>
     {state === "loading" ? <>
       <kit.KitSkeleton shape="figure" inset="none" content={[["heading", words[display.style]]]} />
       <MeterRegister input={display} {...{ detail, density, lang }} />

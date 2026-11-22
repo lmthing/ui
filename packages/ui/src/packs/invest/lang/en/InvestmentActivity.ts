@@ -1,0 +1,27 @@
+export const words = {
+  activity: {
+    kinds: {
+      deposit: "Deposit",
+      withdrawal: "Withdrawal",
+      buy: "Buy",
+      sell: "Sell",
+      fee: "Fee",
+      dividend: "Dividend",
+    },
+    unknown: "Unknown",
+    voided: "Voided",
+    add: "Add entry",
+    void: "Void entry",
+    saved: "Entry recorded",
+    corrected: "Entry voided",
+    error: "Investment entries could not be reconciled.",
+    event: (kind: string, asset: string) => `${kind} · ${asset}`,
+    positive: (amount: string) => `+${amount}`,
+    units: (units: string) => `Units: ${units}`,
+    unitPrice: (amount: string) => `${amount} per unit`,
+    fee: (amount: string) => `Fee ${amount}`,
+    detailSeparator: " · ",
+    earlier: (count: string, single: boolean) => `${count} earlier ${single ? "entry" : "entries"}`,
+    reading: (lines: readonly (string | undefined)[]) => lines.filter(Boolean).join(" · "),
+  },
+};

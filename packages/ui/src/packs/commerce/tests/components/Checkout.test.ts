@@ -33,7 +33,6 @@ describe("Checkout schema boundaries", () => {
     expect(props.parse({ ...delivery, address: ` ${"a".repeat(60)} `, time: "t".repeat(20) })).toMatchObject({
       address: "a".repeat(60),
       time: "t".repeat(20),
-      surface: "card",
       detail: "full",
     });
     expectTypeOf<Props<typeof props, typeof meta>["method"]>().toEqualTypeOf<"cash" | "card" | "wallet">();

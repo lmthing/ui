@@ -3,24 +3,20 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { isLoanDue, loanCadences, loanCopy, loanReading } from "../copy";
 import { moneyWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Loan.generated";
 export const meta = {
   id: "Loan",
   status: "ready",
   group: "data",
-  purpose: "Understand one debt's terms, remaining principal and projected repayment schedule.",
-  pick: "One debt's terms and calculated principal, interest and installment forecast, including interest-free borrowing and Pay-in-4. Not one amount owed (Amount), recorded repayment progress (Progress), a recent balance trend (Sparkline), reminders (Bills), belongings (Loans), or debt priority (Payoff).",
-  writeHints: [
-    "Write opening principal > 0, nominal annual rate 0–100, payment per period > 0, firstDue YYYY-MM-DD, and at most six recorded payments with due and positive amount. No currency, balance, interest totals, schedule or finish date.",
-    "Use detail full only when asked to list upcoming installments; otherwise leave detail null for a summary. For a schedule without a spacing request, density must be null, not comfortable.",
-    'If asked for a Pay-in-4 or installments plan, use style "installments" and leave detail null. Set cadence to weekly, biweekly (every two weeks) or monthly when specified; null otherwise. Do not invent a payment cadence.',
-    "For recorded payments, use the scheduled installment due date for the cadence, not the day the money was paid.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath:
     "Opening terms and payment records saved on the device; code estimates monthly interest and repayments, never transfers money.",
-  variants: { detail: ["brief", "full"], density: ["comfortable", "compact"] },
+  variants: { detail: ["brief", "full"] },
   variantParts: { "detail.full": { adds: ["schedule"] } },
   parts: ["root", "name", "principal", "rate", "payment", "balance", "next", "finish", "schedule", "edit"],
   states: ["filled", "loading", "success", "error"],
@@ -83,7 +79,7 @@ export const examples = [
     name: "Ana's friend loan", principal: 480, rate: 0, payment: 40, firstDue: "2026-11-01",
     payments: [{ due: "2026-11-01", amount: 40 }], goto: "friend_terms", detail: "full",
   },
-  { ...carLoan, detail: "full", density: "compact" },
+  { ...carLoan, detail: "full" },
   { name: "Trot rain gear", principal: 120, rate: 0, payment: 30, firstDue: "2026-12-14",
     payments: [], cadence: "biweekly", style: "installments" },
   { ...carLoan, name: "Trot van loan", cadence: "weekly", payment: 70 },
@@ -170,7 +166,7 @@ export function Loan(input: c.Props<typeof props, typeof meta>) {
   const copy = loanCopy(input, state, lang);
   const { goto } = input;
   const loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   // prettier-ignore
   return (
     <kit.KitCard part="root" padded density={density}>

@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { creditScoreCopy, creditScoreReading, creditScoreScale, creditScoreZones } from "../copy";
 import { moneyWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-CreditScore.generated";
 
 // Core first: Progress/ring shows progress to one goal, not a bureau score with rating bands and contributing factors.
 const score = z.number().int().min(creditScoreScale.min).max(creditScoreScale.max);
@@ -11,18 +12,14 @@ export const meta = {
   id: "CreditScore",
   status: "ready",
   group: "data",
-  purpose: "See your credit score, how it changed, and which factors affect it.",
-  pick: "See a bureau credit score and its rated factors. Not progress toward a savings goal (Progress), category budgets (Progress), or body measurements (Vitals).",
-  writeHints: [
-    "Write only the reported score, its optional previous score, the bureau, its date and the supplied factors. Never write the calculated tier or delta.",
-    'Use detail "brief" only when asked to hide the band gauge while keeping the score and its factors.',
-    'Leave density and surface null unless explicitly requested. Never output surface "card" for a bureau report.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "service",
   realPath: "A credit-monitoring service fetches the bureau score and rated factors for the person.",
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "outlined"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["gauge"] } },
   parts: [
     "root",
@@ -243,8 +240,7 @@ export function CreditScore(input: View) {
   const {
     words: { creditScore: words },
   } = kit.useWords(moneyWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const operation = kit.useHostOperations()[0];
   const refresh = (
@@ -266,7 +262,7 @@ export function CreditScore(input: View) {
     </kit.KitContent>
   );
   return (
-    <kit.KitCard part="root" padded density={density} surface={surface}>
+    <kit.KitCard part="root" padded density={density}>
       <kit.KitState
         part="status"
         density={density}

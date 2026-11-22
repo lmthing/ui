@@ -5,11 +5,11 @@ import {
   probesFor,
   screenId,
   text,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import {
   KitCard,
@@ -27,24 +27,21 @@ import {
 import { vitalBand, vitalLine, vitalPairLine, vitalRangeLine, vitalStatusLine } from "../copy";
 import { seedTitles } from "..";
 import { healthWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Vitals.generated";
 
 export const meta = {
   id: "Vitals",
   status: "ready",
   group: "data",
-  purpose: "Log vital readings alongside their reference ranges without diagnosing.",
-  pick: "Body readings with a supplied low/normal/high band, unit and time: pressure, pulse, glucose or temperature. Not numbers without reference ranges (Stats), or progress toward a goal (Progress).",
-  writeHints: [
-    "low must not exceed high. Ranges are references, not diagnoses; never write a computed status or tone.",
-    "low and high describe value only. value2 is an optional paired reading, not checked against the primary range.",
-    "Write surface null unless asked for an outline. Do not write the default surface card. Use detail brief to hide reading times; keep the time in each reading and retain the reference range and status.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath:
     "Readings typed on the device; health-store device imports need read permission, and ranges are not medical advice.",
-  variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["at"] } },
   items: { key: "readings", parts: ["root", "label", "value", "value2", "unit", "band", "at"] },
   parts: ["root", "add"],
@@ -167,7 +164,8 @@ function VitalValue({ reading, lang }: { reading: Reading; lang: string }) {
 }
 
 // prettier-ignore
-export function Vitals({ readings, goto, surface, detail }: Props<typeof props, typeof meta>) {
+export function Vitals({ readings, goto, detail  }: Props<typeof props, typeof meta>) {
+  const surface = "card";
   const full = useVariant("detail", meta.variants.detail, detail) === "full";
   const state = useComponentState();
   const { lang, words } = useWords(healthWordsFor);

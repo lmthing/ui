@@ -107,7 +107,7 @@ describe("RequestQueue states and parts", () => {
     expect(first.has(address("r1/root"))).toBe(false);
     expect(first.has(address("status_heading"))).toBe(true);
     expect(first.has(address("r2/status"))).toBe(false);
-    const second = draw({ ...mixed, view: "completed", group: "none", density: "compact" });
+    const second = draw({ ...mixed, view: "completed", group: "none" });
     const parts = addressedElements(second);
     expect(parts.has(address("r1/root"))).toBe(true);
     expect(parts.has(address("r1/status"))).toBe(true);

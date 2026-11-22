@@ -26,7 +26,6 @@ describe("Poll schema", () => {
   it("trims text, applies defaults, and preserves the wire bounds", () => {
     expect(props.parse({ ...example, question: "  Pick one  " })).toMatchObject({
       question: "Pick one",
-      surface: "card",
       emphasis: "normal",
       detail: "full",
     });
@@ -131,9 +130,7 @@ describe("Poll states, parts and read", () => {
     const addresses = [...parts(example, "success").keys()];
     expect(addresses).toContain("home/p1/r1/share");
     expect(addresses.join(" ")).not.toContain("selected");
-    expect([
-      ...parts({ ...example, density: "compact", surface: "outlined", emphasis: "quiet" }, "success").keys(),
-    ]).toEqual(addresses);
+    expect([...parts({ ...example, emphasis: "quiet" }, "success").keys()]).toEqual(addresses);
     expect(read(example, "success")).not.toContain(" select");
   });
   it("hides only the date in brief without discarding its stored value", () => {

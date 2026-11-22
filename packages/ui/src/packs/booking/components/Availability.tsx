@@ -1,8 +1,10 @@
 // prettier-ignore
 import { KitCard, KitContent, KitGrid, KitInput, KitRow, KitText, KitTrail,
-  useControlValue, usePart, useVariant, useWords } from "../../../kit";
+  useControlValue, usePart, useWords,
+  useKit,
+} from "../../../kit";
 // prettier-ignore
-import { clock, isoDate, probesFor, variantProps, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
+import { clock, isoDate, probesFor, type CastLike, type Meta, type Probe, type Props, variantProps } from "../../../catalog";
 import { z } from "zod";
 import { bookingWordsFor } from "../lang";
 import {
@@ -13,24 +15,21 @@ import {
   bufferLine,
   dateOverrideLine,
 } from "../copy";
+import { prompt } from "../../../entry/prompt-Availability.generated";
 // Core first: Field/time edits one time, not a seven-day working week with switches and breaks.
 export const meta = {
   id: "Availability",
   status: "ready",
   group: "input",
-  purpose: "Set the working week during which people can book.",
-  pick: "Seven weekdays with working switches, start and end times and breaks. Not one time field (Field), one day's free starts (Slots), staff shifts (Roster), or venue opening hours (Hours).",
-  writeHints: [
-    "Write each weekday once, mon through sun. End follows start; breaks need both endpoints inside working hours.",
-    'Leave density and detail null unless requested. For working times without visible breaks, use detail "brief" and keep the breaks in the data.',
-    'Use bufferMinutes only for requested gaps between bookings. Use dateOverrides only for specific dates the provider is not taking bookings (kind "blocked" or "holiday").',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Working hours stored on the device.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["break"] } },
   items: { key: "days", parts: ["root", "day", "toggle", "from", "to", "break"] },
   parts: ["root", "buffer", "overrides"],
@@ -109,7 +108,7 @@ export const examples = [
       ...(day === "mon" ? { breakFrom: "12:00", breakTo: "13:00" } : {}),
     })),
   },
-  { ...plantCareWeek, density: "compact" },
+  { ...plantCareWeek },
   { ...plantCareWeek, detail: "brief" },
   { ...plantCareWeek, bufferMinutes: 15, dateOverrides: [
     { date: "2026-12-24", kind: "blocked" }, { date: "2026-12-25", kind: "holiday" },
@@ -170,7 +169,7 @@ function DayFields({ day, enhanced }: { day: Props<typeof props, typeof meta>["d
 // prettier-ignore
 export function Availability(input: Props<typeof props, typeof meta>) {
   const { days, bufferMinutes, dateOverrides } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const { lang, words } = useWords(bookingWordsFor);
   return (
     <KitCard style="inset" part="root">

@@ -1,0 +1,21 @@
+export const words = {
+  cardControls: {
+    network: { debit: "Debit", credit: "Credit", ebt: "EBT", prepaid: "Prepaid" },
+    last4: (digits: string) => `•••• ${digits}`,
+    expires: (date: string) => `Expires ${date}`,
+    freeze: "Freeze card",
+    online: "Online purchases",
+    atm: "ATM withdrawals",
+    international: "Spending abroad",
+    spendCap: "Per-purchase limit",
+    capReading: (amount: string) => `Per-purchase limit: ${amount}`,
+    reveal: "Unlock card details",
+    hide: "Hide card details",
+    unlocking: "Waiting for device unlock",
+    denied: "Card details stayed locked",
+    unavailable: "Device unlock is unavailable",
+    securityCode: (code: string) => `CVV: ${code}`,
+    updated: "Card settings updated",
+    error: "Couldn’t sync card settings",
+  },
+};

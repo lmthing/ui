@@ -3,25 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { deliveryCopy, deliveryPreview, deliveryReading } from "../copy";
 import { placesWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-DeliveryTracker.generated";
 
 // Core first: Route/default shows ordered stops, not a live courier, destination and delivery ETA.
 export const meta = {
   id: "DeliveryTracker",
   status: "ready",
   group: "data",
-  purpose: "Follow a delivery on its way and contact the courier.",
-  pick: "Live courier and destination together on a map with delivery ETA and current step. Not order steps without a map (OrderStatus) or a path through planned stops (Route).",
-  writeHints: [
-    "Write the current step only. Never write an ETA or map positions; the delivery service supplies them.",
-    'Hiding the courier photo only changes media: use "media":"none","density":null. Keep the photo reference. Leave density and surface null unless specifically requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "service",
   realPath: "A delivery service supplies the live courier location and arrival estimate.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     media: ["thumb", "none"],
   },
   variantParts: { "media.none": { hides: ["photo"] } },
@@ -56,7 +52,7 @@ export function fallback(_input: c.FallbackInput): z.input<typeof props> {
 const potDelivery = { step: "on_the_way", courier: "Nia", photo: "lib:people" } as const;
 export const examples = [
   potDelivery,
-  { step: "nearby", courier: "Sam", density: "compact" },
+  { step: "nearby", courier: "Sam" },
   { ...potDelivery, media: "none" },
 ] satisfies z.input<typeof props>[];
 
@@ -119,8 +115,8 @@ function DeliveryContact({ courier, photo, call, courierLabel, density, loading 
 // prettier-ignore
 export function DeliveryTracker(input: DeliveryProps) {
   const state = kit.useComponentState(), loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const { lang, words } = kit.useWords(placesWordsFor);
   const display = deliveryCopy(input, state, kit.useDeviceData(), lang);

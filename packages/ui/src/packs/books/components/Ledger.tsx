@@ -4,25 +4,22 @@ import * as kit from "../../../kit";
 import { ledgerDisplay, ledgerRead, validTransfers } from "../copy";
 import { booksWordsFor } from "../lang";
 import { distinct, periodFields, ref, seedPeriod, seedTitle, validPeriod } from "../seeds";
+import { prompt } from "../../../entry/prompt-Ledger.generated";
 
 // Core first: Timeline/history cannot classify numeric cash movements, pair transfers or reconcile sources.
 export const meta = {
   id: "Ledger",
   status: "ready",
   group: "data",
-  purpose: "Review classified business cash movements and open the receipts or payments behind them.",
-  pick: "A business's dated cash book with amounts in and out, account and category references, linked source records or transfer pairs. Not a plain dated history (Timeline), personal spending (Transactions), one client's activity (ClientHistory), or arbitrary records (Table).",
-  writeHints: [
-    "Write positive net amounts, direction and snake_case references. Do not write VAT amounts, gross, totals or running balances.",
-    "A visible transfer pair uses the same transferRef, opposite directions, equal net, distinct accounts and no vatCode. A counterpart outside this seed may resolve from the host ledger.",
-    'Periods are ordered and at most 366 days inclusive. For account headings alone write group "sections" and density null. Never write "comfortable"; use density "compact" only when tighter spacing is requested. Use group null when not grouping.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "A local ledger uses stored receipts and cash records; file export uses the phone's share sheet.",
-  variants: { density: ["comfortable", "compact"], group: ["none", "sections"] },
+  variants: { group: ["none", "sections"] },
   variantParts: { "group.sections": { adds: ["account_heading"] } },
   parts: ["root", "title", "sub", "from", "to", "total_in", "total_out", "export", "export_label"],
   items: {
@@ -175,7 +172,7 @@ function LedgerHeader({ from, to, totalIn, totalOut, density, loading }: Pick<Re
 
 // prettier-ignore
 export function Ledger(input: LedgerProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const group = kit.useVariant("group", meta.variants.group, input.group);
   const state = kit.useComponentState(), data = kit.useDeviceData();
   const { lang, words: { ledger: words } } = kit.useWords(booksWordsFor);

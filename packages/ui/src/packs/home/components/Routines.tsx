@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { homeTimestamp, routineLastRun, routineOrder, routineReading, routineTriggerParts } from "../copy";
 import { homeWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Routines.generated";
 
 // Core first: Field/repeat stores a repeat value, not trigger rules that run connected device commands.
 // prettier-ignore
@@ -10,18 +11,15 @@ export const meta = {
   id: "Routines",
   status: "ready",
   group: "input",
-  purpose: "Manage smart-home rules that run connected devices when their triggers occur.",
-  pick: "Automatic smart-home rules with trigger conditions, device actions, enable switches and manual runs. Not manual scenes (Devices), household chores (Chores, CareSchedule), or a repeat value in a form (Field).",
-  writeHints: [
-    'If asked to hide device action summaries, set detail to "brief". Use JSON null for density and surface unless requested; do not fill in defaults.',
-    'Optional lastRun is an observed ISO timestamp with an offset, e.g. "2026-11-20T07:00:00+00:00"; omit it when unknown.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "service",
   realPath:
     "A connected smart-home automation service saves trigger rules and runs device commands through the host adapter.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["summary"] } },
   parts: ["root", "heading", "empty", "feedback"],
   items: {
@@ -156,8 +154,8 @@ function RoutineRow({ row, style, detail, density }: Pick<View, "style" | "detai
 export function Routines(input: View) {
   const { words: { routines: w } } = kit.useWords(homeWordsFor);
   const state = kit.useComponentState();
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = "card";
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const title = w[input.style];
   return <kit.KitCard part="root" {...{ density, surface }}>

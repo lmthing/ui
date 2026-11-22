@@ -12,24 +12,22 @@ import {
   type Match,
   type RecognitionPhase,
 } from "../audio-match-data";
+import { prompt } from "../../../entry/prompt-AudioMatch.generated";
 
 // Core first: Player/audio can play a known recording but cannot identify audio heard through the microphone.
 export const meta = {
   id: "AudioMatch",
   status: "ready",
   group: "action",
-  purpose: "Identify music playing nearby and revisit recent matches.",
-  pick: "Identify an unknown song from ambient sound or humming through the microphone. Not playing a known recording (Player), typing a music search (Search), or checking pronunciation (SpeechCheck).",
-  writeHints: [
-    'Use style "listen" for recognition first, or "result" to foreground the identified track when available. Recognition happens after permission; never write a listening flag, result, or URL to pretend recognition already happened.',
-    'An artwork-free view must write "media":"none" (not null, even with no matches yet), so future results and history also hide covers. If that is the only display request, write "media":"none","surface":null,"density":null. Never emit default finish values without an explicit request.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "ok",
   realPath:
     "The host requests microphone permission, captures a sample, and asks a recognition service to identify it.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], media: ["cover", "none"] },
+  variants: { media: ["cover", "none"] },
   variantParts: { "media.none": { hides: ["artwork", "photo"] } },
   parts: ["root", "listen", "open", "artwork", "title", "artist", "album", "status", "recent"],
   items: { key: "history", parts: ["root", "title", "artist", "photo", "matched_at"] },
@@ -174,7 +172,7 @@ export function AudioMatch(input: AudioMatchProps) {
   const live = kit.useLiveControls(meta, input) as AudioMatchProps & MatchReading & { phase: RecognitionPhase; level: number };
   const context = kit.usePartContext(), { state } = context;
   const operation = kit.useHostOperations().find(({ name }) => name === "audioMatch.start" || name === "audioMatch.stop");
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const { words: { audioMatch: words } } = kit.useWords(mediaWordsFor);
   const phase = operation?.status === "pending" ? (operation.name === "audioMatch.start" ? "requesting" : "matching")
     : state === "loading" && live.phase === "idle" ? "matching"
@@ -184,7 +182,7 @@ export function AudioMatch(input: AudioMatchProps) {
   const groupActions = input.style === "result";
   const feedback = phase === "error" ? "error" : empty ? "empty" : track ? "success" : undefined;
   const message = feedback === "error" ? words.error : feedback === "success" ? words.success : words.empty;
-  return <kit.KitCard part="root" padded surface={input.surface} density={density}>
+  return <kit.KitCard part="root" padded density={density}>
     {feedback && <kit.PartScope {...context} state={feedback}>
       <kit.KitContent align={feedback === "error" ? "center" : "start"}>
         <kit.KitState retain message={message} part="status" density={density} icon="music" />
