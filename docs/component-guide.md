@@ -359,6 +359,8 @@ Folder names below are under `src/kit/base/`; each has an `index.ts` door.
 | `input` | `KitInput` | Numeric and date set controls with disabled editing; default remains type. A date set is an addressed textbox on web and native. Only a complete, real `YYYY-MM-DD` date is sent to the controller; other text stays local until corrected or discarded on blur. | `action?: "type" \| "set"`, `disabled?: boolean`, numeric `min?`, `max?`, `step?`; use `kind="date"` with `action="set"` for typed dates and supply a format hint. Numeric set values are numbers; date/time values remain strings. |
 | `slider` | `KitSlider` | Stepped web keyboard/pointer and native adjustable actions; disabled sliders keep their reading without editing. | `step?: number` (default 1), `disabled?: boolean` (default false); steps are anchored at min and bounded by max. |
 | `input` / `slider` | `KitInput` / `KitSlider` | An opted-in numeric set uses the controller's current reading and bounds, including the declared step. A missing range disables editing. | Declare `bounds` or `step` on the addressed setter. Give sliders finite limits and a step; caller props still supply defaults for controls that have not opted in. |
+| `slider` | `KitSlider` (dual thumb) | One track with two separately labelled sliders; pointer and adjustable actions cannot cross the other endpoint. Omit `range` for the ordinary slider. | Pass `range={[{part,label,value}, {part,label,value}]}` in lower/upper order, with finite shared `min`, `max` and optional `step` (default 1). Declare a `set` action for each endpoint and validate both endpoints together in the runtime. |
+| `data` | `KitShare` (legend options) | Optional icon in place of the legend dot and an addressed button in place of a static row. The base uses caller order; sorting must retain the original item ids. | Points can include `icon` and `press: true`. Declare the corresponding item `root press` in the caller and match the same offer gate. |
 | `helpers` | `KitTrail` | Pending switches retain their state without actions; status pills use the corresponding semantic foreground and soft fill. | `disabled?: boolean`, `tone?: TextTone`; both optional, existing defaults retained. |
 | `surface` | `KitCard` | Fixed swatch surface with a scoped readable foreground for child text, including muted text, without changing unswatched cards. | `swatch?: Swatch`; foreground uses existing black/white theme tokens and meets 4.5:1 contrast for every fixed swatch. |
 | `surface` | `KitTile` | Selected and disabled item tiles with caller-supplied detail; declared root actions and existing links use the shared controller. | `on?: boolean`, `disabled?: boolean`, `detail?: ReactNode`, `action?: "press" \| "toggle" \| "start" \| "stop"`. |
@@ -434,6 +436,10 @@ zero-based sequence cursor), and `progress` (the current step's fraction, defaul
 full and future bars empty. The track is decorative; provide a separate readable slide label.
 
 Media tokens are 1–128 ASCII letters, digits, underscores or hyphens. Hosts keep bytes, file paths, provider errors and scan details out of Writer props, read output and snapshots. Use a Core Camera or FileList link instead when the component only needs navigation.
+
+Core Composer still requires a text draft. Its accepted send consumes the picked file once and
+passes its opaque reference to `onSend`; only replies add a conversation row. Authored attachment
+chips are display labels, not picked files. Sent feedback acknowledges dispatch and clears on the next edit.
 
 For a range calendar, declare `meta.dateSpan: { start, end, date, available?, minNights?, clear?, when? }`.
 `start`, `end` and `minNights` name component props; `date` and `available` name fields on the day rows.

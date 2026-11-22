@@ -5,11 +5,16 @@ describe("control action effects", () => {
   it("stages exact replies and clips only the displayed message", () => {
     const action = { address: "c1/send", action: "send" };
     const text = " " + "a".repeat(130) + "\n";
-    const { ctx, state, options } = actionFixture("Composer", { max: 600, value: text }, action);
+    const { ctx, state, options } = actionFixture(
+      "Composer",
+      { style: "reply", max: 600, value: text },
+      action,
+    );
     ctx.active.components.push({ id: "b1", c: "Bubbles", messages: [{ from: "them", text: "Hello" }] });
     const result = controlsAction(state, action, ctx);
     expect(state.values).toEqual({});
     expect(result.state.values["test/c1/field"]).toBe("");
+    expect(result.state.values["test/c1/$sent"]).toBe(true);
     expect(result.state.values["test/b1/$messages"]).toEqual([
       { from: "them", text: "Hello" },
       { from: "me", text: "a".repeat(119) },
