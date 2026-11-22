@@ -21,7 +21,8 @@ import {
 } from "@lmthing/ui/catalog";
 import { example } from "../index";
 
-const ids = ["ScoreSheet", "Dice", "Spinner", "Trivia", "TurnOrder", "TeamPicker"] as const;
+const workedExampleIds = ["ScoreSheet", "Dice", "Spinner", "Trivia", "TurnOrder", "TeamPicker"] as const;
+const ids = [...workedExampleIds, "LifeCounter", "PassReveal", "CardDeck", "BuzzerPad"] as const;
 const layouts = {
   game_night: ["play_teams", "play_turns", "play_chance"],
   score_round: ["play_scores", "play_results"],
@@ -30,7 +31,7 @@ const layouts = {
 const cast = { things: [], items: [] };
 const definitions = components as Record<string, Definition>;
 
-it("generates all six contracts and keeps the incomplete pack out of live registries", () => {
+it("generates the play contracts and gates live registry access on pack readiness", () => {
   const core = createRegistry();
   const live = createRegistry({ packs: ["play"] });
   const draft = createRegistry({ packs: ["play"], includeDrafts: true });
@@ -99,7 +100,7 @@ it("validates each worked-example line and preserves score-record totals and tie
     expect(typeof id).toBe("string");
     expect(definitions[c]!.props.safeParse(input).success).toBe(true);
   }
-  for (const id of selectedIds(ids)) expect(lines.some((line) => line.c === id)).toBe(true);
+  for (const id of selectedIds(workedExampleIds)) expect(lines.some((line) => line.c === id)).toBe(true);
   const { id: _id, c: _c, ...scoreInput } = lines.find((line) => line.c === "ScoreSheet");
   const scores = components.ScoreSheet.props.parse(scoreInput);
   expect(scores.overflow).toBe("page");

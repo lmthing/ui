@@ -3,12 +3,39 @@ import { playWordsFor } from "../lang";
 
 type ScoreInput = {
   players: readonly { name: string }[];
-  rounds: readonly { label: string; points: readonly (number | null)[] }[];
+  rounds: readonly {
+    label: string;
+    points: readonly (number | null)[];
+    bids?: readonly (number | null)[] | undefined;
+  }[];
+  goal?: number | undefined;
   wins: "high" | "low";
   overflow: "all" | "page";
   selectedRound?: string | undefined;
   share: boolean;
 };
+
+export function scoreGoalCopy({ goal, players, rounds, wins }: ScoreInput, lang?: string) {
+  if (goal === undefined) return;
+  const labels = playWordsFor(lang).scoreLabels;
+  const reached = players.flatMap(({ name }, index) => {
+    const scores = rounds.flatMap(({ points }) => (points[index] == null ? [] : [points[index]]));
+    const total = scores.reduce((sum, score) => sum + score, 0);
+    return scores.length && (wins === "high" ? total >= goal : total <= goal) ? [name] : [];
+  });
+  const value = numberLine(goal, lang);
+  return {
+    target: `${labels.target}${value}`,
+    prefix: labels.target,
+    value,
+    reached: reached.length ? labels.reached(reached) : undefined,
+  };
+}
+
+export function scoreBidLine(bid: number | null, lang?: string): string {
+  const { bid: label, unplayed } = playWordsFor(lang).scoreLabels;
+  return label(bid === null ? unplayed : numberLine(bid, lang));
+}
 
 export function scoreCopy(input: ScoreInput, lang?: string) {
   const { players, rounds, wins } = input;
@@ -47,32 +74,30 @@ export function scoreCopy(input: ScoreInput, lang?: string) {
   };
 }
 
-export function scoreReading(input: ScoreInput, lang?: string) {
+export function scoreReading(input: ScoreInput, lang?: string, readonly = false) {
   const { scoreLabels: labels, scoreReadCell } = playWordsFor(lang);
   const copy = scoreCopy(input, lang);
+  const goal = scoreGoalCopy(input, lang);
+  const selected = Number(input.selectedRound ?? "1") - 1;
+  const visible = input.overflow === "page" ? input.rounds.slice(selected, selected + 1) : input.rounds;
   const board = [
     labels.title,
     copy.progress,
+    ...(goal ? [goal.target, ...(goal.reached ? [goal.reached] : [])] : []),
     labels.player,
     labels.total,
-    ...input.rounds.map(({ label }) => label),
+    ...(readonly ? visible : input.rounds).map(({ label }) => label),
     ...copy.players.map(({ name, total, standing }) =>
       [name, `${labels.total}: ${total}`, standing].filter(Boolean).join(" · "),
     ),
-    labels.reset,
-    ...(input.share ? [labels.share] : []),
+    ...(readonly ? [] : [labels.reset, ...(input.share ? [labels.share] : [])]),
   ];
-  const selected = Number(input.selectedRound ?? "1") - 1;
-  const cells = input.rounds.flatMap(({ label, points }, round) =>
-    input.overflow === "page" && round !== selected
-      ? []
-      : points.map((score, player) =>
-          scoreReadCell(
-            input.players[player]!.name,
-            label,
-            score === null ? labels.unplayed : numberLine(score, lang),
-          ),
-        ),
+  const cells = visible.flatMap(({ label, points, bids }) =>
+    points.map((score, player) => {
+      const value = score === null ? labels.unplayed : numberLine(score, lang);
+      const cell = bids ? `${scoreBidLine(bids[player]!, lang)} · ${labels.made}: ${value}` : value;
+      return scoreReadCell(input.players[player]!.name, label, cell);
+    }),
   );
   return [...board, ...cells];
 }

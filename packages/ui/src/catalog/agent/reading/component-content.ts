@@ -80,11 +80,12 @@ type Content = {
   state: StateName;
   session: SessionState | undefined;
   draw: DrawState | undefined;
+  summaryOnly: boolean;
 };
 export function readContent(
   meta: Meta,
   schema: ReadSchema,
-  { props, validated, instance, values, state, session, draw }: Content,
+  { props, validated, instance, values, state, session, draw, summaryOnly }: Content,
   {
     lang,
     deviceData,
@@ -99,7 +100,7 @@ export function readContent(
   const readable = sessionForRead(meta, schema, session);
   const round = readable?.kind === "rounds" ? readable : undefined;
   const roundKey = round && meta.session?.items;
-  const key = meta.items?.key === roundKey ? undefined : meta.items?.key;
+  const key = summaryOnly || meta.items?.key === roundKey ? undefined : meta.items?.key;
   const remaining = nestedRemaining(meta, props);
   const own = [
     ...(meta.read?.(
