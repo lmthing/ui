@@ -43,7 +43,7 @@ export const meta = {
   status: "ready",
   group: "data",
   purpose: "Follow a body measurement's long-term history against a goal across selectable time ranges.",
-  pick: "Long body-measurement history with a dashed goal reference, latest value, change and month/quarter/year switching. Not today's weight with a tiny recent trend and no goal or range switching (Sparkline), progress toward a total (Ring), a holding's price (PriceChart), or business series (LineChart).",
+  pick: "Long body-measurement history with a dashed goal reference, latest value, change and month/quarter/year switching. Not today's weight with a tiny recent trend and no goal or range switching (Sparkline), progress toward a total (Progress), a holding's price (PriceChart), or business series (LineChart).",
   region: "body",
   weight: 2,
   tier: "phone",

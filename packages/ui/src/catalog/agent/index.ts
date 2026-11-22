@@ -30,6 +30,7 @@ export {
   type HostRequest,
 } from "./host-commands";
 export { hostOnlyParts, hostOnlyAddresses, privateMarkKey, redactPrivateMarks } from "./action-input";
+export { secretRevealKey, secretRevealMatches } from "./action-input";
 export { appCurrencySchema, moneyFractionDigits, parseAppCurrency, type AppCurrency } from "./app-currency";
 export {
   atDeviceTime,

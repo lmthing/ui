@@ -7,8 +7,9 @@ import {
   expireProgress,
   findAction,
   type selectStep,
-  stageStepProgress,
   stageItemAdjustment,
+  stageSecretReveal,
+  stageStepProgress,
   stageValue,
   validateStep,
 } from "./action-input";
@@ -110,6 +111,7 @@ function stageControl(
   }: ReturnType<typeof validateStep> & ReturnType<typeof selectStep> & { key: string },
 ): Omit<Extract<ActResult, { ok: false }>, "at"> | undefined {
   const { address, action, value } = resolved;
+  if (stageSecretReveal(screen, defs, next, resolved, key)) return;
   const { owner, snapshot, now } = timing;
   let adjusted = edit
     ? undefined
@@ -151,7 +153,7 @@ export function planAct(
     const preview = planAct(input, defs, values, steps, null, clockOwner, data, now, () => 0);
     if (!preview.ok) return preview;
   }
-  const migrated = migrateScreen(input, { variantOnly: true });
+  const migrated = migrateScreen(input, { variantOnly: true, includeSavedRing: true });
   const plan: Extract<ActResult, { ok: true }> = { ok: true, values: { ...values }, changed: [], links: [] };
   for (const [at, original] of steps.entries()) {
     const snapshot = withRecordScreen(projectDeviceData(data, plan.values), migrated);
