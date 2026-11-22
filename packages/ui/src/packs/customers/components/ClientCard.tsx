@@ -1,10 +1,10 @@
 // prettier-ignore
-import { useWords, KitAction, KitCard, KitContent, KitGrid, KitPhoto, KitSkeleton, KitText, type TextRole, useComponentState, useVariant } from "../../../kit";
+import { useWords, KitAction, KitActionFooter, KitCard, KitContent, KitGrid, KitHeader, KitLayoutText, KitPhoto, KitState, KitTrail, useComponentState, useVariant } from "../../../kit";
 import { customersWordsFor } from "../lang";
 import { z } from "zod";
 // prettier-ignore
 import { detailOf, itemsOf, photo, placeholderTitle, probesFor, isoDate, text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
-import { clientReading, sinceLine, nextLine, tagsLine, type contactLabels } from "../copy";
+import { clientBalanceLine, clientReading, sinceLine, nextLine, tagsLine, type contactLabels } from "../copy";
 
 // Core first: Profile/row cannot show client tenure, next business visit and contact actions together.
 export const meta = {
@@ -16,6 +16,7 @@ export const meta = {
   writeHints: [
     'Use null for unrequested axes. A photo is required unless media is "none"; use "none" only when asked not to show the photo.',
     'If asked only to hide tenure, next booking and tags, use {"density":null,"surface":null,"media":null,"detail":"brief"} and keep those details in the data.',
+    "Only include company if known. For a balance badge, use billing with known charged and paid amounts; the card computes the difference. Set email true only to offer an email button for a client with email contact.",
   ],
   region: "body",
   weight: 2,
@@ -31,12 +32,13 @@ export const meta = {
     "media.none": { hides: ["photo"] },
     "detail.brief": { hides: ["since", "next", "tags"] },
   },
-  parts: ["root", "photo", "name", "since", "next", "tags", "call", "message", "directions"],
-  partTiers: { call: "service", message: "service", directions: "service" },
+  // prettier-ignore
+  parts: ["root", "photo", "name", "since", "next", "tags", "call", "message", "directions", "company", "balance", "email"],
+  partTiers: { call: "service", message: "service", directions: "service", email: "service" },
   states: ["filled", "loading"],
   actions: {
-    parts: { call: ["press"], message: ["press"], directions: ["press"] },
-    when: { call: { phone: true }, directions: { address: true } },
+    parts: { call: ["press"], message: ["press"], directions: ["press"], email: ["press"] },
+    when: { call: { phone: true }, directions: { address: true }, email: { email: true } },
   },
   read: (input, state, lang?: string): string[] =>
     state === "filled" ? clientReading(input as z.output<typeof props>, lang) : [],
@@ -51,6 +53,9 @@ export const props = z
     tags: z.array(text(12)).min(0).max(3),
     phone: z.boolean(),
     address: z.boolean(),
+    company: text(28).optional(),
+    billing: z.strictObject({ charged: z.number().min(0), paid: z.number().min(0) }).optional(),
+    email: z.boolean().optional(),
   })
   .refine(({ media, photo }) => media === "none" || photo !== undefined, { path: ["photo"] })
   .overwrite((value) => ({
@@ -101,8 +106,10 @@ export const examples = [
   { ...variantExample, surface: "outlined" },
   { ...variantExample, media: "none" },
   { ...variantExample, detail: "brief" },
+  { ...variantExample, company: "Maple Studio", billing: { charged: 120, paid: 80 }, email: true },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("ClientCard");
+// prettier-ignore
 export const probes = [
   choose("At the top of a client's page, show their photo, when they joined, next visit and contact buttons"),
   choose("Show my own identity with a photo, name, short bio and an edit button", "Profile"),
@@ -116,82 +123,73 @@ export const probes = [
     variant: { axis: "detail", value: "brief" },
   },
   read("Call Anna", { address: "c1/call", action: "press" }),
+  { ...write("Client Ben Carter at Maple Studio, with a lib:people portrait, no tags, no call or directions buttons. Show his company Maple Studio."),
+    expectProps: { company: "Maple Studio" } },
+  { ...write("Client Ben Carter, lib:people portrait, no tags or call or directions buttons. Show his account balance from 120 charged and 80 already paid."),
+    expectProps: { billing: { charged: 120, paid: 80 } } },
+  { ...write("Client Ben Carter, lib:people portrait, no tags or call or directions buttons. Give him an Email button because he has email contact."),
+    expectProps: { email: true } },
 ] satisfies Probe[];
 
 type ClientProps = Props<typeof props, typeof meta>;
-function ClientText({
-  value,
-  part,
-  role = "label",
-  density,
-}: {
-  value: string;
-  part: string;
-  role?: TextRole;
-  density: NonNullable<ClientProps["density"]>;
-}) {
-  const emphasis = part === "name" && density === "compact" ? "hero" : "normal";
-  if (useComponentState() === "loading")
-    return (
-      <KitSkeleton
-        shape="figure"
-        inset="none"
-        centered
-        content={[[role, value]]}
-        {...{ density, emphasis }}
-      />
-    );
-  return (
-    <KitText
-      role={role}
-      tone={part === "name" ? "text" : "muted"}
-      align="center"
-      part={part}
-      {...{ density, emphasis }}
-    >
-      {value}
-    </KitText>
-  );
-}
 
 function ContactAction({ part }: { part: keyof typeof contactLabels }) {
   const { contactLabels } = useWords(customersWordsFor).words;
   const kind = part === "message" ? "primary" : "secondary";
-  if (useComponentState() === "loading")
-    return <KitSkeleton shape="control" kind={kind} label={contactLabels[part]} full />;
   return <KitAction part={part} label={contactLabels[part]} kind={kind} full />;
 }
 
+// prettier-ignore
+function ClientContacts({ phone, address, email, density }: Pick<ClientProps, "phone" | "address" | "email" | "density">) {
+  const controls = [
+    ...(phone ? [<ContactAction key="call" part="call" />] : []),
+    ...(address ? [<ContactAction key="directions" part="directions" />] : []),
+  ];
+  return (
+    <>
+      <ContactAction part="message" />
+      {controls.length === 2 ? (
+        <KitGrid columns={2} {...{ density }}>
+          {controls}
+        </KitGrid>
+      ) : (
+        controls
+      )}
+      {email && (
+        <KitActionFooter {...{ density }}>
+          <ContactAction part="email" />
+        </KitActionFooter>
+      )}
+    </>
+  );
+}
+
+// prettier-ignore
 export function ClientCard(input: ClientProps) {
-  const { name, photo, since, next, tags, phone, address, media, surface } = input;
+  const { name, photo, since, next, tags, phone, address, media, surface, company, billing, email } = input;
   const density = useVariant("density", meta.variants.density, input.density);
   const { lang } = useWords();
   const loading = useComponentState() === "loading";
-  const portrait = loading ? (
-    <KitSkeleton shape="media" aspect="avatar" inset="none" lines={[]} />
-  ) : (
-    <KitPhoto {...(photo ? { photo } : {})} shape="avatar" part="photo" label={name} />
+  const content = (
+    <>
+      {media !== "none" && <KitPhoto {...{ photo, loading }} shape="avatar" part={loading ? null : "photo"} label={name} />}
+      <KitHeader title={{ text: name, part: "name" }} meta={[
+        { text: company, part: "company" },
+        { text: since && sinceLine(since, lang), part: "since" },
+      ]} align="center" {...{ density }} />
+      {billing && <KitContent align="center" {...{ density }}>
+        <KitTrail kind="badge" part="balance" value={clientBalanceLine(billing, lang)} tone="text" {...{ density }} />
+      </KitContent>}
+      {next && <KitLayoutText line={{ text: nextLine(next, lang), part: "next", role: "meta", tone: "muted" }} align="center" {...{ density }} />}
+      {tags.length > 0 && <KitLayoutText line={{ text: tagsLine(tags), part: "tags", role: "meta", tone: "muted" }} align="center" {...{ density }} />}
+      <ClientContacts {...{ phone, address, email, density }} />
+    </>
   );
   return (
     <KitCard padded part="root" {...{ density, surface }}>
-      {media !== "none" && portrait}
-      <KitContent {...{ density }}>
-        <ClientText value={name} role="heading" part="name" {...{ density }} />
-        {since && <ClientText value={sinceLine(since, lang)} role="label" part="since" {...{ density }} />}
-      </KitContent>
-      {next && <ClientText value={nextLine(next, lang)} part="next" {...{ density }} />}
-      {tags.length > 0 && <ClientText value={tagsLine(tags)} role="label" part="tags" {...{ density }} />}
-      <ContactAction part="message" />
-      {phone && address ? (
-        <KitGrid columns={2} {...{ density }}>
-          <ContactAction part="call" />
-          <ContactAction part="directions" />
-        </KitGrid>
-      ) : phone ? (
-        <ContactAction part="call" />
-      ) : address ? (
-        <ContactAction part="directions" />
-      ) : null}
+      <KitState loading={content} {...{ density }}>
+        {content}
+      </KitState>
     </KitCard>
   );
 }
