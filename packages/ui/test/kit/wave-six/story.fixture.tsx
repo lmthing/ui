@@ -55,6 +55,9 @@ function Fixture() {
             {show && <KitAction label="Next" part="next" action="press" holdToPause={holdToPause} />}
             <KitAction label="Stop" part="story" action="stop" />
             <button onClick={() => setShow(false)}>Hide next</button>
+            <button onClick={() => controller.registerDisabledPart("home/story/story")}>
+              Block playback
+            </button>
           </YStack>
         </PartScope>
       </KitProvider>

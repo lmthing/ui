@@ -69,8 +69,10 @@ it("freezes elapsed progress on press, resumes on long release, and advances onl
   expect(second).toBeCloseTo(third, 1);
   expect(fill / first).toBeCloseTo(0.5);
   await next().hover();
+  await next().focus();
   await page.mouse.down();
   await expect.poll(() => status().textContent()).toBe("Paused");
+  await page.keyboard.press("Enter");
   await tick(interval * 2);
   expect(await slide()).toBe("1");
   expect(await segmentWidths()).toEqual(initial);
@@ -137,5 +139,23 @@ it("announces pause and play, ignores keyboard repeats, and keeps keyboard and s
   await next().press("p");
   await expect.poll(() => status().textContent()).toBe("Playing");
   await next().evaluate((el: HTMLElement) => el.click());
+  await expect.poll(slide).toBe("3");
+  await page.getByRole("button", { name: "Stop", exact: true }).click();
+  await expect.poll(slide).toBe("1");
+  await next().press("Space");
+  await expect.poll(slide).toBe("2");
+});
+
+it("keeps tapping available when the playback address is blocked", async () => {
+  await page.getByRole("button", { name: "Block playback" }).click();
+  await expect.poll(() => next().getAttribute("aria-keyshortcuts")).toBeNull();
+  await next().hover();
+  await page.mouse.down();
+  await tick(interval / 2);
+  await expect.poll(slide).toBe("2");
+  await page.waitForTimeout(260);
+  await page.mouse.up();
+  expect(await slide()).toBe("2");
+  await next().click();
   await expect.poll(slide).toBe("3");
 });

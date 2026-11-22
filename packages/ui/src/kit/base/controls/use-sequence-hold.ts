@@ -65,7 +65,8 @@ export function useSequenceHold(
   const controller = option && kit.interactive ? kit.controller : undefined;
   const target = option && formatAddress({ screen, component, part: option.part });
   const blocked = usePartDisabled(target);
-  const transport = controller && target && !blocked ? sequenceTransport(controller, target) : undefined;
+  const key = `${screen}/${component}/${sequenceKey}`;
+  const transport = controller && target && !blocked ? sequenceTransport(controller, target, key) : undefined;
   const action = useSyncExternalStore(
     controller?.store.subscribe ?? noSubscribe,
     () => transport?.action(),
@@ -74,17 +75,16 @@ export function useSequenceHold(
   const enabled = Boolean(controller && available.hold && (action || available.tap));
   const end = useRef<ReturnType<typeof beginSequenceHold>>(undefined);
   const activate = () => {
-    if (available.tap) tap();
+    if (available.tap && !end.current) tap();
   };
   const toggle = () => {
     if (end.current) return;
     const next = transport?.action();
     if (next) transport?.send(next);
   };
-  const key = `${screen}/${component}/${sequenceKey}`;
   const events = useContinuousPress(enabled, controller, `${address}:${target ?? ""}`, {
     begin(at) {
-      if (controller && target) end.current = beginSequenceHold(controller, target, key, at, activate);
+      end.current = beginSequenceHold(transport, at, activate);
     },
     end(releasedAt) {
       const finish = end.current;
