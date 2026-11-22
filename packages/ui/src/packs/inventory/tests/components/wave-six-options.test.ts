@@ -33,7 +33,7 @@ it.each([
   );
 });
 
-describe("Things options", () => {
+describe("Things checklist and audit counts", () => {
   it("projects the missing checklist from live counts without changing addresses", () => {
     const input = {
       filter: "missing",
@@ -74,7 +74,9 @@ describe("Things options", () => {
     expect(controller.act({ address: "x/r1/qty", action: "decrement" }).ok).toBe(true);
     expect(controller.read()).toContain("Expected: 0 · Counted: 1");
   });
+});
 
+describe("Things scan, loading and schema", () => {
   it("offers an OK-tier scan link even with no matching rows, but never opens the camera directly", () => {
     const input = { items: [row], filter: "missing", scan };
     const { controller, onLink } = setup("Things", input);
