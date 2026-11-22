@@ -62,7 +62,9 @@ export function repairComponent(
   let valid = def?.props.safeParse(props).success;
   if (!valid) {
     // A saved migration may change a retired id, but never shadow a scoped exact match.
-    const migrated = migrateLine(line, { variantComponents: def ? [def.meta.id] : [], variantOnly: !!def });
+    const options = { variantComponents: def ? [def.meta.id] : [] };
+    let migrated = migrateLine(line, options);
+    if (def && migrated.c !== line.c) migrated = migrateLine(line, { ...options, variantOnly: true });
     if (migrated !== line) {
       codes.add(code.migrate);
       def = exact(migrated.c);

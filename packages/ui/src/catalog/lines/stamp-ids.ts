@@ -1,5 +1,6 @@
 import type { Meta } from "../meta";
 import { collectionItem, collectionPrefixPattern, isCollectionItem } from "../address";
+import type { Definition } from "../probes";
 import type { Component } from "../types";
 import type { LineRegistry, PendingComponent } from "./repair-component";
 
@@ -58,20 +59,40 @@ export function stampCollections<P extends Record<string, unknown>>(meta: Meta, 
 }
 
 /**
- * Give each item of a component its stable id (`r1`, `r2`, … or the meta's prefix), as the
- * validator does. Views receive these ids; the model never writes them.
+ * Project item addresses onto parsed view props. Hosts with a persistent snapshot pass its ids;
+ * older callers without an allocation still get positional ids. Never put view ids on the wire.
  */
-export function stampItemIds<P extends Record<string, unknown>>(meta: Meta, props: P): P {
+export function stampItemIds<P extends Record<string, unknown>>(
+  meta: Meta,
+  props: P,
+  ids?: readonly string[],
+): P {
   props = stampCollections(meta, props);
   const items = meta.items;
   if (!items) return props;
   const list = props[items.key];
   if (!Array.isArray(list)) return props;
   const prefix = items.prefix ?? "r";
+  if (ids && !validItemIds(ids, prefix, list.length))
+    throw new Error(`Item addresses do not match the parsed ${meta.id} rows`);
   return {
     ...props,
-    [items.key]: list.map((item: object, index) => ({ ...item, id: `${prefix}${index + 1}` })),
+    [items.key]: list.map((item: object, index) => ({
+      ...item,
+      id: ids?.[index] ?? `${prefix}${index + 1}`,
+    })),
   };
+}
+
+function validItemIds(ids: readonly string[], prefix: string, length: number): boolean {
+  return (
+    ids.length === length &&
+    new Set(ids).size === length &&
+    Array.from(ids).every(
+      (id) =>
+        typeof id === "string" && id.startsWith(prefix) && /^[1-9][0-9]*$/.test(id.slice(prefix.length)),
+    )
+  );
 }
 
 /** High water marks for a single screen. Keep them when deleting components or rows. */
@@ -110,6 +131,11 @@ function advance(counts: Map<string, number>, key: string): number {
   return next;
 }
 
+function parsedProps(def: Definition, component: PendingComponent): Record<string, unknown> | undefined {
+  const { c: _c, id: _id, state: _state, ...wire } = component;
+  return def.props.safeParse(wire).data;
+}
+
 /** Allocate addresses without writing runtime ids over declared wire fields. */
 export function stampIdsWithCounters(
   components: readonly PendingComponent[],
@@ -121,7 +147,7 @@ export function stampIdsWithCounters(
   const reserved = reserveComponentIds(components, counts);
   const taken = new Set<string>();
   const items = new Map<string, string[]>();
-  const metadata = new Map(registry.defs.map(({ meta }) => [meta.id, meta.items]));
+  const defs = new Map(registry.defs.map((def) => [def.meta.id, def]));
   const stamped = components.map((component) => {
     const prefix = component.c[0]!.toLowerCase();
     let id = component.id;
@@ -130,8 +156,9 @@ export function stampIdsWithCounters(
       while (reserved.has(id));
     }
     taken.add(id);
-    const list = metadata.get(component.c);
-    const values = list && component[list.key];
+    const def = defs.get(component.c);
+    const list = def?.meta.items;
+    const values = def && list && parsedProps(def, component)?.[list.key];
     if (list && Array.isArray(values))
       items.set(
         id,
@@ -153,15 +180,13 @@ export function stampIds(
   previous?: IdCounters,
 ): Component[] {
   const stamped = stampIdsWithCounters(components, registry, previous);
-  const metas = new Map(registry.defs.map(({ meta }) => [meta.id, meta]));
+  const defs = new Map(registry.defs.map((def) => [def.meta.id, def]));
   return stamped.components.map((component) => {
-    const meta = metas.get(component.c);
-    if (!meta) return component;
-    const ids = stamped.itemIds[component.id];
-    const key = meta.items?.key;
-    const rows = key ? component[key] : undefined;
-    const projected = stampCollections(meta, component);
-    if (!ids || !key || !Array.isArray(rows)) return projected;
-    return { ...projected, [key]: rows.map((row: object, index) => ({ ...row, id: ids[index] })) };
+    const def = defs.get(component.c);
+    const props = def && parsedProps(def, component);
+    if (!def || !props) return component;
+    const { c, id, state } = component;
+    const projected = stampItemIds(def.meta, props, stamped.itemIds[id]);
+    return { ...projected, c, id, ...(state === undefined ? {} : { state }) };
   });
 }

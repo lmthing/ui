@@ -53,7 +53,7 @@ it("reserves saved ids and allocates unique component ids across components with
     { c: "Amount", id: "a2" },
     { c: "List", rows: [{ title: "Item" }] },
   ];
-  expect(stampIds(input, registry)).toEqual([
+  expect(stampIds(input, registry)).toMatchObject([
     { c: "Actions", id: "a3" },
     { c: "Amount", id: "a2" },
     { c: "Amount", id: "a4" },

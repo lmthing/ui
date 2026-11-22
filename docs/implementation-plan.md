@@ -40,7 +40,7 @@ The scope table is the full requirement, not a claim that each row is complete.
 6. **Plain code, grouped by purpose.** At most 60 lines per function. No hard code file-size limit; `pnpm rules` warns above 400 lines per file or 12 files per non-exempt folder. Named exports only (default exports only in the gallery's route files), plain functions and plain data, no classes. Other folders import a folder only through its `index.ts`. `pnpm build:entries` generates the gitignored re-export doors for pack `components/` and `copy/`, `kit/base/` and `catalog/copy/`. Edit the source modules, not those doors. Doors with logic stay hand-written.
 7. **Agents read and act like people.** Every screen has a compact text form generated from the same data it is drawn from, and every part that people can touch has typed actions. An agent action runs exactly the code a human touch runs. Agents never need raw DOM or screenshots.
 8. **Compose shared runtime primitives.** A component declares its needs using the primitives in 4.12 and 5.9. Keep component-specific rules in its definition, not in a new runtime mechanism. Add a primitive only when the existing set cannot express a distinct shared contract. Nothing here depends on THING, takes, trailers or app sessions. Tiers and `realPath` are required; signature metadata is optional.
-9. **Developable alone.** The gallery host, runtime fixtures and probe runner work without lmthing. Worked pack apps and the model-text repair pipeline (4.14) remain pending. The app and harness depend on this repo and never the other way round.
+9. **Developable alone.** The gallery host, runtime fixtures, probe runner and model-text repair pipeline (4.14) work without lmthing. Worked pack apps remain pending. The app and harness depend on this repo and never the other way round.
 
 ## 3. Repository layout
 
@@ -810,8 +810,11 @@ The repair is named `repairComponent`. The existing `readComponent` export remai
 
 `stampIdsWithCounters` returns wire components, primary item ids keyed by component id, and the
 advanced counters. `assembleScreen` puts the latter two alongside `components` on the returned
-screen, so a runtime row id never collides with a schema-declared business id. `stampIds` projects
-row ids onto view props instead. Repair codes live in `lines/codes.ts`.
+screen, so a runtime row id never collides with a schema-declared business id. The ids follow parsed
+row order, including schema-derived rows. Hosts project these addresses by passing the saved id
+list to `stampItemIds` with the parsed props; `stampIds` returns that projection directly. Existing
+readers and renderers that do not pass an allocation still use positional addresses. Repair codes
+live in `lines/codes.ts`.
 
 The pipeline stops at R2. Region sorting, primary demotion, extras, flows/waves, cast checks and
 rewrite id carry-over stay in host R3–R6. Worked JSONL examples run through `assembleScreen` in

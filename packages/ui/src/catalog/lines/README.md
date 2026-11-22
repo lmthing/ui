@@ -12,4 +12,5 @@ Read plan 4.14 first.
 - `codes.ts` lists all R1/R2 repair codes.
 
 The pipeline is pure and leaves ordering, screen/app repairs and rewrite id carry-over to the host.
-Keep the returned counters to allocate more addresses without reusing deleted ones.
+Keep the returned counters to allocate more addresses without reusing deleted ones. A host using
+persistent addresses passes `screen.itemIds[component.id]` and parsed view props to `stampItemIds`.

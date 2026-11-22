@@ -96,6 +96,12 @@ function compatible(value: unknown, shape: JsonSchema): boolean {
   const types = Array.isArray(shape.type) ? shape.type : shape.type ? [shape.type] : [];
   if (types.length && !types.includes(type) && !(types.includes("integer") && Number.isInteger(value)))
     return false;
+  if (Array.isArray(value))
+    return (
+      (typeof shape.minItems !== "number" || value.length >= shape.minItems) &&
+      (typeof shape.maxItems !== "number" || value.length <= shape.maxItems)
+    );
+  if (isValues(value)) return shape.required?.every((key) => Object.hasOwn(value, key)) ?? true;
   if (typeof value === "number")
     return (
       Number.isFinite(value) &&
@@ -148,9 +154,12 @@ function repairField(
       }
     }
   } else if (value !== undefined && (value !== null || compatible(value, shape))) {
-    if (isValues(value) && shape.properties) return repairFields(value, shape, fallback, ctx);
-    if (Array.isArray(value) && shape.items) return repairArray(value, shape, fallback, ctx);
-    const fixed = scalar(value, shape, ctx);
+    const fixed =
+      isValues(value) && shape.properties
+        ? repairFields(value, shape, fallback, ctx)
+        : Array.isArray(value) && shape.items
+          ? repairArray(value, shape, fallback, ctx)
+          : scalar(value, shape, ctx);
     if (fixed !== undefined && compatible(fixed, shape)) return fixed;
   }
   if (required && fallback !== undefined) {

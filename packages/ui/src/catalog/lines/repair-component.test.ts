@@ -122,3 +122,31 @@ it("keeps valid union values and text with harmless padding while repairing an u
     codes: [code.strip],
   });
 });
+
+it("drops an unrepairable extra row instead of losing otherwise valid shortcuts", () => {
+  const second = { icon: "users", label: "Clients", goto: "clients" };
+  expect(repairComponent({ c: "Actions", items: [action, second, {}] }, registry, ctx)).toEqual({
+    component: { c: "Actions", items: [action, second] },
+    codes: [code.strip],
+  });
+});
+
+it.each(["Timeline", "DayTimeline"])("preserves the legacy blocks of a saved %s", (c) => {
+  const blocks = [
+    { start: "11:00", end: "12:30", title: "Repot basil", tone: "warn" },
+    { start: "09:00", end: "10:00", title: "Water the fern", goto: "fern" },
+  ];
+  const result = repairComponent({ c, id: "d1", blocks }, registry, ctx);
+  expect(result).toMatchObject({
+    codes: [code.migrate],
+    component: {
+      c: "Timeline",
+      id: "d1",
+      style: "hours",
+      items: [
+        { time: "11:00", end: "12:30", title: "Repot basil", tone: "warn" },
+        { time: "09:00", end: "10:00", title: "Water the fern", goto: "fern" },
+      ],
+    },
+  });
+});

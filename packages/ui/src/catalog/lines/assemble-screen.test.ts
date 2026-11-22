@@ -2,12 +2,14 @@ import { readFileSync, readdirSync } from "node:fs";
 import { URL } from "node:url";
 import { expect, it } from "vitest";
 import {
+  affordancesOf,
   assembleScreen,
   createRegistry,
   lineCodes as code,
   readScreen,
   components,
   packIds,
+  stampItemIds,
 } from "@lmthing/ui/catalog";
 
 const ctx = { cast: { things: [], items: [] } };
@@ -22,6 +24,30 @@ it.each(examples)("%s/example.jsonl assembles in order with zero repairs", (id) 
   const { screen, codes } = assembleScreen(lines, registry, { ...ctx, id });
   expect(codes).toEqual([]);
   expect(screen.components).toEqual(lines.filter((line) => line.trim()).map((line) => JSON.parse(line)));
+});
+
+it("projects persisted ids into real affordances after a row replacement", () => {
+  const registry = createRegistry();
+  const first = assembleScreen(
+    ['{"id":"l1","c":"List","rows":[{"title":"Old","goto":"old"}]}'],
+    registry,
+    ctx,
+  );
+  const result = assembleScreen(['{"id":"l1","c":"List","rows":[{"title":"New","goto":"new"}]}'], registry, {
+    ...ctx,
+    counters: first.screen.counters,
+  });
+  const { id, c: _c, state: _state, ...wire } = result.screen.components[0]!;
+  const def = components.List;
+  const props = def.props.parse(wire);
+  expect(() => stampItemIds(def.meta, props, [])).toThrow(/do not match/);
+  const addressed = stampItemIds(def.meta, props, result.screen.itemIds[id]);
+  const offers = affordancesOf(def.meta, addressed, id);
+  expect(offers).toContainEqual(
+    expect.objectContaining({ address: "l1/r2", action: "press", detail: "→new" }),
+  );
+  expect(offers.some(({ address }) => address === "l1/r1")).toBe(false);
+  expect(wire.rows).toEqual([{ title: "New", goto: "new" }]);
 });
 
 it("keeps wire props readable and does not sort, add components, or repair links", () => {
