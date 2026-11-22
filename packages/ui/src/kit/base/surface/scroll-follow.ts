@@ -23,7 +23,7 @@ export type ScrollHandle = {
   scrollTo?: (options: { x: number; y: number; animated: boolean }) => void;
 };
 
-type NativePart = {
+export type NativePart = {
   measureLayout?: (
     ancestor: unknown,
     success: (x: number, y: number, width: number, height: number) => void,

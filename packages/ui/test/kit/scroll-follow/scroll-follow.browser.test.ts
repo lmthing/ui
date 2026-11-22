@@ -102,11 +102,21 @@ it("stops an ongoing smooth reveal if the new active row is already visible", as
   await page.emulateMedia({ reducedMotion: "no-preference" });
   try {
     await open();
-    await update(19);
-    await expect.poll(offset, { intervals: [10] }).toBeGreaterThan(0);
-    await update(2);
+    const started = await region().evaluate(
+      async (node, [away, back]) => {
+        const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+        (away as HTMLButtonElement).click();
+        for (let frame = 0; frame < 30 && !node.scrollTop; frame++) await nextFrame();
+        const started = node.scrollTop;
+        (back as HTMLButtonElement).click();
+        await nextFrame();
+        await nextFrame();
+        return started;
+      },
+      [await button("Show 19").elementHandle(), await button("Show 2").elementHandle()],
+    );
+    expect(started).toBeGreaterThan(0);
     const stopped = await offset();
-    expect(stopped).toBeGreaterThan(0);
     expect(await edge(2, "top")).toBeGreaterThanOrEqual(0);
     await page.waitForTimeout(500);
     expect(await offset()).toBe(stopped);

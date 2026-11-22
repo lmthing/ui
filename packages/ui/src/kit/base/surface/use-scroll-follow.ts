@@ -4,6 +4,7 @@ import type { PartRefScope } from "../../part";
 import {
   manualScrollActive,
   revealNativePart,
+  type NativePart,
   type ScrollActivity,
   type ScrollHandle,
 } from "./scroll-follow";
@@ -95,7 +96,7 @@ function useFollowRequest({
         revealWebPart(node, target as HTMLElement, horizontal, animation.current, auto.current);
         stop = () => stopWebFollow(node, auto.current);
       } else {
-        const interrupt = revealNativePart(handle, target, horizontal, animation.current, () =>
+        const interrupt = revealNativePart(handle, target as NativePart, horizontal, animation.current, () =>
           canReveal()
             ? {
                 offset: activity.current.offset,
