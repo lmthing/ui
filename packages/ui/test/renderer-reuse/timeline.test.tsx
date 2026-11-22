@@ -94,7 +94,7 @@ it("uses one addressed list item per stop and keeps time distinct from all-day a
   const parts = addressedElements(full);
   const at = (part: string) => parts.get(`home/c1/${part}`);
   expect(full.match(/role="listitem"/g)).toHaveLength(7);
-  expect(at("r1/stop_1_time")?.text).toEqual(["—"]);
+  expect(at("r1/stop_1_time")?.text).toEqual(["Time TBD"]);
   expect(at("r2/stop_6_time")?.text).toEqual(["14:00"]);
   expect(at("r2/duration_6")?.text).toEqual(["2 h 10 min"]);
   expect(at("r2/stop_6")?.attributes).toContain('role="link"');

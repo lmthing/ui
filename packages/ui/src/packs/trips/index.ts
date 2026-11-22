@@ -28,5 +28,11 @@ export const example = [
   '{"id":"h7","c":"Header","title":"Travel tools"}',
   '{"id":"c1","c":"Converter","value":12000}',
   '{"id":"c2","c":"Clocks","places":[{"label":"London","zone":"Europe/London"},{"label":"Tokyo","zone":"Asia/Tokyo"}]}',
+  '{"id":"h8","c":"Header","title":"Flight to Tokyo"}',
+  '{"id":"f1","c":"FlightStatus","flight":"NH 212","airline":"All Nippon Airways","origin":"LHR","originCity":"London","destination":"HND","destinationCity":"Tokyo","scheduledDep":"19:00","estimatedDep":"19:45","scheduledArr":"17:20","estimatedArr":"18:05","status":"in_air","progress":0.62,"terminal":"2","gate":"B42"}',
+  '{"id":"h9","c":"Header","title":"Bags at Haneda"}',
+  '{"id":"b3","c":"BagTracker","bags":[{"tag":"NH 674205","label":"Blue suitcase","flight":"NH 212","carousel":"5","steps":[{"stage":"checked_in","at":"16:50","location":"London Heathrow","done":true},{"stage":"loaded","at":"18:42","done":true},{"stage":"unloaded","at":"18:14","location":"Tokyo Haneda","done":true},{"stage":"carousel","at":"18:31","done":true}]}]}',
+  '{"id":"h10","c":"Header","title":"Seats to Tokyo"}',
+  '{"id":"cs1","c":"CabinSeats","cabin":"NH 212 Economy","passenger":"Sam","columns":["A","B","","C","D"],"rows":[{"row":11,"seats":[{"col":"A","status":"occupied"},{"col":"B","status":"open"},{"col":"C","status":"open"},{"col":"D","status":"occupied"}]},{"row":12,"exit":true,"seats":[{"col":"A","status":"extra","fee":45},{"col":"B","status":"open"},{"col":"C","status":"selected","fee":35},{"col":"D","status":"extra","fee":45}]}]}',
   "",
 ].join("\n");

@@ -168,9 +168,8 @@ describe("Converter addressed view", () => {
     const loading = addressedElements(renderInstance("Converter", { value: 25 }, "loading", theme));
     expect([...loading.keys()]).toEqual(["home/c1/root", "home/c1/from", "home/c1/to"]);
     for (const part of ["from", "to"]) {
-      const input = loading.get(`home/c1/${part}`)?.attributes;
-      expect(input).toContain('readOnly=""');
-      expect(input).not.toContain('role="textbox"');
+      const placeholder = loading.get(`home/c1/${part}`);
+      expect(placeholder?.attributes).not.toMatch(/role="textbox"|tabindex=|value=/i);
     }
   });
 });
