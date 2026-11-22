@@ -2,7 +2,7 @@ import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { threadAudiences, threadGates, threadOrder, threadRead, type ThreadAccess } from "../copy";
-import { requestsWordsFor } from "../lang";
+import { requestsWordsFor, type RequestsWords } from "../lang";
 import { requestStatus } from "./RequestQueue";
 import { prompt } from "../../../entry/prompt-RequestThread.generated";
 import * as threadView from "./thread-entry";
@@ -11,6 +11,25 @@ const draftLimit = 240;
 // The catalog and visual fixtures are staff previews.
 const previewAccess: ThreadAccess = { role: "staff", canReply: true };
 const sampleFile = { fileRef: "demo_gate_report", name: "Gate inspection.pdf" };
+const replyActions = ["field.type", "audience.select", "send.send", "canned.press"] as const;
+const retryEdit = c.defineLocalState({
+  schema: z.strictObject({
+    number: z.string().max(12),
+    entryCount: z.int().min(0).max(6),
+    audience: z.enum(threadAudiences),
+    draft: z.string().max(draftLimit).optional(),
+    retryText: z.string().max(draftLimit).optional(),
+  }),
+  events: ["retry_field.type"],
+  initial: (seed) => ({
+    number: String(seed.number),
+    entryCount: (seed.entries as unknown[]).length,
+    audience: seed.audience as (typeof threadAudiences)[number],
+    draft: seed.draft as string | undefined,
+  }),
+  reduce: (state, { value }) => ({ state: { ...state, retryText: String(value) } }),
+  project: ({ retryText }) => ({ retryText }),
+});
 // Core first: Bubbles/default cannot interleave typed work events or distinguish staff-only notes.
 export const meta = {
   id: "RequestThread",
@@ -22,37 +41,64 @@ export const meta = {
   region: "body",
   weight: 2,
   tier: "people",
-  partTiers: { field: "phone", send: "people", canned: "phone" },
+  partTiers: { field: "phone", send: "people", canned: "phone", retry_field: "phone", retry: "people" },
   realPath: "Messages and operational events are linked to one request in a shared app.",
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["event_detail"] } },
-  parts: ["root", "number", "field", "audience", "send", "send_label", "notice", "canned"],
+  parts: [
+    "root",
+    "number",
+    "field",
+    "audience",
+    "send",
+    "send_label",
+    "notice",
+    "canned",
+    "retry",
+    "retry_field",
+  ],
   items: {
     key: "entries",
     parts: ["root", "by", "date", "time", "audience", "text", "photo", "event_detail", "file"],
   },
   states: ["filled", "empty", "loading", "success", "error"],
   actions: {
-    parts: { field: ["type"], audience: ["select"], send: ["send"], canned: ["press"] },
+    parts: {
+      field: ["type"],
+      audience: ["select"],
+      send: ["send"],
+      canned: ["press"],
+      retry: ["send"],
+      retry_field: ["type"],
+    },
     items: { root: ["press"] },
     when: {
       root: { kind: "work" },
       field: { replyable: true },
       send: { sendable: true },
+      retry: { retryable: true },
+      retry_field: { canRetryEdit: true },
       canned: { canBrowseReplies: true },
     },
   },
-  emptyActions: ["field.type", "audience.select", "send.send", "canned.press"],
+  emptyActions: replyActions,
+  errorActions: ["retry.send", "retry_field.type"],
+  successActions: ["root.press", "field.type", "audience.select", "send.send"],
   selections: { audience: { prop: "audience", choices: { prop: "audience_choices" } } },
-  deviceData: ["requestFiles"],
-  previewDeviceData: () => ({ requestFiles: [sampleFile] }),
+  deviceData: ["requestFiles", "requestThreadPreview"],
+  previewDeviceData: ({ input, state }) => ({
+    requestFiles: [sampleFile],
+    ...(state === "success" ? { requestThreadPreview: [{ number: input.number, sent: input.draft }] } : {}),
+  }),
+  localState: retryEdit,
   // prettier-ignore
   live: {
-    text: { field: { prop: "draft", max: draftLimit } }, send: { send: { field: "field", audience: "audience" } },
+    text: { field: { prop: "draft", max: draftLimit }, retry_field: { prop: "retryDraft", max: draftLimit } },
+    send: { send: { field: "field", audience: "audience" }, retry: { field: "retry_field", audience: "audience" } },
     derive: (input, _id, data) => threadGates(input, previewAccess, data),
   },
-  successActions: ["root.press"],
   readSuccess: true,
+  readError: true,
   read: threadRead,
 } as const satisfies c.Meta;
 const file = c
@@ -138,49 +184,101 @@ type ThreadLive = ThreadProps & {
   audience_choices: readonly ThreadProps["audience"][];
   sendable: boolean;
   canBrowseReplies: boolean;
+  canRetryEdit: boolean;
+  retryDraft?: string;
+  retryable: boolean;
 };
+
+type ReplyProps = { p: ThreadLive; words: RequestsWords["thread"]; density: c.ThemeDensity };
+
+// prettier-ignore
+function ReplyComposer({ p, words, density }: ReplyProps) {
+  const { draft, audience, audience_choices: choices, sendable, canBrowseReplies } = p;
+  if (!choices.length) return null;
+  const kind = sendable ? "primary" : "secondary";
+  const send = <kit.KitAction part="send" full action="send" label={words.send} {...{ kind }} disabled={!sendable} />;
+  return <kit.KitContent inset="md" group="response" density={density}>
+    <kit.KitText part={null} role="label">{words.audience}</kit.KitText>
+    <kit.KitTrack part="audience" look="segments" role="radiogroup" label={words.audience}>
+      {choices.map((choice) => <kit.KitChip key={choice} item={null} look="segment" role="radio" value={choice}
+        label={words.audiences[choice]} on={audience === choice} />)}
+    </kit.KitTrack>
+    <kit.KitTextArea part="field" label={words.field} hint={words.field} value={draft} lines={2} maxLength={draftLimit} />
+    {canBrowseReplies ? <>
+      <kit.KitAction part="canned" goto={p.cannedGoto} label={words.canned} kind="secondary" />
+      <kit.KitContent group="response" density={density}>{send}</kit.KitContent>
+    </> : send}
+  </kit.KitContent>;
+}
+
+// prettier-ignore
+function FailedReply({ p, words, density }: ReplyProps) {
+  return <kit.KitContent inset="md" group="response" density={density}>
+    <kit.KitState retain part="notice" message={words.failed}>
+      {p.canRetryEdit && <>
+        <kit.KitContent density={density}>
+          <kit.KitText part={null} role="label">{words.audience}</kit.KitText>
+          <kit.KitTrack part="audience" look="segments" role="radiogroup" label={words.audience}>
+            {p.audience_choices.map((choice) => <kit.KitChip key={choice} item={null} look="segment" role="radio"
+              part={null} value={choice} label={words.audiences[choice]} on={p.audience === choice} disabled />)}
+          </kit.KitTrack>
+          <kit.KitTextArea part="retry_field" label={words.field} hint={words.field}
+            value={p.retryDraft} lines={2} maxLength={draftLimit} />
+          <kit.KitAction part="retry" full action="send" label={words.retry}
+            kind={p.retryable ? "primary" : "secondary"} disabled={!p.retryable} />
+        </kit.KitContent>
+      </>}
+    </kit.KitState>
+  </kit.KitContent>;
+}
+
+// Only the gallery seeds this acknowledgement. A host puts accepted messages in entries.
+function previewSentReply(data: c.DeviceData | undefined, p: ThreadLive) {
+  const preview = data?.requestThreadPreview?.[0] as { number?: unknown; sent?: unknown } | undefined;
+  return preview?.number === p.number && p.audience_choices.includes(p.audience) && preview.sent === p.draft
+    ? p.draft
+    : undefined;
+}
+
 // prettier-ignore
 export function RequestThread(input: ThreadProps) {
   const { words: { thread: words }, lang } = kit.useWords(requestsWordsFor);
   const state = kit.useComponentState();
   const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
-  const { entries, draft, audience, audience_choices: choices, sendable, canBrowseReplies } = kit.useLiveControls(meta, input) as ThreadLive;
-  const rows = threadOrder(entries).map((row) => <threadView.ThreadEntry key={row.id} {...{ row, detail, density, lang }} />);
-  const send = <kit.KitAction part="send" full action="send" label={words.send} disabled={!sendable} />;
+  const p = kit.useLiveControls(meta, input) as ThreadLive;
+  const data = kit.useDeviceData();
+  const sent = state === "success" ? previewSentReply(data, p) : undefined;
+  const rows = threadOrder(p.entries).map((row) => <threadView.ThreadEntry key={row.id} {...{ row, detail, density, lang }} />);
+  const thread = <kit.KitContent density={density}>{rows}</kit.KitContent>;
   return <kit.KitCard part="root" padded density={density}>
     {state === "loading" ? <kit.KitState density={density} loading={<>
       <kit.KitContent inset="md" density={density}><kit.KitLayoutText line={{ text: words.heading(input.number), role: "body", strong: true }} density={density} /></kit.KitContent>
-      {rows}
-      {choices.length > 0 && <kit.KitContent inset="md" group="response">
+      {thread}
+      {p.audience_choices.length > 0 && <kit.KitContent inset="md" group="response">
         <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.audience]]} />
         <kit.KitSkeleton shape="control" full label={words.audience} />
         <kit.KitRow label={words.field} tone="muted" density="comfortable">
-          <kit.KitSkeleton shape="figure" inset="none" content={[["body", draft || words.field], ["body", words.field]]} />
+          <kit.KitSkeleton shape="figure" inset="none" content={[["body", p.draft || words.field], ["body", words.field]]} />
         </kit.KitRow>
-        {canBrowseReplies && <kit.KitSkeleton shape="control" kind="secondary" label={words.canned} />}
+        {p.canBrowseReplies && <kit.KitSkeleton shape="control" kind="secondary" label={words.canned} />}
         <kit.KitSkeleton shape="control" full label={words.send} />
       </kit.KitContent>}
     </>} /> : <>
       <kit.KitContent inset="md" density={density}><kit.KitText part="number" role="heading">{words.heading(input.number)}</kit.KitText></kit.KitContent>
-      {state === "error" || state === "success" ? <kit.KitContent inset="md" group="response">
-        <kit.KitText part="notice" tone={state === "error" ? "bad" : "good"}>{state === "error" ? words.failed : words.sent}</kit.KitText>
-        {state === "error" && draft && <kit.KitText part="field">{draft}</kit.KitText>}
-      </kit.KitContent> : null}
-      {state !== "error" && (state === "empty" || (state === "filled" && !entries.length)
+      {state === "empty" || !p.entries.length && state === "filled"
         ? <kit.KitEmpty part="notice" icon="message" decorativeIcon />
-        : rows)}
-      {(state === "filled" || state === "empty") && choices.length > 0 && <kit.KitContent inset="md" group="response" density={density}>
-        <kit.KitText part={null} role="label">{words.audience}</kit.KitText>
-        <kit.KitTrack part="audience" look="segments" role="radiogroup" label={words.audience}>
-          {choices.map((choice) => <kit.KitChip key={choice} item={null} look="segment" role="radio" value={choice} label={words.audiences[choice]} on={audience === choice} />)}
-        </kit.KitTrack>
-        <kit.KitTextArea part="field" label={words.field} hint={words.field} value={draft} lines={2} maxLength={draftLimit} />
-        {canBrowseReplies ? <>
-          <kit.KitAction part="canned" goto={input.cannedGoto} label={words.canned} kind="secondary" />
-          <kit.KitContent group="response" density={density}>{send}</kit.KitContent>
-        </> : send}
+        : thread}
+      {state === "success" && <kit.KitContent inset="md" density={density}>
+        <kit.KitState retain part="notice" message={words.sent}>{sent &&
+          <kit.KitRow label={sent} tone="muted" density="compact">
+            <kit.KitMetaLine title={{ text: sent }} meta={{ text: words.audiences[p.audience], role: "caption" }} />
+          </kit.KitRow>}
+        </kit.KitState>
       </kit.KitContent>}
+      {state === "error" ? <FailedReply {...{ p, words, density }} />
+        : <ReplyComposer {...{ words, density }} p={state === "success"
+          ? { ...p, canBrowseReplies: false, ...(sent && { draft: undefined, sendable: false }) } : p} />}
     </>}
   </kit.KitCard>;
 }

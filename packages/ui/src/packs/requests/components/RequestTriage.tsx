@@ -188,8 +188,12 @@ export function RequestTriage(input: c.Props<typeof props, typeof meta>) {
       {loading ? p.duplicates.length > 0 && <kit.KitSkeleton rows={p.duplicates.length} lead="none" inset="none" />
         : <Duplicates {...{ p, w, density }} />}
       <kit.KitContent density={density} group={group}>{label(w.reason)}
-        {loading ? <kit.KitRow label={w.reason} tone="muted"><kit.KitSkeleton shape="figure" inset="none"
-          content={[["body", w.reasonHint], ["body", w.reason]]} /></kit.KitRow> : p.canTriage ?
+        {loading ? <kit.KitRow label={w.reason} tone="muted" density="comfortable">
+          <kit.KitContent rhythm="flush">
+            <kit.KitLayoutText line={{ text: p.reason || (p.duplicates.length ? w.linkHint : w.reasonHint) }} />
+            <kit.KitLayoutText line={{ text: w.reason, role: "meta" }} />
+          </kit.KitContent>
+        </kit.KitRow> : p.canTriage ?
           <kit.KitTextArea part="reason" label={w.reason} hint={p.duplicates.length ? w.linkHint : w.reasonHint}
           value={p.reason} lines={2} maxLength={maxReason} />
           : <kit.KitText part="reason" role="body" tone="muted">{p.reason || w.reasonHint}</kit.KitText>}</kit.KitContent>

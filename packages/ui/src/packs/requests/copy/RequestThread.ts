@@ -46,6 +46,8 @@ export function threadGates(input: Readonly<Values>, access?: ThreadAccess, data
       ? threadAudiences
       : ["requester"];
   const draft = choices.length ? input.draft : undefined;
+  const canRetryEdit = choices.includes(String(input.audience));
+  const retryDraft = canRetryEdit ? (input.retryText ?? draft) : undefined;
   const entries = (input.entries as Values[])
     .filter(({ audience }) => access?.role === "staff" || audience === "requester")
     .map((entry) => (entry.file ? { ...entry, fileName: fileName(data, entry.file) } : entry));
@@ -56,6 +58,9 @@ export function threadGates(input: Readonly<Values>, access?: ThreadAccess, data
     replyable: choices.length > 0,
     canBrowseReplies: access?.role === "staff" && access.canReply && typeof input.cannedGoto === "string",
     sendable: choices.includes(String(input.audience)) && typeof draft === "string" && Boolean(draft.trim()),
+    canRetryEdit,
+    retryDraft,
+    retryable: typeof retryDraft === "string" && Boolean(retryDraft.trim()),
   };
 }
 
@@ -87,30 +92,60 @@ type Thread = {
   entries: readonly Entry[];
   detail: "full" | "brief";
   draft?: string | undefined;
+  audience: Entry["audience"];
   audience_choices?: readonly Entry["audience"][];
   canBrowseReplies?: boolean;
+  canRetryEdit?: boolean;
+  retryDraft?: string;
 };
 
 export function threadRead(input: unknown, state: StateName, lang?: string): string[] {
-  const { number, entries, detail, draft, audience_choices, canBrowseReplies } = input as Thread;
+  const {
+    number,
+    entries,
+    detail,
+    draft,
+    audience,
+    audience_choices,
+    canBrowseReplies,
+    canRetryEdit,
+    retryDraft,
+  } = input as Thread;
   const { thread: words } = requestsWordsFor(lang);
   const visible = state === "empty" ? [] : threadOrder(entries);
   return [
     words.heading(number),
     ...visible.map((entry) => {
       const { event, fact, date, time, audience, fileLabel } = threadEntryCopy(entry, detail, lang);
-      return [entry.id, event, fact, entry.by, time, date, audience, entry.photo && words.photo, fileLabel]
+      return [
+        entry.id,
+        event,
+        fact,
+        state === "error" && entry.text,
+        entry.by,
+        time,
+        date,
+        audience,
+        entry.photo && words.photo,
+        fileLabel,
+      ]
         .filter(Boolean)
         .join(" · ");
     }),
-    ...(state === "success"
-      ? [words.sent]
+    ...(state === "success" ? [words.sent] : []),
+    ...(state === "error"
+      ? [
+          words.failed,
+          ...(canRetryEdit
+            ? [words.audience, words.audiences[audience], retryDraft || words.field, words.retry]
+            : []),
+        ]
       : audience_choices?.length
         ? [
             words.audience,
             ...audience_choices.map((choice) => words.audiences[choice]),
             draft || words.field,
-            ...(canBrowseReplies ? [words.canned] : []),
+            ...(canBrowseReplies && state !== "success" ? [words.canned] : []),
             words.send,
           ]
         : []),
