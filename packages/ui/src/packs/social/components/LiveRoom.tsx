@@ -100,21 +100,13 @@ export const examples = [
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("LiveRoom");
+// prettier-ignore
 export const probes = [
-  choose(
-    "Let the club host a live audio stage where several people can speak and the audience can raise their hands.",
-  ),
-  choose(
-    "Play back one audio recording I made yesterday, with a play button and a scrubber. Nobody else is connected.",
-    "Player",
-  ),
-  write(
-    "Show the live audio stage Greenhouse after hours, on the Plant swap topic. Maya is the host and is speaking; Sam is the co-host and Jo is a muted speaker. There are 24 listeners.",
-  ),
+  choose("Let the club host a live audio stage where several people can speak and the audience can raise their hands."),
+  choose("Play back one audio recording I made yesterday, with a play button and a scrubber. Nobody else is connected.", "Player"),
+  write("Show the live audio stage Greenhouse after hours, on the Plant swap topic. Maya is the host and is speaking; Sam is the co-host and Jo is a muted speaker. There are 24 listeners."),
   {
-    ...write(
-      "Set up a live audio room named Sunday trail chat. Anna is the speaking host, Ben is another speaker, and there are eight listeners. Hide the topic and speaker role labels. Keep the stage layout, card framing and spacing at their defaults; don’t set style, surface or density.",
-    ),
+    ...write("Set up a live audio room named Sunday trail chat. Anna is the speaking host, Ben is another speaker, and there are eight listeners. Hide the topic and speaker role labels. Keep the stage layout, card framing and spacing at their defaults; don’t set style, surface or density."),
     variant: { axis: "detail", value: "brief" },
   },
   read("Open the reaction tray without sending a reaction.", { address: "l1/react", action: "press" }),
@@ -179,23 +171,19 @@ function LeaveRoom({ stage = false }: { stage?: boolean }) {
 
 // prettier-ignore
 export function LiveRoom(input: RoomProps) {
-  const state = kit.useComponentState();
+  const state = kit.useComponentState(), { interactive } = kit.useKit();
   const { lang, words: { liveRoom: words } } = kit.useWords(socialWordsFor);
-  const { interactive } = kit.useKit();
   const room = kit.useLiveControls(meta, input) as RoomLive;
   const display = interactive || room.roomKey ? room : { ...room, joined: input.isHost, canModerate: input.isHost };
   const density = kit.useVariant("density", meta.variants.density, room.density);
   const surface = kit.useVariant("surface", meta.variants.surface, room.surface);
-  const detail = kit.useVariant("detail", meta.variants.detail, room.detail);
-  const rows = room.speakers as Speaker[];
-  const active = liveRoomActiveSpeaker(rows);
+  const detail = kit.useVariant("detail", meta.variants.detail, room.detail), rows = room.speakers as Speaker[];
+  const active = liveRoomActiveSpeaker(rows), mini = room.style === "mini";
   const title = { text: room.title, part: "title" } as const;
   const heading = <kit.KitHeader {...{ title, density }} {...(room.topic ? { meta: { text: room.topic, part: "topic" } } : {})} />;
-  const mini = room.style === "mini";
   const body = mini ? <kit.KitGrid fitLast density={density}>
         <kit.KitHeader {...{ title, density }} {...(active ? { meta: { text: active.name, part: "active" } } : {})} />
-        <LeaveRoom />
-      </kit.KitGrid> : <>
+        <LeaveRoom /></kit.KitGrid> : <>
         <kit.KitContent density={density} rhythm="flush">
           {heading}
           <kit.KitFigure density={density}
@@ -207,8 +195,6 @@ export function LiveRoom(input: RoomProps) {
         <StageActions room={display} density={density} />
       </>;
   return <kit.KitCard part="root" padded {...{ density, surface }}>
-    <kit.KitState density={density} part="status" message={state === "success" ? words.success : words.error} loading={body}>
-      {body}
-    </kit.KitState>
+    <kit.KitState density={density} part="status" message={state === "success" ? words.success : words.error} loading={body}>{body}</kit.KitState>
   </kit.KitCard>;
 }
