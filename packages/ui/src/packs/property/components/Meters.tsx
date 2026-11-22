@@ -127,21 +127,20 @@ function MeterRegister({ input, density, detail, lang }: { input: MetersProps; d
   return input.entries.map((row) => {
     if (row.entryKind !== "meter") return null;
     const { latest, previous, usage } = meterSummary(meterSeries(input.readings, row.meterRef), row.unit, lang);
-    if (loading) return <kit.KitRow key={row.id} label={row.title} inline density={density}>
+    const trailing = <kit.KitIcon name="chevron_right" decorative tone="muted" {...{ loading }} />;
+    if (loading) return <kit.KitRow key={row.id} label={row.title} inline {...{ density, trailing }}>
       <kit.KitSkeleton shape="figure" density={density} inset="none" content={[
-        ["body", row.title], ["label", latest ? words.latestLabel : undefined],
-        [latest ? "number" : "label", latest ?? words.noReadings, "start", "compact"],
+        ["body", row.title], latest ? ["body", `${words.latestLabel} ${latest}`] : ["label", words.noReadings],
         ["label", detail === "full" ? previous : undefined], ["label", usage],
       ]} />
     </kit.KitRow>;
-    return <kit.KitRow key={row.id} item={row.id} role="button" label={row.title} density={density} inline
-      trailing={<kit.KitIcon name="chevron_right" decorative tone="muted" />}>
+    return <kit.KitRow key={row.id} item={row.id} role="button" label={row.title} inline {...{ density, trailing }}>
       <kit.KitContent density={density}>
         <kit.KitText part="title" role="body" density={density}>{row.title}</kit.KitText>
-        {latest ? <kit.KitContent rhythm="flush" {...{ density }}>
-          <kit.KitText part={null} role="label" tone="muted" {...{ density }}>{words.latestLabel}</kit.KitText>
+        {latest ? <kit.KitText part={null} role="label" tone="muted" {...{ density }}>
+          {words.latestLabel}{" "}
           <kit.KitText part="latest" role="number" numberScale="compact" tabular {...{ density }}>{latest}</kit.KitText>
-        </kit.KitContent> : <kit.KitText part="latest" role="label" tone="muted" {...{ density }}>{words.noReadings}</kit.KitText>}
+        </kit.KitText> : <kit.KitText part="latest" role="label" tone="muted" {...{ density }}>{words.noReadings}</kit.KitText>}
         {detail === "full" && previous && <kit.KitText part="previous" role="label" density={density} tone="muted">{previous}</kit.KitText>}
         {usage && <kit.KitText part="usage" role="label" density={density} tone="muted">{usage}</kit.KitText>}
       </kit.KitContent>
@@ -158,7 +157,7 @@ function MeterHistory({ input, selection, density, lang, words }: { input: Meter
         <kit.KitChip key={row.id} item={row.id} role="radio" look="segment" labelPart="title" label={row.title} on={row.meterRef === (selection ?? input.meters[0]!.meterRef)} />)}
     </kit.KitTrack>
     {!rows.length && <kit.KitText part="empty" tone="muted" role="body">{words.noReadings}</kit.KitText>}
-    {rows.map((row) => <kit.KitRow key={row.id} item={row.id} label={row.date} density={density} inset="none">
+    {rows.map((row) => <kit.KitRow key={row.id} item={row.id} label={row.date} density={density} inline fitContent>
       <kit.KitContent density={density}>
         <kit.KitGrid fitLast {...{ density }}>
           <kit.KitText part="at" role="label" tone="muted" {...{ density }}>{row.date}</kit.KitText>

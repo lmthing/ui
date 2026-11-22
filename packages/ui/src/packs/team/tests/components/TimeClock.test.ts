@@ -97,7 +97,10 @@ describe("TimeClock states, parts and reading", () => {
   it("addresses the readout and active controls and keeps the same text in the reading", () => {
     const { html, props: parsed, deviceData } = renderExample("TimeClock", active, "filled", theme);
     expect([...addressedElements(html).keys()].sort()).toEqual(
-      meta.parts.map((part) => `home/c1/${part}`).sort(),
+      meta.parts
+        .filter((part) => !["verification", "break_elapsed", "break_elapsed_label"].includes(part))
+        .map((part) => `home/c1/${part}`)
+        .sort(),
     );
     const reading = readComponent(def, parsed, "t1", "filled", {}, undefined, deviceData).join("\n");
     for (const line of ["Clocked in at 07:00", "2:35:00", "1 break today", "Clock out", "Start break"]) {
@@ -141,6 +144,47 @@ describe("TimeClock states, parts and reading", () => {
     expect(reading).toContain("2:35:00");
     expect(reading).not.toContain(" press]");
   });
+});
+
+it("marks kiosk verification without requesting a PIN and applies the needs-ok tier only there", () => {
+  const kiosk = { ...off, style: "kiosk", verification: "pin" };
+  const html = renderInstance("TimeClock", kiosk, "filled", theme);
+  expect(addressedElements(html).get("home/c1/verification")?.text).toEqual(["PIN required"]);
+  expect(readComponent(def, kiosk, "t1").join("\n")).toContain("[t1/clock press !needs-ok]");
+  expect(readComponent(def, off, "t1").join("\n")).toContain("[t1/clock press]");
+  expect(props.safeParse({ ...kiosk, pin: "1234" }).success).toBe(false);
+});
+
+it("advances an opted-in live break from trusted events and hides it again when the break ends", () => {
+  const seed = { ...active, breakTimer: true };
+  const open = meta.previewDeviceData({ input: seed, state: "filled" });
+  const closed = meta.previewDeviceData({ input: active, state: "filled" });
+  const record = open.shiftClock![0] as { asOf: number };
+  const now = vi.fn(() => record.asOf);
+  const runtime = createScreenController({
+    screen: { id: "home", components: [{ ...seed, id: "t1", c: "TimeClock" }] },
+    defs: components,
+    deviceData: open,
+    now,
+  });
+  expect(runtime.read()).toContain("35:00");
+  now.mockReturnValue(record.asOf + 2_000);
+  expect(runtime.read()).toContain("35:02");
+  now.mockReturnValue(record.asOf + 3 * 60 * 60 * 1000);
+  expect(runtime.read()).toContain("5:35:00");
+  expect(runtime.read()).toContain("3:35:00");
+  runtime.dispose();
+  for (const [input, data, shown] of [
+    [seed, open, true],
+    [active, open, false],
+    [seed, closed, false],
+  ] as const) {
+    const html = renderInstance("TimeClock", input, "filled", theme, { deviceData: data });
+    expect(addressedElements(html).has("home/c1/break_elapsed")).toBe(shown);
+    expect(
+      readComponent(def, input, "t1", "filled", {}, undefined, data).join("\n").includes("Time on break"),
+    ).toBe(shown);
+  }
 });
 
 describe("TimeClock host records", () => {

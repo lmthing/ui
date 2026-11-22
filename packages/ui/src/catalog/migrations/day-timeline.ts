@@ -33,6 +33,7 @@ const adoptedVariants: readonly string[] = [
   "Payoff",
   "ScoreSheet",
   "TeamPicker",
+  "Table",
   "Trivia",
   "Hero",
   "Header",

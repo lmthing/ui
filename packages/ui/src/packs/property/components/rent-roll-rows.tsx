@@ -5,9 +5,10 @@ import type { propertyWordsFor } from "../lang";
 import type { meta, props } from "./RentRoll";
 
 type RollProps = c.Props<typeof props, typeof meta>;
+type Summary = ReturnType<ReturnType<typeof rentCopy>["summary"]>;
 // prettier-ignore
-export function Datum({ part, role, text, density, strike, tone }: {
-  part: string | null; role: "title" | "body" | "caption" | "number"; text: string; density: c.ThemeDensity;
+function Datum({ part, role, text, density, strike, tone }: {
+  part: string | null; role: "body" | "label" | "number"; text: string; density: c.ThemeDensity;
   strike?: boolean; tone?: kit.TextTone;
 }) {
   return kit.useComponentState() === "loading" ?
@@ -16,13 +17,26 @@ export function Datum({ part, role, text, density, strike, tone }: {
       align={role === "number" ? "end" : "start"} tabular={role === "number"}>{text}</kit.KitText>;
 }
 // prettier-ignore
-export function Metric({ part, label, value, density, focal = false }: {
-  part: string; label: string; value: string; density: c.ThemeDensity; focal?: boolean;
+function Metric({ part, label, value, density, tone = "text" }: {
+  part: string; label: string; value: string; density: c.ThemeDensity; tone?: kit.TextTone;
 }) {
-  const tone = focal ? "accent" : "text";
-  return <kit.KitContent rhythm="flush" {...{ density }}>
-    <kit.KitLayoutText line={{ text: label, role: "caption", tone: "muted" }} align="end" {...{ density }} />
+  return <kit.KitGrid fitLast {...{ density }}>
+    <kit.KitLayoutText line={{ text: label, role: "meta", tone: "muted" }} {...{ density }} />
     <kit.KitLayoutText line={{ text: value, part, role: "figure", compact: true, tabular: true, tone }} align="end" {...{ density }} />
+  </kit.KitGrid>;
+}
+
+// prettier-ignore
+export function RentSummary({ fields, density, tenant }: { fields: Summary; density: c.ThemeDensity; tenant: boolean }) {
+  const focal = tenant ? fields.find(({ part }) => part === "outstanding") : undefined;
+  return <kit.KitContent {...{ density }}>
+    {focal && <kit.KitContent rhythm="flush" {...{ density }}>
+      <kit.KitLayoutText line={{ text: focal.label, role: "meta", tone: "muted" }} {...{ density }} />
+      <kit.KitLayoutText line={{ text: focal.value, part: focal.part, role: "figure", tone: "accent", tabular: true }} {...{ density }} />
+    </kit.KitContent>}
+    <kit.KitContent rhythm="flush" {...{ density }}>{fields.filter((field) => field !== focal).map((field) =>
+      <Metric key={field.part} {...field} {...{ density }} tone={field.part === "outstanding" ? "accent" : "text"} />)}
+    </kit.KitContent>
   </kit.KitContent>;
 }
 
@@ -40,9 +54,9 @@ export function ChargeRow({ line, density, copy, words, loading, tenant }: Finis
     <kit.KitContent {...{ density }}>
       <Datum part="unit" role="body" text={line.unit} {...{ density }} />
       <Datum part="occupant" role="body" tone="muted" text={line.occupant} {...{ density }} />
-      <Datum part="due" role="caption" tone="muted" text={due} {...{ density }} />
-      <kit.KitContent group="response" {...{ density }}>
-        <kit.KitGrid columns={3} {...{ density }}>{fields.map((field) => <Metric key={field.part} {...field} {...{ density }} />)}</kit.KitGrid>
+      <Datum part="due" role="label" tone="muted" text={due} {...{ density }} />
+      <kit.KitContent group="response" rhythm="flush" {...{ density }}>
+        {fields.map((field) => <Metric key={field.part} {...field} {...{ density }} />)}
       </kit.KitContent>
       {tenant ? (line.unpaid && <kit.KitActionFooter {...{ density }}>
         <RentAction part="pay" label={words.pay} kind="primary" {...{ loading }} />
@@ -60,14 +74,16 @@ export function ReceiptRow({ line, density, copy, words, loading, tenant }: Fini
   const { date, method, value } = copy.receipt(line);
   return <kit.KitRow item={line.id} part={loading ? null : "root"} inline label={line.unit} {...{ density }}>
     <kit.KitGrid fitLast {...{ density }}>
-      <kit.KitContent {...{ density }}>
+      <kit.KitContent rhythm="flush" {...{ density }}>
         <Datum part="unit" role="body" text={line.unit} {...{ density }} />
-        <Datum part="amount" role="number" strike={line.voided} text={value} {...{ density }} />
-        <Datum part="date" role="caption" tone="muted" text={date} {...{ density }} />
-        <Datum part="method" role="caption" tone="muted" text={method} {...{ density }} />
+        <Datum part="date" role="label" tone="muted" text={date} {...{ density }} />
+        <Datum part="method" role="label" tone="muted" text={method} {...{ density }} />
       </kit.KitContent>
-      {line.voided && !loading ? <kit.KitTrail part="voided" kind="badge" tone="muted" value={words.voided} {...{ density }} /> :
-        !tenant && <RentAction part="void" label={line.voided ? words.voided : words.void} kind="danger" {...{ loading }} />}
+      <kit.KitContent {...{ density }}>
+        <Datum part="amount" role="number" strike={line.voided} text={value} {...{ density }} />
+        {line.voided && !loading ? <kit.KitTrail part="voided" kind="badge" tone="muted" value={words.voided} {...{ density }} /> :
+          !tenant && <RentAction part="void" label={line.voided ? words.voided : words.void} kind="danger" {...{ loading }} />}
+      </kit.KitContent>
     </kit.KitGrid>
   </kit.KitRow>;
 }

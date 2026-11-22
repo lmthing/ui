@@ -127,38 +127,51 @@ function WorkHeader({ p, copy, loading, error }: { p: View; copy: Copy; loading:
     : <kit.KitContent group={error ? "response" : "content"}>{fields.map(([part, role, text, tone]) => text &&
       <kit.KitText key={part} {...{ part, role, tone }}>{text}</kit.KitText>)}</kit.KitContent>;
 }
+type WorkItemsProps = { p: View; w: Words; lang: string; group: "content" | "response"; loading: boolean };
+
 // prettier-ignore
-function WorkItems({ p, w, lang, group, loading }: { p: View; w: Words; lang: string; group: "content" | "response"; loading: boolean }) {
-  return (["task", "part"] as const).map((kind) => {
-      const rows = p.lines.filter((line) => line.kind === kind);
-      return rows.length ? <kit.KitContent key={kind} group={group}>
-        {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", kind === "task" ? w.checks : w.parts]]} />
-          : <kit.KitText role="label" tone="muted" part={null}>{kind === "task" ? w.checks : w.parts}</kit.KitText>}
-        {rows.map((row) => {
-          if (row.kind === "task") return <kit.KitRow key={row.id} {...(loading ? {} : { item: row.id })} label={row.text} inline leadingWidth="avatar" leadingAlign="row"
-            leading={loading ? <kit.KitSkeleton shape="control" kind="quiet" />
-              : p.editable ? <kit.KitCheck part="check" done={row.done} label={row.text} />
-              : <kit.KitIcon part="check" name={row.done ? "circle_check" : "minus"} tone={row.done ? "good" : "muted"} />}>
-            <kit.KitLayoutText line={{ text: row.text, part: "text" }} />
-            {row.required && <kit.KitLayoutText line={{ text: w.required, part: "required", role: "meta", tone: "muted" }} />}</kit.KitRow>;
-          const { qty, cost } = workOrderLine(row, lang);
-          if (!p.editable && !loading) return <kit.KitRow key={row.id} item={row.id} label={row.name} inline fitContent
-            trailing={<kit.KitText part="qty" role="number" numberScale="compact" tabular>{qty}</kit.KitText>}>
-            <kit.KitText part="name">{row.name}</kit.KitText>
-            {cost && <kit.KitText part="cost" role="number" numberScale="compact" tone="muted" tabular>{cost}</kit.KitText>}
-          </kit.KitRow>;
-          return <kit.KitRow key={row.id} {...(loading ? {} : { item: row.id })} label={row.name} inline><kit.KitGrid fitLast>
-            {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["body", row.name], ["body", cost]]} />
-            : <kit.KitContent><kit.KitText part="name">{row.name}</kit.KitText>
-              {cost && <kit.KitText part="cost" role="number" numberScale="compact" tone="muted" tabular>{cost}</kit.KitText>}</kit.KitContent>}
-            {p.editable ? <kit.KitRow inline label={w.quantityOf(row.name)} leading={!loading &&
-              <kit.KitText role="label" part={null} tone="muted">{w.quantity}</kit.KitText>} leadingAlign="row">
-              <kit.KitInput compact projected action="set" kind="number" min={Number.MIN_VALUE} part="qty"
-                label={w.quantityOf(row.name)} hint={w.quantity} value={String(row.qty)} /></kit.KitRow>
-              : undefined}
-          </kit.KitGrid></kit.KitRow>;
-        })}</kit.KitContent> : null;
-    });
+function WorkChecks({ p, w, group, loading }: WorkItemsProps) {
+  const rows = p.lines.filter((line) => line.kind === "task");
+  if (!rows.length) return null;
+  return <kit.KitContent group={group}>
+    <kit.KitLayoutText line={{ text: w.checks, role: "meta", tone: "muted" }} />
+    <kit.KitContent rhythm="flush">
+      {rows.map((row) => <kit.KitRow key={row.id} {...(loading ? {} : { item: row.id })} label={row.text}
+        inset="none" leadingWidth="avatar" density="compact"
+        leading={loading ? <kit.KitSkeleton shape="control" kind="quiet" />
+          : p.editable ? <kit.KitCheck part="check" done={row.done} label={row.text} />
+          : <kit.KitIcon part="check" name={row.done ? "circle_check" : "minus"} tone={row.done ? "good" : "muted"} />}>
+        <kit.KitLayoutText line={{ text: row.text, part: "text" }} />
+        {row.required && <kit.KitLayoutText line={{ text: w.required, part: "required", role: "meta", tone: "muted" }} />}
+      </kit.KitRow>)}
+    </kit.KitContent>
+  </kit.KitContent>;
+}
+
+// prettier-ignore
+function WorkParts({ p, w, lang, group, loading }: WorkItemsProps) {
+  const rows = p.lines.filter((line) => line.kind === "part");
+  if (!rows.length) return null;
+  return <kit.KitContent group={group}>
+    {p.editable ? <kit.KitGrid fitLast>
+      <kit.KitLayoutText line={{ text: w.parts, role: "meta", tone: "muted" }} />
+      <kit.KitLayoutText line={{ text: w.quantity, role: "meta", tone: "muted" }} align="end" />
+    </kit.KitGrid> : <kit.KitLayoutText line={{ text: w.parts, role: "meta", tone: "muted" }} />}
+    {rows.map((row) => {
+      const { qty, cost } = workOrderLine(row, lang);
+      return <kit.KitRow key={row.id} {...(loading ? {} : { item: row.id })} label={row.name} inline fitContent>
+        <kit.KitGrid fitLast>
+          <kit.KitRow part={null} label={row.name} inline fitContent trailing={cost &&
+            <kit.KitLayoutText line={{ text: cost, part: "cost", role: "figure", compact: true, tone: "muted", tabular: true }} align="end" />}>
+            <kit.KitLayoutText line={{ text: row.name, part: "name" }} />
+          </kit.KitRow>
+          {p.editable ? <kit.KitInput compact projected action="set" kind="number" min={Number.MIN_VALUE} part="qty"
+            label={w.quantityOf(row.name)} hint={w.quantity} value={String(row.qty)} />
+            : <kit.KitLayoutText line={{ text: qty, part: "qty", role: "figure", compact: true, tabular: true }} align="end" />}
+        </kit.KitGrid>
+      </kit.KitRow>;
+    })}
+  </kit.KitContent>;
 }
 // prettier-ignore
 export function WorkOrder(input: c.Props<typeof props, typeof meta>) {
@@ -179,7 +192,8 @@ export function WorkOrder(input: c.Props<typeof props, typeof meta>) {
           {p.editable && <kit.KitAction part="clock" kind="secondary" action={p.running ? "stop" : "start"}
             disabled={!p.running && !p.canStart} label={p.running ? w.stop : w.start} />}
         </kit.KitGrid></kit.KitContent>
-    <WorkItems {...{ p, w, lang, group, loading }} />
+    <WorkChecks {...{ p, w, lang, group, loading }} />
+    <WorkParts {...{ p, w, lang, group, loading }} />
     {copy.total && <kit.KitGrid fitLast>
       <kit.KitLayoutText line={{ text: copy.total.label, role: "meta", tone: "muted" }} />
       <kit.KitLayoutText line={{ text: copy.total.value, role: "figure", compact: true, part: "total", tabular: true }} align="end" />

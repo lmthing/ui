@@ -107,6 +107,7 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
   Choice: [{ from: "style", values: { cards: {}, list: {} } }],
   ScoreSheet: [{ from: "style", values: { grid: { overflow: "all" }, round: { overflow: "page" } } }],
   TeamPicker: [{ from: "style", values: { columns: { arrange: "strip" }, groups: { arrange: "rows" } } }],
+  Table: [{ from: "style", values: { compact: {}, grouped: { group: "sections" } } }],
   Trivia: [{ from: "style", values: { card: { emphasis: "normal" }, large: { emphasis: "hero" } } }],
   Amount: [{ from: "style", values: { large: { emphasis: "hero" } } }],
   Ring: [{ from: "style", values: { md: {}, lg: { emphasis: "hero" } } }],

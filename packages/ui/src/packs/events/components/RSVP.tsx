@@ -131,8 +131,8 @@ function ReplyForm(input: RsvpFormProps) {
     <kit.KitContent density={input.viewDensity} group="response">
       <kit.KitGrid density={input.viewDensity}>
         <kit.KitAction part="yes" label={rsvp.yes} kind={input.answer === "yes" ? "secondary" : "quiet"} full />
-        <kit.KitAction part="no" label={rsvp.no}
-          kind={input.answer === "no" ? "secondary" : "quiet"} full />
+        <kit.KitAction part="no" label={rsvp.no} kind="danger"
+          icon={input.answer === "no" ? "check" : undefined} contentParts={{ label: "no_label" }} full />
       </kit.KitGrid>
     </kit.KitContent>
     {allowsPlus && <kit.KitContent group="response">
