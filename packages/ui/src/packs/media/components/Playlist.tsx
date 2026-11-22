@@ -1,7 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { playlistReading, playlistTiming } from "../copy";
+import { playlistNext, playlistReading, playlistTiming } from "../copy";
 import { mediaWordsFor } from "../lang";
 
 // Core first: List/lead number cannot combine playback progress, duration, downloads and the playing row.
@@ -12,7 +12,7 @@ export const meta = {
   purpose: "Choose an ordered track or episode and see its playback progress.",
   pick: "An ordered queue of separate tracks or episodes, with durations, played progress and download controls. Not ordinary rows (List) or chapter marks within one recording (ChapterList).",
   writeHints: [
-    'Use style "episodes" for dated episodes with a description line in sub, otherwise "tracks" for numbered tracks. If no episode note or date is supplied, set sub to null. The playing index is zero-based; omit it unless one is playing.',
+    'Use style "episodes" for dated episodes with a description line in sub, "queue" if asked to show an Up next playback queue, otherwise "tracks" for numbered tracks. If no episode note or date is supplied, set sub to null. The playing index is zero-based; omit it unless one is playing.',
     "Seconds are whole recording lengths; played is a fraction from zero to one. Each row opens its own player screen.",
     'Default to "detail":null,"density":null,"surface":null. Only when explicitly asked to hide episode notes, write "detail":"brief"; keep the supplied notes in sub and leave density and surface null unless independently requested.',
   ],
@@ -26,7 +26,7 @@ export const meta = {
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["sub"] } },
-  parts: ["root", "empty"],
+  parts: ["root", "empty", "queue_label"],
   items: {
     key: "items",
     parts: ["root", "lead", "title", "sub", "seconds", "played", "trail", "trail_icon"],
@@ -40,7 +40,7 @@ export const meta = {
 export const props = z
   .strictObject({
     ...c.variantProps(meta.variants),
-    style: z.enum(["tracks", "episodes"]).default("tracks"),
+    style: z.enum(["tracks", "episodes", "queue"]).default("tracks"),
     items: z
       .array(
         z.strictObject({
@@ -92,9 +92,11 @@ export const examples = [
   },
   { style: "episodes", items: episodeItems },
   { style: "episodes", detail: "brief", items: episodeItems },
+  { style: "queue", items: episodeItems, playing: 0 },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Playlist");
+// prettier-ignore
 export const probes = [
   choose(
     "Queue separate podcast episodes in order, each with its running time, playback progress and a download control. Show which episode is playing.",
@@ -120,6 +122,7 @@ export const probes = [
     address: "p1/r2/trail",
     action: "press",
   }),
+  { ...write("Show my playback queue with an Up next heading: Choosing a pot (245 seconds, 30 percent played, opens choose_a_pot) is playing, then When to water (390 seconds, unplayed, opens water_the_fern)."), expectProps: { style: "queue", playing: 0 } },
 ] satisfies c.Probe[];
 
 type PlaylistProps = c.Props<typeof props, typeof meta>;
@@ -134,11 +137,9 @@ type RowProps = {
 
 // prettier-ignore
 function PlaylistLead({ item, index, current, episodes, density, loading }: RowProps) {
-  if (loading) return episodes && item.photo ?
-    <kit.KitSkeleton inset="none" density={density} lead="box" items={[{ lines: [], photo: item.photo }]} /> :
-    <kit.KitIcon name="dot" scale="lg" decorative />;
-  if (current) return <kit.KitIcon name="activity" part="lead" tone="accent" scale="lg" />;
-  if (episodes && item.photo) return <kit.KitPhoto photo={item.photo} label={item.title} part="lead" />;
+  if (current) return <kit.KitIcon name="activity" part="lead" tone="accent" scale="lg" loading={loading} />;
+  if (episodes && item.photo) return <kit.KitPhoto photo={item.photo} label={item.title} part="lead" loading={loading} />;
+  if (loading) return <kit.KitLayoutText line={{ text: c.numberLine(index + 1), role: "meta", tabular: true }} density={density} />;
   return <kit.KitRank place={index + 1} part="lead" density={density} />;
 }
 
@@ -146,30 +147,21 @@ function PlaylistLead({ item, index, current, episodes, density, loading }: RowP
 function PlaylistRow(row: RowProps) {
   const { item, current, episodes, density, loading } = row;
   const { lang, words: { playlist: words } } = kit.useWords(mediaWordsFor);
-  const { densityKind } = kit.useKitStyle();
-  const leadDensity = episodes && densityKind === "airy" ? "compact" : density;
   const timing = playlistTiming(item.seconds, item.played, lang);
   const label = current ? words.nowPlaying(item.title) : item.title;
-  return <kit.KitRow inline part={null} label={loading ? "" : label} role="group" selected={!loading && current}>
-    <kit.KitGrid fitLast density={density}>
-      <kit.KitRow part={loading ? null : "root"} goto={loading ? undefined : item.goto} label={item.title}
-        leading={<PlaylistLead {...row} />} leadingAlign={episodes && item.photo && !current ? "row" : "line"}
-        density={leadDensity} {...(episodes ? { leadingWidth: "avatar" as const } : {})}>
-        <kit.KitContent lineRole="body" density={density}>
-          {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["body", item.title], ["caption", item.sub]]} /> : <>
-            <kit.KitText part="title" role="body" density={density}>{item.title}</kit.KitText>
-            {item.sub && <kit.KitText part="sub" role="caption" tone="muted" density={density}>{item.sub}</kit.KitText>}
-          </>}
-          <kit.KitStepsTrack style="bar" part="played" count={1} at={loading ? 0 : item.played} />
-          {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", timing]]} /> :
-            <kit.KitText part="seconds" role="caption" tone="muted" tabular density={density}>{timing}</kit.KitText>}
-        </kit.KitContent>
-      </kit.KitRow>
-      {loading ? <kit.KitSkeleton shape="control" kind="quiet" inset="none" /> :
-        <kit.KitRow part="trail" role="button" label={words.download(item.title)} density={density}>
-          <kit.KitIcon name="download" part="trail_icon" tone="muted" />
-        </kit.KitRow>}
-    </kit.KitGrid>
+  const download = <kit.KitAction part={loading ? null : "trail"} action="press" kind="quiet" icon="download" a11y={words.download(item.title)} />;
+  return <kit.KitRow part={null} label={loading ? "" : label} role="group" selected={!loading && current}
+    {...{ density, trailing: download }}>
+    <kit.KitRow inline part={loading ? null : "root"} goto={loading ? undefined : item.goto} label={item.title}
+      leading={<PlaylistLead {...row} />} leadingAlign={episodes && item.photo && !current ? "row" : "line"}
+      density={density} {...(episodes ? { leadingWidth: "avatar" as const } : {})}>
+      <kit.KitContent group="content" density={density}>
+        <kit.KitMetaLine density={density} title={{ text: item.title, part: "title" }}
+          meta={{ text: item.sub, part: "sub", role: "caption" }} />
+        <kit.KitStepsTrack style="bar" part="played" count={1} at={loading ? 0 : item.played} />
+        <kit.KitLayoutText density={density} line={{ text: timing, part: "seconds", role: "caption", tone: "muted", tabular: true }} />
+      </kit.KitContent>
+    </kit.KitRow>
   </kit.KitRow>;
 }
 
@@ -180,12 +172,20 @@ export function Playlist(input: PlaylistProps) {
   const context = kit.usePartContext();
   const episodes = style === "episodes";
   const loading = context.state === "loading";
+  const { words } = kit.useWords(mediaWordsFor);
+  const rows = items.map((item, index) => <kit.PartScope key={item.id} {...context} item={item.id}>
+    <PlaylistRow {...{ item, index, episodes, density, loading }} current={index === playing} />
+  </kit.PartScope>);
+  const next = playlistNext(input);
+  const content = <>
+    <kit.KitRowGroup density={density}>{rows.slice(0, next)}</kit.KitRowGroup>
+    {next < rows.length && <>
+      <kit.KitContent inset="md" density={density}><kit.KitLayoutText density={density}
+        line={{ text: words.playlist.upNext, part: "queue_label", role: "meta", strong: true }} /></kit.KitContent>
+      <kit.KitRowGroup density={density}>{rows.slice(next)}</kit.KitRowGroup>
+    </>}
+  </>;
   return <kit.KitCard part="root" {...{ density, surface }}>
-    {context.state === "empty" ? <kit.KitEmpty part="empty" icon="music" decorativeIcon /> : <kit.KitGrid list arrange="rows" density={density}>
-      {items.map((item, index) =>
-        <kit.PartScope key={item.id} {...context} item={item.id}>
-          <PlaylistRow {...{ item, index, episodes, density, loading }} current={index === playing} />
-        </kit.PartScope>)}
-    </kit.KitGrid>}
+    <kit.KitState density={density} loading={content} part="empty" icon="music">{content}</kit.KitState>
   </kit.KitCard>;
 }

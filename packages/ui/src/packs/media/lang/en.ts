@@ -36,6 +36,8 @@ export const en = {
     seconds: (seconds: string) => `${seconds} sec`,
     duration: (hours: string, minutes: string) => `${hours} ${minutes}`,
     summary: (count: string, duration: string) => `${count} · ${duration}`,
+    rating: (rating: string) => `${rating} out of 5`,
+    ratingCount: (count: string, form: LDMLPluralRule) => `${count} ${form === "one" ? "rating" : "ratings"}`,
   },
   highlights: {
     quote: (text: string) => `“${text}”`,
@@ -44,6 +46,8 @@ export const en = {
     empty: "No saved titles yet",
     progress,
     progressReading: (title: string, percent: string) => `${title} · ${progress}: ${percent}`,
+    status: { owned: "Owned", borrowed: "Borrowed", hold: "On hold", finished: "Finished" },
+    loanReading: (title: string, detail: string) => `${title} · ${detail}`,
   },
   miniPlayer: {
     open: (title: string) => `Open full player: ${title}`,
@@ -52,9 +56,10 @@ export const en = {
     pause: "Pause",
     playing: "Playing",
     paused: "Paused",
-    timing: (elapsed: string, remaining: string) => `${elapsed} · ${remaining}`,
+    timing: (elapsed: string, remaining: string) => `${elapsed} · ${remaining} left`,
   },
   playlist: {
+    upNext: "Up next",
     download: (title: string) => `Download ${title}`,
     nowPlaying: (title: string) => `Now playing: ${title}`,
     completed: "Played",

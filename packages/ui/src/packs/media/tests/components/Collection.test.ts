@@ -59,6 +59,8 @@ describe("Collection schema", () => {
       { by: undefined }, { photo: undefined }, { photo: "https://example.org/cover.png" },
       { followed: "true" }, { followed: undefined }, { aspect: "tall" }, { detail: "hidden" },
       { density: "tiny" }, { color: "red" }, { count: 3 }, { duration: 900 }, { summary: "3 tracks" },
+      { style: "reader" }, { rating: -0.1 }, { rating: 5.1 }, { ratingCount: -1 }, { ratingCount: 1.5 },
+      { tags: ["One", "Two", "Three", "Four"] }, { tags: ["t".repeat(21)] }, { shelfStatus: "s".repeat(25) },
     ].map((patch) => ({ ...series, ...patch })),
   ])("rejects invalid wire props: %j", (input) => expect(props.safeParse(input).success).toBe(false));
 });
@@ -114,7 +116,7 @@ describe("Collection states and parts", () => {
     const { html } = renderExample("Collection", series, "filled", theme);
     const { html: alternate } = renderExample("Collection", { ...series, aspect: "wide", density: "compact" }, "filled", theme);
     expect([...addressedElements(html).keys()].sort()).toEqual(
-      meta.parts.map((part) => prefix + part).sort(),
+      ["root", "photo", "title", "by", "about", "summary", "play", "play_icon", "play_label", "follow", "follow_icon", "follow_label"].map((part) => prefix + part).sort(),
     );
     expect([...addressedElements(alternate).keys()]).toEqual([...addressedElements(html).keys()]);
     for (const [part, label] of [["play", "Play all"], ["follow", "Follow"]]) {
@@ -140,6 +142,21 @@ describe("Collection states and parts", () => {
     expect(html).toContain(loadingLabel);
     expect(html).not.toContain('role="button"');
     expect(readComponent(def, series, "c1", "loading")).toEqual(["c1 Collection (loading)"]);
+  });
+
+  // prettier-ignore
+  it("shows only authored extras and retains controls when the book layout puts the title first", () => {
+    const book = { ...series, style: "book", rating: 0, ratingCount: 0, tags: ["Field guide", "Gardening"], shelfStatus: "Want to read" };
+    const parts = addressedElements(renderInstance("Collection", book, "filled", theme));
+    for (const [part, value] of [["rating", "0 out of 5"], ["rating_count", "0 ratings"],
+      ["tags", "Field guide · Gardening"], ["shelf_status", "Want to read"]]) {
+      expect(parts.get(prefix + part)?.text).toEqual([value]);
+      expect(readComponent(def, book, "c1").join("\n")).toContain(value);
+    }
+    const order = [...parts.keys()];
+    expect(order.indexOf(prefix + "title")).toBeLessThan(order.indexOf(prefix + "photo"));
+    expect(parts.get(prefix + "play")?.attributes).toContain('role="button"');
+    expect(parts.get(prefix + "follow")?.attributes).toContain('role="button"');
   });
 
   it("derives totals from the actual Playlist on the phone screen", () => {

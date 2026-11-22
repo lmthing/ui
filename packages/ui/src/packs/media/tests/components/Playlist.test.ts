@@ -189,3 +189,24 @@ describe("Playlist read and act", () => {
       expect(runtime.press(address)).toMatchObject({ ok: false, code: "not_actionable" });
   });
 });
+
+// prettier-ignore
+it.each([[undefined, "Choosing a pot"], [0, "When to water"], [1, undefined]] as const)(
+  "places the queue heading before upcoming items only, with current index %s",
+  (playing, upcoming) => {
+    const input = { ...tracks, playing, style: "queue" };
+    const parts = addressedElements(renderInstance("Playlist", input, "filled", theme));
+    const keys = [...parts.keys()];
+    const heading = keys.indexOf(`${prefix}queue_label`);
+    const reading = readComponent(def, input, "c1");
+    expect(parts.has(`${prefix}r1/root`) && parts.has(`${prefix}r2/trail`)).toBe(true);
+    if (!upcoming) {
+      expect(heading).toBe(-1);
+      expect(reading.join("\n")).not.toContain("Up next");
+      return;
+    }
+    expect(keys[heading + 1]).toBe(`${prefix}r${playing === undefined ? 1 : 2}/root`);
+    expect(parts.get(`${prefix}queue_label`)?.text).toEqual(["Up next"]);
+    expect(reading.join("\n")).toContain(`Up next — ${upcoming}`);
+  },
+);

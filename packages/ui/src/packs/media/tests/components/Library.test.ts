@@ -53,6 +53,7 @@ describe("Library schema boundaries", () => {
     { ...grid, detail: "none" },
     { ...grid, density: "spacious" },
     { ...grid, color: "red" },
+    { ...grid, style: "masonry" },
     ...[
       { title: " " },
       { title: "t".repeat(33) },
@@ -64,6 +65,8 @@ describe("Library schema boundaries", () => {
       { progress: Infinity },
       { progress: "42%" },
       { badge: "n".repeat(9) },
+      { status: "loaned" },
+      { dueLabel: "d".repeat(25) },
       { goto: "Bad ID" },
       { goto: undefined },
       { id: "r1" },
@@ -137,8 +140,10 @@ describe("Library states and parts", () => {
       theme,
     );
     const addresses = addressedElements(html);
-    for (const part of meta.items.parts) expect(addresses.has(`${prefix}r1/${part}`)).toBe(true);
-    for (const part of ["by", "progress", "badge"]) expect(addresses.has(`${prefix}r2/${part}`)).toBe(false);
+    for (const part of ["root", "title", "by", "photo", "progress", "badge"])
+      expect(addresses.has(`${prefix}r1/${part}`)).toBe(true);
+    for (const part of ["by", "progress", "badge", "status", "due_label"])
+      expect(addresses.has(`${prefix}r2/${part}`)).toBe(false);
     expect(elementAt(html, `${prefix}r1/root`).attributes).toContain('role="link"');
     expect(elementAt(html, `${prefix}r2/root`).attributes).toContain('aria-label="Window Garden"');
     expect(html).toContain("0%");
@@ -167,6 +172,19 @@ describe("Library states and parts", () => {
       code: "not_actionable",
     });
   });
+});
+
+// prettier-ignore
+it.each([{ arrange: "grid" }, { arrange: "rows" }, { arrange: "strip" }, { style: "loans" }] as const)("keeps item roots and shows only supplied loan details in %j", (layout) => {
+  const input = { ...layout, items: [{ ...item, status: "borrowed", dueLabel: "Due Friday" }, grid.items[1]!] };
+  const addresses = addressedElements(renderInstance("Library", input, "filled", theme));
+  expect(addresses.get(`${prefix}r1/status`)?.text).toEqual(["Borrowed"]);
+  expect(addresses.get(`${prefix}r1/due_label`)?.text).toEqual(["Due Friday"]);
+  expect(addresses.has(`${prefix}r2/status`)).toBe(false);
+  const reading = readComponent(def, input, "l1").join("\n");
+  expect(reading).toContain("Fern Shelf · Due Friday");
+  expect(reading).toContain("[l1/r2 press→window_garden]");
+  expect(addresses.get(`${prefix}r2/root`)?.attributes).toContain('role="link"');
 });
 
 describe("Library read and act", () => {

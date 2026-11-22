@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { collectionReading, collectionSummary } from "../../copy";
+import { collectionExtras, collectionReading, collectionSummary } from "../../copy";
 
 it("uses the count, kind and sum of the recording lengths", () => {
   expect(collectionSummary({ style: "episodes", items: [{ seconds: 2400 }, { seconds: 1200 }] }, "en")).toBe(
@@ -32,4 +32,12 @@ it("reads the summary and the seeded follow label", () => {
     "Play all",
     "Following",
   ]);
+});
+
+it("formats rating and count independently, preserving locale digits and author order", () => {
+  expect(collectionExtras({ ratingCount: 1 }, "en")).toMatchObject({ ratingCount: "1 rating" });
+  expect(collectionExtras({ rating: 4.5, tags: ["A", "B"] }, "ar-EG")).toMatchObject({
+    rating: "٤٫٥ out of 5",
+    tags: "A · B",
+  });
 });

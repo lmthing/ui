@@ -38,3 +38,24 @@ export function collectionReading(playlist: unknown, followed: boolean, lang?: s
   const summary = collectionSummary(playlist, lang);
   return [...(summary ? [summary] : []), playAll, followed ? following : follow];
 }
+
+type CollectionExtras = {
+  rating?: number | undefined;
+  ratingCount?: number | undefined;
+  tags?: readonly string[] | undefined;
+  shelfStatus?: string | undefined;
+};
+
+export function collectionExtras(input: CollectionExtras, lang?: string) {
+  const words = mediaWordsFor(lang).collection;
+  const { rating, ratingCount, tags, shelfStatus } = input;
+  return {
+    rating: rating === undefined ? undefined : words.rating(numberLine(rating, lang)),
+    ratingCount:
+      ratingCount === undefined
+        ? undefined
+        : words.ratingCount(numberLine(ratingCount, lang), pluralForm(ratingCount, lang)),
+    tags: tags?.join(" · "),
+    shelfStatus,
+  };
+}
