@@ -273,6 +273,14 @@ for operations that leave useful content on screen. Keep existing parts, reading
 Only override a state treatment when the catalog doc calls for it, and do not invent a retry
 action. Test the kit geometry separately from host fixture data such as photos.
 
+For pack acceptance, count action labels in each item's three text sizes. Keep the gap inside a
+label/value pair smaller than the gap to the next group, align comparable figures at the end of
+their column, and keep a heading close to the first item it introduces. Give negative actions a
+neutral or danger finish instead of the positive accent. Keep `KitState`'s empty layout and supply
+specific empty copy only when the brief calls for it. Fix shared slot geometry in its owning base
+rather than adding per-component offsets. Inline links keep their reading order and reserve a touch
+slot that does not cover neighboring text or targets.
+
 | Recipe | Slots |
 | --- | --- |
 | `KitHeader`, `KitMetaLine` | `title`, optional `meta` (one or more lines), `align`, `density`. A line supplies `text`, optional `part`, semantic `role` and finish. |
@@ -286,6 +294,11 @@ Inside a padded frame use `KitRow inset="none"` so the frame owns the gutter. A 
 row can use `fitContent` to avoid reserving a control-height slot. This never shrinks links or buttons.
 In loading, keep the slots and use the inert treatment of `KitLayoutText`, `KitPhoto`, `KitIcon`,
 `KitTrail` and `KitAction`; preserve any existing measurement-only addresses.
+
+Use the matrix's pinned rail and content-sized days-across columns for weekly data. Keep timeline
+columns on their shared fixed scale. `KitColumns` shows complete lanes in a paged rail, while
+`stack` keeps all lanes in vertical reading order. A scroll region inside a padded `KitCard`
+uses the card's surface and gutter rather than adding a second frame.
 
 ### Base reference
 
@@ -445,6 +458,8 @@ also accept optional `speed` and `loop`; when neither is set, their playback set
 | Private keypad and verification | Declare `actions.privateInput: { [padPart]: { characters, maxLength } }` for a component `type` target and `actions.privateVerify: { [submitPart]: padPart }` for a `press` target. Render `KitNumberPad` with `displayPart` and an empty `value`; local keypad edits only, with masked length in the view. The host supplies `privateValues.verify[submitAddress](candidate)` and owns verification and retry policy. Submission clears the draft before invoking the host. Another submission while pending is rejected. Private input has no agent offer; the submit and copy offers are marked `!needs-ok` and reject agent, driven and batched steps. Dry runs do not invoke hosts. |
 | Private feedback and previews | `usePrivateStatus(part, "copy" \| "verify")` reads local `idle`, `pending`, `approved`, `denied` or `unavailable` only. Keep private bindings immutable and scoped to the mounted screen; revoke pending operations on unmount, disable or binding replacement. In previews return fake opaque results, never real values or real clipboard writes. |
 | Ordinary host-bound `copy` | For generated output (not authenticated copy), use `KitAction action="copy" hostCopy` with an ordinary `copy` declaration. `PhoneScreen.resolveClipboardText(address)` looks up the already-generated value, and `writeClipboard` can supply a native writer. Do not send the value through props, device data, a read callback or an action value. |
+| Bright scanner view | Declare the named `toggle` in `actions.parts`, add it to `actions.scannerBrightness`, and mark it `ok` in `partTiers`. Gate it on an explicit opt-in and a drawable code. `useScannerBrightness(part)` reports adapter availability and the local `off`, `pending`, `on` or `failed` state. Use `KitCode scale="scanner"` only when `on` and `KitScannerToggle` for the button. Agent, batch and dry-run steps cannot start a brightness lease. |
+| Screen brightness adapter | Pass `hostCommands.scannerBrightness` to `PhoneScreen`. The adapter receives `{ address, tier: "ok", signal }`; it returns `true` only after it raises brightness and `false` on failure. Share one `createScannerBrightnessAdapter({ read, write })` per physical display across controllers. It saves the current normalized level, restores it on abort, and waits for restoration before raising brightness again. Custom adapters must enforce the same ordering. Closing, unmounting, disconnecting or resetting aborts the lease. Do not pass the code to the adapter or persist the brightness state. |
 ### Addressed media and sequences
 
 | Capability | Declaration and kit use |

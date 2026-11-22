@@ -17,12 +17,11 @@ type CodeProps = {
   used?: boolean;
   unavailable?: boolean;
   kind?: "qr" | "barcode";
+  scale?: "standard" | "scanner";
 };
 
 // QR uses a four-module quiet zone on all sides, independent of the theme and the matrix size.
 const quiet = 4;
-const edge = component.base.ringLg;
-const frameEdge = edge + space.md * 2;
 
 function encode(value: string | undefined) {
   if (!value) return;
@@ -104,35 +103,40 @@ export function KitCode({
   used = false,
   unavailable = false,
   kind = "qr",
+  scale = "standard",
 }: CodeProps) {
   const address = usePart(part ?? "root", part !== null);
   const ks = useKitStyle();
   const payload = loading || used || unavailable ? undefined : value;
+  const enlarged = scale === "scanner";
+  const edge = enlarged ? component.base.codeScanner : component.base.ringLg;
+  const frameEdge = edge + space.md * 2;
   const drawing = useMemo(
-    () => (kind === "barcode" ? barcodeDrawing(payload, edge) : codeDrawing(payload)),
+    () => (kind === "barcode" ? barcodeDrawing(payload, component.base.ringLg) : codeDrawing(payload)),
     [kind, payload],
   );
   const linear = drawing && "height" in drawing ? (drawing.height as number) : undefined;
-  const width = linear && drawing ? Math.floor(edge / drawing.side) * drawing.side : edge;
-  const height = linear ? size.control.lg : edge;
+  const height =
+    kind === "barcode" && (drawing || loading) ? (enlarged ? size.avatar.lg : size.control.lg) : edge;
   return (
     <YStack
       {...(part === null ? {} : address)}
       width={frameEdge}
-      height={frameEdge}
+      height={height + space.md * 2}
+      {...(enlarged && { maxWidth: "100%", backgroundColor: component.swatch.white })}
       alignSelf="center"
       alignItems="center"
       justifyContent="center"
       gap={space.sm}
       borderRadius={shifted("md", ks.radiusShift)}
-      {...surfaceOf(ks.surface)}
+      {...(enlarged ? {} : surfaceOf(ks.surface))}
       aria-busy={loading || undefined}
       accessibilityRole={drawing ? "image" : undefined}
       accessibilityLabel={drawing ? label : undefined}
     >
       {drawing ? (
         <Svg
-          width={width}
+          width={edge}
           height={height}
           viewBox={`0 0 ${drawing.side} ${linear ?? drawing.side}`}
           preserveAspectRatio={linear ? "none" : undefined}
@@ -142,7 +146,7 @@ export function KitCode({
           <Path d={drawing.path} fill={component.swatch.black} />
         </Svg>
       ) : loading ? (
-        <YStack width={edge} height={edge} borderRadius={radius.sm} backgroundColor="$line" aria-hidden />
+        <YStack width={edge} height={height} borderRadius={radius.sm} backgroundColor="$line" aria-hidden />
       ) : (
         <CodeFallback kind={kind} used={used} label={label} />
       )}

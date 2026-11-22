@@ -21,7 +21,16 @@ import {
 import { createPreviewController, previewComponent } from "../../../../../../apps/gallery/app/draw";
 import { adminListProbes, boardProbes, reportProbes, example } from "..";
 
-const ids = ["Table", "Board", "LineChart", "Heatmap", "BulkActions", "ActivityLog"] as const;
+const ids = [
+  "Table",
+  "Board",
+  "LineChart",
+  "Heatmap",
+  "BulkActions",
+  "ActivityLog",
+  "Funnel",
+  "SavedViews",
+] as const;
 const draft = createRegistry({ packs: ["data"], includeDrafts: true });
 const empty: CastLike = { things: [], items: [] };
 const full: CastLike = {
@@ -71,7 +80,7 @@ it("validates the example byte for byte and parses every line", () => {
   expect(components.Bars.meta.signature).toBe("bars_grow");
 });
 
-it("validates all five layouts, their defaults, and compose coverage", () => {
+it("validates all six layouts, their defaults, and compose coverage", () => {
   expect(checkArchetypes({ components, packOf, packArchetypes, archetypes })).toEqual([]);
   const layouts = [];
   const metas: readonly ArchetypeMeta[] = packArchetypes.data;
@@ -90,6 +99,7 @@ it("validates all five layouts, their defaults, and compose coverage", () => {
     "admin_list/table",
     "board/kanban",
     "report/charts",
+    "report/funnel",
     "report/patterns",
   ]);
   expect(
@@ -97,7 +107,7 @@ it("validates all five layouts, their defaults, and compose coverage", () => {
       .map(({ archetype, layout }) => `${archetype}/${layout}`)
       .sort(),
   ).toEqual(layouts);
-  expect(draft.defaultLines("admin_list", "table", empty).components[2]).toMatchObject({
+  expect(draft.defaultLines("admin_list", "table", empty).components[3]).toMatchObject({
     selectable: true,
   });
   expect(draft.defaultLines("report", "charts", empty).components[4]).toMatchObject({ style: "share" });

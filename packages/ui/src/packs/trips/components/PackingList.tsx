@@ -14,10 +14,22 @@ import {
   type ThemeDensity,
   variantProps,
 } from "../../../catalog";
-// prettier-ignore
 import {
-  KitCard, KitCheck, KitContent, KitFigure, KitGrid, KitInput, KitMeter, KitRow, KitRowGroup, KitState,
-  KitText, useComponentState, useLiveControls, useVariant, useWords,
+  KitCard,
+  KitCheck,
+  KitContent,
+  KitFigure,
+  KitGrid,
+  KitInput,
+  KitMeter,
+  KitRow,
+  KitRowGroup,
+  KitState,
+  KitText,
+  useComponentState,
+  useLiveControls,
+  useVariant,
+  useWords,
   useKit,
 } from "../../../kit";
 import { packingProgress, packingQuantity, packingRead, packingRows } from "../copy";
@@ -92,23 +104,28 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
-// prettier-ignore
 export const examples = [
   {
     groups: [
-      { label: "Clothes", items: [
-        { name: "T-shirts", qty: 3, packed: true },
-        { name: "Rain jacket", packed: false },
-      ] },
+      {
+        label: "Clothes",
+        items: [
+          { name: "T-shirts", qty: 3, packed: true },
+          { name: "Rain jacket", packed: false },
+        ],
+      },
       { label: "Tech", items: [{ name: "Travel adapter", qty: 2, packed: false }] },
     ],
   },
   {
     groups: [
-      { label: "Sam", items: [
-        { name: "Walking boots", packed: true },
-        { name: "Spare socks", qty: 4, packed: true },
-      ] },
+      {
+        label: "Sam",
+        items: [
+          { name: "Walking boots", packed: true },
+          { name: "Spare socks", qty: 4, packed: true },
+        ],
+      },
       { label: "Jo", items: [{ name: "Warm hat", packed: false }] },
     ],
   },
@@ -135,31 +152,68 @@ type PackingProps = Props<typeof props, typeof meta>;
 type PackingGroup = PackingProps["groups"][number];
 type PackingFinish = Pick<PackingProps, "detail"> & { density: ThemeDensity };
 
-// prettier-ignore
-function PackingSection({ group, detail, density, lang, disabled }: PackingFinish & {
-  group: PackingGroup; lang: string; disabled: boolean;
+function PackingSection({
+  group,
+  detail,
+  density,
+  lang,
+  disabled,
+}: PackingFinish & {
+  group: PackingGroup;
+  lang: string;
+  disabled: boolean;
 }) {
   const { packing } = tripsWordsFor(lang);
-  return <KitRow item={group.id} label={group.label} inline density={density}>
-    <KitText role="label" tone="muted" part="label" density={density}>{group.label}</KitText>
-    <KitRowGroup density={density} separators={false}>{group.items.map(({ name, qty, packed }, i) => {
-      const quantity = detail === "full" && qty !== undefined ? packingQuantity(qty, lang) : undefined;
-      const label = quantity ? packing.itemLabel(name, quantity) : name;
-      const tone = packed ? "muted" : "text";
-      return <KitRow key={packedParts[i]} label={label} inset="none" density={density}
-        trailing={<>
-          {quantity && <KitText role="caption" tone="muted" part={quantityParts[i]!} tabular lines={1} density={density}>{quantity}</KitText>}
-          <KitCheck done={packed} part={packedParts[i]!} label={label} disabled={disabled} />
-        </>}>
-        <KitText role="body" tone={tone} part={null} density={density}>{name}</KitText>
-      </KitRow>;
-    })}</KitRowGroup>
-  </KitRow>;
+  return (
+    <KitRow item={group.id} label={group.label} inline density={density}>
+      <KitText role="label" tone="muted" part="label" density={density}>
+        {group.label}
+      </KitText>
+      <KitRowGroup density={density} separators={false}>
+        {group.items.map(({ name, qty, packed }, i) => {
+          const quantity = detail === "full" && qty !== undefined ? packingQuantity(qty, lang) : undefined;
+          const label = quantity ? packing.itemLabel(name, quantity) : name;
+          const tone = packed ? "muted" : "text";
+          return (
+            <KitRow
+              key={packedParts[i]}
+              label={label}
+              inset="none"
+              density={density}
+              trailing={
+                <>
+                  {quantity && (
+                    <KitText
+                      role="caption"
+                      tone="muted"
+                      part={quantityParts[i]!}
+                      tabular
+                      lines={1}
+                      density={density}
+                    >
+                      {quantity}
+                    </KitText>
+                  )}
+                  <KitCheck done={packed} part={packedParts[i]!} label={label} disabled={disabled} />
+                </>
+              }
+            >
+              <KitText role="body" tone={tone} part={null} density={density}>
+                {name}
+              </KitText>
+            </KitRow>
+          );
+        })}
+      </KitRowGroup>
+    </KitRow>
+  );
 }
 
-// prettier-ignore
 export function PackingList(input: PackingProps) {
-  const { words: { packing }, lang } = useWords(tripsWordsFor);
+  const {
+    words: { packing },
+    lang,
+  } = useWords(tripsWordsFor);
   const state = useComponentState();
   const density = useKit().density;
   const surface = "card";
@@ -169,24 +223,45 @@ export function PackingList(input: PackingProps) {
   const { label, amount, ratio } = packingProgress(groups, lang);
   const complete = state === "success" && ratio === 1;
   const progressLabel = complete ? packing.progress : label;
-  const content = <>
-    <KitRow part="progress" label={progressLabel} inline fitContent density={density}>
-      <KitGrid fitLast density={density}>
-        <KitText role="body" part={null}>{progressLabel}</KitText>
-        <KitFigure density={density} align="end" value={{ text: amount, compact: true }} />
-      </KitGrid>
-      <KitMeter label="" amount="" ratio={ratio} tone={ratio === 1 ? "good" : "accent"} addressed={false} />
-    </KitRow>
-    <KitRowGroup density={density} spacing="groups" separators={false}>
-      {groups.map((group) => <PackingSection key={group.id} {...{ group, detail, density, lang }} disabled={state === "success"} />)}
-    </KitRowGroup>
-  </>;
-  return <KitCard padded part="root" {...{ density, surface }}>
-    {state === "empty" ? <KitState part="progress" density={density} />
-      : complete ? <KitState retain message={packing.allPacked} density={density}>{content}</KitState> : content}
-    <KitContent group={state === "empty" ? "content" : "response"} density={density}>
-      <KitText role="label" tone="muted" part="add_label" density={density}>{packing.add}</KitText>
-      <KitInput part="add" label={packing.add} hint={packing.addHint} icon="plus" action="type" />
-    </KitContent>
-  </KitCard>;
+  const content = (
+    <>
+      <KitRow part="progress" label={progressLabel} inline fitContent density={density}>
+        <KitGrid fitLast density={density}>
+          <KitText role="body" part={null}>
+            {progressLabel}
+          </KitText>
+          <KitFigure density={density} align="end" value={{ text: amount, compact: true }} />
+        </KitGrid>
+        <KitMeter label="" amount="" ratio={ratio} tone={ratio === 1 ? "good" : "accent"} addressed={false} />
+      </KitRow>
+      <KitRowGroup density={density} spacing="groups" separators={false}>
+        {groups.map((group) => (
+          <PackingSection
+            key={group.id}
+            {...{ group, detail, density, lang }}
+            disabled={state === "success"}
+          />
+        ))}
+      </KitRowGroup>
+    </>
+  );
+  return (
+    <KitCard padded part="root" {...{ density, surface }}>
+      {state === "empty" ? (
+        <KitState part="progress" density={density} />
+      ) : complete ? (
+        <KitState retain message={packing.allPacked} density={density}>
+          {content}
+        </KitState>
+      ) : (
+        content
+      )}
+      <KitContent group={state === "empty" ? "content" : "response"} density={density}>
+        <KitText role="label" tone="muted" part="add_label" density={density}>
+          {packing.add}
+        </KitText>
+        <KitInput part="add" label={packing.add} hint={packing.addHint} icon="plus" action="type" />
+      </KitContent>
+    </KitCard>
+  );
 }

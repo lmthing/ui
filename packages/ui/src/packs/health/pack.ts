@@ -27,7 +27,7 @@ export const pack = {
     },
     {
       kind: "choose",
-      need: "Show one circular daily step goal, 3000 of 8000, with no other goals or cycle tracking",
+      need: "Show progress toward just one goal as a circular meter: 3000 of 8000 daily steps. There is only one current value and one target, with no other goals, factors, or scores.",
       expect: "Progress",
     },
   ],

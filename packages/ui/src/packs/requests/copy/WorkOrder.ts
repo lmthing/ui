@@ -19,6 +19,7 @@ type Part = Extract<WorkLine, { kind: "part" }>;
 type Order = {
   number: string;
   request: string;
+  assetRef?: string | undefined;
   title: string;
   who?: string | undefined;
   date?: string | undefined;
@@ -33,6 +34,7 @@ type Order = {
   elapsed?: number | undefined;
   running: boolean;
   editable: boolean;
+  requiresSignOff?: boolean;
 };
 
 function extendedCost({ qty, unitCost }: Part) {
@@ -84,6 +86,7 @@ export function workOrderCopy(p: Order, state: StateName, lang?: string) {
   return {
     number: w.number(p.number),
     request: w.request(p.request),
+    asset: p.assetRef ? w.asset(p.assetRef) : undefined,
     who: showSchedule && p.who ? w.assignee(p.who) : undefined,
     window:
       showSchedule && p.date && p.from && p.to
@@ -121,26 +124,37 @@ export function workOrderReading(input: unknown, state: StateName, lang?: string
   const p = input as Order;
   const w = requestsWordsFor(lang).workOrder;
   const copy = workOrderCopy(p, state, lang);
-  if (state === "success") return [copy.number, p.title, copy.status, copy.request];
   return [
     copy.number,
     p.title,
     copy.status,
     copy.request,
-    copy.who,
-    copy.window,
-    w.clock,
-    copy.clock,
-    w.checks,
-    ...orderLines(p, w, lang),
-    p.lines.some((line) => line.kind === "part") ? w.parts : undefined,
-    p.editable && p.lines.some((line) => line.kind === "part") ? w.quantity : undefined,
-    copy.total?.label,
-    copy.total?.value,
-    copy.blocker,
-    p.note,
-    ...(p.editable
-      ? [p.running ? w.stop : w.start, w.blocker, ...Object.values(w.blockers), w.note, w.finish]
-      : []),
+    copy.asset,
+    ...(state === "success"
+      ? []
+      : [
+          copy.who,
+          copy.window,
+          w.clock,
+          copy.clock,
+          w.checks,
+          ...orderLines(p, w, lang),
+          p.lines.some((line) => line.kind === "part") ? w.parts : undefined,
+          p.editable && p.lines.some((line) => line.kind === "part") ? w.quantity : undefined,
+          copy.total?.label,
+          copy.total?.value,
+          copy.blocker,
+          p.note,
+          ...(p.editable
+            ? [
+                p.running ? w.stop : w.start,
+                w.blocker,
+                ...Object.values(w.blockers),
+                w.note,
+                ...(p.requiresSignOff ? [w.signOff] : []),
+                w.finish,
+              ]
+            : []),
+        ]),
   ].filter((line): line is string => Boolean(line));
 }

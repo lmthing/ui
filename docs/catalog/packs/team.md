@@ -32,8 +32,11 @@ tinted, and days short of cover flagged in `warn`.
 - Pick: who works when across a week. Not one person's shifts (`Shift`), not bookable hours (booking
   `Availability`), not a sports lineup (sports `Lineup`), not a class timetable (learning `Timetable`).
 - Writes: `week` date (Monday), `people` of `name` text(20), `photo`, 1–8; `shifts` of `person` index,
-  `day` 0–6, `from` HH:MM, `to` HH:MM, `role` text(12) optional, 0–40.
-- Parts → actions: cells `root press`. · States: filled, empty, loading.
+  `day` 0–6, `from` HH:MM, `to` HH:MM, `role` text(12) optional, `station` text(20) optional, 0–40;
+  `date` optional (must lie in `week`), `style`.
+- Styles: `week` (default, staff by weekday), `day` (shifts grouped by station for `date` or the current local day).
+- Parts → actions: `week`, `matrix`, `cover`, `scroll_hint`, `empty`, `portrait_1` through `portrait_8`;
+  shifts `root press`, `role`. Day view keeps original shift addresses and only offers shifts it shows. · States: filled, empty, loading.
 - Real path: a shared rota in a shared app; one manager edits it. · Kit: `KitWeekMatrix`.
 
 ### `Shift` · planned · content · people
@@ -55,17 +58,23 @@ Shifts nobody has yet, each with time, role and pay, and a claim button; a claim
 ### `TimeClock` · planned · input · phone
 A large clock-in or clock-out button with the current shift, the time on shift so far, and today's breaks.
 - Pick: starting and ending work time. Not timing an activity (`Timer`), not the week's hours (`Timesheet`).
-- Writes: `on` boolean, `since` HH:MM optional, `shift` text(28) optional. Time on shift and breaks are
-  computed from the stored clock events.
-- Parts → actions: `clock press`, `break press`. · States: filled, success.
+- Writes: `on` boolean, `since` HH:MM optional, `shift` text(28) optional, `verification` (`geofence`, `pin`) optional,
+  `breakTimer` boolean optional, `style`. Time on shift and breaks are computed from the stored clock events.
+- Styles: `personal` (default), `kiosk` (worksite or PIN verification mark; the host performs verification).
+- Parts → actions: `clock press`, `break press`, `verification`, `break_elapsed`, `break_elapsed_label`. Kiosk `clock` is `!needs-ok`.
+  `break_elapsed` and `break_elapsed_label` appear only for an active break when `breakTimer` is true. · States: filled, success.
 - Real path: timestamps stored on the device; sending them to a manager needs a shared app.
 
 ### `Timesheet` · planned · data · people
 Hours worked per person for a week: hours per day, total, overtime in `warn`, and an approve action per row.
 - Pick: totals of hours for pay. Not who works when (`Roster`), not a general table (data `Table`).
 - Writes: `period` text(20), `rows` of `name` text(20), `hours` exactly 7 numbers, `approved` boolean,
-  1–8. Totals and overtime are computed by code.
-- Parts → actions: items `approve press`. · States: filled, empty.
+  `punches` optional (0–28 entries of `day` 0–6, `from` HH:MM, `to` HH:MM optional), 1–8; `style`.
+  Totals and overtime are computed from the daily hours. Punches are only for `mine`, which takes one row.
+- Styles: `team` (default), `mine` (employee's own punches and totals with no manager actions).
+- Parts → actions: `period`, `matrix`, `empty`, `submit press`, `submit_label`; rows `root`, `name`,
+  `hours`, `total`, `overtime`, `approved`, `approve press`, `approve_label`, `punches`.
+  Submit is offered only in `mine` for an unapproved row with one or more closed punches and no open ones. · States: filled, empty.
 - Real path: clocked hours collected in a shared app.
 
 ### `Approval` · planned · action · people
@@ -73,10 +82,13 @@ Requests waiting for a decision: who asked, what (time off, a swap, an expense w
 a note, and approve and decline.
 - Pick: someone asked and a manager decides. Not a client accepting a quote (customers `Invoice` `quote`),
   not jobs to tick (`Checklist`).
-- Writes: `requests` of `from` text(20), `photo`, `kind` (`time_off`, `swap`, `expense`, `other`), `title`
-  text(32), `dates` text(24) optional, `amount` number optional, `note` text(100) optional, 1–5.
-- Parts → actions: items `approve press`, items `decline press` (in `confirmParts`). · States: filled,
-  empty, success.
+- Writes: `requests` of `from` text(20), `photo`, `kind` (`time_off`, `swap`, `expense`, `other`, `shift_claim`),
+  `title` text(32), `dates` text(24) optional, `amount` number optional, `note` text(100) optional,
+  `status` (`pending`, `approved`, `declined`) optional, 1–5; `style`.
+- Styles: `queue` (default, manager decisions), `my_requests` (requester status with no decision controls; missing status displays as pending).
+- Parts → actions: `message`; requests `root`, `content`, `from`, `photo`, `kind`, `title`, `dates`, `amount`,
+  `note`, `approve press`, `approve_label`, `decline press` (in `confirmParts`), `decline_label`, `status`.
+- States: filled, empty (no requests awaiting a decision in the queue, or no submissions in `my_requests`), success.
 - Real path: requests in a shared app; the requester is told the answer.
 
 ### `Handover` · planned · content · people

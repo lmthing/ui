@@ -21,7 +21,8 @@ import {
 } from "@lmthing/ui/catalog";
 import { example } from "../index";
 
-const ids = ["PlaceCard", "Address", "Hours", "DeliveryTracker", "MapList", "Departures"] as const;
+const exampleIds = ["PlaceCard", "Address", "Hours", "DeliveryTracker", "MapList", "Departures"] as const;
+const ids = [...exampleIds, "StationRates"] as const;
 const recipes = {
   places: {
     map: ["Header", "Search", "Chips", "MapList"],
@@ -102,7 +103,7 @@ it("validates every JSONL record and preserves the Sniff venue and walk", async 
     expect(id).toMatch(/^[a-z][a-z0-9_]*$/);
     expect(definitions[c]!.props.safeParse(input).success).toBe(true);
   }
-  for (const id of ids) expect(lines.some(({ c }) => c === id)).toBe(true);
+  for (const id of exampleIds) expect(lines.some(({ c }) => c === id)).toBe(true);
   expect(lines.find(({ c }) => c === "PlaceCard")).not.toHaveProperty("photo");
   expect(components.Route.meta.signature).toBe("route_draw");
   expect(lines.find(({ c }) => c === "Route")).toMatchObject({

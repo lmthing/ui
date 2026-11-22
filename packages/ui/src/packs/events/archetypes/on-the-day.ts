@@ -2,7 +2,7 @@ import type { ArchetypeMeta, ComposeProbe } from "../../../catalog";
 
 export const on_the_day = {
   id: "on_the_day",
-  job: "Admit guests, show the issued pass or find a date",
+  job: "Admit guests, show the issued pass, browse sessions or find a date",
   defaultLayout: "door",
   layouts: {
     door: {
@@ -28,6 +28,18 @@ export const on_the_day = {
         { id: "h1", c: "Header", style: "back" },
         { id: "t1", c: "Ticket" },
         { id: "m1", c: "MapPins" },
+      ],
+    },
+    sessions: {
+      recipe: [
+        { allow: ["Header"], required: true },
+        { allow: ["Sessions"], required: true },
+        { allow: ["Note"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header" },
+        { id: "s1", c: "Sessions" },
+        { id: "n1", c: "Note" },
       ],
     },
     date: {
@@ -59,6 +71,13 @@ export const probes = [
     layout: "ticket",
     brief:
       "Add a back header titled Your pass. Show Imani Cole's Adult admission pass, number HB0142, for Harbour Benefit at Harbour Hall on 2027-04-09 at 18:30. Finish with a venue map and a pin for Harbour Hall.",
+  },
+  {
+    kind: "compose",
+    archetype: "on_the_day",
+    layout: "sessions",
+    brief:
+      "Title the screen Design Fair. List sessions across Main stage and Workshops, with track filters and bookmarks. Opening keynote is 09:00–09:45 at Harbour Hall, not saved; Design by hand is 09:30–10:15 at North Studio, saved. Finish with a note saying 'Doors open at 08:30.'",
   },
   {
     kind: "compose",

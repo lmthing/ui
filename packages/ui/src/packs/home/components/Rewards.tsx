@@ -1,12 +1,35 @@
 import { z } from "zod";
-// prettier-ignore
-import { icon, itemsOf, photo, screenId, text, placeholderTitle, probesFor,
-  thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props,
+import {
+  icon,
+  itemsOf,
+  photo,
+  screenId,
+  text,
+  placeholderTitle,
+  probesFor,
+  thingOf,
+  titleOf,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
   variantProps,
 } from "../../../catalog";
-// prettier-ignore
-import { KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitIcon, KitJar, KitPhoto,
-  KitText, PartScope, useComponentState, usePartContext, useWords } from "../../../kit";
+import {
+  KitAction,
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitGrid,
+  KitIcon,
+  KitJar,
+  KitPhoto,
+  KitText,
+  PartScope,
+  useComponentState,
+  usePartContext,
+  useWords,
+} from "../../../kit";
 import { rewardAmount, rewardBalanceParts, rewardJarRatio, rewardReading, rewardShortfall } from "../copy";
 import { homeWordsFor } from "../lang";
 import { prompt } from "../../../entry/prompt-Rewards.generated";
@@ -67,8 +90,8 @@ const withEntries = (value: z.output<typeof schema>) => ({
 export const props = schema.overwrite(withEntries) as typeof schema &
   z.ZodType<ReturnType<typeof withEntries>, z.input<typeof schema>>;
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
-  const thing = thingOf(cast),
-    items = itemsOf(cast, 4);
+  const thing = thingOf(cast);
+  const items = itemsOf(cast, 4);
   return {
     kids: (items.length ? items : [undefined]).map((item, index) => ({
       name: (item && titleOf(item, 16, thing)) ?? placeholderTitle(index, lang),
@@ -79,20 +102,21 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     money: false,
   };
 }
-// prettier-ignore
 const plantRewards = {
-    kids: [{ name: "Mia", points: 20, goto: "mia" }],
-    prizes: [
-      { title: "Choose a new plant", cost: 15, icon: "leaf" },
-      { title: "Paint a planter", cost: 30, icon: "star" },
-    ],
-    money: false,
+  kids: [{ name: "Mia", points: 20, goto: "mia" }],
+  prizes: [
+    { title: "Choose a new plant", cost: 15, icon: "leaf" },
+    { title: "Paint a planter", cost: 30, icon: "star" },
+  ],
+  money: false,
 } satisfies z.input<typeof props>;
-// prettier-ignore
 export const examples = [
   plantRewards,
   {
-    kids: [{ name: "Leo", points: 8.5, goto: "leo" }, { name: "Avery", photo: "lib:people", points: 4, goto: "avery" }],
+    kids: [
+      { name: "Leo", points: 8.5, goto: "leo" },
+      { name: "Avery", photo: "lib:people", points: 4, goto: "avery" },
+    ],
     prizes: [
       { title: "Dog park picnic", cost: 5, icon: "heart" },
       { title: "Pick a dog toy", cost: 10, icon: "star" },
@@ -142,12 +166,24 @@ function RewardJar({ kid, target, balance, compact }: JarProps) {
   );
 }
 
-// prettier-ignore
-function RewardPrize({ prize, money, best, brief }: { prize: Entry<"prize">; money: boolean; best: number; brief: boolean }) {
+function RewardPrize({
+  prize,
+  money,
+  best,
+  brief,
+}: {
+  prize: Entry<"prize">;
+  money: boolean;
+  best: number;
+  brief: boolean;
+}) {
   const context = usePartContext();
   const { lang, words } = useWords(homeWordsFor);
   const cost = rewardAmount(prize.cost, money, lang).label;
-  const claim = { label: brief && !prize.claimable ? words.rewardLabels.unavailable : words.rewardLabels.claim, disabled: !prize.claimable };
+  const claim = {
+    label: brief && !prize.claimable ? words.rewardLabels.unavailable : words.rewardLabels.claim,
+    disabled: !prize.claimable,
+  };
   const reason = brief ? undefined : rewardShortfall(prize.cost, best, money, lang);
   const lead = <KitIcon name={prize.icon} part="icon" scale="sm" tone="muted" />;
   return (

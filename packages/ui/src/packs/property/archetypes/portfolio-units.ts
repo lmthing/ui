@@ -22,6 +22,9 @@ export const portfolio_units = {
       ],
     },
     property_viewings: {
+      writeHints: [
+        'Use Calendar with "style":"week" and mark the viewing day. This is a single week for browsing viewings, not a check-in/check-out picker: leave range, yearMonth, checkIn, checkOut and unavailable null.',
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Calendar"], required: true, variant: "week" },

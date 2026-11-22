@@ -505,5 +505,503 @@
       "{\"c\":\"TaxYear\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"label\":\"Ledge archive 2026\",\"from\":\"2026-01-01\",\"to\":\"2026-12-31\",\"due\":null,\"requirements\":[{\"label\":\"Greenhouse permits\",\"source\":\"documents\",\"tag\":\"permits\",\"needed\":1,\"goto\":\"permits\"}]}",
       "{\"c\":\"TaxYear\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"label\":\"Ledge archive 2026\",\"from\":\"2026-01-01\",\"to\":\"2026-12-31\",\"due\":null,\"requirements\":[{\"label\":\"Greenhouse permits\",\"source\":\"documents\",\"tag\":\"permits\",\"needed\":1,\"goto\":\"permits\"}]}"
     ]
+  },
+  "TaxYear%2Fchoose%2FFor%20my%20filing%20period%2C%20match%20the%20attached%20documents%20and%20reviewed%20receipts%20I've%20collected%20to%20each%20required%20category%20and%20tell%20me%20which%20evidence%20is%20missing./b3123c5569909a3e/cc06114f6988f159": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Documents: Keep private records together and see when they expire. Pick: A private life-admin file register with owners, identifiers and expiry dates. Not ordinary links (List), documents checked against a trip (TravelDocs), purchase warranties (Warranties) or rental terms (Lease).\n- FormFiller: Complete a personal form and keep a local copy of the filled document. Pick: Fill named fields tied to a personal PDF or administrative template, check completeness and save a separate local copy. Not standalone input (Field), drawing a signature (Signature), or a client agreement (Agreement).\n- Receipts: Keep purchase evidence and review the share assigned to each receipt. Pick: Receipt evidence with private scans, amounts, review ticks and optionally allocated shares. Not one standalone amount (Amount), purchase warranties (Warranties), bank movements (Transactions), store orders (OrderSummary) or client bills (Invoice).\n- Renewals: Act on obligations before their notice or expiry dates. Pick: Act on administrative renewals with separate notice and end dates, dated completion and local reminders. Not dates alone (Calendar), filing expiring documents (Documents), recurring payments (Bills), routine care (CareSchedule) or purchase warranties (Warranties).\n- ScanBatch: Arrange scanned pages and save them as one local PDF. Pick: Stage multiple scanned pages, reorder or replace pages and assemble one local PDF. Not a single capture (Camera), browsing photos (Gallery), or opening a saved document (Documents).\n- Signature: Draw a personal signature and save a dated copy of the reviewed form. Pick: Hand-draw a signature or initials with a finger or stylus on a reviewed form, then save a local signed copy. Not filling named form fields (FormFiller), a yes/no field (Field), typed client waiver acceptance (Agreement) or just viewing a file (Documents).\n- TaxYear: Find missing tax evidence by matching records to one filing period. Pick: Completeness of tax evidence for one specified period, computed from linked documents and reviewed receipts. Not manually ticking off jobs (Checklist), money movements (Transactions), client bills (Invoice) or arbitrary data rows (Table).\n\nNeed, in the person's words: \"For my filing period, match the attached documents and reviewed receipts I've collected to each required category and tell me which evidence is missing.\"\nReply with only the component id, nothing else.",
+    "reply": "TaxYear",
+    "replies": [
+      "TaxYear",
+      "TaxYear",
+      "TaxYear"
+    ]
+  },
+  "TaxYear%2Fchoose%2FGive%20me%20independent%20tasks%20I%20can%20tick%20by%20hand%3A%20tidy%20the%20folder%2C%20call%20the%20accountant%2C%20and%20make%20a%20backup.%20No%20matches%20or%20files./fe45f139f0b09343/df200ffb957d1d07": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Documents: Keep private records together and see when they expire. Pick: A private life-admin file register with owners, identifiers and expiry dates. Not ordinary links (List), documents checked against a trip (TravelDocs), purchase warranties (Warranties) or rental terms (Lease).\n- FormFiller: Complete a personal form and keep a local copy of the filled document. Pick: Fill named fields tied to a personal PDF or administrative template, check completeness and save a separate local copy. Not standalone input (Field), drawing a signature (Signature), or a client agreement (Agreement).\n- Receipts: Keep purchase evidence and review the share assigned to each receipt. Pick: Receipt evidence with private scans, amounts, review ticks and optionally allocated shares. Not one standalone amount (Amount), purchase warranties (Warranties), bank movements (Transactions), store orders (OrderSummary) or client bills (Invoice).\n- Renewals: Act on obligations before their notice or expiry dates. Pick: Act on administrative renewals with separate notice and end dates, dated completion and local reminders. Not dates alone (Calendar), filing expiring documents (Documents), recurring payments (Bills), routine care (CareSchedule) or purchase warranties (Warranties).\n- ScanBatch: Arrange scanned pages and save them as one local PDF. Pick: Stage multiple scanned pages, reorder or replace pages and assemble one local PDF. Not a single capture (Camera), browsing photos (Gallery), or opening a saved document (Documents).\n- Signature: Draw a personal signature and save a dated copy of the reviewed form. Pick: Hand-draw a signature or initials with a finger or stylus on a reviewed form, then save a local signed copy. Not filling named form fields (FormFiller), a yes/no field (Field), typed client waiver acceptance (Agreement) or just viewing a file (Documents).\n- TaxYear: Find missing tax evidence by matching records to one filing period. Pick: Completeness of tax evidence for one specified period, computed from linked documents and reviewed receipts. Not manually ticking off jobs (Checklist), money movements (Transactions), client bills (Invoice) or arbitrary data rows (Table).\n\nNeed, in the person's words: \"Give me independent tasks I can tick by hand: tidy the folder, call the accountant, and make a backup. No matches or files.\"\nReply with only the component id, nothing else.",
+    "reply": "Checklist",
+    "replies": [
+      "Checklist",
+      "Checklist",
+      "Checklist"
+    ]
+  },
+  "TaxYear%2Fread%2FOpen%20the%20evidence%20for%20Pot%20purchase%20proof./dd5962b4fdc72ada/56b3b6b48987998b": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nt1 TaxYear From 1 Jan 2026 — To 31 Dec 2026 — Due 15 Feb 2027 — Receipts $49 — Assigned share $24.50 — Requirements met — 50% — Documents · permits — Greenhouse permits: 1 of 1 found — Reviewed receipts · pots — Pot purchase proof: 2 of 3 found, 1 missing — \"Ledge archive 2026\"\n  r1 \"Greenhouse permits\" · \"permits\" [t1/r1 press→permits]\n  r2 \"Pot purchase proof\" · \"pots\" [t1/r2 press→pots]\n\nTask: Open the evidence for Pot purchase proof.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"t1/r2\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"t1/r2\", \"action\": \"press\"}",
+      "{\"address\": \"t1/r2\", \"action\": \"press\"}",
+      "{\"address\": \"t1/r2\", \"action\": \"press\"}"
+    ]
+  },
+  "TaxYear%2Fwrite%2FCall%20this%20Ledge%20archive%202026%2C%20from%202026-01-01%20to%202026-12-31.%20Require%20one%20Greenhouse%20permits%20document%20tagged%20permits%20and%20three%20Pot%20purchase%20proof%20receipts%20tagged%20pots./caacc321c7a55d73/6b36df3638e42bda": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nTaxYear: Find missing tax evidence by matching records to one filing period.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", label: text≤24, from: date YYYY-MM-DD, to: date YYYY-MM-DD, due?: date YYYY-MM-DD, requirements: [1..8 { label: text≤32, source: documents|receipts, tag: text≤16, needed: int 1..12, goto?: id snake_case }] }\nRule: Write from and to in YYYY-MM-DD, in ascending order. Omit due unless supplied; never infer statutory dates.\nRule: Each requirement asks for \"documents\" or \"receipts\" using a tag and a needed count. Do not write matches, totals, tax owed, or filed status.\nRule: Tighter summary rows request density:\"compact\", retaining all category links. More categories fitting on screen does not request a different surface: write surface:null unless the surface is explicitly requested. Without a spacing request write density:null.\nRule: Exact defaults are density:null, surface:null, detail:null. For explicitly hiding the deadline and receipt totals set only detail:\"brief\"; keep the category links, requirements and date range.\nexample: {\"c\":\"TaxYear\",\"label\":\"Ledge archive 2026\",\"from\":\"2026-01-01\",\"to\":\"2026-12-31\",\"due\":\"2027-02-15\",\"requirements\":[{\"label\":\"Greenhouse permits\",\"source\":\"documents\",\"tag\":\"permits\",\"needed\":1,\"goto\":\"permits\"},{\"label\":\"Pot purchase proof\",\"source\":\"receipts\",\"tag\":\"pots\",\"needed\":3,\"goto\":\"pots\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Call this Ledge archive 2026, from 2026-01-01 to 2026-12-31. Require one Greenhouse permits document tagged permits and three Pot purchase proof receipts tagged pots.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "TaxYear",
+              "enum": [
+                "TaxYear"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "from": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "to": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "due": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "requirements": {
+              "minItems": 1,
+              "maxItems": 8,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "documents",
+                      "receipts"
+                    ]
+                  },
+                  "tag": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  },
+                  "needed": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "label",
+                  "source",
+                  "tag",
+                  "needed",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "label",
+            "from",
+            "to",
+            "due",
+            "requirements"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"TaxYear\",\"density\":null,\"surface\":null,\"detail\":null,\"label\":\"Ledge archive 2026\",\"from\":\"2026-01-01\",\"to\":\"2026-12-31\",\"due\":null,\"requirements\":[{\"label\":\"Greenhouse permits\",\"source\":\"documents\",\"tag\":\"permits\",\"needed\":1,\"goto\":null},{\"label\":\"Pot purchase proof\",\"source\":\"receipts\",\"tag\":\"pots\",\"needed\":3,\"goto\":null}]}",
+    "replies": [
+      "{\"c\":\"TaxYear\",\"density\":null,\"surface\":null,\"detail\":null,\"label\":\"Ledge archive 2026\",\"from\":\"2026-01-01\",\"to\":\"2026-12-31\",\"due\":null,\"requirements\":[{\"label\":\"Greenhouse permits\",\"source\":\"documents\",\"tag\":\"permits\",\"needed\":1,\"goto\":null},{\"label\":\"Pot purchase proof\",\"source\":\"receipts\",\"tag\":\"pots\",\"needed\":3,\"goto\":null}]}",
+      "{\"c\":\"TaxYear\",\"density\":null,\"surface\":null,\"detail\":null,\"label\":\"Ledge archive 2026\",\"from\":\"2026-01-01\",\"to\":\"2026-12-31\",\"due\":null,\"requirements\":[{\"label\":\"Greenhouse permits\",\"source\":\"documents\",\"tag\":\"permits\",\"needed\":1,\"goto\":\"permits\"},{\"label\":\"Pot purchase proof\",\"source\":\"receipts\",\"tag\":\"pots\",\"needed\":3,\"goto\":\"pots\"}]}",
+      "{\"c\":\"TaxYear\",\"density\":null,\"surface\":null,\"detail\":null,\"label\":\"Ledge archive 2026\",\"from\":\"2026-01-01\",\"to\":\"2026-12-31\",\"due\":null,\"requirements\":[{\"label\":\"Greenhouse permits\",\"source\":\"documents\",\"tag\":\"permits\",\"needed\":1,\"goto\":null},{\"label\":\"Pot purchase proof\",\"source\":\"receipts\",\"tag\":\"pots\",\"needed\":3,\"goto\":null}]}"
+    ]
+  },
+  "TaxYear%2Fwrite%2FFor%20Ledge%20archive%202026%2C%20from%202026-01-01%20to%202026-12-31%2C%20require%20one%20document%20tagged%20permits.%20Hide%20the%20deadline%20and%20receipt%20totals%3B%20keep%20the%20date%20range%20and%20evidence%20categories./332a3843521a7ec5/5b02b74564ff9dbd": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nTaxYear: Find missing tax evidence by matching records to one filing period.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", label: text≤24, from: date YYYY-MM-DD, to: date YYYY-MM-DD, due?: date YYYY-MM-DD, requirements: [1..8 { label: text≤32, source: documents|receipts, tag: text≤16, needed: int 1..12, goto?: id snake_case }] }\nRule: Write from and to in YYYY-MM-DD, in ascending order. Omit due unless supplied; never infer statutory dates.\nRule: Each requirement asks for \"documents\" or \"receipts\" using a tag and a needed count. Do not write matches, totals, tax owed, or filed status.\nRule: Tighter summary rows request density:\"compact\", retaining all category links. More categories fitting on screen does not request a different surface: write surface:null unless the surface is explicitly requested. Without a spacing request write density:null.\nRule: Exact defaults are density:null, surface:null, detail:null. For explicitly hiding the deadline and receipt totals set only detail:\"brief\"; keep the category links, requirements and date range.\nexample: {\"c\":\"TaxYear\",\"label\":\"Ledge archive 2026\",\"from\":\"2026-01-01\",\"to\":\"2026-12-31\",\"due\":\"2027-02-15\",\"requirements\":[{\"label\":\"Greenhouse permits\",\"source\":\"documents\",\"tag\":\"permits\",\"needed\":1,\"goto\":\"permits\"},{\"label\":\"Pot purchase proof\",\"source\":\"receipts\",\"tag\":\"pots\",\"needed\":3,\"goto\":\"pots\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: For Ledge archive 2026, from 2026-01-01 to 2026-12-31, require one document tagged permits. Hide the deadline and receipt totals; keep the date range and evidence categories.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "TaxYear",
+              "enum": [
+                "TaxYear"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "from": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "to": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "due": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "requirements": {
+              "minItems": 1,
+              "maxItems": 8,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "documents",
+                      "receipts"
+                    ]
+                  },
+                  "tag": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  },
+                  "needed": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "label",
+                  "source",
+                  "tag",
+                  "needed",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "label",
+            "from",
+            "to",
+            "due",
+            "requirements"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"TaxYear\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"label\":\"Ledge archive 2026\",\"from\":\"2026-01-01\",\"to\":\"2026-12-31\",\"due\":null,\"requirements\":[{\"label\":\"Greenhouse permits\",\"source\":\"documents\",\"tag\":\"permits\",\"needed\":1,\"goto\":\"permits\"}]}",
+    "replies": [
+      "{\"c\":\"TaxYear\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"label\":\"Ledge archive 2026\",\"from\":\"2026-01-01\",\"to\":\"2026-12-31\",\"due\":null,\"requirements\":[{\"label\":\"Greenhouse permits\",\"source\":\"documents\",\"tag\":\"permits\",\"needed\":1,\"goto\":\"permits\"}]}",
+      "{\"c\":\"TaxYear\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"label\":\"Ledge archive 2026\",\"from\":\"2026-01-01\",\"to\":\"2026-12-31\",\"due\":null,\"requirements\":[{\"label\":\"Greenhouse permits\",\"source\":\"documents\",\"tag\":\"permits\",\"needed\":1,\"goto\":\"permits\"}]}",
+      "{\"c\":\"TaxYear\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"label\":\"Ledge archive 2026\",\"from\":\"2026-01-01\",\"to\":\"2026-12-31\",\"due\":null,\"requirements\":[{\"label\":\"Greenhouse permits\",\"source\":\"documents\",\"tag\":\"permits\",\"needed\":1,\"goto\":\"permits\"}]}"
+    ]
+  },
+  "TaxYear%2Fwrite%2FShow%20Ledge%20archive%202026%20from%202026-01-01%20to%202026-12-31.%20Require%20one%20Greenhouse%20permits%20document%20tagged%20permits%20and%20three%20Pot%20purchase%20proof%20receipts%20tagged%20pots.%20Use%20tighter%20summary%20rows%20so%20more%20categories%20fit%2C%20keeping%20each%20evidence%20link./60ea797f5956af5c/5ac74cb0d6dda008": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nTaxYear: Find missing tax evidence by matching records to one filing period.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", label: text≤24, from: date YYYY-MM-DD, to: date YYYY-MM-DD, due?: date YYYY-MM-DD, requirements: [1..8 { label: text≤32, source: documents|receipts, tag: text≤16, needed: int 1..12, goto?: id snake_case }] }\nRule: Write from and to in YYYY-MM-DD, in ascending order. Omit due unless supplied; never infer statutory dates.\nRule: Each requirement asks for \"documents\" or \"receipts\" using a tag and a needed count. Do not write matches, totals, tax owed, or filed status.\nRule: Tighter summary rows request density:\"compact\", retaining all category links. More categories fitting on screen does not request a different surface: write surface:null unless the surface is explicitly requested. Without a spacing request write density:null.\nRule: Exact defaults are density:null, surface:null, detail:null. For explicitly hiding the deadline and receipt totals set only detail:\"brief\"; keep the category links, requirements and date range.\nexample: {\"c\":\"TaxYear\",\"label\":\"Ledge archive 2026\",\"from\":\"2026-01-01\",\"to\":\"2026-12-31\",\"due\":\"2027-02-15\",\"requirements\":[{\"label\":\"Greenhouse permits\",\"source\":\"documents\",\"tag\":\"permits\",\"needed\":1,\"goto\":\"permits\"},{\"label\":\"Pot purchase proof\",\"source\":\"receipts\",\"tag\":\"pots\",\"needed\":3,\"goto\":\"pots\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show Ledge archive 2026 from 2026-01-01 to 2026-12-31. Require one Greenhouse permits document tagged permits and three Pot purchase proof receipts tagged pots. Use tighter summary rows so more categories fit, keeping each evidence link.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "TaxYear",
+              "enum": [
+                "TaxYear"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "from": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "to": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "due": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "requirements": {
+              "minItems": 1,
+              "maxItems": 8,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "documents",
+                      "receipts"
+                    ]
+                  },
+                  "tag": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  },
+                  "needed": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "label",
+                  "source",
+                  "tag",
+                  "needed",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "label",
+            "from",
+            "to",
+            "due",
+            "requirements"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"TaxYear\",\"density\":\"compact\",\"surface\":null,\"detail\":null,\"label\":\"Ledge archive 2026\",\"from\":\"2026-01-01\",\"to\":\"2026-12-31\",\"due\":null,\"requirements\":[{\"label\":\"Greenhouse permits\",\"source\":\"documents\",\"tag\":\"permits\",\"needed\":1,\"goto\":\"permits\"},{\"label\":\"Pot purchase proof\",\"source\":\"receipts\",\"tag\":\"pots\",\"needed\":3,\"goto\":\"pots\"}]}",
+    "replies": [
+      "{\"c\":\"TaxYear\",\"density\":\"compact\",\"surface\":null,\"detail\":null,\"label\":\"Ledge archive 2026\",\"from\":\"2026-01-01\",\"to\":\"2026-12-31\",\"due\":null,\"requirements\":[{\"label\":\"Greenhouse permits\",\"source\":\"documents\",\"tag\":\"permits\",\"needed\":1,\"goto\":\"permits\"},{\"label\":\"Pot purchase proof\",\"source\":\"receipts\",\"tag\":\"pots\",\"needed\":3,\"goto\":\"pots\"}]}",
+      "{\"c\":\"TaxYear\",\"density\":\"compact\",\"surface\":null,\"detail\":null,\"label\":\"Ledge archive 2026\",\"from\":\"2026-01-01\",\"to\":\"2026-12-31\",\"due\":null,\"requirements\":[{\"label\":\"Greenhouse permits\",\"source\":\"documents\",\"tag\":\"permits\",\"needed\":1,\"goto\":\"permits\"},{\"label\":\"Pot purchase proof\",\"source\":\"receipts\",\"tag\":\"pots\",\"needed\":3,\"goto\":\"pots\"}]}",
+      "{\"c\":\"TaxYear\",\"density\":\"compact\",\"surface\":null,\"detail\":null,\"label\":\"Ledge archive 2026\",\"from\":\"2026-01-01\",\"to\":\"2026-12-31\",\"due\":null,\"requirements\":[{\"label\":\"Greenhouse permits\",\"source\":\"documents\",\"tag\":\"permits\",\"needed\":1,\"goto\":\"permits\"},{\"label\":\"Pot purchase proof\",\"source\":\"receipts\",\"tag\":\"pots\",\"needed\":3,\"goto\":\"pots\"}]}"
+    ]
   }
 }

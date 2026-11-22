@@ -1,12 +1,12 @@
 # packs/events
 
-Pack `events`: Organising one gathering: guests, RSVPs, seating, tickets, suppliers, gifts.
+Pack `events`: Organising one gathering: guests, RSVPs, seating, sessions, tickets, suppliers, gifts.
 
 Built in step U7 (drafts in U3), wave 4 of the catalog plan. Read `docs/catalog/packs/events.md` (every component, archetype and the worked example) and plan 4.4 first.
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
-- `components/`: `GuestList.tsx` `RSVP.tsx` `Seating.tsx` `Vendors.tsx` `Ticket.tsx` `Door.tsx` `Registry.tsx` `FindDate.tsx`
+- `components/`: `GuestList.tsx` `RSVP.tsx` `Seating.tsx` `Vendors.tsx` `Ticket.tsx` `Door.tsx` `Registry.tsx` `FindDate.tsx` `Sessions.tsx`
 - `archetypes/`: `plan-event.ts` `guests.ts` `suppliers.ts` `on-the-day.ts`
 
 Rules:

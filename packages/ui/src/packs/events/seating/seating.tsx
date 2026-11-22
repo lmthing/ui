@@ -7,7 +7,7 @@ import { eventsWordsFor } from "../lang";
 type Input = Props<typeof Seating.props, typeof Seating.meta>;
 type Guest = Extract<Input["entries"][number], { kind: "guest" }>;
 type Tables = Extract<SeatPlanProps, { kind: "tables" }>;
-type Words = ReturnType<typeof eventsWordsFor>["seating"];
+type Words = ReturnType<typeof eventsWordsFor>["seatPlan"];
 type Moves = Readonly<Record<string, readonly string[]>>;
 
 function guestSeat(guest: Guest, words: Words, moves: Moves | undefined) {
@@ -59,14 +59,10 @@ function tablePlan(
 }
 
 /** Adapts the draft's stamped table and guest entries without changing its Writer contract. */
-export function SeatingPlan({
-  entries,
-
-  moves,
-}: Input & { moves?: Moves }) {
+export function SeatingPlan({ entries, moves }: Input & { moves?: Moves }) {
   const {
     lang,
-    words: { seating: words },
+    words: { seatPlan: words },
   } = useWords(eventsWordsFor);
   const density = useKit().density;
   const loading = useComponentState() === "loading";

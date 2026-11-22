@@ -126,21 +126,17 @@ function TaxCategory({ row, density, loading }: { row: EvidenceRow; density: c.T
   const { requirement, matchedLine, neededLine, missingLine } = row;
   return <kit.KitRow {...(!loading ? { item: requirement.id, goto: requirement.goto } : {})}
     part={loading ? null : "root"} label={loading ? "" : requirement.label} density={density}
-    trailing={requirement.goto ? loading ? <kit.KitSkeleton shape="figure" lead="dot" inset="none" content={[]} />
-      : <kit.KitContent lead={<kit.KitIcon name="chevron_right" tone="muted" decorative />} children={null} /> : undefined}>
-    {loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }}
-      content={[["body", requirement.label], ["caption", row.metaLine], ["caption", neededLine],
-        ["caption", missingLine]]} /> : <>
-      <kit.KitText part="label" density={density}>{requirement.label}</kit.KitText>
-      <kit.KitText part="meta" role="caption" tone="muted">{row.metaLine}</kit.KitText>
-      <kit.KitContent density={density}>
-        <kit.KitText part={null} role="caption" tone="muted">
-          <kit.KitText part="matched" role="caption" tone="muted">{matchedLine}</kit.KitText>
-          <kit.KitText part="needed" role="caption" tone="muted">{neededLine}</kit.KitText>
-        </kit.KitText>
-        {row.missing > 0 && <kit.KitText part="missing" role="caption" tone="warn">{missingLine}</kit.KitText>}
-      </kit.KitContent>
-    </>}
+    trailing={requirement.goto && <kit.KitIcon name="chevron_right" decorative loading={loading} />}>
+    <kit.KitLayoutText line={{ part: "label", text: requirement.label }} {...{ density }} />
+    <kit.KitLayoutText line={{ part: "meta", role: "caption", text: row.metaLine, tone: "muted" }} {...{ density }} />
+    <kit.KitContent density={density}>
+      {loading ? <kit.KitLayoutText line={{ role: "caption", text: `${matchedLine}${neededLine}` }} {...{ density }} /> :
+        <kit.KitText part={null} role="caption" tone="muted" density={density}>
+          <kit.KitText part="matched" role="caption" tone="muted" density={density}>{matchedLine}</kit.KitText>
+          <kit.KitText part="needed" role="caption" tone="muted" density={density}>{neededLine}</kit.KitText>
+        </kit.KitText>}
+      <kit.KitLayoutText line={{ part: "missing", role: "caption", text: missingLine, tone: "warn" }} {...{ density }} />
+    </kit.KitContent>
   </kit.KitRow>;
 }
 // prettier-ignore
@@ -148,25 +144,22 @@ function TaxSummary({ input, evidence, data, density, loading, lang }: {
   input: TaxYearProps; evidence: ReturnType<typeof taxEvidence>; data: c.DeviceData;
   density: c.ThemeDensity; loading: boolean; lang: string;
 }) {
-  const { taxYear: words } = paperworkWordsFor(lang);
   const lines = taxYearLines(input, evidence, data, lang);
+  const heading = density === "compact" ? "title" : "heading";
   const dates = lines.filter(({ number }) => number === undefined), totals = lines.filter(({ number }) => number !== undefined);
-  return <kit.KitRow part={null} label="" lineRole="heading" {...{ density }}>
+  return <kit.KitRow part={null} label="" lineRole={heading} {...{ density }}>
     {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} emphasis="hero"
-      content={[["heading", input.label], ...dates.map(({ line }): ["caption", string] => ["caption", line])]} /> : <>
-      <kit.KitText part="label" role="heading" emphasis="hero" {...{ density }}>{input.label}</kit.KitText>
-      {dates.map(({ part, line }) => <kit.KitText key={part} {...{ part }} role="caption" tone="muted">{line}</kit.KitText>)}
-    </>}
+      content={[[heading, input.label]]} /> :
+      <kit.KitText part="label" role={heading} emphasis="hero" {...{ density }}>{input.label}</kit.KitText>}
+    {dates.map(({ part, line }) => <kit.KitLayoutText key={part}
+      line={{ part, role: "caption", text: line, tone: "muted" }} {...{ density }} />)}
     {totals.length > 0 && <kit.KitContent group="response" density={density}>
-      <kit.KitGrid density={density}>{totals.map(({ part, label, number }) => loading ?
-        <kit.KitSkeleton key={part} shape="figure" inset="none" density={density}
-          content={[["caption", label], ["number", number, "start", "compact"]]} /> :
+      <kit.KitGrid density={density}>{totals.map(({ part, label, number }) =>
         <kit.KitContent key={part} density={density}>
-          <kit.KitText part={null} role="caption" tone="muted">{label}</kit.KitText>
-          <kit.KitText part={part} role="number" numberScale="compact" tabular>{number}</kit.KitText>
+          <kit.KitLayoutText line={{ role: "caption", text: label, tone: "muted" }} {...{ density }} />
+          <kit.KitLayoutText line={{ part, role: "figure", text: number, compact: true, tabular: true }} {...{ density }} />
         </kit.KitContent>)}</kit.KitGrid>
     </kit.KitContent>}
-    {!loading && evidence.complete && <kit.KitText part="success" role="label" tone="good">{words.success}</kit.KitText>}
   </kit.KitRow>;
 }
 
@@ -180,9 +173,15 @@ export function TaxYear(input: TaxYearProps) {
     <TaxSummary {...{ input, evidence, data, density, loading, lang }} />
     {!loading && !evidence.hasEvidence && <kit.KitEmpty part="empty" icon="file_text" decorativeIcon title={words.empty} />}
     <kit.KitRow part={null} label="" {...{ density }}>
-      {loading && <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.progress]]} />}
-      <kit.KitMeter label={loading ? "" : words.progress} amount={loading ? "" : evidence.progress}
-        ratio={loading ? 0 : evidence.ratio} tone={complete ? "good" : "accent"} slim addressed={false} />
+      <kit.KitContent {...{ density }} rhythm={loading ? "flush" : "close"}>
+        {loading && <kit.KitGrid fitLast density={density}>
+          <kit.KitLayoutText line={{ role: "meta", text: words.progress }} />
+          <kit.KitLayoutText line={{ role: "caption", text: evidence.progress }} align="end" />
+        </kit.KitGrid>}
+        <kit.KitMeter label={loading ? "" : words.progress} amount={loading ? "" : evidence.progress}
+          ratio={loading ? 0 : evidence.ratio} tone={complete ? "good" : "accent"} slim addressed={false} />
+        {!loading && complete && <kit.KitText part="success" role="label" tone="good">{words.success}</kit.KitText>}
+      </kit.KitContent>
     </kit.KitRow>
     <kit.KitGrid list arrange="rows" density={density}>
       {evidence.rows.map((row) => <TaxCategory key={row.requirement.id} {...{ row, density, loading }} />)}

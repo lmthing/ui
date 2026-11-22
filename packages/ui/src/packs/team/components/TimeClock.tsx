@@ -1,7 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { timeClockDisplay, timeClockPreview, timeClockReading } from "../copy";
+import { activeBreakStart, timeClockDisplay, timeClockPreview, timeClockReading } from "../copy";
 import { teamWordsFor } from "../lang";
 import { prompt } from "../../../entry/prompt-TimeClock.generated";
 
@@ -33,9 +33,23 @@ export const meta = {
     "clock_label",
     "break",
     "break_label",
+    "verification",
+    "break_elapsed",
+    "break_elapsed_label",
   ],
   states: ["filled", "success"],
   actions: { parts: { clock: ["press"], break: ["press"] }, when: { break: { on: true } } },
+  partTiersBy: { clock: { prop: "style", tiers: { kiosk: "ok" } } },
+  clocks: [
+    {
+      id: "break_elapsed",
+      kind: "up",
+      prop: "liveBreakSeconds",
+      runningProp: "liveBreakRunning",
+      when: { on: true, breakTimer: true },
+      timestamp: activeBreakStart,
+    },
+  ],
   deviceData: ["shiftClock"],
   previewDeviceData: timeClockPreview,
   readSuccess: true,
@@ -44,9 +58,12 @@ export const meta = {
 
 export const props = z.strictObject({
   ...c.variantProps(meta.variants),
+  style: z.enum(["personal", "kiosk"]).default("personal"),
   on: z.boolean(),
   since: c.clock.optional(),
   shift: c.text(28).optional(),
+  verification: z.enum(["geofence", "pin"]).optional().meta({ kind: undefined }),
+  breakTimer: z.boolean().optional(),
 });
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
@@ -57,6 +74,8 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
 export const examples = [
   { on: true, since: "07:00", shift: "Morning greenhouse care" },
   { on: false, shift: "Afternoon park walks" },
+  { on: false, shift: "Morning greenhouse care", style: "kiosk", verification: "geofence" },
+  { on: true, since: "07:00", shift: "Morning greenhouse care", breakTimer: true },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("TimeClock");
@@ -74,64 +93,113 @@ export const probes = [
     variant: { axis: "detail", value: "brief" },
   },
   read("Take a break on this active shift", { address: "t1/break", action: "press" }),
+  {
+    ...write(
+      "Set up a shared staff time-clock kiosk for Morning greenhouse care. Nobody is clocked in. Require a staff PIN check when clocking in, without showing or storing any PIN digits.",
+    ),
+    expectProps: { style: "kiosk", on: false, verification: "pin" },
+  },
+  {
+    ...write(
+      "I'm clocked into Morning greenhouse care since 07:00. Show a live count-up timer for my current break, separate from time on shift.",
+    ),
+    expectProps: { on: true, breakTimer: true },
+  },
 ] satisfies c.Probe[];
 
-export function TimeClock(input: c.Props<typeof props, typeof meta>) {
+type ClockProps = c.Props<typeof props, typeof meta>;
+
+export function TimeClock(input: ClockProps) {
   const state = kit.useComponentState();
   const { lang, words } = kit.useWords(teamWordsFor);
   const density = kit.useKit().density;
   const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
-  const copy = timeClockDisplay({ ...input, detail }, state, kit.useDeviceData(), lang, words.timeClock);
-  const group = density === "compact" ? "content" : "response";
-  const breaks = copy.breaks && (
-    <kit.KitText part="breaks" role="label" tone="muted" density={density}>
-      {copy.breaks}
-    </kit.KitText>
-  );
+  const live = kit.useLiveControls(meta, input) as ClockProps & {
+    liveBreakSeconds?: number;
+    liveBreakRunning?: boolean;
+  };
+  const copy = timeClockDisplay({ ...live, detail }, state, kit.useDeviceData(), lang, words.timeClock);
   return (
     <kit.KitCard part="root" padded {...{ density, surface }}>
-      <kit.KitContent density={density}>
-        <kit.KitText part="shift" role="heading" density={density}>
-          {copy.shift}
-        </kit.KitText>
-        <kit.KitText
-          part="status"
-          role="label"
-          tone={state === "success" ? "good" : "muted"}
-          density={density}
-        >
-          {copy.status}
-        </kit.KitText>
-        {copy.since && (
-          <kit.KitText part="since" role="label" tone="muted" density={density}>
-            {copy.since}
-          </kit.KitText>
-        )}
-        {!copy.elapsed && breaks}
-      </kit.KitContent>
-      {copy.elapsed && (
-        <kit.KitContent group={group} density={density}>
-          <kit.KitText part="elapsed" role="number" tabular density={density}>
-            {copy.elapsed}
-          </kit.KitText>
-          <kit.KitText part="elapsed_label" role="label" tone="muted" density={density}>
-            {copy.elapsedLabel}
-          </kit.KitText>
-          {breaks}
-        </kit.KitContent>
-      )}
+      <kit.KitHeader
+        title={{ text: copy.shift, part: "shift", role: "body", strong: true }}
+        meta={[
+          { text: copy.status, part: "status", tone: state === "success" ? "good" : "muted" },
+          { text: copy.since, part: "since" },
+        ]}
+        density={density}
+      />
+      <ClockFigures {...{ copy, density }} />
       {copy.clockAction && (
         <kit.KitContent group="response" density={density}>
+          <kit.KitLayoutText
+            line={{ text: copy.verification, part: "verification", role: "meta", tone: "muted" }}
+            density={density}
+          />
           <kit.KitAction
             part="clock"
-            kind={input.on && copy.elapsed ? "secondary" : "primary"}
+            kind={copy.breakElapsed ? "quiet" : input.on && copy.elapsed ? "secondary" : "primary"}
             label={copy.clockAction}
             full
           />
-          {copy.breakAction && <kit.KitAction part="break" kind="quiet" label={copy.breakAction} full />}
+          {copy.breakAction && (
+            <kit.KitAction
+              part="break"
+              kind={copy.breakElapsed ? "primary" : "quiet"}
+              label={copy.breakAction}
+              full
+            />
+          )}
         </kit.KitContent>
       )}
     </kit.KitCard>
+  );
+}
+
+function ClockFigures({
+  copy,
+  density,
+}: {
+  copy: ReturnType<typeof timeClockDisplay>;
+  density: c.ThemeDensity;
+}) {
+  return (
+    <>
+      {copy.breakElapsed ? (
+        <kit.KitGrid density={density}>
+          <kit.KitLayoutText
+            line={{ text: copy.breakElapsed, part: "break_elapsed", role: "figure", tabular: true }}
+            align="end"
+            density={density}
+            baseline
+          />
+          <kit.KitText part={null} role="number" density={density}>
+            <kit.KitText part="break_elapsed_label" role="label" tone="muted" density={density}>
+              {copy.breakElapsedLabel}
+            </kit.KitText>
+          </kit.KitText>
+          <kit.KitLayoutText
+            line={{ text: copy.elapsed, part: "elapsed", role: "figure", compact: true, tabular: true }}
+            align="end"
+            density={density}
+          />
+          <kit.KitLayoutText
+            line={{ text: copy.elapsedLabel, part: "elapsed_label", role: "meta", tone: "muted" }}
+            density={density}
+          />
+        </kit.KitGrid>
+      ) : copy.elapsed ? (
+        <kit.KitFigure
+          value={{ text: copy.elapsed, part: "elapsed" }}
+          unit={{ text: copy.elapsedLabel, part: "elapsed_label", role: "meta" }}
+          density={density}
+        />
+      ) : null}
+      <kit.KitLayoutText
+        line={{ text: copy.breaks, part: "breaks", role: "meta", tone: "muted" }}
+        density={density}
+      />
+    </>
   );
 }

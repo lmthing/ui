@@ -12,17 +12,30 @@ const screen: ScreenLike = {
     { c: "Units", id: "units", ...components.Units.examples[2]! },
     { c: "RentRoll", id: "rent", ...components.RentRoll.examples[3]! },
     { c: "Inspections", id: "inspection", ...components.Inspections.examples[2]! },
+    { c: "Viewings", id: "viewings", ...components.Viewings.examples[1]! },
+    { c: "Meters", id: "meters", ...components.Meters.examples[1]! },
   ],
 };
 
 function PropertyOptions() {
   const [actions, setActions] = useState<string[]>([]);
-  const onAction = ({ address, action }: ActStep) =>
+  const [updateState, setUpdateState] = useState<"filled" | "error" | "success">("filled");
+  const onAction = ({ address, action }: ActStep) => {
     setActions((previous) => [...previous, `${address} ${action}`]);
+    if (address === "home/update/r2/confirm") setUpdateState("error");
+    if (address === "home/update/retry") setUpdateState("success");
+  };
+  const withUpdate = {
+    ...screen,
+    components: [
+      ...screen.components,
+      { c: "Viewings", id: "update", ...components.Viewings.examples[0]!, state: updateState },
+    ],
+  };
   return (
     <TamaguiProvider config={config}>
       <output id="actions">{actions.join("\n")}</output>
-      <PhoneScreen theme={theme} screen={screen} onAction={onAction} reduceMotion />
+      <PhoneScreen theme={theme} screen={withUpdate} onAction={onAction} reduceMotion />
     </TamaguiProvider>
   );
 }

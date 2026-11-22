@@ -3,11 +3,12 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it } from "vitest";
 import { component, presets, themeName } from "@lmthing/ui/catalog";
-import { KitProvider, PartScope, KitScroll, KitText } from "@lmthing/ui/kit";
+import { KitCard, KitProvider, PartScope, KitScroll, KitText } from "@lmthing/ui/kit";
 import { config, elementAt, styleAt } from "../../../../test/render";
 
-function render(props: Parameters<typeof KitScroll>[0], preset = "calm", mode = "light") {
+function render(props: Parameters<typeof KitScroll>[0], preset = "calm", mode = "light", inset = false) {
   const theme = { preset, mode, accent: "moss" } as Parameters<typeof KitProvider>[0]["theme"];
+  const scroll = createElement(KitScroll, props);
   return renderToStaticMarkup(
     createElement(
       TamaguiProvider,
@@ -18,7 +19,7 @@ function render(props: Parameters<typeof KitScroll>[0], preset = "calm", mode = 
         createElement(
           PartScope,
           { screen: "home", component: "c1", rev: 1, state: "filled", thing: "record", children: null },
-          createElement(KitScroll, props),
+          inset ? createElement(KitCard, { part: "frame", padded: true, children: scroll }) : scroll,
         ),
       ),
     ),
@@ -56,5 +57,17 @@ describe("KitScroll", () => {
     const root = elementAt(html, "home/c1/terms_area");
     expect(styleAt(html, root.children[0]!.children[0]!)).not.toContain("max-height");
     expect(html.match(/data-testid="home\/c1\/terms_area"/g)).toHaveLength(1);
+  });
+  it("lets a padded card own the surface and gutter of nested prose", () => {
+    const html = render({ label: "Terms", children: text }, "calm", "light", true);
+    const root = elementAt(html, "home/c1/root");
+    expect(styleAt(html, root)).not.toMatch(/box-shadow:|background-color:/);
+    const scroll = root.children[0]!.children[0]!;
+    expect(scroll.attributes).toContain('aria-label="Terms"');
+    expect(scroll.attributes).toContain('tabindex="0"');
+    const content = scroll.children[0]!.children[0]!;
+    expect(styleAt(html, content)).toContain("padding-left:0px");
+    expect(elementAt(html, "home/c1/terms").attributes).toContain('data-testid="home/c1/terms"');
+    expect(html).toContain(">Caller supplied terms<");
   });
 });

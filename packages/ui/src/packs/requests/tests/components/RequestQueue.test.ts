@@ -121,10 +121,11 @@ describe("RequestQueue states and parts", () => {
     const parts = addressedElements(html);
     expect(parts.has(address("root"))).toBe(true);
     expect(parts.has(address("r2/root"))).toBe(false);
-    expect(parts.has(address("view"))).toBe(state === "empty");
+    expect(parts.has(address("view"))).toBe(state !== "error");
     expect(parts.has(address("empty"))).toBe(state === "empty");
     expect(parts.has(address("error"))).toBe(state === "error");
     expect(parts.has(address("retry"))).toBe(state === "error");
+    if (state === "loading") expect(html).not.toContain('role="radio"');
     if (state !== "loading") expect(html).not.toContain(ticket.title);
   });
 

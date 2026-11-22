@@ -1,29 +1,35 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { threadEntryCopy, threadLoading, threadOrder, threadRead } from "../copy";
-import { requestsWordsFor } from "../lang";
+import { threadAudiences, threadGates, threadOrder, threadRead, type ThreadAccess } from "../copy";
+import { requestsWordsFor, type RequestsWords } from "../lang";
 import { requestStatus } from "./RequestQueue";
 import { prompt } from "../../../entry/prompt-RequestThread.generated";
+import * as threadView from "./thread-entry";
 
-const audiences = ["requester", "internal"] as const;
 const draftLimit = 240;
-type ThreadAccess = { role: "staff" | "requester"; canReply: boolean };
-// prettier-ignore
-function threadGates(input: Readonly<c.Values>, access?: ThreadAccess): c.Values {
-  const choices: readonly string[] = !access?.canReply ? [] : access.role === "staff" ? audiences : ["requester"];
-  const draft = choices.length ? input.draft : undefined;
-  const entries = input.entries as c.Values[];
-  return {
-    draft,
-    entries: access?.role === "staff" ? entries : entries.filter(({ audience }) => audience === "requester"),
-    audience_choices: choices,
-    replyable: choices.length > 0,
-    sendable: choices.includes(String(input.audience)) && typeof draft === "string" && Boolean(draft.trim()),
-  };
-}
 // The catalog and visual fixtures are staff previews.
 const previewAccess: ThreadAccess = { role: "staff", canReply: true };
+const sampleFile = { fileRef: "demo_gate_report", name: "Gate inspection.pdf" };
+const replyActions = ["field.type", "audience.select", "send.send", "canned.press"] as const;
+const retryEdit = c.defineLocalState({
+  schema: z.strictObject({
+    number: z.string().max(12),
+    entryCount: z.int().min(0).max(6),
+    audience: z.enum(threadAudiences),
+    draft: z.string().max(draftLimit).optional(),
+    retryText: z.string().max(draftLimit).optional(),
+  }),
+  events: ["retry_field.type"],
+  initial: (seed) => ({
+    number: String(seed.number),
+    entryCount: (seed.entries as unknown[]).length,
+    audience: seed.audience as (typeof threadAudiences)[number],
+    draft: seed.draft as string | undefined,
+  }),
+  reduce: (state, { value }) => ({ state: { ...state, retryText: String(value) } }),
+  project: ({ retryText }) => ({ retryText }),
+});
 // Core first: Bubbles/default cannot interleave typed work events or distinguish staff-only notes.
 export const meta = {
   id: "RequestThread",
@@ -35,43 +41,81 @@ export const meta = {
   region: "body",
   weight: 2,
   tier: "people",
-  partTiers: { send: "people" },
+  partTiers: { field: "phone", send: "people", canned: "phone", retry_field: "phone", retry: "people" },
   realPath: "Messages and operational events are linked to one request in a shared app.",
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["event_detail"] } },
-  parts: ["root", "number", "field", "audience", "send", "send_label", "notice"],
+  parts: [
+    "root",
+    "number",
+    "field",
+    "audience",
+    "send",
+    "send_label",
+    "notice",
+    "canned",
+    "retry",
+    "retry_field",
+  ],
   items: {
     key: "entries",
-    parts: ["root", "by", "date", "time", "audience", "text", "photo", "event_detail"],
+    parts: ["root", "by", "date", "time", "audience", "text", "photo", "event_detail", "file"],
   },
   states: ["filled", "empty", "loading", "success", "error"],
   actions: {
-    parts: { field: ["type"], audience: ["select"], send: ["send"] },
+    parts: {
+      field: ["type"],
+      audience: ["select"],
+      send: ["send"],
+      canned: ["press"],
+      retry: ["send"],
+      retry_field: ["type"],
+    },
     items: { root: ["press"] },
-    when: { root: { kind: "work" }, field: { replyable: true }, send: { sendable: true } },
+    when: {
+      root: { kind: "work" },
+      field: { replyable: true },
+      send: { sendable: true },
+      retry: { retryable: true },
+      retry_field: { canRetryEdit: true },
+      canned: { canBrowseReplies: true },
+    },
   },
-  emptyActions: ["field.type", "audience.select", "send.send"],
+  emptyActions: replyActions,
+  errorActions: ["retry.send", "retry_field.type"],
+  successActions: ["root.press", "field.type", "audience.select", "send.send"],
   selections: { audience: { prop: "audience", choices: { prop: "audience_choices" } } },
+  deviceData: ["requestFiles", "requestThreadPreview"],
+  previewDeviceData: ({ input, state }) => ({
+    requestFiles: [sampleFile],
+    ...(state === "success" ? { requestThreadPreview: [{ number: input.number, sent: input.draft }] } : {}),
+  }),
+  localState: retryEdit,
   // prettier-ignore
   live: {
-    text: { field: { prop: "draft", max: draftLimit } }, send: { send: { field: "field", audience: "audience" } },
-    derive: (input) => threadGates(input, previewAccess),
+    text: { field: { prop: "draft", max: draftLimit }, retry_field: { prop: "retryDraft", max: draftLimit } },
+    send: { send: { field: "field", audience: "audience" }, retry: { field: "retry_field", audience: "audience" } },
+    derive: (input, _id, data) => threadGates(input, previewAccess, data),
   },
-  successActions: ["root.press"],
   readSuccess: true,
+  readError: true,
   read: threadRead,
 } as const satisfies c.Meta;
+const file = c
+  .text(32)
+  .refine((ref) => !/[/\\]|^[a-z][a-z\d+.-]*:(?!\d+$)/i.test(ref))
+  .meta({ kind: "secret", max: 32 });
 // prettier-ignore
 const entry = z.strictObject({
-  by: c.text(24), date: c.isoDate, time: c.clock, audience: z.enum(audiences),
+  by: c.text(24), date: c.isoDate, time: c.clock, audience: z.enum(threadAudiences),
   kind: z.enum(["message", "status", "assignment", "work"]),
-  text: c.text(draftLimit).optional(), photo: c.photo.optional(), goto: c.screenId.optional(),
+  text: c.text(draftLimit).optional(), photo: c.photo.optional(), file: file.optional(), goto: c.screenId.optional(),
   from: requestStatus.optional(), to: requestStatus.optional(),
   who: c.text(24).meta({ kind: undefined }).optional(), order: c.text(12).meta({ kind: undefined }).optional(),
 })
   .refine(
-    ({ kind, text, photo, from, to, who, order, goto }) =>
-      (kind === "message") === Boolean(text) && (kind === "message" || !photo) &&
+    ({ kind, text, photo, file, from, to, who, order, goto }) =>
+      (kind === "message") === Boolean(text) && (kind === "message" || (!photo && !file)) &&
       (kind === "status") === Boolean(from) && (kind === "status") === Boolean(to) &&
       (kind === "assignment") === Boolean(who) &&
       (kind === "work") === Boolean(order) && (kind === "work") === Boolean(goto),
@@ -81,8 +125,11 @@ const entry = z.strictObject({
 // prettier-ignore
 export const props = z.strictObject({
   ...c.variantProps(meta.variants), number: c.text(12).meta({ kind: undefined }), entries: z.array(entry).min(0).max(6),
-  draft: c.text(draftLimit).meta({ kind: undefined }).optional(), audience: z.enum(audiences).default("requester"),
-}).overwrite((value) => ({ ...value, ...threadGates(value, previewAccess) }));
+  draft: c.text(draftLimit).meta({ kind: undefined }).optional(), audience: z.enum(threadAudiences).default("requester"),
+  cannedGoto: c.screenId.optional(),
+}).overwrite((value) => ({
+  ...value, ...threadGates(value, previewAccess), canned: value.cannedGoto ? { goto: value.cannedGoto } : undefined,
+}));
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const item = c.itemsOf(cast, 1)[0];
@@ -95,7 +142,7 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
 /** Bind host permissions before rendering, reading or acting on an actual request. */
 // prettier-ignore
 export function bindRequestThread(accessFor: (instance: string) => ThreadAccess | undefined): c.Definition {
-  return { props, examples, fallback, probes, meta: { ...meta, live: { ...meta.live, derive: (p, id) => threadGates(p, accessFor(id)) } } };
+  return { props, examples, fallback, probes, meta: { ...meta, live: { ...meta.live, derive: (p, id, data) => threadGates(p, accessFor(id), data) } } };
 }
 
 // prettier-ignore
@@ -114,6 +161,7 @@ export const examples = [
   { ...trot, entries: [...trot.entries] },
   { ...trot, entries: [...trot.entries] },
   { ...trot, entries: [...trot.entries], detail: "brief" },
+  { ...trot, cannedGoto: "saved_replies", entries: [{ ...trot.entries[0], file: sampleFile.fileRef }, trot.entries[1]] },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("RequestThread");
@@ -125,35 +173,71 @@ export const probes = [
     ...write("On ticket TR-06 log Kai moving working to resolved on 2026-11-20 at 09:15 for the requester. Use the shorter event treatment without shortening messages."),
     variant: { axis: "detail", value: "brief" },
   },
+  { ...write("For request TR-06, give staff a shortcut from the empty reply thread to the saved reply templates on screen saved_replies. No entries yet."), expectProps: { cannedGoto: "saved_replies" } },
+  { ...write("On request TR-06, Kai told the requester at 09:00 on 2026-11-20: The kennel gate now closes properly. Attach the file with opaque reference demo_gate_report to that one message."), expectProps: { entries: [{ file: "demo_gate_report" }] } },
   read("Tap the work order WO-14 row in the repair updates. Use its full address and the action name without the destination.", { address: "r1/r2", action: "press" }),
   read("Send the drafted reply about the replacement grow light", { address: "r1/send", action: "send" }),
 ] satisfies c.Probe[];
 
-type ThreadProps = c.Props<typeof props, typeof meta>;
-type Finish = Pick<ThreadProps, "detail"> & { density: c.ThemeDensity };
-type ThreadLive = ThreadProps & { audience_choices: readonly ThreadProps["audience"][]; sendable: boolean };
+export type ThreadProps = c.Props<typeof props, typeof meta>;
+type ThreadLive = ThreadProps & {
+  audience_choices: readonly ThreadProps["audience"][];
+  sendable: boolean;
+  canBrowseReplies: boolean;
+  canRetryEdit: boolean;
+  retryDraft?: string;
+  retryable: boolean;
+};
+
+type ReplyProps = { p: ThreadLive; words: RequestsWords["thread"]; density: c.ThemeDensity };
+
 // prettier-ignore
-function ThreadEntry({ row, detail, density, lang }: Finish & { row: ThreadProps["entries"][number]; lang: string }) {
-  const { event, fact, date, time, audience } = threadEntryCopy(row, detail, lang);
-  const photoLabel = requestsWordsFor(lang).thread.photo;
-  return <kit.KitRow item={row.id} label={fact ?? event ?? row.by} goto={row.goto}
-    density={row.kind === "message" ? "comfortable" : density}
-    tone={row.kind === "message" ? "muted" : undefined}
-    trailing={row.goto && <kit.KitIcon name="chevron_right" tone="muted" scale="sm" decorative />}>
-    <kit.KitContent lineRole="body" density={density}>
-      {event && <kit.KitText part={null} role="label">{event}</kit.KitText>}
-      {fact && <kit.KitText part="event_detail" role="body">{fact}</kit.KitText>}
-      <kit.KitText part="by" role={event ? "caption" : "label"} tone={event ? "muted" : "text"}>{row.by}</kit.KitText>
-      {row.text && <kit.KitText part="text" role="body">{row.text}</kit.KitText>}
-      <kit.KitText part={null} role="caption" tone="muted">
-        <kit.KitText part="time" role="caption" tone="muted" tabular>{time}</kit.KitText>{" "}
-        <kit.KitText part="date" role="caption" tone="muted">{date}</kit.KitText>
-      </kit.KitText>
-      <kit.KitText part="audience" role="caption" tone="muted">{audience}</kit.KitText>
-      {row.photo && <><kit.KitPhoto part="photo" photo={row.photo} label={photoLabel} />
-        <kit.KitText part={null} role="caption" tone="muted">{photoLabel}</kit.KitText></>}
-    </kit.KitContent>
-  </kit.KitRow>;
+function ReplyComposer({ p, words, density }: ReplyProps) {
+  const { draft, audience, audience_choices: choices, sendable, canBrowseReplies } = p;
+  if (!choices.length) return null;
+  const kind = sendable ? "primary" : "secondary";
+  const send = <kit.KitAction part="send" full action="send" label={words.send} {...{ kind }} disabled={!sendable} />;
+  return <kit.KitContent inset="md" group="response" density={density}>
+    <kit.KitText part={null} role="label">{words.audience}</kit.KitText>
+    <kit.KitTrack part="audience" look="segments" role="radiogroup" label={words.audience}>
+      {choices.map((choice) => <kit.KitChip key={choice} item={null} look="segment" role="radio" value={choice}
+        label={words.audiences[choice]} on={audience === choice} />)}
+    </kit.KitTrack>
+    <kit.KitTextArea part="field" label={words.field} hint={words.field} value={draft} lines={2} maxLength={draftLimit} />
+    {canBrowseReplies ? <>
+      <kit.KitAction part="canned" goto={p.cannedGoto} label={words.canned} kind="secondary" />
+      <kit.KitContent group="response" density={density}>{send}</kit.KitContent>
+    </> : send}
+  </kit.KitContent>;
+}
+
+// prettier-ignore
+function FailedReply({ p, words, density }: ReplyProps) {
+  return <kit.KitContent inset="md" group="response" density={density}>
+    <kit.KitState retain part="notice" message={words.failed}>
+      {p.canRetryEdit && <>
+        <kit.KitContent density={density}>
+          <kit.KitText part={null} role="label">{words.audience}</kit.KitText>
+          <kit.KitTrack part="audience" look="segments" role="radiogroup" label={words.audience}>
+            {p.audience_choices.map((choice) => <kit.KitChip key={choice} item={null} look="segment" role="radio"
+              part={null} value={choice} label={words.audiences[choice]} on={p.audience === choice} disabled />)}
+          </kit.KitTrack>
+          <kit.KitTextArea part="retry_field" label={words.field} hint={words.field}
+            value={p.retryDraft} lines={2} maxLength={draftLimit} />
+          <kit.KitAction part="retry" full action="send" label={words.retry}
+            kind={p.retryable ? "primary" : "secondary"} disabled={!p.retryable} />
+        </kit.KitContent>
+      </>}
+    </kit.KitState>
+  </kit.KitContent>;
+}
+
+// Only the gallery seeds this acknowledgement. A host puts accepted messages in entries.
+function previewSentReply(data: c.DeviceData | undefined, p: ThreadLive) {
+  const preview = data?.requestThreadPreview?.[0] as { number?: unknown; sent?: unknown } | undefined;
+  return preview?.number === p.number && p.audience_choices.includes(p.audience) && preview.sent === p.draft
+    ? p.draft
+    : undefined;
 }
 
 // prettier-ignore
@@ -162,36 +246,39 @@ export function RequestThread(input: ThreadProps) {
   const state = kit.useComponentState();
   const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
-  const { entries, draft, audience, audience_choices: choices, sendable } = kit.useLiveControls(meta, input) as ThreadLive;
-  const loading = state === "loading" ? threadLoading({ number: input.number, detail, entries }, lang) : undefined;
+  const p = kit.useLiveControls(meta, input) as ThreadLive;
+  const data = kit.useDeviceData();
+  const sent = state === "success" ? previewSentReply(data, p) : undefined;
+  const rows = threadOrder(p.entries).map((row) => <threadView.ThreadEntry key={row.id} {...{ row, detail, density, lang }} />);
+  const thread = <kit.KitContent density={density}>{rows}</kit.KitContent>;
   return <kit.KitCard part="root" padded density={density}>
-    {loading ? <>
-      <kit.KitSkeleton lead="none" rows={loading.length} items={loading} density={density} />
-      {choices.length > 0 && <kit.KitContent inset="md" group="response">
+    {state === "loading" ? <kit.KitState density={density} loading={<>
+      <kit.KitContent inset="md" density={density}><kit.KitLayoutText line={{ text: words.heading(input.number), role: "body", strong: true }} density={density} /></kit.KitContent>
+      {thread}
+      {p.audience_choices.length > 0 && <kit.KitContent inset="md" group="response">
         <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.audience]]} />
         <kit.KitSkeleton shape="control" full label={words.audience} />
         <kit.KitRow label={words.field} tone="muted" density="comfortable">
-          <kit.KitSkeleton shape="figure" inset="none" content={[["body", draft || words.field], ["body", words.field]]} />
+          <kit.KitSkeleton shape="figure" inset="none" content={[["body", p.draft || words.field], ["body", words.field]]} />
         </kit.KitRow>
+        {p.canBrowseReplies && <kit.KitSkeleton shape="control" kind="secondary" label={words.canned} />}
         <kit.KitSkeleton shape="control" full label={words.send} />
       </kit.KitContent>}
-    </> : <>
+    </>} /> : <>
       <kit.KitContent inset="md" density={density}><kit.KitText part="number" role="heading">{words.heading(input.number)}</kit.KitText></kit.KitContent>
-      {state === "error" || state === "success" ? <kit.KitContent inset="md" group="response">
-        <kit.KitText part="notice" tone={state === "error" ? "bad" : "good"}>{state === "error" ? words.failed : words.sent}</kit.KitText>
-        {state === "error" && draft && <kit.KitText part="field">{draft}</kit.KitText>}
-      </kit.KitContent> : null}
-      {state !== "error" && (state === "empty" || (state === "filled" && !entries.length)
+      {state === "empty" || !p.entries.length && state === "filled"
         ? <kit.KitEmpty part="notice" icon="message" decorativeIcon />
-        : threadOrder(entries).map((row) => <ThreadEntry key={row.id} {...{ row, detail, density, lang }} />))}
-      {(state === "filled" || state === "empty") && choices.length > 0 && <kit.KitContent inset="md" group="response" density={density}>
-        <kit.KitText part={null} role="label">{words.audience}</kit.KitText>
-        <kit.KitTrack part="audience" look="segments" role="radiogroup" label={words.audience}>
-          {choices.map((choice) => <kit.KitChip key={choice} item={null} look="segment" role="radio" value={choice} label={words.audiences[choice]} on={audience === choice} />)}
-        </kit.KitTrack>
-        <kit.KitTextArea part="field" label={words.field} hint={words.field} value={draft} lines={2} maxLength={draftLimit} />
-        <kit.KitAction part="send" full action="send" label={words.send} disabled={!sendable} />
+        : thread}
+      {state === "success" && <kit.KitContent inset="md" density={density}>
+        <kit.KitState retain part="notice" message={words.sent}>{sent &&
+          <kit.KitRow label={sent} tone="muted" density="compact">
+            <kit.KitMetaLine title={{ text: sent }} meta={{ text: words.audiences[p.audience], role: "caption" }} />
+          </kit.KitRow>}
+        </kit.KitState>
       </kit.KitContent>}
+      {state === "error" ? <FailedReply {...{ p, words, density }} />
+        : <ReplyComposer {...{ words, density }} p={state === "success"
+          ? { ...p, canBrowseReplies: false, ...(sent && { draft: undefined, sendable: false }) } : p} />}
     </>}
   </kit.KitCard>;
 }

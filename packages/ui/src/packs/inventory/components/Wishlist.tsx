@@ -117,33 +117,75 @@ type WishRowProps = Pick<WishlistProps, "detail"> & { surface: c.SurfaceFinish }
   density: c.ThemeDensity;
 };
 
-// prettier-ignore
+function WishAmount(
+  part: "price" | "target",
+  amount: ReturnType<typeof wishCopy>["price" | "target"],
+  density: c.ThemeDensity,
+) {
+  return (
+    amount && (
+      <kit.KitText part={part} role="label" tone="muted" density={density}>
+        {amount[0]}
+        <kit.KitText part={null} role="number" numberScale="compact" tabular density={density}>
+          {amount[1]}
+        </kit.KitText>
+      </kit.KitText>
+    )
+  );
+}
+
 function WishRow({ row, density, surface, detail }: WishRowProps) {
   const scope = kit.usePartContext();
-  const { lang, words: { wishlist: words } } = kit.useWords(inventoryWordsFor);
+  const {
+    lang,
+    words: { wishlist: words },
+  } = kit.useWords(inventoryWordsFor);
   const { price, target, priority } = wishCopy(row, detail, lang);
   return (
     <kit.PartScope {...scope} item={row.id}>
       <kit.KitCard part="frame" padded label={row.name} {...{ density, surface }}>
-        <kit.KitRow part="root" role="button" label={row.name} lineRole="heading" surface="plain" inline density={density}>
+        <kit.KitRow
+          part="root"
+          role="button"
+          label={row.name}
+          lineRole="heading"
+          surface="plain"
+          inline
+          density={density}
+        >
           <kit.KitGrid fitLast density={density}>
-            <kit.KitContent density={density} lead={<kit.KitIcon part="trail" name="chevron_right" scale="sm" />}>
-              <kit.KitText part="name" role="heading" density="comfortable">{row.name}</kit.KitText>
-              {row.where && <kit.KitText part="where" role="caption" tone="muted" density={density}>{row.where}</kit.KitText>}
-              {price && <kit.KitText part="price" role="label" tone="muted" density={density}>
-                {price[0]}<kit.KitText part={null} role="number" numberScale="compact" tabular density={density}>{price[1]}</kit.KitText>
-              </kit.KitText>}
-              {target && <kit.KitText part="target" role="label" tone="muted" density={density}>
-                {target[0]}<kit.KitText part={null} role="number" numberScale="compact" tabular density={density}>{target[1]}</kit.KitText>
-              </kit.KitText>}
+            <kit.KitContent
+              density={density}
+              lead={<kit.KitIcon part="trail" name="chevron_right" scale="sm" />}
+            >
+              <kit.KitText part="name" role="heading" density="comfortable">
+                {row.name}
+              </kit.KitText>
+              {row.where && (
+                <kit.KitText part="where" role="caption" tone="muted" density={density}>
+                  {row.where}
+                </kit.KitText>
+              )}
+              {WishAmount("price", price, density)}
+              {WishAmount("target", target, density)}
             </kit.KitContent>
             {row.photo && <kit.KitPhoto part="photo" photo={row.photo} label={row.name} />}
           </kit.KitGrid>
         </kit.KitRow>
-        <kit.KitRow part={null} inline surface="plain" label={row.name} lineRole="body" density={density}
-          leading={<kit.KitAction part="got" label={words.got} kind="secondary" />} leadingAlign="row">
+        <kit.KitRow
+          part={null}
+          inline
+          surface="plain"
+          label={row.name}
+          lineRole="body"
+          density={density}
+          leading={<kit.KitAction part="got" label={words.got} kind="secondary" />}
+          leadingAlign="row"
+        >
           <kit.KitRow part={null} inline surface="plain" label={priority} density={density}>
-            <kit.KitText part="priority" role="caption" tone="muted" density={density}>{priority}</kit.KitText>
+            <kit.KitText part="priority" role="caption" tone="muted" density={density}>
+              {priority}
+            </kit.KitText>
           </kit.KitRow>
         </kit.KitRow>
       </kit.KitCard>

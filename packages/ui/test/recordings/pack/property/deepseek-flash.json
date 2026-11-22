@@ -23913,6 +23913,876 @@
       "{\n  \"id\": \"portfolio_units_property_viewings\",\n  \"title\": \"Property Viewings\",\n  \"components\": [\n    {\n      \"id\": \"header_viewings\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Viewings\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"calendar_week\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"week\",\n      \"month\": \"November 2026\",\n      \"marked\": [\n        {\n          \"day\": 21\n       \n      ,\n      \"tone\": null\n        }\n      ],\n      \"selected\": 21,\n      \"start\": null,\n      \"days\": null,\n      \"range\": null,\n      \"yearMonth\": null,\n      \"checkIn\": null,\n      \"checkOut\": null,\n      \"unavailable\": null\n    },\n    {\n      \"id\": \"viewings_list\",\n      \"c\": \"Viewings\",\n      \"density\": null,\n      \"surface\": null,\n      \"detail\": null,\n      \"viewings\": [\n        {\n          \"viewingRef\": \"cedar_view\",\n          \"unitRef\": \"flat_b\",\n          \"unit\": \"Cedar Flat\",\n          \"prospect\": \"Noor\",\n          \"start\": \"2026-11-21T10:30:00+01:00\",\n          \"minutes\": 20,\n          \"status\": \"confirmed\",\n          \"note\": null,\n          \"goto\": \"edit_viewing\"\n        }\n      ]\n    },\n    {\n      \"id\": \"button_add_viewing\",\n      \"c\": \"Button\",\n      \"surface\": null,\n      \"media\": null,\n      \"label\": \"Add viewing\",\n      \"kind\": null,\n      \"icon\": \"plus\",\n      \"goto\": null,\n      \"confirm\": null\n    }\n  ]\n}"
     ]
   },
+  "compose%2Fportfolio_units%2Fproperty_viewings%2FShow%20a%20Viewings%20heading%2C%20one%20week%20of%20the%20November%202026%20calendar%20with%20day%2021%20marked%2C%20and%20the%20confirmed%20Cedar%20Flat%20(flat_b)%20viewing%20cedar_view%20for%20Noor%20starting%202026-11-21T10%3A30%3A00%2B01%3A00%20for%2020%20minutes%2C%20edit%20goto%20edit_viewing.%20Finish%20with%20an%20Add%20viewing%20button./bf8f3304bbddd90c/16e78ee4ac1c67a0": {
+    "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: portfolio_units/property_viewings. Job: Manage rental units and arranged viewings.\n\nBrief: Show a Viewings heading, one week of the November 2026 calendar with day 21 marked, and the confirmed Cedar Flat (flat_b) viewing cedar_view for Noor starting 2026-11-21T10:30:00+01:00 for 20 minutes, edit goto edit_viewing. Finish with an Add viewing button.\nReturn compact JSON. When a layout says to omit a field the schema requires, write null for it instead.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot_1\",\"allow\":[\"Calendar\"],\"min\":1,\"max\":1,\"variant\":\"week\"},{\"id\":\"slot_2\",\"allow\":[\"Viewings\"],\"min\":1,\"max\":1},{\"id\":\"slot_3\",\"allow\":[\"Button\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nLayout rule: Use Calendar with \"style\":\"week\" and mark the viewing day. This is a single week for browsing viewings, not a check-in/check-out picker: leave range, yearMonth, checkIn, checkOut and unavailable null.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: Use style \"back\" only when a back button is needed. To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nCalendar: See which dates have something planned and open a day.\nprops: { emphasis?: normal|quiet=\"normal\", style?: week|month=\"week\", month: text≤16, marked: [0..12 { day: int 1..31, tone?: neutral|good|warn|bad=\"neutral\" }], selected?: int 1..31, start?: int 1..7=1, days?: int 28..31=30, range?: boolean, yearMonth?: text≤7, checkIn?: date YYYY-MM-DD, checkOut?: date YYYY-MM-DD, unavailable?: [0..31 int 1..31] }\nRule: Write JSON null for an unrequested emphasis or day tone. Never write emphasis \"normal\" just to apply the default. Use \"quiet\" only for an explicitly subdued month heading. A dot without a requested status needs only the day.\nRule: For check-in and check-out use range: true, a display month, and yearMonth \"YYYY-MM\"; use checkIn and checkOut as full ISO dates in that month for a preselected span, not selected. Use unavailable for blocked day numbers.\nexample: {\"c\":\"Calendar\",\"style\":\"month\",\"month\":\"June 2026\",\"start\":1,\"days\":30,\"selected\":12,\"marked\":[{\"day\":5},{\"day\":12},{\"day\":19},{\"day\":26}]}\nweight: 3\n\nViewings: Arrange property viewings and track each prospect’s confirmation and attendance.\nprops: { detail?: brief|full=\"brief\", viewings: [1..6 { viewingRef: id snake_case, unitRef: id snake_case, unit: text≤32, prospect: text≤24, start: id snake_case, minutes: int 5..180, status: proposed|confirmed|attended|no_show|cancelled, note?: text≤36, goto: id snake_case }] }\nRule: Use snake_case viewing and unit refs, a start datetime carrying its timezone, duration in minutes and an edit screen goto. Future viewings cannot be attended or no_show; elapsed time alone is not attendance.\nRule: To show all details including a note, set detail to \"full\".\nexample: {\"c\":\"Viewings\",\"viewings\":[{\"viewingRef\":\"cedar_view\",\"unitRef\":\"flat_b\",\"unit\":\"Cedar Flat\",\"prospect\":\"Noor\",\"start\":\"2028-11-21T10:30:00+01:00\",\"minutes\":20,\"status\":\"confirmed\",\"note\":\"Meet at the courtyard gate.\",\"goto\":\"edit_viewing\"},{\"viewingRef\":\"willow_view\",\"unitRef\":\"flat_c\",\"unit\":\"Willow Loft\",\"prospect\":\"Tessa\",\"start\":\"2028-11-21T09:00:00+01:00\",\"minutes\":30,\"status\":\"proposed\",\"goto\":\"edit_viewing\"}]}\nweight: 2\n\nButton: One main thing the person does next.\nprops: { media?: icon|none=\"icon\", label: text≤24, kind?: text≤?, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, goto?: id snake_case, confirm?: text≤60 }\nRule: To hide an authored icon, keep its icon value and set media to \"none\". Use null for all unrequested axes.\nRule: For a destructive action, set kind to \"danger\" and supply confirm. Otherwise leave kind null.\nexample: {\"c\":\"Button\",\"label\":\"Log watering\",\"icon\":\"drop\"}\nweight: 1\n\nA valid default for this layout: {\"id\":\"portfolio_units_property_viewings\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Item one\"},{\"id\":\"c1\",\"c\":\"Calendar\",\"month\":\"This month\",\"marked\":[],\"style\":\"week\"},{\"id\":\"v1\",\"c\":\"Viewings\",\"viewings\":[{\"viewingRef\":\"item_1_view\",\"unitRef\":\"item_1\",\"unit\":\"Item one\",\"prospect\":\"Item one\",\"start\":\"2026-11-18T09:00:00Z\",\"minutes\":30,\"status\":\"proposed\",\"goto\":\"details\"}]},{\"id\":\"b1\",\"c\":\"Button\",\"label\":\"Continue\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing. Reply with JSON only.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_screen",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Header",
+                        "enum": [
+                          "Header"
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "back"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "action": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "icon": {
+                                "type": "string",
+                                "enum": [
+                                  "dot",
+                                  "leaf",
+                                  "drop",
+                                  "dog",
+                                  "cat",
+                                  "calendar",
+                                  "calendar_days",
+                                  "clock",
+                                  "check",
+                                  "chevron_right",
+                                  "plus",
+                                  "minus",
+                                  "close",
+                                  "search",
+                                  "settings",
+                                  "bell",
+                                  "bell_off",
+                                  "heart",
+                                  "star",
+                                  "bookmark",
+                                  "share",
+                                  "send",
+                                  "message",
+                                  "mail",
+                                  "phone",
+                                  "camera",
+                                  "image",
+                                  "video",
+                                  "mic",
+                                  "music",
+                                  "play",
+                                  "pause",
+                                  "square",
+                                  "undo",
+                                  "timer",
+                                  "alarm_clock",
+                                  "sun",
+                                  "moon",
+                                  "cloud",
+                                  "cloud_rain",
+                                  "thermometer",
+                                  "wind",
+                                  "flame",
+                                  "zap",
+                                  "battery",
+                                  "wifi",
+                                  "pin",
+                                  "map",
+                                  "navigation",
+                                  "compass",
+                                  "home",
+                                  "building",
+                                  "store",
+                                  "shopping_cart",
+                                  "shopping_bag",
+                                  "tag",
+                                  "gift",
+                                  "credit_card",
+                                  "wallet",
+                                  "banknote",
+                                  "piggy_bank",
+                                  "receipt",
+                                  "trending_up",
+                                  "trending_down",
+                                  "bar_chart",
+                                  "pie_chart",
+                                  "activity",
+                                  "target",
+                                  "trophy",
+                                  "medal",
+                                  "award",
+                                  "flag",
+                                  "user",
+                                  "users",
+                                  "user_plus",
+                                  "baby",
+                                  "smile",
+                                  "dumbbell",
+                                  "bike",
+                                  "footprints",
+                                  "heart_pulse",
+                                  "pill",
+                                  "stethoscope",
+                                  "apple",
+                                  "coffee",
+                                  "utensils",
+                                  "wine",
+                                  "pizza",
+                                  "carrot",
+                                  "sprout",
+                                  "flower",
+                                  "tree",
+                                  "mountain",
+                                  "waves",
+                                  "car",
+                                  "bus",
+                                  "plane",
+                                  "train",
+                                  "briefcase",
+                                  "graduation_cap",
+                                  "book_open",
+                                  "book",
+                                  "pencil",
+                                  "file_text",
+                                  "clipboard",
+                                  "clipboard_list",
+                                  "checklist",
+                                  "lock",
+                                  "unlock",
+                                  "key",
+                                  "shield",
+                                  "eye",
+                                  "link",
+                                  "paperclip",
+                                  "download",
+                                  "upload",
+                                  "trash",
+                                  "edit",
+                                  "filter",
+                                  "sliders",
+                                  "info",
+                                  "alert",
+                                  "help",
+                                  "sparkles",
+                                  "lightbulb",
+                                  "palette",
+                                  "scissors",
+                                  "wrench",
+                                  "hammer",
+                                  "package",
+                                  "truck",
+                                  "recycle",
+                                  "globe",
+                                  "languages",
+                                  "gamepad",
+                                  "ticket",
+                                  "paw",
+                                  "shirt",
+                                  "bed",
+                                  "bath",
+                                  "sofa",
+                                  "lamp",
+                                  "chevron_left",
+                                  "arrow_left",
+                                  "more",
+                                  "external_link",
+                                  "quote",
+                                  "circle_check"
+                                ]
+                              },
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "icon",
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "emphasis",
+                      "detail",
+                      "style",
+                      "title",
+                      "sub",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Calendar",
+                        "enum": [
+                          "Calendar"
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "week",
+                              "month"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "month": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 16
+                      },
+                      "marked": {
+                        "minItems": 0,
+                        "maxItems": 12,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "day": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 31
+                            },
+                            "tone": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "neutral",
+                                    "good",
+                                    "warn",
+                                    "bad"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "day",
+                            "tone"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "selected": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 31
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "start": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 7
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "days": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 28,
+                            "maximum": 31
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "range": {
+                        "anyOf": [
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "yearMonth": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 7
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "checkIn": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "checkOut": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "unavailable": {
+                        "anyOf": [
+                          {
+                            "minItems": 0,
+                            "maxItems": 31,
+                            "type": "array",
+                            "items": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 31
+                            }
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "emphasis",
+                      "style",
+                      "month",
+                      "marked",
+                      "selected",
+                      "start",
+                      "days",
+                      "range",
+                      "yearMonth",
+                      "checkIn",
+                      "checkOut",
+                      "unavailable"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Viewings",
+                        "enum": [
+                          "Viewings"
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "brief",
+                              "full"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "viewings": {
+                        "minItems": 1,
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "viewingRef": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                            },
+                            "unitRef": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                            },
+                            "unit": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 32
+                            },
+                            "prospect": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 24
+                            },
+                            "start": {
+                              "type": "string",
+                              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                            },
+                            "minutes": {
+                              "type": "integer",
+                              "minimum": 5,
+                              "maximum": 180
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "proposed",
+                                "confirmed",
+                                "attended",
+                                "no_show",
+                                "cancelled"
+                              ]
+                            },
+                            "note": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 36
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "goto": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_]*$"
+                            }
+                          },
+                          "required": [
+                            "viewingRef",
+                            "unitRef",
+                            "unit",
+                            "prospect",
+                            "start",
+                            "minutes",
+                            "status",
+                            "note",
+                            "goto"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "detail",
+                      "viewings"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Button",
+                        "enum": [
+                          "Button"
+                        ]
+                      },
+                      "media": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "icon",
+                              "none"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      "kind": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "danger"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "dot",
+                              "leaf",
+                              "drop",
+                              "dog",
+                              "cat",
+                              "calendar",
+                              "calendar_days",
+                              "clock",
+                              "check",
+                              "chevron_right",
+                              "plus",
+                              "minus",
+                              "close",
+                              "search",
+                              "settings",
+                              "bell",
+                              "bell_off",
+                              "heart",
+                              "star",
+                              "bookmark",
+                              "share",
+                              "send",
+                              "message",
+                              "mail",
+                              "phone",
+                              "camera",
+                              "image",
+                              "video",
+                              "mic",
+                              "music",
+                              "play",
+                              "pause",
+                              "square",
+                              "undo",
+                              "timer",
+                              "alarm_clock",
+                              "sun",
+                              "moon",
+                              "cloud",
+                              "cloud_rain",
+                              "thermometer",
+                              "wind",
+                              "flame",
+                              "zap",
+                              "battery",
+                              "wifi",
+                              "pin",
+                              "map",
+                              "navigation",
+                              "compass",
+                              "home",
+                              "building",
+                              "store",
+                              "shopping_cart",
+                              "shopping_bag",
+                              "tag",
+                              "gift",
+                              "credit_card",
+                              "wallet",
+                              "banknote",
+                              "piggy_bank",
+                              "receipt",
+                              "trending_up",
+                              "trending_down",
+                              "bar_chart",
+                              "pie_chart",
+                              "activity",
+                              "target",
+                              "trophy",
+                              "medal",
+                              "award",
+                              "flag",
+                              "user",
+                              "users",
+                              "user_plus",
+                              "baby",
+                              "smile",
+                              "dumbbell",
+                              "bike",
+                              "footprints",
+                              "heart_pulse",
+                              "pill",
+                              "stethoscope",
+                              "apple",
+                              "coffee",
+                              "utensils",
+                              "wine",
+                              "pizza",
+                              "carrot",
+                              "sprout",
+                              "flower",
+                              "tree",
+                              "mountain",
+                              "waves",
+                              "car",
+                              "bus",
+                              "plane",
+                              "train",
+                              "briefcase",
+                              "graduation_cap",
+                              "book_open",
+                              "book",
+                              "pencil",
+                              "file_text",
+                              "clipboard",
+                              "clipboard_list",
+                              "checklist",
+                              "lock",
+                              "unlock",
+                              "key",
+                              "shield",
+                              "eye",
+                              "link",
+                              "paperclip",
+                              "download",
+                              "upload",
+                              "trash",
+                              "edit",
+                              "filter",
+                              "sliders",
+                              "info",
+                              "alert",
+                              "help",
+                              "sparkles",
+                              "lightbulb",
+                              "palette",
+                              "scissors",
+                              "wrench",
+                              "hammer",
+                              "package",
+                              "truck",
+                              "recycle",
+                              "globe",
+                              "languages",
+                              "gamepad",
+                              "ticket",
+                              "paw",
+                              "shirt",
+                              "bed",
+                              "bath",
+                              "sofa",
+                              "lamp",
+                              "chevron_left",
+                              "arrow_left",
+                              "more",
+                              "external_link",
+                              "quote",
+                              "circle_check"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "goto": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9_]*$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "confirm": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 60
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "media",
+                      "label",
+                      "kind",
+                      "icon",
+                      "goto",
+                      "confirm"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "components"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"id\": \"portfolio_units_property_viewings\",\n  \"title\": \"Property Viewings\",\n  \"components\": [\n    {\n      \"id\": \"screen_header\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Viewings\",\n      \"sub\": \"Manage rental units and arranged viewins\",\n      \"action\": null\n    },\n    {\n      \"id\": \"nov_calendar\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"week\",\n      \"month\": \"November 2026\",\n      \"marked\": [\n        {\n          \"day\": 21,\n          \"tone\": null\n        }\n      ],\n      \"selected\": null,\n      \"start\": null,\n      \"days\": null,\n      \"range\": null,\n      \"yearMonth\": null,\n      \"checkIn\": null,\n      \"checkOut\": null,\n      \"unavailable\": null\n    },\n    {\n      \"id\": \"viewings_list\",\n      \"c\": \"Viewings\",\n      \"detail\": \"full\",\n      \"viewings\": [\n        {\n          \"viewingRef\": \"cedar_view\",\n          \"unitRef\": \"flat_b\",\n          \"unit\": \"Cedar Flat\",\n          \"prospect\": \"Noor\",\n          \"start\": \"2026-11-21T10:30:00+01:00\",\n          \"minutes\": 20,\n          \"status\": \"confirmed\",\n          \"note\": null,\n          \"goto\": \"edit_viewing\"\n        }\n      ]\n    },\n    {\n      \"id\": \"add_viewing_btn\",\n      \"c\": \"Button\",\n      \"media\": \"icon\",\n      \"label\": \"Add viewing\",\n      \"kind\": null,\n      \"icon\": \"plus\",\n      \"goto\": \"add_viewing\",\n      \"confirm\": null\n    }\n  ]\n}",
+    "replies": [
+      "{\n  \"id\": \"portfolio_units_property_viewings\",\n  \"title\": \"Property Viewings\",\n  \"components\": [\n    {\n      \"id\": \"screen_header\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Viewings\",\n      \"sub\": \"Manage rental units and arranged viewins\",\n      \"action\": null\n    },\n    {\n      \"id\": \"nov_calendar\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"week\",\n      \"month\": \"November 2026\",\n      \"marked\": [\n        {\n          \"day\": 21,\n          \"tone\": null\n        }\n      ],\n      \"selected\": null,\n      \"start\": null,\n      \"days\": null,\n      \"range\": null,\n      \"yearMonth\": null,\n      \"checkIn\": null,\n      \"checkOut\": null,\n      \"unavailable\": null\n    },\n    {\n      \"id\": \"viewings_list\",\n      \"c\": \"Viewings\",\n      \"detail\": \"full\",\n      \"viewings\": [\n        {\n          \"viewingRef\": \"cedar_view\",\n          \"unitRef\": \"flat_b\",\n          \"unit\": \"Cedar Flat\",\n          \"prospect\": \"Noor\",\n          \"start\": \"2026-11-21T10:30:00+01:00\",\n          \"minutes\": 20,\n          \"status\": \"confirmed\",\n          \"note\": null,\n          \"goto\": \"edit_viewing\"\n        }\n      ]\n    },\n    {\n      \"id\": \"add_viewing_btn\",\n      \"c\": \"Button\",\n      \"media\": \"icon\",\n      \"label\": \"Add viewing\",\n      \"kind\": null,\n      \"icon\": \"plus\",\n      \"goto\": \"add_viewing\",\n      \"confirm\": null\n    }\n  ]\n}",
+      "{\n  \"id\": \"portfolio_units_property_viewings\",\n  \"title\": \"Property Viewings\",\n  \"components\": [\n    {\n      \"id\": \"header_viewings\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": \"brief\",\n      \"style\": null,\n      \"title\": \"Viewings\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"calendar_week_nov2026\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"week\",\n      \"month\": \"November 2026\",\n      \"marked\": [\n        {\n          \"day\": 21,\n          \"tone\": null\n        }\n      ],\n      \"selected\": null,\n      \"start\": null,\n      \"days\": null,\n      \"range\": null,\n      \"yearMonth\": null,\n      \"checkIn\": null,\n      \"checkOut\": null,\n      \"unavailable\": null\n    },\n    {\n      \"id\": \"viewings_confirmed_cedar\",\n      \"c\": \"Viewings\",\n      \"detail\": \"full\",\n      \"viewings\": [\n        {\n          \"viewingRef\": \"cedar_view\",\n          \"unitRef\": \"flat_b\",\n          \"unit\": \"Cedar Flat\",\n          \"prospect\": \"Noor\",\n          \"start\": \"2026-11-21T10:30:00+01:00\",\n          \"minutes\": 20,\n          \"status\": \"confirmed\",\n          \"note\": null,\n          \"goto\": \"edit_viewing\"\n        }\n      ]\n    },\n    {\n      \"id\": \"button_add_viewing\",\n      \"c\": \"Button\",\n      \"media\": \"icon\",\n      \"label\": \"Add viewing\",\n      \"kind\": null,\n      \"icon\": \"plus\",\n      \"goto\": null,\n      \"confirm\": null\n    }\n  ]\n}",
+      "{\"id\":\"portfolio_units_property_viewings\",\"title\":\"Viewings\",\"components\":[{\"id\":\"header_viewings\",\"c\":\"Header\",\"emphasis\":null,\"detail\":null,\"style\":null,\"title\":\"Viewings\",\"sub\":null,\"action\":null},{\"id\":\"calendar_week_nov2026\",\"c\":\"Calendar\",\"emphasis\":null,\"style\":\"week\",\"month\":\"November 2026\",\"marked\":[{\"day\":21,\"tone\":\"good\"}],\"selected\":null,\"start\":null,\"days\":null,\"range\":null,\"yearMonth\":null,\"checkIn\":null,\"checkOut\":null,\"unavailable\":null},{\"id\":\"viewings_confirmed\",\"c\":\"Viewings\",\"detail\":null,\"viewings\":[{\"viewingRef\":\"cedar_view\",\"unitRef\":\"flat_b\",\"unit\":\"Cedar Flat\",\"prospect\":\"Noor\",\"start\":\"2026-11-21T10:30:00+01:00\",\"minutes\":20,\"status\":\"confirmed\",\"note\":null,\"goto\":\"edit_viewing\"}]},{\"id\":\"button_add_viewing\",\"c\":\"Button\",\"media\":null,\"label\":\"Add viewing\",\"kind\":null,\"icon\":null,\"goto\":null,\"confirm\":null}]}"
+    ]
+  },
   "compose%2Frent_month%2Fproperty_rent_ledger%2FBuild%20a%20November%20rent%20heading%2C%20a%20ledger%20for%202026-11%20with%20charge%20nov_willow%20of%20900%20due%202026-11-01%20for%20Asha%20(asha_let)%20in%20Willow%20Flat%20(flat_a)%20and%20a%20600%20transfer%20receipt%20willow_part%20dated%202026-11-05%20allocated%20to%20it%2C%20and%20a%20note%20that%20recording%20a%20receipt%20does%20not%20move%20money./0a6c8ffff6a12637/c0c288b22cdce505": {
     "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: rent_month/property_rent_ledger. Job: Reconcile monthly rent and record a receipt.\n\nBrief: Build a November rent heading, a ledger for 2026-11 with charge nov_willow of 900 due 2026-11-01 for Asha (asha_let) in Willow Flat (flat_a) and a 600 transfer receipt willow_part dated 2026-11-05 allocated to it, and a note that recording a receipt does not move money.\nReturn compact JSON. When a layout says to omit a field the schema requires, write null for it instead.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot_1\",\"allow\":[\"RentRoll\"],\"min\":1,\"max\":1},{\"id\":\"slot_2\",\"allow\":[\"Note\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: Use style \"back\" only when a back button is needed. To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nRentRoll: Reconcile monthly rent charges and receipts across units, including part payments and arrears.\nprops: { figures?: exact|short=\"exact\", month: id snake_case, charges: [1..24 { chargeRef: id snake_case, letRef: id snake_case, unitRef: id snake_case, unit: text≤32, occupant: text≤24, due: date YYYY-MM-DD, amount: number }], receipts: [0..48 { receiptRef: id snake_case, chargeRef: id snake_case, date: date YYYY-MM-DD, amount: number, method: cash|transfer|card, voided?: boolean=false }], style?: ledger|outstanding|tenant=\"ledger\", tenantLetRef?: id snake_case, autopay?: boolean }\nRule: Every receipt references a charge in this line; keep older charges when needed for arrears. Seed obligations and allocations only, not computed receipt totals, outstanding, arrears, credit or statuses.\nRule: Give each charge and each receipt its own snake_case reference. Charges and receipts use positive numbers, not currency text. Use style \"outstanding\" only to filter unpaid units.\nRule: If asked to shorten numbers, set figures to \"short\".\nRule: Use style \"tenant\" only for a resident’s own rent ledger. Supply their tenantLetRef and only charges from that let and receipts allocated to them. Write autopay only when its on/off status is supplied.\nexample: {\"c\":\"RentRoll\",\"month\":\"2026-11\",\"charges\":[{\"chargeRef\":\"nov_willow\",\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"unit\":\"Willow Flat\",\"occupant\":\"Asha\",\"due\":\"2026-11-01\",\"amount\":900}],\"receipts\":[{\"receiptRef\":\"nov_willow_one\",\"chargeRef\":\"nov_willow\",\"date\":\"2026-11-05\",\"amount\":600,\"method\":\"transfer\"}]}\nweight: 3\n\nNote: One short sentence of supporting information.\nprops: { emphasis?: normal|quiet|hero=\"normal\", media?: icon|none=\"icon\", tone?: neutral|good|warn|bad=\"neutral\", text: text≤120, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check }\nRule: An ordinary icon uses the icon field alone. To hide a supplied icon, keep the icon field and use media \"none\"; emphasis and tone remain null unless specifically requested.\nRule: A supporting line is a normal Note, not a request for quiet emphasis. Use \"quiet\" only for a smaller, muted treatment, or \"hero\" for an explicitly prominent quotation with the quote icon.\nexample: {\"c\":\"Note\",\"text\":\"Keep your fern in indirect light.\",\"icon\":\"sun\"}\nweight: 1\n\nA valid default for this layout: {\"id\":\"rent_month_property_rent_ledger\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Item one\"},{\"id\":\"r1\",\"c\":\"RentRoll\",\"month\":\"2026-11\",\"charges\":[{\"chargeRef\":\"item_1_charge\",\"letRef\":\"item_1_let\",\"unitRef\":\"item_1\",\"unit\":\"Item one\",\"occupant\":\"Item one\",\"due\":\"2026-11-18\",\"amount\":1}],\"receipts\":[]},{\"id\":\"n1\",\"c\":\"Note\",\"text\":\"Details\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing. Reply with JSON only.",
     "format": {
@@ -45190,6 +46060,24 @@
       "Timeline"
     ]
   },
+  "Viewings%2Fchoose%2FShow%20today's%20timed%20agenda%20along%20an%20hour%20rail%2C%20sized%20by%20start%20and%20end%20times%20so%20I%20can%20spot%20free%20gaps/81f94f82f887a5ea/3578ba2084053b0d": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Inspections: Record and sign off dated room conditions and evidence for a unit. Pick: Dated room-by-room condition report with feature notes, photos, prior-report comparison and sign-off. Not jobs to tick (Checklist), photos alone (Gallery), or a repair to request (RequestQueue).\n- LeaseRenewal: Compare rent and term choices for an occupied unit and respond to the renewal offer. Pick: An occupied unit’s lease renewal proposal: compare current and offered rent, choose a renewal term and accept, counter or decline by a deadline. Not a standalone choice (Choice), a policy expiry reminder (Renewals), a monthly rent ledger (RentRoll), or existing lease terms (Lease).\n- Meters: Record cumulative utility readings and compare usage between readings for each meter. Pick: Cumulative utility meter readings and computed consumption between dated readings by meter. Not entering one number (Field), a short trend (Sparkline), body measurements (Measurements), or smart device controls (Devices).\n- RentRoll: Reconcile monthly rent charges and receipts across units, including part payments and arrears. Pick: Reconcile rent charges and allocated or voided receipts by unit and period, or show a resident their own rent ledger. Not one sum (Amount), one client's payment (PaymentStatus), an invoice (Invoice), or personal bills (Bills).\n- RentalApplication: Review prospective tenants, compare stated income to rent, and record a screening decision. Pick: Screening prospective tenants for a specific rental unit with move-in, household income against rent, verification checks and a waitlist, approval or decline. Not a static facts card (KeyValue), job recruiting (Candidate), viewing appointments (Viewings), or active tenancies (Units).\n- Units: See who occupies each rental unit and the agreed rent on a chosen date. Pick: A tenant directory of names and profile links is List, not Units. Choose Units only to calculate rental-unit occupancy or agreed rent on a date from tenancy or stay records. Not owned stock (Things), an advertised place (Listing), or one agreement (Lease).\n- Viewings: Arrange property viewings and track each prospect’s confirmation and attendance. Pick: Property viewing appointments with a unit, prospect, confirmation, invitation or attendance outcome. Not a day's timed agenda (Timeline), free slots (Slots), or a booked service (Appointment).\n\nNeed, in the person's words: \"Show today's timed agenda along an hour rail, sized by start and end times so I can spot free gaps\"\nReply with only the component id, nothing else.",
+    "reply": "Timeline",
+    "replies": [
+      "Timeline",
+      "Timeline",
+      "Timeline"
+    ]
+  },
+  "Viewings%2Fchoose%2FTrack%20property%20showings%20with%20which%20rental%20unit%20and%20prospect%2C%20then%20log%20whether%20they%20attended%20or%20didn't%20show%20up/39acd11a8e689650/5980cca813ebdd9c": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Inspections: Record and sign off dated room conditions and evidence for a unit. Pick: Dated room-by-room condition report with feature notes, photos, prior-report comparison and sign-off. Not jobs to tick (Checklist), photos alone (Gallery), or a repair to request (RequestQueue).\n- LeaseRenewal: Compare rent and term choices for an occupied unit and respond to the renewal offer. Pick: An occupied unit’s lease renewal proposal: compare current and offered rent, choose a renewal term and accept, counter or decline by a deadline. Not a standalone choice (Choice), a policy expiry reminder (Renewals), a monthly rent ledger (RentRoll), or existing lease terms (Lease).\n- Meters: Record cumulative utility readings and compare usage between readings for each meter. Pick: Cumulative utility meter readings and computed consumption between dated readings by meter. Not entering one number (Field), a short trend (Sparkline), body measurements (Measurements), or smart device controls (Devices).\n- RentRoll: Reconcile monthly rent charges and receipts across units, including part payments and arrears. Pick: Reconcile rent charges and allocated or voided receipts by unit and period, or show a resident their own rent ledger. Not one sum (Amount), one client's payment (PaymentStatus), an invoice (Invoice), or personal bills (Bills).\n- RentalApplication: Review prospective tenants, compare stated income to rent, and record a screening decision. Pick: Screening prospective tenants for a specific rental unit with move-in, household income against rent, verification checks and a waitlist, approval or decline. Not a static facts card (KeyValue), job recruiting (Candidate), viewing appointments (Viewings), or active tenancies (Units).\n- Units: See who occupies each rental unit and the agreed rent on a chosen date. Pick: A tenant directory of names and profile links is List, not Units. Choose Units only to calculate rental-unit occupancy or agreed rent on a date from tenancy or stay records. Not owned stock (Things), an advertised place (Listing), or one agreement (Lease).\n- Viewings: Arrange property viewings and track each prospect’s confirmation and attendance. Pick: Property viewing appointments with a unit, prospect, confirmation, invitation or attendance outcome. Not a day's timed agenda (Timeline), free slots (Slots), or a booked service (Appointment).\n\nNeed, in the person's words: \"Track property showings with which rental unit and prospect, then log whether they attended or didn't show up\"\nReply with only the component id, nothing else.",
+    "reply": "Viewings",
+    "replies": [
+      "Viewings",
+      "Viewings",
+      "Viewings"
+    ]
+  },
   "Viewings%2Fchoose%2FTrack%20property%20showings%20with%20which%20rental%20unit%20and%20prospect%2C%20then%20log%20whether%20they%20attended%20or%20didn't%20show%20up/9103328d42aaa641/5980cca813ebdd9c": {
     "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Inspections: Record and sign off dated room conditions and evidence for a unit. Pick: Dated room-by-room condition report with feature notes, photos, prior-report comparison and sign-off. Not jobs to tick (Checklist), photos alone (Gallery), or a repair to request (RequestQueue).\n- LeaseRenewal: Compare rent and term choices for an occupied unit and respond to the renewal offer. Pick: An occupied unit’s lease renewal proposal: compare current and offered rent, choose a renewal term and accept, counter or decline by a deadline. Not a standalone choice (Choice), a policy expiry reminder (Renewals), a monthly rent ledger (RentRoll), or existing lease terms (Lease).\n- Meters: Record cumulative utility readings and compare usage between readings for each meter. Pick: Cumulative utility meter readings and computed consumption between dated readings by meter. Not entering one number (Field), a short trend (Sparkline), body measurements (Measurements), or smart device controls (Devices).\n- RentRoll: Reconcile monthly rent charges and receipts across units, including part payments and arrears. Pick: Reconcile rent charges and allocated or voided receipts by unit and period, or show a resident their own rent ledger. Not one sum (Amount), one client's payment (PaymentStatus), an invoice (Invoice), or personal bills (Bills).\n- RentalApplication: Review prospective tenants, compare stated income to rent, and record a screening decision. Pick: Screening prospective tenants for a specific rental unit with move-in, household income against rent, verification checks and a waitlist, approval or decline. Not a static facts card (KeyValue), job recruiting (Candidate), viewing appointments (Viewings), or active tenancies (Units).\n- Units: See who occupies each rental unit and the agreed rent on a chosen date. Pick: A tenant directory of names and profile links is List, not Units. Choose Units only to calculate rental-unit occupancy or agreed rent on a date from tenancy or stay records. Not owned stock (Things), an advertised place (Listing), or one agreement (Lease).\n- Viewings: Arrange property viewings and track each prospect’s confirmation and attendance. Pick: Property viewing appointments with a unit, prospect, confirmation, invitation or attendance outcome. Not a day's timed agenda (Timeline), free slots (Slots), or a booked service (Appointment).\n\nNeed, in the person's words: \"Track property showings with which rental unit and prospect, then log whether they attended or didn't show up\"\nReply with only the component id, nothing else.",
     "reply": "Viewings",
@@ -45233,6 +46121,138 @@
       "{\"address\": \"v1/r1/outcome\", \"action\": \"select\"}",
       "{\"address\": \"v1/r1/outcome\", \"action\": \"select\"}",
       "{\"address\": \"v1/r1/outcome\", \"action\": \"select\"}"
+    ]
+  },
+  "Viewings%2Fread%2FRecord%20the%20attendance%20outcome%20of%20Lee%E2%80%99s%20past%20viewing/d8ebf363456676e8/d8bb282622c83f6b": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nv1 Viewings r1 · North Cabin · Lee · 2026-10-17T14:00:00+01:00 · 2026-10-17T13:30:00.000Z · 17 Oct 2026 · 14:00 · Ends 14:30 · 30 min · No-show · Record attendance · Attended · No-show\n  r1 \"North Cabin\" · \"Lee\" [v1/r1/outcome select]\n\nTask: Record the attendance outcome of Lee’s past viewing\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"v1/r1/outcome\", \"action\": \"select\"}",
+    "replies": [
+      "{\"address\": \"v1/r1/outcome\", \"action\": \"select\"}",
+      "{\"address\": \"v1/r1/outcome\", \"action\": \"select\"}",
+      "{\"address\": \"v1/r1/outcome\", \"action\": \"select\"}"
+    ]
+  },
+  "Viewings%2Fwrite%2FAdd%20proposed%20showing%20cedar_view%2C%20Cedar%20Flat%20(flat_b)%20for%20Noor%2C%20on%202026-11-21%20at%2010%3A30%2B01%3A00%20for%2020%20minutes.%20Edit%20at%20edit_viewing./108fd5c2903a9e20/ad704cafc9a16d52": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nViewings: Arrange property viewings and track each prospect’s confirmation and attendance.\nprops: { detail?: brief|full=\"brief\", viewings: [1..6 { viewingRef: id snake_case, unitRef: id snake_case, unit: text≤32, prospect: text≤24, start: id snake_case, minutes: int 5..180, status: proposed|confirmed|attended|no_show|cancelled, note?: text≤36, goto: id snake_case }] }\nRule: Use snake_case viewing and unit refs, a start datetime carrying its timezone, duration in minutes and an edit screen goto. Future viewings cannot be attended or no_show; elapsed time alone is not attendance.\nRule: To show all details including a note, set detail to \"full\".\nexample: {\"c\":\"Viewings\",\"viewings\":[{\"viewingRef\":\"cedar_view\",\"unitRef\":\"flat_b\",\"unit\":\"Cedar Flat\",\"prospect\":\"Noor\",\"start\":\"2028-11-21T10:30:00+01:00\",\"minutes\":20,\"status\":\"confirmed\",\"note\":\"Meet at the courtyard gate.\",\"goto\":\"edit_viewing\"},{\"viewingRef\":\"willow_view\",\"unitRef\":\"flat_c\",\"unit\":\"Willow Loft\",\"prospect\":\"Tessa\",\"start\":\"2028-11-21T09:00:00+01:00\",\"minutes\":30,\"status\":\"proposed\",\"goto\":\"edit_viewing\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Add proposed showing cedar_view, Cedar Flat (flat_b) for Noor, on 2026-11-21 at 10:30+01:00 for 20 minutes. Edit at edit_viewing.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Viewings",
+              "enum": [
+                "Viewings"
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "brief",
+                    "full"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "viewings": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "viewingRef": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                  },
+                  "unitRef": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                  },
+                  "unit": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "prospect": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "start": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                  },
+                  "minutes": {
+                    "type": "integer",
+                    "minimum": 5,
+                    "maximum": 180
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "proposed",
+                      "confirmed",
+                      "attended",
+                      "no_show",
+                      "cancelled"
+                    ]
+                  },
+                  "note": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 36
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "viewingRef",
+                  "unitRef",
+                  "unit",
+                  "prospect",
+                  "start",
+                  "minutes",
+                  "status",
+                  "note",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "detail",
+            "viewings"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Viewings\",\"detail\":null,\"viewings\":[{\"viewingRef\":\"cedar_view\",\"unitRef\":\"flat_b\",\"unit\":\"Cedar Flat\",\"prospect\":\"Noor\",\"start\":\"2026-11-21T10:30:00+01:00\",\"minutes\":20,\"status\":\"proposed\",\"note\":null,\"goto\":\"edit_viewing\"}]}",
+    "replies": [
+      "{\"c\":\"Viewings\",\"detail\":null,\"viewings\":[{\"viewingRef\":\"cedar_view\",\"unitRef\":\"flat_b\",\"unit\":\"Cedar Flat\",\"prospect\":\"Noor\",\"start\":\"2026-11-21T10:30:00+01:00\",\"minutes\":20,\"status\":\"proposed\",\"note\":null,\"goto\":\"edit_viewing\"}]}",
+      "{\"c\":\"Viewings\",\"detail\":null,\"viewings\":[{\"viewingRef\":\"cedar_view\",\"unitRef\":\"flat_b\",\"unit\":\"Cedar Flat\",\"prospect\":\"Noor\",\"start\":\"2026-11-21T10:30:00+01:00\",\"minutes\":20,\"status\":\"proposed\",\"note\":null,\"goto\":\"edit_viewing\"}]}",
+      "{\"c\":\"Viewings\",\"detail\":null,\"viewings\":[{\"viewingRef\":\"cedar_view\",\"unitRef\":\"flat_b\",\"unit\":\"Cedar Flat\",\"prospect\":\"Noor\",\"start\":\"2026-11-21T10:30:00+01:00\",\"minutes\":20,\"status\":\"proposed\",\"note\":null,\"goto\":\"edit_viewing\"}]}"
     ]
   },
   "Viewings%2Fwrite%2FAdd%20proposed%20showing%20cedar_view%2C%20Cedar%20Flat%20(flat_b)%20for%20Noor%2C%20on%202026-11-21%20at%2010%3A30%2B01%3A00%20for%2020%20minutes.%20Edit%20at%20edit_viewing./8d033ba07e87456a/ad704cafc9a16d52": {
@@ -45512,6 +46532,129 @@
     ]
   },
   "Viewings%2Fwrite%2FShow%20attended%20cabin_view%20for%20Lee%20at%20North%20Cabin%20(north_cabin)%2C%202026-10-17%20at%2014%3A00%2B01%3A00%2C%2030%20minutes%2C%20edit%20at%20edit_viewing.%20Show%20all%20details%20including%20the%20note%20'Met%20at%20the%20east%20gate.'/2a19cc4d24269ce2/c3968fc93c361a84": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nViewings: Arrange property viewings and track each prospect’s confirmation and attendance.\nprops: { detail?: brief|full=\"brief\", viewings: [1..6 { viewingRef: id snake_case, unitRef: id snake_case, unit: text≤32, prospect: text≤24, start: id snake_case, minutes: int 5..180, status: proposed|confirmed|attended|no_show|cancelled, note?: text≤36, goto: id snake_case }] }\nRule: Use snake_case viewing and unit refs, a start datetime carrying its timezone, duration in minutes and an edit screen goto. Future viewings cannot be attended or no_show; elapsed time alone is not attendance.\nRule: To show all details including a note, set detail to \"full\".\nexample: {\"c\":\"Viewings\",\"viewings\":[{\"viewingRef\":\"cedar_view\",\"unitRef\":\"flat_b\",\"unit\":\"Cedar Flat\",\"prospect\":\"Noor\",\"start\":\"2028-11-21T10:30:00+01:00\",\"minutes\":20,\"status\":\"confirmed\",\"note\":\"Meet at the courtyard gate.\",\"goto\":\"edit_viewing\"},{\"viewingRef\":\"willow_view\",\"unitRef\":\"flat_c\",\"unit\":\"Willow Loft\",\"prospect\":\"Tessa\",\"start\":\"2028-11-21T09:00:00+01:00\",\"minutes\":30,\"status\":\"proposed\",\"goto\":\"edit_viewing\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show attended cabin_view for Lee at North Cabin (north_cabin), 2026-10-17 at 14:00+01:00, 30 minutes, edit at edit_viewing. Show all details including the note 'Met at the east gate.'",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Viewings",
+              "enum": [
+                "Viewings"
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "brief",
+                    "full"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "viewings": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "viewingRef": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                  },
+                  "unitRef": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                  },
+                  "unit": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "prospect": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "start": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                  },
+                  "minutes": {
+                    "type": "integer",
+                    "minimum": 5,
+                    "maximum": 180
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "proposed",
+                      "confirmed",
+                      "attended",
+                      "no_show",
+                      "cancelled"
+                    ]
+                  },
+                  "note": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 36
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "viewingRef",
+                  "unitRef",
+                  "unit",
+                  "prospect",
+                  "start",
+                  "minutes",
+                  "status",
+                  "note",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "detail",
+            "viewings"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Viewings\",\"detail\":\"full\",\"viewings\":[{\"viewingRef\":\"cabin_view\",\"unitRef\":\"north_cabin\",\"unit\":\"North Cabin\",\"prospect\":\"Lee\",\"start\":\"2026-10-17T14:00:00+01:00\",\"minutes\":30,\"status\":\"attended\",\"note\":\"Met at the east gate.\",\"goto\":\"edit_viewing\"}]}",
+    "replies": [
+      "{\"c\":\"Viewings\",\"detail\":\"full\",\"viewings\":[{\"viewingRef\":\"cabin_view\",\"unitRef\":\"north_cabin\",\"unit\":\"North Cabin\",\"prospect\":\"Lee\",\"start\":\"2026-10-17T14:00:00+01:00\",\"minutes\":30,\"status\":\"attended\",\"note\":\"Met at the east gate.\",\"goto\":\"edit_viewing\"}]}",
+      "{\"c\":\"Viewings\",\"detail\":\"full\",\"viewings\":[{\"viewingRef\":\"cabin_view\",\"unitRef\":\"north_cabin\",\"unit\":\"North Cabin\",\"prospect\":\"Lee\",\"start\":\"2026-10-17T14:00:00+01:00\",\"minutes\":30,\"status\":\"attended\",\"note\":\"Met at the east gate.\",\"goto\":\"edit_viewing\"}]}",
+      "{\"c\":\"Viewings\",\"detail\":\"full\",\"viewings\":[{\"viewingRef\":\"cabin_view\",\"unitRef\":\"north_cabin\",\"unit\":\"North Cabin\",\"prospect\":\"Lee\",\"start\":\"2026-10-17T14:00:00+01:00\",\"minutes\":30,\"status\":\"attended\",\"note\":\"Met at the east gate.\",\"goto\":\"edit_viewing\"}]}"
+    ]
+  },
+  "Viewings%2Fwrite%2FShow%20attended%20cabin_view%20for%20Lee%20at%20North%20Cabin%20(north_cabin)%2C%202026-10-17%20at%2014%3A00%2B01%3A00%2C%2030%20minutes%2C%20edit%20at%20edit_viewing.%20Show%20all%20details%20including%20the%20note%20'Met%20at%20the%20east%20gate.'/e0cb8be25ef2f7dd/c3968fc93c361a84": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nViewings: Arrange property viewings and track each prospect’s confirmation and attendance.\nprops: { detail?: brief|full=\"brief\", viewings: [1..6 { viewingRef: id snake_case, unitRef: id snake_case, unit: text≤32, prospect: text≤24, start: id snake_case, minutes: int 5..180, status: proposed|confirmed|attended|no_show|cancelled, note?: text≤36, goto: id snake_case }] }\nRule: Use snake_case viewing and unit refs, a start datetime carrying its timezone, duration in minutes and an edit screen goto. Future viewings cannot be attended or no_show; elapsed time alone is not attendance.\nRule: To show all details including a note, set detail to \"full\".\nexample: {\"c\":\"Viewings\",\"viewings\":[{\"viewingRef\":\"cedar_view\",\"unitRef\":\"flat_b\",\"unit\":\"Cedar Flat\",\"prospect\":\"Noor\",\"start\":\"2028-11-21T10:30:00+01:00\",\"minutes\":20,\"status\":\"confirmed\",\"note\":\"Meet at the courtyard gate.\",\"goto\":\"edit_viewing\"},{\"viewingRef\":\"willow_view\",\"unitRef\":\"flat_c\",\"unit\":\"Willow Loft\",\"prospect\":\"Tessa\",\"start\":\"2028-11-21T09:00:00+01:00\",\"minutes\":30,\"status\":\"proposed\",\"goto\":\"edit_viewing\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show attended cabin_view for Lee at North Cabin (north_cabin), 2026-10-17 at 14:00+01:00, 30 minutes, edit at edit_viewing. Show all details including the note 'Met at the east gate.'",
     "format": {
       "type": "json_schema",

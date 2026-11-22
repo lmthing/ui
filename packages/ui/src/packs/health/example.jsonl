@@ -12,3 +12,9 @@
 {"id":"v1","c":"Vitals","readings":[{"label":"Resting pulse","value":68,"unit":"bpm","low":60,"high":100,"at":"08:12"}],"goto":"add_reading"}
 {"id":"s2","c":"SymptomLog","groups":[{"label":"Head","symptoms":[{"label":"Headache","severity":2},{"label":"Dizziness","severity":0}]}]}
 {"id":"c1","c":"Cycle","start":"2026-11-01","length":28,"period":5}
+{"id":"h5","c":"Header","title":"Rep · riverside run"}
+{"id":"cardio1","c":"CardioSession","activity":"run","startedAt":"2026-11-19T07:00:00-05:00","elapsedSeconds":947,"distance":3,"unit":"km","elevation":42,"hrAvg":151,"hrZone":3,"splits":[{"label":"Km 1","seconds":326,"elevationDelta":21},{"label":"Km 2","seconds":312,"elevationDelta":14},{"label":"Km 3","seconds":309,"elevationDelta":7}]}
+{"id":"n1","c":"Note","text":"The riverside stretch is the fastest split."}
+{"id":"h6","c":"Header","title":"Rep · training plan"}
+{"id":"p1","c":"TrainingPlan","title":"Trail build-up","weeks":2,"currentWeek":1,"days":[{"week":1,"day":1,"label":"Riverside run","minutes":25,"rest":false,"done":true,"goto":"cardio"},{"week":1,"day":2,"label":"Recovery","minutes":0,"rest":true,"done":false},{"week":1,"day":4,"label":"Push day","minutes":40,"rest":false,"done":false,"goto":"workout"},{"week":2,"day":1,"label":"Long trail run","minutes":35,"rest":false,"done":false,"goto":"cardio"}]}
+{"id":"n2","c":"Note","text":"Keep the first run of each week easy."}
