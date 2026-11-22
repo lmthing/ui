@@ -46,18 +46,8 @@ type KeyButtonProps = {
 };
 
 export function KeyButton(props: KeyButtonProps) {
-  const {
-    label,
-    glyph = label,
-    sublabel,
-    loading,
-    disabled,
-    press,
-    finish = "plain",
-    round,
-    address,
-    decimal,
-  } = props;
+  const { label, glyph = label, sublabel, loading, disabled, press } = props;
+  const { finish = "plain", round, address, decimal } = props;
   const ks = useKitStyle();
   const { fill, tone, line } = finishes[disabled ? "absent" : finish];
   return (
