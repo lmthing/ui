@@ -156,7 +156,7 @@ function SignatureWorkflow({ copy, density, options }: { copy: Display; density:
     <kit.KitGrid fitLast density={density}>
       <kit.KitAction part="save" label={copy.save} full disabled={!copy.canSave}
         kind={copy.loading || copy.canSave ? "primary" : "quiet"} />
-      <kit.KitAction part="clear" label={copy.clear} kind={options ? "danger" : "quiet"} disabled={!copy.canClear} />
+      <kit.KitAction part="clear" label={copy.clear} kind="danger" disabled={!copy.canClear} />
     </kit.KitGrid>
   </>;
 }
