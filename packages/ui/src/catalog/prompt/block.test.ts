@@ -93,8 +93,8 @@ it.each(packs)("keeps core plus every triple excluding %s under 7,000 tokens", (
 });
 
 it("scopes blocks and sorts by group then id without mutating definitions", () => {
-  const base = core.defs[0]!;
-  const make = (id: string, group: Definition["meta"]["group"], codeOwned = false) => ({
+  const base = coreDefs[0]!;
+  const make = (id: string, group: Definition["meta"]["group"], codeOwned = false): Definition => ({
     ...base,
     meta: { ...base.meta, id, group, codeOwned },
   });
