@@ -22,16 +22,11 @@ export function cellsOf(id: ComponentName): Cell[] {
   const { meta, examples }: { meta: Meta; examples: readonly unknown[] } = components[id];
   const states = meta.states ?? ["filled"];
   const filled = examples.map((example, index) => ({ id, example, index, state: "filled" as const }));
-  const folders =
-    id === "Documents"
-      ? filled.find(({ example }) => (example as { style?: string }).style === "folders")
-      : undefined;
   return [
     ...filled,
     ...states
       .filter((state) => state !== "filled")
       .map((state) => ({ id, example: examples[0], index: 0, state })),
-    ...(folders ? [{ ...folders, state: "loading" as const }] : []),
     ...(meta.draw && meta.status !== "draft"
       ? filled.map((cell) => ({ ...cell, drawn: true as const }))
       : []),

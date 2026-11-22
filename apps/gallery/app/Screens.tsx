@@ -17,6 +17,14 @@ import { galleryParts } from "./parts";
 import { resolvePhoto } from "./photos";
 import { cellKey, cellLabel, cellsOf, DraftPreview, screenPresets, type Cell } from "./overview";
 
+function screenCells(id: ComponentName): Cell[] {
+  const cells = cellsOf(id);
+  if (id !== "Documents") return cells;
+  // Keep the folder skeleton beside its filled example for visual review only.
+  const folders = cells[components.Documents.examples.findIndex(({ style }) => style === "folders")];
+  return folders ? [...cells, { ...folders, state: "loading" }] : cells;
+}
+
 function Screen({
   id,
   cell,
@@ -79,6 +87,7 @@ export function Screens({
   mode: "light" | "dark";
   presetIds: readonly string[];
 }) {
+  const cells = screenCells(id);
   return (
     <TamaguiProvider config={config} defaultTheme={`kit_calm_${mode}_moss`}>
       <XStack
@@ -90,7 +99,7 @@ export function Screens({
       >
         {screenPresets(presetIds).map((preset) => (
           <YStack key={preset.id} gap={space.lg}>
-            {cellsOf(id).map((cell) => (
+            {cells.map((cell) => (
               <Screen key={cellKey(cell)} id={id} cell={cell} preset={preset.id} mode={mode} width={width} />
             ))}
           </YStack>
