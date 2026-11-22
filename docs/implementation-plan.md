@@ -270,9 +270,6 @@ Gallery `carousel`, Scale `stars`).
 | Kind       | Axis       | Values                                          | Meaning                                         |
 | ---------- | ---------- | ----------------------------------------------- | ----------------------------------------------- |
 | Finish     | `emphasis` | `quiet`, `normal`, `hero`                       | Prominence on the screen                        |
-| Finish     | `surface`  | `plain`, `card`, `tinted`, `outlined`           | Container treatment                             |
-| Finish     | `align`    | `start`, `center`                               | Alignment of the component's own content        |
-| Finish     | `bleed`    | `inset`, `edge`                                 | Inside the gutter or edge to edge               |
 | Finish     | `aspect`   | `auto`, `square`, `wide`, `tall`                | Media frame shape                               |
 | Content    | `detail`   | `full`, `brief`                                 | Secondary text (subtitles, meta) shown or not   |
 | Content    | `media`    | `none`, `icon`, `thumb`, `cover`                | Image treatment where images exist              |
@@ -286,15 +283,18 @@ Gallery `carousel`, Scale `stars`).
 | Item       | `tone`     | `neutral`, `good`, `warn`, `bad`                | Semantic status of one item, never a colour     |
 | Item       | `mark`     | `none`, `highlight`, `muted`, `new`             | Prominence of one item                          |
 
-The theme (4.3) adds two app-wide enums: `density` (`comfortable`, `compact`), which controls row height,
-spacing and type steps for every component, and `motion` (`calm`, `lively`), for entrances and celebrations; the OS
-reduce-motion setting still wins. Density is theme-only: Writers and component props never set it.
+The theme (4.3) supplies `density` (`comfortable`, `compact`) for row height, spacing and type steps,
+and decides the surface treatment. Renderers choose alignment and bleed for their role in the layout.
+`density`, `surface`, `align` and `bleed` are not component props or Writer axes. Theme `motion`
+(`calm`, `lively`) governs entrances and celebrations; the OS reduce-motion setting still wins.
 
 **Declaration.** `meta.variants` lists the component's axes, each with the subset of values that make
-sense for it, its default first: `variants: { emphasis: ["normal", "hero"], detail: ["full", "brief"] }`. A local default need not be the first value in the shared vocabulary. Item
+sense for it, its default first: `variants: { emphasis: ["normal", "hero"], detail: ["full", "brief"] }`.
+A local default need not be the first value in the shared vocabulary. Item
 axes go in `meta.items.variants`; when both levels declare `trail`, `itemVariantProps` can inherit
 the collection trail, and action gating uses the same effective value as the view. Most components
-declare three to six axes; none declares one that changes nothing it draws. A shared `variantProps(meta.variants)` helper in `catalog/props` spreads the axes into the
+declare only axes that change what they draw. A shared `variantProps(meta.variants)` helper in
+`catalog/props` spreads the axes into the
 strict props object as ordinary flat props (`{"c":"List","detail":"brief"}`), so a line, a
 validator and a `patch` `set` handle them like any prop; there is no variant op.
 
@@ -306,10 +306,10 @@ without modifying the wire props. A hidden item keeps its address and actions; t
 the same prefix and localized "and N more" count as the view. The conformance test renders every
 declared value and checks these rules.
 
-**Tokens.** `tokens/variants.ts` maps each finish value to token steps and roles per preset kind
-(for example `emphasis.hero` lifts the type step and weight, `surface.card` uses `surface` plus
-`elevation.card`), as plain data. Kit bases take axis values through `useVariant()` and the base
-options; views pass the component's values to bases and never branch on numbers.
+**Tokens.** `tokens/variants.ts` maps finish values and internal Kit options to token steps and roles
+per preset kind. For example, `emphasis.hero` changes type step and weight, while a card role uses
+the theme's surface treatment. Kit bases take declared axis values through `useVariant()` and accept
+renderer-owned options separately. Views never branch on raw layout numbers.
 
 **Repairs and screen rules.** An undeclared axis or value is a component repair (4.14) back to the
 default, never a failed line. Screen rules (4.5) cap `emphasis: "hero"` at one per screen, a
@@ -327,19 +327,13 @@ non-default value once (calm, light, 390 wide) on a variants sheet. The gallery 
 per component.
 
 **Migration.** Bespoke values that an axis covers move to it through `catalog/migrations` before
-strict validation of saved lines; enable each migration with its destination schema. Drop legacy
-component `density` on saved lines and keep the theme's density unchanged. Explicit
-destination values win. Card `style: "plain"` was a filled surface and maps to `surface: "card"`;
-`tinted` and `outlined` keep their finishes, and `style: "media"` becomes `media: "cover"` (or
-`"thumb"` if an icon was authored instead of a photo). The
-default `media: "thumb"` preserves the old inline thumbnail or icon treatment when no axis was
-requested. List's per-row cards are structural: keep `style: "cards"` to distinguish them from a
-single enclosing card and use `surface` for the finish. List `inset` becomes `surface: "card"` and
-List `plain` becomes `surface: "plain"`. Ranked rows use `lead: "number"` and
-`trail: "value"`, and historical rows without scores hide their trail. Other moves include Button
-`md|lg` to `emphasis`, Player `compact` to `detail: "brief"`, Success `row|centered` to `align`, Photo
-`square|wide|tall` to `aspect`, and per-component `tone` enums to the shared helper. Each adoption
-task lists its own moves and refreshes its recordings against the new schema.
+strict validation of saved lines; enable each migration with its destination schema. Ignore legacy
+component `density`, `surface`, `align` and `bleed` on saved lines, without touching the theme.
+Preserve content and structural choices: Card `style: "media"` becomes `media: "cover"` (or `"thumb"`
+for an icon), and List keeps `style: "cards"` for separate row cards. Ranked rows use `lead: "number"`
+and `trail: "value"`; rows without scores hide their trail. Other moves include Player `compact` to
+`detail: "brief"`, Photo `square|wide|tall` to `aspect`, and component-specific `tone` enums to the
+shared helper. Explicit values on supported axes win.
 
 ### 4.3 Tokens and themes
 

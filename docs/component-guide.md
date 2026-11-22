@@ -154,15 +154,16 @@ Choose only axes and values that visibly change this component. These are candid
 
 | Component kind | Typical axes to consider |
 | --- | --- |
-| Rows and lists | `surface`, `detail`, `arrange`, `group`, `overflow`, `lead`, `trail`; item `tone`, `mark`, `trail` |
-| Cards and content | `emphasis`, `surface`, `align`, `detail`, `media`, `tone` |
+| Rows and lists | `detail`, `arrange`, `group`, `overflow`, `lead`, `trail`; item `tone`, `mark`, `trail` |
+| Cards and content | `emphasis`, `detail`, `media`, `tone` |
 | Numbers and charts | `emphasis`, `figures`, `labels`, `detail`; item `tone`, `mark` |
-| Media | `media`, `aspect`, `bleed`, `detail` |
-| Inputs and actions | `emphasis`, `align`, `detail`, `tone`; item `mark` |
+| Media | `media`, `aspect`, `detail` |
+| Inputs and actions | `emphasis`, `detail`, `tone`; item `mark` |
 
 1. Declare ordered subsets in `meta.variants` and row choices in `meta.items.variants`. Put the
-   component's existing treatment first so missing props render as before. Density comes from the
-   theme, never from the Writer or component props. Spread `variantProps(meta.variants)` into the strict component schema and
+   component's existing treatment first so missing props render as before. The theme supplies density
+   and surface treatment; renderers choose alignment and bleed by role. None of these four options
+   belongs in component props or Writer prompts. Spread `variantProps(meta.variants)` into the strict component schema and
    `itemVariantProps(meta.items.variants)` into the strict row schema. When both declare `trail`, use
    `{ inheritTrail: true }` so a missing row override uses the collection trail; gate actions on
    that same effective value.
