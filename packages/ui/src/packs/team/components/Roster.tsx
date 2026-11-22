@@ -1,8 +1,21 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-// prettier-ignore
-import { projectRosterDay, rosterCover, rosterDayHeading, rosterDateInWeek, rosterDays, rosterDayWake, rosterPortrait, rosterReading, rosterShift, rosterToday, rosterWeek, shiftsByPerson, shiftsByStation } from "../copy";
+import {
+  projectRosterDay,
+  rosterCover,
+  rosterDayHeading,
+  rosterDateInWeek,
+  rosterDays,
+  rosterDayWake,
+  rosterPortrait,
+  rosterReading,
+  rosterShift,
+  rosterToday,
+  rosterWeek,
+  shiftsByPerson,
+  shiftsByStation,
+} from "../copy";
 import { teamWordsFor } from "../lang";
 import { prompt } from "../../../entry/prompt-Roster.generated";
 
@@ -203,54 +216,123 @@ function RosterDay({ people, shifts, density, detail }: MatrixProps) {
   );
 }
 
-// prettier-ignore
-function RosterMatrix({ week, people, shifts, detail, density, loading }: MatrixProps) {
-  const { words, lang } = kit.useWords(teamWordsFor);
-  const w = words.roster;
-  const days = rosterDays(shifts, lang).map((day) => ({
-    ...day,
-    header: <kit.KitText role="label" tone={day.uncovered ? "warn" : "text"} part={null}>{day.short}</kit.KitText>,
-  }));
-  const schedule = shiftsByPerson(people, shifts);
-  const rows = people.map(({ name, photo }, person) => ({
+function RosterMatrixRows(
+  { people, detail, density }: Pick<MatrixProps, "people" | "detail" | "density">,
+  days: ReturnType<typeof rosterDays>,
+  schedule: ReturnType<typeof shiftsByPerson<MatrixProps["shifts"][number]>>,
+  lang: string,
+  w: ReturnType<typeof teamWordsFor>["roster"],
+) {
+  return people.map(({ name, photo }, person) => ({
     id: `person_${person}`,
     label: name,
-    heading: (
-      <kit.KitRow inline density={density} label={name} leadingAlign="row"
-        leading={<kit.KitPhoto {...rosterPortrait(name, photo)} shape="round" label={name} part={portraits[person]!} />}>
-        <kit.KitRow inline label={name}>
-          <kit.KitText role="label" lines={1} part={null}>{name}</kit.KitText>
-        </kit.KitRow>
-      </kit.KitRow>
-    ),
+    heading: RosterPersonHeading(name, photo, person, density),
     cells: days.map((day, index) => ({
       id: day.id,
       content: schedule[person]!.filter(({ shift }) => shift.day === index).map(({ shift }) => {
         const { time, role } = rosterShift(shift, detail === "brief", lang);
         return (
-          <kit.KitRow key={shift.id} item={shift.id} part="root" role="button" inline
-            density={density} label={w.shiftLabel(name, day.label, w.shift(time, role))}>
-            <kit.KitText role="number" numberScale="compact" tabular lines={1} part={null}>{time}</kit.KitText>
-            {role && <kit.KitText role="caption" tone="muted" lines={1} part="role">{role}</kit.KitText>}
+          <kit.KitRow
+            key={shift.id}
+            item={shift.id}
+            part="root"
+            role="button"
+            inline
+            density={density}
+            label={w.shiftLabel(name, day.label, w.shift(time, role))}
+          >
+            <kit.KitText role="number" numberScale="compact" tabular lines={1} part={null}>
+              {time}
+            </kit.KitText>
+            {role && (
+              <kit.KitText role="caption" tone="muted" lines={1} part="role">
+                {role}
+              </kit.KitText>
+            )}
           </kit.KitRow>
         );
       }),
     })),
   }));
-  const cover = rosterCover(days, lang);
-  return <>
-    <kit.KitWeekMatrix part="matrix" {...{ days, rows, loading }}
-      today={rosterToday(week, new Date())}
-      corner={<kit.KitText part={null} role="label" tone="muted">{w.staff}</kit.KitText>} />
-    {loading ? <kit.KitSkeleton density={density} shape="figure" inset="none"
-      content={[["caption", cover], ["caption", w.scrollHint]]} /> : <kit.KitContent density={density}>
-      {cover && <kit.KitText role="caption" part="cover" tone="warn">{cover}</kit.KitText>}
-      <kit.KitText part="scroll_hint" role="caption" tone="muted">{w.scrollHint}</kit.KitText>
-    </kit.KitContent>}
-  </>;
 }
 
-// prettier-ignore
+function RosterPersonHeading(
+  name: string,
+  photo: MatrixProps["people"][number]["photo"],
+  person: number,
+  density: MatrixProps["density"],
+) {
+  return (
+    <kit.KitRow
+      inline
+      density={density}
+      label={name}
+      leadingAlign="row"
+      leading={
+        <kit.KitPhoto {...rosterPortrait(name, photo)} shape="round" label={name} part={portraits[person]!} />
+      }
+    >
+      <kit.KitRow inline label={name}>
+        <kit.KitText role="label" lines={1} part={null}>
+          {name}
+        </kit.KitText>
+      </kit.KitRow>
+    </kit.KitRow>
+  );
+}
+
+function RosterMatrix({ week, people, shifts, detail, density, loading }: MatrixProps) {
+  const { words, lang } = kit.useWords(teamWordsFor);
+  const w = words.roster;
+  const days = rosterDays(shifts, lang).map((day) => ({
+    ...day,
+    header: (
+      <kit.KitText role="label" tone={day.uncovered ? "warn" : "text"} part={null}>
+        {day.short}
+      </kit.KitText>
+    ),
+  }));
+  const schedule = shiftsByPerson(people, shifts);
+  const rows = RosterMatrixRows({ people, detail, density }, days, schedule, lang, w);
+  const cover = rosterCover(days, lang);
+  return (
+    <>
+      <kit.KitWeekMatrix
+        part="matrix"
+        {...{ days, rows, loading }}
+        today={rosterToday(week, new Date())}
+        corner={
+          <kit.KitText part={null} role="label" tone="muted">
+            {w.staff}
+          </kit.KitText>
+        }
+      />
+      {loading ? (
+        <kit.KitSkeleton
+          density={density}
+          shape="figure"
+          inset="none"
+          content={[
+            ["caption", cover],
+            ["caption", w.scrollHint],
+          ]}
+        />
+      ) : (
+        <kit.KitContent density={density}>
+          {cover && (
+            <kit.KitText role="caption" part="cover" tone="warn">
+              {cover}
+            </kit.KitText>
+          )}
+          <kit.KitText part="scroll_hint" role="caption" tone="muted">
+            {w.scrollHint}
+          </kit.KitText>
+        </kit.KitContent>
+      )}
+    </>
+  );
+}
+
 export function Roster(input: ViewProps) {
   const state = kit.useComponentState();
   const thing = kit.useEmptyThing();
@@ -264,18 +346,40 @@ export function Roster(input: ViewProps) {
   const day = live.rosterDate;
   const heading = day ? rosterDayHeading(day, lang) : rosterWeek(input.week, lang);
   const loading = state === "loading";
-  const body = day ? <RosterDay {...live} {...{ detail, density, loading }} /> :
-    <RosterMatrix {...input} {...{ detail, density, loading }} />;
-  const empty = <kit.KitEmpty part="empty" icon="calendar_days" decorativeIcon
-    title={words.roster.empty} prominence="body" />;
+  const body = day ? (
+    <RosterDay {...live} {...{ detail, density, loading }} />
+  ) : (
+    <RosterMatrix {...input} {...{ detail, density, loading }} />
+  );
+  const empty = (
+    <kit.KitEmpty
+      part="empty"
+      icon="calendar_days"
+      decorativeIcon
+      title={words.roster.empty}
+      prominence="body"
+    />
+  );
   const loaded = !live.shifts.length ? empty : body;
   return (
     <kit.KitCard padded {...{ density, surface }}>
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["heading", heading]]} /> :
-        <kit.KitText part="week" role="heading">{heading}</kit.KitText>}
-      {loading && !day ? body : (
-        <kit.KitState part="empty" icon="calendar_days" message={day && !thing ? words.roster.empty : undefined} density={density}
-          loading={<kit.KitSkeleton density={density} />}>
+      {loading ? (
+        <kit.KitSkeleton shape="figure" inset="none" content={[["heading", heading]]} />
+      ) : (
+        <kit.KitText part="week" role="heading">
+          {heading}
+        </kit.KitText>
+      )}
+      {loading && !day ? (
+        body
+      ) : (
+        <kit.KitState
+          part="empty"
+          icon="calendar_days"
+          message={day && !thing ? words.roster.empty : undefined}
+          density={density}
+          loading={<kit.KitSkeleton density={density} />}
+        >
           {loaded}
         </kit.KitState>
       )}

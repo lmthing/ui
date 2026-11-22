@@ -87,7 +87,6 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
-// prettier-ignore
 const ledgeFactors = [
   { label: "Payment history", value: "All on time", rating: "excellent", impact: "high", goto: "payments" },
   { label: "Credit utilization", value: "18%", rating: "good", impact: "high" },

@@ -137,11 +137,16 @@ export const probes = [
 type ViewProps = Props<typeof props, typeof meta>;
 type Balance = ViewProps["balances"][number];
 
-// prettier-ignore
-function BalanceBreakdown({ figures, density }: {
-  figures: ReturnType<typeof leaveBalanceFigures>; density: ThemeDensity;
+function BalanceBreakdown({
+  figures,
+  density,
+}: {
+  figures: ReturnType<typeof leaveBalanceFigures>;
+  density: ThemeDensity;
 }) {
-  const { words: { leaveBalance: words } } = kit.useWords(teamWordsFor);
+  const {
+    words: { leaveBalance: words },
+  } = kit.useWords(teamWordsFor);
   const { lines, cap, expires } = figures;
   const metrics = [
     { id: "accrued", label: words.accrualLabel(cap), amount: lines.accrued },
@@ -150,52 +155,91 @@ function BalanceBreakdown({ figures, density }: {
   ];
   return (
     <kit.KitContent density={density}>
-      {metrics.map(({ id, label, amount }) => <kit.KitGrid key={id} fitLast density={density}>
-        <kit.KitLayoutText line={{ text: label, role: "meta", tone: "muted" }} density={density} />
-        <kit.KitLayoutText line={{ text: amount, part: id, role: "meta", tone: "muted", tabular: true }} align="end" density={density} />
-      </kit.KitGrid>)}
-      <kit.KitLayoutText line={{ text: expires, part: "expires", role: "meta", tone: "muted" }} density={density} />
+      {metrics.map(({ id, label, amount }) => (
+        <kit.KitGrid key={id} fitLast density={density}>
+          <kit.KitLayoutText line={{ text: label, role: "meta", tone: "muted" }} density={density} />
+          <kit.KitLayoutText
+            line={{ text: amount, part: id, role: "meta", tone: "muted", tabular: true }}
+            align="end"
+            density={density}
+          />
+        </kit.KitGrid>
+      ))}
+      <kit.KitLayoutText
+        line={{ text: expires, part: "expires", role: "meta", tone: "muted" }}
+        density={density}
+      />
     </kit.KitContent>
   );
 }
 
-// prettier-ignore
-function BalanceRow({ row, unit, detail, density }: {
-  row: Balance; unit: ViewProps["unit"]; detail: ViewProps["detail"]; density: ThemeDensity;
+function BalanceRow({
+  row,
+  unit,
+  detail,
+  density,
+}: {
+  row: Balance;
+  unit: ViewProps["unit"];
+  detail: ViewProps["detail"];
+  density: ThemeDensity;
 }) {
   const { lang, words } = kit.useWords(teamWordsFor);
   const loading = kit.useComponentState() === "loading";
   const figures = leaveBalanceFigures(row, unit, lang);
   const full = detail === "full";
   return (
-    <kit.KitRow item={row.id} part={loading ? null : "root"} label={row.label} inline
-      goto={loading ? undefined : row.goto} inset="none" density={density}>
+    <kit.KitRow
+      item={row.id}
+      part={loading ? null : "root"}
+      label={row.label}
+      inline
+      goto={loading ? undefined : row.goto}
+      inset="none"
+      density={density}
+    >
       <kit.KitContent density={density}>
         <kit.KitGrid fitLast density={density}>
-          <kit.KitMetaLine title={{ text: row.label, part: "type", role: "body" }}
-            meta={full ? [{ text: words.leaveBalance.remaining(figures.lines.accrued) }] : []} density={density} />
-          <kit.KitLayoutText line={{ text: figures.available, part: "available", role: "figure", tabular: true }} align="end" density={density} />
+          <kit.KitMetaLine
+            title={{ text: row.label, part: "type", role: "body" }}
+            meta={full ? [{ text: words.leaveBalance.remaining(figures.lines.accrued) }] : []}
+            density={density}
+          />
+          <kit.KitLayoutText
+            line={{ text: figures.available, part: "available", role: "figure", tabular: true }}
+            align="end"
+            density={density}
+          />
         </kit.KitGrid>
-        {full && <>
-          <kit.KitMeter label="" amount="" ratio={loading ? 0 : figures.ratio} addressed={false} slim />
-          <BalanceBreakdown {...{ figures, density }} />
-        </>}
+        {full && (
+          <>
+            <kit.KitMeter label="" amount="" ratio={loading ? 0 : figures.ratio} addressed={false} slim />
+            <BalanceBreakdown {...{ figures, density }} />
+          </>
+        )}
       </kit.KitContent>
     </kit.KitRow>
   );
 }
 
-// prettier-ignore
 export function LeaveBalance(input: ViewProps) {
-  const { words: { leaveBalance: words } } = kit.useWords(teamWordsFor);
+  const {
+    words: { leaveBalance: words },
+  } = kit.useWords(teamWordsFor);
   const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const surface = "card";
   const content = (
     <>
-      <kit.KitHeader title={{ text: words.title, part: "title", role: "body" }} meta={{ text: input.employee, part: "employee" }} density={density} />
+      <kit.KitHeader
+        title={{ text: words.title, part: "title", role: "body" }}
+        meta={{ text: input.employee, part: "employee" }}
+        density={density}
+      />
       <kit.KitRowGroup density={density} spacing="groups" separators={false}>
-        {input.balances.map((row) => <BalanceRow key={row.id} row={row} unit={input.unit} {...{ detail, density }} />)}
+        {input.balances.map((row) => (
+          <BalanceRow key={row.id} row={row} unit={input.unit} {...{ detail, density }} />
+        ))}
       </kit.KitRowGroup>
       <kit.KitActionFooter density={density}>
         <kit.KitAction part="request" label={words.request} contentParts={{}} kind="secondary" />
@@ -204,7 +248,13 @@ export function LeaveBalance(input: ViewProps) {
   );
   return (
     <kit.KitCard part="root" style="inset" padded {...{ density, surface }}>
-      <kit.KitState message={words.empty} icon="calendar_days" part="message" density={density} loading={content}>
+      <kit.KitState
+        message={words.empty}
+        icon="calendar_days"
+        part="message"
+        density={density}
+        loading={content}
+      >
         {content}
       </kit.KitState>
     </kit.KitCard>

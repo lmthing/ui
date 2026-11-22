@@ -61,44 +61,100 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
 }
 
 // Use past dates so the read probe stays stable after today's date changes.
-// prettier-ignore
 const ledgeEntries = {
   entries: [
-    { date: "2026-11-17", payee: "Ledge Potting", category: "Plant care",
-      icon: "leaf", amount: -24.5, goto: "supplies" },
-    { date: "2026-11-17", payee: "Returned plant pot", category: "Refund",
-      icon: "banknote", amount: 8, goto: "refund" },
-    { date: "2026-11-17", payee: "Garden seeds", category: "Plant care",
-      icon: "leaf", amount: -12, goto: "seeds" },
+    {
+      date: "2026-11-17",
+      payee: "Ledge Potting",
+      category: "Plant care",
+      icon: "leaf",
+      amount: -24.5,
+      goto: "supplies",
+    },
+    {
+      date: "2026-11-17",
+      payee: "Returned plant pot",
+      category: "Refund",
+      icon: "banknote",
+      amount: 8,
+      goto: "refund",
+    },
+    {
+      date: "2026-11-17",
+      payee: "Garden seeds",
+      category: "Plant care",
+      icon: "leaf",
+      amount: -12,
+      goto: "seeds",
+    },
   ],
 } satisfies z.input<typeof props>;
 function withItemFinish(finish: Pick<z.input<typeof props>["entries"][number], "tone" | "mark">) {
   return { entries: ledgeEntries.entries.map((row, index) => (index === 0 ? { ...row, ...finish } : row)) };
 }
-// prettier-ignore
 export const examples = [
   ledgeEntries,
   {
     entries: [
-      { date: "2026-11-16", payee: "Trot walking income", category: "Income",
-        icon: "banknote", amount: 120, goto: "income" },
-      { date: "2026-11-13", payee: "New walking boots", category: "Equipment",
-        icon: "shopping_bag", amount: -65, goto: "boots" },
+      {
+        date: "2026-11-16",
+        payee: "Trot walking income",
+        category: "Income",
+        icon: "banknote",
+        amount: 120,
+        goto: "income",
+      },
+      {
+        date: "2026-11-13",
+        payee: "New walking boots",
+        category: "Equipment",
+        icon: "shopping_bag",
+        amount: -65,
+        goto: "boots",
+      },
     ],
   },
   { ...ledgeEntries, lead: "none" },
   { ...ledgeEntries },
   ...(["good", "warn", "bad"] as const).map((tone) => withItemFinish({ tone })),
   ...(["highlight", "muted", "new"] as const).map((mark) => withItemFinish({ mark })),
-  { entries: [
-    { date: "2026-11-16", payee: "Trot walking income", category: "Income", icon: "banknote", amount: 120, goto: "income", status: "posted" },
-    { date: "2026-11-13", payee: "New walking boots", category: "Equipment", icon: "shopping_bag", amount: -65, goto: "boots", status: "pending", note: "Waterproof pair for early walks", receipt: "lib:receipt" },
-    { date: "2026-11-13", payee: "Park permit", category: "Fees", icon: "tree", amount: -14, goto: "permit", status: "disputed", note: "Charged twice at the gate" },
-  ] },
+  {
+    entries: [
+      {
+        date: "2026-11-16",
+        payee: "Trot walking income",
+        category: "Income",
+        icon: "banknote",
+        amount: 120,
+        goto: "income",
+        status: "posted",
+      },
+      {
+        date: "2026-11-13",
+        payee: "New walking boots",
+        category: "Equipment",
+        icon: "shopping_bag",
+        amount: -65,
+        goto: "boots",
+        status: "pending",
+        note: "Waterproof pair for early walks",
+        receipt: "lib:receipt",
+      },
+      {
+        date: "2026-11-13",
+        payee: "Park permit",
+        category: "Fees",
+        icon: "tree",
+        amount: -14,
+        goto: "permit",
+        status: "disputed",
+        note: "Charged twice at the gate",
+      },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Transactions");
-// prettier-ignore
 export const probes = [
   choose(
     "Show my bank spending and income entry by entry, grouped by date, with payees, category icons and signed amounts",
@@ -116,43 +172,123 @@ export const probes = [
     ),
     variant: { axis: "lead", value: "none" },
   },
-  { ...write("Corner Shop, Food, shopping_bag, minus 24.50 on 2026-11-19, opens groceries. The transaction is disputed; show this status."), expectProps: { entries: [{ status: "disputed" }] } },
-  { ...write('Corner Shop, Food, shopping_bag, minus 24.50 on 2026-11-19, opens groceries. Add the transaction note exactly: "Split with Sam".'), expectProps: { entries: [{ note: "Split with Sam" }] } },
-  { ...write("Corner Shop, Food, shopping_bag, minus 24.50 on 2026-11-19, opens groceries. Show the receipt thumbnail using saved photo local:1."), expectProps: { entries: [{ receipt: "local:1" }] } },
+  {
+    ...write(
+      "Corner Shop, Food, shopping_bag, minus 24.50 on 2026-11-19, opens groceries. The transaction is disputed; show this status.",
+    ),
+    expectProps: { entries: [{ status: "disputed" }] },
+  },
+  {
+    ...write(
+      'Corner Shop, Food, shopping_bag, minus 24.50 on 2026-11-19, opens groceries. Add the transaction note exactly: "Split with Sam".',
+    ),
+    expectProps: { entries: [{ note: "Split with Sam" }] },
+  },
+  {
+    ...write(
+      "Corner Shop, Food, shopping_bag, minus 24.50 on 2026-11-19, opens groceries. Show the receipt thumbnail using saved photo local:1.",
+    ),
+    expectProps: { entries: [{ receipt: "local:1" }] },
+  },
   read("Open the Ledge potting supplies transaction", { address: "t1/r1", action: "press" }),
 ] satisfies c.Probe[];
 
 type TransactionsProps = c.Props<typeof props, typeof meta>;
 type Entry = TransactionsProps["entries"][number];
 
-// prettier-ignore
-function TransactionRow({ entry, density, lead, framed, mixed }:
-  Pick<TransactionsProps, "lead"> & { density: c.ThemeDensity } & { entry: Entry; framed: boolean; mixed: boolean }) {
-  const { lang, words } = kit.useWords(moneyWordsFor);
-  const { amount, label, status } = transactionCopy(entry, lang, lead === "icon");
-  if (kit.useComponentState() === "loading") return (
-    <kit.KitRow part={null} inline={!framed} label="" trailing={<kit.KitSkeleton shape="figure" inset="none" density={density}
-      content={[["number", amount, "end", "compact"]]} />}>
-      <kit.KitSkeleton shape="figure" inset="none" density={density} lead={mixed ? "box" : lead === "icon" ? "dot" : "none"}
-        content={[["body", entry.payee], ["caption", entry.category], ...[status, entry.note].flatMap((text): ["caption", string][] => text ? [["caption", text]] : [])]} />
+function TransactionPlaceholder(
+  { entry, density, lead, framed, mixed }: TransactionRowProps,
+  amount: string,
+  status: string | undefined,
+) {
+  return (
+    <kit.KitRow
+      part={null}
+      inline={!framed}
+      label=""
+      trailing={
+        <kit.KitSkeleton
+          shape="figure"
+          inset="none"
+          density={density}
+          content={[["number", amount, "end", "compact"]]}
+        />
+      }
+    >
+      <kit.KitSkeleton
+        shape="figure"
+        inset="none"
+        density={density}
+        lead={mixed ? "box" : lead === "icon" ? "dot" : "none"}
+        content={[
+          ["body", entry.payee],
+          ["caption", entry.category],
+          ...[status, entry.note].flatMap((text): ["caption", string][] => (text ? [["caption", text]] : [])),
+        ]}
+      />
     </kit.KitRow>
   );
+}
+
+type TransactionRowProps = Pick<TransactionsProps, "lead"> & {
+  density: c.ThemeDensity;
+  entry: Entry;
+  framed: boolean;
+  mixed: boolean;
+};
+function TransactionRow({ entry, density, lead, framed, mixed }: TransactionRowProps) {
+  const { lang, words } = kit.useWords(moneyWordsFor);
+  const { amount, label, status } = transactionCopy(entry, lang, lead === "icon");
+  if (kit.useComponentState() === "loading")
+    return TransactionPlaceholder({ entry, density, lead, framed, mixed }, amount, status);
   const receipt = lead === "icon" && entry.receipt;
-  const leading = receipt
-    ? <kit.KitPhoto photo={receipt} shape="thumb" part="receipt" label={words.transactions.receipt} />
-    : lead === "icon" ? <kit.KitIcon name={entry.icon} part="icon" tone="muted" /> : undefined;
+  const leading = receipt ? (
+    <kit.KitPhoto photo={receipt} shape="thumb" part="receipt" label={words.transactions.receipt} />
+  ) : lead === "icon" ? (
+    <kit.KitIcon name={entry.icon} part="icon" tone="muted" />
+  ) : undefined;
   return (
-    <kit.KitRow item={entry.id} goto={entry.goto} label={label} inline={!framed} density={density} tone={entry.tone} mark={entry.mark}
-      {...(mixed ? { leading, leadingWidth: "avatar", leadingAlign: receipt ? "row" : "line" } : {})}>
+    <kit.KitRow
+      item={entry.id}
+      goto={entry.goto}
+      label={label}
+      inline={!framed}
+      density={density}
+      tone={entry.tone}
+      mark={entry.mark}
+      {...(mixed ? { leading, leadingWidth: "avatar", leadingAlign: receipt ? "row" : "line" } : {})}
+    >
       <kit.KitContent lead={mixed ? undefined : leading} lineRole="body" density={density}>
         <kit.KitGrid fitLast density={density}>
-          <kit.KitText part="payee" density={density}>{entry.payee}</kit.KitText>
-          <kit.KitText density={density} part="amount" role="number" numberScale="compact" tone={entry.amount > 0 ? "good" : "text"}
-            tabular align="end" lines={1}>{amount}</kit.KitText>
+          <kit.KitText part="payee" density={density}>
+            {entry.payee}
+          </kit.KitText>
+          <kit.KitText
+            density={density}
+            part="amount"
+            role="number"
+            numberScale="compact"
+            tone={entry.amount > 0 ? "good" : "text"}
+            tabular
+            align="end"
+            lines={1}
+          >
+            {amount}
+          </kit.KitText>
         </kit.KitGrid>
-        <kit.KitText part="category" tone="muted" role="caption">{entry.category}</kit.KitText>
-        {status && <kit.KitText part="status" role="caption" tone={entry.status === "disputed" ? "bad" : "muted"}>{status}</kit.KitText>}
-        {entry.note && <kit.KitText part="note" tone="muted" role="caption">{entry.note}</kit.KitText>}
+        <kit.KitText part="category" tone="muted" role="caption">
+          {entry.category}
+        </kit.KitText>
+        {status && (
+          <kit.KitText part="status" role="caption" tone={entry.status === "disputed" ? "bad" : "muted"}>
+            {status}
+          </kit.KitText>
+        )}
+        {entry.note && (
+          <kit.KitText part="note" tone="muted" role="caption">
+            {entry.note}
+          </kit.KitText>
+        )}
       </kit.KitContent>
     </kit.KitRow>
   );
@@ -169,7 +305,6 @@ function DateHeading({ item, day }: { item: string; day: string }) {
   );
 }
 
-// prettier-ignore
 export function Transactions({ entries, lead }: TransactionsProps) {
   const density = kit.useKit().density;
   const state = kit.useComponentState();
@@ -186,7 +321,10 @@ export function Transactions({ entries, lead }: TransactionsProps) {
         <kit.KitContent key={date} group={index === 0 ? "content" : "response"}>
           <DateHeading item={entries[0]!.id} day={transactionDay(date, lang)} />
           {entries.map((entry, row) => (
-            <kit.KitContent key={entry.id} group={row === 0 || density === "compact" ? "content" : "response"}>
+            <kit.KitContent
+              key={entry.id}
+              group={row === 0 || density === "compact" ? "content" : "response"}
+            >
               <TransactionRow {...{ entry, density, lead, framed, mixed }} />
             </kit.KitContent>
           ))}
