@@ -66,7 +66,7 @@ describe("ThoughtRecord schema", () => {
       moodBefore: 1,
       moodAfter: 5,
     });
-    expect(parsed).toMatchObject({ surface: "card", detail: "full" });
+    expect(parsed).toMatchObject({ detail: "full" });
     expect(parsed.distortions[0]).not.toHaveProperty("id");
     expect(stampItemIds(meta, parsed).distortions.at(-1)).toMatchObject({ id: "r8" });
     expectTypeOf<Props<typeof props, typeof meta>["distortions"][number]["id"]>().toBeString();

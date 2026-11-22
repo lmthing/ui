@@ -20,8 +20,6 @@ export const meta = {
   realPath:
     "Application records live on the phone and the host moves only active applicants between hiring stages.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["plain", "outlined"],
     arrange: ["strip", "rows"],
   },
   parts: ["root", "title", "stages", "applied", "screening", "interview", "offer", "outcomes"],
@@ -162,13 +160,13 @@ function ApplicantText(row: ViewProps["applicants"][number], density: c.ThemeDen
 }
 
 // prettier-ignore
-export function ApplicantPipeline({ title, applicants, density: requested, surface, arrange }: ViewProps) {
+export function ApplicantPipeline({ title, applicants, arrange }: ViewProps) {
   const state = kit.useComponentState(), loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, requested);
+  const density = kit.useKit().density;
   const layout = kit.useVariant("arrange", meta.variants.arrange, arrange);
   const thing = kit.useEmptyThing(), { lang, words: { pipeline } } = kit.useWords(hiringWordsFor);
   const { columns, active, outcomeLines, outcomes: summary } = pipelineCopy(applicants, pipelineOutcomes(applicants), lang);
-  return <kit.KitCard style="inset" padded {...{ density, surface }}>
+  return <kit.KitCard style="inset" padded density={density}>
     {state === "empty" ? <kit.KitEmpty part="title" icon="briefcase" title={c.emptyLine(thing ?? pipeline.thing, lang)} decorativeIcon /> :
       state === "error" ? <kit.KitEmpty part="title" icon="info" title={pipeline.error} decorativeIcon /> : <>
         {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["title", title], ["caption", summary]]} /> :

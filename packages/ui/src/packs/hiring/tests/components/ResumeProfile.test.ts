@@ -102,8 +102,6 @@ it("accepts every maximum length and rejects oversized nested fields", () => {
 describe("ResumeProfile parts and states", () => {
   it("draws the full résumé and only removes declared parts in brief", () => {
     const filled = parts();
-    const finishes = { ...full, surface: "outlined" as const, density: "compact" as const };
-    expect([...parts(finishes).keys()]).toEqual([...filled.keys()]);
     const input = { ...full, experience: [...full.experience].reverse(), detail: "brief" as const };
     const brief = parts(input);
     const hidden = new Set<string>(meta.variantParts["detail.brief"].hides);

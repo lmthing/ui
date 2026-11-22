@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it } from "vitest";
-import { component, presets, themeName } from "@lmthing/ui/catalog";
+import { component, presets, size, themeName } from "@lmthing/ui/catalog";
 import { KitProvider, PartScope, KitRangeBand, KitText } from "@lmthing/ui/kit";
 import { config, elementAt, styleAt } from "../../../../test/render";
 
@@ -95,11 +95,22 @@ describe("KitRangeBand caller-owned reading", () => {
     expect(content.attributes).toContain('aria-hidden="true"');
     expect(content.attributes).toContain("inert");
     expect(styleAt(loading, content)).toContain("visibility:hidden");
+    const bar = elementAt(loading, "home/c1/band").children[0]!.children[1]!;
+    expect(styleAt(loading, bar)).toContain(`max-width:${size.control.md * 2}px`);
   });
   it("accepts a zero-valued slot and retains the existing empty reading", () => {
     expect(render({ ...input, reading: 0 })).toContain(">0<");
     expect(render({ ...input, reading, value: NaN, label: "No reading yet" })).toContain("No reading yet");
     expect(render({ ...input, reading, value: NaN })).not.toContain("118 / 76");
+  });
+  it("omits an explicitly null reading in filled and loading states", () => {
+    for (const loading of [false, true]) {
+      const html = render({ ...input, part: "band", reading: null, loading });
+      const [track, ...rest] = elementAt(html, "home/c1/band").children;
+      expect(rest).toEqual([]);
+      expect(track?.attributes).toContain('aria-hidden="true"');
+      expect(html).not.toContain(">Reading<");
+    }
   });
 });
 

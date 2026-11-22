@@ -42,7 +42,6 @@ describe("ApplicantPipeline contract", () => {
     }));
     expect(props.parse({ title: limit, jobId: limit, applicants })).toMatchObject({
       arrange: "strip",
-      surface: "plain",
     });
     for (const input of [
       { applicants: [] },
@@ -99,14 +98,11 @@ describe("ApplicantPipeline fallback and probes", () => {
 });
 
 describe("ApplicantPipeline parts and states", () => {
-  it("renders localized counts and keeps IDs and parts across layouts and finishes", () => {
+  it("renders localized counts and keeps IDs and parts across layouts", () => {
     const addresses = ["root", "title", "stages", "applied", "screening", "interview", "offer", "outcomes"];
     addresses.push("r1/root", "r1/name", "r1/applied", "r1/next", "r1/next_at");
     addresses.push("r3/root", "r3/name", "r3/applied", "r3/next");
-    for (const input of [
-      full,
-      { ...full, arrange: "rows", density: "compact", surface: "outlined" },
-    ] as const) {
+    for (const input of [full, { ...full, arrange: "rows" }] as const) {
       const parts = addressedElements(view(input));
       expect(new Set(parts.keys())).toEqual(new Set(addresses.map((part) => `home/p1/${part}`)));
       expect(parts.get("home/p1/applied")?.text).toEqual(["1"]);

@@ -19,7 +19,7 @@ export const meta = {
   partTiers: { publish: "service" },
   realPath:
     "An opening and its save state live on the phone, while publishing needs a job board or website service.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["about"] } },
   // prettier-ignore
   parts: ["root", "title", "employer", "place", "workplace", "contract", "pay", "about", "requirements",
@@ -156,8 +156,7 @@ function JobActions({ input, open, loading, density }: { input: Job; open: boole
 // prettier-ignore
 export function JobPost(input: Job) {
   const state = kit.useComponentState(), loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang, words: { jobPost: words } } = kit.useWords(hiringWordsFor);
   const copy = jobPostCopy(input, kit.useAppCurrency(), lang);
@@ -165,7 +164,7 @@ export function JobPost(input: Job) {
     value === undefined ? null : loading ?
       <kit.KitSkeleton shape="figure" inset="none" content={[[role, value, "start", "compact"]]} {...{ density }} /> :
       <kit.KitText {...{ part, role, tone, density }} numberScale="compact" tabular={role === "number"}>{value}</kit.KitText>;
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
+  return <kit.KitCard part="root" padded density={density}>
     {state === "success" || state === "error" ? <kit.KitEmpty part={state} decorativeIcon
       title={words[state]} icon={state === "success" ? "check" : "info"} /> : <>
       <kit.KitContent {...{ density }}>

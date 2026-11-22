@@ -1,8 +1,22 @@
 import { z } from "zod";
-// prettier-ignore
-import { probesFor, clip, icon, itemVariantProps, itemsOf, placeholderTitle,
-  placeholderValue, secretRevealKey, secretRevealMatches, text, thingOf, variantProps, type FallbackInput, type Meta, type Probe,
-  type Props, type ThemeDensity,
+import {
+  probesFor,
+  clip,
+  icon,
+  itemVariantProps,
+  itemsOf,
+  placeholderTitle,
+  placeholderValue,
+  secretRevealKey,
+  secretRevealMatches,
+  text,
+  thingOf,
+  variantProps,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+  type ThemeDensity,
 } from "../catalog";
 import * as kit from "../kit";
 import { prompt } from "../entry/prompt-KeyValue.generated";
@@ -20,8 +34,6 @@ export const meta = {
   realPath: "Fields of one record in the on-device database.",
   variants: {
     arrange: ["rows", "grid"],
-    density: ["comfortable", "compact"],
-    surface: ["card", "plain", "outlined"],
     lead: ["icon", "none"],
   },
   items: {
@@ -99,9 +111,9 @@ export const examples = [
       { label: "Notes", value: "Quiet parks" },
     ],
   },
-  { density: "compact", pairs: [...facts] },
-  { surface: "plain", pairs: [...facts] },
-  { surface: "outlined", pairs: [...facts] },
+  { pairs: [...facts] },
+  { pairs: [...facts] },
+  { pairs: [...facts] },
   { lead: "none", pairs: [...facts] },
   { pairs: [{ label: "Plant health", value: "Healthy", icon: "heart", tone: "good" }, ...facts.slice(1)] },
   { pairs: [{ label: "Soil moisture", value: "Dry", icon: "drop", tone: "warn" }, ...facts.slice(1)] },
@@ -134,28 +146,58 @@ type Pair = Props<typeof props, typeof meta>["pairs"][number];
 const valueRole = (value: string) =>
   /^\d+(?:\s+\p{L}+)?$/u.test(value) && value.length <= 6 ? "number" : "body";
 
-// prettier-ignore
 function MaskedValue({ pair, loading, density }: { pair: Pair; loading: boolean; density: ThemeDensity }) {
   const { screen, component } = kit.usePartContext();
-  const { words: { secretValue: copy } } = kit.useWords();
-  const grant = kit.useControlValue<unknown>(secretRevealKey(`${screen}/${component}/${pair.id}/reveal`), undefined);
+  const {
+    words: { secretValue: copy },
+  } = kit.useWords();
+  const grant = kit.useControlValue<unknown>(
+    secretRevealKey(`${screen}/${component}/${pair.id}/reveal`),
+    undefined,
+  );
   const shown = secretRevealMatches(grant, [pair.label, pair.value]);
   const value = shown && !loading ? pair.value : copy.mask;
-  if (loading) return <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["body", value]]} />;
-  const reveal = <kit.KitAction part="reveal" action="toggle" icon={shown ? "lock" : "eye"} kind="quiet"
-    a11y={shown ? copy.hide(pair.label) : copy.reveal(pair.label)} />;
-  return <kit.KitGrid fitLast density={density}>
-    <kit.KitText part="value">{value}</kit.KitText>
-    <kit.KitContent lead={reveal} leadingAlign="row" density={density}>
-      <kit.KitAction part="copy" action="copy" icon="clipboard" value={pair.value} kind="quiet"
-        a11y={copy.copy(pair.label)} copiedLabel={copy.copied} />
-    </kit.KitContent>
-  </kit.KitGrid>;
+  if (loading)
+    return <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["body", value]]} />;
+  const reveal = (
+    <kit.KitAction
+      part="reveal"
+      action="toggle"
+      icon={shown ? "lock" : "eye"}
+      kind="quiet"
+      a11y={shown ? copy.hide(pair.label) : copy.reveal(pair.label)}
+    />
+  );
+  return (
+    <kit.KitGrid fitLast density={density}>
+      <kit.KitText part="value">{value}</kit.KitText>
+      <kit.KitContent lead={reveal} leadingAlign="row" density={density}>
+        <kit.KitAction
+          part="copy"
+          action="copy"
+          icon="clipboard"
+          value={pair.value}
+          kind="quiet"
+          a11y={copy.copy(pair.label)}
+          copiedLabel={copy.copied}
+        />
+      </kit.KitContent>
+    </kit.KitGrid>
+  );
 }
 
-// prettier-ignore
-function PairRow({ pair, horizontal, density, loading, masked }: {
-  pair: Pair; horizontal: boolean; density: ThemeDensity; loading: boolean; masked: boolean;
+function PairRow({
+  pair,
+  horizontal,
+  density,
+  loading,
+  masked,
+}: {
+  pair: Pair;
+  horizontal: boolean;
+  density: ThemeDensity;
+  loading: boolean;
+  masked: boolean;
 }) {
   const lead = pair.icon && <kit.KitIcon name={pair.icon} tone="muted" part="icon" decorative={loading} />;
   const role = valueRole(pair.value);
@@ -169,28 +211,56 @@ function PairRow({ pair, horizontal, density, loading, masked }: {
       leading={lead}
     >
       <kit.KitGrid arrange={horizontal && !masked ? "grid" : "rows"} density={density}>
-        {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", pair.label]]} />
-          : <kit.KitText role="caption" tone="muted" part="label" density={density}>{pair.label}</kit.KitText>}
-        {masked ? <MaskedValue pair={pair} loading={loading} density={density} />
-          : loading ? <kit.KitSkeleton shape="figure" inset="none" density="comfortable" content={[[role, pair.value]]} />
-          : <kit.KitText role={role} part="value" density="comfortable">{pair.value}</kit.KitText>}
+        {loading ? (
+          <kit.KitSkeleton
+            shape="figure"
+            inset="none"
+            density={density}
+            content={[["caption", pair.label]]}
+          />
+        ) : (
+          <kit.KitText role="caption" tone="muted" part="label" density={density}>
+            {pair.label}
+          </kit.KitText>
+        )}
+        {masked ? (
+          <MaskedValue pair={pair} loading={loading} density={density} />
+        ) : loading ? (
+          <kit.KitSkeleton shape="figure" inset="none" density="comfortable" content={[[role, pair.value]]} />
+        ) : (
+          <kit.KitText role={role} part="value" density="comfortable">
+            {pair.value}
+          </kit.KitText>
+        )}
       </kit.KitGrid>
     </kit.KitRow>
   );
 }
 
-// prettier-ignore
-export function KeyValue({ arrange, pairs, surface, masked = false, density: requestedDensity }: Props<typeof props, typeof meta>) {
+export function KeyValue({ arrange, pairs, masked = false }: Props<typeof props, typeof meta>) {
+  const surface = "card";
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, requestedDensity);
+  const density = kit.useKit().density;
   const grid = arrange === "grid";
   const spacing = grid ? "compact" : density;
   return (
     <kit.KitCard surface={surface} density={density} part="root" padded={grid && state !== "empty"}>
-      {state === "empty" ? <kit.KitEmpty part="label" />
-        : <kit.KitGrid arrange={arrange} density={spacing}>{pairs.map((pair) =>
-          <PairRow key={pair.id} pair={pair} horizontal={!grid} density={spacing} loading={state === "loading"} masked={masked} />
-        )}</kit.KitGrid>}
+      {state === "empty" ? (
+        <kit.KitEmpty part="label" />
+      ) : (
+        <kit.KitGrid arrange={arrange} density={spacing}>
+          {pairs.map((pair) => (
+            <PairRow
+              key={pair.id}
+              pair={pair}
+              horizontal={!grid}
+              density={spacing}
+              loading={state === "loading"}
+              masked={masked}
+            />
+          ))}
+        </kit.KitGrid>
+      )}
     </kit.KitCard>
   );
 }

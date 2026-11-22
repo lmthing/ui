@@ -18,8 +18,6 @@ export const meta = {
   tier: "phone",
   realPath: "Assignments are stored on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     lead: ["icon", "none"],
   },
   variantParts: { "lead.none": { hides: ["mark"] } },
@@ -78,18 +76,42 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
-// prettier-ignore
 export const examples = [
   {
     items: [
-      { title: "Fern care worksheet", subject: "Plant care", due: "2026-11-17", status: "todo", goto: "worksheet" },
-      { title: "Light and shade log", subject: "Botany", due: "2026-11-18", status: "graded", grade: "A", goto: "light_log" },
+      {
+        title: "Fern care worksheet",
+        subject: "Plant care",
+        due: "2026-11-17",
+        status: "todo",
+        goto: "worksheet",
+      },
+      {
+        title: "Light and shade log",
+        subject: "Botany",
+        due: "2026-11-18",
+        status: "graded",
+        grade: "A",
+        goto: "light_log",
+      },
     ],
   },
   {
     items: [
-      { title: "Route assessment", subject: "Dog walking", due: "2026-11-18", status: "done", goto: "route_assessment" },
-      { title: "Lead safety notes", subject: "Handling", due: "2026-11-22", status: "todo", goto: "lead_notes" },
+      {
+        title: "Route assessment",
+        subject: "Dog walking",
+        due: "2026-11-18",
+        status: "done",
+        goto: "route_assessment",
+      },
+      {
+        title: "Lead safety notes",
+        subject: "Handling",
+        due: "2026-11-22",
+        status: "todo",
+        goto: "lead_notes",
+      },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -118,26 +140,76 @@ export const probes = [
 
 type AssignmentsProps = c.Props<typeof props, typeof meta>;
 
-// prettier-ignore
-function AssignmentRow({ row, density, lead }: {
+function AssignmentStatus(
+  title: string,
+  grade: string | undefined,
+  density: c.ThemeDensity,
+  control: Parameters<typeof kit.KitRow>[0]["leading"],
+  statusTone: "good" | "muted",
+  graded: boolean,
+  words: ReturnType<typeof learningWordsFor>["assignments"],
+) {
+  return (
+    <kit.KitRow
+      part={null}
+      label={title}
+      inline
+      lineRole="caption"
+      density={density}
+      leading={control}
+      leadingWidth="avatar"
+    >
+      <kit.KitText role="caption" part={null} tone={statusTone} density={density}>
+        <kit.KitText role="caption" part="status" tone={statusTone} density={density}>
+          {graded ? words.graded : words.handedIn}
+        </kit.KitText>
+        {grade !== undefined && (
+          <>
+            {words.gradeSeparator}
+            <kit.KitText role="label" part="grade" tone="good" density={density}>
+              {grade}
+            </kit.KitText>
+          </>
+        )}
+      </kit.KitText>
+    </kit.KitRow>
+  );
+}
+
+type AssignmentRowProps = {
   row: AssignmentsProps["items"][number];
   density: c.ThemeDensity;
   lead: AssignmentsProps["lead"];
-}) {
+  first: boolean;
+};
+function AssignmentRow({ row, density, lead, first }: AssignmentRowProps) {
   const scope = kit.usePartContext();
-  const { lang, words: { assignments: words } } = kit.useWords(learningWordsFor);
+  const {
+    lang,
+    words: { assignments: words },
+  } = kit.useWords(learningWordsFor);
   const { id, title, subject, status, due, grade, goto } = row;
-  const graded = status === "graded", today = assignmentToday();
+  const graded = status === "graded",
+    today = assignmentToday();
   const done = kit.useControlValue(`${scope.screen}/${scope.component}/${id}/done`, status === "done");
-  const mark = lead === "icon" ? <kit.KitIcon name="book_open" tone={assignmentSubjectTone(subject)} part="mark" /> : undefined;
-  const control = graded
-    ? grade === undefined ? <kit.KitTrail kind="check" part="done" tone="good" />
-      : <kit.KitIcon name="check" tone="good" decorative />
-    : <kit.KitCheck part="done" done={done} label={words.handInLabel(title)} />;
+  const overdue = !graded && !done && due < today;
+  const mark =
+    lead === "icon" ? (
+      <kit.KitIcon name="book_open" tone={overdue ? "muted" : assignmentSubjectTone(subject)} part="mark" />
+    ) : undefined;
+  const control = graded ? (
+    grade === undefined ? (
+      <kit.KitTrail kind="check" part="done" tone="good" />
+    ) : (
+      <kit.KitIcon name="check" tone="good" decorative />
+    )
+  ) : (
+    <kit.KitCheck part="done" done={done} label={words.handInLabel(title)} />
+  );
   const statusTone = graded || done ? "good" : "muted";
   return (
     <kit.PartScope {...scope} item={id}>
-      <kit.KitContent density={density}>
+      <kit.KitContent density={density} rhythm="flush" group={first ? "content" : "response"}>
         <kit.KitRow
           part="root"
           label={title}
@@ -148,31 +220,25 @@ function AssignmentRow({ row, density, lead }: {
           leadingWidth="avatar"
           trailing={<kit.KitIcon name="chevron_right" scale="sm" decorative />}
         >
-          <kit.KitText role="body" part="title" density={density}>{title}</kit.KitText>
-          <kit.KitText role="caption" part="subject" tone="muted" density={density}>{subject}</kit.KitText>
-          <kit.KitText role="caption" part="due" tone={!graded && !done && due < today ? "bad" : "muted"} density={density}>
+          <kit.KitText role="body" part="title" density={density}>
+            {title}
+          </kit.KitText>
+          <kit.KitText role="caption" part="subject" tone="muted" density={density}>
+            {subject}
+          </kit.KitText>
+          <kit.KitText role="caption" part="due" tone={overdue ? "bad" : "muted"} density={density}>
             {assignmentDue(due, status, lang, today)}
           </kit.KitText>
         </kit.KitRow>
-        <kit.KitRow part={null} label={title} inline lineRole="caption" density={density} leading={control} leadingWidth="avatar">
-          <kit.KitText role="caption" part={null} tone={statusTone} density={density}>
-            <kit.KitText role="caption" part="status" tone={statusTone} density={density}>
-              {graded ? words.graded : words.handedIn}
-            </kit.KitText>
-            {grade !== undefined && <>
-              {words.gradeSeparator}
-              <kit.KitText role="label" part="grade" tone="good" density={density}>{grade}</kit.KitText>
-            </>}
-          </kit.KitText>
-        </kit.KitRow>
+        {AssignmentStatus(title, grade, density, control, statusTone, graded, words)}
       </kit.KitContent>
     </kit.PartScope>
   );
 }
 
 export function Assignments(input: AssignmentsProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const lead = kit.useVariant("lead", meta.variants.lead, input.lead);
   const state = kit.useComponentState();
   return (
@@ -180,7 +246,9 @@ export function Assignments(input: AssignmentsProps) {
       {state === "empty" ? (
         <kit.KitEmpty part="message" icon="book_open" decorativeIcon />
       ) : (
-        input.items.map((row) => <AssignmentRow key={row.id} {...{ row, density, lead }} />)
+        input.items.map((row, index) => (
+          <AssignmentRow key={row.id} {...{ row, density, lead }} first={index === 0} />
+        ))
       )}
     </kit.KitCard>
   );

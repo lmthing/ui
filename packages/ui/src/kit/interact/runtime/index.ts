@@ -17,10 +17,12 @@ export {
   allowsDestination,
   bindParentGatePart,
   createParentGate,
+  createScannerBrightnessAdapter,
   type HostCommandAdapter,
   type HostCommandResult,
   type ParentGate,
   type ParentGateProof,
+  type ScannerBrightnessAdapter,
 } from "./host";
 export {
   createPrivateControls,

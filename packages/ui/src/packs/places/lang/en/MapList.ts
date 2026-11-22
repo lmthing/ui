@@ -5,4 +5,7 @@ export const words = {
   mapListList: "Just the list",
   mapListPin: (name: string) => `Select ${name} on the map`,
   mapListReading: (name: string, distance: string) => `${JSON.stringify(name)}: ${distance}`,
+  mapListSplit: "Map + list",
+  mapListMapOnly: "Map",
+  mapListListOnly: "List",
 };

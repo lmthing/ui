@@ -1,13 +1,38 @@
-// prettier-ignore
-import { KitAction, KitCard, KitContent, KitGrid, KitSkeleton, KitText, KitTrail,
-  useComponentState, useVariant, useWords } from "../../../kit";
+import {
+  KitAction,
+  KitActionFooter,
+  KitCard,
+  KitContent,
+  KitGrid,
+  KitLayoutText,
+  KitMetaLine,
+  KitState,
+  KitTrail,
+  useComponentState,
+  useKit,
+  useWords,
+  type LayoutLine,
+} from "../../../kit";
 import { bookingWordsFor } from "../lang";
 import { z } from "zod";
-// prettier-ignore
 import {
-  appointmentDate, balancedLine, clock, isoDate, placeholderTitle, probesFor, screenId, text,
-  timeOfDayLine, thingOf, titleOf, variantProps, type ThemeDensity, type FallbackInput, type Meta,
-  type Probe, type Props,
+  appointmentDate,
+  balancedLine,
+  clock,
+  isoDate,
+  placeholderTitle,
+  probesFor,
+  screenId,
+  text,
+  timeOfDayLine,
+  thingOf,
+  titleOf,
+  type ThemeDensity,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+  variantProps,
 } from "../../../catalog";
 import { appointmentCanJoin, appointmentDetails, appointmentReading } from "../copy";
 import { prompt } from "../../../entry/prompt-Appointment.generated";
@@ -23,7 +48,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "A booking record stored on the provider's device.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["with", "place"] } },
   // prettier-ignore
   parts: [
@@ -81,26 +106,44 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     goto: "details",
   };
 }
-// prettier-ignore
 const plantBooking = {
-  style: "card", service: "Plant care visit", with: "Anna", date: "2026-11-20", time: "09:00",
-  minutes: 30, place: "Home", price: 20, status: "confirmed", goto: "time",
+  style: "card",
+  service: "Plant care visit",
+  with: "Anna",
+  date: "2026-11-20",
+  time: "09:00",
+  minutes: 30,
+  place: "Home",
+  price: 20,
+  status: "confirmed",
+  goto: "time",
 } satisfies z.input<typeof props>;
-// prettier-ignore
 export const examples = [
   plantBooking,
   {
-    style: "summary", service: "Morning park walk", with: "Sam", date: "2026-11-21", time: "10:00",
-    minutes: 60, price: 25, status: "pending", policy: "Move or cancel up to two hours before.", goto: "time",
+    style: "summary",
+    service: "Morning park walk",
+    with: "Sam",
+    date: "2026-11-21",
+    time: "10:00",
+    minutes: 60,
+    price: 25,
+    status: "pending",
+    policy: "After booking, move or cancel up to two hours before.",
+    goto: "time",
   },
-  { ...plantBooking, density: "compact" },
+  { ...plantBooking },
   { ...plantBooking, detail: "brief" },
   { ...plantBooking, style: "compact", locationKind: "in_person" },
-  { ...plantBooking, service: "Plant care video visit", locationKind: "video",
-    meetingUrl: "https://meet.example.org/ledge", place: undefined },
+  {
+    ...plantBooking,
+    service: "Plant care video visit",
+    locationKind: "video",
+    meetingUrl: "https://meet.example.org/ledge",
+    place: undefined,
+  },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Appointment");
-// prettier-ignore
 export const probes = [
   choose("Show my one booked visit with its date, time and duration and actions to move or cancel it"),
   choose("Show a simple tappable preview of my fern with a little detail", "Card"),
@@ -111,12 +154,24 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
-  { ...write("Show my confirmed 30-minute plant care visit on 2026-11-20 at 09:00 in a single compact summary row. Open time from the card."),
-    expectProps: { style: "compact" } },
-  { ...write("Show my confirmed 30-minute phone appointment for dog-walking advice on 2026-11-20 at 09:00, with rescheduling to time."),
-    expectProps: { locationKind: "phone" } },
-  { ...write("Show my confirmed 30-minute plant care video visit on 2026-11-20 at 09:00. Use https://meet.example.org/ledge for the join button, and time to reschedule."),
-    expectProps: { status: "confirmed", locationKind: "video", meetingUrl: "https://meet.example.org/ledge" } },
+  {
+    ...write(
+      "Show my confirmed 30-minute plant care visit on 2026-11-20 at 09:00 in a single compact summary row. Open time from the card.",
+    ),
+    expectProps: { style: "compact" },
+  },
+  {
+    ...write(
+      "Show my confirmed 30-minute phone appointment for dog-walking advice on 2026-11-20 at 09:00, with rescheduling to time.",
+    ),
+    expectProps: { locationKind: "phone" },
+  },
+  {
+    ...write(
+      "Show my confirmed 30-minute plant care video visit on 2026-11-20 at 09:00. Use https://meet.example.org/ledge for the join button, and time to reschedule.",
+    ),
+    expectProps: { status: "confirmed", locationKind: "video", meetingUrl: "https://meet.example.org/ledge" },
+  },
   read("Cancel this appointment", { address: "a1/cancel", action: "press" }),
   {
     ...read("Edit the booking details before confirming", { address: "a1/edit", action: "press" }),
@@ -124,74 +179,148 @@ export const probes = [
   },
   { ...read("Join this video meeting", { address: "a1/join", action: "press" }), screen: 5 },
 ] satisfies Probe[];
-type AppointmentText = {
-  value: string;
-  part: string;
-  loading: boolean;
+type AppointmentProps = Props<typeof props, typeof meta>;
+
+function AppointmentDetails({
+  input,
+  density,
+  lang,
+}: {
+  input: AppointmentProps;
   density: ThemeDensity;
-  compact?: boolean;
-};
-// prettier-ignore
-function AppointmentLine({ value, part, loading, density, compact }: AppointmentText) {
-  const number = ["time", "price", "minutes"].includes(part);
-  const role = number ? "number" : "label";
-  const scale = part === "time" && !compact ? "display" : "compact";
-  const align = part === "price" ? "end" : "start";
-  const tone = (number || ["date", "service"].includes(part)) ? "text" : "muted";
-  return loading
-    ? <KitSkeleton shape="figure" inset="none" density={density} content={[[role, value, align, scale]]} />
-    : <KitText {...{ role, density, align, tone, part }} numberScale={scale} tabular={number}>{value}</KitText>;
+  lang: string;
+}) {
+  const details = appointmentDetails(input, lang);
+  const isAmount = ({ part }: { part: string }) => part === "minutes" || part === "price";
+  const meta = details.filter((detail) => !isAmount(detail) && detail.part !== "policy");
+  return (
+    <KitContent density={density}>
+      <KitMetaLine
+        title={{ text: input.service, part: "service", strong: true }}
+        meta={meta}
+        density={density}
+      />
+      <KitGrid fitLast density={density}>
+        {details.filter(isAmount).map(({ part, text }) => (
+          <KitLayoutText
+            key={part}
+            line={{ part, text, role: "figure", compact: true, tabular: true }}
+            align={part === "price" ? "end" : "start"}
+            density={density}
+          />
+        ))}
+      </KitGrid>
+      <KitLayoutText
+        line={{ text: input.policy, part: "policy", role: "meta", tone: "muted" }}
+        density={density}
+      />
+    </KitContent>
+  );
 }
-// prettier-ignore
-export function Appointment(input: Props<typeof props, typeof meta>) {
+function AppointmentHeading(
+  input: AppointmentProps,
+  density: Parameters<typeof KitContent>[0]["density"],
+  date: LayoutLine,
+  time: LayoutLine,
+  location: { text: string; part: string } | undefined,
+  status: ReturnType<typeof KitTrail>,
+) {
+  const compact = input.style === "compact";
+  const card = input.style === "card";
+  return (
+    <KitGrid fitLast density={density}>
+      {compact ? (
+        <KitContent density={density}>
+          <KitLayoutText line={{ text: input.service, part: "service", strong: true }} density={density} />
+          <KitContent
+            lead={<KitLayoutText line={date} density={density} />}
+            leadingAlign="row"
+            density={density}
+          >
+            <KitLayoutText line={time} density={density} />
+          </KitContent>
+          {location && (
+            <KitLayoutText line={{ ...location, role: "meta", tone: "muted" }} density={density} />
+          )}
+        </KitContent>
+      ) : (
+        <KitMetaLine title={date} meta={time} density={density} />
+      )}
+      {(card || compact) && status}
+    </KitGrid>
+  );
+}
+
+function AppointmentActions(
+  input: AppointmentProps,
+  density: Parameters<typeof KitContent>[0]["density"],
+  active: boolean,
+  label: string,
+  cancel: string,
+) {
+  const card = input.style === "card";
+  const change = card ? "reschedule" : "edit";
+  return (
+    <KitActionFooter density={density}>
+      <KitAction label={label} kind="secondary" part={change} goto={input.goto} disabled={!active} />
+      {card && <KitAction label={cancel} kind="danger" part="cancel" disabled={!active} />}
+    </KitActionFooter>
+  );
+}
+
+export function Appointment(input: AppointmentProps) {
   const { lang, words } = useWords();
   const { appointmentLabels, appointmentJoin } = bookingWordsFor(lang);
   const state = useComponentState();
-  const loading = state === "loading";
   const active = state === "filled";
-  const card = input.style === "card";
   const badge = state === "success" ? appointmentLabels.booked : appointmentLabels[input.status];
   const compact = input.style === "compact";
-  const change = card ? "reschedule" : "edit";
-  const density = useVariant("density", meta.variants.density, input.density);
-  const finish = { loading, density };
-  const date = <AppointmentLine value={appointmentDate(input.date, lang)} part="date" {...finish} />;
-  const line = ({ part, text }: { part: string; text: string }) => (
-    <AppointmentLine key={part} value={text} part={part} {...finish} />
+  const change = input.style === "card" ? "reschedule" : "edit";
+  const density = useKit().density;
+  const date: LayoutLine = { text: appointmentDate(input.date, lang), part: "date", role: "meta" };
+  const time: LayoutLine = {
+    text: timeOfDayLine(input.time, lang),
+    part: "time",
+    role: "figure",
+    tabular: true,
+    compact,
+    tone: "text",
+  };
+  const location = input.locationKind && {
+    text: bookingWordsFor(lang).appointmentLocation[input.locationKind],
+    part: "location",
+  };
+  const status = <KitTrail kind="badge" part="status" value={badge} />;
+  const join = appointmentCanJoin(input.status, input.locationKind, input.meetingUrl) && (
+    <KitAction label={appointmentJoin} part="join" disabled={!active} full />
   );
-  const details = appointmentDetails(input, lang);
-  const location = details.find(({ part }) => part === "location");
-  const status = <KitTrail kind="badge" part="status" value={loading ? words.loadingLabel : badge} />;
-  const join = appointmentCanJoin(input.status, input.locationKind, input.meetingUrl) &&
-    <KitAction label={appointmentJoin} part="join" disabled={!active} full />;
-  const time = <AppointmentLine value={timeOfDayLine(input.time, lang)} part="time" compact={compact || Boolean(join)} {...finish} />;
-  return (
-    <KitCard padded part="root" goto={active ? input.goto : undefined} label={input.service} density={density}>
-      {compact ? <><KitGrid fitLast density={density}>
-        <KitContent>
-          <AppointmentLine value={input.service} part="service" {...finish} />
-          <KitContent lead={date} leadingAlign="row" density={density}>{time}</KitContent>
-          {location && line(location)}
+  const body = (
+    <KitContent density={density}>
+      {AppointmentHeading(input, density, date, time, location, status)}
+      {!compact && (
+        <KitContent group="response" density={density}>
+          <AppointmentDetails {...{ input, density, lang }} />
         </KitContent>
-        {status}
-      </KitGrid>{join}</> : <>
-        {!join && date}
-        <KitGrid fitLast density={density}>
-          {join ? <KitContent density={density}>{date}{time}</KitContent> : time}
-          {card && status}
-        </KitGrid>
-        <KitContent>
-          <AppointmentLine value={input.service} part="service" {...finish} />
-          {details.filter(({ part }) => part === "with" || part === "place" || part === "location").map(line)}
+      )}
+      {join && (
+        <KitActionFooter density={density}>
           <KitGrid fitLast density={density}>
-            {details.filter(({ part }) => part === "minutes" || part === "price").map(line)}
+            {join}
           </KitGrid>
-          {input.policy && <AppointmentLine value={input.policy} part="policy" {...finish} />}
-        </KitContent>
-        {join}
-        <KitAction label={appointmentLabels[change]} kind="secondary" part={change} goto={input.goto} disabled={!active} full />
-        {card && <KitAction label={words.cancelLabel} kind="quiet" part="cancel" disabled={!active} full />}
-      </>}
+        </KitActionFooter>
+      )}
+      {!compact && AppointmentActions(input, density, active, appointmentLabels[change], words.cancelLabel)}
+    </KitContent>
+  );
+  return (
+    <KitCard
+      padded
+      part="root"
+      goto={active ? input.goto : undefined}
+      label={input.service}
+      density={density}
+    >
+      {state === "loading" ? <KitState loading={body} density={density} /> : body}
     </KitCard>
   );
 }

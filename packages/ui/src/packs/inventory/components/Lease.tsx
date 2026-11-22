@@ -17,10 +17,21 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Lease records and terms live on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["start", "deposit"] } },
-  // prettier-ignore
-  parts: ["root", "tenant", "place", "start", "end", "time_left", "rent", "next_due", "deposit", "renewal", "terms_icon"],
+  parts: [
+    "root",
+    "tenant",
+    "place",
+    "start",
+    "end",
+    "time_left",
+    "rent",
+    "next_due",
+    "deposit",
+    "renewal",
+    "terms_icon",
+  ],
   states: ["filled"],
   actions: { parts: { root: ["press"] } },
   read: (input, state, lang): string[] =>
@@ -98,44 +109,100 @@ export const probes = [
   read("Open Ana's rental agreement terms for Patio flat", { address: "l1", action: "press" }),
 ] satisfies c.Probe[];
 
-// prettier-ignore
+function LeaseTimeRemaining(copy: ReturnType<typeof leaseCopy>, label: string, density: c.ThemeDensity) {
+  return (
+    <kit.KitContent group="response" {...{ density }}>
+      <kit.KitCard part="time_left" style="plain" {...{ density }}>
+        <kit.KitGrid fitLast {...{ density }}>
+          <kit.KitText part={null} role="label" tone="muted" {...{ density }}>
+            {label}
+          </kit.KitText>
+          <kit.KitText part={null} role="number" numberScale="compact" tabular {...{ density }}>
+            {copy.remaining}
+          </kit.KitText>
+        </kit.KitGrid>
+        <kit.KitMeter
+          label=""
+          amount=""
+          ratio={copy.ratio}
+          slim
+          tone={copy.renewalTone === "warn" ? "warn" : "accent"}
+          addressed={false}
+        />
+        {copy.renewal && (
+          <kit.KitText part="renewal" role="label" tone={copy.renewalTone} {...{ density }}>
+            {copy.renewal}
+          </kit.KitText>
+        )}
+      </kit.KitCard>
+    </kit.KitContent>
+  );
+}
+
+function LeaseDates({ start, end }: ReturnType<typeof leaseCopy>, density: c.ThemeDensity) {
+  return (
+    <kit.KitContent group="response" {...{ density }}>
+      {start && (
+        <kit.KitText part="start" role="label" tone="muted" {...{ density }}>
+          {start}
+        </kit.KitText>
+      )}
+      <kit.KitText part="end" role="label" {...{ density }}>
+        {end}
+      </kit.KitText>
+    </kit.KitContent>
+  );
+}
+
 export function Lease(input: c.Props<typeof props, typeof meta>) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
-  const { lang, words: { lease: words } } = kit.useWords(inventoryWordsFor);
+  const {
+    lang,
+    words: { lease: words },
+  } = kit.useWords(inventoryWordsFor);
   const copy = leaseCopy({ ...input, detail }, lang);
   return (
     <kit.KitRow part="root" role="button" label={words.open(input.place)} {...{ density, surface }}>
-      <kit.KitRow part={null} inline lineRole="heading" label={input.place} {...{ density }}
-        trailing={<kit.KitTrail kind="chevron" part="terms_icon" />}>
+      <kit.KitRow
+        part={null}
+        inline
+        lineRole="heading"
+        label={input.place}
+        {...{ density }}
+        trailing={<kit.KitTrail kind="chevron" part="terms_icon" />}
+      >
         <kit.KitContent {...{ density }}>
-          <kit.KitText part="place" role="heading" density="comfortable">{input.place}</kit.KitText>
-          <kit.KitText part="tenant" role="label" tone="muted" {...{ density }}>{copy.tenant}</kit.KitText>
+          <kit.KitText part="place" role="heading" density="comfortable">
+            {input.place}
+          </kit.KitText>
+          <kit.KitText part="tenant" role="label" tone="muted" {...{ density }}>
+            {copy.tenant}
+          </kit.KitText>
         </kit.KitContent>
       </kit.KitRow>
-      <kit.KitContent group="response" {...{ density }}>
-        {copy.start && <kit.KitText part="start" role="label" tone="muted" {...{ density }}>{copy.start}</kit.KitText>}
-        <kit.KitText part="end" role="label" {...{ density }}>{copy.end}</kit.KitText>
-      </kit.KitContent>
-      <kit.KitContent group="response" {...{ density }}>
-        <kit.KitCard part="time_left" style="plain" {...{ density }}>
-          <kit.KitGrid fitLast {...{ density }}>
-            <kit.KitText part={null} role="label" tone="muted" {...{ density }}>{words.timeLeft}</kit.KitText>
-            <kit.KitText part={null} role="number" numberScale="compact" tabular {...{ density }}>{copy.remaining}</kit.KitText>
-          </kit.KitGrid>
-          <kit.KitMeter label="" amount="" ratio={copy.ratio} slim tone={copy.renewalTone === "warn" ? "warn" : "accent"} addressed={false} />
-          {copy.renewal && <kit.KitText part="renewal" role="label" tone={copy.renewalTone} {...{ density }}>{copy.renewal}</kit.KitText>}
-        </kit.KitCard>
-      </kit.KitContent>
+      {LeaseDates(copy, density)}
+      {LeaseTimeRemaining(copy, words.timeLeft, density)}
       <kit.KitContent group="response" {...{ density }}>
         <kit.KitText part="rent" role="label" tone="muted" {...{ density }}>
-          {copy.rent[0]}<kit.KitText part={null} role="number" numberScale="compact" tabular {...{ density }}>{copy.rent[1]}</kit.KitText>{copy.rent[2]}
+          {copy.rent[0]}
+          <kit.KitText part={null} role="number" numberScale="compact" tabular {...{ density }}>
+            {copy.rent[1]}
+          </kit.KitText>
+          {copy.rent[2]}
         </kit.KitText>
-        <kit.KitText part="next_due" role="label" {...{ density }}>{copy.nextDue}</kit.KitText>
-        {copy.deposit && <kit.KitText part="deposit" role="label" tone="muted" {...{ density }}>
-          {copy.deposit[0]}<kit.KitText part={null} role="number" numberScale="compact" tabular {...{ density }}>{copy.deposit[1]}</kit.KitText>
-        </kit.KitText>}
+        <kit.KitText part="next_due" role="label" {...{ density }}>
+          {copy.nextDue}
+        </kit.KitText>
+        {copy.deposit && (
+          <kit.KitText part="deposit" role="label" tone="muted" {...{ density }}>
+            {copy.deposit[0]}
+            <kit.KitText part={null} role="number" numberScale="compact" tabular {...{ density }}>
+              {copy.deposit[1]}
+            </kit.KitText>
+          </kit.KitText>
+        )}
       </kit.KitContent>
     </kit.KitRow>
   );

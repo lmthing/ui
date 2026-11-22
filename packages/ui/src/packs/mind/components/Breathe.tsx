@@ -23,7 +23,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Breathing is paced by an on-device animation with optional gentle haptics.",
-  variants: { surface: ["card", "plain"], emphasis: ["normal", "quiet"], detail: ["full", "brief"] },
+  variants: { emphasis: ["normal", "quiet"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["rounds"] } },
   parts: ["root", "circle", "phase", "rounds", "grounding", "step", "next"],
   states: ["filled", "success"],
@@ -92,38 +92,54 @@ export function fallback(_input: c.FallbackInput): z.input<typeof props> {
   return { pattern: "box", rounds: 1 };
 }
 
-// prettier-ignore
 export const examples = [
   { pattern: "box", rounds: 4 },
-  { surface: "plain", pattern: "custom", rounds: 6, inhale: 4, hold: 2, exhale: 6, rest: 0 },
+  { pattern: "custom", rounds: 6, inhale: 4, hold: 2, exhale: 6, rest: 0 },
   { pattern: "calm", rounds: 4, emphasis: "quiet" },
   { pattern: "even", rounds: 4, detail: "brief" },
   { style: "grounding", pattern: "box", rounds: 1 },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Breathe");
-// prettier-ignore
 export const probes = [
-  choose("Show a circle that expands as I breathe in and shrinks as I breathe out, pacing six rounds with a hold and pause."),
-  choose("Count down five minutes for a silent sit with start and stop; no breathing rhythm, just time left.", "Timer"),
+  choose(
+    "Show a circle that expands as I breathe in and shrinks as I breathe out, pacing six rounds with a hold and pause.",
+  ),
+  choose(
+    "Count down five minutes for a silent sit with start and stop; no breathing rhythm, just time left.",
+    "Timer",
+  ),
   write("Lead six rounds of custom breathing: inhale four seconds, hold two, exhale six, rest zero."),
   {
-    ...write("Guide four rounds of your even breathing preset. Show the breathing cue but hide the remaining-round count."),
+    ...write(
+      "Guide four rounds of your even breathing preset. Show the breathing cue but hide the remaining-round count.",
+    ),
     variant: { axis: "detail", value: "brief" },
   },
-  read("Play the breathing exercise using the playback action shown in brackets, not press.", { address: "b1/circle", action: "play" }),
+  read("Play the breathing exercise using the playback action shown in brackets, not press.", {
+    address: "b1/circle",
+    action: "play",
+  }),
   {
-    ...write("Guide a five-senses grounding exercise: notice five things I see, four I feel, three I hear, two I smell, and one I taste. Let me take each prompt at my own pace."),
+    ...write(
+      "Guide a five-senses grounding exercise: notice five things I see, four I feel, three I hear, two I smell, and one I taste. Let me take each prompt at my own pace.",
+    ),
     expectProps: { style: "grounding" },
   },
 ] satisfies c.Probe[];
 
-// prettier-ignore
-function CountLabel({ before, count, after, part }: ReturnType<typeof breathCopy>["rounds"] & { part: "rounds" | "step" }) {
+function CountLabel({
+  before,
+  count,
+  after,
+  part,
+}: ReturnType<typeof breathCopy>["rounds"] & { part: "rounds" | "step" }) {
   return (
     <kit.KitText part={part} role="caption" tone="muted" align={part === "rounds" ? "center" : "start"}>
       {before}
-      <kit.KitText part={null} role="number" numberScale="compact" tabular>{count}</kit.KitText>
+      <kit.KitText part={null} role="number" numberScale="compact" tabular>
+        {count}
+      </kit.KitText>
       {after}
     </kit.KitText>
   );
@@ -155,18 +171,20 @@ function Grounding({ index }: { index: number }) {
   );
 }
 
-// prettier-ignore
 export function Breathe(input: BreathProps) {
   const live = kit.useLiveControls(meta, input);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
-  return <kit.KitCard part="root" surface={surface} padded>
-    {input.style === "grounding"
-      ? <Grounding index={Number(live.groundingAt ?? 0)} />
-      : <BreathCircle input={input} live={live} />}
-  </kit.KitCard>;
+  const surface = "card";
+  return (
+    <kit.KitCard part="root" surface={surface} padded>
+      {input.style === "grounding" ? (
+        <Grounding index={Number(live.groundingAt ?? 0)} />
+      ) : (
+        <BreathCircle input={input} live={live} />
+      )}
+    </kit.KitCard>
+  );
 }
 
-// prettier-ignore
 function BreathCircle({ input, live }: { input: BreathProps; live: Record<string, unknown> }) {
   const complete = kit.useComponentState() === "success";
   const running = !complete && live.running === true;
@@ -177,17 +195,42 @@ function BreathCircle({ input, live }: { input: BreathProps; live: Record<string
   const { cue, rounds } = breathCopy(frame, lang);
   const action = running ? words.breathe.pause : words.breathe.play;
   const controlFirst = !running && !complete;
-  const phaseLine = <kit.KitText part="phase" role={controlFirst ? "caption" : "heading"}
-    align="center" tone={controlFirst ? "muted" : "text"} emphasis={emphasis}>{cue}</kit.KitText>;
-  const control = !complete && <kit.KitText part={null} role={controlFirst ? "heading" : "caption"}
-    align="center" tone={emphasis === "quiet" ? "text" : "accent"} emphasis={emphasis}>{action}</kit.KitText>;
-  return <kit.KitContent rhythm="flush">
-    <kit.KitBreath part={null} target={{ part: complete ? null : "circle" }}
-      phase={frame.phase} progress={frame.progress} paused={!running}
-      label={complete ? cue : words.breathe.controlLabel(action, cue)}>
-      {controlFirst ? control : phaseLine}
-      {controlFirst ? phaseLine : control}
-    </kit.KitBreath>
-    {detail === "full" && <CountLabel part="rounds" {...rounds} />}
-  </kit.KitContent>;
+  const phaseLine = (
+    <kit.KitText
+      part="phase"
+      role={controlFirst ? "caption" : "heading"}
+      align="center"
+      tone={controlFirst ? "muted" : "text"}
+      emphasis={emphasis}
+    >
+      {cue}
+    </kit.KitText>
+  );
+  const control = !complete && (
+    <kit.KitText
+      part={null}
+      role={controlFirst ? "heading" : "caption"}
+      align="center"
+      tone={emphasis === "quiet" ? "text" : "accent"}
+      emphasis={emphasis}
+    >
+      {action}
+    </kit.KitText>
+  );
+  return (
+    <kit.KitContent rhythm="flush">
+      <kit.KitBreath
+        part={null}
+        target={{ part: complete ? null : "circle" }}
+        phase={frame.phase}
+        progress={frame.progress}
+        paused={!running}
+        label={complete ? cue : words.breathe.controlLabel(action, cue)}
+      >
+        {controlFirst ? control : phaseLine}
+        {controlFirst ? phaseLine : control}
+      </kit.KitBreath>
+      {detail === "full" && <CountLabel part="rounds" {...rounds} />}
+    </kit.KitContent>
+  );
 }

@@ -3,6 +3,14 @@ import { bookingWordsFor } from "../lang";
 /** Neutral working-week defaults and labels for paired time controls. */
 export const availabilityDefaults = { from: "09:00", to: "17:00" } as const;
 export const { availabilityLabels } = bookingWordsFor();
+export const bookingWeekdays = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
+type Weekday = (typeof bookingWeekdays)[number];
+
+export function availabilityDayLabel(day: Weekday, on: boolean, lang?: string) {
+  const weekday = wordsFor(lang).weekdayNames[bookingWeekdays.indexOf(day)]!;
+  return on ? weekday : bookingWordsFor(lang).availabilityLabels.off(weekday);
+}
+
 export const breakRange = (from: string, to: string): string => `${from}–${to}`;
 export const breakLine = (from: string, to: string, lang?: string): string =>
   `${bookingWordsFor(lang).availabilityLabels.break} ${breakRange(from, to)}`;
@@ -22,6 +30,8 @@ export function availabilityReading(
     dateOverrides,
   }: {
     days: readonly {
+      day: Weekday;
+      on: boolean;
       from: string;
       to: string;
       breakFrom?: string | undefined;
@@ -32,13 +42,12 @@ export function availabilityReading(
   },
   lang?: string,
 ) {
-  const { weekdayNames } = wordsFor(lang);
   const { availabilityLabels, availabilityOverrides } = bookingWordsFor(lang);
   return [
-    ...weekdayNames,
     availabilityLabels.from,
     availabilityLabels.to,
-    ...days.flatMap(({ from, to, breakFrom, breakTo }) => [
+    ...days.flatMap(({ day, on, from, to, breakFrom, breakTo }) => [
+      availabilityDayLabel(day, on, lang),
       from,
       to,
       ...(breakFrom && breakTo ? [breakLine(breakFrom, breakTo, lang)] : []),

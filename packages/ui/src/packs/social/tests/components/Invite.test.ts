@@ -28,8 +28,8 @@ describe("Invite schema", () => {
   it("trims the title and code and accepts exact bounds", () => {
     const boundary = { ...example, title: "T".repeat(32), code: "W".repeat(12), joined: 999999 };
     const parsed = props.parse({ ...boundary, code: `  ${boundary.code}  ` });
-    expect(parsed).toMatchObject({ ...boundary, align: "start", surface: "card", detail: "full" });
-    expect(parsed.density).toBeUndefined();
+    expect(parsed).toMatchObject({ ...boundary, detail: "full" });
+    expect(parsed).not.toHaveProperty("density");
     expect(draw(boundary).get(address("code"))?.text).toEqual([boundary.code]);
     expect(props.safeParse({ ...example, joined: 0 }).success).toBe(true);
     type View = Props<typeof props, typeof meta>;
@@ -91,7 +91,12 @@ describe("Invite fallback and metadata", () => {
 describe("Invite state, parts and reading", () => {
   it("shows the same invite code as text and in a scannable, labeled QR", () => {
     const drawn = draw(example);
-    expect([...drawn.keys()].sort()).toEqual(meta.parts.map(address).sort());
+    expect([...drawn.keys()].sort()).toEqual(
+      meta.parts
+        .filter((part) => part !== "members_title")
+        .map(address)
+        .sort(),
+    );
     expect(drawn.get(address("title"))?.text).toEqual([example.title]);
     expect(drawn.get(address("code"))?.text).toEqual([example.code]);
     expect(drawn.get(address("qr"))?.attributes).toContain('aria-label="Invite QR code"');
@@ -119,7 +124,7 @@ describe("Invite state, parts and reading", () => {
   });
   it("preserves finish addresses and hides only the count in brief without dropping the value", () => {
     const full = [...draw(example).keys()];
-    const compact = { ...example, density: "compact", surface: "outlined", align: "center" };
+    const compact = { ...example };
     const brief = { ...example, detail: "brief" };
     expect([...draw(compact).keys()]).toEqual(full);
     expect([...draw(brief).keys()]).toEqual(full.filter((key) => key !== address("joined")));

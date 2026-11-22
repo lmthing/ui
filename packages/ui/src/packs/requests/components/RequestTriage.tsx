@@ -6,8 +6,8 @@ import { requestsWordsFor } from "../lang";
 import { urgency } from "./RequestQueue";
 import { prompt } from "../../../entry/prompt-RequestTriage.generated";
 
-// prettier-ignore
-const maxChoices = 6, maxReason = 120;
+const maxChoices = 6,
+  maxReason = 120;
 
 // Core first: Field/choice cannot compare reported urgency with priority or link a duplicate.
 // prettier-ignore
@@ -18,7 +18,7 @@ export const meta = {
   writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath: "A routing decision saved with the request on the operator's device.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["number", "title", "reported_urgency", "impact"] } },
   parts: ["root", "number", "title", "reported_urgency", "impact", "priority", "queues", "reason", "apply", "apply_label"],
   items: { key: "choices", parts: ["root", "label", "number", "title", "link", "link_label"] },
@@ -63,46 +63,75 @@ export const props = z.strictObject({
       ...value.duplicates.map(({ goto, ...entry }) => ({ ...entry, root: { goto }, kind: "duplicate" }))],
   }));
 
-// prettier-ignore
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast),
     item = c.itemsOf(cast, 1)[0];
   return {
     number: c.placeholderValue,
     title: (item && c.titleOf(item, 32, thing)) || c.placeholderTitle(0, lang),
-    reportedUrgency: "normal", impact: "one", at: 0,
-    queues: [{ label: (item && c.detailOf(item, 20, thing)) || c.placeholderTitle(1, lang) }], duplicates: [],
+    reportedUrgency: "normal",
+    impact: "one",
+    at: 0,
+    queues: [{ label: (item && c.detailOf(item, 20, thing)) || c.placeholderTitle(1, lang) }],
+    duplicates: [],
   };
 }
 
-// prettier-ignore
-const duplicateExample = { number: "TR-08", title: "Loose gate by the dog run", reportedUrgency: "normal", impact: "site", priority: "urgent",
-  queues: [{ label: "Facilities" }], duplicates: [{ number: "TR-07", title: "Dog run latch", goto: "dog_run" }],
-  duplicateAt: 0, reason: "Same gate latch in both reports." } satisfies z.input<typeof props>;
-// prettier-ignore
+const duplicateExample = {
+  number: "TR-08",
+  title: "Loose gate by the dog run",
+  reportedUrgency: "normal",
+  impact: "site",
+  priority: "urgent",
+  queues: [{ label: "Facilities" }],
+  duplicates: [{ number: "TR-07", title: "Dog run latch", goto: "dog_run" }],
+  duplicateAt: 0,
+  reason: "Same gate latch in both reports.",
+} satisfies z.input<typeof props>;
 export const examples = [
-  { number: "LG-41", title: "Grow light keeps flickering", reportedUrgency: "urgent", impact: "one", priority: "normal", queues: [{ label: "Equipment" }, { label: "Plant care" }], at: 0, duplicates: [] },
-  { ...duplicateExample, detail: "brief" }, { ...duplicateExample, density: "compact" },
+  {
+    number: "LG-41",
+    title: "Grow light keeps flickering",
+    reportedUrgency: "urgent",
+    impact: "one",
+    priority: "normal",
+    queues: [{ label: "Equipment" }, { label: "Plant care" }],
+    at: 0,
+    duplicates: [],
+  },
+  { ...duplicateExample, detail: "brief" },
+  { ...duplicateExample },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("RequestTriage");
-// prettier-ignore
 export const probes = [
-  choose("Review a newly reported fault, set priority by its impact, send it to the right team, or link it to the ticket we already have"),
+  choose(
+    "Review a newly reported fault, set priority by its impact, send it to the right team, or link it to the ticket we already have",
+  ),
   choose("On the report form add one category dropdown with Plant care, Gears and Other", "Field"),
-  { ...write("For LG-41 Grow light keeps flickering, reported urgent but affects one shelf, set normal priority and select Equipment from Equipment and Plant care. No duplicates. Show only the decision, not the original report."),
-    variant: { axis: "detail", value: "brief" } },
-  read("The queue is already selected. Press Apply triage to save the decision without changing the selection.",
-    { address: "r1/apply", action: "press" }),
+  {
+    ...write(
+      "For LG-41 Grow light keeps flickering, reported urgent but affects one shelf, set normal priority and select Equipment from Equipment and Plant care. No duplicates. Show only the decision, not the original report.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
+  read(
+    "The queue is already selected. Press Apply triage to save the decision without changing the selection.",
+    { address: "r1/apply", action: "press" },
+  ),
 ] satisfies c.Probe[];
 
 type Duplicate = z.output<typeof duplicate>;
-// prettier-ignore
 type Choice = { id: string } & (
   | { kind: "queue"; label: string }
-  | { kind: "duplicate"; number: string; title: string; root: { goto: string }; canLink: boolean });
-// prettier-ignore
-type View = z.output<typeof props> & { choices: Choice[]; apply?: number; canTriage: boolean; canApply: boolean };
+  | { kind: "duplicate"; number: string; title: string; root: { goto: string }; canLink: boolean }
+);
+type View = z.output<typeof props> & {
+  choices: Choice[];
+  apply?: number;
+  canTriage: boolean;
+  canApply: boolean;
+};
 type HostFacts = { canTriage: boolean; canLink: (target: Duplicate) => boolean };
 
 /** Bind to the host's authority and canonical, cycle-free target lookup before committing real records. */
@@ -127,72 +156,208 @@ function triageGates(input: c.Values): c.Values {
   return deriveTriage(input, { canTriage: true, canLink: () => true });
 }
 
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 type Words = ReturnType<typeof requestsWordsFor>["triage"];
 
-// prettier-ignore
 function Report({ p, w }: { p: View; w: Words }) {
-  return <kit.KitContent>
-    <kit.KitText part="number" role="number" numberScale="compact" tone="muted" tabular>{p.number}</kit.KitText>
-    <kit.KitText part="title" role="heading">{p.title}</kit.KitText>
-    <kit.KitText part="reported_urgency" role="label" tone="muted">{w.reported(p.reportedUrgency)}</kit.KitText>
-    <kit.KitText part="impact" role="label" tone="muted">{w.impact(p.impact)}</kit.KitText>
-  </kit.KitContent>;
+  return (
+    <kit.KitContent>
+      <kit.KitText part="number" role="number" numberScale="compact" tone="muted" tabular>
+        {p.number}
+      </kit.KitText>
+      <kit.KitText part="title" role="heading">
+        {p.title}
+      </kit.KitText>
+      <kit.KitText part="reported_urgency" role="label" tone="muted">
+        {w.reported(p.reportedUrgency)}
+      </kit.KitText>
+      <kit.KitText part="impact" role="label" tone="muted">
+        {w.impact(p.impact)}
+      </kit.KitText>
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
 function Duplicates({ p, w, density }: { p: View; w: Words; density: Density }) {
   if (!p.duplicates.length) return null;
-  return <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>
-    <kit.KitText role="label" tone="muted" part={null}>{w.duplicates}</kit.KitText>
-    {p.choices.map((row, index) => row.kind === "duplicate" &&
-      <kit.KitRow key={row.id} item={row.id} part={null} inline label={row.title}>
-        <kit.KitGrid fitLast density={density}>
-          <kit.KitRow part="root" inline goto={row.root.goto} label={row.title}>
-            <kit.KitText part="number" role="number" numberScale="compact" tone="muted" tabular>{row.number}</kit.KitText>
-            <kit.KitText part="title" role="body">{row.title}</kit.KitText>
-          </kit.KitRow>
-          <kit.KitAction part="link" action="select" value={index} disabled={!row.canLink}
-            label={p.apply === index ? w.chosen : w.link} kind={p.apply === index ? "secondary" : "quiet"} />
-        </kit.KitGrid>
-      </kit.KitRow>)}
-  </kit.KitContent>;
+  return (
+    <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>
+      <kit.KitText role="label" tone="muted" part={null}>
+        {w.duplicates}
+      </kit.KitText>
+      {p.choices.map(
+        (row, index) =>
+          row.kind === "duplicate" && (
+            <kit.KitRow key={row.id} item={row.id} part={null} inline label={row.title}>
+              <kit.KitGrid fitLast density={density}>
+                <kit.KitRow part="root" inline goto={row.root.goto} label={row.title}>
+                  <kit.KitText part="number" role="number" numberScale="compact" tone="muted" tabular>
+                    {row.number}
+                  </kit.KitText>
+                  <kit.KitText part="title" role="body">
+                    {row.title}
+                  </kit.KitText>
+                </kit.KitRow>
+                <kit.KitAction
+                  part="link"
+                  action="select"
+                  value={index}
+                  disabled={!row.canLink}
+                  label={p.apply === index ? w.chosen : w.link}
+                  kind={p.apply === index ? "secondary" : "quiet"}
+                />
+              </kit.KitGrid>
+            </kit.KitRow>
+          ),
+      )}
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
+function TriageReport(p: View, w: Words, loading: boolean) {
+  return loading ? (
+    <kit.KitSkeleton
+      shape="figure"
+      inset="none"
+      content={[
+        ["number", p.number, "start", "compact"],
+        ["heading", p.title],
+        ["label", w.reported(p.reportedUrgency)],
+        ["label", w.impact(p.impact)],
+      ]}
+    />
+  ) : (
+    <Report {...{ p, w }} />
+  );
+}
+
+type TriageFinish = { density: Density; group: "content" | "response"; loading: boolean };
+function TriageLabel(text: string, loading: boolean) {
+  return loading ? (
+    <kit.KitSkeleton shape="figure" inset="none" content={[["label", text]]} />
+  ) : (
+    <kit.KitText role="label" tone="muted" part={null}>
+      {text}
+    </kit.KitText>
+  );
+}
+function TriagePriority(p: View, w: Words, full: boolean, { density, group, loading }: TriageFinish) {
+  const priority = full ? w.priority : w.decision;
+  return (
+    <kit.KitContent density={density} group={full ? group : "content"}>
+      {TriageLabel(priority, loading)}
+      <kit.KitTrack part="priority" look="segments" role="radiogroup" label={priority}>
+        {urgency.options.map((value) => (
+          <kit.KitChip
+            key={value}
+            item={null}
+            label={w.urgency[value]}
+            {...{ value }}
+            role="radio"
+            look="segment"
+            on={p.priority === value}
+            disabled={!p.canTriage}
+          />
+        ))}
+      </kit.KitTrack>
+    </kit.KitContent>
+  );
+}
+
+function TriageQueue(p: View, w: Words, { density, group, loading }: TriageFinish) {
+  return (
+    <kit.KitContent density={density} group={group}>
+      {TriageLabel(w.queue, loading)}
+      <kit.KitTrack part="queues" role="radiogroup" label={w.queue}>
+        {p.choices.map(
+          (row, index) =>
+            row.kind === "queue" && (
+              <kit.KitChip
+                key={row.id}
+                item={row.id}
+                label={row.label}
+                role="radio"
+                on={p.apply === index}
+                disabled={!p.canTriage}
+              />
+            ),
+        )}
+      </kit.KitTrack>
+    </kit.KitContent>
+  );
+}
+
+function TriageReason(p: View, w: Words, { density, group, loading }: TriageFinish) {
+  return (
+    <kit.KitContent density={density} group={group}>
+      {TriageLabel(w.reason, loading)}
+      {loading ? (
+        <kit.KitRow label={w.reason} tone="muted" density="comfortable">
+          <kit.KitContent rhythm="flush">
+            <kit.KitLayoutText
+              line={{ text: p.reason || (p.duplicates.length ? w.linkHint : w.reasonHint) }}
+            />
+            <kit.KitLayoutText line={{ text: w.reason, role: "meta" }} />
+          </kit.KitContent>
+        </kit.KitRow>
+      ) : p.canTriage ? (
+        <kit.KitTextArea
+          part="reason"
+          label={w.reason}
+          hint={p.duplicates.length ? w.linkHint : w.reasonHint}
+          value={p.reason}
+          lines={2}
+          maxLength={maxReason}
+        />
+      ) : (
+        <kit.KitText part="reason" role="body" tone="muted">
+          {p.reason || w.reasonHint}
+        </kit.KitText>
+      )}
+    </kit.KitContent>
+  );
+}
+
 export function RequestTriage(input: c.Props<typeof props, typeof meta>) {
-  const { words: { triage: w } } = kit.useWords(requestsWordsFor), state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density), loading = state === "loading";
-  const detail = kit.useVariant("detail", meta.variants.detail, input.detail), p = kit.useLiveControls(meta, input) as View;
-  const group = density === "compact" ? "content" : "response", priority = detail === "brief" ? w.decision : w.priority;
-  const label = (text: string) => loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", text]]} />
-    : <kit.KitText role="label" tone="muted" part={null}>{text}</kit.KitText>;
-  return <kit.KitCard padded density={density} part="root">
-    {state === "success" || state === "error" ? <kit.KitContent>
-        <kit.KitText part={null} role="heading" tone={state === "success" ? "good" : "bad"}>{state === "success" ? w.saved : w.error}</kit.KitText>
-        {state === "error" && <kit.KitText part={null} role="body" tone="muted">{w.stale}</kit.KitText>}
-      </kit.KitContent> : <>
-      {detail === "full" && (loading ? <kit.KitSkeleton shape="figure" inset="none"
-        content={[["number", p.number, "start", "compact"], ["heading", p.title], ["label", w.reported(p.reportedUrgency)], ["label", w.impact(p.impact)]]} />
-        : <Report {...{ p, w }} />)}
-      <kit.KitContent density={density} group={detail === "full" ? group : "content"}>{label(priority)}
-        <kit.KitTrack part="priority" look="segments" role="radiogroup" label={priority}>
-          {urgency.options.map((value) => <kit.KitChip key={value} item={null} label={w.urgency[value]}
-            {...{ value }} role="radio" look="segment" on={p.priority === value} disabled={!p.canTriage} />)}
-        </kit.KitTrack></kit.KitContent>
-      <kit.KitContent density={density} group={group}>{label(w.queue)}
-        <kit.KitTrack part="queues" role="radiogroup" label={w.queue}>
-          {p.choices.map((row, index) => row.kind === "queue" && <kit.KitChip key={row.id}
-            item={row.id} label={row.label} role="radio" on={p.apply === index} disabled={!p.canTriage} />)}
-        </kit.KitTrack></kit.KitContent>
-      {loading ? p.duplicates.length > 0 && <kit.KitSkeleton rows={p.duplicates.length} lead="none" inset="none" />
-        : <Duplicates {...{ p, w, density }} />}
-      <kit.KitContent density={density} group={group}>{label(w.reason)}
-        {loading ? <kit.KitRow label={w.reason} tone="muted"><kit.KitSkeleton shape="figure" inset="none"
-          content={[["body", w.reasonHint], ["body", w.reason]]} /></kit.KitRow> : p.canTriage ?
-          <kit.KitTextArea part="reason" label={w.reason} hint={p.duplicates.length ? w.linkHint : w.reasonHint}
-          value={p.reason} lines={2} maxLength={maxReason} />
-          : <kit.KitText part="reason" role="body" tone="muted">{p.reason || w.reasonHint}</kit.KitText>}</kit.KitContent>
-      <kit.KitContent group="response"><kit.KitAction part="apply" full disabled={!p.canApply} label={w.apply} /></kit.KitContent></>}
-  </kit.KitCard>;
+  const {
+      words: { triage: w },
+    } = kit.useWords(requestsWordsFor),
+    state = kit.useComponentState();
+  const density = kit.useKit().density,
+    loading = state === "loading";
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail),
+    p = kit.useLiveControls(meta, input) as View;
+  const group = density === "compact" ? "content" : "response";
+  const finish = { density, group, loading } as const;
+  return (
+    <kit.KitCard padded density={density} part="root">
+      {state === "success" || state === "error" ? (
+        <kit.KitContent>
+          <kit.KitText part={null} role="heading" tone={state === "success" ? "good" : "bad"}>
+            {state === "success" ? w.saved : w.error}
+          </kit.KitText>
+          {state === "error" && (
+            <kit.KitText part={null} role="body" tone="muted">
+              {w.stale}
+            </kit.KitText>
+          )}
+        </kit.KitContent>
+      ) : (
+        <>
+          {detail === "full" && TriageReport(p, w, loading)}
+          {TriagePriority(p, w, detail === "full", finish)}
+          {TriageQueue(p, w, finish)}
+          {loading ? (
+            p.duplicates.length > 0 && <kit.KitSkeleton rows={p.duplicates.length} lead="none" inset="none" />
+          ) : (
+            <Duplicates {...{ p, w, density }} />
+          )}
+          {TriageReason(p, w, finish)}
+          <kit.KitContent group="response">
+            <kit.KitAction part="apply" full disabled={!p.canApply} label={w.apply} />
+          </kit.KitContent>
+        </>
+      )}
+    </kit.KitCard>
+  );
 }

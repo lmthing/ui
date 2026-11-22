@@ -1,12 +1,30 @@
-// prettier-ignore
 import {
-  useLiveControls, useVariant, useWords, KitCard, KitFieldControl, KitMicCapture,
-  KitSlider, KitText,
+  useLiveControls,
+  useKit,
+  useWords,
+  KitCard,
+  KitFieldControl,
+  KitMicCapture,
+  KitSlider,
+  KitText,
 } from "../kit";
-// prettier-ignore
 import {
-  wordsFor, probesFor, clip, clock, defineLocalState, isoDate, numberLine, photo, repeatOptions, text, thingOf,
-  variantProps, type FallbackInput, type Meta, type Probe, type Props,
+  wordsFor,
+  probesFor,
+  clip,
+  clock,
+  defineLocalState,
+  isoDate,
+  numberLine,
+  photo,
+  repeatOptions,
+  text,
+  thingOf,
+  variantProps,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
 } from "../catalog";
 import { z } from "zod";
 import { prompt } from "../entry/prompt-Field.generated";
@@ -32,7 +50,7 @@ export const meta = {
   weight: 1,
   tier: "phone",
   realPath: "A field value stored on one record in the on-device database.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["hint"] } },
   parts: ["root", "label", "field", "hint", "photo", "lower", "upper", "voice", "range_reading"],
   partTiers: { voice: "ok" },
@@ -78,8 +96,12 @@ const fits = (kind: string, value: string) =>
           ? photo.safeParse(value).success
           : !["number", "slider"].includes(kind) || Number.isFinite(Number(value));
 
-// prettier-ignore
-type Endpoints = { min?: number | undefined; max?: number | undefined; lower?: number | undefined; upper?: number | undefined };
+type Endpoints = {
+  min?: number | undefined;
+  max?: number | undefined;
+  lower?: number | undefined;
+  upper?: number | undefined;
+};
 // prettier-ignore
 function fitsRange({ min, max, lower, upper }: Endpoints) {
   return (min !== undefined && max !== undefined && lower !== undefined && upper !== undefined &&
@@ -121,10 +143,21 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 
   return { kind: "text", label: clip(thingOf(cast)?.fields[0]?.trim() || placeholderDetail, 24) };
 }
-// prettier-ignore
-const interval = { kind: "number", label: "Water interval (days)", value: "7", hint: "Use whole days." } as const;
-// prettier-ignore
-const walkRange = { kind: "range", label: "Walk duration (min)", min: 0, max: 90, lower: 20, upper: 60, hint: "Set the shortest and longest walk." } as const;
+const interval = {
+  kind: "number",
+  label: "Water interval (days)",
+  value: "7",
+  hint: "Use whole days.",
+} as const;
+const walkRange = {
+  kind: "range",
+  label: "Walk duration (min)",
+  min: 0,
+  max: 90,
+  lower: 20,
+  upper: 60,
+  hint: "Set the shortest and longest walk.",
+} as const;
 export const examples = [
   { kind: "text", label: "Plant name", value: "Fern" },
   { kind: "date", label: "Walk date", value: "2026-11-19" },
@@ -137,58 +170,88 @@ export const examples = [
   { kind: "repeat", label: "Water it", repeat: "weekly" },
   { ...interval, detail: "brief" },
   walkRange,
-  { ...walkRange, density: "compact" },
+  { ...walkRange },
   { kind: "voice", label: "Voice note" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Field");
-// prettier-ignore
 export const probes = [
   choose("Let me enter the name of a new plant on its form"),
   choose("Find a plant in my collection by typing part of its name", "Search"),
   write("A form input labelled Plant name, with Fern already entered"),
   write("A form input labelled Water it, set to repeat every week"),
-  { ...write('A usual-size input called Plant name. Save the hint "Use a short name", but hide it on screen.'),
-    variant: { axis: "detail", value: "brief" } },
+  {
+    ...write(
+      'A usual-size input called Plant name. Save the hint "Use a short name", but hide it on screen.',
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Name the plant Basil", { address: "f1/field", action: "type" }),
-  { ...write("On the form, let me choose both ends of a Walk duration range. The scale goes from 0 to 90; start the two handles at 20 and 60."),
-    expectProps: { kind: "range", min: 0, max: 90, lower: 20, upper: 60 } },
-  { ...write("Add one form input called Voice note that records from my microphone instead of typing."), expectProps: { kind: "voice" } },
+  {
+    ...write(
+      "On the form, let me choose both ends of a Walk duration range. The scale goes from 0 to 90; start the two handles at 20 and 60.",
+    ),
+    expectProps: { kind: "range", min: 0, max: 90, lower: 20, upper: 60 },
+  },
+  {
+    ...write("Add one form input called Voice note that records from my microphone instead of typing."),
+    expectProps: { kind: "voice" },
+  },
 ] satisfies Probe[];
 
-// prettier-ignore
 function RangeField(input: Props<typeof props, typeof meta>) {
   const { lang, words } = useWords();
   const { min, max, lower, upper } = useLiveControls(meta, input) as z.output<typeof props>;
   const { fieldRange } = words;
-  return <>
-      <KitText part="range_reading" role="number" numberScale="compact" density={input.density} tabular>{fieldRange.reading(numberLine(lower!, lang), numberLine(upper!, lang))}</KitText>
-      <KitSlider min={min!} max={max!} range={[
+  return (
+    <>
+      <KitText part="range_reading" role="number" numberScale="compact" tabular>
+        {fieldRange.reading(numberLine(lower!, lang), numberLine(upper!, lang))}
+      </KitText>
+      <KitSlider
+        min={min!}
+        max={max!}
+        range={[
           { part: "lower", value: lower!, label: fieldRange.lower(input.label) },
           { part: "upper", value: upper!, label: fieldRange.upper(input.label) },
-      ]} />
-  </>;
+        ]}
+      />
+    </>
+  );
 }
 
-// prettier-ignore
 export function Field(input: Props<typeof props, typeof meta>) {
   const { repeatLabels, composer } = useWords().words;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   return (
     <KitCard style="plain" part="root" padded inset="none" density={density}>
-      <KitText role="label" part="label" density={density}>{input.label}</KitText>
+      <KitText role="label" part="label" density={density}>
+        {input.label}
+      </KitText>
       {input.kind === "range" ? (
         <RangeField {...input} />
       ) : input.kind === "voice" ? (
-        <KitMicCapture part="voice" target={{ part: "voice" }} label={composer.voice} level={0} recording={false} />
+        <KitMicCapture
+          part="voice"
+          target={{ part: "voice" }}
+          label={composer.voice}
+          level={0}
+          recording={false}
+        />
       ) : (
         <KitFieldControl
-          kind={input.kind} label={input.label} value={input.value}
-          choices={input.kind === "repeat" ? repeatOptions.map((option) => repeatLabels[option]) : input.options}
+          kind={input.kind}
+          label={input.label}
+          value={input.value}
+          choices={
+            input.kind === "repeat" ? repeatOptions.map((option) => repeatLabels[option]) : input.options
+          }
           chosen={input.kind === "repeat" && input.repeat ? repeatLabels[input.repeat] : input.value}
         />
       )}
       {input.detail === "full" && input.hint && (
-        <KitText role="caption" tone="muted" part="hint" density={density}>{input.hint}</KitText>
+        <KitText role="caption" tone="muted" part="hint" density={density}>
+          {input.hint}
+        </KitText>
       )}
     </KitCard>
   );

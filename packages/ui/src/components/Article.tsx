@@ -17,7 +17,6 @@ export const meta = {
   tier: "phone",
   realPath: "The text is stored on or bundled with the app.",
   variants: {
-    density: ["comfortable", "compact"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["title", "by", "date", "reading_time", "photo"] } },
@@ -53,7 +52,6 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
     body: (item && c.detailOf(item, 2000, thing)) || c.wordsFor(lang).placeholderDetail,
   };
 }
-// prettier-ignore
 export const examples = [
   {
     title: "A fern's first week at home",
@@ -64,12 +62,18 @@ export const examples = [
   },
   {
     title: "Before the first walk",
-    style: "book", paper: "sepia", fontScale: "large", photo: "lib:dogs",
+    style: "book",
+    paper: "sepia",
+    fontScale: "large",
+    photo: "lib:dogs",
     body: "## At the door\nBefore clipping on the lead, let Clover sniff it while you pack a bowl and spare bag.\n\n- Check the gate latch.\n- Keep the loop *familiar*.\n\nOpen the [park route](screen:park_route) before setting out.",
   },
   {
-    style: "response", paper: "dark", fontScale: "small",
-    title: "Why leaves turn yellow", by: "Noor Martin",
+    style: "response",
+    paper: "dark",
+    fontScale: "small",
+    title: "Why leaves turn yellow",
+    by: "Noor Martin",
     body: "Check the soil before watering again.\n\n> [!NOTE] A few older leaves may yellow naturally.",
   },
 ] satisfies z.input<typeof props>[];
@@ -101,7 +105,6 @@ const paperSwatch = { light: "white", sepia: "beige", dark: "black" } as const;
 // Heading and body share a size on the kit scale; title is the next larger text step.
 const bodyRole = { normal: "body", small: "label", large: "title" } as const;
 type Layout = { input: ArticleProps; density: c.ThemeDensity; loading: boolean };
-// prettier-ignore
 function ArticleHeader({ input, density, loading }: Layout) {
   const { lang, words } = kit.useWords();
   const { by: author, date, time } = articleHeader(input, lang);
@@ -109,47 +112,81 @@ function ArticleHeader({ input, density, loading }: Layout) {
   const separator = words.article.metadataSeparator;
   const titleRole = "title";
   const label = { role: "label", tone: "muted", density } as const;
-  if (loading) return <kit.KitSkeleton shape="figure" inset="none" {...{ density }}
-    content={[[titleRole, input.title], ["label", by], ["label", date ? `${date}${separator}${time}` : time]]} />;
+  if (loading)
+    return (
+      <kit.KitSkeleton
+        shape="figure"
+        inset="none"
+        {...{ density }}
+        content={[
+          [titleRole, input.title],
+          ["label", by],
+          ["label", date ? `${date}${separator}${time}` : time],
+        ]}
+      />
+    );
   return (
     <kit.KitContent lineRole="title" {...{ density }}>
-      <kit.KitText role={titleRole} part="title" {...{ density }}>{input.title}</kit.KitText>
-      {by && <kit.KitText part="by" {...label}>{by}</kit.KitText>}
+      <kit.KitText role={titleRole} part="title" {...{ density }}>
+        {input.title}
+      </kit.KitText>
+      {by && (
+        <kit.KitText part="by" {...label}>
+          {by}
+        </kit.KitText>
+      )}
       <kit.KitText part={null} {...label}>
-        {date && <kit.KitText part="date" {...label} tabular>{date}</kit.KitText>}
+        {date && (
+          <kit.KitText part="date" {...label} tabular>
+            {date}
+          </kit.KitText>
+        )}
         {date && separator}
-        <kit.KitText part="reading_time" {...label} tabular>{time}</kit.KitText>
+        <kit.KitText part="reading_time" {...label} tabular>
+          {time}
+        </kit.KitText>
       </kit.KitText>
     </kit.KitContent>
   );
 }
-// prettier-ignore
 function ArticleLine({ block, density, loading, input }: Layout & { block: ArticleBlock }) {
   const role = bodyRole[input.fontScale];
   const { lang } = kit.useWords();
   const [start, end] = articleEdges(block, lang);
-  if (loading) {
+  if (loading && !block.runs.some((run) => run.link !== undefined)) {
     const text = `${start}${block.runs.map((run) => run.text).join("")}${end}`;
     return <kit.KitSkeleton shape="figure" inset="none" content={[[role, text]]} {...{ density }} />;
   }
-  const emphasis = block.kind === "heading" || block.kind === "callout" ? "strong" : block.kind === "quote" ? "emphasis" : undefined;
+  const emphasis =
+    block.kind === "heading" || block.kind === "callout"
+      ? "strong"
+      : block.kind === "quote"
+        ? "emphasis"
+        : undefined;
   return (
     <kit.KitText part={null} {...{ density, role, emphasis }}>
       {start}
       {block.runs.map(({ text, emphasis: format, link }, index) => {
         const target = link === undefined ? undefined : input.links[link];
         return target || format ? (
-          <kit.KitText key={index} item={target?.id} goto={target?.goto} part={target ? "root" : null}
-            emphasis={format ?? emphasis} {...{ density, role }}>
+          <kit.KitText
+            key={index}
+            item={target?.id}
+            goto={target?.goto}
+            part={target ? "root" : null}
+            emphasis={format ?? emphasis}
+            {...{ density, role }}
+          >
             {text}
           </kit.KitText>
-        ) : text;
+        ) : (
+          text
+        );
       })}
       {end}
     </kit.KitText>
   );
 }
-// prettier-ignore
 function ArticleBody({ input, density, loading, full }: Layout & { full: boolean }) {
   const { blocks, title } = input;
   return (
@@ -161,7 +198,12 @@ function ArticleBody({ input, density, loading, full }: Layout & { full: boolean
             previous === "heading" ||
             (previous === block.kind && (previous === "bullet" || previous === "ordered"));
           return (
-            <kit.KitContent key={index} group={previous && !tight ? "response" : "content"} lineRole="body" {...{ density }}>
+            <kit.KitContent
+              key={index}
+              group={previous && !tight ? "response" : "content"}
+              lineRole="body"
+              {...{ density }}
+            >
               <ArticleLine {...{ block, input, density, loading }} />
             </kit.KitContent>
           );
@@ -170,27 +212,41 @@ function ArticleBody({ input, density, loading, full }: Layout & { full: boolean
     </kit.KitRow>
   );
 }
-// prettier-ignore
 export function Article(input: ArticleProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const loading = kit.useComponentState() === "loading";
   const { photo, paper, style } = input;
   const layout = { input, density, loading };
   const { words } = kit.useWords();
-  const cover = full && photo && (loading
-    ? <kit.KitSkeleton shape="media" aspect="wide" inset="none" content={[]} />
-    : <kit.KitPhoto part="photo" shape="wide" {...{ photo }} />);
+  const cover =
+    full &&
+    photo &&
+    (loading ? (
+      <kit.KitSkeleton shape="media" aspect="wide" inset="none" content={[]} />
+    ) : (
+      <kit.KitPhoto part="photo" shape="wide" {...{ photo }} />
+    ));
   const attribution = full && style === "response" && input.by && words.article.byline(input.by);
   return (
-    <kit.KitCard part="root" padded {...{ density }} {...(!loading && paper ? { swatch: paperSwatch[paper] } : {})}>
+    <kit.KitCard
+      part="root"
+      padded
+      {...{ density }}
+      {...(!loading && paper ? { swatch: paperSwatch[paper] } : {})}
+    >
       {style === "book" && cover}
       {full && <ArticleHeader {...layout} />}
       {style !== "book" && cover}
       <ArticleBody {...layout} {...{ full }} />
-      {attribution && (loading
-        ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", attribution]]} {...{ density }} />
-        : <kit.KitText part="by" role="label" tone="muted" {...{ density }}>{attribution}</kit.KitText>)}
+      {attribution &&
+        (loading ? (
+          <kit.KitSkeleton shape="figure" inset="none" content={[["label", attribution]]} {...{ density }} />
+        ) : (
+          <kit.KitText part="by" role="label" tone="muted" {...{ density }}>
+            {attribution}
+          </kit.KitText>
+        ))}
     </kit.KitCard>
   );
 }

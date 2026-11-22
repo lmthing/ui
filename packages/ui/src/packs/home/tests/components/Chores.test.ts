@@ -22,7 +22,7 @@ afterEach(() => vi.useRealTimers());
 
 it("keeps default details and hides only repeat and last in the brief view and read", () => {
   const input = examples[0]!;
-  expect(props.parse(input)).toMatchObject({ surface: "card", detail: "full" });
+  expect(props.parse(input)).toMatchObject({ detail: "full" });
   expect(props.safeParse({ ...input, detail: "other" }).success).toBe(false);
   const brief = { ...input, detail: "brief" };
   const html = renderInstance("Chores", brief, "filled", theme);

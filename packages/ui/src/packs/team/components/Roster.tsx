@@ -1,8 +1,21 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-// prettier-ignore
-import { rosterCover, rosterDays, rosterPortrait, rosterReading, rosterShift, rosterToday, rosterWeek, shiftsByPerson } from "../copy";
+import {
+  projectRosterDay,
+  rosterCover,
+  rosterDayHeading,
+  rosterDateInWeek,
+  rosterDays,
+  rosterDayWake,
+  rosterPortrait,
+  rosterReading,
+  rosterShift,
+  rosterToday,
+  rosterWeek,
+  shiftsByPerson,
+  shiftsByStation,
+} from "../copy";
 import { teamWordsFor } from "../lang";
 import { prompt } from "../../../entry/prompt-Roster.generated";
 
@@ -24,13 +37,16 @@ export const meta = {
   tier: "people",
   realPath: "A manager edits the rota in a shared app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["role"] } },
   parts: ["root", "week", "matrix", "cover", "scroll_hint", "empty", ...portraits],
   items: { key: "shifts", parts: ["root", "role"] },
+  deviceDataWake: (_data, input, now) => rosterDayWake(input, now),
+  recordRuntime: {
+    kind: "roster_day",
+    project: ({ props: input, now }): c.Values => projectRosterDay(input as z.output<typeof props>, now),
+  },
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] } },
   read: rosterReading,
@@ -39,7 +55,9 @@ export const meta = {
 export const props = z
   .strictObject({
     ...c.variantProps(meta.variants),
+    style: z.enum(["week", "day"]).default("week"),
     week: c.isoDate.refine((date) => new Date(`${date}T00:00:00Z`).getUTCDay() === 1, "Use a Monday"),
+    date: c.isoDate.optional().meta({ kind: undefined }),
     people: z
       .array(z.strictObject({ name: c.text(20), photo: c.photo }))
       .min(1)
@@ -52,6 +70,7 @@ export const props = z
           from: c.clock,
           to: c.clock,
           role: c.text(12).optional().meta({ kind: undefined }),
+          station: c.text(20).optional().meta({ kind: undefined }),
         }),
       )
       .min(0)
@@ -60,6 +79,10 @@ export const props = z
   .refine(({ people, shifts }) => shifts.every(({ person }) => person < people.length), {
     path: ["shifts"],
     message: "Every shift must name an existing person index",
+  })
+  .refine(({ week, date }) => !date || rosterDateInWeek(week, date), {
+    path: ["date"],
+    message: "Use a date in the roster week",
   });
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
@@ -101,6 +124,19 @@ export const examples = [
       { person: 1, day: 1, from: "10:00", to: "15:00", role: "Day care" },
     ],
   },
+  {
+    style: "day",
+    week: "2026-11-16",
+    date: "2026-11-16",
+    people: [
+      { name: "Anna", photo: "lib:people" },
+      { name: "Rae", photo: "lib:people" },
+    ],
+    shifts: [
+      { person: 0, day: 0, from: "07:00", to: "12:00", role: "Watering", station: "Greenhouse" },
+      { person: 1, day: 0, from: "08:00", to: "13:00", station: "Potting bench" },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Roster");
@@ -122,75 +158,231 @@ export const probes = [
     variant: { axis: "detail", value: "brief" },
   },
   read("Open Anna's Wednesday shift at 08:00", { address: "r1/r3", action: "press" }),
+  {
+    ...write(
+      "Show just Monday 2026-11-16 grouped by workstation, not the weekly grid. Sam (photo lib:people) works 07:00–12:00 at the Greenhouse station.",
+    ),
+    expectProps: { style: "day", date: "2026-11-16", shifts: [{ station: "Greenhouse" }] },
+  },
 ] satisfies c.Probe[];
 
 type ViewProps = c.Props<typeof props, typeof meta>;
-type MatrixProps = ViewProps & { loading: boolean };
+type MatrixProps = ViewProps & { density: c.ThemeDensity; loading: boolean };
 
-// prettier-ignore
-function RosterMatrix({ week, people, shifts, density, detail, loading }: MatrixProps) {
-  const { words, lang } = kit.useWords(teamWordsFor);
-  const w = words.roster;
-  const days = rosterDays(shifts, lang).map((day) => ({
-    ...day,
-    header: <kit.KitText role="label" tone={day.uncovered ? "warn" : "text"} part={null}>{day.short}</kit.KitText>,
-  }));
-  const schedule = shiftsByPerson(people, shifts);
-  const rows = people.map(({ name, photo }, person) => ({
+function RosterDay({ people, shifts, density, detail }: MatrixProps) {
+  const {
+    words: { roster: w },
+    lang,
+  } = kit.useWords(teamWordsFor);
+  return (
+    <kit.KitRowGroup spacing="groups" separators={false} density={density}>
+      {shiftsByStation(shifts).map(({ station, shifts: rows }) => (
+        <kit.KitContent key={station ?? ""} density={density}>
+          <kit.KitHeader
+            title={{ text: station ?? w.unassigned, role: "meta", tone: "muted" }}
+            density={density}
+          />
+          <kit.KitRowGroup density={density}>
+            {rows.map((shift) => {
+              const name = people[shift.person]!.name;
+              const { time, role } = rosterShift(shift, detail === "brief", lang);
+              const label = w.personReading(name, [w.shift(time, role)]);
+              return (
+                <kit.KitRow
+                  key={shift.id}
+                  item={shift.id}
+                  part="root"
+                  role="button"
+                  label={label}
+                  inset="none"
+                  inline
+                  density={density}
+                >
+                  <kit.KitMetaLine
+                    title={{ text: name, role: "body", strong: true }}
+                    meta={[
+                      { text: time, role: "figure", compact: true, tabular: true, tone: "text" },
+                      { text: role, part: "role" },
+                    ]}
+                    density={density}
+                  />
+                </kit.KitRow>
+              );
+            })}
+          </kit.KitRowGroup>
+        </kit.KitContent>
+      ))}
+    </kit.KitRowGroup>
+  );
+}
+
+function RosterMatrixRows(
+  { people, detail, density }: Pick<MatrixProps, "people" | "detail" | "density">,
+  days: ReturnType<typeof rosterDays>,
+  schedule: ReturnType<typeof shiftsByPerson<MatrixProps["shifts"][number]>>,
+  lang: string,
+  w: ReturnType<typeof teamWordsFor>["roster"],
+) {
+  return people.map(({ name, photo }, person) => ({
     id: `person_${person}`,
     label: name,
-    heading: (
-      <kit.KitRow inline density={density} label={name} leadingAlign="row"
-        leading={<kit.KitPhoto {...rosterPortrait(name, photo)} shape="round" label={name} part={portraits[person]!} />}>
-        <kit.KitRow inline label={name}>
-          <kit.KitText role="label" lines={1} part={null}>{name}</kit.KitText>
-        </kit.KitRow>
-      </kit.KitRow>
-    ),
+    heading: RosterPersonHeading(name, photo, person, density),
     cells: days.map((day, index) => ({
       id: day.id,
       content: schedule[person]!.filter(({ shift }) => shift.day === index).map(({ shift }) => {
         const { time, role } = rosterShift(shift, detail === "brief", lang);
         return (
-          <kit.KitRow key={shift.id} item={shift.id} part="root" role="button" inline
-            density={density} label={w.shiftLabel(name, day.label, w.shift(time, role))}>
-            <kit.KitText role="number" numberScale="compact" tabular lines={1} part={null}>{time}</kit.KitText>
-            {role && <kit.KitText role="caption" tone="muted" lines={1} part="role">{role}</kit.KitText>}
+          <kit.KitRow
+            key={shift.id}
+            item={shift.id}
+            part="root"
+            role="button"
+            inline
+            density={density}
+            label={w.shiftLabel(name, day.label, w.shift(time, role))}
+          >
+            <kit.KitText role="number" numberScale="compact" tabular lines={1} part={null}>
+              {time}
+            </kit.KitText>
+            {role && (
+              <kit.KitText role="caption" tone="muted" lines={1} part="role">
+                {role}
+              </kit.KitText>
+            )}
           </kit.KitRow>
         );
       }),
     })),
   }));
-  const cover = rosterCover(days, lang);
-  return <>
-    <kit.KitWeekMatrix part="matrix" {...{ days, rows, loading }}
-      today={rosterToday(week, new Date())}
-      corner={<kit.KitText part={null} role="label" tone="muted">{w.staff}</kit.KitText>} />
-    {loading ? <kit.KitSkeleton density={density} shape="figure" inset="none"
-      content={[["caption", cover], ["caption", w.scrollHint]]} /> : <kit.KitContent density={density}>
-      {cover && <kit.KitText role="caption" part="cover" tone="warn">{cover}</kit.KitText>}
-      <kit.KitText part="scroll_hint" role="caption" tone="muted">{w.scrollHint}</kit.KitText>
-    </kit.KitContent>}
-  </>;
 }
 
-// prettier-ignore
+function RosterPersonHeading(
+  name: string,
+  photo: MatrixProps["people"][number]["photo"],
+  person: number,
+  density: MatrixProps["density"],
+) {
+  return (
+    <kit.KitRow
+      inline
+      density={density}
+      label={name}
+      leadingAlign="row"
+      leading={
+        <kit.KitPhoto {...rosterPortrait(name, photo)} shape="round" label={name} part={portraits[person]!} />
+      }
+    >
+      <kit.KitRow inline label={name}>
+        <kit.KitText role="label" lines={1} part={null}>
+          {name}
+        </kit.KitText>
+      </kit.KitRow>
+    </kit.KitRow>
+  );
+}
+
+function RosterMatrix({ week, people, shifts, detail, density, loading }: MatrixProps) {
+  const { words, lang } = kit.useWords(teamWordsFor);
+  const w = words.roster;
+  const days = rosterDays(shifts, lang).map((day) => ({
+    ...day,
+    header: (
+      <kit.KitText role="label" tone={day.uncovered ? "warn" : "text"} part={null}>
+        {day.short}
+      </kit.KitText>
+    ),
+  }));
+  const schedule = shiftsByPerson(people, shifts);
+  const rows = RosterMatrixRows({ people, detail, density }, days, schedule, lang, w);
+  const cover = rosterCover(days, lang);
+  return (
+    <>
+      <kit.KitWeekMatrix
+        part="matrix"
+        {...{ days, rows, loading }}
+        today={rosterToday(week, new Date())}
+        corner={
+          <kit.KitText part={null} role="label" tone="muted">
+            {w.staff}
+          </kit.KitText>
+        }
+      />
+      {loading ? (
+        <kit.KitSkeleton
+          density={density}
+          shape="figure"
+          inset="none"
+          content={[
+            ["caption", cover],
+            ["caption", w.scrollHint],
+          ]}
+        />
+      ) : (
+        <kit.KitContent density={density}>
+          {cover && (
+            <kit.KitText role="caption" part="cover" tone="warn">
+              {cover}
+            </kit.KitText>
+          )}
+          <kit.KitText part="scroll_hint" role="caption" tone="muted">
+            {w.scrollHint}
+          </kit.KitText>
+        </kit.KitContent>
+      )}
+    </>
+  );
+}
+
 export function Roster(input: ViewProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const thing = kit.useEmptyThing();
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { words, lang } = kit.useWords(teamWordsFor);
-  const heading = rosterWeek(input.week, lang);
+  const controls = kit.useLiveControls(meta, input) as ViewProps & { rosterDate?: string };
+  const { controller } = kit.useKit();
+  const live = controller ? controls : { ...input, ...projectRosterDay(input, Date.now()) };
+  const day = live.rosterDate;
+  const heading = day ? rosterDayHeading(day, lang) : rosterWeek(input.week, lang);
   const loading = state === "loading";
+  const body = day ? (
+    <RosterDay {...live} {...{ detail, density, loading }} />
+  ) : (
+    <RosterMatrix {...input} {...{ detail, density, loading }} />
+  );
+  const empty = (
+    <kit.KitEmpty
+      part="empty"
+      icon="calendar_days"
+      decorativeIcon
+      title={words.roster.empty}
+      prominence="body"
+    />
+  );
+  const loaded = !live.shifts.length ? empty : body;
   return (
     <kit.KitCard padded {...{ density, surface }}>
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["heading", heading]]} /> :
-        <kit.KitText part="week" role="heading">{heading}</kit.KitText>}
-      {state === "empty" ? <kit.KitEmpty part="empty" icon="calendar_days" decorativeIcon /> :
-        !loading && !input.shifts.length ? (
-          <kit.KitEmpty part="empty" icon="calendar_days" decorativeIcon title={words.roster.empty} />
-        ) : <RosterMatrix {...input} {...{ detail, density, loading }} />}
+      {loading ? (
+        <kit.KitSkeleton shape="figure" inset="none" content={[["heading", heading]]} />
+      ) : (
+        <kit.KitText part="week" role="heading">
+          {heading}
+        </kit.KitText>
+      )}
+      {loading && !day ? (
+        body
+      ) : (
+        <kit.KitState
+          part="empty"
+          icon="calendar_days"
+          message={day && !thing ? words.roster.empty : undefined}
+          density={density}
+          loading={<kit.KitSkeleton density={density} />}
+        >
+          {loaded}
+        </kit.KitState>
+      )}
     </kit.KitCard>
   );
 }

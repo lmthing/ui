@@ -31,7 +31,7 @@ function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) 
   const segment = look === "segment";
   const box = look === "box";
   const custom = box || Boolean(swatch) || disabled;
-  const edge = disabled ? "$line" : on ? "$accent" : "$muted";
+  const edge = !disabled && on ? "$accent" : "$line";
   const idleFill = disabled ? "$raised" : "$surface";
   const onFill = segment ? "$surface" : "$accent";
   const fill = custom ? (on ? "$accentSoft" : idleFill) : on ? onFill : "transparent";
@@ -132,7 +132,9 @@ function Chip(input: ChipProps & { stamped: boolean }) {
   return (
     <Hit
       {...(addressed ? address : {})}
-      {...(look === "segment" ? { flex: component.base.bodyFlex } : {})}
+      {...(look === "segment"
+        ? { flex: component.base.bodyFlex, flexBasis: component.base.none, minWidth: size.control.md }
+        : {})}
       paddingHorizontal={look === "segment" && variant ? space.xs : undefined}
       {...(disabled && !isWeb ? { accessibilityState: { disabled: true } } : {})}
       {...(press ? { onPress: press } : {})}

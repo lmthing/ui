@@ -40,7 +40,7 @@ The scope table is the full requirement, not a claim that each row is complete.
 6. **Plain code, grouped by purpose.** At most 60 lines per function. No hard code file-size limit; `pnpm rules` warns above 400 lines per file or 12 files per non-exempt folder. Named exports only (default exports only in the gallery's route files), plain functions and plain data, no classes. Other folders import a folder only through its `index.ts`. `pnpm build:entries` generates the gitignored re-export doors for pack `components/` and `copy/`, `kit/base/` and `catalog/copy/`. Edit the source modules, not those doors. Doors with logic stay hand-written.
 7. **Agents read and act like people.** Every screen has a compact text form generated from the same data it is drawn from, and every part that people can touch has typed actions. An agent action runs exactly the code a human touch runs. Agents never need raw DOM or screenshots.
 8. **Compose shared runtime primitives.** A component declares its needs using the primitives in 4.12 and 5.9. Keep component-specific rules in its definition, not in a new runtime mechanism. Add a primitive only when the existing set cannot express a distinct shared contract. Nothing here depends on THING, takes, trailers or app sessions. Tiers and `realPath` are required; signature metadata is optional.
-9. **Developable alone.** The gallery host, runtime fixtures and probe runner work without lmthing. Worked pack apps and the model-text repair pipeline (4.14) remain pending. The app and harness depend on this repo and never the other way round.
+9. **Developable alone.** The gallery host, runtime fixtures, probe runner and model-text repair pipeline (4.14) work without lmthing. Worked pack apps remain pending. The app and harness depend on this repo and never the other way round.
 
 ## 3. Repository layout
 
@@ -269,11 +269,7 @@ Gallery `carousel`, Scale `stars`).
 
 | Kind       | Axis       | Values                                          | Meaning                                         |
 | ---------- | ---------- | ----------------------------------------------- | ----------------------------------------------- |
-| Finish     | `density`  | `comfortable`, `compact`                        | Row height, spacing and type step               |
 | Finish     | `emphasis` | `quiet`, `normal`, `hero`                       | Prominence on the screen                        |
-| Finish     | `surface`  | `plain`, `card`, `tinted`, `outlined`           | Container treatment                             |
-| Finish     | `align`    | `start`, `center`                               | Alignment of the component's own content        |
-| Finish     | `bleed`    | `inset`, `edge`                                 | Inside the gutter or edge to edge               |
 | Finish     | `aspect`   | `auto`, `square`, `wide`, `tall`                | Media frame shape                               |
 | Content    | `detail`   | `full`, `brief`                                 | Secondary text (subtitles, meta) shown or not   |
 | Content    | `media`    | `none`, `icon`, `thumb`, `cover`                | Image treatment where images exist              |
@@ -287,18 +283,19 @@ Gallery `carousel`, Scale `stars`).
 | Item       | `tone`     | `neutral`, `good`, `warn`, `bad`                | Semantic status of one item, never a colour     |
 | Item       | `mark`     | `none`, `highlight`, `muted`, `new`             | Prominence of one item                          |
 
-The theme (4.3) adds two app-wide enums: `density` (`comfortable`, `compact`), the default for every
-component without its own, and `motion` (`calm`, `lively`), for entrances and celebrations; the OS
-reduce-motion setting still wins.
+The theme (4.3) supplies `density` (`comfortable`, `compact`) for row height, spacing and type steps,
+and decides the surface treatment. Renderers choose alignment and bleed for their role in the layout.
+`density`, `surface`, `align` and `bleed` are not component props or Writer axes. Theme `motion`
+(`calm`, `lively`) governs entrances and celebrations; the OS reduce-motion setting still wins.
 
 **Declaration.** `meta.variants` lists the component's axes, each with the subset of values that make
-sense for it, its default first: `variants: { density: ["comfortable", "compact"], emphasis:
-["normal", "hero"] }`. A local default need not be the first value in the shared vocabulary. Item
+sense for it, its default first: `variants: { emphasis: ["normal", "hero"], detail: ["full", "brief"] }`.
+A local default need not be the first value in the shared vocabulary. Item
 axes go in `meta.items.variants`; when both levels declare `trail`, `itemVariantProps` can inherit
 the collection trail, and action gating uses the same effective value as the view. Most components
-declare three to six axes; none declares one that changes nothing it draws. `density` absent from a line means the app's
-density. A shared `variantProps(meta.variants)` helper in `catalog/props` spreads the axes into the
-strict props object as ordinary flat props (`{"c":"List","density":"compact"}`), so a line, a
+declare only axes that change what they draw. A shared `variantProps(meta.variants)` helper in
+`catalog/props` spreads the axes into the
+strict props object as ordinary flat props (`{"c":"List","detail":"brief"}`), so a line, a
 validator and a `patch` `set` handle them like any prop; there is no variant op.
 
 **Parts.** Finish axes never change parts or addresses. Content and collection axes may show or hide
@@ -309,10 +306,10 @@ without modifying the wire props. A hidden item keeps its address and actions; t
 the same prefix and localized "and N more" count as the view. The conformance test renders every
 declared value and checks these rules.
 
-**Tokens.** `tokens/variants.ts` maps each finish value to token steps and roles per preset kind
-(for example `emphasis.hero` lifts the type step and weight, `surface.card` uses `surface` plus
-`elevation.card`), as plain data. Kit bases take axis values through `useVariant()` and the base
-options; views pass the component's values to bases and never branch on numbers.
+**Tokens.** `tokens/variants.ts` maps finish values and internal Kit options to token steps and roles
+per preset kind. For example, `emphasis.hero` changes type step and weight, while a card role uses
+the theme's surface treatment. Kit bases take declared axis values through `useVariant()` and accept
+renderer-owned options separately. Views never branch on raw layout numbers.
 
 **Repairs and screen rules.** An undeclared axis or value is a component repair (4.14) back to the
 default, never a failed line. Screen rules (4.5) cap `emphasis: "hero"` at one per screen, a
@@ -321,8 +318,8 @@ items.
 
 **Prompts and probes.** The write prompt states the axis vocabulary once (budget: at most 160 tokens);
 each component's line lists only its axes and values. Writers set an axis only when the request
-implies one. Shared write probes cover each axis on representative components ("fit more on the
-walks list" → `density: "compact"`); each component adds one write probe for its most distinctive
+implies one. Shared write probes cover each axis on representative components ("show a number at the start of each
+row" → `lead: "number"`); each component adds one write probe for its most distinctive
 non-finish axis.
 
 **Look and gallery.** `look` draws the defaults in every preset and mode as before, plus each declared
@@ -330,18 +327,13 @@ non-default value once (calm, light, 390 wide) on a variants sheet. The gallery 
 per component.
 
 **Migration.** Bespoke values that an axis covers move to it through `catalog/migrations` before
-strict validation of saved lines; enable each migration with its destination schema. Explicit
-destination values win. Card `style: "plain"` was a filled surface and maps to `surface: "card"`;
-`tinted` and `outlined` keep their finishes, and `style: "media"` becomes `media: "cover"` (or
-`"thumb"` if an icon was authored instead of a photo). The
-default `media: "thumb"` preserves the old inline thumbnail or icon treatment when no axis was
-requested. List's per-row cards are structural: keep `style: "cards"` to distinguish them from a
-single enclosing card and use `surface` for the finish. List `inset` becomes `surface: "card"` and
-List `plain` becomes `surface: "plain"`. Ranked rows use `lead: "number"` and
-`trail: "value"`, and historical rows without scores hide their trail. Other moves include Button
-`md|lg` to `emphasis`, Player `compact` to `density`, Success `row|centered` to `align`, Photo
-`square|wide|tall` to `aspect`, and per-component `tone` enums to the shared helper. Each adoption
-task lists its own moves and refreshes its recordings against the new schema.
+strict validation of saved lines; enable each migration with its destination schema. Ignore legacy
+component `density`, `surface`, `align` and `bleed` on saved lines, without touching the theme.
+Preserve content and structural choices: Card `style: "media"` becomes `media: "cover"` (or `"thumb"`
+for an icon), and List keeps `style: "cards"` for separate row cards. Ranked rows use `lead: "number"`
+and `trail: "value"`; rows without scores hide their trail. Other moves include Player `compact` to
+`detail: "brief"`, Photo `square|wide|tall` to `aspect`, and component-specific `tone` enums to the
+shared helper. Explicit values on supported axes win.
 
 ### 4.3 Tokens and themes
 
@@ -547,10 +539,10 @@ scope or Writer fields follow from shared drawing.
 
 ### 4.7 Lookups for repairs
 
-**Pending:** `nearestIcon(name)` (edit distance and synonyms, else neutral `dot`),
-`nearestPhotoTag(tag)` over catalog photo tags, `clampText(value, max)` at a word boundary, and
-`snapEnum(value, values)`. Strict output prevents wrong ids; these helpers serve legacy or other
-untrusted input and property-level repairs, not component alias mapping.
+R2 snaps icon names (edit distance or Lucide synonyms, else neutral `dot`), enum values and
+malformed photo tags, and clips text at a word boundary. The photo schema accepts open `lib:` tags;
+the host may supply its tag vocabulary when repairing a malformed reference. Valid references are
+preserved. These repairs do not map modern component aliases.
 
 Current schemas reject unknown icons and malformed photo references. `swatch` already snaps unknown
 product-colour names. `clip` is a cast/copy helper, not the planned repair API. `legacyTarget` is
@@ -570,9 +562,9 @@ home/~after:l1      gap after component
 `parseAddress`, `formatAddress` and `climb` are built. Round-trip tests cover the grammar. The kit
 stamps full addresses; root elements include `/root`, while reader action addresses omit it.
 
-**Pending persistent ids:** `stampItemIds` currently assigns positional `r1`, `r2`, … (or a declared
-prefix) and overwrites supplied ids with positional ids. It does not allocate component ids or persist item counters.
-“Second row ever added” semantics require the host/validator counter contract.
+`stampItemIds` remains the positional view helper. The line pipeline allocates component and primary
+item ids from serializable high water marks. Keep the counters across additions and deletions;
+matching retained items on a rewrite stays with the host.
 
 ### 4.9 Prompt entries
 
@@ -801,30 +793,33 @@ component acceptance is each probe's majority, not those aggregate thresholds.
 
 ### 4.14 Lines to screens: parse, component repairs, ids
 
-**Pending pipeline.** The pure R1/R2 steps remain requirements for legacy/untrusted input and worked
+The pure R1/R2 steps handle legacy/untrusted input and worked
 examples. Strict output removes component alias/off-pack repairs, not property validation.
 
 ```ts
 parseLine(text): { line?: unknown; codes: string[] };
-readComponent(line, registry, ctx: { cast }): { component?: Component; codes: string[] };
-stampIds(components): Component[];
+repairComponent(line, registry, ctx: { cast }): { component?: Component; codes: string[] };
+stampIds(components, registry, counters?): Component[];
 assembleScreen(lines, registry, ctx): { screen: ScreenLike; codes: string[] };
 ```
 
 R1 strips fences, trailing commas, single quotes and closes brackets, else drops input. R2 validates
 exact/scoped ids, strips unknown fields, fills required values from fallback, snaps enums/icons/photo
 tags, clamps text/arrays and applies migration aliases. It has no `R2.alias` or `R2.off_pack`.
-The advertised repair `readComponent` is not the built text-reader export of the same name; public
-naming needs reconciliation before implementation.
+The repair is named `repairComponent`. The existing `readComponent` export remains the text reader.
 
-Only positional `stampItemIds` exists. Persistent component/item counters and `assembleScreen` are
-not built. Repair codes live in one future `lines/codes.ts`, with fixture tables for real bad inputs.
-Pack checks and compose probes currently parse JSON directly and require schema validity without
-repair; gallery does not yet load a full JSON Lines fixture suite through this pipeline.
+`stampIdsWithCounters` returns wire components, primary item ids keyed by component id, and the
+advanced counters. `assembleScreen` puts the latter two alongside `components` on the returned
+screen, so a runtime row id never collides with a schema-declared business id. The ids follow parsed
+row order, including schema-derived rows. Hosts project these addresses by passing the saved id
+list to `stampItemIds` with the parsed props; `stampIds` returns that projection directly. Existing
+readers and renderers that do not pass an allocation still use positional addresses. Repair codes
+live in `lines/codes.ts`.
 
 The pipeline stops at R2. Region sorting, primary demotion, extras, flows/waves, cast checks and
-rewrite id carry-over stay in host R3–R6. Once built, `assembleScreen` serves worked examples,
-composition and gallery fixtures; compose must still count issues before any R3 repair.
+rewrite id carry-over stay in host R3–R6. Worked JSONL examples run through `assembleScreen` in
+tests. Compose and gallery can adopt the pipeline separately; compose must still count issues
+before any R3 repair.
 
 #### Retirement manifests
 
@@ -836,7 +831,7 @@ Update live recipes and probes at the cutover; do not advertise a legacy alias t
 
 | Legacy id                | Saved line migration                                                                                                                                                                                   | Addresses and actions                                                                                                                                            |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Ring`                   | `Progress`, `style: "ring"`, `bars: [{ label, value, of }]`; retain `sub`, `density`, `emphasis` and `detail`. Normalize old `md`/`lg` before changing the id.                                         | Keep `root`, `ring`, `value`, `label` and `sub` at component level; `detail: "brief"` hides but does not discard `sub`. No row `press` or synthetic row address. |
+| `Ring`                   | `Progress`, `style: "ring"`, `bars: [{ label, value, of }]`; retain `sub`, `emphasis` and `detail`. Normalize old `md`/`lg` before changing the id.                                         | Keep `root`, `ring`, `value`, `label` and `sub` at component level; `detail: "brief"` hides but does not discard `sub`. No row `press` or synthetic row address. |
 | Health `ActivityRings`   | `Progress`, `style: "rings"`, retaining two or three ordered `rings` rows with `label`, `value`, `of` and `unit`, plus `surface` and `detail`. Keep daily-target intent, row limits and number bounds. | Keep `root`, `rings`, and `rN` with `label`, `value`, `of` and `unit`; brief hides only the target caption (`of`). No new actions.                               |
 | `Progress` (not retired) | Missing `style` means `"bars"`. Keep the existing `stack`/`compact` and row `over` migrations.                                                                                                         | Keep bar labels, amounts, units, over-target tone and linked row `press` at the original addresses.                                                              |
 
@@ -996,6 +991,14 @@ describes an operation on that content. Only override the treatment when the com
 doc specifies it, and only show retry when an enabled action is declared. Layout is not a wire
 change: preserve reading, addresses and actions. Test missing metadata, retained error and success,
 filled/loading parity, and last-column reachability separately from gallery fixture quality.
+
+At pack acceptance, count action labels in the three-size limit for each item. Use tighter
+spacing within a label/value pair than between groups, align comparable figures to the end of
+their column, and keep a heading close to its first item. Use a neutral or danger finish for
+negative actions, never the positive accent. Keep the shared empty treatment but use the brief's
+specific empty copy when it calls for it. Fix recurring geometry in the base that owns the slot,
+not with per-component offsets. Inline links keep their reading order and reserve a real touch
+slot without covering neighboring text or targets.
 
 ### 5.5 Views
 

@@ -18,7 +18,7 @@ describe("RequestResolution contract", () => {
       number: "n".repeat(12), summary: "s".repeat(120), reason: "r".repeat(120),
       checks: Array(6).fill({ text: "c".repeat(36), done: true }),
       photos: ["local:1", "local:2", "lib:fern", "lib:basil"],
-    })).toMatchObject({ style: "review", outcome: "repaired", surface: "card", media: "thumb" });
+    })).toMatchObject({ style: "review", outcome: "repaired", media: "thumb" });
   });
   it.each([
     { number: "x".repeat(13) }, { summary: "x".repeat(121) }, { duplicateOf: "x".repeat(13) },

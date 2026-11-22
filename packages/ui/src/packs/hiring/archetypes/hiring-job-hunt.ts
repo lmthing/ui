@@ -23,7 +23,7 @@ export const hiring_job_hunt = {
     },
     hiring_application: {
       writeHints: [
-        'Show exactly one selected application with surface "card". Finish with Offer only if terms exist; otherwise use a Note about the next action. History uses time and title, not end or goto.',
+        "Show exactly one selected application . Finish with Offer only if terms exist; otherwise use a Note about the next action. History uses time and title, not end or goto.",
       ],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
@@ -33,7 +33,7 @@ export const hiring_job_hunt = {
       ],
       defaults: [
         { id: "h1", c: "Header", style: "back" },
-        { id: "a1", c: "Applications", surface: "card" },
+        { id: "a1", c: "Applications" },
         { id: "t1", c: "Timeline", style: "history" },
         { id: "n1", c: "Note" },
       ],

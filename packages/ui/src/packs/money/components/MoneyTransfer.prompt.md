@@ -1,3 +1,5 @@
+<!-- replay-literals: d d mcsdd -->
+
 ## Purpose
 
 Send money to or request money from someone, with the cost shown before confirmation.
@@ -9,5 +11,5 @@ Send or request money with a named recipient, funding account and speed, or show
 ## Writer
 
 - Use style "qr" only for the personal code tab; copy only an explicitly supplied demo QR payload.
-- To hide the memo, set detail "brief" and leave density and surface null. Never write surface "card" or a density unless explicitly requested.
+- To hide the memo, set detail "brief".
 - Write amounts as positive numbers to two decimal places, without a currency. Total and confirmation wording are computed.

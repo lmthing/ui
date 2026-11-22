@@ -53,7 +53,7 @@ describe("Timetable contract", () => {
   it("accepts exact dense limits and applies variant defaults", () => {
     const row = { ...period, subject: "x".repeat(24), room: "x".repeat(12), teacher: "x".repeat(24) };
     const days = weekdays.map((day) => ({ day, periods: Array(8).fill(row) }));
-    expect(props.parse({ days })).toMatchObject({ detail: "full", surface: "card" });
+    expect(props.parse({ days })).toMatchObject({ detail: "full" });
     expect(props.parse({ ...first, selected_day: "tue" }).selected_day).toBeUndefined();
   });
   it("keeps the pack gate, tier and core near miss", () => {
@@ -116,7 +116,7 @@ describe("Timetable parts and read/act", () => {
     expect(full.get("home/c1/r1/teacher")?.text).toContain("Ms Tanaka");
     expect(full.has("home/c1/r3/teacher")).toBe(false);
     expect(full.has("home/c1/r5/room")).toBe(false);
-    expect([...addresses({ density: "compact", surface: "outlined" }).keys()]).toEqual([...full.keys()]);
+    expect([...addresses({}).keys()]).toEqual([...full.keys()]);
     expect([...addresses({ detail: "brief" }).keys()]).toEqual(
       [...full.keys()].filter((id) => !/\/(?:room|teacher)$/.test(id)),
     );

@@ -114,9 +114,7 @@ describe("Offer parts and states", () => {
       .map((part) => `home/o1/${part}`);
     const drawn = [...parts().keys()];
     expect(new Set(drawn)).toEqual(new Set(expected));
-    expect([...parts({ ...full, arrange: "grid", surface: "outlined", density: "compact" }).keys()]).toEqual(
-      drawn,
-    );
+    expect([...parts({ ...full, arrange: "grid" }).keys()]).toEqual(drawn);
     expect(parts({ ...full, conditions: [], respondBy: undefined }).has("home/o1/conditions")).toBe(false);
     expect(parts({ ...full, conditions: [], respondBy: undefined }).has("home/o1/respond_by")).toBe(false);
   });

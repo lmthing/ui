@@ -103,14 +103,11 @@ describe("JobPost bounds and fallback", () => {
 });
 
 describe("JobPost states, parts and reading", () => {
-  it("keeps finish addresses and only hides the description in brief view and reading", () => {
+  it("only hides the description in brief view and reading", () => {
     const drawn = parts();
     expect([...drawn.keys()]).toEqual(
       meta.parts.filter((part) => part !== "success" && part !== "error").map((part) => `home/j1/${part}`),
     );
-    expect([...parts({ ...full, surface: "outlined", density: "compact" }).keys()]).toEqual([
-      ...drawn.keys(),
-    ]);
     const brief = { ...full, detail: "brief" as const };
     expect(props.parse(brief).about).toBe(full.about);
     expect([...parts(brief).keys()]).toEqual(

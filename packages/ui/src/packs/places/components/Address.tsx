@@ -17,7 +17,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "The address is stored with the place, and directions open the phone’s maps app.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["note"] } },
   parts: ["root", "lines", "map", "note", "copy", "directions", "call"],
   partTiers: { directions: "service", call: "service" },
@@ -89,7 +89,7 @@ export const probes = [
 
 export function Address(input: c.Props<typeof props, typeof meta>) {
   const { lines, phone, note } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { words } = kit.useWords(placesWordsFor);
   const [street, ...rest] = lines;
@@ -114,28 +114,21 @@ export function Address(input: c.Props<typeof props, typeof meta>) {
         )}
       </kit.KitContent>
       <kit.KitContent density={density} group="response">
-        <kit.KitGrid density={density}>
+        <kit.KitGrid fitLast density={density}>
           <kit.KitMapTile part="map" pins={[{ ...previewPin, label: words.addressMapPreview }]} />
-          <kit.KitGrid arrange="rows">
+          <kit.KitContent density={density}>
             <kit.KitAction
-              full
-              part="directions"
               action="press"
+              part="directions"
               kind="secondary"
               label={words.addressDirections}
             />
-            <kit.KitAction full part="copy" action="press" kind="quiet" label={words.addressCopy} />
-          </kit.KitGrid>
-        </kit.KitGrid>
-        {callLabel && (
-          <kit.KitContent group="response" density={density}>
-            <kit.KitRow inline part="call" role="button" label={callLabel} density={density}>
-              <kit.KitText role="label" tone="accent" part={null} density={density}>
-                {callLabel}
-              </kit.KitText>
-            </kit.KitRow>
+            <kit.KitAction action="press" part="copy" kind="quiet" label={words.addressCopy} />
+            {callLabel && (
+              <kit.KitAction action="press" part="call" kind="quiet" label={callLabel} contentParts={{}} />
+            )}
           </kit.KitContent>
-        )}
+        </kit.KitGrid>
       </kit.KitContent>
     </kit.KitCard>
   );

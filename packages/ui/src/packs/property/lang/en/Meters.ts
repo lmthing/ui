@@ -11,6 +11,7 @@ export const words = {
     units: { kWh: "kWh", m3: "m³", litre: "L" },
     amount: (number: string, unit: string) => `${number}\u00a0${unit}`,
     latest: (value: string) => `Latest · ${value}`,
+    latestLabel: "Latest",
     previous: (value: string) => `Previous · ${value}`,
     usage: (value: string, elapsed: string) => `${value} used · ${elapsed}`,
     dateTime: (date: string, time: string) => `${date} · ${time}`,

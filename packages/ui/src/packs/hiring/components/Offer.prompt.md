@@ -9,4 +9,4 @@ An employment offer with pay, hours, start date, conditions, response deadline a
 ## Writer
 
 - Write numeric pay in the brief's currency, not currency text. Record only a supplied response status; acceptance does not mean hired. Do not write a calculated expiry flag.
-- For an ordinary offer use "arrange":null,"density":null,"surface":null. Hours and a start date are terms, not a layout request. Use "arrange":"grid" only when the brief explicitly asks for two columns. That request does not change "density":null or "surface":null. Never substitute "card" for null.
+- For an ordinary offer use "arrange":null. Hours and a start date are terms, not a layout request. Use "arrange":"grid" only when the brief explicitly asks for two columns.

@@ -20,8 +20,6 @@ export const meta = {
   pick: prompt.pick,
   realPath: "Openings and bookmarks can live on the phone; external applications need a job-board service.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["place", "posted"] } },
@@ -143,7 +141,7 @@ const openings = [
 export const examples: z.input<typeof props>[] = [
   { jobs: openings },
   { jobs: openings, style: "cards" },
-  { jobs: openings, density: "compact", surface: "outlined", detail: "brief" },
+  { jobs: openings, detail: "brief" },
 ];
 
 const { choose, write, read } = c.probesFor("JobFeed");
@@ -201,13 +199,11 @@ function JobBadges({ copy, density }: { copy: Copy; density: c.ThemeDensity }) {
 function JobEntry({
   job,
   density,
-  surface,
   cards,
   brief,
 }: {
   job: Job;
   density: c.ThemeDensity;
-  surface: c.AxisValue<"surface">;
   cards: boolean;
   brief: boolean;
 }) {
@@ -242,7 +238,7 @@ function JobEntry({
   return (
     <kit.PartContext.Provider value={{ ...context, item: job.id }}>
       {cards ? (
-        <kit.KitCard part="card" padded {...{ surface, density }}>
+        <kit.KitCard part="card" padded density={density}>
           {content}
         </kit.KitCard>
       ) : (
@@ -252,10 +248,9 @@ function JobEntry({
   );
 }
 
-export function JobFeed({ jobs, style, density: requested, surface: finish, detail }: Feed) {
+export function JobFeed({ jobs, style, detail }: Feed) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, requested);
-  const surface = kit.useVariant("surface", meta.variants.surface, finish);
+  const density = kit.useKit().density;
   const brief = kit.useVariant("detail", meta.variants.detail, detail) === "brief";
   const {
     lang,
@@ -266,14 +261,14 @@ export function JobFeed({ jobs, style, density: requested, surface: finish, deta
   const content = (
     <kit.KitRowGroup density={density} separators={!cards} spacing="groups">
       {jobs.map((job) => (
-        <JobEntry key={job.id} {...{ job, density, surface, cards, brief }} />
+        <JobEntry key={job.id} {...{ job, density, cards, brief }} />
       ))}
     </kit.KitRowGroup>
   );
   const part = state === "empty" || state === "success" || state === "error" ? state : undefined;
   const message = state === "empty" && thing ? c.emptyLine(thing, lang) : part ? words[part] : undefined;
   return (
-    <kit.KitCard part="root" style={cards ? "cards" : "inset"} padded={!cards} {...{ density, surface }}>
+    <kit.KitCard part="root" style={cards ? "cards" : "inset"} padded={!cards} density={density}>
       <kit.KitState
         part={part ?? null}
         message={message}

@@ -1,13 +1,35 @@
 import { z } from "zod";
-// prettier-ignore
 import {
-  KitCard, KitFigure, KitHeader, KitLayoutText, KitMeter, KitRing, KitRow, KitSkeleton, KitState, useVariant, useWords,
+  KitCard,
+  KitFigure,
+  KitHeader,
+  KitLayoutText,
+  KitMeter,
+  KitRing,
+  KitRow,
+  KitSkeleton,
+  KitState,
+  useKit,
+  useWords,
 } from "../kit";
-// prettier-ignore
 import {
-  probesFor, goalLine, itemVariantProps, localeOf, numberLine, itemsOf, placeholderTitle,
-  screenId, text, thingOf, titleOf, variantProps, wordsFor,
-  type FallbackInput, type Meta, type Probe, type Props,
+  probesFor,
+  goalLine,
+  itemVariantProps,
+  localeOf,
+  numberLine,
+  itemsOf,
+  placeholderTitle,
+  screenId,
+  text,
+  thingOf,
+  titleOf,
+  variantProps,
+  wordsFor,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
 } from "../catalog";
 import { prompt } from "../entry/prompt-Progress.generated";
 export const meta = {
@@ -23,7 +45,7 @@ export const meta = {
   realPath: "Amounts summed from records on the device, each compared with a stored target.",
   signatureByStyle: { ring: "ring_fill" },
   // prettier-ignore
-  variants: { density: ["comfortable", "compact"], figures: ["exact", "short"], emphasis: ["normal", "hero"], detail: ["full", "brief"] },
+  variants: { figures: ["exact", "short"], emphasis: ["normal", "hero"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["sub"] } },
   items: {
     key: "bars",
@@ -117,10 +139,14 @@ const ring = {
   bars: [{ label: "Walks this week", value: 9, of: 12 }],
   sub: "3 to go",
 };
-// prettier-ignore
 export const examples = [
-  { bars: [{ label: "Watered this week", value: 3, of: 5, unit: "plants" }, { label: "Fed this month", value: 1, of: 4, unit: "plants" }] },
-  { density: "compact", bars: walkMeters },
+  {
+    bars: [
+      { label: "Watered this week", value: 3, of: 5, unit: "plants" },
+      { label: "Fed this month", value: 1, of: 4, unit: "plants" },
+    ],
+  },
+  { bars: walkMeters },
   { bars: walkMeters },
   { bars: [steps] },
   { figures: "short", bars: [steps] },
@@ -133,7 +159,6 @@ export const examples = [
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Progress");
-// prettier-ignore
 export const probes = [
   choose("Show how far along I am with protein, carbs and fats against my daily limits, all together"),
   choose("Show three of the five plants I planned to water today as one amount completed out of the target"),
@@ -141,53 +166,99 @@ export const probes = [
   choose("Show my total plants, the number watered today and the number due together", "Stats"),
   choose("I'm at stage two of a four-stage sign-up and need to see my place in the sequence", "Steps"),
   write("Two bars: plants watered this week 3 of 5, and plants fed this month 1 of 4"),
-  { ...write("Show a single horizontal target bar labelled Watered today, 3 out of 5."),
-    expectProps: { style: "bars", bars: [{ label: "Watered today", value: 3, of: 5 }] } },
-  { ...write("Draw one circular meter. Label it Walks booked and show 4 out of 7. Store Morning route as the extra caption but hide it on screen."),
+  {
+    ...write("Show a single horizontal target bar labelled Watered today, 3 out of 5."),
+    expectProps: { style: "bars", bars: [{ label: "Watered today", value: 3, of: 5 }] },
+  },
+  {
+    ...write(
+      "Draw one circular meter. Label it Walks booked and show 4 out of 7. Store Morning route as the extra caption but hide it on screen.",
+    ),
     variant: { axis: "detail", value: "brief" },
-    expectProps: { style: "ring", bars: [{ label: "Walks booked", value: 4, of: 7 }], sub: "Morning route" } },
-  { ...write("Two target bars: Steps walked 4,200 out of 6,000 and Distance 1,500 out of 2,000 metres. Store the exact values, but abbreviate the displayed numbers as 4.2K, 6K, 1.5K and 2K."),
-    variant: { axis: "figures", value: "short" } },
+    expectProps: { style: "ring", bars: [{ label: "Walks booked", value: 4, of: 7 }], sub: "Morning route" },
+  },
+  {
+    ...write(
+      "Two target bars: Steps walked 4,200 out of 6,000 and Distance 1,500 out of 2,000 metres. Store the exact values, but abbreviate the displayed numbers as 4.2K, 6K, 1.5K and 2K.",
+    ),
+    variant: { axis: "figures", value: "short" },
+  },
   read("Open the hours bar", { address: "p1/r2", action: "press" }, 1),
 ] satisfies Probe[];
 
 type ViewProps = Props<typeof props, typeof meta>;
 
-// prettier-ignore
-function ProgressRing({ bars, emphasis, density, detail, sub }: ViewProps) {
+function ProgressRing({ bars, emphasis, detail, sub }: ViewProps) {
+  const density = useKit().density;
   const goal = bars[0]!;
   const scale = emphasis === "hero" ? "lg" : "md";
   const { lang } = useWords();
-  const caption = <KitHeader align="center" density={density}
-    title={{ text: goal.label, part: "label", role: "body" }}
-    meta={{ text: detail === "brief" ? undefined : sub, part: "sub" }} />;
-  const loading = <KitFigure caption={caption}
-    media={<KitSkeleton shape="ring" ring={scale} lead="none" inset="none" density={density} />} />;
+  const caption = (
+    <KitHeader
+      align="center"
+      density={density}
+      title={{ text: goal.label, part: "label", role: "body" }}
+      meta={{ text: detail === "brief" ? undefined : sub, part: "sub" }}
+    />
+  );
+  const loading = (
+    <KitFigure
+      caption={caption}
+      media={<KitSkeleton shape="ring" ring={scale} lead="none" inset="none" density={density} />}
+    />
+  );
   return (
     <KitState density={density} loading={loading}>
-      <KitFigure caption={caption} media={
-        <KitRing value={goal.value} of={goal.of} scale={scale} part="ring">
-          <KitLayoutText line={{ text: numberLine(goal.value, lang), part: "value", role: "figure" }} align="center" density={density} />
-          <KitLayoutText line={{ text: goalLine(goal.of, lang), role: "caption", tone: "muted" }} align="center" density={density} />
-        </KitRing>
-      } />
+      <KitFigure
+        caption={caption}
+        media={
+          <KitRing value={goal.value} of={goal.of} scale={scale} part="ring">
+            <KitLayoutText
+              line={{ text: numberLine(goal.value, lang), part: "value", role: "figure" }}
+              align="center"
+              density={density}
+            />
+            <KitLayoutText
+              line={{ text: goalLine(goal.of, lang), role: "caption", tone: "muted" }}
+              align="center"
+              density={density}
+            />
+          </KitRing>
+        }
+      />
     </KitState>
   );
 }
 
-// prettier-ignore
 export function Progress(input: ViewProps) {
   const { bars, figures, style } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const { lang } = useWords();
   return (
     <KitCard style="inset" part="root" padded density={density}>
-      {style === "ring" ? <ProgressRing {...input} density={density} /> : (
-        <KitState density={density} loading={<KitSkeleton rows={bars.length} lead="none" inset="none" density={density} />}>
+      {style === "ring" ? (
+        <ProgressRing {...input} />
+      ) : (
+        <KitState
+          density={density}
+          loading={<KitSkeleton rows={bars.length} lead="none" inset="none" density={density} />}
+        >
           {bars.map((bar) => (
-            <KitRow key={bar.id} item={bar.id} label={bar.label} goto={bar.goto} inset="none" density={density}>
-              <KitMeter label={bar.label} amount={amountLine(bar, figures, lang)} ratio={bar.value / bar.of}
-                tone={bar.value > bar.of ? bar.tone : "accent"} slim={density === "compact"} />
+            <KitRow
+              key={bar.id}
+              item={bar.id}
+              label={bar.label}
+              goto={bar.goto}
+              inset="none"
+              density={density}
+            >
+              <KitMeter
+                label={bar.label}
+                amount={amountLine(bar, figures, lang)}
+                ratio={bar.value / bar.of}
+                tone={bar.value > bar.of ? bar.tone : "accent"}
+                slim={density === "compact"}
+              />
             </KitRow>
           ))}
         </KitState>

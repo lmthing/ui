@@ -1,8 +1,9 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { feedCountParts, feedReading } from "../copy";
+import { feedCountParts, feedReading, postCountParts } from "../copy";
 import { socialWordsFor } from "../lang";
+import * as social from "../post-options";
 import { prompt } from "../../../entry/prompt-Feed.generated";
 
 // Core first: List/cards cannot show authored excerpts with avatars and an inline like control.
@@ -18,19 +19,49 @@ export const meta = {
   dense: true,
   tier: "people",
   realPath: "Posts in a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["thumb", "none"] },
-  variantParts: { "media.none": { hides: ["image"] } },
+  variants: {
+    media: ["thumb", "none"],
+    arrange: ["rows", "grid"],
+  },
+  variantParts: { "media.none": { hides: ["image", "video", "video_poster", "video_error"] } },
   parts: ["root", "empty"],
-  // prettier-ignore
-  items: { key: "posts", parts: [
-    "root", "card", "name", "photo", "time", "text", "image", "like", "like_icon", "likes", "comments",
-  ] },
+  items: {
+    key: "posts",
+    parts: [
+      "root",
+      "card",
+      "name",
+      "photo",
+      "time",
+      "text",
+      "image",
+      "like",
+      "like_icon",
+      "likes",
+      "comments",
+      ...social.postOptionParts,
+    ],
+    media: social.postPlayback,
+    toggles: { repost: "reposted", save: "saved" },
+  },
   states: ["filled", "empty", "loading"],
-  actions: { items: { root: ["press"], like: ["toggle"] } },
+  actions: {
+    items: { root: ["press"], like: ["toggle"], ...social.postOptionActions },
+    when: social.postOptionWhen,
+  },
+  live: {
+    derive: (input) => ({
+      posts: (input.posts as Record<string, unknown>[]).map((row) => ({
+        ...row,
+        ...social.postOptionFlags(row, input.media !== "none"),
+      })),
+    }),
+  },
   read: feedReading,
 } as const satisfies c.Meta;
 
 const post = z.strictObject({
+  ...social.postOptionProps,
   name: c.text(24),
   photo: c.photo,
   time: c.text(12),
@@ -49,7 +80,10 @@ export const props = z
   })
   .overwrite((value) => ({
     ...value,
-    posts: value.media === "none" ? value.posts.map((row) => ({ ...row, image: undefined })) : value.posts,
+    posts:
+      value.media === "none"
+        ? value.posts.map((row) => ({ ...row, image: undefined, video: undefined }))
+        : value.posts,
   }));
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
@@ -66,28 +100,133 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   return { posts: posts.length ? posts : [placeholder] };
 }
 
-// prettier-ignore
 export const examples = [
-  { posts: [
-    { name: "Maya", photo: "lib:people_maya", time: "5 min ago", text: "A new frond on my fern!", image: "lib:fern", likes: 7, comments: 2, liked: false, goto: "fern_post" },
-    { name: "Sam", photo: "lib:people_sam", time: "1 hr ago", text: "Two basil cuttings ready to swap.", likes: 3, comments: 1, liked: true, goto: "basil_post" },
-  ] },
-  { posts: [
-    { name: "Anna", photo: "lib:people_anna", time: "Just now", text: "Clover loved the river walk.", likes: 4, comments: 0, liked: false, goto: "river_post" },
-    { name: "Ben", photo: "lib:people_ben", time: "Yesterday", text: "The south gate is open again.", likes: 6, comments: 1, liked: true, goto: "gate_post" },
-  ] },
+  {
+    posts: [
+      {
+        name: "Maya",
+        photo: "lib:people_maya",
+        time: "5 min ago",
+        text: "A new frond on my fern!",
+        image: "lib:fern",
+        likes: 7,
+        comments: 2,
+        liked: false,
+        goto: "fern_post",
+      },
+      {
+        name: "Sam",
+        photo: "lib:people_sam",
+        time: "1 hr ago",
+        text: "Two basil cuttings ready to swap.",
+        likes: 3,
+        comments: 1,
+        liked: true,
+        goto: "basil_post",
+      },
+    ],
+  },
+  {
+    posts: [
+      {
+        name: "Anna",
+        photo: "lib:people_anna",
+        time: "Just now",
+        text: "Clover loved the river walk.",
+        likes: 4,
+        comments: 0,
+        liked: false,
+        goto: "river_post",
+      },
+      {
+        name: "Ben",
+        photo: "lib:people_ben",
+        time: "Yesterday",
+        text: "The south gate is open again.",
+        likes: 6,
+        comments: 1,
+        liked: true,
+        goto: "gate_post",
+      },
+    ],
+  },
+  {
+    arrange: "grid",
+    posts: [
+      {
+        name: "Maya",
+        photo: "lib:people_maya",
+        time: "Now",
+        text: "First leaf of spring.",
+        image: "lib:fern",
+        likes: 7,
+        comments: 2,
+        liked: false,
+        goto: "fern_post",
+      },
+      {
+        name: "Sam",
+        photo: "lib:people_sam",
+        time: "1 hr ago",
+        text: "Basil on the sill.",
+        image: "lib:basil",
+        likes: 3,
+        comments: 1,
+        liked: false,
+        goto: "basil_post",
+      },
+    ],
+  },
+  {
+    posts: [
+      {
+        name: "Anna",
+        photo: "lib:people_anna",
+        time: "Just now",
+        text: "A quieter route for morning walks.",
+        video: "lib:dog",
+        likes: 4,
+        comments: 1,
+        liked: false,
+        goto: "river_post",
+        tags: ["Walks", "Trail news"],
+        radiusKm: 3,
+        alertTag: "Trail closure",
+        quote: "Use the riverside path.",
+        reposts: 7,
+        reposted: false,
+        saved: true,
+        vote: "down",
+      },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Feed");
-// prettier-ignore
 export const probes = [
-  choose("Show several people’s newest community updates to scroll. Each has their avatar, a text excerpt, likes and a link to open the full discussion."),
-  choose("Show my watering supplies as three ordinary tappable rows with names and chevrons, no authors or reactions.", "List"),
-  write("Show two recent posts with links: Maya offered fern cuttings five minutes ago with seven likes, and Sam offered basil an hour ago with three likes."),
+  choose(
+    "Show several people’s newest community updates to scroll. Each has their avatar, a text excerpt, likes and a link to open the full discussion.",
+  ),
+  choose(
+    "Show my watering supplies as three ordinary tappable rows with names and chevrons, no authors or reactions.",
+    "List",
+  ),
+  write(
+    "Show two recent posts with links: Maya offered fern cuttings five minutes ago with seven likes, and Sam offered basil an hour ago with three likes.",
+  ),
   {
-    ...write("List Maya’s and Sam’s latest plant swap posts with their author avatars and excerpts, but hide attached post pictures."),
+    ...write(
+      "List Maya’s and Sam’s latest plant swap posts with their author avatars and excerpts, but hide attached post pictures.",
+    ),
     variant: { axis: "media", value: "none" },
   },
+  {
+    ...write(
+      "Show Maya’s fern post and Sam’s basil post in a two-column profile grid, with an attached photo on each. Keep spacing, framing and attachment treatment at their defaults.",
+    ),
+    variant: { axis: "arrange", value: "grid" },
+  },
+  ...social.postOptionProbes("Feed"),
   read("Like Maya’s update about her new fern frond.", { address: "f1/r1/like", action: "toggle" }),
 ] satisfies c.Probe[];
 
@@ -95,103 +234,98 @@ type FeedProps = c.Props<typeof props, typeof meta>;
 type FeedPost = FeedProps["posts"][number];
 
 // The reaction control is a sibling of the post link, so liking never opens the post.
-// prettier-ignore
-function FeedReactions({ post, density }: { post: FeedPost; density: c.ThemeDensity }) {
-  const { lang, words: { feed } } = kit.useWords(socialWordsFor);
+function FeedReactions({ post, density, grid }: { post: FeedPost; density: c.ThemeDensity; grid?: boolean }) {
+  const {
+    lang,
+    words: { feed },
+  } = kit.useWords(socialWordsFor);
   const { testID } = kit.usePart("like", false);
   const liked = kit.useControlValue(testID, post.liked);
-  const [likes, comments] = feedCountParts(post, lang).map(({ part, count, before, after }) =>
+  const shortCounts = grid ? postCountParts(post, lang) : undefined;
+  const [likes, comments] = feedCountParts(post, lang).map(({ part, count, before, after }, index) => (
     <kit.KitText key={part} part={part} role="caption" tone="muted" density={density}>
-      {before}<kit.KitText part={null} role="number" numberScale="compact" tabular density={density}>{count}</kit.KitText>{after}
-    </kit.KitText>);
-  const reaction = <kit.KitAction part="like" action="toggle" icon="heart" kind={liked ? "secondary" : "quiet"}
-    a11y={feed.reaction(post.name, liked)} />;
-  return <kit.KitContent group="response" lead={reaction} leadingAlign="row" density={density}>
-    <kit.KitRow part={null} label="" inline density={density}>
-      <kit.KitContent lead={likes} leadingAlign="row" density={density}>{comments}</kit.KitContent>
-    </kit.KitRow>
-  </kit.KitContent>;
-}
-
-// prettier-ignore
-function FeedPreview({ post, density }: { post: FeedPost; density: c.ThemeDensity }) {
-  const { words: { feed } } = kit.useWords(socialWordsFor);
-  const { name, photo, time, text, image, goto } = post;
-  const excerpt = <kit.KitText part="text" lines={3} density={density}>{text}</kit.KitText>;
-  return <kit.KitRow part="root" inline surface="plain" label={feed.open(name)} goto={goto} density={density}>
-    <kit.KitContent density={density}>
-      <kit.KitRow part={null} inline label="" lineRole="label" density={density}
-        trailing={<kit.KitIcon name="chevron_right" tone="muted" decorative />}>
-        <kit.KitContent density={density} leadingAlign="row"
-          lead={<kit.KitPhoto photo={photo} part="photo" shape="round" label={name} />}>
-          <kit.KitText part="name" role="label" tone="muted" lines={1} density={density}>{name}</kit.KitText>
-          <kit.KitText part="time" role="caption" tone="muted" lines={1} density={density}>{time}</kit.KitText>
+      {before}
+      <kit.KitText part={null} role="number" numberScale="compact" tabular density={density}>
+        {shortCounts?.[index]?.count ?? count}
+      </kit.KitText>
+      {after}
+    </kit.KitText>
+  ));
+  const reaction = (
+    <kit.KitAction
+      part="like"
+      action="toggle"
+      icon="heart"
+      kind={liked ? "secondary" : "quiet"}
+      a11y={feed.reaction(post.name, liked)}
+    />
+  );
+  if (grid)
+    return (
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitContent density={density}>
+          {likes}
+          {comments}
+        </kit.KitContent>
+        {reaction}
+      </kit.KitGrid>
+    );
+  return (
+    <kit.KitContent group="response" lead={reaction} leadingAlign="row" density={density}>
+      <kit.KitRow part={null} label="" inline density={density}>
+        <kit.KitContent lead={likes} leadingAlign="row" density={density}>
+          {comments}
         </kit.KitContent>
       </kit.KitRow>
-      <kit.KitContent group="response" density={density}>
-        {image ? <kit.KitGrid fitLast density={density}>
-          {excerpt}
-          <kit.KitContent density={density} leadingAlign="row"
-            lead={<kit.KitPhoto part="image" photo={image} shape="thumb" label={feed.image} />}>{null}</kit.KitContent>
-        </kit.KitGrid> : excerpt}
-      </kit.KitContent>
     </kit.KitContent>
-  </kit.KitRow>;
+  );
 }
 
-// prettier-ignore
-function FeedLoading({ post, density }: { post: FeedPost; density: c.ThemeDensity }) {
-  const { words: { feed } } = kit.useWords(socialWordsFor);
-  const skeleton = feed.skeleton;
-  const excerpt = <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["body", skeleton.excerpt]]} />;
-  return <>
-    <kit.KitContent density={density} leadingAlign="row" lead={<kit.KitSkeleton shape="control" kind="secondary" />}>
-      <kit.KitSkeleton shape="figure" inset="none" density={density}
-        content={[["label", skeleton.author], ["caption", skeleton.time]]} />
-    </kit.KitContent>
-    <kit.KitContent group="response" density={density}>
-      {post.image ? <kit.KitContent group="response" density={density}>
-        <kit.KitGrid fitLast density={density}>
-          {excerpt}
-          <kit.KitSkeleton shape="figure" lead="box" inset="none" content={[]} density={density} />
-        </kit.KitGrid>
-      </kit.KitContent> : excerpt}
-    </kit.KitContent>
-    <kit.KitContent group={post.image ? "response" : "content"} density={density}>
-      <kit.KitContent group="response" density={density} leadingAlign="row" lead={<kit.KitSkeleton shape="control" kind="secondary" />}>
-        <kit.KitRow part={null} label="" inline density={density}>
-          <kit.KitContent density={density} leadingAlign="row" lead={
-            <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", skeleton.likes]]} />}>
-            <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", skeleton.comments]]} />
-          </kit.KitContent>
-        </kit.KitRow>
-      </kit.KitContent>
-    </kit.KitContent>
-  </>;
-}
-
-// prettier-ignore
 export function Feed(input: FeedProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
-  if (state === "empty") return <kit.KitCard part="root" {...{ density, surface }}>
-    <kit.KitEmpty part="empty" icon="message" decorativeIcon />
-  </kit.KitCard>;
-  return <kit.KitCard part="root" style="cards" density={density}>
-    <kit.KitGrid list arrange="rows" listRowGap="cards" density={density}>
-      {input.posts.map((source) => {
-        const post = media === "none" ? { ...source, image: undefined } : source;
-        return <kit.KitRow key={post.id} item={post.id} part={null} inline surface="plain" role="text" label="">
-          <kit.KitCard part="card" padded {...{ surface, density }}>
-            {state === "loading" ? <FeedLoading {...{ post, density }} /> : <>
-              <FeedPreview {...{ post, density }} />
-              <FeedReactions {...{ post, density }} />
-            </>}
-          </kit.KitCard>
-        </kit.KitRow>;
-      })}
-    </kit.KitGrid>
-  </kit.KitCard>;
+  const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
+  if (state === "empty")
+    return (
+      <kit.KitCard part="root" {...{ density, surface }}>
+        <kit.KitEmpty part="empty" icon="message" decorativeIcon />
+      </kit.KitCard>
+    );
+  return (
+    <kit.KitCard part="root" style="cards" density={density}>
+      <kit.KitGrid list arrange={arrange} listRowGap="cards" density={density}>
+        {input.posts.map((source) => {
+          const post = media === "none" ? { ...source, image: undefined, video: undefined } : source;
+          return (
+            <kit.KitRow key={post.id} item={post.id} part={null} inline surface="plain" role="text" label="">
+              <kit.KitCard part="card" padded {...{ surface, density }}>
+                {arrange === "grid" || postOptionPartsPresent(post) ? (
+                  <social.FeedRecipe
+                    {...{ post, density }}
+                    grid={arrange === "grid"}
+                    response={<FeedReactions {...{ post, density }} grid={arrange === "grid"} />}
+                  />
+                ) : state === "loading" ? (
+                  <social.FeedLoading {...{ post, density }} />
+                ) : (
+                  <>
+                    <social.FeedPreview {...{ post, density }} />
+                    <FeedReactions {...{ post, density }} />
+                  </>
+                )}
+              </kit.KitCard>
+            </kit.KitRow>
+          );
+        })}
+      </kit.KitGrid>
+    </kit.KitCard>
+  );
+}
+
+function postOptionPartsPresent(post: FeedPost) {
+  return Object.keys(social.postOptionProps).some(
+    (key) => post[key as keyof typeof social.postOptionProps] !== undefined,
+  );
 }

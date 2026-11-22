@@ -37,8 +37,6 @@ export const meta = {
   tier: "phone",
   realPath: "The device's clock and time zone data provide the current times and offsets.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "plain"],
     arrange: ["grid", "rows"],
   },
   parts: ["root"],
@@ -84,7 +82,7 @@ const comparisonPlaces = [
 
 export const examples = [
   { places: comparisonPlaces },
-  { density: "compact", places: comparisonPlaces },
+  { places: comparisonPlaces },
   { arrange: "rows", places: comparisonPlaces },
 ] satisfies z.input<typeof props>[];
 
@@ -110,32 +108,63 @@ type ClockPlaceProps = {
   home: boolean;
 };
 
-// prettier-ignore
 function ClockPlace({ reading, density, inRows, home }: ClockPlaceProps) {
   const { label, time, offset, isDay } = reading;
   const tone = home ? "accent" : "text";
-  const place = <kit.KitText part="label" role="label" density="comfortable" tone={tone}>{label}</kit.KitText>;
-  const clock = <kit.KitFigure density="comfortable" value={{ part: "time", text: time, tone }} align={inRows ? "end" : "start"} />;
+  const place = (
+    <kit.KitText part="label" role="label" density="comfortable" tone={tone}>
+      {label}
+    </kit.KitText>
+  );
+  const clock = (
+    <kit.KitFigure
+      density="comfortable"
+      value={{ part: "time", text: time, tone }}
+      align={inRows ? "end" : "start"}
+    />
+  );
   const footer = (
-    <kit.KitContent density={density} leadingAlign="row"
-      lead={<kit.KitIcon part="daylight" name={isDay ? "sun" : "moon"} scale="sm" />}>
-      <kit.KitText part="offset" role="caption" tone={home ? tone : "muted"} density="comfortable">{offset}</kit.KitText>
+    <kit.KitContent
+      density={density}
+      leadingAlign="row"
+      lead={<kit.KitIcon part="daylight" name={isDay ? "sun" : "moon"} scale="sm" />}
+    >
+      <kit.KitText part="offset" role="caption" tone={home ? tone : "muted"} density="comfortable">
+        {offset}
+      </kit.KitText>
     </kit.KitContent>
   );
-  if (inRows) return (
-    <kit.KitGrid fitLast density={density}>
-      <kit.KitContent density={density}>{place}{footer}</kit.KitContent>
+  if (inRows)
+    return (
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitContent density={density}>
+          {place}
+          {footer}
+        </kit.KitContent>
+        {clock}
+      </kit.KitGrid>
+    );
+  if (density === "compact")
+    return (
+      <>
+        {place}
+        {clock}
+        {footer}
+      </>
+    );
+  return (
+    <kit.KitContent density={density}>
+      {place}
       {clock}
-    </kit.KitGrid>
+      {footer}
+    </kit.KitContent>
   );
-  if (density === "compact") return <>{place}{clock}{footer}</>;
-  return <kit.KitContent density={density}>{place}{clock}{footer}</kit.KitContent>;
 }
 
 export function Clocks(input: c.Props<typeof props, typeof meta>) {
   const { words, lang } = kit.useWords(tripsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   const inRows = arrange === "rows";
   const readings = clockReadings(input.places, new Date(), lang);

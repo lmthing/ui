@@ -20,7 +20,7 @@ export const meta = {
   tier: "phone",
   realPath:
     "An on-device opening statement and later trades use stored dated quotes; live refresh needs a market data service, and missing quotes stay unknown.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["unit_cost", "price", "quoted_at", "gain"] } },
   parts: ["root", "refresh", "refresh_label", "notice", "count"],
   items: {
@@ -45,51 +45,94 @@ export const meta = {
     state === "filled" ? holdingsReading(input as Parameters<typeof holdingsReading>[0], lang, currency) : [],
 } as const satisfies c.Meta;
 
-// prettier-ignore
 const position = z.strictObject({
-  assetId: recordId.meta({ kind: undefined }), name: c.text(32), symbol: c.text(12),
+  assetId: recordId.meta({ kind: undefined }),
+  name: c.text(32),
+  symbol: c.text(12),
   class: z.enum(["equity", "bond", "fund", "crypto", "other"]),
-  units: z.number().nonnegative(), unitCost: z.number().nonnegative(),
-  price: z.number().nonnegative(), quotedAt: dateTime, goto: c.screenId.optional(),
+  units: z.number().nonnegative(),
+  unitCost: z.number().nonnegative(),
+  price: z.number().nonnegative(),
+  quotedAt: dateTime,
+  goto: c.screenId.optional(),
 });
 
-// prettier-ignore
-export const props = z.strictObject({
-  ...c.variantProps(meta.variants), portfolioId: recordId.meta({ kind: undefined }), asOf: dateTime,
-  positions: z.array(position).min(0).max(6), assetId: recordId.meta({ kind: undefined }).optional(),
-}).refine(({ positions }) => distinct(positions, ({ assetId }) => assetId), { path: ["positions"] })
-  .overwrite((input) => ({ ...input, positions: input.positions.map((row) => ({
-    ...row, visible: row.units > 0 && (!input.assetId || input.assetId === row.assetId),
-    linked: Boolean(row.goto),
-  })) }));
+export const props = z
+  .strictObject({
+    ...c.variantProps(meta.variants),
+    portfolioId: recordId.meta({ kind: undefined }),
+    asOf: dateTime,
+    positions: z.array(position).min(0).max(6),
+    assetId: recordId.meta({ kind: undefined }).optional(),
+  })
+  .refine(({ positions }) => distinct(positions, ({ assetId }) => assetId), { path: ["positions"] })
+  .overwrite((input) => ({
+    ...input,
+    positions: input.positions.map((row) => ({
+      ...row,
+      visible: row.units > 0 && (!input.assetId || input.assetId === row.assetId),
+      linked: Boolean(row.goto),
+    })),
+  }));
 
-// prettier-ignore
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
   return {
-    portfolioId: seedPortfolio(input), asOf: seedTime,
+    portfolioId: seedPortfolio(input),
+    asOf: seedTime,
     positions: seedAssets(input, 3).map((asset) => ({
-      ...asset, class: "other", units: 0, unitCost: 0, price: 0, quotedAt: seedTime,
+      ...asset,
+      class: "other",
+      units: 0,
+      unitCost: 0,
+      price: 0,
+      quotedAt: seedTime,
     })),
   };
 }
 
-// prettier-ignore
 export const examples = [
   {
-    portfolioId: "education", asOf: "2026-01-01T00:00:00Z",
+    portfolioId: "education",
+    asOf: "2026-01-01T00:00:00Z",
     positions: [
-      { assetId: "global_fund", name: "Global Equity Fund", symbol: "GEF", class: "fund",
-        units: 10, unitCost: 80, price: 90, quotedAt: "2026-03-01T16:00:00Z", goto: "global_fund" },
-      { assetId: "income_fund", name: "Income Fund", symbol: "IFD", class: "fund",
-        units: 3, unitCost: 57, price: 55, quotedAt: "2026-03-01T16:00:00Z" },
+      {
+        assetId: "global_fund",
+        name: "Global Equity Fund",
+        symbol: "GEF",
+        class: "fund",
+        units: 10,
+        unitCost: 80,
+        price: 90,
+        quotedAt: "2026-03-01T16:00:00Z",
+        goto: "global_fund",
+      },
+      {
+        assetId: "income_fund",
+        name: "Income Fund",
+        symbol: "IFD",
+        class: "fund",
+        units: 3,
+        unitCost: 57,
+        price: 55,
+        quotedAt: "2026-03-01T16:00:00Z",
+      },
     ],
   },
   {
-    portfolioId: "pension", asOf: "2026-02-01T00:00:00+01:00",
-    assetId: "bond_fund", density: "comfortable",
+    portfolioId: "pension",
+    asOf: "2026-02-01T00:00:00+01:00",
+    assetId: "bond_fund",
     positions: [
-      { assetId: "bond_fund", name: "Short Bond Fund", symbol: "SBF", class: "bond",
-        units: 4.5, unitCost: 22, price: 23, quotedAt: "2026-02-12T16:00:00+01:00" },
+      {
+        assetId: "bond_fund",
+        name: "Short Bond Fund",
+        symbol: "SBF",
+        class: "bond",
+        units: 4.5,
+        unitCost: 22,
+        price: 23,
+        quotedAt: "2026-02-12T16:00:00+01:00",
+      },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -129,68 +172,156 @@ type Position = Omit<HoldingProps["positions"][number], "price" | "quotedAt"> & 
   value?: number | null;
   gain?: number | null;
 };
-type Density = NonNullable<HoldingProps["density"]>;
-// prettier-ignore
-type Line = [part: string, text: string, role?: "caption" | "label" | "number", tone?: "muted" | "text" | "good" | "bad"];
+type Density = c.ThemeDensity;
+type Line = [
+  part: string,
+  text: string,
+  role?: "caption" | "label" | "number",
+  tone?: "muted" | "text" | "good" | "bad",
+];
 
-// prettier-ignore
-function HoldingLines({ lines, density, loading, link }: { lines: Line[]; density: Density; loading: boolean; link?: boolean }) {
-  const { words: { holdings: words } } = kit.useWords(investWordsFor);
+function HoldingLines({
+  lines,
+  density,
+  loading,
+  link,
+}: {
+  lines: Line[];
+  density: Density;
+  loading: boolean;
+  link?: boolean;
+}) {
+  const {
+    words: { holdings: words },
+  } = kit.useWords(investWordsFor);
   const fields = lines.map(([part, text, role = "caption", tone = "muted"]) => {
     const emphasis = part === "value" ? "quiet" : "normal";
-    if (loading) return <kit.KitSkeleton key={part} shape="figure" inset="none" {...{ density, emphasis }}
-      content={[[role, part === "value" ? [words.valueLabel, text].join(words.valueGap) : text, "start", "compact"]]} />;
-    const field = <kit.KitText key={part} {...{ part, role, tone, density, emphasis }} tabular numberScale="compact">
-      {part === "value" && <><kit.KitText part={null} role="label" tone="muted" density={density}>
-        {words.valueLabel}</kit.KitText>{words.valueGap}</>}{text}
-    </kit.KitText>;
-    return link && part === "value" ? <kit.KitGrid key={part} fitLast density={density}>
-      {field}<kit.KitIcon name="chevron_right" scale="sm" decorative />
-    </kit.KitGrid> : field;
+    if (loading)
+      return (
+        <kit.KitSkeleton
+          key={part}
+          shape="figure"
+          inset="none"
+          {...{ density, emphasis }}
+          content={[
+            [
+              role,
+              part === "value" ? [words.valueLabel, text].join(words.valueGap) : text,
+              "start",
+              "compact",
+            ],
+          ]}
+        />
+      );
+    const field = (
+      <kit.KitText key={part} {...{ part, role, tone, density, emphasis }} tabular numberScale="compact">
+        {part === "value" && (
+          <>
+            <kit.KitText part={null} role="label" tone="muted" density={density}>
+              {words.valueLabel}
+            </kit.KitText>
+            {words.valueGap}
+          </>
+        )}
+        {text}
+      </kit.KitText>
+    );
+    return link && part === "value" ? (
+      <kit.KitGrid key={part} fitLast density={density}>
+        {field}
+        <kit.KitIcon name="chevron_right" scale="sm" decorative />
+      </kit.KitGrid>
+    ) : (
+      field
+    );
   });
   return <>{fields}</>;
 }
 
-// prettier-ignore
-function HoldingRow({ row, density, detail, state }: { row: Position; density: Density; detail: HoldingProps["detail"]; state: c.StateName }) {
+function HoldingRow({
+  row,
+  density,
+  detail,
+  state,
+}: {
+  row: Position;
+  density: Density;
+  detail: HoldingProps["detail"];
+  state: c.StateName;
+}) {
   const { lang } = kit.useWords(investWordsFor);
   const copy = holdingCopy(row, lang, kit.useAppCurrency());
-  const loading = state === "loading", goto = state === "filled" ? row.goto : undefined;
-  const left: Line[] = [["name", row.name, "label", "text"], ["symbol", row.symbol], ["units", copy.units]];
+  const loading = state === "loading",
+    goto = state === "filled" ? row.goto : undefined;
+  const left: Line[] = [
+    ["name", row.name, "label", "text"],
+    ["symbol", row.symbol],
+    ["units", copy.units],
+  ];
   const right: Line[] = [["value", copy.value, "number", "text"]];
   if (detail === "full") {
     left.push(["unit_cost", copy.unitCost]);
-    right.push(["gain", copy.gain, "caption", copy.gainTone], ["price", copy.price], ["quoted_at", copy.date]);
+    right.push(
+      ["gain", copy.gain, "caption", copy.gainTone],
+      ["price", copy.price],
+      ["quoted_at", copy.date],
+    );
   }
-  return <kit.KitRow inline item={row.id} part={loading ? null : "root"} label={row.name} {...{ density, goto }}>
-    <kit.KitGrid density={density}>
-      <HoldingLines lines={left} {...{ density, loading }} />
-      <HoldingLines lines={right} {...{ density, loading }} link={Boolean(goto)} />
-    </kit.KitGrid>
-  </kit.KitRow>;
+  return (
+    <kit.KitRow inline item={row.id} part={loading ? null : "root"} label={row.name} {...{ density, goto }}>
+      <kit.KitGrid density={density}>
+        <HoldingLines lines={left} {...{ density, loading }} />
+        <HoldingLines lines={right} {...{ density, loading }} link={Boolean(goto)} />
+      </kit.KitGrid>
+    </kit.KitRow>
+  );
 }
 
-// prettier-ignore
 export function Holdings(input: HoldingProps) {
   const sourceState = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const live = kit.useLiveControls(meta, input);
-  const { lang, words: { holdings: words } } = kit.useWords(investWordsFor);
+  const {
+    lang,
+    words: { holdings: words },
+  } = kit.useWords(investWordsFor);
   const rows = c.visibleItems(meta, live) as Position[];
-  const state = sourceState === "filled" ? (live.state as c.StateName | undefined) ?? sourceState : sourceState;
+  const state =
+    sourceState === "filled" ? ((live.state as c.StateName | undefined) ?? sourceState) : sourceState;
   const remaining = (typeof live.positionCount === "number" ? live.positionCount : rows.length) - rows.length;
   const empty = state === "empty" || (state === "filled" && !rows.length);
-  return <kit.KitCard part="root" density={density} padded={!empty}>
-    {state === "error" && <kit.KitText part="notice" role="body" tone="muted">
-      {typeof live.ledgerError === "string" ? words.ledgerUnavailable : words.refreshFailed}</kit.KitText>}
-    {empty ? <kit.KitEmpty part="notice" decorativeIcon /> :
-      state === "loading" && !rows.length ? <kit.KitSkeleton lead="none" inset="none" density={density} /> :
-        <kit.KitGrid list arrange="rows" density={density} listRowGap={density === "compact" ? "group" : "cards"}>
-          {rows.map((row) => <HoldingRow key={row.id} {...{ row, density, detail, state }} />)}
-        </kit.KitGrid>}
-    {remaining > 0 && state === "filled" && <kit.KitText part="count" role="caption" tone="muted">
-      {c.wordsFor(lang).peekCount(c.numberLine(remaining, lang))}</kit.KitText>}
-    {live.quote_service === true && state === "filled" && <kit.KitAction part="refresh" label={words.refresh} kind="quiet" />}
-  </kit.KitCard>;
+  return (
+    <kit.KitCard part="root" density={density} padded={!empty}>
+      {state === "error" && (
+        <kit.KitText part="notice" role="body" tone="muted">
+          {typeof live.ledgerError === "string" ? words.ledgerUnavailable : words.refreshFailed}
+        </kit.KitText>
+      )}
+      {empty ? (
+        <kit.KitEmpty part="notice" decorativeIcon />
+      ) : state === "loading" && !rows.length ? (
+        <kit.KitSkeleton lead="none" inset="none" density={density} />
+      ) : (
+        <kit.KitGrid
+          list
+          arrange="rows"
+          density={density}
+          listRowGap={density === "compact" ? "group" : "cards"}
+        >
+          {rows.map((row) => (
+            <HoldingRow key={row.id} {...{ row, density, detail, state }} />
+          ))}
+        </kit.KitGrid>
+      )}
+      {remaining > 0 && state === "filled" && (
+        <kit.KitText part="count" role="caption" tone="muted">
+          {c.wordsFor(lang).peekCount(c.numberLine(remaining, lang))}
+        </kit.KitText>
+      )}
+      {live.quote_service === true && state === "filled" && (
+        <kit.KitAction part="refresh" label={words.refresh} kind="quiet" />
+      )}
+    </kit.KitCard>
+  );
 }

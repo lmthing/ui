@@ -1,7 +1,32 @@
-// prettier-ignore
-import { useWords, KitCard, KitEmpty, KitIcon, KitRow, KitSkeleton, KitText, useComponentState, useVariant } from "../../../kit";
-// prettier-ignore
-import { wordsFor, changeLine, isoDate, itemVariantProps, itemsOf, placeholderTitle, probesFor, screenId, text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+import {
+  useWords,
+  KitCard,
+  KitEmpty,
+  KitIcon,
+  KitRow,
+  KitSkeleton,
+  KitText,
+  useComponentState,
+  useKit,
+} from "../../../kit";
+import {
+  wordsFor,
+  changeLine,
+  isoDate,
+  itemVariantProps,
+  itemsOf,
+  placeholderTitle,
+  probesFor,
+  screenId,
+  text,
+  thingOf,
+  titleOf,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+  variantProps,
+} from "../../../catalog";
 import { z } from "zod";
 import { prompt } from "../../../entry/prompt-ClientHistory.generated";
 
@@ -18,8 +43,6 @@ export const meta = {
   tier: "phone",
   realPath: "Records linked to one client on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     lead: ["icon", "none"],
   },
   variantParts: { "lead.none": { hides: ["kind"] } },
@@ -80,14 +103,12 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 type ExampleEntry = z.input<typeof props>["entries"][number];
-// prettier-ignore
 const variantExample = [
   { date: "2026-11-21", kind: "payment", title: "Walks paid", amount: 90, goto: "payment" },
   { date: "2026-11-20", kind: "message", title: "Pickup pending", goto: "messages" },
   { date: "2026-11-19", kind: "payment", title: "Payment reversed", amount: -30, goto: "reversal" },
 ] satisfies [ExampleEntry, ExampleEntry, ExampleEntry];
 const [payment, message, reversal] = variantExample;
-// prettier-ignore
 export const examples = [
   {
     entries: [
@@ -102,8 +123,8 @@ export const examples = [
       { date: "2026-11-17", kind: "message", title: "Clover's pickup set", goto: "messages" },
     ],
   },
-  { entries: variantExample, density: "compact" },
-  { entries: variantExample, surface: "outlined" },
+  { entries: variantExample },
+  { entries: variantExample },
   { entries: variantExample, lead: "none" },
   { entries: [{ ...payment, mark: "highlight" }, message, reversal] },
   { entries: [{ ...payment, tone: "good" }, message, reversal] },
@@ -136,10 +157,33 @@ const kindIcons = {
   message: "message",
 } as const;
 
-// prettier-ignore
+function HistoryTrail(
+  amount: number | undefined,
+  density: ReturnType<typeof useKit>["density"],
+  lang: string | undefined,
+) {
+  return (
+    <>
+      {amount !== undefined && (
+        <KitText
+          role="number"
+          numberScale="compact"
+          align="end"
+          tabular
+          part="amount"
+          {...{ density }}
+          children={changeLine(amount, "money", undefined, lang)}
+        />
+      )}
+      <KitIcon name="chevron_right" decorative />
+    </>
+  );
+}
+
 export function ClientHistory(input: Props<typeof props, typeof meta>) {
-  const { entries, lead, surface } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const { entries, lead } = input;
+  const surface = "card";
+  const density = useKit().density;
   const { lang, words } = useWords();
   const { historyDetailLine } = words;
   const state = useComponentState();
@@ -170,15 +214,7 @@ export function ClientHistory(input: Props<typeof props, typeof meta>) {
             mark={entry.mark}
             {...{ density }}
             leading={lead === "icon" && <KitIcon name={kindIcons[entry.kind]} part="kind" />}
-            trailing={
-              <>
-                {entry.amount !== undefined && (
-                  <KitText role="number" numberScale="compact" align="end" tabular part="amount" {...{ density }}
-                    children={changeLine(entry.amount, "money", undefined, lang)} />
-                )}
-                <KitIcon name="chevron_right" decorative />
-              </>
-            }
+            trailing={HistoryTrail(entry.amount, density, lang)}
           >
             <KitText part="title" {...{ density }} children={entry.title} />
             <KitText role="caption" tone="muted" part="date" {...{ density }}>

@@ -4,8 +4,9 @@ Log each exercise's sets, weight and reps during one workout.
 
 ## Pick
 
-Logging a workout set by set, editing weight and reps, ticking sets and resting between them. Not ordinary jobs to tick (Checklist), timing one activity (Timer), or a run on a route (Route).
+Logging workout sets or interval rounds, ticking them and resting between them. Not ordinary jobs to tick (Checklist), timing one activity (Timer), or a run on a route (Route).
 
 ## Writer
 
-- Write surface null unless asked for an outline; never write the default surface card. Use detail brief only when asked to hide the elapsed-time header. Keep set controls and rest.
+- Use detail brief only when asked to hide the elapsed-time header. Keep set controls and rest.
+- For EMOM, AMRAP or a timed circuit write style "interval" and interval "emom", "amrap" or "circuit". Write one set per round, with supplied seconds and reps or weight. Write rpe and note only when supplied.

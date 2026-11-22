@@ -1,8 +1,16 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-// prettier-ignore
-import { renewalCopy, renewalExpiry, renewalExpired, renewalGates, renewalNoteMax, renewalReading, renewalResponse, renewalStatuses } from "../copy";
+import {
+  renewalCopy,
+  renewalExpiry,
+  renewalExpired,
+  renewalGates,
+  renewalNoteMax,
+  renewalReading,
+  renewalResponse,
+  renewalStatuses,
+} from "../copy";
 import { propertyWordsFor } from "../lang";
 import { ref, seedDate, seedLabels } from "../seeds";
 import { prompt } from "../../../entry/prompt-LeaseRenewal.generated";
@@ -18,7 +26,7 @@ export const meta = {
   writeHints: prompt.writeHints,
   region: "body", weight: 2,
   realPath: "A shared app delivers the proposal and response between tenant and landlord; a counter does not amend the lease.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["sub"] } },
   parts: ["root", "unit", "tenant", "deadline", "status", "current_rent", "proposed_rent", "change",
     "selected_term", "message", "note", "accept", "counter", "decline"],
@@ -74,117 +82,267 @@ export function fallback(input: c.FallbackInput): z.input<typeof props> {
   };
 }
 
-// prettier-ignore
 export const examples = [
   {
-    renewalRef: "asha_willow", unitRef: "flat_a", unit: "Willow Flat", tenant: "Asha Patel",
-    currentRent: 1400, proposedRent: 1450, deadline: "2028-12-15",
-    options: [{ label: "12 months", months: 12 }, { label: "6 months", months: 6, rent: 1500 },
-      { label: "Month to month", months: 0, rent: 1550 }],
+    renewalRef: "asha_willow",
+    unitRef: "flat_a",
+    unit: "Willow Flat",
+    tenant: "Asha Patel",
+    currentRent: 1400,
+    proposedRent: 1450,
+    deadline: "2028-12-15",
+    options: [
+      { label: "12 months", months: 12 },
+      { label: "6 months", months: 6, rent: 1500 },
+      { label: "Month to month", months: 0, rent: 1550 },
+    ],
     counterNote: "Could we keep the current rent?",
   },
   {
-    renewalRef: "lee_cedar", unitRef: "flat_b", unit: "Cedar Flat", tenant: "Lee Morgan",
-    currentRent: 1250, proposedRent: 1280, deadline: "2027-03-01",
-    options: [{ label: "6 months", months: 6 }, { label: "12 months", months: 12, rent: 1250 }],
-    selectedOption: 1, status: "accepted", style: "summary",
+    renewalRef: "lee_cedar",
+    unitRef: "flat_b",
+    unit: "Cedar Flat",
+    tenant: "Lee Morgan",
+    currentRent: 1250,
+    proposedRent: 1280,
+    deadline: "2027-03-01",
+    options: [
+      { label: "6 months", months: 6 },
+      { label: "12 months", months: 12, rent: 1250 },
+    ],
+    selectedOption: 1,
+    status: "accepted",
+    style: "summary",
   },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("LeaseRenewal");
 const brief =
   "Make a tenant renewal offer asha_willow for Asha Patel at Willow Flat (flat_a) due 2028-12-15. Current monthly rent 1400, proposed monthly rent 1450. Offer 12 months at the proposed rent and 6 months at 1500.";
-// prettier-ignore
 export const probes = [
-  choose("My current tenant needs to decide whether to renew her apartment lease. Compare her old and new monthly rent, offer six or twelve months, and let her accept, counter or decline before the deadline."),
-  choose("Let me pick one of three picnic menus. Each has a title and a sentence describing what’s included. No deadline, contract, price or separate reply.", "Choice"),
+  choose(
+    "My current tenant needs to decide whether to renew her apartment lease. Compare her old and new monthly rent, offer six or twelve months, and let her accept, counter or decline before the deadline.",
+  ),
+  choose(
+    "Let me pick one of three picnic menus. Each has a title and a sentence describing what’s included. No deadline, contract, price or separate reply.",
+    "Choice",
+  ),
   write(brief),
-  { ...write(`${brief} Keep both term options but hide their explanatory lines. Show only each option's title and rent.`), variant: { axis: "detail", value: "brief" } },
-  read("Which control accepts the currently selected renewal term?", { address: "l1/accept", action: "press" }),
+  {
+    ...write(
+      `${brief} Keep both term options but hide their explanatory lines. Show only each option's title and rent.`,
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
+  read("Which control accepts the currently selected renewal term?", {
+    address: "l1/accept",
+    action: "press",
+  }),
 ] satisfies c.Probe[];
 
 type View = c.Props<typeof props, typeof meta> & ReturnType<typeof renewalGates> & { expired?: boolean };
 type Copy = ReturnType<typeof renewalCopy>;
 type Density = c.ThemeDensity;
 
-// prettier-ignore
-function Terms({ live, density, full, active, copy }: { live: View; density: Density; full: boolean; active: boolean; copy: Copy }) {
-  const state = kit.useComponentState(), loading = state === "loading";
+type TermFinish = {
+  density: Density;
+  active: boolean;
+  loading: boolean;
+};
+function RenewalTerm(
+  row: View["options"][number],
+  { scope, density, active, loading }: TermFinish & { scope: ReturnType<typeof kit.usePartContext> },
+  { title, sub, value }: ReturnType<Copy["option"]>,
+  selected: boolean,
+) {
+  return (
+    <kit.PartScope key={row.id} {...scope} item={row.id}>
+      <kit.KitRow
+        part={loading ? null : "root"}
+        inset="none"
+        label={title}
+        density={density}
+        lineRole="label"
+        surface="plain"
+        role={active ? "button" : "text"}
+      >
+        <kit.KitGrid fitLast density={density}>
+          <kit.KitMetaLine
+            density={density}
+            title={{
+              part: "title",
+              text: title,
+              role: "meta",
+              strong: true,
+              ...(selected ? { tone: "accent" } : {}),
+            }}
+            meta={{ part: "sub", text: sub }}
+          />
+          <kit.KitLayoutText
+            density={density}
+            align="end"
+            line={{ part: "value", text: value, compact: true, role: "figure", tabular: true }}
+          />
+        </kit.KitGrid>
+      </kit.KitRow>
+    </kit.PartScope>
+  );
+}
+
+function Terms({
+  live,
+  density,
+  full,
+  active,
+  copy,
+}: {
+  live: View;
+  density: Density;
+  full: boolean;
+  active: boolean;
+  copy: Copy;
+}) {
+  const state = kit.useComponentState(),
+    loading = state === "loading";
   const scope = kit.usePartContext();
   const selected = live.options[live.selectedOption]!;
-  if (live.style === "summary" || state === "success") return <kit.KitLayoutText density={density}
-    line={{ part: "selected_term", text: copy.words.selectedTerm(selected.label), role: "meta" }} />;
-  return <kit.KitContent group="response" rhythm="flush" {...{ density }}>
-    <kit.KitLayoutText density={density} line={{ text: copy.words.options, role: "meta", strong: true }} />
-    <kit.KitRowGroup separators={!loading} {...{ density }}>
-      {live.options.map((row, index) => {
-        const selected = index === live.selectedOption;
-        const { title, sub, value } = copy.option(row, live.proposedRent, full, selected);
-        return <kit.PartScope key={row.id} {...scope} item={row.id}>
-          <kit.KitRow part={loading ? null : "root"} inset="none" label={title} density={density}
-            lineRole="label" surface="plain" role={active ? "button" : "text"}>
-            <kit.KitGrid fitLast density={density}>
-              <kit.KitMetaLine density={density}
-                title={{ part: "title", text: title, role: "meta", strong: true, ...(selected ? { tone: "accent" } : {}) }}
-                meta={{ part: "sub", text: sub }} />
-              <kit.KitLayoutText density={density} align="end" line={{ part: "value", text: value, compact: true, role: "figure", tabular: true }} />
-            </kit.KitGrid>
-          </kit.KitRow>
-        </kit.PartScope>;
-      })}
-    </kit.KitRowGroup>
-  </kit.KitContent>;
+  if (live.style === "summary" || state === "success")
+    return (
+      <kit.KitLayoutText
+        density={density}
+        line={{ part: "selected_term", text: copy.words.selectedTerm(selected.label), role: "meta" }}
+      />
+    );
+  return (
+    <kit.KitContent group="response" rhythm="flush" {...{ density }}>
+      <kit.KitLayoutText density={density} line={{ text: copy.words.options, role: "meta", strong: true }} />
+      <kit.KitRowGroup separators={!loading} {...{ density }}>
+        {live.options.map((row, index) =>
+          RenewalTerm(
+            row,
+            { scope, density, active, loading },
+            copy.option(row, live.proposedRent, full, index === live.selectedOption),
+            index === live.selectedOption,
+          ),
+        )}
+      </kit.KitRowGroup>
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
-function Response({ live, density, active, copy }: { live: View; density: Density; active: boolean; copy: Copy }) {
+function Response({
+  live,
+  density,
+  active,
+  copy,
+}: {
+  live: View;
+  density: Density;
+  active: boolean;
+  copy: Copy;
+}) {
   const { words } = copy;
   if (!active && !live.counterNote) return null;
-  return <kit.KitContent group="response" {...{ density }}>
-    <kit.KitInput part="note" label={words.note} hint={words.note} value={live.counterNote ?? ""} disabled={!active} projected />
-    {active && <kit.KitActionFooter {...{ density }}>
-      <kit.KitAction part="accept" label={words.accept} contentParts={{}} />
-      {live.canCounter && <kit.KitAction part="counter" label={words.counter} kind="secondary" contentParts={{}} />}
-      <kit.KitAction part="decline" label={words.decline} kind="danger" contentParts={{}} />
-    </kit.KitActionFooter>}
-  </kit.KitContent>;
-}
-
-// prettier-ignore
-function Offer({ live, density, full, copy, state }: { live: View; density: Density; full: boolean; copy: Copy; state: c.StateName }) {
-  const { words } = copy, summary = copy.summary(live);
-  const active = state === "filled" && live.canRespond && !live.expired;
-  return <>
-    <kit.KitHeader density={density} title={{ part: "unit", text: live.unit, role: "body", strong: true }}
-      meta={[{ part: "tenant", text: live.tenant }, { part: "deadline", text: summary.deadline },
-        { part: "status", text: state === "success" && live.status === "sent" ? undefined : words.statuses[live.status] }]} />
-    <kit.KitContent group="response" rhythm="flush" {...{ density }}>
-      <kit.KitLayoutText density={density} line={{ text: words.proposed, role: "meta", strong: true }} />
-      <kit.KitFigure density={density} value={{ part: "proposed_rent", text: summary.proposed }} unit={{ text: words.monthly, role: "meta" }} />
+  return (
+    <kit.KitContent group="response" {...{ density }}>
+      <kit.KitInput
+        part="note"
+        label={words.note}
+        hint={words.note}
+        value={live.counterNote ?? ""}
+        disabled={!active}
+        projected
+      />
+      {active && (
+        <kit.KitActionFooter {...{ density }}>
+          <kit.KitAction part="accept" label={words.accept} contentParts={{}} />
+          {live.canCounter && (
+            <kit.KitAction part="counter" label={words.counter} kind="secondary" contentParts={{}} />
+          )}
+          <kit.KitAction part="decline" label={words.decline} kind="danger" contentParts={{}} />
+        </kit.KitActionFooter>
+      )}
     </kit.KitContent>
-    <kit.KitMetaLine title={{ part: "current_rent", text: summary.current, role: "meta", tone: "muted" }}
-      meta={{ part: "change", text: summary.change }} {...{ density }} />
-    <Terms {...{ live, density, full, copy, active }} />
-    {live.style === "offer" && <Response {...{ live, density, copy, active: active || state === "loading" && live.canRespond }} />}
-  </>;
+  );
 }
 
-// prettier-ignore
+function Offer({
+  live,
+  density,
+  full,
+  copy,
+  state,
+}: {
+  live: View;
+  density: Density;
+  full: boolean;
+  copy: Copy;
+  state: c.StateName;
+}) {
+  const { words } = copy,
+    summary = copy.summary(live);
+  const active = state === "filled" && live.canRespond && !live.expired;
+  return (
+    <>
+      <kit.KitHeader
+        density={density}
+        title={{ part: "unit", text: live.unit, role: "body", strong: true }}
+        meta={[
+          { part: "tenant", text: live.tenant },
+          { part: "deadline", text: summary.deadline },
+          {
+            part: "status",
+            text: state === "success" && live.status === "sent" ? undefined : words.statuses[live.status],
+          },
+        ]}
+      />
+      <kit.KitContent group="response" rhythm="flush" {...{ density }}>
+        <kit.KitLayoutText density={density} line={{ text: words.proposed, role: "meta", strong: true }} />
+        <kit.KitFigure
+          density={density}
+          value={{ part: "proposed_rent", text: summary.proposed }}
+          unit={{ text: words.monthly, role: "meta" }}
+        />
+      </kit.KitContent>
+      <kit.KitMetaLine
+        title={{ part: "current_rent", text: summary.current, role: "meta", tone: "muted" }}
+        meta={{ part: "change", text: summary.change }}
+        {...{ density }}
+      />
+      <Terms {...{ live, density, full, copy, active }} />
+      {live.style === "offer" && (
+        <Response {...{ live, density, copy, active: active || (state === "loading" && live.canRespond) }} />
+      )}
+    </>
+  );
+}
+
 export function LeaseRenewal(input: c.Props<typeof props, typeof meta>) {
-  const state = kit.useComponentState(), { lang, words } = kit.useWords(propertyWordsFor);
+  const state = kit.useComponentState(),
+    { lang, words } = kit.useWords(propertyWordsFor);
   const copy = renewalCopy(lang, kit.useAppCurrency(), words.renewals);
   const live = kit.useLiveControls(meta, input) as View;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const layout = <Offer {...{ live, density, full, copy, state }} />;
   const expired = live.expired && live.status === "sent";
-  const message = expired ? copy.words.expired : state === "success" || state === "error" ? copy.words[state] : undefined;
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    <kit.KitState part="message" {...{ message, density }} retain loading={layout}>
-      {state === "filled" && expired && <kit.KitLayoutText density={density}
-        line={{ part: "message", text: copy.words.expired, role: "meta", tone: "bad" }} />}
-      {layout}
-    </kit.KitState>
-  </kit.KitCard>;
+  const message = expired
+    ? copy.words.expired
+    : state === "success" || state === "error"
+      ? copy.words[state]
+      : undefined;
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      <kit.KitState part="message" {...{ message, density }} retain loading={layout}>
+        {state === "filled" && expired && (
+          <kit.KitLayoutText
+            density={density}
+            line={{ part: "message", text: copy.words.expired, role: "meta", tone: "bad" }}
+          />
+        )}
+        {layout}
+      </kit.KitState>
+    </kit.KitCard>
+  );
 }

@@ -22,11 +22,11 @@ import {
   probesFor,
   screenId,
   text,
-  variantProps,
   type CastLike,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import { seedTitles } from "..";
 import {
@@ -51,7 +51,7 @@ export const meta = {
   realPath:
     "Measurements typed on the device; a scale or health-store import needs read permission, and is not medical advice.",
   writeHints: prompt.writeHints,
-  variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["change"] } },
   parts: ["root", "label", "latest", "change", "goal", "plot", "range", "add"],
   states: ["filled", "empty", "loading"],
@@ -81,7 +81,6 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
     goto: "details",
   };
 }
-// prettier-ignore
 export const examples = [
   {
     label: "Body weight",
@@ -114,9 +113,16 @@ export const probes = [
   read("Add a new body-weight measurement", { address: "m1/add", action: "press" }),
 ] satisfies Probe[];
 
-// prettier-ignore
-function MeasurementSummary({ label, copy, full, unit }: {
-  label: string; copy: ReturnType<typeof measurementCopy>; full: boolean; unit: string;
+function MeasurementSummary({
+  label,
+  copy,
+  full,
+  unit,
+}: {
+  label: string;
+  copy: ReturnType<typeof measurementCopy>;
+  full: boolean;
+  unit: string;
 }) {
   return useComponentState() === "loading" ? (
     <KitSkeleton
@@ -134,19 +140,43 @@ function MeasurementSummary({ label, copy, full, unit }: {
     />
   ) : (
     <KitContent>
-      <KitText role="label" tone="muted" part="label">{label}</KitText>
-      <KitText role="label" tone="muted" part={null}>{copy.latestLabel}</KitText>
-      <KitText role="number" part="latest" lines={1} tabular>
-        {copy.latest}{"\u00a0"}<KitText role="label" tone="muted" part={null}>{unit}</KitText>
+      <KitText role="label" tone="muted" part="label">
+        {label}
       </KitText>
-      {full && <KitText role="label" tone="muted" part="change" tabular>{copy.change}</KitText>}
-      {copy.goal && <KitText role="label" tone="muted" part="goal" tabular>{copy.goal}</KitText>}
+      <KitText role="label" tone="muted" part={null}>
+        {copy.latestLabel}
+      </KitText>
+      <KitText role="number" part="latest" lines={1} tabular>
+        {copy.latest}
+        {"\u00a0"}
+        <KitText role="label" tone="muted" part={null}>
+          {unit}
+        </KitText>
+      </KitText>
+      {full && (
+        <KitText role="label" tone="muted" part="change" tabular>
+          {copy.change}
+        </KitText>
+      )}
+      {copy.goal && (
+        <KitText role="label" tone="muted" part="goal" tabular>
+          {copy.goal}
+        </KitText>
+      )}
     </KitContent>
   );
 }
 
-// prettier-ignore
-export function Measurements({ label, unit, points, goal, range, goto, surface, detail }: Props<typeof props, typeof meta>) {
+export function Measurements({
+  label,
+  unit,
+  points,
+  goal,
+  range,
+  goto,
+  detail,
+}: Props<typeof props, typeof meta>) {
+  const surface = "card";
   const full = useVariant("detail", meta.variants.detail, detail) === "full";
   const { lang, words } = useWords(healthWordsFor);
   const { measurementLabels } = words;
@@ -158,7 +188,11 @@ export function Measurements({ label, unit, points, goal, range, goto, surface, 
   if (state === "empty")
     return (
       <KitCard style="inset" padded part="root" surface={surface}>
-        <KitEmpty part="label" title={context.thing ? emptyLine(context.thing, lang) : measurementLabels.empty} decorativeIcon />
+        <KitEmpty
+          part="label"
+          title={context.thing ? emptyLine(context.thing, lang) : measurementLabels.empty}
+          decorativeIcon
+        />
       </KitCard>
     );
   return (

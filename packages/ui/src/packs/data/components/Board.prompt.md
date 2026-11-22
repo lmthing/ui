@@ -9,4 +9,5 @@ Move cards between two to five named stage columns with counts and optional tota
 ## Writer
 
 - card.column is a zero-based index into columns. Use unique stage labels because the move action takes the destination label. Counts and totals are computed; never write them.
-- Use arrange "rows" for stages stacked vertically, otherwise null. Leave density and surface null unless requested.
+- Use arrange "rows" for stages stacked vertically, otherwise null.
+- Set cards[].swimlane to a short group label only when cards should be separated into named horizontal groups across the same stages.

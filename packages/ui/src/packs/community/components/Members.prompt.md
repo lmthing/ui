@@ -9,4 +9,5 @@ A group's official membership register with joining or leaving dates, voting rig
 ## Writer
 
 - Use unique snake_case member ids. Leave ended unset for continuing members; when supplied it must not precede joined. Dues badges are computed by the host.
-- For names, primary roles and badges only, write detail "brief" and keep the dates, roles and photo in the data. Hiding extra details does not request different row spacing: write density null unless the person expressly asks for tighter or roomier spacing.
+- For names, primary roles and badges only, write detail "brief" and keep the dates, roles and photo in the data.
+- Only add badge or committee when stated for that member. A badge is an explicit short label, not a dues or voting status. A committee is a named committee, not the member’s role.

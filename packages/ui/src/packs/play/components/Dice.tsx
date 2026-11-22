@@ -1,8 +1,15 @@
 import { z } from "zod";
-// prettier-ignore
 import {
-  drawKey, drawState, emptyLine, probesFor, variantProps,
-  type DrawState, type FallbackInput, type Meta, type Probe, type Props,
+  drawKey,
+  drawState,
+  emptyLine,
+  probesFor,
+  variantProps,
+  type DrawState,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
 } from "../../../catalog";
 import {
   KitAction,
@@ -17,8 +24,8 @@ import {
   useControlValue,
   useEmptyThing,
   usePartContext,
-  useVariant,
   useWords,
+  useKit,
 } from "../../../kit";
 import { diceFaceLabel, diceSetupLine, diceSumLine } from "../copy";
 import { playWordsFor } from "../lang";
@@ -36,7 +43,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Unbiased random faces are generated and saved on the device before the reveal animation.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["setup"] } },
   items: { key: "dice", parts: ["root", "face", "hold"] },
   parts: ["root", "setup", "dice_1", "dice_2", "dice_3", "sum", "roll", "roll_label"],
@@ -84,7 +91,7 @@ export const examples = [
   // Trot's walkers play a tabletop adventure.
   { count: 1, sides: 20, style: "numbers" },
   { count: 2, detail: "brief" },
-  { count: 2, density: "compact" },
+  { count: 2 },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Dice");
 export const probes = [
@@ -132,7 +139,7 @@ function DiceFaces({
     );
   });
   return (
-    <KitContent align="center" group="response" density={setup.density}>
+    <KitContent align="center" group="response">
       {Array.from({ length: Math.ceil(count / 2) }, (_, index) => (
         <KitTrack key={index} part={`dice_${index + 1}`}>
           {dice.slice(index * 2, index * 2 + 2)}
@@ -147,7 +154,7 @@ export function Dice(setup: DiceSetup) {
   const state = useComponentState();
   const thing = useEmptyThing();
   const { lang, words } = useWords(playWordsFor);
-  const density = useVariant("density", meta.variants.density, setup.density);
+  const density = useKit().density;
   const saved = useControlValue<unknown>(`${scope.screen}/${scope.component}/${drawKey}`, undefined);
   const result = drawState(meta, setup, () => saved);
   const faces = result?.kind === "faces" ? result : undefined;
@@ -161,7 +168,7 @@ export function Dice(setup: DiceSetup) {
           {diceSetupLine(setup.count, setup.sides, lang)}
         </KitText>
       )}
-      <DiceFaces setup={{ ...setup, density }} result={faces} loading={loading} />
+      <DiceFaces setup={setup} result={faces} loading={loading} />
       {loading ? (
         <>
           <KitSkeleton

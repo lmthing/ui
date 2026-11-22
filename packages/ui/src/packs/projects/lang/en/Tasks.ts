@@ -1,5 +1,8 @@
 export const words = {
   tasks: {
+    today: "Due today",
+    todayEmpty: "No tasks due today",
+    repeat: { daily: "Repeats daily", weekly: "Repeats weekly", monthly: "Repeats monthly" },
     assign: (title: string) => `Assign ${title}`,
     due: (date: string) => `Due ${date}`,
     overdue: (date: string) => `Overdue · ${date}`,

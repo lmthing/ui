@@ -16,7 +16,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Balances typed in on the device; a bank link would need an outside service.",
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "outlined"], arrange: ["strip", "rows"] },
+  variants: { detail: ["full", "brief"], arrange: ["strip", "rows"] },
   variantParts: { "detail.brief": { hides: ["last4"] } },
   parts: ["root"],
   items: { key: "accounts", parts: ["root", "name", "kind", "last4", "balance", "swatch", "credit_limit", "rewards_value"] },
@@ -55,14 +55,12 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
     })),
   };
 }
-// prettier-ignore
 const ledgeAccounts = {
   accounts: [
     { name: "Ledge supplies", kind: "jar", balance: 84, swatch: "green", goto: "supplies" },
     { name: "Everyday", kind: "current", last4: "4821", balance: 1240.5, swatch: "navy", goto: "current" },
   ],
 } satisfies z.input<typeof props>;
-// prettier-ignore
 export const examples = [
   ledgeAccounts,
   {
@@ -72,19 +70,27 @@ export const examples = [
     ],
   },
   { ...ledgeAccounts, detail: "brief" },
-  { ...ledgeAccounts, density: "compact" },
-  { ...ledgeAccounts, surface: "outlined" },
+  { ...ledgeAccounts },
+  { ...ledgeAccounts },
   { ...ledgeAccounts, arrange: "rows" },
   {
     arrange: "rows",
     accounts: [
-      { name: "Trot expenses", kind: "card", last4: "9034", balance: -120, creditLimit: 2500, rewardsValue: 37.5, swatch: "purple", goto: "card" },
+      {
+        name: "Trot expenses",
+        kind: "card",
+        last4: "9034",
+        balance: -120,
+        creditLimit: 2500,
+        rewardsValue: 37.5,
+        swatch: "purple",
+        goto: "card",
+      },
       { name: "Fuel reserve", kind: "jar", balance: 175, swatch: "blue", goto: "fuel" },
     ],
   },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = c.probesFor("AccountCard");
-// prettier-ignore
 export const probes = [
   choose(
     "Show my current account, savings and credit card as separate coloured cards with each balance and last four digits",
@@ -99,82 +105,162 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
-  { ...write("Stack my account cards vertically, full width. Everyday current balance 400, navy, opens current. Savings balance 600, green, opens savings."), variant: { axis: "arrange", value: "rows" } },
-  { ...write("My purple Everyday card has a balance of -120 and a credit limit of 2500. It opens card. Show that limit with the balance."), expectProps: { accounts: [{ creditLimit: 2500 }] } },
-  { ...write("Show my purple Everyday card with a balance of -120 and rewards worth 37.50 in money. It opens card. Include the rewards value on the card."), expectProps: { accounts: [{ rewardsValue: 37.5 }] } },
+  {
+    ...write(
+      "Stack my account cards vertically, full width. Everyday current balance 400, navy, opens current. Savings balance 600, green, opens savings.",
+    ),
+    variant: { axis: "arrange", value: "rows" },
+  },
+  {
+    ...write(
+      "My purple Everyday card has a balance of -120 and a credit limit of 2500. It opens card. Show that limit with the balance.",
+    ),
+    expectProps: { accounts: [{ creditLimit: 2500 }] },
+  },
+  {
+    ...write(
+      "Show my purple Everyday card with a balance of -120 and rewards worth 37.50 in money. It opens card. Include the rewards value on the card.",
+    ),
+    expectProps: { accounts: [{ rewardsValue: 37.5 }] },
+  },
   read("Open the Ledge supplies account", { address: "a1/r1", action: "press" }),
 ] satisfies c.Probe[];
 
 type CardProps = c.Props<typeof props, typeof meta>;
-// prettier-ignore
-function AccountTile({ account, copy, loading, numberScale, finish, stacked }: {
+function AccountTileCopy(
+  name: string,
+  copy: ReturnType<typeof accountCopy>,
+  density: c.ThemeDensity,
+  numberScale: "compact" | "display",
+) {
+  const { kind, suffix, balance, details } = copy;
+  type SkeletonContent = NonNullable<Parameters<typeof kit.KitSkeleton>[0]["content"]>;
+  const nameRole = numberScale === "compact" ? "label" : "heading";
+  const headline = (
+    <>
+      <kit.KitText density={density} role={nameRole} part="name">
+        {name}
+      </kit.KitText>
+      <kit.KitText density={density} role="number" part="balance" numberScale={numberScale} tabular lines={1}>
+        {balance}
+      </kit.KitText>
+    </>
+  );
+  const kindLine = (
+    <kit.KitText density={density} role="caption" part="kind" tone="muted">
+      {kind}
+      {suffix && (
+        <kit.KitText density={density} role="caption" part="last4" tone="muted" tabular>
+          {suffix}
+        </kit.KitText>
+      )}
+    </kit.KitText>
+  );
+  const detailsView = details.map(({ part, label, amount }) => (
+    <kit.KitText key={part} density={density} role="caption" tone="muted" part={part}>
+      {label}{" "}
+      <kit.KitText part={null} density={density} role="number" numberScale="compact" tabular>
+        {amount}
+      </kit.KitText>
+    </kit.KitText>
+  ));
+  const headingBars: SkeletonContent = [
+    [nameRole, name],
+    ["number", balance, "start", numberScale],
+  ];
+  const detailBars: SkeletonContent = [
+    ["caption", kind + (suffix ?? "")],
+    ...details.map(({ text }): ["caption", string] => ["caption", text]),
+  ];
+  return { headline, kindLine, detailsView, headingBars, detailBars };
+}
+
+type AccountTileProps = {
   account: CardProps["accounts"][number];
   copy: ReturnType<typeof accountCopy>;
   loading: boolean;
   stacked: boolean;
   numberScale: "compact" | "display";
-  finish: { density: NonNullable<CardProps["density"]>; surface: CardProps["surface"] };
-}) {
+  finish: { density: c.ThemeDensity; surface: c.SurfaceFinish };
+};
+function AccountTile({ account, copy, loading, numberScale, finish, stacked }: AccountTileProps) {
   const scope = kit.usePartContext();
   const { name, id, swatch, goto } = account;
-  const { kind, suffix, balance, label, details } = copy;
-  type SkeletonContent = NonNullable<Parameters<typeof kit.KitSkeleton>[0]["content"]>;
-  const { density } = finish, nameRole = numberScale === "compact" ? "label" : "heading";
-  const headline = <>
-    <kit.KitText density={density} role={nameRole} part="name">{name}</kit.KitText>
-    <kit.KitText density={density} role="number" part="balance" numberScale={numberScale} tabular lines={1}>{balance}</kit.KitText>
-  </>;
-  const kindLine = <kit.KitText density={density} role="caption" part="kind" tone="muted">
-    {kind}{suffix && <kit.KitText density={density} role="caption" part="last4" tone="muted" tabular>{suffix}</kit.KitText>}
-  </kit.KitText>;
-  const detailsView = details.map(({ part, label, amount }) => (
-    <kit.KitText key={part} density={density} role="caption" tone="muted" part={part}>
-      {label}{" "}<kit.KitText part={null} density={density} role="number" numberScale="compact" tabular>{amount}</kit.KitText>
-    </kit.KitText>
-  ));
-  const headingBars: SkeletonContent = [[nameRole, name], ["number", balance, "start", numberScale]];
-  const detailBars: SkeletonContent = [
-    ["caption", kind + (suffix ?? "")], ...details.map(({ text }): ["caption", string] => ["caption", text]),
-  ];
+  const { label } = copy;
+  const { density } = finish;
+  const { headline, kindLine, detailsView, headingBars, detailBars } = AccountTileCopy(
+    name,
+    copy,
+    density,
+    numberScale,
+  );
   return (
     <kit.PartContext.Provider value={{ ...scope, item: id }}>
       <kit.KitCard padded {...finish} {...(loading ? {} : { part: "root", goto, label })}>
         {stacked ? (
           <kit.KitGrid density={density}>
-            {loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={headingBars} />
-              : <kit.KitContent density={density}>{headline}</kit.KitContent>}
-            {loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={detailBars} />
-              : <kit.KitContent density={density}>
+            {loading ? (
+              <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={headingBars} />
+            ) : (
+              <kit.KitContent density={density}>{headline}</kit.KitContent>
+            )}
+            {loading ? (
+              <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={detailBars} />
+            ) : (
+              <kit.KitContent density={density}>
                 <kit.KitGrid fitLast density={density}>
                   {kindLine}
                   <kit.KitCard part="swatch" swatch={swatch} children={null} />
                 </kit.KitGrid>
                 {detailsView}
-              </kit.KitContent>}
+              </kit.KitContent>
+            )}
           </kit.KitGrid>
-        ) : <>
-          {loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[...headingBars, ...detailBars]} />
-            : <kit.KitContent density={density}>{headline}{kindLine}{detailsView}</kit.KitContent>}
-          <kit.KitGrid columns={3}><kit.KitCard part="swatch" swatch={swatch} children={null} /></kit.KitGrid>
-        </>}
+        ) : (
+          <>
+            {loading ? (
+              <kit.KitSkeleton
+                shape="figure"
+                inset="none"
+                {...{ density }}
+                content={[...headingBars, ...detailBars]}
+              />
+            ) : (
+              <kit.KitContent density={density}>
+                {headline}
+                {kindLine}
+                {detailsView}
+              </kit.KitContent>
+            )}
+            <kit.KitGrid columns={3}>
+              <kit.KitCard part="swatch" swatch={swatch} children={null} />
+            </kit.KitGrid>
+          </>
+        )}
       </kit.KitCard>
     </kit.PartContext.Provider>
   );
 }
-// prettier-ignore
-export function AccountCard({ accounts, density: requested, surface, arrange }: CardProps) {
-  const density = kit.useVariant("density", meta.variants.density, requested);
+export function AccountCard({ accounts, arrange }: CardProps) {
+  const surface = "card" as const;
+  const density = kit.useKit().density;
   const finish = { density, surface };
   const loading = kit.useComponentState() === "loading";
   const { lang, words } = kit.useWords(moneyWordsFor);
-  const currency = kit.useAppCurrency(), stacked = arrange === "rows";
+  const currency = kit.useAppCurrency(),
+    stacked = arrange === "rows";
   const cards = accounts.map((account) => ({ account, copy: accountCopy(account, lang, words, currency) }));
   const numberScale =
     (!stacked && cards.length > 1) || cards.some(({ copy }) => copy.balance.length > (stacked ? 6 : 9))
       ? "compact"
       : "display";
   const tiles = cards.map(({ account, copy }) => (
-    <AccountTile key={account.id} account={account} copy={copy} {...{ loading, numberScale, finish, stacked }} />
+    <AccountTile
+      key={account.id}
+      account={account}
+      copy={copy}
+      {...{ loading, numberScale, finish, stacked }}
+    />
   ));
   return (
     <kit.KitCard style={stacked ? "cards" : "plain"} part="root">

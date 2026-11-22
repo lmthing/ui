@@ -1,8 +1,22 @@
 import { z } from "zod";
-// prettier-ignore
 import {
-  clock, detailOf, formatAddress, isoDate, itemsOf, placeholderTitle, probesFor, screenId,
-  text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props,
+  clock,
+  detailOf,
+  formatAddress,
+  isoDate,
+  itemsOf,
+  placeholderTitle,
+  probesFor,
+  screenId,
+  text,
+  thingOf,
+  titleOf,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+  type ThemeDensity,
+  variantProps,
 } from "../../../catalog";
 import * as kit from "../../../kit";
 import { TimelineRail, type TimelineRailRow } from "../../../kit/timeline";
@@ -30,7 +44,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "The plan lives on the device; sharing it needs a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: durationParts } },
   parts: ["root", "title"],
   items: { key: "days", parts: ["root", "date", "place", ...stopParts, ...timeParts, ...durationParts] },
@@ -88,7 +102,6 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
-// prettier-ignore
 export const examples = [
   {
     days: [
@@ -142,36 +155,54 @@ export const probes = [
 ] satisfies Probe[];
 
 type ItineraryProps = Props<typeof props, typeof meta>;
-type DayProps = Pick<ItineraryProps, "density" | "detail">;
+type DayProps = Pick<ItineraryProps, "detail"> & { density: ThemeDensity };
 
-// prettier-ignore
-function ItineraryDay({ day, initial, density, detail }: DayProps & { day: ItineraryProps["days"][number]; initial: boolean }) {
-  const scope = kit.usePartContext(), { controller } = kit.useKit();
+function ItineraryDay({
+  day,
+  initial,
+  density,
+  detail,
+}: DayProps & { day: ItineraryProps["days"][number]; initial: boolean }) {
+  const scope = kit.usePartContext(),
+    { controller } = kit.useKit();
   const toggled = kit.useControlValue(formatAddress({ ...scope, item: day.id }), false);
   // Like List/expand, static rendering exposes the full content; a phone folds it.
   const open = !controller || initial !== toggled;
   const { lang, words } = kit.useWords(tripsWordsFor);
   const date = itineraryDate(day.date, lang);
-  const rows = open ? day.stops.map((stop, index): TimelineRailRow<(typeof stopParts)[number]> => {
-    const { time, duration } = itineraryStopCopy(stop, detail !== "brief", lang);
-    return {
-      kind: "rail", part: stopParts[index]!, goto: stop.goto,
-      slots: {
-        title: { part: null, text: stop.title }, icon: icons[stop.kind],
-        time: { part: timeParts[index]!, text: time ?? words.itinerary.untimed },
-        ...(duration ? { detail: { part: durationParts[index]!, text: duration } } : {}),
-      },
-    };
-  }) : [];
-  return <TimelineRail item={day.id} label={words.itinerary.dayLabel(date, day.place)} {...{ density, open, rows }}
-    title={{ part: "place", text: day.place }} date={{ part: "date", text: date }} />;
+  const rows = open
+    ? day.stops.map((stop, index): TimelineRailRow<(typeof stopParts)[number]> => {
+        const { time, duration } = itineraryStopCopy(stop, detail !== "brief", lang);
+        return {
+          kind: "rail",
+          part: stopParts[index]!,
+          goto: stop.goto,
+          slots: {
+            title: { part: null, text: stop.title },
+            icon: icons[stop.kind],
+            time: { part: timeParts[index]!, text: time ?? words.itinerary.untimed },
+            ...(duration ? { detail: { part: durationParts[index]!, text: duration } } : {}),
+          },
+        };
+      })
+    : [];
+  return (
+    <TimelineRail
+      item={day.id}
+      label={words.itinerary.dayLabel(date, day.place)}
+      {...{ density, open, rows }}
+      title={{ part: "place", text: day.place }}
+      date={{ part: "date", text: date }}
+    />
+  );
 }
 
-// prettier-ignore
 export function Itinerary(input: ItineraryProps) {
-  const { days, detail, surface } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const empty = kit.useComponentState() === "empty", current = initialItineraryDay(days, new Date());
+  const { days, detail } = input;
+  const surface = "card";
+  const density = kit.useKit().density;
+  const empty = kit.useComponentState() === "empty",
+    current = initialItineraryDay(days, new Date());
   return (
     <kit.KitCard {...{ density, surface }} padded={!empty} part="root">
       <kit.KitState icon="calendar_days" part="title" density={density}>

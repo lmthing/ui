@@ -18,7 +18,6 @@ export const meta = {
   tier: "phone",
   realPath:
     "Applications and contact events live on the seeker's phone, and checking a follow-up logs and clears it without sending or changing stage.",
-  variants: { surface: ["plain", "card"], density: ["comfortable", "compact"] },
   parts: ["root", "empty", "success", "error"],
   items: {
     key: "applications",
@@ -61,7 +60,6 @@ const application = z
   );
 
 export const props = z.strictObject({
-  ...c.variantProps(meta.variants),
   applications: z
     .array(application)
     .min(1)
@@ -89,28 +87,42 @@ export function fallback(input: c.FallbackInput): z.input<typeof props> {
   };
 }
 
-// prettier-ignore
 export const examples = [
   {
     applications: [
       {
-        applicationId: "trot", role: "Summer dog walker", employer: "Trot", stage: "interview",
-        outcome: "active", applied: "2027-04-06", lastContact: "2027-04-12",
-        next: "Send a thank-you note", nextAt: "2027-04-13", goto: "trot_application",
+        applicationId: "trot",
+        role: "Summer dog walker",
+        employer: "Trot",
+        stage: "interview",
+        outcome: "active",
+        applied: "2027-04-06",
+        lastContact: "2027-04-12",
+        next: "Send a thank-you note",
+        nextAt: "2027-04-13",
+        goto: "trot_application",
       },
       {
-        applicationId: "coast", role: "Assistant trainer", employer: "Coast Dogs",
-        stage: "saved", outcome: "active", goto: "coast_application",
+        applicationId: "coast",
+        role: "Assistant trainer",
+        employer: "Coast Dogs",
+        stage: "saved",
+        outcome: "active",
+        goto: "coast_application",
       },
     ],
   },
   {
-    surface: "card",
-    density: "compact",
     applications: [
       {
-        applicationId: "press", role: "Copy editor", employer: "Harbour Press", stage: "screening",
-        outcome: "rejected", applied: "2027-05-01", lastContact: "2027-05-08", goto: "press_application",
+        applicationId: "press",
+        role: "Copy editor",
+        employer: "Harbour Press",
+        stage: "screening",
+        outcome: "rejected",
+        applied: "2027-05-01",
+        lastContact: "2027-05-08",
+        goto: "press_application",
       },
     ],
   },
@@ -128,12 +140,6 @@ export const probes: c.Probe[] = [
   write(
     "Track my active Trot Summer dog walker application, submitted 2027-04-06, in interview, last contact 2027-04-12, with a thank-you note due 2027-04-13. Also show the saved Assistant trainer opening at Coast Dogs, not applied. Link each role to its details.",
   ),
-  {
-    ...write(
-      "Show my active Trot Summer dog walker application in its own card, not a plain row. I applied 2027-04-06, reached interview, and need to send a thank-you note by 2027-04-13. Link to my application.",
-    ),
-    variant: { axis: "surface", value: "card" },
-  },
   read("Mark the thank-you follow-up for Trot done without sending anything.", {
     address: "a1/r1/followup",
     action: "check",
@@ -143,54 +149,173 @@ export const probes: c.Probe[] = [
 type Tracker = c.Props<typeof props, typeof meta>;
 type Row = ReturnType<typeof projectApplications<Tracker["applications"][number]>>[number];
 
-// prettier-ignore
-function ApplicationRow({ row, density, surface, loading }: { row: Row; density: c.ThemeDensity; surface: Tracker["surface"]; loading: boolean }) {
-  const { lang, words: { applications: words } } = kit.useWords(hiringWordsFor);
-  const copy = applicationCopy(row, lang);
-  const line = (part: string, value: string | undefined, role: kit.TextRole = "label", tone: kit.TextTone = "muted") =>
-    value === undefined ? null : loading ? <kit.KitSkeleton shape="figure" inset="none" content={[[role, value]]} {...{ density }} />
-      : <kit.KitText {...{ part, role, tone, density }}>{value}</kit.KitText>;
-  return <kit.KitRow item={row.id} part={null} label={row.role} inline={surface === "plain"} {...{ density, surface }}>
-    {loading ? <kit.KitSkeleton shape="rows" inset="none" rows={1} lead="none" {...{ density }}
-      items={[{ title: row.role, sub: row.employer, trail: "chevron" }]} /> :
-      <kit.KitRow inline label={row.role} part="root" goto={row.goto} lineRole="heading" {...{ density }}
-        trailing={<kit.KitIcon name="chevron_right" decorative tone="muted" />}>
-        {line("role", row.role, "heading", "text")}{line("employer", row.employer, "body")}
-      </kit.KitRow>}
-    <kit.KitContent {...{ density }}>
-      {line("stage", copy.stage, "label", copy.outcome ? "muted" : "text")}
-      {line("outcome", copy.outcome, "label", row.outcome === "hired" ? "good" : row.outcome === "rejected" ? "bad" : "text")}
-      {line("applied", copy.applied)}{line("last_contact", copy.lastContact)}
-    </kit.KitContent>
-    {row.next && <kit.KitContent group="response" {...{ density }}>
-      {line("next", row.next, "body", "text")}{line("next_at", copy.nextAt)}
-      {line("due", copy.due, "label", "warn")}
-      {row.followUp === "pending" && (loading ? <kit.KitSkeleton shape="rows" rows={1} inset="none" lead="box" {...{ density }}
-        items={[{ title: words.log }]} />
-        : <kit.KitRow inline part={null} label={words.log} leading={<kit.KitCheck part="followup" label={words.log} done={false} />}>
-          <kit.KitText part="followup_label" role="label" tone="accent" {...{ density }}>{words.log}</kit.KitText>
-        </kit.KitRow>)}
-    </kit.KitContent>}
-    {row.outcome === "active" && (loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", copy.withdraw]]} {...{ density }} />
-      : <kit.KitRow part="withdraw" role="button" inline label={copy.withdraw} {...{ density }}>
-        <kit.KitText part="withdraw_label" role="label" tone="muted" {...{ density }}>{copy.withdraw}</kit.KitText>
-      </kit.KitRow>)}
-  </kit.KitRow>;
+function CreateApplicationLine(density: c.ThemeDensity, loading: boolean) {
+  return (
+    part: string,
+    value: string | undefined,
+    role: kit.TextRole = "label",
+    tone: kit.TextTone = "muted",
+  ) =>
+    value === undefined ? null : loading ? (
+      <kit.KitSkeleton shape="figure" inset="none" content={[[role, value]]} {...{ density }} />
+    ) : (
+      <kit.KitText {...{ part, role, tone, density }}>{value}</kit.KitText>
+    );
 }
 
-// prettier-ignore
+function ApplicationHeading(
+  row: Row,
+  density: c.ThemeDensity,
+  loading: boolean,
+  line: ReturnType<typeof CreateApplicationLine>,
+) {
+  return loading ? (
+    <kit.KitSkeleton
+      shape="rows"
+      inset="none"
+      rows={1}
+      lead="none"
+      {...{ density }}
+      items={[{ title: row.role, sub: row.employer, trail: "chevron" }]}
+    />
+  ) : (
+    <kit.KitRow
+      inline
+      label={row.role}
+      part="root"
+      goto={row.goto}
+      lineRole="heading"
+      {...{ density }}
+      trailing={<kit.KitIcon name="chevron_right" decorative tone="muted" />}
+    >
+      {line("role", row.role, "heading", "text")}
+      {line("employer", row.employer, "body")}
+    </kit.KitRow>
+  );
+}
+
+function ApplicationFollowUp(
+  row: Row,
+  copy: ReturnType<typeof applicationCopy>,
+  density: c.ThemeDensity,
+  loading: boolean,
+  log: string,
+  line: ReturnType<typeof CreateApplicationLine>,
+) {
+  return (
+    <kit.KitContent group="response" {...{ density }}>
+      {line("next", row.next, "body", "text")}
+      {line("next_at", copy.nextAt)}
+      {line("due", copy.due, "label", "warn")}
+      {row.followUp === "pending" &&
+        (loading ? (
+          <kit.KitSkeleton
+            shape="rows"
+            rows={1}
+            inset="none"
+            lead="box"
+            {...{ density }}
+            items={[{ title: log }]}
+          />
+        ) : (
+          <kit.KitRow
+            inline
+            part={null}
+            label={log}
+            leading={<kit.KitCheck part="followup" label={log} done={false} />}
+          >
+            <kit.KitText part="followup_label" role="label" tone="accent" {...{ density }}>
+              {log}
+            </kit.KitText>
+          </kit.KitRow>
+        ))}
+    </kit.KitContent>
+  );
+}
+
+function ApplicationWithdraw(label: string, density: c.ThemeDensity, loading: boolean) {
+  return loading ? (
+    <kit.KitSkeleton shape="figure" inset="none" content={[["label", label]]} {...{ density }} />
+  ) : (
+    <kit.KitRow part="withdraw" role="button" inline label={label} {...{ density }}>
+      <kit.KitText part="withdraw_label" role="label" tone="muted" {...{ density }}>
+        {label}
+      </kit.KitText>
+    </kit.KitRow>
+  );
+}
+
+type ApplicationRowProps = { row: Row; density: c.ThemeDensity; surface: c.SurfaceFinish; loading: boolean };
+
+function ApplicationRow({ row, density, surface, loading }: ApplicationRowProps) {
+  const {
+    lang,
+    words: { applications: words },
+  } = kit.useWords(hiringWordsFor);
+  const copy = applicationCopy(row, lang);
+  const line = CreateApplicationLine(density, loading);
+  return (
+    <kit.KitRow
+      item={row.id}
+      part={null}
+      label={row.role}
+      inline={surface === "plain"}
+      {...{ density, surface }}
+    >
+      {ApplicationHeading(row, density, loading, line)}
+      <kit.KitContent {...{ density }}>
+        {line("stage", copy.stage, "label", copy.outcome ? "muted" : "text")}
+        {line(
+          "outcome",
+          copy.outcome,
+          "label",
+          row.outcome === "hired" ? "good" : row.outcome === "rejected" ? "bad" : "text",
+        )}
+        {line("applied", copy.applied)}
+        {line("last_contact", copy.lastContact)}
+      </kit.KitContent>
+      {row.next && ApplicationFollowUp(row, copy, density, loading, words.log, line)}
+      {row.outcome === "active" && ApplicationWithdraw(copy.withdraw, density, loading)}
+    </kit.KitRow>
+  );
+}
+
 export function Applications(input: Tracker) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
-  const { words: { applications: words } } = kit.useWords(hiringWordsFor);
+  const density = kit.useKit().density;
+  const surface = "plain";
+  const {
+    words: { applications: words },
+  } = kit.useWords(hiringWordsFor);
   const { applications } = kit.useLiveControls(meta, input) as { applications: Row[] };
-  return <kit.KitCard part="root" style={surface === "plain" ? "inset" : "plain"} padded={surface === "plain"} {...{ density }}>
-    {state === "empty" ? <kit.KitEmpty part="empty" decorativeIcon icon="briefcase" /> :
-      state === "success" || state === "error" ? <kit.KitEmpty part={state} decorativeIcon
-        title={state === "success" ? words.success : words.error} icon={state === "success" ? "check" : "info"} /> :
-      <kit.KitGrid arrange="rows" list listRowGap={surface === "plain" ? "group" : "cards"} {...{ density }}>
-        {applications.map((row) => <ApplicationRow key={row.id} {...{ row, density, surface }} loading={state === "loading"} />)}
-      </kit.KitGrid>}
-  </kit.KitCard>;
+  return (
+    <kit.KitCard
+      part="root"
+      style={surface === "plain" ? "inset" : "plain"}
+      padded={surface === "plain"}
+      {...{ density }}
+    >
+      {state === "empty" ? (
+        <kit.KitEmpty part="empty" decorativeIcon icon="briefcase" />
+      ) : state === "success" || state === "error" ? (
+        <kit.KitEmpty
+          part={state}
+          decorativeIcon
+          title={state === "success" ? words.success : words.error}
+          icon={state === "success" ? "check" : "info"}
+        />
+      ) : (
+        <kit.KitGrid
+          arrange="rows"
+          list
+          listRowGap={surface === "plain" ? "group" : "cards"}
+          {...{ density }}
+        >
+          {applications.map((row) => (
+            <ApplicationRow key={row.id} {...{ row, density, surface }} loading={state === "loading"} />
+          ))}
+        </kit.KitGrid>
+      )}
+    </kit.KitCard>
+  );
 }

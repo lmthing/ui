@@ -29,7 +29,7 @@ describe("Storage schema", () => {
   it.each(examples)("accepts a domain example", (input) => expect(props.safeParse(input).success).toBe(true));
 
   it("accepts empty groups and exact schema maxima, and applies shared defaults", () => {
-    expect(props.parse(empty)).toMatchObject({ surface: "card", detail: "full" });
+    expect(props.parse(empty)).toMatchObject({ detail: "full" });
     expect(props.parse({ ...full, path: [" Workshop "] }).path).toEqual(["Workshop"]);
     expect(
       props.safeParse({
@@ -119,7 +119,7 @@ describe("Storage states and parts", () => {
     const count = parts.get(`${root}/r3/count`);
     expect(count?.children[0]?.text).toEqual(["1"]);
     expect(count?.text).toEqual([" item"]);
-    expect([...render({ ...full, detail: "brief", density: "compact", surface: "outlined" }).keys()]).toEqual(
+    expect([...render({ ...full, detail: "brief" }).keys()]).toEqual(
       [...parts.keys()].filter((key) => !key.endsWith("/count")),
     );
     expect(render(full, "filled", {}).has(`${root}/r3/count`)).toBe(false);

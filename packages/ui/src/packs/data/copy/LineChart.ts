@@ -8,6 +8,7 @@ type Chart = {
 
 export const seriesTones = ["accent", "text", "warn"] as const;
 export const seriesId = (line: number) => `s${line + 1}`;
+export const chartRanges = ["7d", "30d", "90d", "1y"] as const;
 
 export function chartPoints({ labels, series }: Chart) {
   return series.flatMap(({ label: series, values }, line) =>
@@ -33,11 +34,16 @@ export function pointReading(point: ReturnType<typeof chartPoints>[number], unit
 }
 
 /** Match KitLinePlot's endpoint and midpoint ticks in the data-only reading. */
-export function chartTicks(points: readonly { value: number }[], lang?: string): string[] {
+export function chartTicks(points: readonly { value: number }[], lang?: string, goal?: number): string[] {
   const values = points.map(({ value }) => value);
+  if (goal !== undefined) values.push(goal);
   const low = Math.min(...values),
     high = Math.max(...values);
   return (low === high ? [low] : [high, (high + low) / 2, low]).map((tick) =>
     numberLine(Number(tick.toPrecision(4)), lang),
   );
+}
+
+export function chartGoal(value: number, unit?: string, lang?: string) {
+  return { value, label: dataWordsFor(lang).chartGoal(pointValue(value, unit, lang)) };
 }

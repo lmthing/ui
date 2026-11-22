@@ -7,11 +7,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import {
   KitAction,
@@ -41,7 +41,7 @@ export const meta = {
   tier: "phone",
   partTiers: { next: "people", skip: "people" },
   realPath: "A rotation stays on the device; everyone viewing it on their own phone needs a shared app.",
-  variants: { lead: ["avatar", "none"], surface: ["card", "outlined"], emphasis: ["normal", "hero"] },
+  variants: { lead: ["avatar", "none"], emphasis: ["normal", "hero"] },
   variantParts: { "lead.none": { hides: ["photo"] } },
   items: { key: "visiblePeople", parts: ["root", "name", "photo"] },
   parts: ["root", "job", "next", "skip"],
@@ -71,8 +71,8 @@ const withVisiblePeople = (value: z.output<typeof schema>) => ({
 export const props = schema.overwrite(withVisiblePeople) as typeof schema &
   z.ZodType<ReturnType<typeof withVisiblePeople>, z.input<typeof schema>>;
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
-  const thing = thingOf(cast),
-    items = itemsOf(cast, 6);
+  const thing = thingOf(cast);
+  const items = itemsOf(cast, 6);
   const people = items.map((item, index) => ({
     name: titleOf(item, 16, thing) ?? placeholderTitle(index, lang),
   }));
@@ -168,7 +168,8 @@ function TurnRow({
   );
 }
 
-export function Turns({ job, visiblePeople, lead, surface, emphasis }: TurnsProps) {
+export function Turns({ job, visiblePeople, lead, emphasis }: TurnsProps) {
+  const surface = "card";
   const { words } = useWords(homeWordsFor);
   const { next, skip } = words.turnLabels;
   const rows = visiblePeople.map((person, index) => (

@@ -9,4 +9,6 @@ A menstrual cycle with period days, today's phase and estimated next period and 
 ## Writer
 
 - Write the start, average length and period duration. Predictions are computed locally and are not a method of contraception.
-- Write surface null unless asked for an outline. Do not write the default surface card. Use detail brief only to omit the estimated next-period and fertile-window captions.
+- Use detail brief only to omit the estimated next-period and fertile-window captions.
+- Set mode "conceive" if trying to conceive, or "pregnancy" if already pregnant. Otherwise use null. Keep the supplied cycle dates and lengths in all modes; pregnancy mode does not show estimates.
+- For a link to the symptom log, write symptoms {goto} using the requested screen id. Otherwise symptoms is null.

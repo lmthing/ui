@@ -18,7 +18,7 @@ export const meta = {
   realPath: "Shared expense records and acknowledgement of settlements in a shared app.",
   partTiers: { settle: "people" },
   confirmParts: ["settle"],
-  variants: { density: ["comfortable", "compact"], lead: ["avatar", "none"] },
+  variants: { lead: ["avatar", "none"] },
   variantParts: { "lead.none": { hides: ["photo"] } },
   parts: ["root", "add", "add_label", "empty", "settled", "settlements", "balances", "expenses"],
   items: { key: "people", parts: ["root", "name", "photo", "balance", "status", "settle", "settle_label"] },
@@ -66,16 +66,17 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
     people.push({ name: c.placeholderTitle(people.length, lang), photo: "lib:people" });
   return { people, expenses: [], goto: "entry" };
 }
-// prettier-ignore
 const ledgeLedger = {
-  people: [{ name: "Ana", photo: "lib:people" }, { name: "Sam", photo: "lib:people" }],
+  people: [
+    { name: "Ana", photo: "lib:people" },
+    { name: "Sam", photo: "lib:people" },
+  ],
   expenses: [
     { title: "Ledge potting mix", amount: 48, by: 0, split: "equal" },
     { title: "Terracotta pots", amount: 12, by: 1, split: "equal" },
   ],
   goto: "entry",
 } satisfies z.input<typeof props>;
-// prettier-ignore
 export const examples = [
   ledgeLedger,
   {
@@ -91,7 +92,7 @@ export const examples = [
     goto: "expense",
   },
   { ...ledgeLedger, lead: "none" },
-  { ...ledgeLedger, density: "compact" },
+  { ...ledgeLedger },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = c.probesFor("Split");
 export const probes = [
@@ -116,82 +117,162 @@ type SplitCopy = ReturnType<typeof splitCopy>;
 type SettlementProps = { people: SplitProps["people"]; settlements: SplitCopy["settlements"] };
 function SettlementRows({ people, settlements }: SettlementProps) {
   const scope = kit.usePartContext();
-  // prettier-ignore
   return settlements.map(({ from, label, action, payments }) => {
     const person = people[from]!;
     return (
       <kit.PartContext.Provider key={person.id} value={{ ...scope, item: person.id }}>
         <kit.KitContent group={from === settlements[0]!.from ? "content" : "response"}>
           {payments.map(({ to, route, amount }) => (
-            <kit.KitRow key={to} label={route} inline trailing={
-              <kit.KitText part={null} role="number" numberScale="compact" tabular>{amount}</kit.KitText>}>
+            <kit.KitRow
+              key={to}
+              label={route}
+              inline
+              trailing={
+                <kit.KitText part={null} role="number" numberScale="compact" tabular>
+                  {amount}
+                </kit.KitText>
+              }
+            >
               <kit.KitText part={null}>{route}</kit.KitText>
             </kit.KitRow>
           ))}
-          <kit.KitRow label={label} inline><kit.KitAction part="settle" kind="secondary" label={action} /></kit.KitRow>
+          <kit.KitRow label={label} inline>
+            <kit.KitAction part="settle" kind="secondary" label={action} />
+          </kit.KitRow>
         </kit.KitContent>
       </kit.PartContext.Provider>
     );
   });
 }
+function ExpenseRows(expenses: SplitCopy["expenses"], label: string) {
+  return (
+    <kit.KitContent group="response">
+      <kit.KitText part="expenses" role="label" tone="muted">
+        {label}
+      </kit.KitText>
+      {expenses.map(({ title, paidBy, amount }, index) => (
+        <kit.KitRow
+          key={index}
+          label={title}
+          inline
+          trailing={
+            <kit.KitText part={null} role="number" numberScale="compact" tabular tone="muted">
+              {amount}
+            </kit.KitText>
+          }
+        >
+          <kit.KitText part={null}>{title}</kit.KitText>
+          <kit.KitText part={null} role="label" tone="muted">
+            {paidBy}
+          </kit.KitText>
+        </kit.KitRow>
+      ))}
+    </kit.KitContent>
+  );
+}
+
 function LedgerRows({
   people,
   ledger,
   lead,
   density,
-}: Pick<SplitProps, "people" | "lead" | "density"> & { ledger: SplitCopy }) {
+}: Pick<SplitProps, "people" | "lead"> & { density: c.ThemeDensity } & { ledger: SplitCopy }) {
   const { words } = kit.useWords(moneyWordsFor);
   const w = words.split;
-  // prettier-ignore
-  return <>
-    <kit.KitContent group="response">
-      <kit.KitText part="balances" role="label" tone="muted">{w.balances}</kit.KitText>
-      {people.map(({ id, name, photo }, index) => {
-        const balance = ledger.balances[index]!;
-        return <kit.KitRow key={id} item={id} label={name} inset="none" leadingAlign="row" density={density} inline={lead === "none"}
-          leading={lead === "avatar" && <kit.KitPhoto part="photo" shape="round" label={name}
-            {...(photo === "lib:people" ? { initials: Array.from(name)[0]! } : { photo })} />}
-          trailing={<kit.KitText part="balance" role="number" numberScale="compact" tabular tone="muted">{balance.value}</kit.KitText>}>
-          <kit.KitText part="name" lines={1} density={density}>{name}</kit.KitText>
-          <kit.KitText part="status" role="label" tone={balance.cents > 0n ? "good" : balance.cents < 0n ? "bad" : "muted"}>{balance.status}</kit.KitText>
-        </kit.KitRow>;
-      })}
-    </kit.KitContent>
-    {ledger.expenses.length > 0 && <kit.KitContent group="response">
-      <kit.KitText part="expenses" role="label" tone="muted">{w.expenses}</kit.KitText>
-      {ledger.expenses.map(({ title, paidBy, amount }, index) => (
-        <kit.KitRow key={index} label={title} inline
-          trailing={<kit.KitText part={null} role="number" numberScale="compact" tabular tone="muted">{amount}</kit.KitText>}>
-          <kit.KitText part={null}>{title}</kit.KitText>
-          <kit.KitText part={null} role="label" tone="muted">{paidBy}</kit.KitText>
-        </kit.KitRow>
-      ))}
-    </kit.KitContent>}
-  </>;
+  return (
+    <>
+      <kit.KitContent group="response">
+        <kit.KitText part="balances" role="label" tone="muted">
+          {w.balances}
+        </kit.KitText>
+        {people.map(({ id, name, photo }, index) => {
+          const balance = ledger.balances[index]!;
+          return (
+            <kit.KitRow
+              key={id}
+              item={id}
+              label={name}
+              inset="none"
+              leadingAlign="row"
+              density={density}
+              inline={lead === "none"}
+              leading={
+                lead === "avatar" && (
+                  <kit.KitPhoto
+                    part="photo"
+                    shape="round"
+                    label={name}
+                    {...(photo === "lib:people" ? { initials: Array.from(name)[0]! } : { photo })}
+                  />
+                )
+              }
+              trailing={
+                <kit.KitText part="balance" role="number" numberScale="compact" tabular tone="muted">
+                  {balance.value}
+                </kit.KitText>
+              }
+            >
+              <kit.KitText part="name" lines={1} density={density}>
+                {name}
+              </kit.KitText>
+              <kit.KitText
+                part="status"
+                role="label"
+                tone={balance.cents > 0n ? "good" : balance.cents < 0n ? "bad" : "muted"}
+              >
+                {balance.status}
+              </kit.KitText>
+            </kit.KitRow>
+          );
+        })}
+      </kit.KitContent>
+      {ledger.expenses.length > 0 && ExpenseRows(ledger.expenses, w.expenses)}
+    </>
+  );
 }
 export function Split(input: SplitProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const { thing } = kit.usePartContext();
   const { lang, words } = kit.useWords(moneyWordsFor);
   const w = words.split;
   const ledger = splitCopy(input, lang);
-  // prettier-ignore
-  return <kit.KitCard part="root" padded density={density}>
-    {state === "empty" ? <kit.KitEmpty part="empty" {...(thing ? {} : { title: w.empty })} decorativeIcon />
-      : state === "success" ? <kit.KitEmpty part="settled" icon="check" tone="good" title={w.settled} decorativeIcon />
-      : <>
-        {input.expenses.length === 0 ? <kit.KitEmpty part="empty" title={w.empty} decorativeIcon />
-          : ledger.settlements.length ? <kit.KitContent>
-            <kit.KitText part="settlements" role="heading">{w.settleUp}</kit.KitText>
-            <SettlementRows people={input.people} settlements={ledger.settlements} />
-          </kit.KitContent> : <kit.KitText part="settled" role="heading" tone="good">{w.settled}</kit.KitText>}
-        <LedgerRows people={input.people} lead={input.lead} {...{ ledger, density }} />
-        <kit.KitContent group="response">
-          {input.expenses.length ? <kit.KitRow part="add" label={w.add} goto={input.goto} inline>
-            <kit.KitText part="add_label" role="label" tone="accent">{w.add}</kit.KitText>
-          </kit.KitRow> : <kit.KitAction part="add" label={w.add} goto={input.goto} full />}
-        </kit.KitContent>
-      </>}
-  </kit.KitCard>;
+  return (
+    <kit.KitCard part="root" padded density={density}>
+      {state === "empty" ? (
+        <kit.KitEmpty part="empty" {...(thing ? {} : { title: w.empty })} decorativeIcon />
+      ) : state === "success" ? (
+        <kit.KitEmpty part="settled" icon="check" tone="good" title={w.settled} decorativeIcon />
+      ) : (
+        <>
+          {input.expenses.length === 0 ? (
+            <kit.KitEmpty part="empty" title={w.empty} decorativeIcon />
+          ) : ledger.settlements.length ? (
+            <kit.KitContent>
+              <kit.KitText part="settlements" role="heading">
+                {w.settleUp}
+              </kit.KitText>
+              <SettlementRows people={input.people} settlements={ledger.settlements} />
+            </kit.KitContent>
+          ) : (
+            <kit.KitText part="settled" role="heading" tone="good">
+              {w.settled}
+            </kit.KitText>
+          )}
+          <LedgerRows people={input.people} lead={input.lead} {...{ ledger, density }} />
+          <kit.KitContent group="response">
+            {input.expenses.length ? (
+              <kit.KitRow part="add" label={w.add} goto={input.goto} inline>
+                <kit.KitText part="add_label" role="label" tone="accent">
+                  {w.add}
+                </kit.KitText>
+              </kit.KitRow>
+            ) : (
+              <kit.KitAction part="add" label={w.add} goto={input.goto} full />
+            )}
+          </kit.KitContent>
+        </>
+      )}
+    </kit.KitCard>
+  );
 }

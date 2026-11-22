@@ -9,4 +9,4 @@ Apply a command to checked records together, with a selected count and Select al
 ## Writer
 
 - Write only the actions, 2 to 4. Set danger true for destructive actions such as deleting checked records. The count is derived from checked rows; never write it.
-- Use arrange "rows" for one command per line; otherwise leave arrange null. Leave density and surface null unless requested.
+- Use arrange "rows" for one command per line; otherwise leave arrange null.

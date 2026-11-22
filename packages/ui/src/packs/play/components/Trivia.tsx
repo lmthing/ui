@@ -1,30 +1,58 @@
-// prettier-ignore
 import {
-  detailOf, itemsOf, photo, planAct, placeholderTitle, probesFor, sessionAvailable,
-  sessionKey, sessionState, text, thingOf, titleOf, variantProps, wordsFor,
-  type FallbackInput, type Meta, type Probe, type Props, type SessionState,
+  detailOf,
+  itemsOf,
+  photo,
+  planAct,
+  placeholderTitle,
+  probesFor,
+  sessionAvailable,
+  sessionKey,
+  sessionState,
+  text,
+  thingOf,
+  titleOf,
+  wordsFor,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+  type SessionState,
+  variantProps,
 } from "../../../catalog";
 import { z } from "zod";
-// prettier-ignore
 import {
-  KitAction, KitCard, KitContent, KitEmpty, KitPhoto, KitRow, KitSkeleton, KitText, PartScope,
-  useControlValue, useKit, usePartContext, useVariant, useWords,
+  KitAction,
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitPhoto,
+  KitRow,
+  KitSkeleton,
+  KitText,
+  PartScope,
+  useControlValue,
+  useKit,
+  usePartContext,
+  useWords,
 } from "../../../kit";
 import { triviaPointsCopy } from "../copy";
 import { playWordsFor } from "../lang";
 import { prompt } from "../../../entry/prompt-Trivia.generated";
 
 // Core first: Choice/default cannot run a host-led question/reveal sequence without grading submissions.
-// prettier-ignore
 export const meta = {
-  id: "Trivia", status: "ready", group: "content",
+  id: "Trivia",
+  status: "ready",
+  group: "content",
   purpose: prompt.purpose,
   pick: prompt.pick,
   writeHints: prompt.writeHints,
-  region: "body", weight: 2, tier: "phone",
+  region: "body",
+  weight: 2,
+  tier: "phone",
   confirmParts: ["restart"],
   realPath: "A local deck uses host-controlled reveals; awarded points are recorded separately.",
-  variants: { density: ["comfortable", "compact"], emphasis: ["normal", "hero"], media: ["thumb", "none"] },
+  variants: { emphasis: ["normal", "hero"], media: ["thumb", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
   parts: ["root", "question", "answer", "explain", "photo", "points", "reveal", "next", "restart"],
   states: ["filled", "loading", "success", "empty"],
@@ -52,14 +80,21 @@ export const meta = {
     ];
   },
 } as const satisfies Meta;
-// prettier-ignore
 export const props = z
   .strictObject({
     ...variantProps(meta.variants),
-    questions: z.array(z.strictObject({
-      question: text(120), answer: text(120), explain: text(160).optional(),
-      photo: photo.optional(), points: z.int().min(1).max(20).default(1),
-    })).min(1).max(6),
+    questions: z
+      .array(
+        z.strictObject({
+          question: text(120),
+          answer: text(120),
+          explain: text(160).optional(),
+          photo: photo.optional(),
+          points: z.int().min(1).max(20).default(1),
+        }),
+      )
+      .min(1)
+      .max(6),
   })
   .overwrite((value) =>
     value.media === "none"
@@ -80,18 +115,25 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 // Ledge's host reads a plant question.
-// prettier-ignore
-const gardenDeck = { questions: [
-  { question: "What draws water?", answer: "Roots", explain: "Roots absorb water from the soil.", photo: "lib:plants", points: 2 },
-  { question: "What gives leaves their green colour?", answer: "Chlorophyll" },
-] };
+const gardenDeck = {
+  questions: [
+    {
+      question: "What draws water?",
+      answer: "Roots",
+      explain: "Roots absorb water from the soil.",
+      photo: "lib:plants",
+      points: 2,
+    },
+    { question: "What gives leaves their green colour?", answer: "Chlorophyll" },
+  ],
+};
 export const examples = [
   gardenDeck,
   // Trot's walkers host a question aloud after their round.
   { questions: [{ question: "Why do dogs pant?", answer: "To cool down", points: 1 }], emphasis: "hero" },
   { questions: [{ question: "Why do dogs pant?", answer: "To cool down", points: 1 }] },
   { ...gardenDeck, media: "none" },
-  { ...gardenDeck, density: "compact" },
+  { ...gardenDeck },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Trivia");
 export const probes = [
@@ -133,62 +175,135 @@ function previewReveal(input: TriviaProps, screen: string, id: string) {
   return result.ok ? result.values[`${screen}/${id}/${sessionKey}`] : undefined;
 }
 
-// prettier-ignore
-function TriviaActions({ primary, loading, grouped }: { primary?: "reveal" | "next" | undefined; loading?: boolean; grouped?: boolean }) {
-  const { words: { trivia } } = useWords(playWordsFor);
-  const restart = <KitRow inline role="button" part="restart" label={trivia.restart} lineRole="label">
-    <KitContent inset="md"><KitText role="label" tone="muted" part={null}>{trivia.restart}</KitText></KitContent>
-  </KitRow>;
+function TriviaActions({
+  primary,
+  loading,
+  grouped,
+}: {
+  primary?: "reveal" | "next" | undefined;
+  loading?: boolean;
+  grouped?: boolean;
+}) {
+  const {
+    words: { trivia },
+  } = useWords(playWordsFor);
+  const restart = (
+    <KitRow inline role="button" part="restart" label={trivia.restart} lineRole="label">
+      <KitContent inset="md">
+        <KitText role="label" tone="muted" part={null}>
+          {trivia.restart}
+        </KitText>
+      </KitContent>
+    </KitRow>
+  );
   const kind = primary === "next" ? "primary" : "secondary";
-  const lead = primary && (loading ? <KitSkeleton shape="control" label={trivia[primary]} kind={kind} />
-    : <KitAction label={trivia[primary]} part={primary} action="press" kind={kind} />);
-  return <KitContent group={grouped ? "content" : "response"} leadingAlign="row" lead={lead}>
-    {loading ? <KitSkeleton shape="control" kind="quiet" label={trivia.restart} /> : restart}
-  </KitContent>;
+  const lead =
+    primary &&
+    (loading ? (
+      <KitSkeleton shape="control" label={trivia[primary]} kind={kind} />
+    ) : (
+      <KitAction label={trivia[primary]} part={primary} action="press" kind={kind} />
+    ));
+  return (
+    <KitContent group={grouped ? "content" : "response"} leadingAlign="row" lead={lead}>
+      {loading ? <KitSkeleton shape="control" kind="quiet" label={trivia.restart} /> : restart}
+    </KitContent>
+  );
 }
 
-// prettier-ignore
+function TriviaLoading(
+  item: VisibleQuestion,
+  points: ReturnType<typeof triviaPointsCopy>,
+  density: ReturnType<typeof useKit>["density"],
+  emphasis: TriviaProps["emphasis"],
+) {
+  return (
+    <KitCard part="root" padded density={density}>
+      <KitContent group={item.photo ? "response" : "content"} density={density}>
+        <KitSkeleton
+          shape="figure"
+          inset="none"
+          lead={item.photo ? "box" : "none"}
+          {...{ density, emphasis }}
+          content={[
+            ["heading", item.question],
+            ["number", points.line, "start", "compact"],
+          ]}
+        />
+      </KitContent>
+      <TriviaActions primary="reveal" loading grouped={Boolean(item.photo)} />
+    </KitCard>
+  );
+}
+
+function TriviaAnswer({ answer, explain }: VisibleQuestion, density: ReturnType<typeof useKit>["density"]) {
+  return (
+    answer && (
+      <KitContent group="response" density={density}>
+        <KitText role="heading" part="answer" emphasis="hero">
+          {answer}
+        </KitText>
+        {explain && (
+          <KitText role="label" tone="muted" part="explain">
+            {explain}
+          </KitText>
+        )}
+      </KitContent>
+    )
+  );
+}
+
 export function Trivia(input: TriviaProps) {
   const scope = usePartContext();
   const { screen, component, state, thing } = scope;
   const { controller } = useKit();
-  const { lang, words: { trivia } } = useWords(playWordsFor);
-  const density = useVariant("density", meta.variants.density, input.density);
+  const {
+    lang,
+    words: { trivia },
+  } = useWords(playWordsFor);
+  const density = useKit().density;
   const saved = useControlValue<unknown>(`${screen}/${component}/${sessionKey}`, undefined);
   const current = sessionState(meta, input, () =>
     !controller && state === "success" ? previewReveal(input, screen, component) : saved,
   );
-  if (state === "empty" || current?.kind !== "rounds") return <KitCard part="root" padded density={density}>
-    <PartScope {...scope} thing={thing ?? trivia.emptyThing}><KitEmpty icon="help" part="question" decorativeIcon /></PartScope>
-  </KitCard>;
+  if (state === "empty" || current?.kind !== "rounds")
+    return (
+      <KitCard part="root" padded density={density}>
+        <PartScope {...scope} thing={thing ?? trivia.emptyThing}>
+          <KitEmpty icon="help" part="question" decorativeIcon />
+        </PartScope>
+      </KitCard>
+    );
   const item = current.item as VisibleQuestion;
   const points = triviaPointsCopy(item.points, lang);
   const { emphasis } = input;
-  if (state === "loading") return <KitCard part="root" padded density={density}>
-    <KitContent group={item.photo ? "response" : "content"} density={density}>
-      <KitSkeleton shape="figure" inset="none" lead={item.photo ? "box" : "none"} {...{ density, emphasis }}
-        content={[["heading", item.question], ["number", points.line, "start", "compact"]]} />
-    </KitContent>
-    <TriviaActions primary="reveal" loading grouped={Boolean(item.photo)} />
-  </KitCard>;
-  const primary = primaryAction(current);
+  if (state === "loading") return TriviaLoading(item, points, density, emphasis);
   return (
     <KitCard part="root" padded density={density}>
-      <KitContent leadingAlign="row" density={density}
-        lead={item.photo && <KitPhoto part="photo" photo={item.photo} label={trivia.photo} />}>
-        <KitText role="heading" part="question" density={density} emphasis={current.revealed ? "quiet" : emphasis}
-          tone={current.revealed ? "muted" : "text"}>{item.question}</KitText>
+      <KitContent
+        leadingAlign="row"
+        density={density}
+        lead={item.photo && <KitPhoto part="photo" photo={item.photo} label={trivia.photo} />}
+      >
+        <KitText
+          role="heading"
+          part="question"
+          density={density}
+          emphasis={current.revealed ? "quiet" : emphasis}
+          tone={current.revealed ? "muted" : "text"}
+        >
+          {item.question}
+        </KitText>
         <KitText role="label" tone="muted" part="points">
-          {points.before}<KitText role="number" numberScale="compact" tabular part={null}>{points.value}</KitText>{points.after}
+          {points.before}
+          <KitText role="number" numberScale="compact" tabular part={null}>
+            {points.value}
+          </KitText>
+          {points.after}
         </KitText>
       </KitContent>
-      {item.answer && (
-        <KitContent group="response" density={density}>
-          <KitText role="heading" part="answer" emphasis="hero">{item.answer}</KitText>
-          {item.explain && <KitText role="label" tone="muted" part="explain">{item.explain}</KitText>}
-        </KitContent>
-      )}
-      <TriviaActions primary={primary} />
+      {TriviaAnswer(item, density)}
+      <TriviaActions primary={primaryAction(current)} />
     </KitCard>
   );
 }

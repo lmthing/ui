@@ -10,4 +10,5 @@ Body readings with a supplied low/normal/high band, unit and time: pressure, pul
 
 - low must not exceed high. Ranges are references, not diagnoses; never write a computed status or tone.
 - low and high describe value only. value2 is an optional paired reading, not checked against the primary range.
-- Write surface null unless asked for an outline. Do not write the default surface card. Use detail brief to hide reading times; keep the time in each reading and retain the reference range and status.
+- Use detail brief to hide reading times; keep the time in each reading and retain the reference range and status.
+- Use style "history" only for a compact log without bands. Write context on each reading only when stated, using "resting", "fasting", "post_meal" or "active".

@@ -1,9 +1,8 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { pathUnitCopy, readPath } from "../copy";
+import { pathUnitCopy, readPath, type PathUnitState } from "../copy";
 import { learningWordsFor } from "../lang";
-import * as moduleView from "../path-modules";
 import { prompt } from "../../../entry/prompt-Path.generated";
 
 // Core first: Steps/numbered cannot open course units or distinguish locked nodes and milestones.
@@ -19,7 +18,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "Progress per unit is stored on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["state"] } },
   parts: ["root"],
   items: { key: "units", parts: ["root", "title", "icon", "state", "milestone"] },
@@ -107,26 +106,89 @@ export const examples = [
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Path");
-// prettier-ignore
 export const probes = [
-  choose("Show my course as a winding map. Completed and current units can open, future units are locked, and milestones have trophies."),
+  choose(
+    "Show my course as a winding map. Completed and current units can open, future units are locked, and milestones have trophies.",
+  ),
   choose("Show only that I am on step two of four in a short setup flow. No unit links or locks.", "Steps"),
-  write("Map three units: Basic strokes completed, Water radical current and Nature review locked with a trophy milestone. Link to strokes, water and review respectively; use pencil, drop and leaf icons."),
+  write(
+    "Map three units: Basic strokes completed, Water radical current and Nature review locked with a trophy milestone. Link to strokes, water and review respectively; use pencil, drop and leaf icons.",
+  ),
   {
-    ...write("Show a winding course map: Basic strokes completed, Water radical current and Nature review locked. Link them to strokes, water and review and use pencil, drop and leaf icons. Keep the progress symbols, but hide the text labels for the unit states. Don't specify spacing or a card treatment."),
+    ...write(
+      "Show a winding course map: Basic strokes completed, Water radical current and Nature review locked. Link them to strokes, water and review and use pencil, drop and leaf icons. Keep the progress symbols, but hide the text labels for the unit states. Don't specify spacing or a card treatment.",
+    ),
     variant: { axis: "detail", value: "brief" },
   },
   {
-    ...write("Show three course modules in a straight, full-width vertical list, not a winding map: Pack the kit completed, Loose lead current, Route planning locked. Link to kit, lead and route. Route planning is a milestone."),
+    ...write(
+      "Show three course modules in a straight, full-width vertical list, not a winding map: Pack the kit completed, Loose lead current, Route planning locked. Link to kit, lead and route. Route planning is a milestone.",
+    ),
     expectProps: { style: "modules" },
   },
   read("Start the current unit, Check the soil.", { address: "p1/r2", action: "press" }),
 ] satisfies c.Probe[];
 
+type Unit = { id: string; title: string; state: PathUnitState; icon: c.IconName; goto: string };
+
+function Modules({
+  units,
+  milestones,
+  density,
+  brief,
+  loading,
+}: {
+  units: readonly Unit[];
+  milestones: readonly number[];
+  density: c.ThemeDensity;
+  brief: boolean;
+  loading: boolean;
+}) {
+  const { lang } = kit.useWords();
+  return (
+    <kit.KitRowGroup density={density} spacing="groups" separators={false}>
+      {units.map((unit, index) => {
+        const copy = pathUnitCopy(unit, milestones.includes(index), lang);
+        const locked = unit.state === "locked";
+        const trail = locked ? "lock" : unit.state === "current" ? "chevron_right" : "check";
+        const status = {
+          text: copy.status,
+          part: "state",
+          tone: unit.state === "current" ? "accent" : "muted",
+        } as const;
+        const badge = { text: copy.milestone, part: "milestone", role: "caption" } as const;
+        return (
+          <kit.KitRow
+            key={unit.id}
+            item={unit.id}
+            part={loading ? null : "root"}
+            label={copy.label}
+            goto={loading || locked ? undefined : unit.goto}
+            density={density}
+            selected={!loading && unit.state === "current"}
+            leading={<kit.KitIcon name={unit.icon} tone={locked ? "muted" : "accent"} loading={loading} />}
+            trailing={<kit.KitIcon name={trail} scale="sm" decorative loading={loading} />}
+          >
+            <kit.KitMetaLine
+              density={density}
+              title={{ text: unit.title, part: "title", tone: locked ? "muted" : "text" }}
+              meta={brief ? badge : [status, badge]}
+            />
+          </kit.KitRow>
+        );
+      })}
+    </kit.KitRowGroup>
+  );
+}
+
 type PathProps = c.Props<typeof props, typeof meta>;
 
-// prettier-ignore
-function PathUnit({ unit, milestone, density, brief }: {
+function PathUnit({
+  unit,
+  milestone,
+  density,
+  brief,
+}: {
   unit: PathProps["units"][number];
   milestone: boolean;
   density: c.ThemeDensity;
@@ -138,12 +200,18 @@ function PathUnit({ unit, milestone, density, brief }: {
   const statusRole = unit.state === "current" ? "label" : "caption";
   return (
     <kit.KitContent density={density}>
-      <kit.KitGrid fitLast density="compact">
+      <kit.KitRow
+        part={null}
+        label={unit.title}
+        inline
+        fitContent
+        density={density}
+        trailing={<kit.KitIcon name={unit.icon} scale="sm" />}
+      >
         <kit.KitText part="title" density={density} tone={unit.state === "locked" ? "muted" : "text"}>
           {unit.title}
         </kit.KitText>
-        <kit.KitIcon name={unit.icon} scale="sm" />
-      </kit.KitGrid>
+      </kit.KitRow>
       {(!brief || copy.milestone) && (
         <kit.KitContent density={density}>
           <kit.KitText part={brief ? null : "state"} role={statusRole} tone={tone} density={density}>
@@ -161,16 +229,20 @@ function PathUnit({ unit, milestone, density, brief }: {
   );
 }
 
-// prettier-ignore
-export function Path({ units, milestones = [], detail, density: requested, surface, style }: PathProps) {
-  const density = kit.useVariant("density", meta.variants.density, requested);
+export function Path({ units, milestones = [], detail, style }: PathProps) {
+  const surface = "card";
+  const density = kit.useKit().density;
   const loading = kit.useComponentState() === "loading";
   const { lang, words } = kit.useWords();
   if (style === "modules") {
-    const modules = <moduleView.Modules {...{ units, milestones, density, loading }} brief={detail === "brief"} />;
-    return <kit.KitCard part="root" {...{ density, surface }}>
-      <kit.KitState density={density} loading={modules}>{modules}</kit.KitState>
-    </kit.KitCard>;
+    const modules = <Modules {...{ units, milestones, density, loading }} brief={detail === "brief"} />;
+    return (
+      <kit.KitCard part="root" {...{ density, surface }}>
+        <kit.KitState density={density} loading={modules}>
+          {modules}
+        </kit.KitState>
+      </kit.KitCard>
+    );
   }
   const nodes = units.map((unit, index) => {
     const milestone = milestones.includes(index);
@@ -183,8 +255,14 @@ export function Path({ units, milestones = [], detail, density: requested, surfa
       content: <PathUnit {...{ unit, milestone, density }} brief={detail === "brief"} />,
     };
   });
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    {loading && <kit.KitText part={null} role="caption" tone="muted">{words.loadingLabel}</kit.KitText>}
-    <kit.KitPath part={null} {...{ nodes, loading }} />
-  </kit.KitCard>;
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      {loading && (
+        <kit.KitText part={null} role="caption" tone="muted">
+          {words.loadingLabel}
+        </kit.KitText>
+      )}
+      <kit.KitPath part={null} {...{ nodes, loading }} />
+    </kit.KitCard>
+  );
 }

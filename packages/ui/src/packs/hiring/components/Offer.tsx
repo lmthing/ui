@@ -19,7 +19,7 @@ export const meta = {
   partTiers: { send: "service", accept: "people", decline: "people", withdraw: "service" },
   realPath:
     "The phone holds drafts and logged outcomes, sending needs an outside service, and actual responses need a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], arrange: ["rows", "grid"] },
+  variants: { arrange: ["rows", "grid"] },
   // prettier-ignore
   parts: [
     "root", "candidate", "role", "employer", "pay", "hours_per_week", "start", "respond_by",
@@ -158,8 +158,7 @@ function OfferActions({ input, expired, density, loading }: { input: Terms; expi
 export function Offer(input: Terms) {
   const state = kit.useComponentState(), loading = state === "loading";
   const { lang, words: { offer: words } } = kit.useWords(hiringWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   const { expired: liveExpired } = kit.useLiveControls(meta, input);
   const expired = typeof liveExpired === "boolean" ? liveExpired :
@@ -168,7 +167,7 @@ export function Offer(input: Terms) {
   const line = (part: string | null, value: string, role: kit.TextRole, tone: kit.TextTone = "text") =>
     loading ? <kit.KitSkeleton shape="figure" inset="none" content={[[role, value, "start", "compact"]]} {...{ density }} /> :
       <kit.KitText {...{ part, role, tone, density }} numberScale="compact" tabular={role === "number"}>{value}</kit.KitText>;
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
+  return <kit.KitCard part="root" padded density={density}>
     {state === "success" || state === "error" ? <kit.KitEmpty part={state} title={words[state]}
       icon={state === "success" ? "check" : "info"} decorativeIcon /> : <>
       <kit.KitContent {...{ density }}>

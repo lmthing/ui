@@ -55,7 +55,7 @@ export type Affordance = {
   hostIntent?: HostIntent;
   localEvent?: Omit<LocalStateEvent, "value">;
   hostReveal?: true;
-  hostSecret?: "copy" | "input" | "verify";
+  hostSecret?: "copy" | "input" | "verify" | "brightness";
   keypad?: { profile: KeypadProfile; initial: string };
   slotMove?: { key: string; orders: ReadonlyMap<string, string[]> };
   rowSelection?: { key: string; id: string; value: string | number };

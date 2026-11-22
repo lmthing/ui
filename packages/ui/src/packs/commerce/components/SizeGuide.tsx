@@ -21,8 +21,6 @@ export const meta = {
   tier: "phone",
   realPath: "Measurement specifications are stored with the product record on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["model_note"] } },
@@ -85,7 +83,6 @@ export const examples = [
   {
     unit: "in",
     style: "fit",
-    surface: "outlined",
     columns: ["Chest", "Neck"],
     rows: [
       { size: "Small", values: [18, 12] },
@@ -127,69 +124,148 @@ export const probes = [
 
 type GuideProps = c.Props<typeof props, typeof meta> & { displayUnit?: (typeof units)[number] };
 
-// prettier-ignore
-function Measurements({ input, loading, density }: { input: GuideProps; loading: boolean; density: c.ThemeDensity }) {
+type MeasurementProps = { input: GuideProps; loading: boolean; density: c.ThemeDensity };
+
+function Measurements({ input, loading, density }: MeasurementProps) {
   const { lang, words } = kit.useWords(commerceWordsFor);
-  const copy = words.sizeGuide, unit = input.displayUnit ?? input.unit;
-  const cell = (label: string, role: "label" | "number", align: "start" | "end", part: "size" | null = null) =>
-    <kit.KitContent inset="md">{loading
-      ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[[role, label, align, "compact"]]} />
-      : <kit.KitText {...{ part, role, align, density }} lines={1}
-        tone={role === "label" && !part ? "muted" : "text"} numberScale="compact" tabular={role === "number"}>
-        {label}
-      </kit.KitText>}</kit.KitContent>;
-  const columns = input.columns.map((label, i) => ({ id: String(i), label, header: cell(label, "label", "end") }));
+  const copy = words.sizeGuide;
+  const unit = input.displayUnit ?? input.unit;
+  const cell = (
+    label: string,
+    role: "label" | "number",
+    align: "start" | "end",
+    part: "size" | null = null,
+  ) => (
+    <kit.KitContent inset="md">
+      {loading ? (
+        <kit.KitSkeleton
+          shape="figure"
+          inset="none"
+          density={density}
+          content={[[role, label, align, "compact"]]}
+        />
+      ) : (
+        <kit.KitText
+          {...{ part, role, align, density }}
+          lines={1}
+          tone={role === "label" && !part ? "muted" : "text"}
+          numberScale="compact"
+          tabular={role === "number"}
+        >
+          {label}
+        </kit.KitText>
+      )}
+    </kit.KitContent>
+  );
+  const columns = input.columns.map((label, i) => ({
+    id: String(i),
+    label,
+    header: cell(label, "label", "end"),
+  }));
   const rows = input.rows.map(({ id, size, values }, i) => ({
-    id, label: size, ...(!loading && { target: { item: id, part: "root" }, selected: input.at === i }),
+    id,
+    label: size,
+    ...(!loading && { target: { item: id, part: "root" }, selected: input.at === i }),
     heading: cell(size, "label", "start", "size"),
     cells: values.map((value, j) => ({
-      id: String(j), content: cell(measurementLine(value, input.unit, unit, lang), "number", "end"),
+      id: String(j),
+      content: cell(measurementLine(value, input.unit, unit, lang), "number", "end"),
     })),
   }));
-  const fitted = columns.length <= 2 || (columns.length === 3 && columns.every(({ label }) => label.length <= 8));
-  return <kit.KitTable part="table" corner={cell(copy.size, "label", "start")} fitColumns={fitted} {...{ columns, rows }} />;
+  const fitted =
+    columns.length <= 2 || (columns.length === 3 && columns.every(({ label }) => label.length <= 8));
+  return (
+    <kit.KitTable
+      part="table"
+      corner={cell(copy.size, "label", "start")}
+      fitColumns={fitted}
+      {...{ columns, rows }}
+    />
+  );
 }
 
-// prettier-ignore
-function FitDetails({ input, loading, density }: { input: GuideProps; loading: boolean; density: c.ThemeDensity }) {
+function FitDetails({
+  input,
+  loading,
+  density,
+}: {
+  input: GuideProps;
+  loading: boolean;
+  density: c.ThemeDensity;
+}) {
   const { lang, words } = kit.useWords(commerceWordsFor);
   const { fitScore, modelNote, detail } = input;
   const showNote = detail !== "brief" && modelNote;
   if (fitScore === undefined && !showNote) return null;
-  return <kit.KitContent density={density} group={input.style === "table" ? "response" : "content"}>
-    {fitScore !== undefined && <kit.KitRangeBand part="fit" label={words.sizeGuide.fit}
-      min={1} max={5} low={2.5} high={3.5} value={fitScore} loading={loading}
-      reading={<kit.KitText role="label" part={null} density={density}>{fitLine(fitScore, lang)}</kit.KitText>} />}
-    {showNote && (loading
-      ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[[ "caption", modelNote ]]} />
-      : <kit.KitText part="model_note" role="caption" tone="muted" density={density}>{modelNote}</kit.KitText>)}
-  </kit.KitContent>;
+  return (
+    <kit.KitContent density={density} group={input.style === "table" ? "response" : "content"}>
+      {fitScore !== undefined && (
+        <kit.KitRangeBand
+          part="fit"
+          label={words.sizeGuide.fit}
+          min={1}
+          max={5}
+          low={2.5}
+          high={3.5}
+          value={fitScore}
+          loading={loading}
+          reading={
+            <kit.KitText role="label" part={null} density={density}>
+              {fitLine(fitScore, lang)}
+            </kit.KitText>
+          }
+        />
+      )}
+      {showNote &&
+        (loading ? (
+          <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", modelNote]]} />
+        ) : (
+          <kit.KitText part="model_note" role="caption" tone="muted" density={density}>
+            {modelNote}
+          </kit.KitText>
+        ))}
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
 export function SizeGuide(input: GuideProps) {
   const { words } = kit.useWords(commerceWordsFor);
   const state = kit.useComponentState();
   const loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const live = kit.useLiveControls(meta, input) as GuideProps;
   const unit = live.displayUnit ?? live.unit;
   const copy = words.sizeGuide;
   const fit = <FitDetails input={live} {...{ loading, density }} />;
   const startsWithFit = input.style === "fit" && (live.fitScore !== undefined || Boolean(live.modelNote));
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    {state === "empty" ? <kit.KitEmpty part="empty" decorativeIcon /> : <>
-      {input.style === "fit" && fit}
-      <kit.KitContent density={density} group={startsWithFit ? "response" : "content"}>
-        <kit.KitTrack part="unit" look="segments" role="radiogroup" label={copy.unit}>
-          {units.map((value) => <kit.KitChip key={value} item={null} role="radio"
-            look="segment" label={copy.units[value]} value={value} on={unit === value}
-            {...(loading ? { disabled: false, part: null } : {})} />)}
-        </kit.KitTrack>
-      </kit.KitContent>
-      <Measurements input={live} {...{ loading, density }} />
-      {input.style === "table" && fit}
-    </>}
-  </kit.KitCard>;
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      {state === "empty" ? (
+        <kit.KitEmpty part="empty" decorativeIcon />
+      ) : (
+        <>
+          {input.style === "fit" && fit}
+          <kit.KitContent density={density} group={startsWithFit ? "response" : "content"}>
+            <kit.KitTrack part="unit" look="segments" role="radiogroup" label={copy.unit}>
+              {units.map((value) => (
+                <kit.KitChip
+                  key={value}
+                  item={null}
+                  role="radio"
+                  look="segment"
+                  label={copy.units[value]}
+                  value={value}
+                  on={unit === value}
+                  {...(loading ? { disabled: false, part: null } : {})}
+                />
+              ))}
+            </kit.KitTrack>
+          </kit.KitContent>
+          <Measurements input={live} {...{ loading, density }} />
+          {input.style === "table" && fit}
+        </>
+      )}
+    </kit.KitCard>
+  );
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { components, createRegistry, packReady, planAct, readComponent } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { addressedElements, renderExample } from "../../../../../test/render";
+import { addressedElements, elementAt, renderExample, styleAt } from "../../../../../test/render";
 
 const { TimeLog } = components;
 const { props, examples, fallback, probes } = TimeLog;
@@ -72,7 +72,7 @@ describe("TimeLog states, reads and addresses", () => {
     const draw = (input: object) => addressedElements(renderExample("TimeLog", input, "filled", theme).html);
     const full = [...draw(reversed).keys()];
     expect(full.indexOf("home/c1/r2/root")).toBeLessThan(full.indexOf("home/c1/r1/root"));
-    expect([...draw({ ...reversed, density: "compact" }).keys()]).toEqual(full);
+    expect([...draw({ ...reversed }).keys()]).toEqual(full);
     expect([...draw({ ...reversed, detail: "brief" }).keys()]).toEqual(
       full.filter((key) => !key.endsWith("/note")),
     );
@@ -104,6 +104,15 @@ describe("TimeLog states, reads and addresses", () => {
 });
 
 describe("TimeLog actions", () => {
+  it.each(["filled", "success"] as const)("uses a danger treatment for removal in %s", (state) => {
+    const { html } = renderExample("TimeLog", first, state, theme, { component: "t1" });
+    for (const [index, entry] of first.entries.entries()) {
+      const button = elementAt(html, `home/t1/r${index + 1}/remove`);
+      expect(button.attributes).toContain('role="button"');
+      expect(button.attributes).toContain(`aria-label="Remove ${entry.title}"`);
+      expect(styleAt(html, button)).toContain("var(--bad)");
+    }
+  });
   it("links rows and manual entry, and only exports a saved week", () => {
     const press = (address: string, input: object = first) =>
       planAct(screen(input), defs, {}, [{ address, action: "press" }]);
@@ -170,6 +179,73 @@ describe("TimeLog timer gates", () => {
       expect(controller.act(stop).ok).toBe(false);
       expect(controller.act({ address: "t1/discard", action: "press" }).ok).toBe(true);
       expect(controller.snapshotScreen().components[0]!.entries).toHaveLength(2);
+    } finally {
+      controller.dispose();
+    }
+  });
+});
+
+const summaryInput = {
+  ...first,
+  style: "summary" as const,
+  entries: [
+    ...first.entries,
+    {
+      ...row,
+      projectRef: "route_guide",
+      title: "Route notes",
+      billable: true,
+      start: "2026-11-20T23:45:00Z",
+      end: "2026-11-21T00:15:00Z",
+    },
+  ],
+};
+
+describe("TimeLog project summary", () => {
+  const input = summaryInput;
+  it("renders and reads project totals without showing or offering individual entry actions", () => {
+    const draw = renderExample("TimeLog", input, "filled", theme, { component: "t1" });
+    const parts = addressedElements(draw.html);
+    expect(parts.get("home/t1/summary")?.text).toEqual(["Time by project"]);
+    expect(parts.get("home/t1/week_total")?.text).toEqual(["2h 15m"]);
+    expect([...parts.keys()].some((key) => key.includes("/r1/"))).toBe(false);
+    for (const text of ["Garden", "Route guide", "1h 15m", "30m", "0m", "Non-billable"])
+      expect(draw.html).toContain(text);
+    const read = readComponent(TimeLog, input, "t1").join("\n");
+    expect(read).toContain("Garden · Billable: 1h 15m · Non-billable: 30m");
+    expect(read).toContain("Route guide · Billable: 30m · Non-billable: 0m");
+    expect(read).not.toContain(row.title);
+    expect(read).not.toContain("[t1/r1");
+    for (const step of [remove, { address: "t1/r1", action: "press" }])
+      expect(planAct(screen(input), defs, {}, [step]).ok).toBe(false);
+    expect(planAct(screen(input), defs, {}, [{ address: "t1/export", action: "press" }]).ok).toBe(true);
+    expect(props.safeParse({ ...input, day: first.week }).success).toBe(false);
+    const noEntries = { ...input, entries: [] };
+    expect(readComponent(TimeLog, noEntries, "t1").join("\n")).toContain("No time logged this week");
+    expect(
+      addressedElements(renderExample("TimeLog", noEntries, "filled", theme, { component: "t1" }).html).has(
+        "home/t1/empty",
+      ),
+    ).toBe(true);
+  });
+
+  it("updates the breakdown on timer stop without enabling entry actions", () => {
+    let now = at;
+    const controller = createScreenController({
+      screen: screen(input),
+      defs,
+      deviceData: data,
+      now: () => now,
+    });
+    try {
+      expect(controller.act(start).ok).toBe(true);
+      now += 15 * 60_000;
+      expect(controller.act(stop).ok).toBe(true);
+      const read = controller.read();
+      expect(read).toContain("Entry saved");
+      expect(read).toContain("Garden · Billable: 1h 30m · Non-billable: 30m");
+      expect(read).not.toContain("[t1/r4/remove");
+      expect(controller.snapshotScreen().components[0]!.entries).toHaveLength(4);
     } finally {
       controller.dispose();
     }

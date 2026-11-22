@@ -1,14 +1,14 @@
-import { useWords, useVariant, KitAction, KitCard, KitContent, KitRow, KitText } from "../../../kit";
+import { useWords, useKit, KitAction, KitActionFooter, KitCard, KitFigure, KitMetaLine } from "../../../kit";
 import { bookingWordsFor } from "../lang";
 import { z } from "zod";
 import {
   numberLine,
   probesFor,
-  variantProps,
   type CastLike,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import { queueAhead, queueCount, queueExact } from "../copy";
 import { prompt } from "../../../entry/prompt-Waitlist.generated";
@@ -24,7 +24,7 @@ export const meta = {
   weight: 2,
   tier: "people",
   realPath: "A queue in a shared app; notifications tell the next person when a place opens.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["ahead"] } },
   writeHints: prompt.writeHints,
   parts: ["root", "title", "position", "label", "ahead", "join", "leave"],
@@ -70,7 +70,7 @@ export const examples = [
   { ahead: 0, joined: true },
   { ahead: 0, joined: false },
   { position: 3, ahead: 2, joined: true, detail: "brief" },
-  { position: 3, ahead: 2, joined: true, density: "compact" },
+  { position: 3, ahead: 2, joined: true },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Waitlist");
 export const probes = [
@@ -94,7 +94,7 @@ function queueLabelsForPosition(position: number, lang?: string) {
 
 export function Waitlist(input: Props<typeof props, typeof meta>) {
   const { position, ahead, joined, detail } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const { lang, words } = useWords(bookingWordsFor);
   const { queueLabels } = words;
   const hasPosition = joined && position !== undefined;
@@ -102,47 +102,30 @@ export function Waitlist(input: Props<typeof props, typeof meta>) {
   const label = brief
     ? queueLabelsForPosition(position, lang)
     : queueExact(ahead, joined ? position : undefined, lang);
-  const number = hasPosition && (
-    <KitText role="number" tabular part="position">
-      {queueCount(position, lang)}
-    </KitText>
-  );
-  const caption = (
-    <KitText role="body" tone="muted" part="label">
-      {queueLabels.position}
-    </KitText>
-  );
+  const title = { text: joined ? queueLabels.joined : queueLabels.waiting, part: "title", strong: true };
+  const count = {
+    text: brief ? undefined : queueAhead(ahead, lang),
+    part: "ahead",
+    role: "caption" as const,
+  };
   return (
     <KitCard style="inset" padded part="root" label={label} density={density}>
-      <KitContent lineRole="heading">
-        <KitText role={hasPosition ? "label" : "heading"} part="title">
-          {joined ? queueLabels.joined : queueLabels.waiting}
-        </KitText>
-        {hasPosition &&
-          (density === "compact" ? (
-            <KitContent lead={number} density={density} leadingAlign="row">
-              <KitRow inline part={null} label={queueLabels.position} lineRole="number" leading={caption}>
-                {null}
-              </KitRow>
-            </KitContent>
-          ) : (
-            <>
-              {number}
-              {caption}
-            </>
-          ))}
-        {!brief && (
-          <KitText role={hasPosition ? "body" : "caption"} tone="muted" part="ahead" density={density}>
-            {queueAhead(ahead, lang)}
-          </KitText>
-        )}
-      </KitContent>
-      <KitAction
-        label={joined ? queueLabels.leave : queueLabels.join}
-        kind={joined ? "secondary" : "primary"}
-        part={joined ? "leave" : "join"}
-        full
-      />
+      <KitMetaLine title={title} meta={hasPosition ? [] : count} density={density} />
+      {hasPosition && (
+        <KitFigure
+          density={density}
+          value={{ text: queueCount(position, lang), part: "position", compact: density === "compact" }}
+          unit={{ text: queueLabels.position, part: "label" }}
+          caption={<KitMetaLine title={{ ...count, tone: "muted" }} density={density} />}
+        />
+      )}
+      <KitActionFooter density={density}>
+        <KitAction
+          label={joined ? queueLabels.leave : queueLabels.join}
+          kind={joined ? "secondary" : "primary"}
+          part={joined ? "leave" : "join"}
+        />
+      </KitActionFooter>
     </KitCard>
   );
 }

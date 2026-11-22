@@ -17,7 +17,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Loan records live on the device; reminders need a messaging service.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["since"] } },
   parts: ["root", "empty"],
   items: {
@@ -108,10 +108,14 @@ export const examples = [
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Loans");
-// prettier-ignore
 export const probes = [
-  choose("Keep track of tools I lent to neighbours and things I borrowed, when they are due back, and mark each returned"),
-  choose("Show several tappable names leading to their own pages, without lending or borrowing records", "List"),
+  choose(
+    "Keep track of tools I lent to neighbours and things I borrowed, when they are due back, and mark each returned",
+  ),
+  choose(
+    "Show several tappable names leading to their own pages, without lending or borrowing records",
+    "List",
+  ),
   write(
     "I lent Ana my pruning shears on 2026-10-02 and they were due back 2026-10-16. The photo is lib:plants.",
   ),
@@ -122,24 +126,59 @@ export const probes = [
     variant: { axis: "detail", value: "brief" },
   },
   read("Mark the pruning shears as returned", { address: "l1/r1/returned", action: "press" }),
-  { ...write('I lent Ana the pruning shears on 2026-10-02. At checkout, note "Clean, blades sharp".'),
-    expectProps: { loans: [{ conditionOut: "Clean, blades sharp" }] } },
-  { ...write('I lent Ana the pruning shears on 2026-10-02. On return, note "Small nick on the blade".'),
-    expectProps: { loans: [{ conditionIn: "Small nick on the blade" }] } },
+  {
+    ...write('I lent Ana the pruning shears on 2026-10-02. At checkout, note "Clean, blades sharp".'),
+    expectProps: { loans: [{ conditionOut: "Clean, blades sharp" }] },
+  },
+  {
+    ...write('I lent Ana the pruning shears on 2026-10-02. On return, note "Small nick on the blade".'),
+    expectProps: { loans: [{ conditionIn: "Small nick on the blade" }] },
+  },
 ] satisfies c.Probe[];
 
 type LoansProps = c.Props<typeof props, typeof meta>;
-type LoanRowProps = Pick<LoansProps, "surface" | "detail"> & {
+type LoanRowProps = Pick<LoansProps, "detail"> & { surface: c.SurfaceFinish } & {
   density: c.ThemeDensity;
   row: LoansProps["loans"][number];
   today: string;
 };
 
-// prettier-ignore
+function LoanDateLines(
+  { since, due, overdue }: ReturnType<typeof loanDates>,
+  dueGap: string,
+  density: c.ThemeDensity,
+) {
+  return (
+    (since || due) && (
+      <kit.KitContent density={density}>
+        {since && (
+          <kit.KitText part="since" role="caption" tone="muted" density={density}>
+            {since}
+          </kit.KitText>
+        )}
+        {due && (
+          <kit.KitText part="due" role="caption" density={density}>
+            {due}
+            {overdue && (
+              <kit.KitText part="overdue" role="caption" tone="bad" density={density}>
+                {dueGap}
+                {overdue}
+              </kit.KitText>
+            )}
+          </kit.KitText>
+        )}
+      </kit.KitContent>
+    )
+  );
+}
+
 function LoanRow({ row, today, density, surface, detail }: LoanRowProps) {
   const scope = kit.usePartContext();
-  const { lang, words: { loans: words } } = kit.useWords(inventoryWordsFor);
-  const { since, due, overdue } = loanDates(row, detail, lang, today);
+  const {
+    lang,
+    words: { loans: words },
+  } = kit.useWords(inventoryWordsFor);
+  const dates = loanDates(row, detail, lang, today);
   const [out, back] = loanCondition(row, lang);
   const thumbnail = row.photo && <kit.KitPhoto part="photo" photo={row.photo} label={row.thing} />;
   return (
@@ -148,22 +187,25 @@ function LoanRow({ row, today, density, surface, detail }: LoanRowProps) {
         <kit.KitRow part={null} inline label={row.thing} density={density}>
           <kit.KitGrid fitLast density={density}>
             <kit.KitContent density={density}>
-              <kit.KitText part="thing" role="heading" density="comfortable">{row.thing}</kit.KitText>
+              <kit.KitText part="thing" role="heading" density="comfortable">
+                {row.thing}
+              </kit.KitText>
               <kit.KitText part="person" role="caption" tone="muted" density={density}>
-                <kit.KitText part="way" role="caption" tone="muted" density={density}>{words.way[row.way]}</kit.KitText>
+                <kit.KitText part="way" role="caption" tone="muted" density={density}>
+                  {words.way[row.way]}
+                </kit.KitText>
                 {row.person}
               </kit.KitText>
             </kit.KitContent>
             {thumbnail}
           </kit.KitGrid>
         </kit.KitRow>
-        {(since || due) && <kit.KitContent density={density}>
-          {since && <kit.KitText part="since" role="caption" tone="muted" density={density}>{since}</kit.KitText>}
-          {due && <kit.KitText part="due" role="caption" density={density}>
-            {due}{overdue && <kit.KitText part="overdue" role="caption" tone="bad" density={density}>{words.dueGap}{overdue}</kit.KitText>}
-          </kit.KitText>}
-        </kit.KitContent>}
-        <kit.KitMetaLine title={{ ...out, role: "caption", tone: "muted" }} meta={{ ...back, role: "caption" }} density={density} />
+        {LoanDateLines(dates, words.dueGap, density)}
+        <kit.KitMetaLine
+          title={{ ...out, role: "caption", tone: "muted" }}
+          meta={{ ...back, role: "caption" }}
+          density={density}
+        />
         <kit.KitGrid density={density}>
           <kit.KitAction part="returned" label={words.returned} kind="secondary" full />
           <kit.KitAction part="remind" label={words.remind[row.way](row.person)} kind="quiet" full />
@@ -175,8 +217,8 @@ function LoanRow({ row, today, density, surface, detail }: LoanRowProps) {
 
 export function Loans(input: LoansProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   if (state === "empty")
     return (

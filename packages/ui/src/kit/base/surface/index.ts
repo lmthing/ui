@@ -1,4 +1,4 @@
-export { KitCard } from "./KitCard";
+export { KitCard, CardEdgeContext } from "./KitCard";
 export { KitOverlay } from "./KitOverlay";
 export { KitStrip } from "./KitStrip";
 export { KitTile } from "./KitTile";

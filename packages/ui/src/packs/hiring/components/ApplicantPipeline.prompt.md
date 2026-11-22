@@ -1,12 +1,12 @@
 ## Purpose
 
-Move active applicants between counted hiring stages for one opening.
+Move candidates between stage lanes on a recruiter's board for one opening.
 
 ## Pick
 
-Only when an employer needs both counted stage lanes and moves between them for one opening. For a flat directory with one tappable row per applicant, use List even if the rows show status badges. Not a generic board (Board) or a seeker's own tracker (Applications).
+Use only when asked to show separate lanes keyed by hiring stage or let recruiters change a candidate's stage. Not a single collection of linked rows (List); a row's status alone does not qualify. Not a generic board (Board) or the job seeker's tracker (Applications).
 
 ## Writer
 
 - Write one record per applicant. Stage is the last active stage even for a terminal outcome; do not write stage counts, outcome counts or column objects.
-- Use arrange "rows" for stages stacked vertically, otherwise null. Leave density and surface null unless requested.
+- Use arrange "rows" for stages stacked vertically, otherwise null.

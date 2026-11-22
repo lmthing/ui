@@ -3,6 +3,8 @@ import { XStack, YStack, type TamaguiElement } from "tamagui";
 import { component, parseAddress, size, space } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKit, useKitStyle } from "../../provider";
+import { CardEdgeContext } from "../surface";
+import { shifted, TableFigures } from "../text";
 import { MatrixScroll } from "./matrix-scroll";
 import { MatrixContent } from "./matrix-drawing";
 import {
@@ -11,6 +13,7 @@ import {
   matrixColumnLayout,
   MatrixSelectionContext,
   scrollColumnWidth,
+  useColumnViewport,
   useCompactMatrix,
   useMatrixHeights,
   type Column,
@@ -28,8 +31,13 @@ type CellProps = {
   selected?: boolean | undefined;
   loading: boolean;
   cut?: boolean | undefined;
+  total?: boolean | undefined;
+  header?: boolean;
+  last?: boolean;
   height: number;
   fit?: boolean | undefined;
+  contentWidth?: boolean | undefined;
+  edge?: "start" | "end" | undefined;
   divider?: boolean;
   rail?: boolean;
   anchor?: RefObject<TamaguiElement | null> | undefined;
@@ -85,16 +93,27 @@ function TableCell(props: CellProps) {
   const highlight = props.selected && !props.loading;
   const fill = highlight ? { backgroundColor: "$accentSoft" } : {};
   const rule = props.divider ? { borderLeftWidth: component.base.borderWidth, borderColor: "$line" } : {};
+  const pad = props.fit ? space.xs : props.contentWidth && !props.rail ? space.sm : space.md;
+  const top = props.total ? component.base.strongBorder : component.base.none;
+  const bottom = props.cut
+    ? component.base.strongBorder
+    : props.last || props.total
+      ? component.base.none
+      : component.base.borderWidth;
+  const extra = Math.max(component.base.none, top + bottom - component.base.borderWidth);
   return (
     <YStack
       {...(target as object)}
-      minHeight={props.height + (props.cut ? component.base.borderWidth : component.base.none)}
+      minHeight={props.height + extra}
       minWidth={props.rail && !props.target ? component.base.none : size.control.md}
-      paddingHorizontal={props.fit ? space.xs : space.md}
-      paddingVertical={space[ks.density.rowPad]}
+      paddingLeft={props.edge === "start" ? space.sm : pad}
+      paddingRight={props.edge === "end" ? space.sm : pad}
+      paddingVertical={props.header || props.fit ? space.xs : space[ks.density.rowPad]}
       justifyContent="center"
-      borderBottomWidth={props.cut ? component.base.strongBorder : component.base.borderWidth}
-      borderColor={props.cut ? "$muted" : "$line"}
+      borderBottomWidth={bottom}
+      borderTopWidth={top}
+      borderTopColor="$muted"
+      borderBottomColor={props.cut ? "$muted" : "$line"}
       {...(props.fit && !props.loading ? {} : { backgroundColor: highlight ? "$accentSoft" : "$surface" })}
       {...(props.disabled ? { "aria-disabled": true } : {})}
     >
@@ -106,9 +125,11 @@ function TableCell(props: CellProps) {
         pointerEvents={props.disabled ? "none" : "auto"}
         {...(props.disabled ? { inert: true } : {})}
       >
-        <MatrixContent loading={props.loading}>
-          {props.disabled ? disabledContent(props.children) : props.children}
-        </MatrixContent>
+        <TableFigures.Provider value={!props.rail && !props.header}>
+          <MatrixContent loading={props.loading}>
+            {props.disabled ? disabledContent(props.children) : props.children}
+          </MatrixContent>
+        </TableFigures.Provider>
       </YStack>
     </YStack>
   );
@@ -145,7 +166,7 @@ function timelineCells(row: MatrixRow, count: number) {
 function TimelineRows(props: TimelineProps) {
   const { rows, columns, heights, activeColumn, loading, separators } = props;
   const selected = useContext(MatrixSelectionContext);
-  return rows.map((row) => (
+  return rows.map((row, index) => (
     <XStack key={row.id}>
       {timelineCells(row, columns.length).map(({ cell, start, span }) => {
         const active = columns
@@ -166,7 +187,9 @@ function TimelineRows(props: TimelineProps) {
               selected={row.selected || active}
               height={heights.height(row.id)}
               measure={heights.measure(row.id, `span:${start}`)}
-              cut={separators?.includes(row.id)}
+              cut={!rows[index + 1]?.total && separators?.includes(row.id)}
+              total={row.total}
+              last={index === rows.length - 1 || Boolean(rows[index + 1]?.total)}
             >
               {cell?.content}
             </ScopedCell>
@@ -183,20 +206,15 @@ type TableProps = Drawing & {
   corner: ReactNode;
   stickyFirst?: boolean;
   fitColumns?: boolean | undefined;
+  /** Size scrolling columns to their content rather than to the fixed-width timeline grid. */
+  contentWidth?: boolean;
+  edge?: "frame" | undefined;
   activeColumn?: string;
   headerTargets?: readonly { column: string; target: Target }[];
   separators?: readonly string[];
   timeline?: { jump?: { part: string; column: string } };
 };
-function TableColumn({
-  column,
-  index,
-  props,
-  heights,
-  compact,
-  anchor,
-  onLayout,
-}: {
+type ColumnProps = {
   column?: Column;
   index: number;
   props: TableProps;
@@ -204,16 +222,36 @@ function TableColumn({
   compact: boolean;
   anchor?: React.RefObject<TamaguiElement | null> | undefined;
   onLayout?: ReturnType<typeof useCompactMatrix>["onHeadingLayout"];
-}) {
+};
+
+function columnEdge({ edge, columns }: TableProps, index: number): CellProps["edge"] {
+  if (edge !== "frame") return undefined;
+  if (index < 0) return "start";
+  if (index === columns.length - 1) return "end";
+}
+
+function TableColumn({ column, index, props, heights, compact, anchor, onLayout }: ColumnProps) {
   const heading = !column;
+  const single = props.columns.length === 1;
   const loading = Boolean(props.loading);
   const selected = useContext(MatrixSelectionContext);
   const active = Boolean(column && (column.id === props.activeColumn || selected.includes(column.id)));
-  const fit = props.fitColumns ? { fit: true, rail: heading, divider: compact && index > 0 } : {};
+  const fit = {
+    rail: heading,
+    fit: props.fitColumns,
+    divider: Boolean(props.fitColumns && compact && index > 0),
+    contentWidth: Boolean(props.contentWidth),
+    edge: columnEdge(props, index),
+  };
   return (
-    <YStack {...matrixColumnLayout(Boolean(props.fitColumns), heading)} onLayout={onLayout}>
+    <YStack
+      {...matrixColumnLayout(Boolean(props.fitColumns), heading, props.contentWidth, single)}
+      onLayout={onLayout}
+    >
       <ScopedCell
         loading={loading}
+        header
+        last={!props.rows.length || Boolean(props.rows[0]?.total)}
         anchor={anchor}
         {...fit}
         label={column?.label ?? ""}
@@ -225,7 +263,7 @@ function TableColumn({
         {heading ? props.corner : column.header}
       </ScopedCell>
       {(!props.timeline || heading) &&
-        props.rows.map((row) => {
+        props.rows.map((row, rowIndex) => {
           const cell = row.cells[index];
           return (
             <ScopedCell
@@ -239,7 +277,9 @@ function TableColumn({
               target={heading ? row.target : cell?.target}
               disabled={cell?.disabled && !heading}
               selected={row.selected || active}
-              cut={props.separators?.includes(row.id)}
+              cut={!props.rows[rowIndex + 1]?.total && props.separators?.includes(row.id)}
+              total={row.total}
+              last={rowIndex === props.rows.length - 1 || Boolean(props.rows[rowIndex + 1]?.total)}
             >
               {heading ? row.heading : compact ? (cell?.compactContent ?? cell?.content) : cell?.content}
             </ScopedCell>
@@ -249,41 +289,81 @@ function TableColumn({
   );
 }
 
-export function KitTable({ part = "root", stickyFirst = true, ...props }: TableProps) {
-  const ks = useKitStyle();
-  const heights = useMatrixHeights(space[ks.density.rowPad]);
-  const fitColumns = !props.timeline && Boolean(props.fitColumns);
-  const { compact, available, onLayout, onHeadingLayout } = useCompactMatrix(fitColumns);
-  const root = { ...usePart(part), onLayout, "aria-busy": Boolean(props.loading) };
-  const layout = { props: { ...props, fitColumns }, heights, compact };
-  const heading = <TableColumn index={-1} {...layout} onLayout={onHeadingLayout} />;
-  const pinned = stickyFirst || fitColumns;
+function useTimelineDestination(props: TableProps, pinned: boolean) {
   const anchor = useRef<TamaguiElement>(null);
   const jump = props.timeline?.jump;
   const index = props.columns.findIndex((column) => column.id === jump?.column);
-  const destination =
-    jump && index >= 0 && !props.loading
-      ? { part: jump.part, offset: scrollColumnWidth * (index + Number(!pinned)), anchor }
-      : undefined;
+  return jump && index >= 0 && !props.loading
+    ? { part: jump.part, offset: scrollColumnWidth * (index + Number(!pinned)), anchor }
+    : undefined;
+}
+
+function tableEdge(flush: boolean, shift: ReturnType<typeof useKitStyle>["radiusShift"]) {
+  if (!flush) return { width: "100%" };
+  const corner = shifted("md", shift);
+  return {
+    marginHorizontal: -space.xs,
+    marginBottom: -space.xs,
+    borderBottomLeftRadius: corner,
+    borderBottomRightRadius: corner,
+    overflow: "hidden" as const,
+  };
+}
+
+function useTableRoot(
+  part: string,
+  loading: boolean | undefined,
+  onLayout: ReturnType<typeof useCompactMatrix>["onLayout"],
+) {
+  const address = usePart(part);
+  return {
+    ...address,
+    onLayout: (event: Parameters<NonNullable<typeof onLayout>>[0]) => {
+      address.onLayout();
+      onLayout?.(event);
+    },
+    "aria-busy": Boolean(loading),
+  };
+}
+
+export function KitTable({ part = "root", stickyFirst = true, ...props }: TableProps) {
+  const ks = useKitStyle();
+  const fitColumns = !props.timeline && Boolean(props.fitColumns);
+  const heights = useMatrixHeights(fitColumns ? space.xs : space[ks.density.rowPad], space.xs);
+  const flush = useContext(CardEdgeContext) && fitColumns && props.edge === "frame";
+  const contentWidth = !props.timeline && !fitColumns && Boolean(props.contentWidth);
+  const { compact, available, onLayout, onHeadingLayout } = useCompactMatrix(fitColumns, contentWidth);
+  const viewport = useColumnViewport(props.columns, available, contentWidth && stickyFirst);
+  const root = useTableRoot(part, props.loading, onLayout);
+  const layout = {
+    props: { ...props, fitColumns, contentWidth, ...(flush ? {} : { edge: undefined }) },
+    heights,
+    compact,
+  };
+  const heading = <TableColumn index={-1} {...layout} onLayout={onHeadingLayout} />;
+  const pinned = stickyFirst || fitColumns;
+  const destination = useTimelineDestination(props, pinned);
   const columns = props.columns.map((column, index) => (
     <TableColumn
       key={column.id}
       column={column}
       index={index}
       {...layout}
-      anchor={destination && column.id === jump?.column ? anchor : undefined}
+      onLayout={viewport.measure(column.id)}
+      anchor={column.id === props.timeline?.jump?.column ? destination?.anchor : undefined}
     />
   ));
   const minWidth = fittedTableWidth(columns.length);
   const overflow = fitColumns && available !== undefined && available < minWidth;
   return (
-    <XStack {...root} width="100%" minWidth={component.base.none}>
+    <XStack {...root} minWidth={component.base.none} {...tableEdge(flush, ks.radiusShift)}>
       {pinned && heading}
       <MatrixScroll
         label={props.columns.map((column) => column.label).join(", ")}
         loading={props.loading}
         fitted={fitColumns && !overflow}
         jump={destination}
+        width={viewport.width}
       >
         {!pinned && heading}
         {props.timeline ? (

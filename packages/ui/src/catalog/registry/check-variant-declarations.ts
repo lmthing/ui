@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { Definition } from "../probes";
+import { retiredPresentationProps } from "../migrations";
 import { variantAxes } from "../props";
 import type { Axis, ItemVariants, Variants } from "../types";
 
@@ -37,22 +38,20 @@ const legacyStyles: Readonly<Partial<Record<string, Readonly<Record<string, stri
     wide: "Pending aspect migration in core adoption",
     tall: "Pending aspect migration in core adoption",
   },
-  Player: { compact: "Pending density migration in core adoption" },
-  Progress: { compact: "Pending density migration in core adoption" },
   Appointment: {
     card: "Action-bearing layout, not just surface treatment",
-    compact: "Single-row booking overview, independent of spacing density",
   },
   ServiceMenu: { rows: "Pending booking pack variant adoption" },
   Slots: { grid: "Pending arrange migration in booking pack" },
-  Payoff: { compact: "Pending density migration in money pack adoption" },
   ScoreSheet: { grid: "Multi-round editing structure, not a generic collection grid" },
   Spinner: { strip: "Wheel alternative changes the draw mechanism, not collection arrangement" },
   Trivia: { card: "Question and answer reveal layout, not just surface treatment" },
   PassCard: { card: "Membership layout versus coupon, centered code, or transit balance" },
+  Ticket: { badge: "Admission ticket frame, not a row's trailing badge" },
   FileList: { rows: "Grouped attachments with inline metadata, not separate cards with page badges" },
 };
 const itemAxes = { tone: true, mark: true, trail: true } satisfies Record<keyof ItemVariants, true>;
+const retiredAxes = new Set<string>(retiredPresentationProps);
 
 const choices = (field?: Schema) => field?.enum ?? (field?.const === undefined ? [] : [field.const]);
 const branchesOf = (schema: Schema) => [
@@ -74,6 +73,7 @@ function checkSchemaAxes(
 ): string[] {
   if (!schema) return [];
   const fields = Object.entries(schema.properties ?? {}).flatMap(([key, field]) => {
+    if (retiredAxes.has(key)) return [`${label}: schema exposes retired presentation prop ${key}`];
     const misplaced = scalarBranches(field).some(
       ({ variantAxis }) => variantAxis && (variantAxis !== key || !Object.hasOwn(axes ?? {}, key)),
     );
@@ -118,7 +118,7 @@ function checkAxes(
     if (values.length === 1) return [`${label}: variant ${key} has no alternative`];
     const field = schema?.properties?.[key];
     const options = choices(field);
-    const fallback = key === "density" ? undefined : values[0];
+    const fallback = values[0];
     const defaultMatches =
       field?.default === fallback ||
       (item?.mayInheritTrail && key === "trail" && field?.default === undefined);

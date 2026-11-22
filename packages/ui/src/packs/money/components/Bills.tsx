@@ -16,7 +16,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Bills saved on the device; reminders before due dates need notification permission.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["repeat"] } },
   parts: ["root", "total", "empty"],
   items: {
@@ -62,7 +62,6 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
-// prettier-ignore
 const ledgeBills = {
   bills: [
     { name: "Ledge supplies", amount: 24.5, due: "2026-11-24", repeat: "monthly", paid: false, icon: "leaf" },
@@ -72,45 +71,132 @@ const ledgeBills = {
 function withItemFinish(finish: Pick<z.input<typeof props>["bills"][number], "tone" | "mark">) {
   return { bills: ledgeBills.bills.map((row, index) => (index === 0 ? { ...row, ...finish } : row)) };
 }
-// prettier-ignore
 export const examples = [
   ledgeBills,
   {
     style: "subscriptions",
     bills: [
       { name: "Trot phone plan", amount: 12, repeat: "monthly", paid: false, icon: "phone" },
-      { name: "Walking insurance", amount: 96, due: "2026-12-01", repeat: "yearly", paid: false, icon: "shield" },
+      {
+        name: "Walking insurance",
+        amount: 96,
+        due: "2026-12-01",
+        repeat: "yearly",
+        paid: false,
+        icon: "shield",
+      },
     ],
   },
   { ...ledgeBills, detail: "brief" },
-  { ...ledgeBills, density: "compact" },
+  { ...ledgeBills },
   ...(["good", "warn", "bad"] as const).map((tone) => withItemFinish({ tone })),
   withItemFinish({ mark: "muted" }),
   {
     style: "subscriptions",
     bills: [
-      { name: "Trot route planner", amount: 24, repeat: "monthly", paid: false, icon: "map", trialEnds: "2026-12-01", manage: { goto: "route_plan" } },
+      {
+        name: "Trot route planner",
+        amount: 24,
+        repeat: "monthly",
+        paid: false,
+        icon: "map",
+        trialEnds: "2026-12-01",
+        manage: { goto: "route_plan" },
+      },
       { name: "Trot phone plan", amount: 12, repeat: "monthly", paid: true, icon: "phone" },
     ],
   },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = c.probesFor("Bills");
-// prettier-ignore
 export const probes = [
-  choose("Track my rent, power bill and monthly subscriptions with amounts, due dates, paid ticks and a computed monthly total"),
-  choose("Give me a simple list of household jobs to tick off, with no payment amounts or due payments", "Checklist"),
-  write("Due bills: Rent 800 due 2026-12-01 monthly unpaid with home icon; Power 60 due 2026-11-28 monthly paid with zap icon. Do not write totals"),
-  { ...write("Track Power at 60, due 2026-12-01, unpaid, recurring monthly with a zap icon. Show the due date and paid tick, but hide the repeat label."), variant: { axis: "detail", value: "brief" } },
-  { ...write("In my subscriptions list, Trot route planner costs 24 every month, is unpaid and has a map icon. Its free trial ends 2026-12-01; show the trial end date."), expectProps: { bills: [{ trialEnds: "2026-12-01" }] } },
-  { ...write("Show my Trot phone plan as a subscription, 12 monthly, unpaid, phone icon. Include a separate Manage shortcut opening the phone_plan screen so I can cancel or change it there."), expectProps: { style: "subscriptions", bills: [{ manage: { goto: "phone_plan" } }] } },
-  read("Tick the paid checkbox next to Ledge supplies; do not open the bill", { address: "b1/r1/paid", action: "check" }),
+  choose(
+    "Track my rent, power bill and monthly subscriptions with amounts, due dates, paid ticks and a computed monthly total",
+  ),
+  choose(
+    "Give me a simple list of household jobs to tick off, with no payment amounts or due payments",
+    "Checklist",
+  ),
+  write(
+    "Due bills: Rent 800 due 2026-12-01 monthly unpaid with home icon; Power 60 due 2026-11-28 monthly paid with zap icon. Do not write totals",
+  ),
+  {
+    ...write(
+      "Track Power at 60, due 2026-12-01, unpaid, recurring monthly with a zap icon. Show the due date and paid tick, but hide the repeat label.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
+  {
+    ...write(
+      "In my subscriptions list, Trot route planner costs 24 every month, is unpaid and has a map icon. Its free trial ends 2026-12-01; show the trial end date.",
+    ),
+    expectProps: { bills: [{ trialEnds: "2026-12-01" }] },
+  },
+  {
+    ...write(
+      "Show my Trot phone plan as a subscription, 12 monthly, unpaid, phone icon. Include a separate Manage shortcut opening the phone_plan screen so I can cancel or change it there.",
+    ),
+    expectProps: { style: "subscriptions", bills: [{ manage: { goto: "phone_plan" } }] },
+  },
+  read("Tick the paid checkbox next to Ledge supplies; do not open the bill", {
+    address: "b1/r1/paid",
+    action: "check",
+  }),
 ] satisfies c.Probe[];
 
 type BillsProps = c.Props<typeof props, typeof meta>;
-// prettier-ignore
-function BillRow({
-  bill, today, detail, density, style,
-}: Pick<BillsProps, "detail" | "density" | "style"> & { bill: BillsProps["bills"][number]; today: string }) {
+function BillManagement(
+  name: string,
+  manage: NonNullable<BillsProps["bills"][number]["manage"]>,
+  trial: string | undefined,
+  density: c.ThemeDensity,
+  labels: ReturnType<typeof moneyWordsFor>["bills"],
+) {
+  return (
+    <kit.KitRow part={null} inline indent={1} density={density} label={name}>
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitText part={trial ? "trial_ends" : null} role="caption" tone="muted">
+          {trial}
+        </kit.KitText>
+        <kit.KitRow part="manage" inline density={density} label={labels.manageBill(name)} goto={manage.goto}>
+          <kit.KitText part="manage_label" role="label" tone="accent">
+            {labels.manage}
+          </kit.KitText>
+        </kit.KitRow>
+      </kit.KitGrid>
+    </kit.KitRow>
+  );
+}
+
+function BillDueLine(
+  repeat: string | undefined,
+  shortDue: string | undefined,
+  separator: string,
+  overdue: boolean,
+  paid: boolean,
+) {
+  return (
+    <kit.KitText role="caption" tone="muted" part={null}>
+      {repeat && (
+        <kit.KitText role="caption" tone="muted" part="repeat">
+          {repeat}
+        </kit.KitText>
+      )}
+      {shortDue && repeat && separator}
+      {shortDue && (
+        <kit.KitText role="caption" tone={overdue ? "bad" : paid ? "muted" : "text"} part="due">
+          {shortDue.replace(/\s/g, "\u00a0")}
+        </kit.KitText>
+      )}
+    </kit.KitText>
+  );
+}
+
+type BillRowProps = Pick<BillsProps, "detail" | "style"> & {
+  density: c.ThemeDensity;
+  bill: BillsProps["bills"][number];
+  today: string;
+};
+function BillRow({ bill, today, detail, density, style }: BillRowProps) {
   const scope = kit.usePartContext();
   const { lang, words } = kit.useWords(moneyWordsFor);
   const paid = kit.useControlValue(c.formatAddress({ ...scope, item: bill.id, part: "paid" }), bill.paid);
@@ -119,9 +205,16 @@ function BillRow({
   const { amount, due, shortDue, repeat, overdue, trial } = billLines({ ...bill, paid }, today, lang, detail);
   const name = overdue ? words.bills.overdue(bill.name) : bill.name;
   const manage = style === "subscriptions" && bill.manage;
-  const label = [name, amount, due && words.bills.due(due), repeat, !manage && trial].filter(Boolean).join(words.bills.separator);
+  const label = [name, amount, due && words.bills.due(due), repeat, !manage && trial]
+    .filter(Boolean)
+    .join(words.bills.separator);
   return (
-    <kit.KitRow item={bill.id} part={null} label={bill.name} inline density={density}
+    <kit.KitRow
+      item={bill.id}
+      part={null}
+      label={bill.name}
+      inline
+      density={density}
       trailing={<kit.KitCheck part="paid" done={bill.paid} label={words.bills.markPaid(bill.name)} />}
     >
       <kit.KitRow
@@ -132,7 +225,15 @@ function BillRow({
         density={density}
         leading={<kit.KitIcon part="icon" name={bill.icon} tone="muted" />}
         trailing={
-          <kit.KitText density={density} role="number" numberScale="compact" tone={tone} align="end" tabular part="amount">
+          <kit.KitText
+            density={density}
+            role="number"
+            numberScale="compact"
+            tone={tone}
+            align="end"
+            tabular
+            part="amount"
+          >
             {amount}
           </kit.KitText>
         }
@@ -140,35 +241,20 @@ function BillRow({
         <kit.KitText density={density} role="body" tone={tone} part="name">
           {bill.name}
         </kit.KitText>
-        {(detail === "full" || shortDue) && <kit.KitText role="caption" tone="muted" part={null}>
-          {repeat && (
-            <kit.KitText role="caption" tone="muted" part="repeat">
-              {repeat}
-            </kit.KitText>
-          )}
-          {shortDue && repeat && words.bills.separator}
-          {shortDue && (
-            <kit.KitText role="caption" tone={overdue ? "bad" : paid ? "muted" : "text"} part="due">
-              {shortDue.replace(/\s/g, "\u00a0")}
-            </kit.KitText>
-          )}
-        </kit.KitText>}
-        {trial && !manage && <kit.KitText part="trial_ends" role="caption" tone="muted">{trial}</kit.KitText>}
+        {(detail === "full" || shortDue) &&
+          BillDueLine(repeat, shortDue, words.bills.separator, overdue, paid)}
+        {trial && !manage && (
+          <kit.KitText part="trial_ends" role="caption" tone="muted">
+            {trial}
+          </kit.KitText>
+        )}
       </kit.KitRow>
-      {manage && <kit.KitRow part={null} inline indent={1} density={density} label={bill.name}>
-        <kit.KitGrid fitLast density={density}>
-          <kit.KitText part={trial ? "trial_ends" : null} role="caption" tone="muted">{trial}</kit.KitText>
-          <kit.KitRow part="manage" inline density={density} label={words.bills.manageBill(bill.name)} goto={manage.goto}>
-            <kit.KitText part="manage_label" role="label" tone="accent">{words.bills.manage}</kit.KitText>
-          </kit.KitRow>
-        </kit.KitGrid>
-      </kit.KitRow>}
+      {manage && BillManagement(bill.name, manage, trial, density, words.bills)}
     </kit.KitRow>
   );
 }
-// prettier-ignore
-export function Bills({ bills, style, detail, density: requested }: BillsProps) {
-  const density = kit.useVariant("density", meta.variants.density, requested);
+export function Bills({ bills, style, detail }: BillsProps) {
+  const density = kit.useKit().density;
   const state = kit.useComponentState();
   const { lang } = kit.useWords(moneyWordsFor);
   const today = localBillDate();
@@ -184,8 +270,18 @@ export function Bills({ bills, style, detail, density: requested }: BillsProps) 
           ))}
           <kit.KitContent group="response">
             <kit.KitGrid fitLast>
-              <kit.KitText role="caption" tone="muted" part={null}>{total.label}</kit.KitText>
-              <kit.KitText density={density} role="number" numberScale={style === "due" ? "compact" : "display"} tabular part="total">{total.amount}</kit.KitText>
+              <kit.KitText role="caption" tone="muted" part={null}>
+                {total.label}
+              </kit.KitText>
+              <kit.KitText
+                density={density}
+                role="number"
+                numberScale={style === "due" ? "compact" : "display"}
+                tabular
+                part="total"
+              >
+                {total.amount}
+              </kit.KitText>
             </kit.KitGrid>
           </kit.KitContent>
         </>

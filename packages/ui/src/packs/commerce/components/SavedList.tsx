@@ -18,7 +18,7 @@ export const meta = {
   partTiers: { claim: "people" },
   confirmParts: ["remove"],
   realPath: "Saved products and target prices stay on device; gift claims need a shared app and price alerts need notifications or a watch service.",
-  variants: { arrange: ["rows", "grid"], density: ["comfortable", "compact"], surface: ["card", "plain"] },
+  variants: { arrange: ["rows", "grid"] },
   parts: ["root", "empty", "status"],
   items: {
     key: "items",
@@ -66,33 +66,70 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
-// prettier-ignore
 export const examples = [
-  { items: [
-    { id: "fern_pot", name: "Glazed fern pot", photo: "lib:fern", price: 12, savedPrice: 16,
-      targetPrice: 11, stock: 8, goto: "fern" },
-    { id: "basil_planter", name: "Basil planter", photo: "lib:basil", price: 10, savedPrice: 10, stock: 2 },
-  ] },
-  { arrange: "grid", shared: true, items: [
-    { id: "walk_lead", name: "Reflective lead", photo: "lib:dog", price: 18, savedPrice: 20, targetPrice: 15, claimed: true, goto: "lead" },
-    { id: "treat_pouch", name: "Treat pouch", photo: "local:2", price: 14, savedPrice: 16, stock: 0 },
-  ] },
+  {
+    items: [
+      {
+        id: "fern_pot",
+        name: "Glazed fern pot",
+        photo: "lib:fern",
+        price: 12,
+        savedPrice: 16,
+        targetPrice: 11,
+        stock: 8,
+        goto: "fern",
+      },
+      { id: "basil_planter", name: "Basil planter", photo: "lib:basil", price: 10, savedPrice: 10, stock: 2 },
+    ],
+  },
+  {
+    arrange: "grid",
+    shared: true,
+    items: [
+      {
+        id: "walk_lead",
+        name: "Reflective lead",
+        photo: "lib:dog",
+        price: 18,
+        savedPrice: 20,
+        targetPrice: 15,
+        claimed: true,
+        goto: "lead",
+      },
+      { id: "treat_pouch", name: "Treat pouch", photo: "local:2", price: 14, savedPrice: 16, stock: 0 },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("SavedList");
-// prettier-ignore
 export const probes = [
-  choose("Keep shop products I want to buy later, compare the prices I saved them at, set a price alert, and move a saved item into my basket."),
-  choose("Show ordinary saved links to the fern and basil care pages as short rows with a badge. No prices or buying.", "List"),
-  write("I saved fern_pot, Glazed fern pot, at 16. It now costs 12, there are 8 left, and I want an alert at 11. Link it to fern."),
+  choose(
+    "Keep shop products I want to buy later, compare the prices I saved them at, set a price alert, and move a saved item into my basket.",
+  ),
+  choose(
+    "Show ordinary saved links to the fern and basil care pages as short rows with a badge. No prices or buying.",
+    "List",
+  ),
+  write(
+    "I saved fern_pot, Glazed fern pot, at 16. It now costs 12, there are 8 left, and I want an alert at 11. Link it to fern.",
+  ),
   {
-    ...write("Display two columns of saved shop products: walk_lead Reflective lead is 18 and treat_pouch Treat pouch is 14. I had saved them at 20 and 16 respectively."),
+    ...write(
+      "Display two columns of saved shop products: walk_lead Reflective lead is 18 and treat_pouch Treat pouch is 14. I had saved them at 20 and 16 respectively.",
+    ),
     variant: { axis: "arrange", value: "grid", itemTitles: ["Reflective lead", "Treat pouch"] },
   },
   read("Open the product page for the glazed fern pot", { address: "s1/r1", action: "press" }),
-  read("Move the glazed fern pot into my basket without opening its product page", { address: "s1/r1/move", action: "press" }),
+  read("Move the glazed fern pot into my basket without opening its product page", {
+    address: "s1/r1/move",
+    action: "press",
+  }),
   read("Set the glazed fern pot's price alert to 10", { address: "s1/r1/alert", action: "set" }),
-  read("Mark the treat pouch as claimed on the shared gift list", { address: "s1/r2/claim", action: "toggle" }, 1),
+  read(
+    "Mark the treat pouch as claimed on the shared gift list",
+    { address: "s1/r2/claim", action: "toggle" },
+    1,
+  ),
   read("Start removing the basil planter from saved items", { address: "s1/r2/remove", action: "press" }),
 ] satisfies c.Probe[];
 
@@ -116,83 +153,199 @@ function savedPress(kind: SavedChange["kind"]): NonNullable<c.RecordRuntime["pre
   };
 }
 
-// prettier-ignore
 function SavedDetails({ row, grid, density }: { row: SavedRow; grid: boolean; density: c.ThemeDensity }) {
-  const { lang, words } = kit.useWords(commerceWordsFor), currency = kit.useAppCurrency();
+  const { lang, words } = kit.useWords(commerceWordsFor);
+  const currency = kit.useAppCurrency();
   const copy = savedItemCopy(row, lang, currency);
-  const photo = <kit.KitPhoto {...(row.photo && { photo: row.photo })} label={row.name}
-    part="photo" aspect={grid ? "wide" : "auto"} />;
-  const previous = copy.previous && <kit.KitText part="saved_price" role="caption" tone="muted" lines={1}>{copy.previous}</kit.KitText>;
-  return <kit.KitRow item={row.id} inline={grid} inset="none" label={row.name} goto={row.goto} lineRole="heading"
-    leading={grid ? undefined : photo} leadingAlign="row" density={density}>
-    {grid && photo}
-    <kit.KitText part="name" role="heading" lines={2} density={density}>{row.name}</kit.KitText>
-    <kit.KitText part="price" role="number" numberScale="compact" tabular>{copy.current}
-      {grid && previous && <kit.KitText part={null}>{words.savedList.priceGap}{previous}</kit.KitText>}
+  const photo = (
+    <kit.KitPhoto
+      {...(row.photo && { photo: row.photo })}
+      label={row.name}
+      part="photo"
+      aspect={grid ? "wide" : "auto"}
+    />
+  );
+  const previous = copy.previous && (
+    <kit.KitText part="saved_price" role="caption" tone="muted" lines={1}>
+      {copy.previous}
     </kit.KitText>
-    {!grid && previous}
-    {(grid || copy.badge) && <kit.KitText part={copy.badge ? "badge" : null} role="caption" lines={1}
-      {...(copy.badge && { tone: copy.badge.tone })}>{copy.badge?.text ?? words.savedList.blank}</kit.KitText>}
-  </kit.KitRow>;
+  );
+  return (
+    <kit.KitRow
+      item={row.id}
+      inline={grid}
+      inset="none"
+      label={row.name}
+      goto={row.goto}
+      lineRole="heading"
+      leading={grid ? undefined : photo}
+      leadingAlign="row"
+      density={density}
+    >
+      {grid && photo}
+      <kit.KitText part="name" role="heading" lines={2} density={density}>
+        {row.name}
+      </kit.KitText>
+      <kit.KitText part="price" role="number" numberScale="compact" tabular>
+        {copy.current}
+        {grid && previous && (
+          <kit.KitText part={null}>
+            {words.savedList.priceGap}
+            {previous}
+          </kit.KitText>
+        )}
+      </kit.KitText>
+      {!grid && previous}
+      {(grid || copy.badge) && (
+        <kit.KitText
+          part={copy.badge ? "badge" : null}
+          role="caption"
+          lines={1}
+          {...(copy.badge && { tone: copy.badge.tone })}
+        >
+          {copy.badge?.text ?? words.savedList.blank}
+        </kit.KitText>
+      )}
+    </kit.KitRow>
+  );
 }
 
-// prettier-ignore
-function SavedControls({ row, shared, density }: { row: SavedRow; shared: boolean; density: c.ThemeDensity }) {
-  const { words: { savedList: words } } = kit.useWords(commerceWordsFor);
+type SavedControlProps = { row: SavedRow; density: c.ThemeDensity };
+
+function SavedClaim({ row, density }: SavedControlProps) {
+  const {
+    words: { savedList: words },
+  } = kit.useWords(commerceWordsFor);
   const loading = kit.useComponentState() === "loading";
-  return <>
-    <kit.KitContent density={density}>
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["caption", words.target]]} />
-        : <kit.KitText role="caption" part="target_label" tone="muted">{words.target}</kit.KitText>}
-      <kit.KitInput part="alert" action="set" kind="number" label={words.alert(row.name)}
-        hint="" value={row.targetPrice === undefined ? undefined : String(row.targetPrice)}
-        projected compact min={0} max={maxPrice} step={0.01} />
-    </kit.KitContent>
-    {shared && <kit.KitRow part={null} inline label={words.claim} density={density} trailing={
-      <kit.KitTrail kind="toggle" part="claim" label={words.claimItem(row.name)} on={row.claimed} />
-    }>{loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.claim]]} />
-      : <kit.KitText role="label" part="claim_label">{words.claim}</kit.KitText>}</kit.KitRow>}
-    <kit.KitGrid fitLast density={density}>
-      <kit.KitAction part="move" kind="secondary" full label={words.move} disabled={row.stock === 0} />
-      <kit.KitAction part="remove" kind="quiet" icon="trash" a11y={words.remove(row.name)} />
-    </kit.KitGrid>
-  </>;
+  return (
+    <kit.KitRow
+      part={null}
+      inline
+      label={words.claim}
+      density={density}
+      trailing={
+        <kit.KitTrail kind="toggle" part="claim" label={words.claimItem(row.name)} on={row.claimed} />
+      }
+    >
+      {loading ? (
+        <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.claim]]} />
+      ) : (
+        <kit.KitText role="label" part="claim_label">
+          {words.claim}
+        </kit.KitText>
+      )}
+    </kit.KitRow>
+  );
 }
 
-// prettier-ignore
+function SavedControls({ row, shared, density }: SavedControlProps & { shared: boolean }) {
+  const {
+    words: { savedList: words },
+  } = kit.useWords(commerceWordsFor);
+  const loading = kit.useComponentState() === "loading";
+  return (
+    <>
+      <kit.KitContent density={density}>
+        {loading ? (
+          <kit.KitSkeleton shape="figure" inset="none" content={[["caption", words.target]]} />
+        ) : (
+          <kit.KitText role="caption" part="target_label" tone="muted">
+            {words.target}
+          </kit.KitText>
+        )}
+        <kit.KitInput
+          part="alert"
+          action="set"
+          kind="number"
+          label={words.alert(row.name)}
+          hint=""
+          value={row.targetPrice === undefined ? undefined : String(row.targetPrice)}
+          projected
+          compact
+          min={0}
+          max={maxPrice}
+          step={0.01}
+        />
+      </kit.KitContent>
+      {shared && <SavedClaim {...{ row, density }} />}
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitAction part="move" kind="secondary" full label={words.move} disabled={row.stock === 0} />
+        <kit.KitAction part="remove" kind="quiet" icon="trash" a11y={words.remove(row.name)} />
+      </kit.KitGrid>
+    </>
+  );
+}
+
 function SavedLoading({ row, grid, density }: { row: SavedRow; grid: boolean; density: c.ThemeDensity }) {
-  const { lang } = kit.useWords(commerceWordsFor), currency = kit.useAppCurrency();
+  const { lang } = kit.useWords(commerceWordsFor);
+  const currency = kit.useAppCurrency();
   const copy = savedItemCopy(row, lang, currency);
-  const lines = [{ role: "heading" as const, text: row.name },
+  const lines = [
+    { role: "heading" as const, text: row.name },
     { role: "number" as const, text: copy.current, numberScale: "compact" as const },
-    ...[copy.previous, copy.badge?.text].flatMap((text) => text ? [{ role: "caption" as const, text }] : [])];
-  return grid ? <kit.KitSkeleton shape="media" aspect="wide" inset="none" content={lines.map(({ role, text }) => [role, text])} />
-    : <kit.KitSkeleton rows={1} density={density} inset="none"
-      items={[{ ...(row.photo && { photo: row.photo }), lead: "box", lines }]} />;
+    ...[copy.previous, copy.badge?.text].flatMap((text) =>
+      text ? [{ role: "caption" as const, text }] : [],
+    ),
+  ];
+  return grid ? (
+    <kit.KitSkeleton
+      shape="media"
+      aspect="wide"
+      inset="none"
+      content={lines.map(({ role, text }) => [role, text])}
+    />
+  ) : (
+    <kit.KitSkeleton
+      rows={1}
+      density={density}
+      inset="none"
+      items={[{ ...(row.photo && { photo: row.photo }), lead: "box", lines }]}
+    />
+  );
 }
 
-// prettier-ignore
 export function SavedList(input: SavedProps) {
-  const scope = kit.usePartContext(), state = kit.useComponentState();
+  const scope = kit.usePartContext();
+  const state = kit.useComponentState();
   const { words } = kit.useWords(commerceWordsFor);
   const live = kit.useLiveControls(meta, input) as SavedProps;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
-  const { arrange, shared, items, moved } = live, grid = arrange === "grid";
-  const empty = state === "empty" || !items.length, loading = state === "loading";
-  const error = state === "error", success = state === "success" || (state === "filled" && moved);
-  return <kit.KitCard part="root" style={empty || error ? "inset" : "cards"} density={density}>
-    {success && <kit.KitContent inset="md"><kit.KitText part="status" role="label" tone="good">
-      {words.savedList.success}
-    </kit.KitText></kit.KitContent>}
-    {error ? <kit.KitEmpty part="status" icon="alert" title={words.savedList.error} decorativeIcon />
-      : empty ? <kit.KitEmpty part="empty" decorativeIcon /> : <kit.KitGrid arrange={arrange} list listRowGap="cards" density={density}>
-      {items.map((row) => <kit.PartScope key={row.id} {...scope} item={row.id}>
-        <kit.KitCard part="tile" padded {...{ density, surface }}>
-          {loading ? <SavedLoading {...{ row, grid, density }} /> : <SavedDetails {...{ row, grid, density }} />}
-          <SavedControls {...{ row, shared, density }} />
-        </kit.KitCard>
-      </kit.PartScope>)}
-    </kit.KitGrid>}
-  </kit.KitCard>;
+  const density = kit.useKit().density;
+  const surface = "card";
+  const { arrange, shared, items, moved } = live;
+  const grid = arrange === "grid";
+  const empty = state === "empty" || !items.length;
+  const loading = state === "loading";
+  const error = state === "error";
+  const success = state === "success" || (state === "filled" && moved);
+  return (
+    <kit.KitCard part="root" style={empty || error ? "inset" : "cards"} density={density}>
+      {success && (
+        <kit.KitContent inset="md">
+          <kit.KitText part="status" role="label" tone="good">
+            {words.savedList.success}
+          </kit.KitText>
+        </kit.KitContent>
+      )}
+      {error ? (
+        <kit.KitEmpty part="status" icon="alert" title={words.savedList.error} decorativeIcon />
+      ) : empty ? (
+        <kit.KitEmpty part="empty" decorativeIcon />
+      ) : (
+        <kit.KitGrid arrange={arrange} list listRowGap="cards" density={density}>
+          {items.map((row) => (
+            <kit.PartScope key={row.id} {...scope} item={row.id}>
+              <kit.KitCard part="tile" padded {...{ density, surface }}>
+                {loading ? (
+                  <SavedLoading {...{ row, grid, density }} />
+                ) : (
+                  <SavedDetails {...{ row, grid, density }} />
+                )}
+                <SavedControls {...{ row, shared, density }} />
+              </kit.KitCard>
+            </kit.PartScope>
+          ))}
+        </kit.KitGrid>
+      )}
+    </kit.KitCard>
+  );
 }

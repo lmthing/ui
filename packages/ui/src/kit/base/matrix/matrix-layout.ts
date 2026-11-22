@@ -1,7 +1,8 @@
 import { Children, cloneElement, createContext, isValidElement, useState, type ReactNode } from "react";
 import { component, radius, size, space, type KitStyle } from "../../../catalog";
 import { KitText, shifted } from "../text";
-import type { YStackProps } from "tamagui";
+import { inputRadius } from "../input";
+import { isWeb, type YStackProps } from "tamagui";
 
 export type Drawing = { part?: string; loading?: boolean };
 export type Target = { item?: string; part: string };
@@ -22,6 +23,8 @@ export type MatrixRow = {
   heading: ReactNode;
   cells: readonly Cell[];
   selected?: boolean;
+  /** Separate a summary from the detail rows with a rule above it. */
+  total?: boolean;
   target?: Target;
 };
 export const scrollColumnWidth = size.control.md * 3;
@@ -30,9 +33,24 @@ export const MatrixSelectionContext = createContext<readonly string[]>([]);
 
 export const fittedTableWidth = (columns: number) => columns * fittedColumnMin;
 
-export function matrixColumnLayout(fit: boolean, heading: boolean): YStackProps {
+export function matrixColumnLayout(
+  fit: boolean,
+  heading: boolean,
+  contentWidth = false,
+  single = false,
+): YStackProps {
+  if (contentWidth)
+    return {
+      flexShrink: component.base.none,
+      minWidth: size.control.md + space.sm * 2,
+      maxWidth: heading ? scrollColumnWidth : scrollColumnWidth + size.control.md * 2,
+      ...(isWeb ? { width: "max-content" as never } : {}),
+    };
   if (!fit) return { width: scrollColumnWidth, flexShrink: component.base.none };
-  if (heading) return { flexShrink: component.base.none, maxWidth: scrollColumnWidth };
+  if (heading)
+    return single
+      ? { flexShrink: component.base.none, width: "50%" }
+      : { flexShrink: component.base.none, maxWidth: scrollColumnWidth };
   // Start at the intrinsic width so a column with more content gets more room than a short one.
   return {
     flexGrow: component.base.bodyFlex,
@@ -41,7 +59,7 @@ export function matrixColumnLayout(fit: boolean, heading: boolean): YStackProps 
   };
 }
 
-export function useCompactMatrix(fit: boolean) {
+export function useCompactMatrix(fit: boolean, measureContents = false) {
   const [width, setWidth] = useState<number>();
   const [heading, setHeading] = useState<number>();
   const measure = (set: (value: number) => void) => (event: { nativeEvent: { layout: { width: number } } }) =>
@@ -49,8 +67,44 @@ export function useCompactMatrix(fit: boolean) {
   return {
     compact: fit && width !== undefined && width < size.control.md * 7,
     available: width !== undefined && heading !== undefined ? width - heading : undefined,
-    onLayout: fit ? measure(setWidth) : undefined,
-    onHeadingLayout: fit ? measure(setHeading) : undefined,
+    onLayout: fit || measureContents ? measure(setWidth) : undefined,
+    onHeadingLayout: fit || measureContents ? measure(setHeading) : undefined,
+  };
+}
+
+// Stop on a whole column at the starting edge, but don't narrow the rail past its largest cell.
+export function wholeColumnViewport(available: number, widths: readonly number[]) {
+  let complete = 0;
+  for (const width of widths) {
+    if (complete + width > available) break;
+    complete += width;
+  }
+  return complete >= Math.max(...widths) &&
+    complete < available &&
+    complete < widths.reduce((a, b) => a + b, 0)
+    ? complete
+    : undefined;
+}
+
+export function useColumnViewport(
+  columns: readonly Column[],
+  available: number | undefined,
+  active: boolean,
+) {
+  const [sizes, setSizes] = useState<Record<string, number>>({});
+  const widths = columns.map(({ id }) => sizes[id] ?? 0);
+  return {
+    width:
+      active && available !== undefined && widths.length && widths.every((width) => width > 0)
+        ? wholeColumnViewport(available, widths)
+        : undefined,
+    measure: (id: string) =>
+      active
+        ? (event: { nativeEvent: { layout: { width: number } } }) => {
+            const { width } = event.nativeEvent.layout;
+            setSizes((previous) => (previous[id] === width ? previous : { ...previous, [id]: width }));
+          }
+        : undefined,
   };
 }
 
@@ -59,7 +113,8 @@ export function loadingRadius(props: Parameters<typeof loadingGeometry>[0], shif
     if (!props.photo || props.shape === "round" || props.shape === "avatar") return radius.pill;
     return shifted(!props.shape || props.shape === "thumb" ? "sm" : "lg", shift);
   }
-  return props.hint || props.label ? shifted("md", shift) : radius.pill;
+  if (props.hint !== undefined) return inputRadius(props.kind, shift);
+  return props.label ? shifted("md", shift) : radius.pill;
 }
 export function disabledContent(content: ReactNode): ReactNode {
   return Children.map(content, (node) => {
@@ -96,6 +151,7 @@ export function loadingGeometry(props: {
   initials?: string;
   shape?: string;
   hint?: string;
+  kind?: "text" | "search" | "number" | "date" | "time";
   label?: string;
   icon?: string;
   name?: string;
@@ -135,13 +191,15 @@ export function loadingGeometry(props: {
 }
 
 /** Measure unconstrained content on both sides, so pinned labels and scrolling cells share heights. */
-export function useMatrixHeights(padding: number) {
+export function useMatrixHeights(padding: number, headerPadding = padding) {
   const [heights, setHeights] = useState<Record<string, Record<string, number>>>({});
   return {
     height: (row: string) =>
       Math.max(
         size.control.md,
-        ...Object.values(heights[row] ?? {}).map((value) => value + padding * 2 + component.base.borderWidth),
+        ...Object.values(heights[row] ?? {}).map(
+          (value) => value + (row === "header" ? headerPadding : padding) * 2 + component.base.borderWidth,
+        ),
       ),
     measure: (row: string, column: string) => (event: { nativeEvent: { layout: { height: number } } }) => {
       const height = event.nativeEvent.layout.height;
@@ -154,17 +212,21 @@ export function useMatrixHeights(padding: number) {
   };
 }
 
-export function matrixKey(event: {
-  key: string;
-  target: unknown;
-  currentTarget: unknown;
-  preventDefault(): void;
-}) {
+export function matrixKey(
+  event: {
+    key: string;
+    target: unknown;
+    currentTarget: unknown;
+    preventDefault(): void;
+  },
+  pages = false,
+) {
   if (event.target !== event.currentTarget) return;
   const node = event.currentTarget as HTMLElement;
+  const step = pages ? node.clientWidth : size.control.md;
   const distance = {
-    ArrowLeft: -size.control.md,
-    ArrowRight: size.control.md,
+    ArrowLeft: -step,
+    ArrowRight: step,
     PageUp: -node.clientWidth,
     PageDown: node.clientWidth,
     Home: -node.scrollLeft,

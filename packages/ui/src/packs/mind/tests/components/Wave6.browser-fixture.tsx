@@ -30,7 +30,6 @@ const records: ScreenLike = {
     {
       id: "e1",
       c: "Entries",
-      density: "compact",
       media: "none",
       prompt: "Small joys",
       entries: [

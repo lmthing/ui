@@ -7,7 +7,7 @@ import {
   KitGrid,
   KitText,
   useComponentState,
-  useVariant,
+  useKit,
 } from "../../../kit";
 import {
   wordsFor,
@@ -20,11 +20,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import { z } from "zod";
 import { prompt } from "../../../entry/prompt-Loyalty.generated";
@@ -41,7 +41,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "A count per client on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["name"] } },
   parts: ["root", "stamps", "of", "reward", "name", "earned", "stamp", "redeem"],
   states: ["filled", "success"],
@@ -97,8 +97,8 @@ export const examples = [
   { stamps: 3, of: 6, reward: "Your sixth plant care visit is free", name: "Anna Patel" },
   { stamps: 10, of: 10, reward: "Your tenth walk is free", name: "Ben Carter" },
   variantExample,
-  { ...variantExample, density: "compact" },
-  { ...variantExample, surface: "outlined" },
+  { ...variantExample },
+  { ...variantExample },
   { ...variantExample, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Loyalty");
@@ -120,8 +120,15 @@ export const probes = [
 
 const stampColumns = 3,
   stampsPerPair = 2;
-// prettier-ignore
-function LoyaltyMarks({ stamps, of, density }: { stamps: number; of: number; density: "comfortable" | "compact" }) {
+function LoyaltyMarks({
+  stamps,
+  of,
+  density,
+}: {
+  stamps: number;
+  of: number;
+  density: "comfortable" | "compact";
+}) {
   const rows = Math.ceil(of / (stampColumns * stampsPerPair));
   const perRow = Math.ceil(of / rows);
   return (
@@ -131,17 +138,22 @@ function LoyaltyMarks({ stamps, of, density }: { stamps: number; of: number; den
         const offset = (pair % stampColumns) * stampsPerPair;
         const start = row * perRow + offset;
         const length = Math.max(0, Math.min(stampsPerPair, perRow - offset, of - start));
-        return <KitGrid key={pair} columns={stampsPerPair} {...{ density }}>
-          {Array.from({ length }, (_, index) => <KitDayMark key={index} done={start + index < stamps} />)}
-        </KitGrid>;
+        return (
+          <KitGrid key={pair} columns={stampsPerPair} {...{ density }}>
+            {Array.from({ length }, (_, index) => (
+              <KitDayMark key={index} done={start + index < stamps} />
+            ))}
+          </KitGrid>
+        );
       })}
     </KitGrid>
   );
 }
 
 export function Loyalty(input: Props<typeof props, typeof meta>) {
-  const { stamps, of, reward, name, surface } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const { stamps, of, reward, name } = input;
+  const surface = "card";
+  const density = useKit().density;
   const { lang, words } = useWords();
   const { loyaltyLabels } = words;
   const success = useComponentState() === "success";

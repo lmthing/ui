@@ -5,6 +5,7 @@ import {
   KitLayoutText,
   KitState,
   useComponentState,
+  useKit,
   useVariant,
   useWords,
 } from "../../../kit";
@@ -47,15 +48,9 @@ function applicantCard(
 }
 
 /** Active stages draw through StageBoard; the owner supplies the legal move values. */
-export function ApplicantLanes({
-  applicants,
-  title,
-  arrange,
-  density: requestedDensity,
-  moves,
-}: Input & { moves?: Moves }) {
+export function ApplicantLanes({ applicants, title, arrange, moves }: Input & { moves?: Moves }) {
   const { lang, words } = useWords(hiringWordsFor);
-  const density = useVariant("density", ApplicantPipeline.meta.variants.density, requestedDensity);
+  const density = useKit().density;
   const layout = useVariant("arrange", ApplicantPipeline.meta.variants.arrange, arrange);
   const state = useComponentState();
   const loading = state === "loading";

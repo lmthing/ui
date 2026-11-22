@@ -18,7 +18,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "The basket is kept on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["variant"] } },
   parts: ["root", "empty", "promo", "subtotal", "delivery", "total"],
   items: {
@@ -78,10 +78,11 @@ const ledgeBasket = {
   ],
 } satisfies z.input<typeof props>;
 
-// prettier-ignore
-export const examples = [ledgeBasket,
+export const examples = [
+  ledgeBasket,
   { lines: [{ name: "Reflective lead", photo: "lib:dog", qty: 1, price: 18 }] },
-  { ...ledgeBasket, detail: "brief" }] satisfies z.input<typeof props>[];
+  { ...ledgeBasket, detail: "brief" },
+] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Cart");
 export const probes = [
@@ -108,91 +109,201 @@ type CartProps = c.Props<typeof props, typeof meta>;
 type CartLine = CartProps["lines"][number];
 type LineView = { line: CartLine; density: c.ThemeDensity; detail: CartProps["detail"]; loading: boolean };
 
-// prettier-ignore
 function BasketLineDetails({ line, density, detail, loading }: LineView) {
   const { lang, words } = kit.useWords(commerceWordsFor);
   const { price, note, unitPrice, variant } = cartLineCopy(line, detail, lang);
-  const photo = <kit.KitPhoto photo={line.photo} part={loading ? null : "photo"} label={line.name} loading={loading} />;
-  return <kit.KitContent lead={photo} leadingAlign="row" rhythm="flush" {...{ density }}>
-    <kit.KitGrid fitLast {...{ density }}>
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["body", line.name]]} {...{ density }} /> :
-        <kit.KitText role="body" part="name" {...{ density }}>{line.name}</kit.KitText>}
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["number", price, "end", "compact"]]} emphasis="quiet" {...{ density }} /> :
-        <kit.KitText role="number" numberScale="compact" emphasis="quiet" tone="muted" tabular part="price" {...{ density }}>{price}</kit.KitText>}
-    </kit.KitGrid>
-    {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["caption", note]]} {...{ density }} /> :
-      <kit.KitText role="caption" tone="muted" part={null} {...{ density }}>
-        {variant && <><kit.KitText role="caption" tone="muted" part="variant" {...{ density }}>
-          {variant}
-        </kit.KitText>{words.receiptSeparator}</>}{unitPrice}
-      </kit.KitText>}
-  </kit.KitContent>;
+  const photo = (
+    <kit.KitPhoto photo={line.photo} part={loading ? null : "photo"} label={line.name} loading={loading} />
+  );
+  return (
+    <kit.KitContent lead={photo} leadingAlign="row" rhythm="flush" {...{ density }}>
+      <kit.KitGrid fitLast {...{ density }}>
+        {loading ? (
+          <kit.KitSkeleton shape="figure" inset="none" content={[["body", line.name]]} {...{ density }} />
+        ) : (
+          <kit.KitText role="body" part="name" {...{ density }}>
+            {line.name}
+          </kit.KitText>
+        )}
+        {loading ? (
+          <kit.KitSkeleton
+            shape="figure"
+            inset="none"
+            content={[["number", price, "end", "compact"]]}
+            emphasis="quiet"
+            {...{ density }}
+          />
+        ) : (
+          <kit.KitText
+            role="number"
+            numberScale="compact"
+            emphasis="quiet"
+            tone="muted"
+            tabular
+            part="price"
+            {...{ density }}
+          >
+            {price}
+          </kit.KitText>
+        )}
+      </kit.KitGrid>
+      {loading ? (
+        <kit.KitSkeleton shape="figure" inset="none" content={[["caption", note]]} {...{ density }} />
+      ) : (
+        <kit.KitText role="caption" tone="muted" part={null} {...{ density }}>
+          {variant && (
+            <>
+              <kit.KitText role="caption" tone="muted" part="variant" {...{ density }}>
+                {variant}
+              </kit.KitText>
+              {words.receiptSeparator}
+            </>
+          )}
+          {unitPrice}
+        </kit.KitText>
+      )}
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
 function QuantitySkeleton({ qty }: { qty: number }) {
-  const { lang, words: { cart } } = kit.useWords(commerceWordsFor);
+  const {
+    lang,
+    words: { cart },
+  } = kit.useWords(commerceWordsFor);
   const button = <kit.KitSkeleton shape="control" />;
-  const number = <kit.KitSkeleton shape="figure" inset="none" content={[["number", c.numberLine(qty, lang), "center", "compact"]]} />;
-  return <kit.KitRow inline label={cart.quantity} leadingAlign="row" leading={button}>
-    <kit.KitRow inline label={cart.quantity} leadingAlign="row" leading={number}>{button}</kit.KitRow>
-  </kit.KitRow>;
+  const number = (
+    <kit.KitSkeleton
+      shape="figure"
+      inset="none"
+      content={[["number", c.numberLine(qty, lang), "center", "compact"]]}
+    />
+  );
+  return (
+    <kit.KitRow inline label={cart.quantity} leadingAlign="row" leading={button}>
+      <kit.KitRow inline label={cart.quantity} leadingAlign="row" leading={number}>
+        {button}
+      </kit.KitRow>
+    </kit.KitRow>
+  );
 }
 
-// prettier-ignore
 function BasketLine({ line, density, detail, loading }: LineView) {
-  const { words: { cart } } = kit.useWords(commerceWordsFor);
-  return <kit.KitRow {...(loading ? {} : { item: line.id })} label={line.name} inset="none" {...{ density }}>
-    <kit.KitContent {...{ density }}>
-      <BasketLineDetails {...{ line, density, detail, loading }} />
-      <kit.KitContent group="response" {...{ density }}><kit.KitGrid fitLast {...{ density }}>
-        {loading ? <QuantitySkeleton qty={line.qty} /> :
-          <kit.KitStepper part="qty" value={line.qty} min={1} max={99} />}
-        {loading ? <kit.KitSkeleton shape="control" kind="secondary" /> :
-          <kit.KitAction part="remove" action="press" kind="quiet" icon="close" a11y={cart.remove(line.name)} />}
-      </kit.KitGrid></kit.KitContent>
-    </kit.KitContent>
-  </kit.KitRow>;
+  const {
+    words: { cart },
+  } = kit.useWords(commerceWordsFor);
+  return (
+    <kit.KitRow {...(loading ? {} : { item: line.id })} label={line.name} inset="none" {...{ density }}>
+      <kit.KitContent {...{ density }}>
+        <BasketLineDetails {...{ line, density, detail, loading }} />
+        <kit.KitContent group="response" {...{ density }}>
+          <kit.KitGrid fitLast {...{ density }}>
+            {loading ? (
+              <QuantitySkeleton qty={line.qty} />
+            ) : (
+              <kit.KitStepper part="qty" value={line.qty} min={1} max={99} />
+            )}
+            {loading ? (
+              <kit.KitSkeleton shape="control" kind="secondary" />
+            ) : (
+              <kit.KitAction
+                part="remove"
+                action="press"
+                kind="quiet"
+                icon="close"
+                a11y={cart.remove(line.name)}
+              />
+            )}
+          </kit.KitGrid>
+        </kit.KitContent>
+      </kit.KitContent>
+    </kit.KitRow>
+  );
 }
 
-// prettier-ignore
-function BasketTotals({ input, density, loading }: { input: CartProps; density: c.ThemeDensity; loading: boolean }) {
+function BasketTotals({
+  input,
+  density,
+  loading,
+}: {
+  input: CartProps;
+  density: c.ThemeDensity;
+  loading: boolean;
+}) {
   const { lang } = kit.useWords(commerceWordsFor);
-  return <kit.KitPinnedBottom>
-    <kit.KitContent group="response" {...{ density }}>
-      {cartTotals(input, lang).map(({ part, label, amount }) => {
-        const emphasis = part === "total" ? "hero" : "normal";
-        const tone = part === "total" ? "text" : "muted";
-        const numberScale = part === "total" ? "display" : "compact";
-        return <kit.KitGrid key={part} fitLast {...{ density }}>
-          {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["body", label]]} {...{ density }} /> :
-            <kit.KitText part={null} {...{ tone, density }}>{label}</kit.KitText>}
-          {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["number", amount, "end", numberScale]]} {...{ density, emphasis }} /> :
-            <kit.KitText role="number" tabular {...{ part, density, tone, emphasis, numberScale }}>{amount}</kit.KitText>}
-        </kit.KitGrid>;
-      })}
-    </kit.KitContent>
-  </kit.KitPinnedBottom>;
+  return (
+    <kit.KitPinnedBottom>
+      <kit.KitContent group="response" {...{ density }}>
+        {cartTotals(input, lang).map(({ part, label, amount }) => {
+          const emphasis = part === "total" ? "hero" : "normal";
+          const tone = part === "total" ? "text" : "muted";
+          const numberScale = part === "total" ? "display" : "compact";
+          return (
+            <kit.KitGrid key={part} fitLast {...{ density }}>
+              {loading ? (
+                <kit.KitSkeleton shape="figure" inset="none" content={[["body", label]]} {...{ density }} />
+              ) : (
+                <kit.KitText part={null} {...{ tone, density }}>
+                  {label}
+                </kit.KitText>
+              )}
+              {loading ? (
+                <kit.KitSkeleton
+                  shape="figure"
+                  inset="none"
+                  content={[["number", amount, "end", numberScale]]}
+                  {...{ density, emphasis }}
+                />
+              ) : (
+                <kit.KitText role="number" tabular {...{ part, density, tone, emphasis, numberScale }}>
+                  {amount}
+                </kit.KitText>
+              )}
+            </kit.KitGrid>
+          );
+        })}
+      </kit.KitContent>
+    </kit.KitPinnedBottom>
+  );
 }
 
-// prettier-ignore
 export function Cart(input: CartProps) {
-  const { words: { cart } } = kit.useWords(commerceWordsFor);
+  const {
+    words: { cart },
+  } = kit.useWords(commerceWordsFor);
   const { thing } = kit.usePartContext();
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const loading = state === "loading";
-  return <kit.KitCard padded part="root" {...{ density, surface }}>
-    {state === "empty" ? <kit.KitEmpty icon="shopping_bag" part="empty" decorativeIcon {...(!thing ? { title: cart.empty } : {})} /> : <>
-      <kit.KitGrid arrange="rows" list {...{ density }}>{input.lines.map((line) =>
-        <BasketLine key={line.id} {...{ line, density, detail, loading }} />)}</kit.KitGrid>
-      <kit.KitContent group={density === "compact" ? "content" : "response"} {...{ density }}>
-        <kit.KitLayoutText line={{ text: cart.promo, role: "meta", tone: "muted" }} {...{ density }} />
-        {loading ? <kit.KitSkeleton shape="control" kind="secondary" label={cart.promo} full inset="none" /> : <kit.KitInput part="promo" label={cart.promo} hint="" compact />}
-      </kit.KitContent>
-      <BasketTotals {...{ input, density, loading }} />
-    </>}
-  </kit.KitCard>;
+  return (
+    <kit.KitCard padded part="root" {...{ density, surface }}>
+      {state === "empty" ? (
+        <kit.KitEmpty
+          icon="shopping_bag"
+          part="empty"
+          decorativeIcon
+          {...(!thing ? { title: cart.empty } : {})}
+        />
+      ) : (
+        <>
+          <kit.KitGrid arrange="rows" list {...{ density }}>
+            {input.lines.map((line) => (
+              <BasketLine key={line.id} {...{ line, density, detail, loading }} />
+            ))}
+          </kit.KitGrid>
+          <kit.KitContent group={density === "compact" ? "content" : "response"} {...{ density }}>
+            <kit.KitLayoutText line={{ text: cart.promo, role: "meta", tone: "muted" }} {...{ density }} />
+            {loading ? (
+              <kit.KitSkeleton shape="control" kind="secondary" label={cart.promo} full inset="none" />
+            ) : (
+              <kit.KitInput part="promo" label={cart.promo} hint="" compact />
+            )}
+          </kit.KitContent>
+          <BasketTotals {...{ input, density, loading }} />
+        </>
+      )}
+    </kit.KitCard>
+  );
 }

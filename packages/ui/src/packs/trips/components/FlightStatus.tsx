@@ -25,7 +25,7 @@ export const meta = {
   weight: 2,
   realPath:
     "live flight status, gate changes, and airborne progress fetched from an aviation status service.",
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "plain"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": {
     hides: ["route", "origin_city", "destination_city", "arrival", "estimated_arrival", "terminal", "baggage"],
   } },
@@ -89,105 +89,265 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
-// prettier-ignore
 export const examples = [
   {
-    flight: "NH 212", airline: "All Nippon Airways", origin: "LHR", originCity: "London",
-    destination: "HND", destinationCity: "Tokyo", scheduledDep: "19:00", estimatedDep: "19:45",
-    scheduledArr: "17:20", estimatedArr: "18:05", status: "in_air", progress: 0.62, terminal: "2",
-    gate: "B42", baggage: "Carousel 5", inboundFlight: "NH 211", inboundGoto: "inbound_flight",
+    flight: "NH 212",
+    airline: "All Nippon Airways",
+    origin: "LHR",
+    originCity: "London",
+    destination: "HND",
+    destinationCity: "Tokyo",
+    scheduledDep: "19:00",
+    estimatedDep: "19:45",
+    scheduledArr: "17:20",
+    estimatedArr: "18:05",
+    status: "in_air",
+    progress: 0.62,
+    terminal: "2",
+    gate: "B42",
+    baggage: "Carousel 5",
+    inboundFlight: "NH 211",
+    inboundGoto: "inbound_flight",
   },
   {
-    flight: "TP 1357", airline: "TAP Air Portugal", origin: "LHR", originCity: "London",
-    destination: "LIS", destinationCity: "Lisbon", scheduledDep: "12:25",
-    scheduledArr: "15:10", status: "boarding", gate: "A18", detail: "brief",
+    flight: "TP 1357",
+    airline: "TAP Air Portugal",
+    origin: "LHR",
+    originCity: "London",
+    destination: "LIS",
+    destinationCity: "Lisbon",
+    scheduledDep: "12:25",
+    scheduledArr: "15:10",
+    status: "boarding",
+    gate: "A18",
+    detail: "brief",
   },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("FlightStatus");
 const brief =
   "Track my booked flight TP 1357 on TAP Air Portugal, London LHR to Lisbon LIS. Scheduled off at 12:25 and in at 15:10 local. It is boarding at gate A18.";
-// prettier-ignore
 export const probes = [
-  choose("Show whether my booked flight NH 212 is boarding, delayed or in the air right now, with live gate updates and how far it has flown."),
-  choose("I want a plain table of two static facts: my travel agent and its phone number. No ticket, flight or live updates.", "KeyValue"),
-  choose("Give me the boarding pass for my booked flight, with my seat and booking reference and a code to scan.", "Reservation"),
+  choose(
+    "Show whether my booked flight NH 212 is boarding, delayed or in the air right now, with live gate updates and how far it has flown.",
+  ),
+  choose(
+    "I want a plain table of two static facts: my travel agent and its phone number. No ticket, flight or live updates.",
+    "KeyValue",
+  ),
+  choose(
+    "Give me the boarding pass for my booked flight, with my seat and booking reference and a code to scan.",
+    "Reservation",
+  ),
   write(brief),
-  { ...write(`${brief} Show a short strip with only the flight status, gate and departure, without the route and arrival details.`), variant: { axis: "detail", value: "brief" } },
+  {
+    ...write(
+      `${brief} Show a short strip with only the flight status, gate and departure, without the route and arrival details.`,
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Open the linked inbound aircraft's previous leg NH 211.", { address: "f1/inbound", action: "press" }),
 ] satisfies c.Probe[];
 
 type FlightProps = c.Props<typeof props, typeof meta>;
 type FlightView = ReturnType<typeof flightView>;
+type FlightRouteProps = { input: FlightProps; view: FlightView; density: c.ThemeDensity };
 
-// prettier-ignore
-function FlightTimes({ view, density }: { view: FlightView; density: FlightProps["density"] }) {
-  return <kit.KitRowGroup density={density}>
-    {view.times.map(({ part, title, scheduled, estimatePart, estimateTime, scheduledNote }) =>
-      <kit.KitGrid key={part} density={density}>
-        <kit.KitLayoutText line={{ text: title, role: "meta" }} density={density} />
-        <kit.KitContent density={density}>
-          <kit.KitLayoutText line={{ text: estimateTime ?? scheduled, part: estimateTime ? estimatePart : part, role: "meta", strong: true, tabular: true }} align="end" density={density} />
-          <kit.KitLayoutText line={{ text: scheduledNote, part, role: "meta", tone: "muted", tabular: true }} align="end" density={density} />
-        </kit.KitContent>
-      </kit.KitGrid>)}
-  </kit.KitRowGroup>;
+function FlightTimes({ view, density }: { view: FlightView; density: c.ThemeDensity }) {
+  return (
+    <kit.KitRowGroup density={density}>
+      {view.times.map(({ part, title, scheduled, estimatePart, estimateTime, scheduledNote }) => (
+        <kit.KitGrid key={part} density={density}>
+          <kit.KitLayoutText line={{ text: title, role: "meta" }} density={density} />
+          <kit.KitContent density={density}>
+            <kit.KitLayoutText
+              line={{
+                text: estimateTime ?? scheduled,
+                part: estimateTime ? estimatePart : part,
+                role: "meta",
+                strong: true,
+                tabular: true,
+              }}
+              align="end"
+              density={density}
+            />
+            <kit.KitLayoutText
+              line={{ text: scheduledNote, part, role: "meta", tone: "muted", tabular: true }}
+              align="end"
+              density={density}
+            />
+          </kit.KitContent>
+        </kit.KitGrid>
+      ))}
+    </kit.KitRowGroup>
+  );
 }
 
-// prettier-ignore
-function FlightRoute({ input, view, density }: { input: FlightProps; view: FlightView; density: FlightProps["density"] }) {
+function FlightRoute({ input, view, density }: FlightRouteProps) {
   const loading = kit.useComponentState() === "loading";
-  const { words: { flightStatus } } = kit.useWords(tripsWordsFor);
-  return <kit.KitFigure density={density} media={<kit.KitContent density={density} align="center">
-    {input.progress !== undefined && <kit.KitRing part="route" value={loading ? 0 : input.progress} of={1}>
-      <kit.KitContent density={density} align="center">
-        <kit.KitLayoutText line={{ text: view.progress, role: "figure", tabular: true }} align="center" density={density} />
-        <kit.KitLayoutText line={{ text: flightStatus.ofRoute, role: "meta", tone: "muted" }} align="center" density={density} />
-      </kit.KitContent>
-    </kit.KitRing>}
-    <kit.KitLayoutText line={{ text: view.route, part: input.progress === undefined ? "route" : null, role: "meta", strong: true }} align="center" density={density} />
-  </kit.KitContent>} caption={<kit.KitGrid density={density}>
-    <kit.KitLayoutText line={{ text: input.originCity, part: "origin_city", role: "meta", tone: "muted" }} align="center" density={density} />
-    <kit.KitLayoutText line={{ text: input.destinationCity, part: "destination_city", role: "meta", tone: "muted" }} align="center" density={density} />
-  </kit.KitGrid>} />;
+  const {
+    words: { flightStatus },
+  } = kit.useWords(tripsWordsFor);
+  return (
+    <kit.KitFigure
+      density={density}
+      media={
+        <kit.KitContent density={density} align="center">
+          {input.progress !== undefined && (
+            <kit.KitRing part="route" value={loading ? 0 : input.progress} of={1}>
+              <kit.KitContent density={density} align="center">
+                <kit.KitLayoutText
+                  line={{ text: view.progress, role: "figure", tabular: true }}
+                  align="center"
+                  density={density}
+                />
+                <kit.KitLayoutText
+                  line={{ text: flightStatus.ofRoute, role: "meta", tone: "muted" }}
+                  align="center"
+                  density={density}
+                />
+              </kit.KitContent>
+            </kit.KitRing>
+          )}
+          <kit.KitLayoutText
+            line={{
+              text: view.route,
+              part: input.progress === undefined ? "route" : null,
+              role: "meta",
+              strong: true,
+            }}
+            align="center"
+            density={density}
+          />
+        </kit.KitContent>
+      }
+      caption={
+        <kit.KitGrid density={density}>
+          <kit.KitLayoutText
+            line={{ text: input.originCity, part: "origin_city", role: "meta", tone: "muted" }}
+            align="center"
+            density={density}
+          />
+          <kit.KitLayoutText
+            line={{ text: input.destinationCity, part: "destination_city", role: "meta", tone: "muted" }}
+            align="center"
+            density={density}
+          />
+        </kit.KitGrid>
+      }
+    />
+  );
 }
 
-// prettier-ignore
+function FlightFooter(
+  goto: FlightProps["inboundGoto"],
+  inbound: FlightView["inbound"],
+  refresh: React.JSX.Element,
+  density: c.ThemeDensity,
+) {
+  return (
+    <kit.KitActionFooter density={density}>
+      {refresh}
+      {inbound &&
+        (goto ? (
+          <kit.KitAction
+            part="inbound"
+            label={inbound}
+            goto={goto}
+            kind="quiet"
+            action="press"
+            contentParts={{ label: "inbound_label" }}
+          />
+        ) : (
+          <kit.KitLayoutText
+            line={{ text: inbound, part: "inbound_label", role: "meta" }}
+            density={density}
+          />
+        ))}
+    </kit.KitActionFooter>
+  );
+}
+
+function FlightContent(input: FlightProps, view: FlightView, density: c.ThemeDensity) {
+  const heading = (
+    <kit.KitGrid fitLast density={density}>
+      <kit.KitHeader
+        title={{ text: input.flight, part: "flight" }}
+        meta={{ text: input.airline, part: "airline" }}
+        density={density}
+      />
+      <kit.KitTrail kind="badge" value={view.status} tone={view.tone} part="status" />
+    </kit.KitGrid>
+  );
+  return (
+    <>
+      {heading}
+      {view.route && <FlightRoute {...{ input, view, density }} />}
+      <FlightTimes {...{ view, density }} />
+      {view.details.length > 0 && (
+        <kit.KitGrid columns={3} density={density}>
+          {view.details.map(({ part, label, value }) => (
+            <kit.KitMetaLine
+              key={part}
+              title={{ text: value, part, role: "meta", strong: true }}
+              meta={{ text: label, role: "meta" }}
+              density={density}
+            />
+          ))}
+        </kit.KitGrid>
+      )}
+    </>
+  );
+}
+
 export function FlightStatus(input: FlightProps) {
-  const { lang, words: { flightStatus } } = kit.useWords(tripsWordsFor);
-  const state = kit.useComponentState(), loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const {
+    lang,
+    words: { flightStatus },
+  } = kit.useWords(tripsWordsFor);
+  const state = kit.useComponentState();
+  const loading = state === "loading";
+  const density = kit.useKit().density;
+  const surface = "card";
   const view = flightView(input, lang);
-  const heading = <kit.KitGrid fitLast density={density}>
-    <kit.KitHeader title={{ text: input.flight, part: "flight" }} meta={{ text: input.airline, part: "airline" }} density={density} />
-    <kit.KitTrail kind="badge" value={view.status} tone={view.tone} part="status" />
-  </kit.KitGrid>;
-  const refresh = <kit.KitAction part={state === "error" ? "refresh_error" : "refresh"} label={flightStatus.refresh} kind="quiet" action="press" full={state === "error"} contentParts={{}} />;
-  if (state === "error") return <kit.KitCard part="root" padded {...{ density, surface }}>
-    <kit.KitContent density={density} align="center">
-      <kit.KitState retain part="notice" message={flightStatus.error} density="compact">{refresh}</kit.KitState>
-    </kit.KitContent>
-  </kit.KitCard>;
-  const footer = <kit.KitActionFooter density={density}>
-    {refresh}
-    {view.inbound && (input.inboundGoto
-      ? <kit.KitAction part="inbound" label={view.inbound} goto={input.inboundGoto} kind="quiet" action="press" contentParts={{ label: "inbound_label" }} />
-      : <kit.KitLayoutText line={{ text: view.inbound, part: "inbound_label", role: "meta" }} density={density} />)}
-  </kit.KitActionFooter>;
-  const content = <>
-    {heading}
-    {view.route && <FlightRoute {...{ input, view, density }} />}
-    <FlightTimes {...{ view, density }} />
-    {view.details.length > 0 && <kit.KitGrid columns={3} density={density}>
-      {view.details.map(({ part, label, value }) => <kit.KitMetaLine key={part}
-        title={{ text: value, part, role: "meta", strong: true }} meta={{ text: label, role: "meta" }} density={density} />)}
-    </kit.KitGrid>}
-  </>;
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    <kit.KitState part="notice" loading={<>{content}{footer}</>} message={flightStatus.error} density={density}>
-      {content}
-    </kit.KitState>
-    {!loading && footer}
-  </kit.KitCard>;
+  const refresh = (
+    <kit.KitAction
+      part={state === "error" ? "refresh_error" : "refresh"}
+      label={flightStatus.refresh}
+      kind="quiet"
+      action="press"
+      full={state === "error"}
+      contentParts={{}}
+    />
+  );
+  if (state === "error")
+    return (
+      <kit.KitCard part="root" padded {...{ density, surface }}>
+        <kit.KitContent density={density} align="center">
+          <kit.KitState retain part="notice" message={flightStatus.error} density="compact">
+            {refresh}
+          </kit.KitState>
+        </kit.KitContent>
+      </kit.KitCard>
+    );
+  const footer = FlightFooter(input.inboundGoto, view.inbound, refresh, density);
+  const content = FlightContent(input, view, density);
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      <kit.KitState
+        part="notice"
+        loading={
+          <>
+            {content}
+            {footer}
+          </>
+        }
+        message={flightStatus.error}
+        density={density}
+      >
+        {content}
+      </kit.KitState>
+      {!loading && footer}
+    </kit.KitCard>
+  );
 }

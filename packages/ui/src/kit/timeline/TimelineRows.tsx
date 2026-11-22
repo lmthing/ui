@@ -1,8 +1,8 @@
-import type { AxisValue, IconName } from "../../catalog";
+import type { AxisValue, IconName, ThemeDensity } from "../../catalog";
 import { KitContent, KitGrid, KitIcon, KitRow, KitText, KitTime, KitTrack } from "../base";
 
 export type TimelineLine = { part: string; text: string };
-export type TimelineDensity = AxisValue<"density"> | undefined;
+export type TimelineDensity = ThemeDensity | undefined;
 type Title = { part: string | null; text: string };
 type EventRow = {
   kind: "event";

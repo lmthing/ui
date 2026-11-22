@@ -18,7 +18,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "The timetable is stored on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["room", "teacher"] } },
   parts: ["root", "day"],
   items: { key: "periods", parts: ["root", "time", "subject", "room", "teacher"] },
@@ -79,7 +79,6 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
-// prettier-ignore
 export const examples = [
   {
     days: [
@@ -91,20 +90,29 @@ export const examples = [
           { time: "11:30", subject: "Plant nutrition", room: "B12" },
         ],
       },
-      { day: "wed", periods: [
-        { time: "10:30", subject: "Soil workshop", room: "Glasshouse" },
-        { time: "12:00", subject: "Light and shade", teacher: "Mr Patel" },
-      ] },
+      {
+        day: "wed",
+        periods: [
+          { time: "10:30", subject: "Soil workshop", room: "Glasshouse" },
+          { time: "12:00", subject: "Light and shade", teacher: "Mr Patel" },
+        ],
+      },
     ],
   },
   {
     selected_day: "tue",
     days: [
-      { day: "tue", periods: [
-        { time: "13:00", subject: "Lead skills", teacher: "Mr Woods", room: "Yard" },
-        { time: "14:00", subject: "Group walks", room: "East field" },
-      ] },
-      { day: "thu", periods: [{ time: "14:15", subject: "Dog body language", room: "C04", teacher: "Ms Ellis" }] },
+      {
+        day: "tue",
+        periods: [
+          { time: "13:00", subject: "Lead skills", teacher: "Mr Woods", room: "Yard" },
+          { time: "14:00", subject: "Group walks", room: "East field" },
+        ],
+      },
+      {
+        day: "thu",
+        periods: [{ time: "14:15", subject: "Dog body language", room: "C04", teacher: "Ms Ellis" }],
+      },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -135,54 +143,109 @@ export const probes = [
 type Period = z.output<typeof period> & { day: Weekday; id: string };
 type TimetableProps = c.Props<typeof props, typeof meta> & { periods: Period[] };
 
-// prettier-ignore
-function PeriodRow({ row, density, detail, active }: {
-  row: Period; active: boolean; density: c.ThemeDensity; detail: TimetableProps["detail"];
+function PeriodRow({
+  row,
+  density,
+  detail,
+  active,
+}: {
+  row: Period;
+  active: boolean;
+  density: c.ThemeDensity;
+  detail: TimetableProps["detail"];
 }) {
   const { words, lang } = kit.useWords(learningWordsFor);
   const { id, subject, room, teacher, tone } = row;
   const full = detail === "full";
   const time = c.timeOfDayLine(row.time, lang);
   const label = words.timetable.reading([time, subject, full ? room : undefined, full ? teacher : undefined]);
-  const stamp = <kit.KitText part="time" role="number" numberScale="compact" tabular density={density}>{time}</kit.KitText>;
-  return <kit.KitRow item={id} part="root" role="button" label={label}
-    {...{ density, tone }} selected={active} leading={stamp}
-    trailing={active && <kit.KitIcon name="clock" tone="accent" decorative />}>
-    <kit.KitText role="body" part="subject" density={density}>{subject}</kit.KitText>
-    {full && room && <kit.KitText role="caption" tone="muted" part="room" density={density}>{room}</kit.KitText>}
-    {full && teacher && <kit.KitText role="caption" tone="muted" part="teacher" density={density}>{teacher}</kit.KitText>}
-  </kit.KitRow>;
+  const stamp = (
+    <kit.KitText part="time" role="number" numberScale="compact" tabular density={density}>
+      {time}
+    </kit.KitText>
+  );
+  return (
+    <kit.KitRow
+      item={id}
+      part="root"
+      role="button"
+      label={label}
+      {...{ density, tone }}
+      selected={active}
+      leading={stamp}
+      trailing={active && <kit.KitIcon name="clock" tone="accent" decorative />}
+    >
+      <kit.KitText role="body" part="subject" density={density}>
+        {subject}
+      </kit.KitText>
+      {full && room && (
+        <kit.KitText role="caption" tone="muted" part="room" density={density}>
+          {room}
+        </kit.KitText>
+      )}
+      {full && teacher && (
+        <kit.KitText role="caption" tone="muted" part="teacher" density={density}>
+          {teacher}
+        </kit.KitText>
+      )}
+    </kit.KitRow>
+  );
 }
 
-// prettier-ignore
 export function Timetable(input: TimetableProps) {
   const { periods, selected_day, detail } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const state = kit.useComponentState();
   const { screen, component } = kit.usePartContext();
   const selected = kit.useControlValue(`${screen}/${component}/$selected_day`, selected_day);
   const { words } = kit.useWords(learningWordsFor);
-  const at = new Date(), days = timetableDays(periods, selected, at), current = currentPeriod(periods, at);
+  const at = new Date(),
+    days = timetableDays(periods, selected, at),
+    current = currentPeriod(periods, at);
   const options = weekdays.filter((day) => days.some((group) => group.day === day));
-  return <kit.KitCard part="root" padded={state !== "empty"} {...{ density, surface }}>
-    {state === "empty" ? <kit.KitEmpty icon="calendar_days" part="title" decorativeIcon /> : <>
-      <kit.KitContent inset="md" density={density}>
-        <kit.KitText role="label" tone="muted" part={null} density={density}>{words.timetable.picker}</kit.KitText>
-      </kit.KitContent>
-      <kit.KitTrack part="day" role="radiogroup" label={words.timetable.picker}>
-        {options.map((day) =>
-          <kit.KitChip key={day} item={null} role="radio" label={words.timetable.days[day].short} value={day} on={day === days[0]?.day} />
-        )}
-      </kit.KitTrack>
-      {days.map(({ day, rows }, index) => <kit.KitContent key={day} group="response" density={density}>
-        <kit.KitContent inset="md" group={index ? "response" : "content"} density={density}>
-          <kit.KitText role="body" tone="muted" part={null} density={density}>{words.timetable.days[day].name}</kit.KitText>
-        </kit.KitContent>
-        <kit.KitGrid arrange="rows" list density={density}>
-          {rows.map((row) => <PeriodRow key={row.id} {...{ row, density, detail }} active={row === current} />)}
-        </kit.KitGrid>
-      </kit.KitContent>)}
-    </>}
-  </kit.KitCard>;
+  return (
+    <kit.KitCard part="root" padded={state !== "empty"} {...{ density, surface }}>
+      {state === "empty" ? (
+        <kit.KitEmpty icon="calendar_days" part="title" decorativeIcon />
+      ) : (
+        <>
+          <kit.KitContent density={density}>
+            <kit.KitContent inset="md" density={density}>
+              <kit.KitText role="label" tone="muted" part={null} density={density}>
+                {words.timetable.picker}
+              </kit.KitText>
+            </kit.KitContent>
+            <kit.KitTrack part="day" look="segments" role="radiogroup" label={words.timetable.picker}>
+              {options.map((day) => (
+                <kit.KitChip
+                  key={day}
+                  item={null}
+                  look="segment"
+                  role="radio"
+                  label={words.timetable.days[day].short}
+                  value={day}
+                  on={day === days[0]?.day}
+                />
+              ))}
+            </kit.KitTrack>
+          </kit.KitContent>
+          {days.map(({ day, rows }) => (
+            <kit.KitContent key={day} group="response" rhythm="flush" density={density}>
+              <kit.KitContent inset="md" density={density}>
+                <kit.KitText role="label" tone="muted" part={null} density={density}>
+                  {words.timetable.days[day].name}
+                </kit.KitText>
+              </kit.KitContent>
+              <kit.KitGrid arrange="rows" list density={density}>
+                {rows.map((row) => (
+                  <PeriodRow key={row.id} {...{ row, density, detail }} active={row === current} />
+                ))}
+              </kit.KitGrid>
+            </kit.KitContent>
+          ))}
+        </>
+      )}
+    </kit.KitCard>
+  );
 }

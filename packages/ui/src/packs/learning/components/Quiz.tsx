@@ -1,14 +1,30 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-// prettier-ignore
 import {
-  audioParts, gradeQuiz, learningAudio, previewQuizSteps, projectQuiz, promptPlayback, promptPlaybackActions,
-  quizChoices, quizProgress, quizSolution, readQuiz, reviseQuiz, roundAudioPart, roundAudioProps, wordBankLimit, type QuizItem, type QuizRound,
+  audioParts,
+  gradeQuiz,
+  learningAudio,
+  previewQuizSteps,
+  projectQuiz,
+  promptPlayback,
+  promptPlaybackActions,
+  quizChoices,
+  quizKey,
+  quizMatches,
+  quizOrderCopy,
+  quizProgress,
+  quizSolution,
+  readQuiz,
+  reviseQuiz,
+  roundAudioPart,
+  roundAudioProps,
+  wordBankLimit,
+  type QuizItem,
+  type QuizRound,
 } from "../copy";
 import { learningWordsFor } from "../lang";
 import * as audioView from "../prompt-audio";
-import * as choiceView from "../quiz-choices";
 import { prompt } from "../../../entry/prompt-Quiz.generated";
 
 // Core first: Choice/cards cannot check a correct answer, explain mistakes or advance through questions.
@@ -20,7 +36,7 @@ export const meta = {
   writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath: "Questions are stored with the app and answers are checked on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["thumb", "none"] },
+  variants: { media: ["thumb", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
   parts: ["root", "panel", "progress", "question", "photo", "field", "left", "right", "check", "next", "answer", "explain", "feedback", "score",
     "order_hint", "order_draft", ...audioParts, "audio_status"],
@@ -93,102 +109,336 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
-// prettier-ignore
 const choice = {
-  question: "What absorbs water?", kind: "choice", options: ["Roots", "Fronds", "Spores"],
-  answer: 0, explain: "Roots take up water and minerals from the soil.", photo: "lib:plants",
+  question: "What absorbs water?",
+  kind: "choice",
+  options: ["Roots", "Fronds", "Spores"],
+  answer: 0,
+  explain: "Roots take up water and minerals from the soil.",
+  photo: "lib:plants",
 } satisfies z.input<typeof question>;
 const typed = { question: "Name the fern's leaves.", kind: "type", answer: "Fronds" } as const;
-// prettier-ignore
 const match = {
-  question: "Match the walking kit.", kind: "match",
-  pairs: [{ left: "Lead", right: "Stay close" }, { left: "Bottle", right: "Give water" },
-    { left: "Bags", right: "Clean up" }],
+  question: "Match the walking kit.",
+  kind: "match",
+  pairs: [
+    { left: "Lead", right: "Stay close" },
+    { left: "Bottle", right: "Give water" },
+    { left: "Bags", right: "Clean up" },
+  ],
 } satisfies z.input<typeof question>;
-// prettier-ignore
-const order = { question: "Put the care tip in order.", kind: "order",
-  words: ["soil", "the", "first.", "Check"], answer: [3, 1, 0, 2] } satisfies z.input<typeof question>;
-// prettier-ignore
+const order = {
+  question: "Put the care tip in order.",
+  kind: "order",
+  words: ["soil", "the", "first.", "Check"],
+  answer: [3, 1, 0, 2],
+} satisfies z.input<typeof question>;
 export const examples = [
   { questions: [choice, typed] },
-  { questions: [
-    { question: "Do dogs need water on long\u00a0walks?", kind: "truefalse", answer: true }, match,
-  ] },
-  { questions: [typed] }, { questions: [match] },
+  {
+    questions: [
+      { question: "Do dogs need water on long\u00a0walks?", kind: "truefalse", answer: true },
+      match,
+    ],
+  },
+  { questions: [typed] },
+  { questions: [match] },
   { questions: [order, { ...typed, media: "lib:fern_leaves" }] },
   { questions: [{ ...choice, photo: undefined, media: "lib:water_question" }] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = c.probesFor("Quiz");
-// prettier-ignore
 export const probes = [
-  choose("Ask me graded practice questions one at a time. Check each submission and explain the right answer before moving on."),
-  choose("Let me pick one of three study plans, each with an explanatory sentence. None is right or wrong.", "Choice"),
-  write("Ask which reading means water: mizu, yama or kawa. The first option is correct. Then ask me to type the reading of 川, which is kawa."),
-  { ...write('Write exactly one question: "Which part absorbs water?" Choices Roots and Leaves, with Roots correct. Keep the plant photo attached but hide it from the question; leave all other appearance settings unset.'),
-    variant: { axis: "media", value: "none" } },
-  { ...write('Write exactly one sentence-order question using tappable word tiles in this starting order: "fern.", "the", "Water". The checked sentence must be "Water the fern." Do not use a typing field.'),
-    expectProps: { questions: [{ kind: "order", words: ["fern.", "the", "Water"], answer: [2, 1, 0] }] } },
-  { ...write('Write exactly one assessed question that asks "Which reading means water?" with options mizu and yama, mizu correct. Attach the supplied audio prompt lib:water_prompt to that question, not as a photo.'),
-    expectProps: { questions: [{ kind: "choice", media: "lib:water_prompt" }] } },
-  read("Use the quiz's shared choice control to select an answer. Don't check it yet.", { address: "q1", action: "select" }),
+  choose(
+    "Ask me graded practice questions one at a time. Check each submission and explain the right answer before moving on.",
+  ),
+  choose(
+    "Let me pick one of three study plans, each with an explanatory sentence. None is right or wrong.",
+    "Choice",
+  ),
+  write(
+    "Ask which reading means water: mizu, yama or kawa. The first option is correct. Then ask me to type the reading of 川, which is kawa.",
+  ),
+  {
+    ...write(
+      'Write exactly one question: "Which part absorbs water?" Choices Roots and Leaves, with Roots correct. Keep the plant photo attached but hide it from the question; leave all other appearance settings unset.',
+    ),
+    variant: { axis: "media", value: "none" },
+  },
+  {
+    ...write(
+      'Write exactly one sentence-order question using tappable word tiles in this starting order: "fern.", "the", "Water". The checked sentence must be "Water the fern." Do not use a typing field.',
+    ),
+    expectProps: { questions: [{ kind: "order", words: ["fern.", "the", "Water"], answer: [2, 1, 0] }] },
+  },
+  {
+    ...write(
+      'Write exactly one assessed question that asks "Which reading means water?" with options mizu and yama, mizu correct. Attach the supplied audio prompt lib:water_prompt to that question, not as a photo.',
+    ),
+    expectProps: { questions: [{ kind: "choice", media: "lib:water_prompt" }] },
+  },
+  read("Use the quiz's shared choice control to select an answer. Don't check it yet.", {
+    address: "q1",
+    action: "select",
+  }),
   read("Check my answer to the current question.", { address: "q1/check", action: "press" }),
 ] satisfies c.Probe[];
+function Options({
+  labels,
+  part,
+  title,
+  selected,
+  binary,
+  active = true,
+}: {
+  labels: string[];
+  part: "root" | "left" | "right";
+  title: string;
+  selected?: unknown;
+  binary?: boolean;
+  active?: boolean;
+}) {
+  const chips = labels.map((label, index) => (
+    <kit.KitChip
+      key={index}
+      item={null}
+      part={active ? "root" : null}
+      value={quizKey(part, index)}
+      label={label}
+      role="radio"
+      on={index === selected}
+    />
+  ));
+  if (part !== "root")
+    return (
+      <kit.KitContent rhythm="flush">
+        <kit.KitContent inset="md">
+          <kit.KitText role="label" tone="muted" part={null}>
+            {title}
+          </kit.KitText>
+        </kit.KitContent>
+        <kit.KitTrack part={part} role="radiogroup" label={title}>
+          <kit.KitGrid arrange="rows" list>
+            {chips}
+          </kit.KitGrid>
+        </kit.KitTrack>
+      </kit.KitContent>
+    );
+  return (
+    <kit.KitTrack part={part} role="radiogroup" label={title}>
+      {binary ? <kit.KitGrid>{chips}</kit.KitGrid> : chips}
+    </kit.KitTrack>
+  );
+}
+
+type ActiveQuestion = { item: QuizItem; answers: Readonly<c.Values> };
+
+function MatchChoices({ item, answers }: ActiveQuestion) {
+  const {
+    lang,
+    words: { quiz },
+  } = kit.useWords(learningWordsFor);
+  const active = answers.left !== undefined;
+  const labels = quizMatches(item, answers, lang);
+  return (
+    <kit.KitContent>
+      <kit.KitText role="label" tone="muted" part={null}>
+        {active ? quiz.pickRight : quiz.pickLeft}
+      </kit.KitText>
+      <kit.KitGrid>
+        <Options part="left" title={quiz.left} labels={labels.left} selected={answers.left} />
+        <Options part="right" title={quiz.right} labels={labels.right} active={active} />
+      </kit.KitGrid>
+    </kit.KitContent>
+  );
+}
+
+function OrderChoices({ item, answers }: ActiveQuestion) {
+  const {
+    lang,
+    words: { quiz },
+  } = kit.useWords(learningWordsFor);
+  const { draft, tiles } = quizOrderCopy(item, answers, lang);
+  return (
+    <kit.KitContent>
+      <kit.KitLayoutText line={{ text: quiz.orderHint, role: "meta", tone: "muted", part: "order_hint" }} />
+      {Boolean(draft) && (
+        <kit.KitMetaLine
+          title={{ text: quiz.orderDraft, role: "meta", tone: "muted" }}
+          meta={{ text: draft, part: "order_draft", role: "body", tone: "text" }}
+        />
+      )}
+      <kit.KitTrack part="root" label={quiz.wordBank}>
+        {tiles.map(({ value, ...tile }) => (
+          <kit.KitChip key={value} item={null} value={value} role="checkbox" {...tile} />
+        ))}
+      </kit.KitTrack>
+    </kit.KitContent>
+  );
+}
+
 type QuizProps = c.Props<typeof props, typeof meta>;
 // A standalone success/error preview has no controller to submit the example answer.
-// prettier-ignore
 function preview(input: QuizProps, screen: string, id: string, correct: boolean) {
   const item = input.questions[0];
   if (!item) return;
-  const result = c.planAct({ id: screen, components: [{ ...input, id, c: meta.id }] },
-    { Quiz: { meta, props, fallback, examples, probes } }, {},
-    [...previewQuizSteps(item, id, correct), { address: `${id}/check`, action: "press" }], null);
+  const result = c.planAct(
+    { id: screen, components: [{ ...input, id, c: meta.id }] },
+    { Quiz: { meta, props, fallback, examples, probes } },
+    {},
+    [...previewQuizSteps(item, id, correct), { address: `${id}/check`, action: "press" }],
+    null,
+  );
   return result.ok ? result.values[`${screen}/${id}/${c.sessionKey}`] : undefined;
 }
 
-// prettier-ignore
 function Feedback({ item, round }: { item: QuizItem; round: QuizRound }) {
-  const { lang, words: { quiz } } = kit.useWords(learningWordsFor);
+  const {
+    lang,
+    words: { quiz },
+  } = kit.useWords(learningWordsFor);
   const correct = round.assessment?.correct;
-  return <>
-    <kit.KitContent group="response">
-      <kit.KitText role="heading" tone={correct ? "good" : "bad"} part="feedback">{correct ? quiz.correct : quiz.incorrect}</kit.KitText>
-      <kit.KitText role="number" numberScale="compact" tabular part="score">{quizProgress(round, lang).score}</kit.KitText>
-    </kit.KitContent>
-    <kit.KitContent>
-      <kit.KitText role="label" tone="muted" part={null}>{quiz.solution}</kit.KitText>
-      {quizSolution(item, lang).map((line, index) => <kit.KitText key={index} part={index === 0 ? "answer" : null}>{line}</kit.KitText>)}
-      {item.explain && <kit.KitText part="explain" tone="muted">{item.explain}</kit.KitText>}
-    </kit.KitContent>
-    {!round.complete && <kit.KitAction full label={quiz.next} part="next" action="press" />}
-  </>;
+  return (
+    <>
+      <kit.KitContent group="response">
+        <kit.KitText role="heading" tone={correct ? "good" : "bad"} part="feedback">
+          {correct ? quiz.correct : quiz.incorrect}
+        </kit.KitText>
+        <kit.KitText role="number" numberScale="compact" tabular part="score">
+          {quizProgress(round, lang).score}
+        </kit.KitText>
+      </kit.KitContent>
+      <kit.KitContent group="response">
+        <kit.KitContent rhythm="flush">
+          <kit.KitText role="label" tone="muted" part={null}>
+            {quiz.solution}
+          </kit.KitText>
+          {quizSolution(item, lang).map((line, index) => (
+            <kit.KitText key={index} part={index === 0 ? "answer" : null}>
+              {line}
+            </kit.KitText>
+          ))}
+        </kit.KitContent>
+        {item.explain && (
+          <kit.KitText part="explain" tone="muted">
+            {item.explain}
+          </kit.KitText>
+        )}
+      </kit.KitContent>
+      {!round.complete && <kit.KitAction full label={quiz.next} part="next" action="press" />}
+    </>
+  );
 }
 
-// prettier-ignore
+function QuizHeading(
+  item: QuizItem,
+  round: QuizRound,
+  media: QuizProps["media"],
+  density: c.ThemeDensity,
+  lang: string,
+  photoLabel: string,
+) {
+  return (
+    <kit.KitContent
+      density={density}
+      leadingAlign="row"
+      lead={
+        media === "thumb" &&
+        item.photo && <kit.KitPhoto photo={item.photo} shape="thumb" part="photo" label={photoLabel} />
+      }
+    >
+      <kit.KitText role="label" tone="muted" part="progress">
+        {quizProgress(round, lang).progress}
+      </kit.KitText>
+      <kit.KitText role="heading" density={density} tone={round.revealed ? "muted" : "text"} part="question">
+        {item.question}
+      </kit.KitText>
+    </kit.KitContent>
+  );
+}
+
+function QuizAnswerControls(
+  item: QuizItem,
+  answers: Readonly<c.Values>,
+  options: ReturnType<typeof quizChoices>,
+  ready: boolean,
+  quiz: ReturnType<typeof learningWordsFor>["quiz"],
+) {
+  return (
+    <kit.KitContent group="response">
+      {options.length > 0 && (
+        <Options
+          labels={options}
+          title={item.question}
+          part="root"
+          binary={item.kind === "truefalse"}
+          selected={answers.root}
+        />
+      )}
+      {item.kind === "type" && (
+        <kit.KitInput
+          projected
+          hint={quiz.type}
+          value={typeof answers.field === "string" ? answers.field : ""}
+        />
+      )}
+      {item.kind === "match" && <MatchChoices {...{ item, answers }} />}
+      {item.kind === "order" && <OrderChoices {...{ item, answers }} />}
+      <kit.KitContent group="response">
+        <kit.KitAction
+          full
+          kind={ready ? "primary" : "secondary"}
+          label={quiz.check}
+          part="check"
+          action="press"
+          disabled={!ready}
+        />
+      </kit.KitContent>
+    </kit.KitContent>
+  );
+}
+
 export function Quiz(input: QuizProps) {
-  const { screen, component, state } = kit.usePartContext(), { controller } = kit.useKit();
-  const { lang, words: { quiz } } = kit.useWords(learningWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const { screen, component, state } = kit.usePartContext(),
+    { controller } = kit.useKit();
+  const {
+    lang,
+    words: { quiz },
+  } = kit.useWords(learningWordsFor);
+  const density = kit.useKit().density;
+  const surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const saved = kit.useControlValue<unknown>(`${screen}/${component}/${c.sessionKey}`, undefined);
-  const round = c.sessionState(meta, input, () => !controller && !saved && (state === "success" || state === "error")
-    ? preview(input, screen, component, state === "success") : saved);
-  if (round?.kind !== "rounds" || !round.assessment) return <kit.KitCard padded><kit.KitEmpty /></kit.KitCard>;
-  const item = round.item as QuizItem, { answers, ready } = round.assessment;
+  const round = c.sessionState(meta, input, () =>
+    !controller && !saved && (state === "success" || state === "error")
+      ? preview(input, screen, component, state === "success")
+      : saved,
+  );
+  if (round?.kind !== "rounds" || !round.assessment)
+    return (
+      <kit.KitCard padded>
+        <kit.KitEmpty />
+      </kit.KitCard>
+    );
+  const item = round.item as QuizItem,
+    { answers, ready } = round.assessment;
   const options = quizChoices(item, lang);
   const ordering = item.kind === "order";
-  return <kit.KitCard key={round.index} part={!round.revealed && (options.length || ordering) ? "panel" : "root"} padded {...{ density, surface }}>
-    <kit.KitContent density={density} leadingAlign="row"
-      lead={media === "thumb" && item.photo && <kit.KitPhoto photo={item.photo} shape="thumb" part="photo" label={quiz.photo} />}>
-      <kit.KitText role="label" tone="muted" part="progress">{quizProgress(round, lang).progress}</kit.KitText>
-      <kit.KitText role="heading" density={density} tone={round.revealed ? "muted" : "text"} part="question">{item.question}</kit.KitText>
-    </kit.KitContent>
-    {!round.revealed && item.media && <audioView.PromptAudio density={density} part={roundAudioPart(round.index)} />}
-    {round.revealed ? <Feedback {...{ item, round }} /> : <kit.KitContent group="response">
-      {options.length > 0 && <choiceView.Options labels={options} title={item.question} part="root" binary={item.kind === "truefalse"} selected={answers.root} />}
-      {item.kind === "type" && <kit.KitInput projected hint={quiz.type} value={typeof answers.field === "string" ? answers.field : ""} />}
-      {item.kind === "match" && <choiceView.MatchChoices {...{ item, answers }} />}
-      {ordering && <choiceView.OrderChoices {...{ item, answers }} />}
-      <kit.KitContent group="response"><kit.KitAction full kind={ready ? "primary" : "secondary"} label={quiz.check} part="check" action="press" disabled={!ready} /></kit.KitContent>
-    </kit.KitContent>}</kit.KitCard>;
+  return (
+    <kit.KitCard
+      key={round.index}
+      part={!round.revealed && (options.length || ordering) ? "panel" : "root"}
+      padded
+      {...{ density, surface }}
+    >
+      {QuizHeading(item, round, media, density, lang, quiz.photo)}
+      {!round.revealed && item.media && (
+        <audioView.PromptAudio density={density} part={roundAudioPart(round.index)} />
+      )}
+      {round.revealed ? (
+        <Feedback {...{ item, round }} />
+      ) : (
+        QuizAnswerControls(item, answers, options, ready, quiz)
+      )}
+    </kit.KitCard>
+  );
 }

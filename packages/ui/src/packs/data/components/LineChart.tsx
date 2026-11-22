@@ -2,8 +2,18 @@ import { z } from "zod";
 import { itemsOf, placeholderTitle, probesFor, text, thingOf, titleOf, variantProps } from "../../../catalog";
 import type { FallbackInput, Meta, Probe, Props } from "../../../catalog";
 import * as kit from "../../../kit";
-import { chartPoints, chartTicks, pointReading, pointValue, seriesId, seriesTones } from "../copy";
+import {
+  chartGoal,
+  chartPoints,
+  chartRanges,
+  chartTicks,
+  pointReading,
+  pointValue,
+  seriesId,
+  seriesTones,
+} from "../copy";
 import { dataWordsFor } from "../lang";
+import * as optionView from "../option-views";
 import { prompt } from "../../../entry/prompt-LineChart.generated";
 
 // Core first: Sparkline/default shows one compact trend, not labelled, selectable points from several series.
@@ -19,12 +29,23 @@ export const meta = {
   tier: "phone",
   realPath: "Values aggregated from records on the device.",
   variants: {
-    density: ["comfortable", "compact"],
     detail: ["full", "brief"],
-    surface: ["card", "outlined"],
   },
   variantParts: { "detail.brief": { hides: ["latest"] } },
-  parts: ["root", "title", "axes", "unit", "latest", "reading", "points", "series_1", "series_2", "series_3"],
+  parts: [
+    "root",
+    "title",
+    "axes",
+    "unit",
+    "goal",
+    "latest",
+    "range",
+    "reading",
+    "points",
+    "series_1",
+    "series_2",
+    "series_3",
+  ],
   items: { key: "points", parts: ["root"] },
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["select"] } },
@@ -37,7 +58,9 @@ export const meta = {
     return [
       ...(chart.detail === "full" ? [dataWordsFor(lang).chartLatest] : []),
       ...(chart.unit ? [dataWordsFor(lang).chartUnit(chart.unit)] : []),
-      ...chartTicks(points, lang),
+      ...(chart.range ? [dataWordsFor(lang).chartRange[chart.range]] : []),
+      ...(chart.goal === undefined ? [] : [chartGoal(chart.goal, chart.unit, lang).label]),
+      ...chartTicks(points, lang, chart.goal),
       ...points.map((point) => pointReading(point, chart.unit, lang)),
     ];
   },
@@ -48,6 +71,8 @@ export const props = z
     ...variantProps(meta.variants),
     title: text(32),
     unit: text(8).optional(),
+    goal: z.number().optional(),
+    range: z.enum(chartRanges).optional().meta({ read: false }),
     labels: z.array(text(6)).min(4).max(31),
     series: z
       .array(z.strictObject({ label: text(16), values: z.array(z.number()).min(4).max(31) }))
@@ -77,24 +102,20 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
+// prettier-ignore
 export const examples = [
   {
     title: "Watering by week",
     unit: "visits",
     labels: ["Nov 2", "Nov 9", "Nov 16", "Nov 23"],
-    series: [
-      { label: "Ferns", values: [2, 3, 4, 6] },
-      { label: "Succulents", values: [1, 0, 2, 1] },
-    ],
+    series: [{ label: "Ferns", values: [2, 3, 4, 6] }, { label: "Succulents", values: [1, 0, 2, 1] }],
   },
   {
-    title: "Walks this week",
+    title: "Canal loop this week",
     unit: "walks",
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri"],
-    series: [
-      { label: "Canal loop", values: [6, 8, 7, 5, 8] },
-      { label: "Park loop", values: [4, 3, 5, 7, 6] },
-    ],
+    range: "7d", goal: 10,
+    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    series: [{ label: "Canal loop", values: [6, 8, 7, 5, 8, 5, 4] }],
   },
 ] satisfies z.input<typeof props>[];
 
@@ -117,58 +138,29 @@ export const probes = [
     variant: { axis: "detail", value: "brief" },
   },
   read("Select the Ferns point on Nov 9.", { address: "s1/r2", action: "select" }),
+  {
+    ...write(
+      "Chart plant visits on Mon, Tue, Wed and Thu at 2, 4, 6 and 3, with a horizontal goal line at 8.",
+    ),
+    expectProps: { goal: 8 },
+  },
+  {
+    ...write(
+      "Show the last 90 days of watering visits. Plot four supplied readings for Sep 5, Oct 5, Nov 5 and Dec 3, at 2, 4, 6 and 3. Label the chart's reporting period as the last 90 days.",
+    ),
+    expectProps: { range: "90d" },
+  },
 ] satisfies Probe[];
 
 type ChartProps = Props<typeof props, typeof meta>;
-type Point = ReturnType<typeof chartPoints>[number];
-// prettier-ignore
-function ChartLatest({ series, density, loading }: Pick<ChartProps, "series" | "density"> & { loading: boolean }) {
-  const { words, lang } = kit.useWords(dataWordsFor);
-  const summary = <kit.KitGrid columns={series.length === 3 ? 3 : 2} density={density}>
-    {series.map(({ label, values }, index) => {
-      const value = pointValue(values.at(-1)!, undefined, lang);
-      return loading
-      ? <kit.KitSkeleton key={index} shape="figure" inset="none" density={density}
-          content={[["caption", label], ["number", value]]} />
-      : <kit.KitContent key={index} density={density}>
-          <kit.KitText role="caption" tone={seriesTones[index]!} part={null} lines={1}>{label}</kit.KitText>
-          <kit.KitText role="number" part={null} density={density} tabular lines={1}>{value}</kit.KitText>
-        </kit.KitContent>; })}
-  </kit.KitGrid>;
-  const caption = loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
-    content={[["caption", words.chartLatest]]} /> : <kit.KitText part="latest" role="caption" tone="muted">{words.chartLatest}</kit.KitText>;
-  return <kit.KitContent density={density}>{caption}{summary}</kit.KitContent>;
-}
-
-// prettier-ignore
-function ChartControls({ points, selected, title, loading }: { points: Point[]; selected?: Point | undefined; title: string; loading: boolean }) {
-  const { words } = kit.useWords(dataWordsFor);
-  const tracks = points.filter(({ x }) => x === 0).map(({ series, line }) => {
-    const dates = points.filter((point) => point.line === line);
-    const buttons = <kit.KitGrid columns={dates.length === 4 ? 2 : 3}>
-      {dates.map(({ id, label }) => <kit.KitChip key={id} item={id} role="radio" look="box" labelPart={null}
-        label={label} on={selected?.id === id} />)}
-    </kit.KitGrid>;
-    return (
-    <kit.KitContent key={seriesId(line)} group={line ? "response" : "content"}>
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["caption", series]]} /> :
-        <kit.KitText role="caption" tone={seriesTones[line]!} part={null}>{series}</kit.KitText>}
-      {loading ? buttons : <kit.KitTrack part={`series_${line + 1}`} role="radiogroup" label={words.chartSeriesPoints(series)}>{buttons}</kit.KitTrack>}
-    </kit.KitContent>
-  ); });
-  return loading ? <kit.KitContent>{tracks}</kit.KitContent> : points.length > 12
-    ? <kit.KitScroll part="points" label={words.chartPoints(title)}>{tracks}</kit.KitScroll>
-    : <kit.KitRow part="points" inline role="group" label={words.chartPoints(title)}>{tracks}</kit.KitRow>;
-}
-
 // prettier-ignore
 export function LineChart(input: ChartProps) {
-  const { title, unit } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const { title, unit, goal, range } = input;
+  const density = kit.useKit().density;
+  const surface = "card";
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const { words, lang } = kit.useWords(dataWordsFor);
-  const unitLabel = unit ? words.chartUnit(unit) : undefined;
+  const unitLabel = unit ? words.chartUnit(unit) : undefined, goalLabel = goal === undefined ? undefined : chartGoal(goal, unit, lang).label;
   const state = kit.useComponentState(), loading = state === "loading";
   const { screen, component } = kit.usePartContext();
   const at = kit.useControlValue<number | undefined>(`${screen}/${component}/$point`, undefined);
@@ -178,20 +170,24 @@ export function LineChart(input: ChartProps) {
     id: seriesId(line), label: "", tone: seriesTones[line]!,
     points: points.filter((point) => point.line === line),
   }));
-  if (state === "empty") return <kit.KitCard part="root" padded {...{ density, surface }}>
-    <kit.KitEmpty part="title" decorativeIcon />
-  </kit.KitCard>;
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    {loading ? <kit.KitSkeleton rows={1} shape="figure" inset="none" density={density} content={[["heading", title]]} /> :
+  const body = <>
+    {range ? <kit.KitHeader title={{ text: title, part: "title" }}
+      meta={{ text: words.chartRange[range], part: "range" }} density={density} /> :
+    loading ? <kit.KitSkeleton rows={1} shape="figure" inset="none" density={density} content={[["heading", title]]} /> :
       <kit.KitText part="title" role="heading" density={density}>{title}</kit.KitText>}
-    {full && <ChartLatest {...{ ...input, density, loading }} />}
+    {full && <optionView.ChartLatest {...{ ...input, density, loading }} />}
     {unitLabel && (loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", unitLabel]]} /> :
       <kit.KitText part="unit" role="caption" tone="muted">{unitLabel}</kit.KitText>)}
-    <kit.KitLinePlot part="axes" loading={loading} series={series}
-      {...(selected && !loading ? { selected: selected.id } : {})} />
+    {goalLabel && <kit.KitLayoutText line={{ text: goalLabel, part: "goal", role: "caption", tone: "muted" }} density={density} />}
+    <kit.KitFigure density={density} media={<kit.KitLinePlot part="axes" loading={loading} series={series}
+      {...(goal === undefined ? {} : { goal: { value: goal, label: "" } })}
+      {...(selected && !loading ? { selected: selected.id } : {})} />} />
     {!loading && selected && <kit.KitText part="reading" role="label" tabular>
       {words.chartSelected(selected.series, selected.label, pointValue(selected.value, unit, lang))}
     </kit.KitText>}
-    <ChartControls {...{ points, selected, title, loading }} />
+    <optionView.ChartControls {...{ points, selected, title, loading }} />
+  </>;
+  return <kit.KitCard part="root" padded {...{ density, surface }}>
+    <kit.KitState part="title" loading={body} density={density}>{body}</kit.KitState>
   </kit.KitCard>;
 }

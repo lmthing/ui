@@ -39,7 +39,6 @@ describe("Departures contract and boundaries", () => {
     expect(props.parse({ stop: ` ${stop} `, rows })).toMatchObject({
       stop,
       rows,
-      surface: "card",
       detail: "full",
     });
     expectTypeOf<Props<typeof props, typeof meta>["rows"][number]["id"]>().toEqualTypeOf<string>();
@@ -80,6 +79,12 @@ describe("Departures contract and boundaries", () => {
         variant: { axis: "detail", value: "brief" },
       }),
       expect.objectContaining({ kind: "read", expect: { address: "d1/r2", action: "press" } }),
+      ...["alerts", "rows"].map((field) =>
+        expect.objectContaining({
+          kind: "write",
+          expectProps: expect.objectContaining({ [field]: expect.any(Array) }),
+        }),
+      ),
     ]);
   });
 });
@@ -123,7 +128,7 @@ describe("Departures states and parts", () => {
 
   it("keeps addresses for finish axes and hides only separate delay parts in brief detail", () => {
     const present = [...draw().keys()];
-    expect([...draw({ ...board, density: "compact", surface: "outlined" }).keys()]).toEqual(present);
+    expect([...draw({ ...board }).keys()]).toEqual(present);
     const brief = draw({ ...board, detail: "brief" });
     expect([...brief.keys()]).toEqual(present.filter((address) => !address.endsWith("/delay")));
     const time = brief.get(`${root}/r2/minutes`);
@@ -136,6 +141,13 @@ describe("Departures states and parts", () => {
     expect(parts.get(`${root}/r1/minutes`)?.text).toEqual([placeholderValue]);
     expect(parts.has(`${root}/r2/delay`)).toBe(false);
     expect(parts.has(`${root}/more`)).toBe(false);
+  });
+
+  it("keeps the overflow count directly after the rows when a service alert is present", () => {
+    const input = examples[2]!;
+    const data = meta.previewDeviceData({ input, state: "filled" });
+    const parts = draw(input, "filled", data);
+    expect([...parts.keys()].slice(-2)).toEqual([`${root}/more`, `${root}/alerts`]);
   });
 
   it("renders an inert empty message or loading shape instead of any row targets", () => {

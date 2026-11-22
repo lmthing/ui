@@ -1,9 +1,20 @@
+import type { ReactNode } from "react";
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-// prettier-ignore
-import { amountPadKeys, amountPadText, projectTransfer, transferCopy, transferModes, transferReading,
-  transferSources, transferSpeeds, transferTabs, transferChoices, type TransferInput } from "../copy";
+import {
+  amountPadKeys,
+  amountPadText,
+  projectTransfer,
+  transferCopy,
+  transferModes,
+  transferReading,
+  transferSources,
+  transferSpeeds,
+  transferTabs,
+  transferChoices,
+  type TransferInput,
+} from "../copy";
 import { moneyWordsFor } from "../lang";
 import { prompt } from "../../../entry/prompt-MoneyTransfer.generated";
 
@@ -22,7 +33,7 @@ export const meta = {
   tier: "service",
   realPath: "A payment service executes transfers; scanning needs camera permission and requests reach another person.",
   writeHints: prompt.writeHints,
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "outlined"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["memo"] } },
   parts: ["root", "mode", "tab", "recipient", "photo", "handle", "source", "balance", "label", "value", "pad",
     "memo", "speed", "fee", "total", "submit", "submit_label", "code", "scan", "scan_label", "status", "sub"],
@@ -92,106 +103,295 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
-// prettier-ignore
 const ledge = {
   recipient: { name: "Mina Park", handle: "@mina", photo: "lib:people" },
-  sources: [{ label: "Everyday", last4: "4821", balance: 420 }, { label: "Garden fund", balance: 70 }],
-  amount: 24.5, memo: "Ledge seed trays", speed: "instant", instantFee: 0.5,
+  sources: [
+    { label: "Everyday", last4: "4821", balance: 420 },
+    { label: "Garden fund", balance: 70 },
+  ],
+  amount: 24.5,
+  memo: "Ledge seed trays",
+  speed: "instant",
+  instantFee: 0.5,
 } satisfies z.input<typeof props>;
-// prettier-ignore
 export const examples = [
   ledge,
-  { mode: "request", recipient: { name: "Alex Reed", handle: "@alex" }, sources: [{ label: "Trot walking fund" }],
-    style: "qr", qrPayload: "demo:trot:alex" },
+  {
+    mode: "request",
+    recipient: { name: "Alex Reed", handle: "@alex" },
+    sources: [{ label: "Trot walking fund" }],
+    style: "qr",
+    qrPayload: "demo:trot:alex",
+  },
   { ...ledge, mode: "request", amount: undefined },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("MoneyTransfer");
-// prettier-ignore
 export const probes = [
-  choose("Pay a friend from one of my bank accounts, showing the instant fee and confirming the transfer before sending."),
-  choose("Add one small number input for an estimated cost among several form fields. No payment or keypad.", "Field"),
-  write("Send Mina Park 24.50 for seed trays from Everyday ending 4821; use instant delivery with a fee of 0.50."),
-  { ...write("Send Mina Park 24.50 from Everyday, standard speed. Show the transfer form without the memo field."),
-    variant: { axis: "detail", value: "brief" } },
+  choose(
+    "Pay a friend from one of my bank accounts, showing the instant fee and confirming the transfer before sending.",
+  ),
+  choose(
+    "Add one small number input for an estimated cost among several form fields. No payment or keypad.",
+    "Field",
+  ),
+  write(
+    "Send Mina Park 24.50 for seed trays from Everyday ending 4821; use instant delivery with a fee of 0.50.",
+  ),
+  {
+    ...write(
+      "Send Mina Park 24.50 from Everyday, standard speed. Show the transfer form without the memo field.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Start confirming payment to Mina Park.", { address: "m1/submit", action: "press" }),
 ] satisfies c.Probe[];
 
 type View = c.Props<typeof props, typeof meta>;
 
-// prettier-ignore
-function Choices({ part, label, choices, value, segments = false }: {
-  part: string; label: string; choices: { value: string | number; label: string }[]; value: string | number; segments?: boolean;
+function Choices({
+  part,
+  label,
+  choices,
+  value,
+  segments = false,
+}: {
+  part: string;
+  label: string;
+  choices: { value: string | number; label: string }[];
+  value: string | number;
+  segments?: boolean;
 }) {
   const loading = kit.useComponentState() === "loading";
-  return <kit.KitTrack part={part} label={label} look={segments ? "segments" : "pills"} role="radiogroup">
-    {choices.map((option) => <kit.KitChip key={option.value} item={null} role="radio" disabled={loading || undefined}
-      look={segments ? "segment" : "pill"} label={option.label} value={typeof option.value === "number" ? option.label : option.value}
-      on={value === option.value} />)}
-  </kit.KitTrack>;
+  return (
+    <kit.KitTrack part={part} label={label} look={segments ? "segments" : "pills"} role="radiogroup">
+      {choices.map((option) => (
+        <kit.KitChip
+          key={option.value}
+          item={null}
+          role="radio"
+          disabled={loading || undefined}
+          look={segments ? "segment" : "pill"}
+          label={option.label}
+          value={typeof option.value === "number" ? option.label : option.value}
+          on={value === option.value}
+        />
+      ))}
+    </kit.KitTrack>
+  );
 }
 
-// prettier-ignore
-function TransferForm({ input, copy, density }: { input: View; copy: ReturnType<typeof transferCopy>; density: c.ThemeDensity }) {
-  const { words } = copy, sending = input.mode === "send", loading = kit.useComponentState() === "loading";
-  const { photo, handle } = input.recipient;
-  const line = (value: string, part: string | null = null) => loading
-    ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", value]]} />
-    : <kit.KitText role="label" tone={part === "total" ? "text" : "muted"} part={part}>{value}</kit.KitText>;
-  return <>
-    <Choices part="mode" label={words.mode} choices={transferChoices(words.modes)} value={input.mode} />
-    <kit.KitContent group="response" density={density}>{loading
-      ? <kit.KitSkeleton shape="figure" inset="none" lead={photo ? "box" : "none"}
-          content={handle ? [["heading", copy.recipient], ["label", handle]] : [["heading", copy.recipient]]} />
-      : <kit.KitRow inline part={null} label={copy.recipient} density={density} leadingAlign="row"
-      leading={photo ? <kit.KitPhoto part="photo" photo={photo} shape="round" /> : undefined}>
-      <kit.KitText role="heading" part="recipient">{copy.recipient}</kit.KitText>
-      {handle && <kit.KitText role="label" tone="muted" part="handle">{handle}</kit.KitText>}
-    </kit.KitRow>}</kit.KitContent>
+function TransferRecipient(
+  { photo, handle }: View["recipient"],
+  recipient: string,
+  density: c.ThemeDensity,
+  loading: boolean,
+) {
+  return (
     <kit.KitContent group="response" density={density}>
-      {line(copy.funding)}
-      <Choices part="source" label={copy.funding} choices={copy.sources} value={input.sourceAt} />
-      {copy.balance !== undefined && line(copy.balanceLine(copy.balance), "balance")}
+      {loading ? (
+        <kit.KitSkeleton
+          shape="figure"
+          inset="none"
+          lead={photo ? "box" : "none"}
+          content={
+            handle
+              ? [
+                  ["heading", recipient],
+                  ["label", handle],
+                ]
+              : [["heading", recipient]]
+          }
+        />
+      ) : (
+        <kit.KitRow
+          inline
+          part={null}
+          label={recipient}
+          density={density}
+          leadingAlign="row"
+          leading={photo ? <kit.KitPhoto part="photo" photo={photo} shape="round" /> : undefined}
+        >
+          <kit.KitText role="heading" part="recipient">
+            {recipient}
+          </kit.KitText>
+          {handle && (
+            <kit.KitText role="label" tone="muted" part="handle">
+              {handle}
+            </kit.KitText>
+          )}
+        </kit.KitRow>
+      )}
     </kit.KitContent>
-    {copy.empty && <kit.KitEmpty part="status" icon="wallet" decorativeIcon title={words.empty} />}
+  );
+}
+
+function TransferSubmit(
+  input: View,
+  copy: ReturnType<typeof transferCopy>,
+  density: c.ThemeDensity,
+  loading: boolean,
+  line: (value: string, part?: string | null) => ReactNode,
+) {
+  const { words } = copy;
+  const sending = input.mode === "send";
+  return (
     <kit.KitContent group="response" density={density}>
-      <kit.KitNumberPad part="pad" displayPart="value" target={{ part: "pad" }} loading={loading} label={words.amount} value={copy.amount} keys={copy.keys} />
-      {input.detail === "full" && <kit.KitContent group="response"><kit.KitInput part="memo" hint={words.memo} value={input.memo} /></kit.KitContent>}
-    </kit.KitContent>
-    <kit.KitContent group="response" density={density}>
-      {sending && <>
-        {line(words.speed)}
-        <Choices part="speed" label={words.speed} choices={transferChoices(words.speeds)} value={input.speed} />
-        {line(words.summary(words.fee, copy.fee), "fee")}
-      </>}
+      {sending && (
+        <>
+          {line(words.speed)}
+          <Choices
+            part="speed"
+            label={words.speed}
+            choices={transferChoices(words.speeds)}
+            value={input.speed}
+          />
+          {line(words.summary(words.fee, copy.fee), "fee")}
+        </>
+      )}
       {copy.total && line(words.summary(words.total, copy.total), "total")}
-      {copy.status && !loading && <kit.KitText role="label" part="status" tone="bad">{copy.status}</kit.KitText>}
-      {loading ? <kit.KitSkeleton shape="control" label={words.submit[input.mode]} full />
-        : <kit.KitAction part="submit" label={words.submit[input.mode]} disabled={!copy.ready} full />}
+      {copy.status && !loading && (
+        <kit.KitText role="label" part="status" tone="bad">
+          {copy.status}
+        </kit.KitText>
+      )}
+      {loading ? (
+        <kit.KitSkeleton shape="control" label={words.submit[input.mode]} full />
+      ) : (
+        <kit.KitAction part="submit" label={words.submit[input.mode]} disabled={!copy.ready} full />
+      )}
     </kit.KitContent>
-  </>;
+  );
 }
 
-// prettier-ignore
+function TransferCode(
+  payload: View["qrPayload"],
+  state: ReturnType<typeof kit.useComponentState>,
+  words: ReturnType<typeof transferCopy>["words"],
+  density: c.ThemeDensity,
+  loading: boolean,
+  canScan: boolean,
+) {
+  return (
+    <kit.KitContent group="response" density={density}>
+      <kit.KitCode
+        part="code"
+        loading={loading}
+        label={state !== "empty" && payload ? words.code : words.noCode}
+        {...(state !== "empty" && payload ? { value: payload } : {})}
+      />
+      <kit.KitContent group="response">
+        {loading ? (
+          <kit.KitSkeleton shape="control" label={words.scan} full />
+        ) : (
+          <kit.KitAction
+            part="scan"
+            action="scan"
+            kind="secondary"
+            label={words.scan}
+            disabled={!canScan}
+            full
+          />
+        )}
+      </kit.KitContent>
+    </kit.KitContent>
+  );
+}
+
+function TransferForm({
+  input,
+  copy,
+  density,
+}: {
+  input: View;
+  copy: ReturnType<typeof transferCopy>;
+  density: c.ThemeDensity;
+}) {
+  const { words } = copy;
+  const loading = kit.useComponentState() === "loading";
+  const line = (value: string, part: string | null = null) =>
+    loading ? (
+      <kit.KitSkeleton shape="figure" inset="none" content={[["label", value]]} />
+    ) : (
+      <kit.KitText role="label" tone={part === "total" ? "text" : "muted"} part={part}>
+        {value}
+      </kit.KitText>
+    );
+  return (
+    <>
+      <Choices part="mode" label={words.mode} choices={transferChoices(words.modes)} value={input.mode} />
+      {TransferRecipient(input.recipient, copy.recipient, density, loading)}
+      <kit.KitContent group="response" density={density}>
+        {line(copy.funding)}
+        <Choices part="source" label={copy.funding} choices={copy.sources} value={input.sourceAt} />
+        {copy.balance !== undefined && line(copy.balanceLine(copy.balance), "balance")}
+      </kit.KitContent>
+      {copy.empty && <kit.KitEmpty part="status" icon="wallet" decorativeIcon title={words.empty} />}
+      <kit.KitContent group="response" density={density}>
+        <kit.KitNumberPad
+          part="pad"
+          displayPart="value"
+          target={{ part: "pad" }}
+          loading={loading}
+          label={words.amount}
+          value={copy.amount}
+          keys={copy.keys}
+        />
+        {input.detail === "full" && (
+          <kit.KitContent group="response">
+            <kit.KitInput part="memo" hint={words.memo} value={input.memo} />
+          </kit.KitContent>
+        )}
+      </kit.KitContent>
+      {TransferSubmit(input, copy, density, loading, line)}
+    </>
+  );
+}
+
 export function MoneyTransfer(input: View) {
-  const state = kit.useComponentState(), { screen, component } = kit.usePartContext(), loading = state === "loading";
-  const { lang } = kit.useWords(moneyWordsFor), currency = kit.useAppCurrency(), canScan = kit.useDeviceData().transferScanner?.includes(component) ?? false;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
-  const draft = kit.useControlValue(`${screen}/${component}/pad`, state === "empty" ? "" : amountPadText(input.amount));
-  const copy = transferCopy({ ...input, draft }, state, lang, currency), { words } = copy;
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    {state === "success" ? <kit.KitEmpty part="status" icon="circle_check" decorativeIcon tone="good"
-      title={words.success[input.mode]} sub={copy.recipient} />
-      : state === "error" ? <kit.KitEmpty part="status" icon="alert" decorativeIcon title={copy.status ?? words.error} />
-      : <>
-      <Choices part="tab" label={words.tab} choices={transferChoices(words.tabs)} value={input.style} segments />
-      {input.style === "qr" ? <kit.KitContent group="response" density={density}>
-        <kit.KitCode part="code" loading={loading} label={state !== "empty" && input.qrPayload ? words.code : words.noCode}
-          {...(state !== "empty" && input.qrPayload ? { value: input.qrPayload } : {})} />
-        <kit.KitContent group="response">{loading ? <kit.KitSkeleton shape="control" label={words.scan} full />
-          : <kit.KitAction part="scan" action="scan" kind="secondary" label={words.scan} disabled={!canScan} full />}</kit.KitContent>
-      </kit.KitContent> : <TransferForm {...{ input, copy, density }} />}
-    </>}
-  </kit.KitCard>;
+  const state = kit.useComponentState(),
+    { screen, component } = kit.usePartContext(),
+    loading = state === "loading";
+  const { lang } = kit.useWords(moneyWordsFor),
+    currency = kit.useAppCurrency(),
+    canScan = kit.useDeviceData().transferScanner?.includes(component) ?? false;
+  const density = kit.useKit().density;
+  const surface = "card";
+  const draft = kit.useControlValue(
+    `${screen}/${component}/pad`,
+    state === "empty" ? "" : amountPadText(input.amount),
+  );
+  const copy = transferCopy({ ...input, draft }, state, lang, currency),
+    { words } = copy;
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      {state === "success" ? (
+        <kit.KitEmpty
+          part="status"
+          icon="circle_check"
+          decorativeIcon
+          tone="good"
+          title={words.success[input.mode]}
+          sub={copy.recipient}
+        />
+      ) : state === "error" ? (
+        <kit.KitEmpty part="status" icon="alert" decorativeIcon title={copy.status ?? words.error} />
+      ) : (
+        <>
+          <Choices
+            part="tab"
+            label={words.tab}
+            choices={transferChoices(words.tabs)}
+            value={input.style}
+            segments
+          />
+          {input.style === "qr" ? (
+            TransferCode(input.qrPayload, state, words, density, loading, canScan)
+          ) : (
+            <TransferForm {...{ input, copy, density }} />
+          )}
+        </>
+      )}
+    </kit.KitCard>
+  );
 }

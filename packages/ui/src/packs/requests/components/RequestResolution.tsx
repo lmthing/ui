@@ -19,7 +19,7 @@ export const meta = {
   region: "body", weight: 2, tier: "phone",
   partTiers: { accept: "people", reopen: "people" }, confirmParts: ["resolve"],
   realPath: "A resolution is saved on the operator's device; acceptance and reopening need a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["thumb", "none"] },
+  variants: { media: ["thumb", "none"] },
   variantParts: { "media.none": { hides: photoParts } },
   parts: ["root", "number", "outcome", "summary", "duplicate_of", ...photoParts,
     "resolve", "resolve_label", "accept", "accept_label", "saved_reason", "reason", "reopen", "reopen_label"],
@@ -65,30 +65,58 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
-// prettier-ignore
 export const examples = [
-  { number: "LG-41", summary: "Replaced the grow light.", checks: [{ text: "Timer shuts off the light", done: true }], photos: ["local:2"] },
-  { number: "TR-08", outcome: "duplicate", duplicateOf: "TR-07", summary: "Linked to the first report.", checks: [{ text: "Matched the gate latch", done: true }], photos: [], reason: "Both report a loose latch.", style: "receipt" },
+  {
+    number: "LG-41",
+    summary: "Replaced the grow light.",
+    checks: [{ text: "Timer shuts off the light", done: true }],
+    photos: ["local:2"],
+  },
+  {
+    number: "TR-08",
+    outcome: "duplicate",
+    duplicateOf: "TR-07",
+    summary: "Linked to the first report.",
+    checks: [{ text: "Matched the gate latch", done: true }],
+    photos: [],
+    reason: "Both report a loose latch.",
+    style: "receipt",
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("RequestResolution");
-// prettier-ignore
 export const probes = [
-  choose("Let us propose a fix with evidence and verification checks, then let the requester accept it or reopen the same ticket if it failed"),
-  choose("Show a simple confirmation screen that says the report was sent successfully, with no further decisions", "Success"),
-  write("Propose a repaired outcome for LG-41: Replaced the grow light and checked its timer. Verify Timer switches the light off, checked. Evidence is local:2."),
-  { ...write("For LG-41 propose the grow light repair with a completed timer check. Keep evidence local:2 on the record but do not display the photo."),
-    variant: { axis: "media", value: "none" } },
+  choose(
+    "Let us propose a fix with evidence and verification checks, then let the requester accept it or reopen the same ticket if it failed",
+  ),
+  choose(
+    "Show a simple confirmation screen that says the report was sent successfully, with no further decisions",
+    "Success",
+  ),
+  write(
+    "Propose a repaired outcome for LG-41: Replaced the grow light and checked its timer. Verify Timer switches the light off, checked. Evidence is local:2.",
+  ),
+  {
+    ...write(
+      "For LG-41 propose the grow light repair with a completed timer check. Keep evidence local:2 on the record but do not display the photo.",
+    ),
+    variant: { axis: "media", value: "none" },
+  },
   read("Save the proposed fix for the grow light", { address: "r1/resolve", action: "press" }),
   read("Accept the saved outcome for TR-08", { address: "r1/accept", action: "press" }, 1),
 ] satisfies c.Probe[];
 
 type Props = c.Props<typeof props, typeof meta>;
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 type Words = RequestsWords["resolution"];
-// prettier-ignore
-type HostFacts = { staff: boolean; requester: boolean; workComplete: boolean; saved: boolean; resolved: boolean;
-  duplicateMatches: (target: string) => boolean };
+type HostFacts = {
+  staff: boolean;
+  requester: boolean;
+  workComplete: boolean;
+  saved: boolean;
+  resolved: boolean;
+  duplicateMatches: (target: string) => boolean;
+};
 type View = Props & ReturnType<typeof deriveResolution> & { liveReason?: string };
 
 /** Bind the instance to fresh role, work and canonical triage facts before enabling real actions. */
@@ -119,79 +147,273 @@ function resolutionGates(input: c.Values): c.Values {
     saved: true, resolved: true, duplicateMatches: () => true });
 }
 
-// prettier-ignore
-function Evidence({ photos, density, w, loading }: { photos: string[]; density: Density; w: Words; loading: boolean }) {
-  return <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>
-    {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", w.evidence]]} />
-      : <kit.KitText part={null} role="label" tone="muted">{w.evidence}</kit.KitText>}
-    <kit.KitGrid columns={3} density={density}>{photos.map((photo, index) => loading
-      ? <kit.KitSkeleton key={photoParts[index]} shape="media" aspect="square" content={[]} inset="none" />
-      : <kit.KitPhoto key={photoParts[index]} part={photoParts[index]!} shape="square" photo={photo} label={w.evidence} />)}</kit.KitGrid>
-  </kit.KitContent>;
+function Evidence({
+  photos,
+  density,
+  w,
+  loading,
+}: {
+  photos: string[];
+  density: Density;
+  w: Words;
+  loading: boolean;
+}) {
+  const image = (photo: string, index: number) => (
+    <kit.KitPhoto
+      key={photoParts[index]}
+      part={loading ? null : photoParts[index]!}
+      shape={photos.length === 1 ? "wide" : "square"}
+      photo={photo}
+      label={w.evidence}
+      loading={loading}
+    />
+  );
+  return (
+    <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>
+      {loading ? (
+        <kit.KitSkeleton shape="figure" inset="none" content={[["label", w.evidence]]} />
+      ) : (
+        <kit.KitText part={null} role="label" tone="muted">
+          {w.evidence}
+        </kit.KitText>
+      )}
+      {photos.length === 1 ? (
+        image(photos[0]!, 0)
+      ) : (
+        <kit.KitGrid columns={photos.length === 2 ? 2 : 3} density={density}>
+          {photos.map(image)}
+        </kit.KitGrid>
+      )}
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
-function Decision({ p, w, density, accepted, loading }: { p: View; w: Words; density: Density; accepted: boolean; loading: boolean }) {
-  const review = p.style === "review", reason = review ? (p.liveReason ?? p.reason) : p.liveReason;
-  const label = review ? w.reason : w.reopenReason, hint = review ? w.reasonHint : w.reopenHint;
-  const field = loading ? <><kit.KitSkeleton shape="figure" inset="none" content={[["label", label]]} />
-    <kit.KitRow label={label} tone="muted" inline><kit.KitSkeleton shape="figure" inset="md" content={[["body", hint]]} /></kit.KitRow></> :
-    <><kit.KitText part={null} role="label" tone="muted">{label}</kit.KitText>
-    <kit.KitTextArea part="reason" {...{ label, hint }} value={reason} maxLength={maxReason} lines={1} /></>;
-  return <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>
-    {!review && !accepted && !loading && p.canEnterReason && p.checks.some(({ done }) => !done) &&
-      <kit.KitText part={null} role="label" tone="muted">{w.verificationPending}</kit.KitText>}
-    {!review && !accepted && (loading ? <kit.KitSkeleton shape="control" label={w.accept} full />
-      : <kit.KitAction full part="accept" label={w.accept} disabled={!p.canAccept} />)}
-    {p.canEnterReason && (!accepted || !review) && <kit.KitContent group={review || accepted ? "content" : "response"} density={density}>
-      {field}{!review && (loading ? <kit.KitSkeleton shape="control" label={w.reopen} kind="quiet" full />
-        : <kit.KitAction full part="reopen" label={w.reopen} kind="quiet" disabled={!p.canReopen} />)}
-    </kit.KitContent>}
-    {review && !accepted && <kit.KitContent group="response" density={density}>
-      {loading ? <kit.KitSkeleton shape="control" label={w.resolve} full /> : <>
-        {!p.canResolve && <kit.KitText part={null} role="label" tone="muted">{reviewBlocker(p, w)}</kit.KitText>}
-        <kit.KitAction full part="resolve" label={w.resolve} disabled={!p.canResolve} /></>}
-    </kit.KitContent>}
-  </kit.KitContent>;
+function DecisionReason(reason: string | undefined, label: string, hint: string, loading: boolean) {
+  return loading ? (
+    <>
+      <kit.KitSkeleton shape="figure" inset="none" content={[["label", label]]} />
+      <kit.KitRow label={label} tone="muted" density="comfortable">
+        <kit.KitContent rhythm="flush">
+          <kit.KitLayoutText line={{ text: reason || hint }} />
+          <kit.KitLayoutText line={{ text: label, role: "caption" }} />
+        </kit.KitContent>
+      </kit.KitRow>
+    </>
+  ) : (
+    <>
+      <kit.KitText part={null} role="label" tone="muted">
+        {label}
+      </kit.KitText>
+      <kit.KitTextArea part="reason" {...{ label, hint }} value={reason} maxLength={maxReason} lines={1} />
+    </>
+  );
 }
 
-// prettier-ignore
+type DecisionProps = { p: View; w: Words; density: Density; accepted: boolean; loading: boolean };
+function Decision({ p, w, density, accepted, loading }: DecisionProps) {
+  const review = p.style === "review",
+    reason = review ? (p.liveReason ?? p.reason) : p.liveReason;
+  const label = review ? w.reason : w.reopenReason,
+    hint = review ? w.reasonHint : w.reopenHint;
+  const field = DecisionReason(reason, label, hint, loading);
+  return (
+    <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>
+      {!review && !accepted && !loading && p.canEnterReason && p.checks.some(({ done }) => !done) && (
+        <kit.KitText part={null} role="label" tone="muted">
+          {w.verificationPending}
+        </kit.KitText>
+      )}
+      {!review &&
+        !accepted &&
+        (loading ? (
+          <kit.KitSkeleton shape="control" label={w.accept} full />
+        ) : (
+          <kit.KitAction full part="accept" label={w.accept} disabled={!p.canAccept} />
+        ))}
+      {p.canEnterReason && (!accepted || !review) && (
+        <kit.KitContent group={review || accepted ? "content" : "response"} density={density}>
+          {field}
+          {!review &&
+            (loading ? (
+              <kit.KitSkeleton shape="control" label={w.reopen} kind="quiet" full />
+            ) : (
+              <kit.KitAction full part="reopen" label={w.reopen} kind="quiet" disabled={!p.canReopen} />
+            ))}
+        </kit.KitContent>
+      )}
+      {review && !accepted && (
+        <kit.KitContent group="response" density={density}>
+          {loading ? (
+            <kit.KitSkeleton shape="control" label={w.resolve} full />
+          ) : (
+            <>
+              {!p.canResolve && (
+                <kit.KitText part={null} role="label" tone="muted">
+                  {reviewBlocker(p, w)}
+                </kit.KitText>
+              )}
+              <kit.KitAction full part="resolve" label={w.resolve} disabled={!p.canResolve} />
+            </>
+          )}
+        </kit.KitContent>
+      )}
+    </kit.KitContent>
+  );
+}
+
+function Verification({
+  p,
+  w,
+  density,
+  editable,
+  loading,
+}: {
+  p: View;
+  w: Words;
+  density: Density;
+  editable: boolean;
+  loading: boolean;
+}) {
+  return (
+    <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>
+      <kit.KitLayoutText line={{ text: w.verify, role: "meta", tone: "muted" }} />
+      {p.checks.map(({ id, text, done }) => (
+        <kit.KitRow
+          key={id}
+          {...(loading ? { part: null } : { item: id, part: "root" })}
+          inline
+          label={editable ? text : w.checkLabel(text, done)}
+        >
+          <kit.KitGrid fitLast density={density}>
+            <kit.KitLayoutText line={{ text, part: "text" }} />
+            {loading ? (
+              <kit.KitSkeleton
+                shape="rows"
+                density="comfortable"
+                lead="box"
+                inset="none"
+                items={[{ lines: [] }]}
+              />
+            ) : editable ? (
+              <kit.KitRow
+                part={null}
+                inset="none"
+                density="comfortable"
+                leadingAlign="row"
+                label={text}
+                leading={<kit.KitCheck part="check" {...{ done }} label={text} />}
+              >
+                {null}
+              </kit.KitRow>
+            ) : done ? (
+              <kit.KitTrail part="check" kind="check" tone="good" />
+            ) : (
+              <kit.KitIcon part="check" name="minus" tone="muted" decorative />
+            )}
+          </kit.KitGrid>
+        </kit.KitRow>
+      ))}
+    </kit.KitContent>
+  );
+}
+
+function ResolutionHeader(p: View, title: string, state: c.StateName, density: Density, errorHint: string) {
+  const loading = state === "loading";
+  const accepted = state === "success";
+  return loading ? (
+    <kit.KitSkeleton
+      shape="figure"
+      inset="none"
+      {...{ density }}
+      content={[
+        ["label", p.number],
+        ["heading", title],
+        ["body", p.summary],
+      ]}
+    />
+  ) : (
+    <kit.KitContent density={density}>
+      <kit.KitText part="number" role="label" tone="muted">
+        {p.number}
+      </kit.KitText>
+      <kit.KitText part={null} role="heading" tone={accepted ? "good" : state === "error" ? "bad" : "text"}>
+        {title}
+      </kit.KitText>
+      {state === "error" ? (
+        <kit.KitText part={null} role="body" tone="muted">
+          {errorHint}
+        </kit.KitText>
+      ) : (
+        <kit.KitText part="summary" role="body">
+          {p.summary}
+        </kit.KitText>
+      )}
+    </kit.KitContent>
+  );
+}
+
+function ResolutionOutcome(p: View, w: Words, editable: boolean, loading: boolean) {
+  return editable ? (
+    <kit.KitTrack part="outcome" label={w.outcome} role="radiogroup">
+      {outcomes
+        .filter((value) => value === p.outcome || p.outcome_choices.includes(value))
+        .map((value) => (
+          <kit.KitChip
+            key={value}
+            item={null}
+            {...{ value }}
+            label={w.outcomes[value]}
+            role="radio"
+            on={!loading && p.outcome === value}
+            disabled={loading || !p.outcome_choices.includes(value)}
+          />
+        ))}
+    </kit.KitTrack>
+  ) : loading ? (
+    <kit.KitSkeleton shape="figure" inset="none" content={[["label", w.result(w.outcomes[p.outcome])]]} />
+  ) : (
+    <kit.KitText part="outcome" role="label" tone="muted">
+      {w.result(w.outcomes[p.outcome])}
+    </kit.KitText>
+  );
+}
+
 export function RequestResolution(input: Props) {
-  const state = kit.useComponentState(), { words: { resolution: w } } = kit.useWords(requestsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density), surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const state = kit.useComponentState(),
+    {
+      words: { resolution: w },
+    } = kit.useWords(requestsWordsFor);
+  const density = kit.useKit().density,
+    surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
-  const p = kit.useLiveControls(meta, input) as View, accepted = state === "success";
-  const title = resolutionHeading(p.style, state, w), evidence = media !== "none" && p.photos.length > 0;
-  const editable = !accepted && p.canEdit, loading = state === "loading", review = p.style === "review";
-  return <kit.KitCard padded {...{ density, surface }} part="root">
-    {loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }}
-      content={[["label", p.number], ["heading", title], ["body", p.summary]]} /> : <kit.KitContent density={density}>
-      <kit.KitText part="number" role="label" tone="muted">{p.number}</kit.KitText>
-      <kit.KitText part={null} role="heading" tone={accepted ? "good" : state === "error" ? "bad" : "text"}>{title}</kit.KitText>
-      {state === "error" ? <kit.KitText part={null} role="body" tone="muted">{w.errorHint}</kit.KitText> :
-        <kit.KitText part="summary" role="body">{p.summary}</kit.KitText>}
-    </kit.KitContent>}
-    {state !== "error" && <>
-      {editable ? <kit.KitTrack part="outcome" label={w.outcome} role="radiogroup">
-        {outcomes.filter((value) => value === p.outcome || p.outcome_choices.includes(value)).map((value) =>
-          <kit.KitChip key={value} item={null} {...{ value }} label={w.outcomes[value]} role="radio"
-            on={!loading && p.outcome === value} disabled={loading || !p.outcome_choices.includes(value)} />)}
-      </kit.KitTrack> : loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", w.result(w.outcomes[p.outcome])]]} />
-        : <kit.KitText part="outcome" role="label" tone="muted">{w.result(w.outcomes[p.outcome])}</kit.KitText>}
-      {!loading && p.outcome === "duplicate" && p.duplicateOf && <kit.KitText part="duplicate_of" role="body">{w.duplicateOf(p.duplicateOf)}</kit.KitText>}
-      {!loading && p.reason && !editable && <kit.KitText part="saved_reason" role="label" tone="muted">{p.reason}</kit.KitText>}
-      {evidence && <Evidence {...{ density, w, loading }} photos={p.photos} />}
-      <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>
-        {loading ? <><kit.KitSkeleton shape="figure" inset="none" content={[["label", w.verify]]} />
-          <kit.KitSkeleton shape="options" look="list" items={p.checks.map(({ text }) => ({ title: text }))} /></>
-          : <><kit.KitText part={null} role="label" tone="muted">{w.verify}</kit.KitText>
-        {p.checks.map(({ id, text, done }) => <kit.KitRow key={id} item={id} part="root" inline label={editable ? text : w.checkLabel(text, done)}><kit.KitGrid fitLast density={density}>
-          <kit.KitText part="text" role="body">{text}</kit.KitText>
-          {editable ? <kit.KitCheck part="check" {...{ done }} label={text} /> :
-            done ? <kit.KitTrail part="check" kind="check" tone="good" /> : <kit.KitIcon part="check" name="minus" tone="muted" decorative />}
-        </kit.KitGrid></kit.KitRow>)}</>}
-      </kit.KitContent>
-      {(!accepted || !review) && <Decision {...{ p, w, density, accepted, loading }} />}
-    </>}
-  </kit.KitCard>;
+  const p = kit.useLiveControls(meta, input) as View,
+    accepted = state === "success";
+  const title = resolutionHeading(p.style, state, w),
+    evidence = media !== "none" && p.photos.length > 0;
+  const editable = !accepted && p.canEdit,
+    loading = state === "loading",
+    review = p.style === "review";
+  const duplicate = p.outcome === "duplicate" && p.duplicateOf ? w.duplicateOf(p.duplicateOf) : undefined;
+  const savedReason = !editable ? p.reason : undefined;
+  return (
+    <kit.KitCard padded {...{ density, surface }} part="root">
+      {ResolutionHeader(p, title, state, density, w.errorHint)}
+      {state !== "error" && (
+        <>
+          {ResolutionOutcome(p, w, editable, loading)}
+          {(duplicate || savedReason) && (
+            <kit.KitContent density={density} rhythm="flush">
+              <kit.KitLayoutText line={{ text: duplicate, part: "duplicate_of" }} />
+              <kit.KitLayoutText
+                line={{ text: savedReason, part: "saved_reason", role: "meta", tone: "muted" }}
+              />
+            </kit.KitContent>
+          )}
+          {evidence && <Evidence {...{ density, w, loading }} photos={p.photos} />}
+          <Verification {...{ p, w, density, editable, loading }} />
+          {(!accepted || !review) && <Decision {...{ p, w, density, accepted, loading }} />}
+        </>
+      )}
+    </kit.KitCard>
+  );
 }

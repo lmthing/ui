@@ -18,8 +18,6 @@ export const meta = {
   tier: "service",
   realPath: "A delivery service supplies the live courier location and arrival estimate.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     media: ["thumb", "none"],
   },
   variantParts: { "media.none": { hides: ["photo"] } },
@@ -54,7 +52,7 @@ export function fallback(_input: c.FallbackInput): z.input<typeof props> {
 const potDelivery = { step: "on_the_way", courier: "Nia", photo: "lib:people" } as const;
 export const examples = [
   potDelivery,
-  { step: "nearby", courier: "Sam", density: "compact" },
+  { step: "nearby", courier: "Sam" },
   { ...potDelivery, media: "none" },
 ] satisfies z.input<typeof props>[];
 
@@ -101,7 +99,7 @@ function DeliveryContact({ courier, photo, call, courierLabel, density, loading 
   const avatar = photo && (loading
     ? <kit.KitPhoto part="photo" shape="round" />
     : <kit.KitPhoto part="photo" shape="round" {...{ photo }} {...(courier ? { label: courier } : {})} />);
-  const name = <kit.KitContent lead={avatar} leadingAlign="row" density={density}>
+  const name = <kit.KitContent lead={avatar} leadingAlign="row" rhythm="flush" density={density}>
     {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
       content={[["label", courier], ["label", courierLabel]]} /> : <>
         {courier && <kit.KitText part="courier" role="label" emphasis="strong" density="comfortable">{courier}</kit.KitText>}
@@ -117,8 +115,8 @@ function DeliveryContact({ courier, photo, call, courierLabel, density, loading 
 // prettier-ignore
 export function DeliveryTracker(input: DeliveryProps) {
   const state = kit.useComponentState(), loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const { lang, words } = kit.useWords(placesWordsFor);
   const display = deliveryCopy(input, state, kit.useDeviceData(), lang);

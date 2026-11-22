@@ -4,12 +4,13 @@ import {
   timeOfDayLine,
   probesFor,
   text,
-  variantProps,
   itemVariantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
+  variantProps,
 } from "../../../catalog";
 import { z } from "zod";
 import { seedTitles } from "..";
@@ -25,7 +26,7 @@ import {
   KitText,
   useComponentState,
   useWords,
-  useVariant,
+  useKit,
 } from "../../../kit";
 import { prompt } from "../../../entry/prompt-Medication.generated";
 
@@ -43,7 +44,7 @@ export const meta = {
   realPath:
     "Doses stored on the device; reminders need notification permission, and this log is not medical advice.",
   writeHints: prompt.writeHints,
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["left"] } },
   items: {
     key: "doses",
@@ -88,7 +89,6 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     })),
   };
 }
-// prettier-ignore
 export const examples = [
   {
     doses: [
@@ -125,54 +125,77 @@ export const probes = [
 ] satisfies Probe[];
 
 type Dose = Props<typeof props, typeof meta>["doses"][number];
-type DoseFinish = Pick<Props<typeof props, typeof meta>, "density" | "detail">;
-// prettier-ignore
+type DoseFinish = Pick<Props<typeof props, typeof meta>, "detail"> & { density: ThemeDensity };
 function MedicationStatus({ dose, detail }: { dose: Dose; detail: DoseFinish["detail"] }) {
   const { lang, words } = useWords(healthWordsFor);
   return (
     <KitContent lineRole="body">
       <KitText role="caption" tone="muted" part="dose">
-        {dose.dose}{"\u00a0\u00a0"}
-        <KitText role="caption" tone={dose.status === "taken" ? "good" : "muted"}
-          part={dose.status === "skipped" ? "skip" : null}>{words.medicationLabels[dose.status]}</KitText>
+        {dose.dose}
+        {"\u00a0\u00a0"}
+        <KitText
+          role="caption"
+          tone={dose.status === "taken" ? "good" : "muted"}
+          part={dose.status === "skipped" ? "skip" : null}
+        >
+          {words.medicationLabels[dose.status]}
+        </KitText>
       </KitText>
-      {detail === "full" && dose.left !== undefined &&
-        <KitText role="caption" tabular tone="muted" part="left">{stockLine(dose.left, lang)}</KitText>}
+      {detail === "full" && dose.left !== undefined && (
+        <KitText role="caption" tabular tone="muted" part="left">
+          {stockLine(dose.left, lang)}
+        </KitText>
+      )}
     </KitContent>
   );
 }
-// prettier-ignore
 function MedicationDose({ dose, density, detail }: { dose: Dose } & DoseFinish) {
   const { lang, words } = useWords(healthWordsFor);
   const due = dose.status === "due";
   return (
     <KitRow
-      item={dose.id} mark={dose.mark} {...{ density }} label={dose.name}
+      item={dose.id}
+      mark={dose.mark}
+      {...{ density }}
+      label={dose.name}
       trailing={
         <>
           {due && <KitAction label={words.medicationLabels.skip} kind="quiet" part="skip" />}
-          {dose.status !== "skipped" && <KitCheck done={dose.status === "taken"} readonly={!due}
-            part="taken" label={words.medicationLabels.taken} />}
+          {dose.status !== "skipped" && (
+            <KitCheck
+              done={dose.status === "taken"}
+              readonly={!due}
+              part="taken"
+              label={words.medicationLabels.taken}
+            />
+          )}
         </>
       }
     >
       <KitContent lineRole="body">
-        <KitText role="body" part="name">{dose.name}</KitText>
-        <KitText role="number" numberScale="compact" tabular part="time">{timeOfDayLine(dose.time, lang)}</KitText>
+        <KitText role="body" part="name">
+          {dose.name}
+        </KitText>
+        <KitText role="number" numberScale="compact" tabular part="time">
+          {timeOfDayLine(dose.time, lang)}
+        </KitText>
         <MedicationStatus {...{ dose, detail }} />
       </KitContent>
     </KitRow>
   );
 }
 
-// prettier-ignore
 export function Medication(input: Props<typeof props, typeof meta>) {
   const { doses, refillAt, detail } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const { lang, words } = useWords(healthWordsFor);
   const state = useComponentState();
   if (state === "empty")
-    return <KitCard part="root" density={density}><KitEmpty part="name" /></KitCard>;
+    return (
+      <KitCard part="root" density={density}>
+        <KitEmpty part="name" />
+      </KitCard>
+    );
   const refill = refillLine(doses, refillAt, lang);
   const complete = state === "success" || doses.every((dose) => dose.status === "taken");
   return (
@@ -185,7 +208,11 @@ export function Medication(input: Props<typeof props, typeof meta>) {
         </KitRow>
       )}
       {orderedDoses(doses).map((dose) => (
-        <MedicationDose key={dose.id} {...{ density, detail }} dose={state === "success" ? { ...dose, status: "taken" } : dose} />
+        <MedicationDose
+          key={dose.id}
+          {...{ density, detail }}
+          dose={state === "success" ? { ...dose, status: "taken" } : dose}
+        />
       ))}
       {refill && (
         <KitRow label={refill} density={density}>

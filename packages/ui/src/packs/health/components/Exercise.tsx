@@ -18,11 +18,11 @@ import {
   photo,
   probesFor,
   text,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import { healthWordsFor } from "../lang";
 import { z } from "zod";
@@ -37,7 +37,7 @@ export const meta = {
   purpose: prompt.purpose,
   pick: prompt.pick,
   writeHints: prompt.writeHints,
-  variants: { surface: ["card", "outlined"], media: ["cover", "none"] },
+  variants: { media: ["cover", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
   region: "body",
   weight: 2,
@@ -72,7 +72,6 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     cues: [placeholderDetail],
   };
 }
-// prettier-ignore
 export const examples = [
   {
     name: "Bench press",
@@ -113,8 +112,13 @@ export const probes = [
   read("Add bench press to my workout", { address: "e1/start", action: "press" }),
 ] satisfies Probe[];
 
-// prettier-ignore
-function ExerciseText({ value, part, role = "body", loading, muted = false }: {
+function ExerciseText({
+  value,
+  part,
+  role = "body",
+  loading,
+  muted = false,
+}: {
   value: string;
   part: string | null;
   role?: TextRole;
@@ -130,7 +134,6 @@ function ExerciseText({ value, part, role = "body", loading, muted = false }: {
   );
 }
 
-// prettier-ignore
 function ExerciseResults({
   best,
   last,
@@ -160,10 +163,17 @@ function ExerciseResults({
   );
 }
 
-// prettier-ignore
 export function Exercise({
-  name, surface, media, photo: image, muscles, cues, equipment, best, last,
+  name,
+  media,
+  photo: image,
+  muscles,
+  cues,
+  equipment,
+  best,
+  last,
 }: Props<typeof props, typeof meta>) {
+  const surface = "card";
   const { exerciseLabels } = useWords(healthWordsFor).words;
   const loading = useComponentState() === "loading";
   const showPhoto = useVariant("media", meta.variants.media, media) === "cover";
@@ -172,15 +182,23 @@ export function Exercise({
       <KitContent>
         <ExerciseText value={name} part="name" role="heading" loading={loading} />
         <KitTrack part="muscles" label={exerciseLabels.muscles}>
-          {muscles.map((value, index) => <ExerciseText key={index} {...{ value, loading }} part={null} role="label" muted />)}
+          {muscles.map((value, index) => (
+            <ExerciseText key={index} {...{ value, loading }} part={null} role="label" muted />
+          ))}
         </KitTrack>
       </KitContent>
-      {showPhoto && (loading ? <KitSkeleton shape="media" aspect="wide" lines={[]} inset="none" />
-        : image && <KitPhoto photo={image} shape="wide" part="photo" label={name} />)}
+      {showPhoto &&
+        (loading ? (
+          <KitSkeleton shape="media" aspect="wide" lines={[]} inset="none" />
+        ) : (
+          image && <KitPhoto photo={image} shape="wide" part="photo" label={name} />
+        ))}
       <KitRow part="cues" label={exerciseLabels.cues} inline>
         <KitContent>
           <ExerciseText value={exerciseLabels.cues} part={null} role="label" muted loading={loading} />
-          {cues.map((value, index) => <ExerciseText key={index} {...{ value, loading }} part={null} />)}
+          {cues.map((value, index) => (
+            <ExerciseText key={index} {...{ value, loading }} part={null} />
+          ))}
         </KitContent>
       </KitRow>
       {equipment && (

@@ -34,7 +34,7 @@ describe("Listing schema", () => {
     const max = {
       ...rent, title: "x".repeat(32), where: "x".repeat(40), about: "x".repeat(160), beds: 20, baths: 10,
     };
-    expect(props.parse(max)).toMatchObject({ ...max, surface: "card", detail: "full" });
+    expect(props.parse(max)).toMatchObject({ ...max, detail: "full" });
     expect(props.parse({ ...rent, title: "  Flat  ", price: 0, beds: 0, baths: 0, area: 0 }).title).toBe(
       "Flat",
     );
@@ -132,7 +132,7 @@ describe("Listing states and parts", () => {
         .map(at)
         .sort(),
     );
-    const brief = { ...rent, density: "compact", surface: "plain", detail: "brief" };
+    const brief = { ...rent, detail: "brief" };
     expect(props.parse(brief).about).toBe(rent.about);
     expect([...render(brief).keys()]).toEqual(
       [...render(rent).keys()].filter((part) => part !== at("about")),

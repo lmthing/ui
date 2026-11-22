@@ -48,8 +48,6 @@ export const meta = {
     "The CV and availability are stored on the phone; the host opens local attachments or shares the profile.",
   dense: true,
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: {
@@ -168,10 +166,7 @@ const resume = {
   editGoto: "resume_edit",
 } satisfies z.input<typeof props>;
 
-export const examples: z.input<typeof props>[] = [
-  resume,
-  { ...resume, detail: "brief", density: "compact", surface: "outlined" },
-];
+export const examples: z.input<typeof props>[] = [resume, { ...resume, detail: "brief" }];
 
 const { choose, write, read } = probesFor("ResumeProfile");
 export const probes = [
@@ -371,14 +366,13 @@ export function ResumeProfile(input: Input) {
     words: { resumeProfile: words },
   } = kit.useWords(hiringWordsFor);
   const thing = kit.useEmptyThing();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
   const brief = kit.useVariant("detail", meta.variants.detail, input.detail) === "brief";
   const content = <ResumeBody input={resumeProjection(input, brief, topSkills)} {...{ density, lang }} />;
   const part = state === "empty" || state === "success" || state === "error" ? state : undefined;
   const message = state === "empty" && thing ? emptyLine(thing, lang) : part ? words[part] : undefined;
   return (
-    <kit.KitCard part="root" padded {...{ density, surface }}>
+    <kit.KitCard part="root" padded density={density}>
       <kit.KitState
         part={part ?? null}
         message={message}

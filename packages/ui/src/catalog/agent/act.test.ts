@@ -147,20 +147,20 @@ const card = {
   ...components.Card,
   meta: {
     ...components.Card.meta,
-    variants: { surface: ["plain", "outlined"] },
+    variants: { detail: ["full", "brief"] },
     set: { amount: { prop: "amount", min: 0, max: 4 } },
-    actions: { parts: { root: ["press"], amount: ["set"] }, when: { amount: { surface: "outlined" } } },
+    actions: { parts: { root: ["press"], amount: ["set"] }, when: { amount: { detail: "brief" } } },
   },
   props: z
     .strictObject({
-      ...variantProps({ surface: ["plain", "outlined"] }),
+      ...variantProps({ detail: ["full", "brief"] }),
       title: text(40),
       goto: z.string(),
       amount: z.number().default(0),
     })
     .overwrite((props) => ({ ...props, amount: Math.round(props.amount) })),
 } as const;
-const oldCard = { style: "outlined", title: "One", goto: "details", density: "compact" };
+const oldCard = { style: "outlined", title: "One", goto: "details", detail: "brief", density: "compact" };
 const saved = { id: "home", components: [{ c: "c-a_r d", id: "c1", ...oldCard }] };
 const press = { address: "home/c1", action: "press" };
 const cardDefs = { Card: card, Timeline: components.Timeline };

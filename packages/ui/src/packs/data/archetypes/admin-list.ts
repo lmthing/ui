@@ -8,12 +8,14 @@ export const admin_list = {
     table: {
       recipe: [
         { allow: ["Header"], required: true },
+        { allow: ["SavedViews"], required: true },
         { allow: ["FilterBar"], required: true },
         { allow: ["Table"], required: true },
         { allow: ["BulkActions"], required: true },
       ],
       defaults: [
         { id: "h1", c: "Header" },
+        { id: "v1", c: "SavedViews" },
         { id: "f1", c: "FilterBar" },
         { id: "t1", c: "Table", selectable: true },
         { id: "b1", c: "BulkActions" },
@@ -22,11 +24,13 @@ export const admin_list = {
     cards: {
       recipe: [
         { allow: ["Header"], required: true },
+        { allow: ["SavedViews"], required: true },
         { allow: ["FilterBar"], required: true },
         { allow: ["List"], required: true },
       ],
       defaults: [
         { id: "h1", c: "Header" },
+        { id: "v1", c: "SavedViews" },
         { id: "f1", c: "FilterBar" },
         { id: "l1", c: "List" },
       ],
@@ -40,13 +44,13 @@ export const probes = [
     archetype: "admin_list",
     layout: "table",
     brief:
-      "Show a Stockroom heading, Find stock search with a Stock dropdown (Low, In stock), a selectable table sorted by the second column with Product (text), Stock (number) and the row Seed tray, 3, and actions for the checked rows: Reorder (shopping cart icon, safe) and Delete (close icon, dangerous).",
+      "Show a Stockroom heading and saved views All stock (all) and Low stock (low), with Low stock active. Add Find stock search with a Stock dropdown (Low, In stock), a selectable table sorted by the second column with Product (text), Stock (number) and the row Seed tray, 3, and actions for the checked rows: Reorder (shopping cart icon, safe) and Delete (close icon, dangerous).",
   },
   {
     kind: "compose",
     archetype: "admin_list",
     layout: "cards",
     brief:
-      "Show the Suppliers heading, Find suppliers search with a Region dropdown (Local, Regional), then a short list of supplier names Green Lane and Cedar Mill, with one note per supplier. No shared columns or batch actions.",
+      "Show the Suppliers heading and reusable query presets All suppliers (all) and Nearby (nearby). Add Find suppliers search with a Region dropdown (Local, Regional), then a short list of supplier names Green Lane and Cedar Mill, with one note per supplier. No shared columns or batch actions.",
   },
 ] satisfies ComposeProbe[];

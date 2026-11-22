@@ -18,9 +18,7 @@ export const meta = {
   tier: "phone",
   realPath: "Results are stored on the device.",
   variants: {
-    surface: ["card", "outlined"],
     emphasis: ["hero", "normal"],
-    density: ["comfortable", "compact"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["seconds", "points"] } },
@@ -67,7 +65,7 @@ export const examples = [
   // Ledge's fern practice finished without mistakes.
   { right: 6, of: 6, seconds: 58, points: 60, mistakes: [] },
   // Trot's walking-kit practice passed without mistakes.
-  { surface: "outlined", right: 5, of: 5, seconds: 48, points: 50, mistakes: [] },
+  { right: 5, of: 5, seconds: 48, points: 50, mistakes: [] },
   {
     right: 9,
     of: 10,
@@ -101,47 +99,75 @@ export const probes = [
 type ResultProps = c.Props<typeof props, typeof meta>;
 type ResultWords = ReturnType<typeof learningWordsFor>["result"];
 
-// prettier-ignore
-function ResultMetrics({ values, words, density }: {
-  values: ReturnType<typeof resultFigures>; words: ResultWords; density: c.ThemeDensity;
+function ResultMetrics({
+  values,
+  words,
+  density,
+}: {
+  values: ReturnType<typeof resultFigures>;
+  words: ResultWords;
+  density: c.ThemeDensity;
 }) {
-  const cell = (part: "right" | "wrong" | "seconds" | "points", value: string) =>
+  const cell = (part: "right" | "wrong" | "seconds" | "points", value: string) => (
     <kit.KitContent key={part} density={density}>
-      <kit.KitText role="label" tone="muted" part={null} density={density}>{words[part]}</kit.KitText>
-      <kit.KitText role="number" numberScale="compact" tabular part={part} density={density}>{value}</kit.KitText>
-    </kit.KitContent>;
-  return <kit.KitContent group="response" density={density}>
-    <kit.KitGrid density={density}>
-      {cell("right", values.right)}
-      {cell("wrong", values.wrong)}
-      {values.seconds !== undefined && cell("seconds", values.seconds)}
-      {values.points !== undefined && cell("points", values.points)}
-    </kit.KitGrid>
-  </kit.KitContent>;
+      <kit.KitText role="label" align="end" tone="muted" part={null} density={density}>
+        {words[part]}
+      </kit.KitText>
+      <kit.KitText role="number" numberScale="compact" align="end" tabular part={part} density={density}>
+        {value}
+      </kit.KitText>
+    </kit.KitContent>
+  );
+  return (
+    <kit.KitContent group="response" density={density}>
+      <kit.KitGrid density={density}>
+        {cell("right", values.right)}
+        {cell("wrong", values.wrong)}
+        {values.seconds !== undefined && cell("seconds", values.seconds)}
+        {values.points !== undefined && cell("points", values.points)}
+      </kit.KitGrid>
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
-function Corrections({ mistakes, label, density }: {
-  mistakes: ResultProps["mistakes"]; label: string; density: c.ThemeDensity;
+function Corrections({
+  mistakes,
+  label,
+  density,
+}: {
+  mistakes: ResultProps["mistakes"];
+  label: string;
+  density: c.ThemeDensity;
 }) {
-  return <kit.KitContent group="response" density={density}>
-    <kit.KitText role="label" tone="muted" part={null} density={density}>{label}</kit.KitText>
-    <kit.KitGrid arrange="rows" list listRowGap="cards" density={density}>
-      {mistakes.map(({ id, question, answer }) =>
-        <kit.KitRow key={id} item={id} label={question} inline density={density}>
-          <kit.KitText part="question" density={density}>{question}</kit.KitText>
-          <kit.KitText part="answer" tone="muted" density={density}>{answer}</kit.KitText>
-        </kit.KitRow>)}
-    </kit.KitGrid>
-  </kit.KitContent>;
+  return (
+    <kit.KitContent group="response" density={density}>
+      <kit.KitText role="label" tone="muted" part={null} density={density}>
+        {label}
+      </kit.KitText>
+      <kit.KitGrid arrange="rows" list listRowGap="cards" density={density}>
+        {mistakes.map(({ id, question, answer }) => (
+          <kit.KitRow key={id} item={id} label={question} inline density={density}>
+            <kit.KitText part="question" density={density}>
+              {question}
+            </kit.KitText>
+            <kit.KitText part="answer" tone="muted" density={density}>
+              {answer}
+            </kit.KitText>
+          </kit.KitRow>
+        ))}
+      </kit.KitGrid>
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
 export function Result(input: ResultProps) {
   const state = kit.useComponentState();
-  const { lang, words: { result } } = kit.useWords(learningWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const {
+    lang,
+    words: { result },
+  } = kit.useWords(learningWordsFor);
+  const density = kit.useKit().density;
+  const surface = "card";
   const emphasis = kit.useVariant("emphasis", meta.variants.emphasis, input.emphasis);
   const values = resultFigures(input, lang);
   const hasMistakes = input.mistakes.length > 0;
@@ -149,20 +175,43 @@ export function Result(input: ResultProps) {
   const perfect = input.right === input.of;
   const scoreTone = emphasis === "normal" ? "text" : perfect ? "good" : "accent";
   const again = <kit.KitAction part="again" action="press" kind="secondary" label={result.again} full />;
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    <kit.KitContent density={density}>
-      <kit.KitText role="label" tone={perfect && emphasis === "normal" ? "good" : "muted"} part={null} density={density}>{perfect ? result.perfect : result.score}</kit.KitText>
-      <kit.KitText role="number" numberScale={emphasis === "hero" ? "display" : "compact"} tone={scoreTone} tabular part="score" {...{ density, emphasis }}>
-        {values.right}<kit.KitText part={null} tone="muted" density={density}>{values.total}</kit.KitText>
-      </kit.KitText>
-    </kit.KitContent>
-    <ResultMetrics words={result} {...{ values, density }} />
-    {hasMistakes && <Corrections mistakes={input.mistakes} label={result.corrections} density={density} />}
-    <kit.KitContent group="response" density={density}>
-      {review ? <kit.KitGrid density={density}>
-        <kit.KitAction part="review" action="press" kind="quiet" label={result.review} full />
-        {again}
-      </kit.KitGrid> : again}
-    </kit.KitContent>
-  </kit.KitCard>;
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      <kit.KitContent density={density}>
+        <kit.KitText
+          role="label"
+          tone={perfect && emphasis === "normal" ? "good" : "muted"}
+          part={null}
+          density={density}
+        >
+          {perfect ? result.perfect : result.score}
+        </kit.KitText>
+        <kit.KitText
+          role="number"
+          numberScale={emphasis === "hero" ? "display" : "compact"}
+          tone={scoreTone}
+          tabular
+          part="score"
+          {...{ density, emphasis }}
+        >
+          {values.right}
+          <kit.KitText part={null} role="label" tone="muted" density={density}>
+            {values.total}
+          </kit.KitText>
+        </kit.KitText>
+      </kit.KitContent>
+      <ResultMetrics words={result} {...{ values, density }} />
+      {hasMistakes && <Corrections mistakes={input.mistakes} label={result.corrections} density={density} />}
+      <kit.KitContent group="response" density={density}>
+        {review ? (
+          <kit.KitGrid density={density}>
+            <kit.KitAction part="review" action="press" kind="quiet" label={result.review} full />
+            {again}
+          </kit.KitGrid>
+        ) : (
+          again
+        )}
+      </kit.KitContent>
+    </kit.KitCard>
+  );
 }

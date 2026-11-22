@@ -36,10 +36,20 @@ sideways when wider than the phone.
   facts (`KeyValue`), not a league table (sports `Standings`).
 - Writes: `columns` of `label` text(14), `kind` (`text`, `number`, `money`, `date`, `status`), 2–6; `rows`
   of `cells` (text(24) for text and status, numbers for number and money, dates for date; one per column),
-  `goto` optional, 1–20; `sort` column index optional; `selectable` boolean.
-- Parts → actions: `header select` (sort), rows `root press`, rows `pick check` (with `selectable`).
+  `goto` optional, 1–20; `sort` column index optional; `selectable` boolean; `summaryRow` (`sum`, `avg`,
+  `count`) optional; `exportable` boolean optional.
+- Styles: group: `none` (default), `sections`; detail: `full` (default), `brief`.
+  Density comes from the theme. Saved lines drop `style: "compact"` and migrate `style: "grouped"`
+  to group sections. Group by the first status column (first column if none); sort within groups.
+- Parts → actions: `matrix`, `header select`, `summary`, `count` (full detail), `empty`,
+  `export press` (with `exportable` and an available host command), `export_label`, `export_status`;
+  rows `root press` (when linked), rows `pick check` (with `selectable`), rows `group_heading`
+  (first row of a section), rows `status_1` through `status_6` (status cells).
 - States: filled, empty, loading. · Real path: a query over records on the device. · Kit: `KitTable`.
-- Wave 6 options: add `style: "compact" | "grouped"`, `summaryRow` (`sum`, `avg`, `count` footer), and `export press` (`meta.partTiers: { export: "service" }`).
+- Wave 6 options: `summaryRow` computes `sum` or `avg` for every numeric and money column (requires
+  at least one), or `count` for all records. The footer is independent of the row count in full detail.
+  `export press` requests the host command `data.exportTable` at service tier. Sorting waits while
+  the export is pending; selection and record links remain usable.
 
 ### `Board` · planned · data · phone
 Columns of cards for stages (To do, Doing, Done; New, Quoted, Won), each card with a title, a tag, a person
@@ -47,10 +57,17 @@ and an optional value, a count and value total per column, cards movable between
 - Pick: things moving through stages, including leads becoming clients. Not one list of jobs
   (`Checklist`), not a week of shifts (team `Roster`).
 - Writes: `columns` of `label` text(14), 2–5; `cards` of `title` text(32), `column` index, `tag` text(12)
-  optional, `who` text(16) optional, `value` number optional, `goto`, 1–16. Column totals are computed.
-- Parts → actions: cards `root press`, cards `root move` (to a column label). · States: filled, empty.
+  optional, `who` text(16) optional, `swimlane` text(16) optional, `value` number optional, `goto`, 1–16.
+  Column totals are computed within each swimlane when there are swimlanes. Up to four swimlanes,
+  including the optional group for unassigned cards.
+- Styles: arrange: `strip` (default), `rows`.
+- Parts → actions: `columns`, `empty`, `swimlane_1` through `swimlane_4` (one per visible group);
+  cards `root press`, cards `root move` (to a column label), cards `title`, `tag`, `who`, `value`.
+  · States: filled, empty.
 - Real path: records with a stage field on the device. · Renderer: `StageBoard` over `KitColumns`.
-- Wave 6 options: add `style: "list"` (vertical collapsible stage stacks for mobile), `wipLimit` per column (`warn`/`bad` tone), and optional `swimlane`.
+- Wave 6 options: optional `swimlane` groups cards across the same stages without changing move
+  destinations. Pending shared renderer support: `style: "list"` (vertical collapsible stage stacks
+  for mobile), and `wipLimit` per column (`warn`/`bad` tone).
 
 ### `FilterBar` · planned · input · phone
 The controls above a table or board: a search box, up to four filter buttons each opening its own small
@@ -68,10 +85,15 @@ One to three series over time as lines with labelled axes and the latest values;
 - Pick: how numbers changed over many points. Not up to seven amounts compared (`Bars`), not a small trend
   under a number (`Sparkline`), not a holding's price (money `PriceChart`).
 - Writes: `title` text(32), `unit` text(8) optional, `labels` text(6) each, 4–31; `series` of `label`
-  text(16), `values` numbers matching `labels`, 1–3.
-- Parts → actions: points `root select` (reads the value). · States: filled, empty, loading.
+  text(16), `values` numbers matching `labels`, 1–3; `goal` number optional;
+  `range` (`7d`, `30d`, `90d`, `1y`) optional.
+- Styles: detail: `full` (default), `brief`.
+- Parts → actions: `title`, `axes`, `unit`, `goal` (when supplied), `latest` (full detail), `range` (when supplied),
+  `reading` (selected point), `points`, `series_1`, `series_2`, `series_3`; points `root select`
+  (reads the value). · States: filled, empty, loading.
 - Real path: values aggregated from records on the device.
-- Wave 6 options: add `style: "area"`, `goal` threshold line (`KitLinePlot`), and `range` (`7d`, `30d`, `90d`, `1y`).
+- Wave 6 options: an optional `goal` threshold line (`KitLinePlot`); optional `range` labels the time
+  window covered by the supplied points. Pending plot support: `style: "area"`.
 
 ### `Heatmap` · planned · data · phone
 A grid of cells shaded by value, as weeks of days (contribution style) or weekdays by two-hour blocks (busy
@@ -97,10 +119,15 @@ Who changed what and when: rows with an avatar, a sentence ("Ana marked order 10
 a link to the record.
 - Pick: an audit of changes by several people. Not one client's history (customers `ClientHistory`), not
   shift notes (team `Handover`), not a plan in time order (`Timeline`).
-- Writes: `entries` of `who` text(20), `photo`, `text` text(80), `time` text(12), `goto`, 1–6.
-- Parts → actions: items `root press`. · States: filled, empty, loading.
+- Writes: `kind` (`all`, `created`, `updated`, `deleted`) optional; `entries` of `who` text(20),
+  `photo`, `text` text(80), `time` text(12), `goto`, entry `kind` (`created`, `updated`, `deleted`)
+  optional, `diff` optional (`old` text(28), `new` text(28)), 1–6.
+- Styles: lead: `avatar` (default), `none`.
+- Parts → actions: `title` (empty), `kind select` (with categorized entries); items `root press`,
+  `who`, `photo` (with avatar), `text`, `time`, `diff` (when supplied). · States: filled, empty, loading.
 - Real path: a change log kept by a shared app.
-- Wave 6 options: add `kind` filter and optional `diff` (`old -> new`) field line.
+- Wave 6 options: tagged entries expose a kind filter; by default it shows every entry, or
+  `kind` seeds an existing category. An optional `diff` shows the before and after values.
 
 ### `Funnel` · planned · data · phone
 An ordered two-to-six stage conversion breakdown displaying each stage's label, record count and optional monetary value beside horizontal bars scaled to the top stage. Step-to-step conversion percentages and overall conversion are computed automatically between stages.
@@ -147,7 +174,9 @@ Signature: `bars_grow`.
 - **Wave 6 additions & options:**
   - Added `Funnel` (`data`, `phone`) for 2–6 stage conversion drop-off breakdowns and `SavedViews` (`input`, `phone`) for up to six named query/layout presets.
   - Proposed Core promotion: `FilterBar` moves to Core so multi-field search and filter bars are shared across packs.
-  - Option/style upgrades: `Table` gains `style: "compact" | "grouped"`, `summaryRow` (`sum`, `avg`, `count`) and `export press` (`service`); `Board` gains `style: "list"`, `wipLimit` per column (`warn`/`bad`) and optional `swimlane`; `LineChart` gains `style: "area"`, `goal` threshold line (`KitLinePlot`) and `range` (`7d`, `30d`, `90d`, `1y`); `ActivityLog` gains `kind` filter and optional `diff` line.
+  - Option/style upgrades: `Table` gains section grouping, `summaryRow` and
+    `export press`; `Board` gains optional `swimlane`; `LineChart` gains `goal` and `range`;
+    `ActivityLog` gains `kind` and `diff`. Board folding and WIP tones and LineChart area fills await shared kit support.
 
 ## Open questions
 

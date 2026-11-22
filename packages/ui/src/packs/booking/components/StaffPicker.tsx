@@ -1,14 +1,15 @@
 import {
   useWords,
   KitCard,
+  KitContent,
   KitFigure,
-  KitMetaLine,
+  KitLayoutText,
   KitPhoto,
   KitRow,
   KitState,
   KitStrip,
   useComponentState,
-  useVariant,
+  useKit,
 } from "../../../kit";
 import { bookingWordsFor } from "../lang";
 import { z } from "zod";
@@ -20,11 +21,12 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
+  type ThemeDensity,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import { prompt } from "../../../entry/prompt-StaffPicker.generated";
 
@@ -40,7 +42,7 @@ export const meta = {
   weight: 2,
   tier: "people",
   realPath: "Each staff member has working hours and bookings in a shared app.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["role"] } },
   items: { key: "staff", parts: ["root", "name", "photo", "role"] },
   parts: ["root", "anyone", "anyone_photo", "anyone_name"],
@@ -89,7 +91,7 @@ const walkingStaff = {
 export const examples = [
   { staff: [{ name: "Anna", photo: "lib:people", role: "Plant care" }], anyone: true, at: 0 },
   walkingStaff,
-  { ...walkingStaff, density: "compact" },
+  { ...walkingStaff },
   { ...walkingStaff, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("StaffPicker");
@@ -107,15 +109,33 @@ export const probes = [
   read("Let any available person do this booking", { address: "s1/anyone", action: "select" }),
 ] satisfies Probe[];
 
-export function StaffPicker({
-  staff,
-  anyone,
-  at,
-  density: requestedDensity,
-}: Props<typeof props, typeof meta>) {
+function StaffCaption({
+  person,
+  density,
+}: {
+  person: { id?: string | undefined; name: string; role?: string | undefined };
+  density: ThemeDensity;
+}) {
+  return (
+    <KitContent align="center" rhythm="flush" density={density}>
+      <KitLayoutText
+        align="center"
+        density={density}
+        line={{ text: person.name, part: person.id ? "name" : "anyone_name", lines: 1 }}
+      />
+      <KitLayoutText
+        align="center"
+        density={density}
+        line={{ text: person.role, part: "role", role: "caption", tone: "muted" }}
+      />
+    </KitContent>
+  );
+}
+
+export function StaffPicker({ staff, anyone, at }: Props<typeof props, typeof meta>) {
   const { anyoneLabel } = useWords(bookingWordsFor).words;
   const loading = useComponentState() === "loading";
-  const density = useVariant("density", meta.variants.density, requestedDensity);
+  const density = useKit().density;
   const choices = [
     ...(anyone ? [{ id: undefined, name: anyoneLabel, photo: undefined, role: undefined, position: 0 }] : []),
     ...staff.map((person, index) => ({ ...person, position: index + 1 })),
@@ -145,14 +165,7 @@ export function StaffPicker({
                 loading={loading}
               />
             }
-            caption={
-              <KitMetaLine
-                align="center"
-                density={density}
-                title={{ text: person.name, part: person.id ? "name" : "anyone_name", lines: 1 }}
-                meta={{ text: person.role, part: "role", role: "caption" }}
-              />
-            }
+            caption={<StaffCaption {...{ person, density }} />}
           />
         </KitRow>
       ))}

@@ -9,4 +9,5 @@ Compare one to three time series over four or more labelled points, with labelle
 ## Writer
 
 - Series values are numbers, one per label in the same order. Labels are at most six characters. Do not write axes, latest values, ticks or colours.
-- If asked to omit the latest-value summary but keep the chart and point controls, use detail "brief"; otherwise leave detail null. Leave density and surface null unless requested.
+- If asked to omit the latest-value summary but keep the chart and point controls, use detail "brief"; otherwise leave detail null.
+- Set goal to the requested numeric threshold. Set range only when a reporting period is specified; it describes all supplied points ("7d", "30d", "90d", or "1y").

@@ -5,9 +5,13 @@ export const words = {
     audiences: { requester: "To requester", internal: "Keep internal" },
     field: "Write a reply",
     send: "Send reply",
+    retry: "Retry reply",
     sent: "Reply sent",
     failed: "Reply not sent",
     photo: "Attached photo",
+    file: "Attached file",
+    namedFile: (name: string) => `Attached file: ${name}`,
+    canned: "Browse saved replies",
     events: { status: "Status changed", assignment: "Assignment changed", work: "Work order linked" },
     statuses: {
       new: "New",

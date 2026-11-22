@@ -18,7 +18,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "A placed order is a record on the device; reordering adds its items to the local basket.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["price"] } },
   parts: ["root", "number", "date", "mode", "place", "total", "reorder", "reorder_label"],
   items: { key: "lines", parts: ["root", "name", "qty", "price", "line_total"] },
@@ -82,8 +82,8 @@ export const examples = [
     ],
     mode: "delivery",
   },
-  { ...pickup, density: "compact" },
-  { ...pickup, surface: "plain" },
+  { ...pickup },
+  { ...pickup },
   { ...pickup, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 
@@ -109,63 +109,188 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type OrderSummaryProps = c.Props<typeof props, typeof meta>;
-type LineProps = Pick<OrderSummaryProps, "density" | "detail"> & {
+type LineProps = Pick<OrderSummaryProps, "detail"> & { density: c.ThemeDensity } & {
   line: OrderSummaryProps["lines"][number];
   loading: boolean;
 };
 
-// prettier-ignore
 function ReceiptRow({ line, density, detail, loading }: LineProps) {
   const { lang, words } = kit.useWords(commerceWordsFor);
   const { name, qty, price, extended } = receiptLine(line, detail, lang);
   const summary = price ? `${qty}${words.receiptSeparator}${price}` : qty;
-  const amount = loading
-    ? <kit.KitSkeleton shape="figure" inset="none" emphasis="quiet" {...{ density }} content={[["number", extended, "end", "compact"]]} />
-    : <kit.KitText role="number" numberScale="compact" emphasis="quiet" tone="muted" part="line_total" tabular {...{ density }}>{extended}</kit.KitText>;
-  return <kit.KitRow label={name} inline fitContent {...{ density }} {...(loading ? {} : { item: line.id })} trailing={amount}>
-    <kit.KitLayoutText line={{ text: name, part: "name", role: "body" }} {...{ density }} />
-    {loading ? <kit.KitLayoutText line={{ text: summary, role: "caption" }} {...{ density }} /> :
-      <kit.KitText role="caption" tone="muted" part={null} {...{ density }}>
-        <kit.KitText role="caption" tone="muted" part="qty" tabular {...{ density }}>{qty}</kit.KitText>
-        {price && <>{words.receiptSeparator}<kit.KitText role="caption" tone="muted" part="price" tabular {...{ density }}>{price}</kit.KitText></>}
-      </kit.KitText>
-    }
-  </kit.KitRow>;
+  const amount = loading ? (
+    <kit.KitSkeleton
+      shape="figure"
+      inset="none"
+      emphasis="quiet"
+      {...{ density }}
+      content={[["number", extended, "end", "compact"]]}
+    />
+  ) : (
+    <kit.KitText
+      role="number"
+      numberScale="compact"
+      emphasis="quiet"
+      tone="muted"
+      part="line_total"
+      tabular
+      {...{ density }}
+    >
+      {extended}
+    </kit.KitText>
+  );
+  return (
+    <kit.KitRow
+      label={name}
+      inline
+      fitContent
+      {...{ density }}
+      {...(loading ? {} : { item: line.id })}
+      trailing={amount}
+    >
+      <kit.KitLayoutText line={{ text: name, part: "name", role: "body" }} {...{ density }} />
+      {loading ? (
+        <kit.KitLayoutText line={{ text: summary, role: "caption" }} {...{ density }} />
+      ) : (
+        <kit.KitText role="caption" tone="muted" part={null} {...{ density }}>
+          <kit.KitText role="caption" tone="muted" part="qty" tabular {...{ density }}>
+            {qty}
+          </kit.KitText>
+          {price && (
+            <>
+              {words.receiptSeparator}
+              <kit.KitText role="caption" tone="muted" part="price" tabular {...{ density }}>
+                {price}
+              </kit.KitText>
+            </>
+          )}
+        </kit.KitText>
+      )}
+    </kit.KitRow>
+  );
 }
 
-// prettier-ignore
-export function OrderSummary(input: OrderSummaryProps) {
-  const { lang, words } = kit.useWords(commerceWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
-  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
-  const loading = kit.useComponentState() === "loading";
-  const { number, date, mode, place, total } = receiptCopy(input, lang);
+function ReceiptHeading({
+  copy,
+  loading,
+  density,
+}: {
+  copy: ReturnType<typeof receiptCopy>;
+  loading: boolean;
+  density: c.ThemeDensity;
+}) {
+  const { words } = kit.useWords(commerceWordsFor);
+  const { number, date, mode, place } = copy;
   const fulfillment = place ? `${mode}${words.receiptSeparator}${place}` : mode;
-  return <kit.KitCard padded part="root" {...{ density, surface }}>
-    {loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["heading", number], ["caption", date], ["caption", fulfillment]]} /> :
-      <kit.KitContent {...{ density }}>
-        <kit.KitText role="heading" part="number" {...{ density }}>{number}</kit.KitText>
-        <kit.KitText role="caption" tone="muted" part="date" {...{ density }}>{date}</kit.KitText>
-        <kit.KitText role="caption" tone="muted" part={null} {...{ density }}>
-          <kit.KitText role="caption" tone="muted" part="mode" {...{ density }}>{mode}</kit.KitText>
-          {place && <>{words.receiptSeparator}<kit.KitText role="caption" tone="muted" part="place" {...{ density }}>{place}</kit.KitText></>}
+  return loading ? (
+    <kit.KitSkeleton
+      shape="figure"
+      inset="none"
+      {...{ density }}
+      content={[
+        ["heading", number],
+        ["caption", date],
+        ["caption", fulfillment],
+      ]}
+    />
+  ) : (
+    <kit.KitContent {...{ density }}>
+      <kit.KitText role="heading" part="number" {...{ density }}>
+        {number}
+      </kit.KitText>
+      <kit.KitText role="caption" tone="muted" part="date" {...{ density }}>
+        {date}
+      </kit.KitText>
+      <kit.KitText role="caption" tone="muted" part={null} {...{ density }}>
+        <kit.KitText role="caption" tone="muted" part="mode" {...{ density }}>
+          {mode}
         </kit.KitText>
-      </kit.KitContent>}
-    <kit.KitContent group={density === "compact" ? "content" : "response"} {...{ density }}>
-      <kit.KitRowGroup spacing="groups" separators={false} {...{ density }}>
-        {input.lines.map((line) => <ReceiptRow key={line.id} {...{ line, density, detail, loading }} />)}
-      </kit.KitRowGroup>
+        {place && (
+          <>
+            {words.receiptSeparator}
+            <kit.KitText role="caption" tone="muted" part="place" {...{ density }}>
+              {place}
+            </kit.KitText>
+          </>
+        )}
+      </kit.KitText>
     </kit.KitContent>
+  );
+}
+
+function ReceiptTotal({
+  total,
+  loading,
+  density,
+}: {
+  total: string;
+  loading: boolean;
+  density: c.ThemeDensity;
+}) {
+  const { words } = kit.useWords(commerceWordsFor);
+  return (
     <kit.KitContent group={density === "compact" ? "content" : "response"} {...{ density }}>
       <kit.KitGrid fitLast {...{ density }}>
-        {loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["body", words.orderTotal]]} /> :
-          <kit.KitText part={null} {...{ density }}>{words.orderTotal}</kit.KitText>}
-        {loading ? <kit.KitSkeleton shape="figure" inset="none" emphasis="hero" {...{ density }} content={[["number", total, "end", "compact"]]} /> :
-          <kit.KitText role="number" numberScale="compact" emphasis="hero" tabular part="total" {...{ density }}>{total}</kit.KitText>}
+        {loading ? (
+          <kit.KitSkeleton
+            shape="figure"
+            inset="none"
+            {...{ density }}
+            content={[["body", words.orderTotal]]}
+          />
+        ) : (
+          <kit.KitText part={null} {...{ density }}>
+            {words.orderTotal}
+          </kit.KitText>
+        )}
+        {loading ? (
+          <kit.KitSkeleton
+            shape="figure"
+            inset="none"
+            emphasis="hero"
+            {...{ density }}
+            content={[["number", total, "end", "compact"]]}
+          />
+        ) : (
+          <kit.KitText
+            role="number"
+            numberScale="compact"
+            emphasis="hero"
+            tabular
+            part="total"
+            {...{ density }}
+          >
+            {total}
+          </kit.KitText>
+        )}
       </kit.KitGrid>
     </kit.KitContent>
-    {loading ? <kit.KitSkeleton shape="control" kind="secondary" label={words.reorder} inset="none" full /> :
-      <kit.KitAction label={words.reorder} kind="secondary" part="reorder" action="press" full />}
-  </kit.KitCard>;
+  );
+}
+
+export function OrderSummary(input: OrderSummaryProps) {
+  const { lang, words } = kit.useWords(commerceWordsFor);
+  const density = kit.useKit().density;
+  const surface = "card";
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  const loading = kit.useComponentState() === "loading";
+  const copy = receiptCopy(input, lang);
+  return (
+    <kit.KitCard padded part="root" {...{ density, surface }}>
+      <ReceiptHeading {...{ copy, loading, density }} />
+      <kit.KitContent group={density === "compact" ? "content" : "response"} {...{ density }}>
+        <kit.KitRowGroup spacing="groups" separators={false} {...{ density }}>
+          {input.lines.map((line) => (
+            <ReceiptRow key={line.id} {...{ line, density, detail, loading }} />
+          ))}
+        </kit.KitRowGroup>
+      </kit.KitContent>
+      <ReceiptTotal total={copy.total} {...{ loading, density }} />
+      {loading ? (
+        <kit.KitSkeleton shape="control" kind="secondary" label={words.reorder} inset="none" full />
+      ) : (
+        <kit.KitAction label={words.reorder} kind="secondary" part="reorder" action="press" full />
+      )}
+    </kit.KitCard>
+  );
 }

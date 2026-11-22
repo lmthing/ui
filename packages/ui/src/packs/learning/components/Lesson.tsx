@@ -18,8 +18,6 @@ export const meta = {
   tier: "phone",
   realPath: "Lesson content is stored with the app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     emphasis: ["normal", "hero"],
     detail: ["full", "brief"],
   },
@@ -85,27 +83,33 @@ export const probes = [
 ] satisfies c.Probe[];
 
 export function Lesson(input: c.Props<typeof props, typeof meta>) {
-  const { title, text, example, photo, surface, emphasis } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const { title, text, example, photo, emphasis } = input;
+  const surface = "card";
+  const density = kit.useKit().density;
   const { words } = kit.useWords(learningWordsFor);
   return (
     <kit.KitCard part="root" padded density="comfortable" surface={surface}>
       <kit.KitContent density={density}>
-        <kit.KitText role="heading" part="title" density="comfortable" emphasis={emphasis}>
+        <kit.KitText role="title" part="title" density="comfortable" emphasis={emphasis}>
           {title}
         </kit.KitText>
-        <kit.KitText role="body" part="text" density={density}>
-          {text}
-        </kit.KitText>
+        <kit.KitContent
+          density={density}
+          leadingAlign="row"
+          lead={photo && <kit.KitPhoto photo={photo} part="photo" shape="thumb" />}
+        >
+          <kit.KitText role="body" part="text" density={density}>
+            {text}
+          </kit.KitText>
+        </kit.KitContent>
       </kit.KitContent>
-      {photo && <kit.KitPhoto photo={photo} part="photo" shape="wide" />}
       {example && (
         <kit.KitRow part="example" label={words.lesson.example} tone="muted" density={density}>
           <kit.KitContent density={density}>
             <kit.KitText role="label" part="example_label" tone="muted">
               {words.lesson.example}
             </kit.KitText>
-            <kit.KitText role="body" part={null} density={density}>
+            <kit.KitText role="body" part={null} tone="muted" density={density}>
               {example}
             </kit.KitText>
           </kit.KitContent>

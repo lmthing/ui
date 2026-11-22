@@ -20,7 +20,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "Manual meter series live on the device, without a smart-meter service or bill calculation.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["previous"] } },
   parts: ["root", "title", "selector", "empty", "status", "sub", "add", "add_label"],
   items: { key: "entries", parts: ["root", "title", "latest", "previous", "at", "value", "usage", "photo", "evidence"], visibleWhen: { visible: true } },
@@ -68,24 +68,38 @@ const withEntries = (value: z.output<typeof schema>) => ({ ...value, add: { goto
 export const props = schema.overwrite(withEntries) as typeof schema &
   z.ZodType<ReturnType<typeof withEntries>, z.input<typeof schema>>;
 
-// prettier-ignore
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
   const { ref, title } = seedLabels(input)[0]!;
-  return { unitRef: ref, meters: [{ meterRef: `${ref}_meter`, title, utility: "electricity", unit: "kWh" }], readings: [], addGoto: "details" };
+  return {
+    unitRef: ref,
+    meters: [{ meterRef: `${ref}_meter`, title, utility: "electricity", unit: "kWh" }],
+    readings: [],
+    addGoto: "details",
+  };
 }
-// prettier-ignore
-const historyExample = { unitRef: "north_cabin", meters: [
-      { meterRef: "cabin_water", title: "Water", utility: "water", unit: "m3" },
-      { meterRef: "cabin_gas", title: "Gas", utility: "gas", unit: "m3" },
-    ],
-    readings: [
-      { readingRef: "cabin_oct", meterRef: "cabin_water", at: "2026-10-17T10:00:00Z", value: 14 },
-      { readingRef: "cabin_nov", meterRef: "cabin_water", at: "2026-11-17T10:00:00Z", value: 17.5, photo: "local:2" },
-    ],
-    addGoto: "add_reading", style: "history" } satisfies z.input<typeof props>;
-// prettier-ignore
+const historyExample = {
+  unitRef: "north_cabin",
+  meters: [
+    { meterRef: "cabin_water", title: "Water", utility: "water", unit: "m3" },
+    { meterRef: "cabin_gas", title: "Gas", utility: "gas", unit: "m3" },
+  ],
+  readings: [
+    { readingRef: "cabin_oct", meterRef: "cabin_water", at: "2026-10-17T10:00:00Z", value: 14 },
+    {
+      readingRef: "cabin_nov",
+      meterRef: "cabin_water",
+      at: "2026-11-17T10:00:00Z",
+      value: 17.5,
+      photo: "local:2",
+    },
+  ],
+  addGoto: "add_reading",
+  style: "history",
+} satisfies z.input<typeof props>;
 export const examples = [
-  { unitRef: "flat_a", meters: [
+  {
+    unitRef: "flat_a",
+    meters: [
       { meterRef: "willow_electric", title: "Electricity", utility: "electricity", unit: "kWh" },
       { meterRef: "willow_water", title: "Water", utility: "water", unit: "m3" },
     ],
@@ -93,25 +107,33 @@ export const examples = [
       { readingRef: "willow_oct", meterRef: "willow_electric", at: "2026-10-18T08:00:00Z", value: 1200 },
       { readingRef: "willow_nov", meterRef: "willow_electric", at: "2026-11-18T08:00:00Z", value: 1246 },
       { readingRef: "willow_water_nov", meterRef: "willow_water", at: "2026-11-18T08:00:00Z", value: 17.5 },
-    ], addGoto: "add_reading" },
-  historyExample, { ...historyExample, density: "compact" },
+    ],
+    addGoto: "add_reading",
+  },
+  historyExample,
+  { ...historyExample },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Meters");
-// prettier-ignore
 export const probes = [
-  choose("For each of my rental unit's utility meters, save cumulative readings over time and compute usage since the previous reading"),
+  choose(
+    "For each of my rental unit's utility meters, save cumulative readings over time and compute usage since the previous reading",
+  ),
   choose("Give me one labelled number input for entering a new value, with no readings or history", "Field"),
-  write("Willow Flat flat_a has electricity meter willow_electric in kWh. Readings willow_oct 1200 at 2026-10-18T08:00:00Z and willow_nov 1246 at 2026-11-18T08:00:00Z. Add at add_reading."),
+  write(
+    "Willow Flat flat_a has electricity meter willow_electric in kWh. Readings willow_oct 1200 at 2026-10-18T08:00:00Z and willow_nov 1246 at 2026-11-18T08:00:00Z. Add at add_reading.",
+  ),
   {
-    ...write("Show the utility meter register for Flat A (flat_a). Electricity meter willow_electric in kWh: willow_oct was 1200 on 18 October 2026 at 08:00 UTC; willow_nov was 1246 on 18 November 2026 at 08:00 UTC. Add opens add_reading. Keep both readings in the data, but show only the latest value and usage, not the previous cumulative value."),
+    ...write(
+      "Show the utility meter register for Flat A (flat_a). Electricity meter willow_electric in kWh: willow_oct was 1200 on 18 October 2026 at 08:00 UTC; willow_nov was 1246 on 18 November 2026 at 08:00 UTC. Add opens add_reading. Keep both readings in the data, but show only the latest value and usage, not the previous cumulative value.",
+    ),
     variant: { axis: "detail", value: "brief" },
   },
   read("Open the form to add a new utility reading", { address: "m1/add", action: "press" }),
 ] satisfies c.Probe[];
 
 type MetersProps = c.Props<typeof props, typeof meta>;
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 // prettier-ignore
 function meterDisplay(input: MetersProps, selection: unknown): Pick<MetersProps, "style" | "entries"> {
   const selected = input.meters.find((meter) => meter.meterRef === selection)?.meterRef;
@@ -120,76 +142,225 @@ function meterDisplay(input: MetersProps, selection: unknown): Pick<MetersProps,
   return c.stampItemIds(meta, { style: "history", entries: meterEntries(input, "history", selected) }) as Pick<MetersProps, "style" | "entries">;
 }
 
-// prettier-ignore
-function MeterRegister({ input, density, detail, lang }: { input: MetersProps; density: Density; detail: string; lang: string }) {
+type MeterRow = Extract<MetersProps["entries"][number], { entryKind: "meter" }>;
+type MeterWords = ReturnType<typeof propertyWordsFor>["meters"];
+type RegisterFinish = {
+  detail: string;
+  density: Density;
+  words: MeterWords;
+};
+function MeterRegisterRow(
+  row: MeterRow,
+  { latest, previous, usage }: ReturnType<typeof meterSummary>,
+  {
+    detail,
+    density,
+    trailing,
+    words,
+  }: RegisterFinish & { trailing: Parameters<typeof kit.KitRow>[0]["trailing"] },
+) {
+  return (
+    <kit.KitRow key={row.id} item={row.id} role="button" label={row.title} inline {...{ density, trailing }}>
+      <kit.KitContent density={density}>
+        <kit.KitText part="title" role="body" density={density}>
+          {row.title}
+        </kit.KitText>
+        {latest ? (
+          <kit.KitText part={null} role="label" tone="muted" {...{ density }}>
+            {words.latestLabel}{" "}
+            <kit.KitText part="latest" role="number" numberScale="compact" tabular {...{ density }}>
+              {latest}
+            </kit.KitText>
+          </kit.KitText>
+        ) : (
+          <kit.KitText part="latest" role="label" tone="muted" {...{ density }}>
+            {words.noReadings}
+          </kit.KitText>
+        )}
+        {detail === "full" && previous && (
+          <kit.KitText part="previous" role="label" density={density} tone="muted">
+            {previous}
+          </kit.KitText>
+        )}
+        {usage && (
+          <kit.KitText part="usage" role="label" density={density} tone="muted">
+            {usage}
+          </kit.KitText>
+        )}
+      </kit.KitContent>
+    </kit.KitRow>
+  );
+}
+
+function MeterRegister({
+  input,
+  density,
+  detail,
+  lang,
+}: {
+  input: MetersProps;
+  density: Density;
+  detail: string;
+  lang: string;
+}) {
   const loading = kit.useComponentState() === "loading";
+  const {
+    words: { meters: words },
+  } = kit.useWords(propertyWordsFor);
   return input.entries.map((row) => {
     if (row.entryKind !== "meter") return null;
-    const { latest, previous, usage } = meterSummary(meterSeries(input.readings, row.meterRef), row.unit, lang);
-    if (loading) return <kit.KitRow key={row.id} label={row.title} inline density={density}>
-      <kit.KitSkeleton shape="figure" density={density} inset="none" content={[
-        ["body", row.title], ["number", latest, "start", "compact"], ["label", detail === "full" ? previous : undefined], ["label", usage],
-      ]} />
-    </kit.KitRow>;
-    return <kit.KitRow key={row.id} item={row.id} role="button" label={row.title} density={density} inline
-      trailing={<kit.KitIcon name="chevron_right" decorative tone="muted" />}>
-      <kit.KitContent density={density}>
-        <kit.KitText part="title" role="body" density={density}>{row.title}</kit.KitText>
-        <kit.KitText part="latest" role="number" numberScale="compact" density={density} tabular>{latest}</kit.KitText>
-        {detail === "full" && previous && <kit.KitText part="previous" role="label" density={density} tone="muted">{previous}</kit.KitText>}
-        {usage && <kit.KitText part="usage" role="label" density={density} tone="muted">{usage}</kit.KitText>}
-      </kit.KitContent>
-    </kit.KitRow>;
+    const { latest, previous, usage } = meterSummary(
+      meterSeries(input.readings, row.meterRef),
+      row.unit,
+      lang,
+    );
+    const trailing = <kit.KitIcon name="chevron_right" decorative tone="muted" {...{ loading }} />;
+    if (loading)
+      return (
+        <kit.KitRow key={row.id} label={row.title} inline {...{ density, trailing }}>
+          <kit.KitSkeleton
+            shape="figure"
+            density={density}
+            inset="none"
+            content={[
+              ["body", row.title],
+              latest ? ["body", `${words.latestLabel} ${latest}`] : ["label", words.noReadings],
+              ["label", detail === "full" ? previous : undefined],
+              ["label", usage],
+            ]}
+          />
+        </kit.KitRow>
+      );
+    return MeterRegisterRow(row, { latest, previous, usage }, { detail, density, trailing, words });
   });
 }
 
-// prettier-ignore
-function MeterHistory({ input, selection, density, lang, words }: { input: MetersProps; selection: unknown; density: Density; lang: string; words: ReturnType<typeof propertyWordsFor>["meters"] }) {
-  const rows = historyRows(input, lang);
-  return <>
-    <kit.KitTrack part="selector" role="radiogroup" label={words.register}>
-      {input.entries.map((row) => row.entryKind === "meter" &&
-        <kit.KitChip key={row.id} item={row.id} role="radio" labelPart="title" label={row.title} on={row.meterRef === (selection ?? input.meters[0]!.meterRef)} />)}
-    </kit.KitTrack>
-    {!rows.length && <kit.KitText part="empty" tone="muted" role="body">{words.noReadings}</kit.KitText>}
-    {rows.map((row) => <kit.KitRow key={row.id} item={row.id} label={row.date} density={density} inset="none">
+function MeterHistoryRow(row: ReturnType<typeof historyRows>[number], density: Density, photoLabel: string) {
+  return (
+    <kit.KitRow key={row.id} item={row.id} label={row.date} density={density} inline fitContent>
       <kit.KitContent density={density}>
-        <kit.KitText part="at" role="label" tone="muted" density={density}>{row.date}</kit.KitText>
-        <kit.KitText part="value" role="number" numberScale="compact" density={density} tabular>{row.amount}</kit.KitText>
-        {row.usage && <kit.KitText part="usage" role="label" tone="muted" density={density}>{row.usage}</kit.KitText>}
-        {row.photo && <kit.KitRow part="photo" role="button" inline label={words.photo} leadingAlign="row"
-          leading={<kit.KitPhoto part="evidence" photo={row.photo} label={words.photo} />}>
-          <kit.KitRow inline label={words.photo}><kit.KitText part={null} role="label" tone="accent">{words.photo}</kit.KitText></kit.KitRow>
-        </kit.KitRow>}
+        <kit.KitGrid fitLast {...{ density }}>
+          <kit.KitText part="at" role="label" tone="muted" {...{ density }}>
+            {row.date}
+          </kit.KitText>
+          <kit.KitText part="value" role="number" numberScale="compact" align="end" tabular {...{ density }}>
+            {row.amount}
+          </kit.KitText>
+        </kit.KitGrid>
+        {row.usage && (
+          <kit.KitText part="usage" role="label" tone="muted" density={density}>
+            {row.usage}
+          </kit.KitText>
+        )}
+        {row.photo && (
+          <kit.KitRow part="photo" role="button" inline label={photoLabel} {...{ density }}>
+            <kit.KitContent
+              lead={<kit.KitPhoto part="evidence" photo={row.photo} label={photoLabel} />}
+              leadingAlign="row"
+              {...{ density }}
+            >
+              <kit.KitRow part={null} inline label={photoLabel}>
+                <kit.KitText part={null} role="label" tone="accent" {...{ density }}>
+                  {photoLabel}
+                </kit.KitText>
+              </kit.KitRow>
+            </kit.KitContent>
+          </kit.KitRow>
+        )}
       </kit.KitContent>
-    </kit.KitRow>)}
-  </>;
+    </kit.KitRow>
+  );
 }
 
-// prettier-ignore
+function MeterHistory({
+  input,
+  selection,
+  density,
+  lang,
+  words,
+}: {
+  input: MetersProps;
+  selection: unknown;
+  density: Density;
+  lang: string;
+  words: ReturnType<typeof propertyWordsFor>["meters"];
+}) {
+  const rows = historyRows(input, lang);
+  return (
+    <>
+      <kit.KitTrack part="selector" role="radiogroup" label={words.register}>
+        {input.entries.map(
+          (row) =>
+            row.entryKind === "meter" && (
+              <kit.KitChip
+                key={row.id}
+                item={row.id}
+                role="radio"
+                look="segment"
+                labelPart="title"
+                label={row.title}
+                on={row.meterRef === (selection ?? input.meters[0]!.meterRef)}
+              />
+            ),
+        )}
+      </kit.KitTrack>
+      {!rows.length && (
+        <kit.KitText part="empty" tone="muted" role="body">
+          {words.noReadings}
+        </kit.KitText>
+      )}
+      {rows.map((row) => MeterHistoryRow(row, density, words.photo))}
+    </>
+  );
+}
+
 export function Meters(input: MetersProps) {
-  const { lang, words: { meters: words } } = kit.useWords(propertyWordsFor);
+  const {
+    lang,
+    words: { meters: words },
+  } = kit.useWords(propertyWordsFor);
   const { screen, component, thing } = kit.usePartContext();
   const state = kit.useComponentState();
   const selection = kit.useControlValue<unknown>(`${screen}/${component}/$meterRef`, undefined);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const display = { ...input, ...meterDisplay(input, selection) };
-  return <kit.KitCard part="root" padded surface={input.surface} density={density}>
-    {state === "loading" ? <>
-      <kit.KitSkeleton shape="figure" inset="none" content={[["heading", words[display.style]]]} />
-      <MeterRegister input={display} {...{ detail, density, lang }} />
-      <kit.KitSkeleton shape="control" label={words.add} kind="secondary" full />
-    </> : state === "empty" ? <kit.KitEmpty part="empty" {...(!thing ? { title: words.noReadings } : {})} decorativeIcon /> :
-      state === "success" ? <kit.KitEmpty part="status" title={words.saved} icon="check" tone="good" decorativeIcon /> :
-      state === "error" ? <kit.KitContent>
-        <kit.KitText part="status" role="heading" tone="bad">{words.error}</kit.KitText>
-        <kit.KitText part="sub" role="body" tone="muted">{words.errorDetail}</kit.KitText>
-      </kit.KitContent> : <>
-        <kit.KitText part="title" role="heading">{words[display.style]}</kit.KitText>
-        {display.style === "history" ? <MeterHistory input={display} {...{ selection, density, lang, words }} /> :
-          <MeterRegister input={display} {...{ detail, density, lang }} />}
-      </>}
-    {(state === "filled" || state === "empty") && <kit.KitAction part="add" goto={input.addGoto} label={words.add} kind="secondary" full />}
-  </kit.KitCard>;
+  return (
+    <kit.KitCard part="root" padded surface={"card"} density={density}>
+      {state === "loading" ? (
+        <>
+          <kit.KitSkeleton shape="figure" inset="none" content={[["heading", words[display.style]]]} />
+          <MeterRegister input={display} {...{ detail, density, lang }} />
+          <kit.KitSkeleton shape="control" label={words.add} kind="secondary" full />
+        </>
+      ) : state === "empty" ? (
+        <kit.KitEmpty part="empty" {...(!thing ? { title: words.noReadings } : {})} decorativeIcon />
+      ) : state === "success" ? (
+        <kit.KitEmpty part="status" title={words.saved} icon="check" tone="good" decorativeIcon />
+      ) : state === "error" ? (
+        <kit.KitContent>
+          <kit.KitText part="status" role="heading" tone="bad">
+            {words.error}
+          </kit.KitText>
+          <kit.KitText part="sub" role="body" tone="muted">
+            {words.errorDetail}
+          </kit.KitText>
+        </kit.KitContent>
+      ) : (
+        <>
+          <kit.KitText part="title" role="heading">
+            {words[display.style]}
+          </kit.KitText>
+          {display.style === "history" ? (
+            <MeterHistory input={display} {...{ selection, density, lang, words }} />
+          ) : (
+            <MeterRegister input={display} {...{ detail, density, lang }} />
+          )}
+        </>
+      )}
+      {(state === "filled" || state === "empty") && (
+        <kit.KitAction part="add" goto={input.addGoto} label={words.add} kind="secondary" full />
+      )}
+    </kit.KitCard>
+  );
 }

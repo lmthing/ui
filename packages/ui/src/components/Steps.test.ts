@@ -132,7 +132,7 @@ describe("Steps metadata and probes", () => {
 
 describe("Steps view and reading", () => {
   it("keeps the position and its address while hiding only the task name", () => {
-    const input = { count: 3, at: 2, label: "Add your first plant", detail: "brief", density: "compact" };
+    const input = { count: 3, at: 2, label: "Add your first plant", detail: "brief" };
     const html = renderInstance("Steps", input, "filled", { preset: "calm", mode: "light", accent: "moss" });
     const read = readComponent(components.Steps, input, "c1").join("\n");
     expect(html).toContain('data-testid="home/c1/label"');

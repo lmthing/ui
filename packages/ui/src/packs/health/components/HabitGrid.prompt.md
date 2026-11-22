@@ -8,4 +8,4 @@ Several habits by seven weekdays, an editable check per cell and streak per habi
 
 ## Writer
 
-- When habit headings should show names but no icons, write lead none and keep each icon in the data. Otherwise write lead null. Write surface null unless asked for an outline.
+- If the brief asks for headings with only names and no icons, output `"lead":"none"` at the top level, even when habit icons are supplied. Otherwise output `"lead":null` so the headings show their icons. Keep each habit's icon in the data either way.

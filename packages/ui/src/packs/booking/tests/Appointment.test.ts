@@ -9,7 +9,7 @@ import {
 } from "@lmthing/ui/catalog";
 import { appointmentLabels } from "../copy";
 import { createScreenController } from "@lmthing/ui/kit";
-import { elementAt, renderInstance } from "../../../../test/render";
+import { elementAt, renderInstance, styleAt } from "../../../../test/render";
 const { props, meta, examples, fallback, probes } = components.Appointment;
 const { service, date, time, minutes, status, goto } = examples[0]!;
 const base = { service, date, time, minutes, status, goto };
@@ -51,6 +51,15 @@ describe("Appointment schema", () => {
   ])("rejects invalid and unknown input", (invalid) =>
     expect(props.safeParse({ ...base, ...invalid }).success).toBe(false),
   );
+});
+
+it("uses the same focal time on video bookings and keeps Cancel visually destructive", () => {
+  const draw = (input: unknown) => renderInstance("Appointment", input, "filled", theme);
+  const standard = draw(examples[0]);
+  const video = draw(examples[5]);
+  expect(styleAt(video, "home/c1/time")).toBe(styleAt(standard, "home/c1/time"));
+  expect(styleAt(video, "home/c1/cancel")).toContain("var(--bad)");
+  expect(elementAt(video, "home/c1/join").attributes).toContain('role="button"');
 });
 describe("Appointment boundaries", () => {
   it("accepts exact text, date, time, duration, money and target boundaries", () => {

@@ -30,7 +30,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Supplier records are stored on the device; calls use the supplier's phone number.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["due"] } },
   parts: ["root", "totals", "empty"],
   // prettier-ignore
@@ -126,17 +126,18 @@ export const probes = [
 
 type VendorsProps = c.Props<typeof props, typeof meta>;
 type VendorRow = VendorsProps["vendors"][number];
-type Finish = { density: c.ThemeDensity; surface: VendorsProps["surface"] };
+type Finish = { density: c.ThemeDensity; surface: c.SurfaceFinish };
 type AmountFigure = ReturnType<typeof vendorAmounts>[number];
 
 // prettier-ignore
 function PaymentFigure({ label, value, part, density, focal = false }: {
   label: string; value: string; part: string | null; density: c.ThemeDensity; focal?: boolean;
 }) {
+  const align = focal ? "start" : "end";
   return <kit.KitContent density={density}>
-    <kit.KitText part={null} role="caption" tone="muted">{label}</kit.KitText>
+    <kit.KitText part={null} role="caption" tone="muted" align={align}>{label}</kit.KitText>
     <kit.KitText part={part} role="number" numberScale={focal ? "display" : "compact"} tabular
-      tone={focal ? "accent" : "text"} density={density}>{value}</kit.KitText>
+      tone={focal ? "accent" : "text"} align={align} density={density}>{value}</kit.KitText>
   </kit.KitContent>;
 }
 
@@ -182,8 +183,8 @@ function Supplier({ row, detail, density, surface }: Finish & { row: VendorRow; 
 export function Vendors(input: VendorsProps) {
   const state = kit.useComponentState();
   const { lang } = kit.useWords(eventsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   if (state === "empty") return <kit.KitCard part="root" {...{ density, surface }}>
     <kit.KitEmpty part="empty" icon="briefcase" decorativeIcon />

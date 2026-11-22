@@ -82,11 +82,8 @@ describe("JobFeed contract and bounds", () => {
 });
 
 describe("JobFeed parts and states", () => {
-  it("keeps finish addresses and hides only location and posting age in brief", () => {
+  it("hides only location and posting age in brief", () => {
     const ready = parts();
-    expect([...parts({ ...full, surface: "outlined", density: "compact" }).keys()]).toEqual([
-      ...ready.keys(),
-    ]);
     const brief = { ...full, detail: "brief" as const };
     expect([...parts(brief).keys()]).toEqual(
       [...ready.keys()].filter((key) => !/\/(posted|place)$/.test(key)),

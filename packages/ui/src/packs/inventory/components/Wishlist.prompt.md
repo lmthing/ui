@@ -9,4 +9,4 @@ A personal list of desired purchases with target prices, priority or an acquisit
 ## Writer
 
 - price and target are numeric amounts without a currency. Priority is a whole number from 1 to 3.
-- If asked to hide the target price, write "detail":"brief" and keep the supplied target; write "surface":null and "density":null unless the person requests those axes. Otherwise use "detail":null unless explicitly requested. Never write "surface":"card" or a named density just to fill an unset field.
+- To hide the target price, set detail to brief and keep the supplied target. Otherwise leave detail null.

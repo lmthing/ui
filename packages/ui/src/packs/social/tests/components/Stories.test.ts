@@ -24,9 +24,8 @@ describe("Stories schema", () => {
   });
   it("trims names, applies defaults, and accepts exact bounds and both photo forms", () => {
     const parsed = props.parse({ mine: true, people: [{ ...person, name: "  Maya " }] });
-    expect(parsed.density).toBeUndefined(); // inherits the phone's setting
+    expect(parsed).not.toHaveProperty("density"); // inherits the phone's setting
     expect(parsed).toMatchObject({
-      surface: "plain",
       detail: "full",
       people: [{ ...person, name: "Maya" }],
     });
@@ -126,7 +125,7 @@ describe("Stories states, parts and read", () => {
   });
   it("keeps finish addresses stable and hides only captions in brief", () => {
     const full = [...parts(example).keys()];
-    expect([...parts({ ...example, density: "compact", surface: "card" }).keys()]).toEqual(full);
+    expect([...parts({ ...example }).keys()]).toEqual(full);
     const brief = { ...example, detail: "brief" };
     expect([...parts(brief).keys()]).toEqual(full.filter((part) => !/\/(?:add_label|name)$/.test(part)));
     expect(props.parse(brief).people[0]?.name).toBe("Maya");

@@ -8,4 +8,4 @@ One assigned staff shift with start and end times, coworkers and swap or offer a
 
 ## Writer
 
-- Use detail "brief" only when asked to hide where and with whom; retain those values in place and with. A request to hide details does not change row spacing: set density to null unless tighter spacing is specifically requested. Set detail to null for the normal card.
+- Use detail "brief" only when asked to hide where and with whom; retain those values in place and with. Set detail to null for the normal card.
