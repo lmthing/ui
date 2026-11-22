@@ -3,8 +3,8 @@ import { nearestScrollDelta, type ScrollActivity } from "./scroll-follow";
 
 export function focusScroll(target: HTMLElement, node: HTMLElement) {
   if (target === node || !target.getBoundingClientRect) return;
-  const box = target.getBoundingClientRect(),
-    viewport = node.getBoundingClientRect();
+  const box = target.getBoundingClientRect();
+  const viewport = node.getBoundingClientRect();
   node.scrollBy({
     top: box.bottom > viewport.bottom ? box.bottom - viewport.bottom : Math.min(0, box.top - viewport.top),
     left: box.right > viewport.right ? box.right - viewport.right : Math.min(0, box.left - viewport.left),
@@ -152,8 +152,8 @@ export function revealWebPart(
   auto: WebScrollMotion,
 ) {
   if (!node.contains(target)) return;
-  const viewport = node.getBoundingClientRect(),
-    box = target.getBoundingClientRect();
+  const viewport = node.getBoundingClientRect();
+  const box = target.getBoundingClientRect();
   const extent = horizontal ? node.clientWidth : node.clientHeight;
   const scale = horizontal ? viewport.width / node.offsetWidth : viewport.height / node.offsetHeight;
   if (!scale) return;

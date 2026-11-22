@@ -1,6 +1,6 @@
 import type { SiblingPart } from "../../meta";
 import type { Definition } from "../../probes";
-import { hostOnlyAddresses, isPrivateMark } from "../action-input";
+import { hostOnlyAddresses, isPrivateMark } from "../private-controls";
 import { recordClockOffer } from "../clocks";
 import {
   affordancesOf,
