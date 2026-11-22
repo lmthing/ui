@@ -142,6 +142,7 @@ export const en = {
     },
     statuses: { pending: "Pending", approved: "Approved", declined: "Declined" },
     empty: "No requests yet",
+    queueEmpty: "No requests awaiting a decision",
     approve: "Approve",
     decline: "Decline",
     success: "Decision recorded",

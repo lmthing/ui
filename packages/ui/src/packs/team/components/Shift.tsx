@@ -131,27 +131,23 @@ function ShiftDetails({ details, density, loading }: {
 
 // prettier-ignore
 function ShiftHeader({
-  schedule: { date, from, to, range }, status, separator, density, loading,
+  schedule: { date, from, to }, status, separator, density,
 }: {
   schedule: ReturnType<typeof shiftSchedule>;
   status: string;
   separator: string;
   density: c.ThemeDensity;
-  loading: boolean;
 }) {
   return (
-    <kit.KitFigure density={density}
-      media={loading
-        ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["number", range]]} />
-        : <kit.KitText part={null} role="number" lines={1} tabular density={density}>
-            <kit.KitText part="from" role="number" tabular density={density}>{from}</kit.KitText>
-            {separator}
-            <kit.KitText part="to" role="number" tabular density={density}>{to}</kit.KitText>
-          </kit.KitText>}
-      caption={<kit.KitGrid fitLast density={density}>
+    <kit.KitContent density={density}>
+      <kit.KitFigure density={density}
+      value={{ text: from, part: "from" }}
+      unit={{ text: `${separator} ${to}`, part: "to", role: "figure", tone: "text", tabular: true }} />
+      <kit.KitGrid fitLast density={density}>
         <kit.KitLayoutText line={{ text: date, part: "date", role: "meta", tone: "muted" }} density={density} />
         <kit.KitLayoutText line={{ text: status, part: "status", role: "meta", tone: "muted" }} density={density} />
-      </kit.KitGrid>} />
+      </kit.KitGrid>
+    </kit.KitContent>
   );
 }
 
@@ -188,9 +184,11 @@ function ShiftBody({
         schedule={shiftSchedule(input, lang)}
         status={words.shiftStatus[input.status]}
         separator={words.shiftTimeSeparator}
-        {...{ density, loading }}
+        density={density}
       />
-      <ShiftDetails details={shiftDetails({ ...input, detail }, lang)} {...{ density, loading }} />
+      <kit.KitContent group="response" density={density}>
+        <ShiftDetails details={shiftDetails({ ...input, detail }, lang)} {...{ density, loading }} />
+      </kit.KitContent>
       <kit.KitActionFooter density={density}>
         <kit.KitAction part="swap" kind="secondary" label={labels.swap} disabled={!canSwap} />
         <kit.KitAction part="offer" kind="quiet" label={labels.offer} disabled={!canOffer} />

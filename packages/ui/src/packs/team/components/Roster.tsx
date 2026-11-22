@@ -2,7 +2,7 @@ import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 // prettier-ignore
-import { rosterCover, rosterDayHeading, rosterDateInWeek, rosterDays, rosterLocalDate, rosterPortrait, rosterReading, rosterShift, rosterToday, rosterWeek, shiftsByPerson, shiftsByStation, visibleRosterShifts } from "../copy";
+import { projectRosterDay, rosterCover, rosterDayHeading, rosterDateInWeek, rosterDays, rosterDayWake, rosterPortrait, rosterReading, rosterShift, rosterToday, rosterWeek, shiftsByPerson, shiftsByStation } from "../copy";
 import { teamWordsFor } from "../lang";
 
 // prettier-ignore
@@ -34,13 +34,10 @@ export const meta = {
   variantParts: { "detail.brief": { hides: ["role"] } },
   parts: ["root", "week", "matrix", "cover", "scroll_hint", "empty", ...portraits],
   items: { key: "shifts", parts: ["root", "role"] },
-  live: {
-    derive: (input): c.Values => {
-      if (input.style !== "day") return {};
-      const { week, date, shifts } = input as z.output<typeof props>;
-      const rosterDate = date ?? rosterLocalDate(new Date());
-      return { rosterDate, shifts: visibleRosterShifts(week, rosterDate, shifts) };
-    },
+  deviceDataWake: (_data, input, now) => rosterDayWake(input, now),
+  recordRuntime: {
+    kind: "roster_day",
+    project: ({ props: input, now }): c.Values => projectRosterDay(input as z.output<typeof props>, now),
   },
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] } },
@@ -174,7 +171,7 @@ function RosterDay({ people, shifts, density, detail }: MatrixProps) {
       {shiftsByStation(shifts).map(({ station, shifts: rows }) => (
         <kit.KitContent key={station ?? ""} density={density}>
           <kit.KitHeader
-            title={{ text: station ?? w.unassigned, role: "body", strong: true }}
+            title={{ text: station ?? w.unassigned, role: "meta", tone: "muted" }}
             density={density}
           />
           <kit.KitRowGroup density={density}>
@@ -190,12 +187,13 @@ function RosterDay({ people, shifts, density, detail }: MatrixProps) {
                   role="button"
                   label={label}
                   inset="none"
+                  inline
                   density={density}
                 >
                   <kit.KitMetaLine
                     title={{ text: name, role: "body", strong: true }}
                     meta={[
-                      { text: time, tabular: true },
+                      { text: time, role: "figure", compact: true, tabular: true, tone: "text" },
                       { text: role, part: "role" },
                     ]}
                     density={density}
@@ -264,7 +262,9 @@ export function Roster(input: ViewProps) {
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { words, lang } = kit.useWords(teamWordsFor);
-  const live = kit.useLiveControls(meta, input) as ViewProps & { rosterDate?: string };
+  const controls = kit.useLiveControls(meta, input) as ViewProps & { rosterDate?: string };
+  const { controller } = kit.useKit();
+  const live = controller ? controls : { ...input, ...projectRosterDay(input, Date.now()) };
   const day = live.rosterDate;
   const heading = day ? rosterDayHeading(day, lang) : rosterWeek(input.week, lang);
   const loading = state === "loading";
@@ -278,7 +278,7 @@ export function Roster(input: ViewProps) {
       {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["heading", heading]]} /> :
         <kit.KitText part="week" role="heading">{heading}</kit.KitText>}
       {loading && !day ? body : (
-        <kit.KitState part="empty" icon="calendar_days" message={words.roster.empty} density={density}
+        <kit.KitState part="empty" icon="calendar_days" message={day ? words.roster.empty : undefined} density={density}
           loading={<kit.KitSkeleton density={density} />}>
           {loaded}
         </kit.KitState>

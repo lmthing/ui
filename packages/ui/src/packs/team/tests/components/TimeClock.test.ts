@@ -171,6 +171,9 @@ it("advances an opted-in live break from trusted events and hides it again when 
   expect(runtime.read()).toContain("35:00");
   now.mockReturnValue(record.asOf + 2_000);
   expect(runtime.read()).toContain("35:02");
+  now.mockReturnValue(record.asOf + 3 * 60 * 60 * 1000);
+  expect(runtime.read()).toContain("5:35:00");
+  expect(runtime.read()).toContain("3:35:00");
   runtime.dispose();
   for (const [input, data, shown] of [
     [seed, open, true],

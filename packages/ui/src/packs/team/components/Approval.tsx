@@ -179,10 +179,10 @@ function ApprovalRow({ row, lead, surface, density, style }: RequestProps) {
           />
         </kit.KitContent>
         <kit.KitMetaLine
-          title={{ text: row.note, part: "note", role: "body" }}
+          title={{ text: row.note, part: "note", role: "body", tone: "muted" }}
           meta={[
             { text: row.dates, part: "dates" },
-            { text: amount, part: "amount", tabular: true, tone: "text" },
+            { text: amount, part: "amount", role: "figure", compact: true, tabular: true, tone: "text" },
           ]}
           density={density}
         />
@@ -198,8 +198,10 @@ function ApprovalRow({ row, lead, surface, density, style }: RequestProps) {
           />
         ) : (
           <kit.KitActionFooter density={density}>
-            <kit.KitAction part="approve" label={approve} kind="secondary" />
-            <kit.KitAction part="decline" label={decline} kind="danger" />
+            <kit.KitGrid density={density}>
+              <kit.KitAction part="approve" label={approve} kind="secondary" full />
+              <kit.KitAction part="decline" label={decline} kind="danger" full />
+            </kit.KitGrid>
           </kit.KitActionFooter>
         )}
       </kit.KitCard>
@@ -223,7 +225,13 @@ export function Approval(input: ApprovalProps) {
       <kit.KitState
         part="message"
         icon={state === "success" ? "check" : "clipboard_list"}
-        message={state === "success" ? words.approval.success : words.approval.empty}
+        message={
+          state === "success"
+            ? words.approval.success
+            : input.style === "my_requests"
+              ? words.approval.empty
+              : words.approval.queueEmpty
+        }
         density={density}
       >
         <kit.KitRowGroup separators={false} spacing="groups" density={density}>

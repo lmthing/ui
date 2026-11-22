@@ -87,7 +87,8 @@ a note, and approve and decline.
   `status` (`pending`, `approved`, `declined`) optional, 1–5; `style`.
 - Styles: `queue` (default, manager decisions), `my_requests` (requester status with no decision controls; missing status displays as pending).
 - Parts → actions: `message`; requests `root`, `content`, `from`, `photo`, `kind`, `title`, `dates`, `amount`,
-  `note`, `approve press`, `approve_label`, `decline press` (in `confirmParts`), `decline_label`, `status`. · States: filled, empty, success.
+  `note`, `approve press`, `approve_label`, `decline press` (in `confirmParts`), `decline_label`, `status`.
+- States: filled, empty (no requests awaiting a decision in the queue, or no submissions in `my_requests`), success.
 - Real path: requests in a shared app; the requester is told the answer.
 
 ### `Handover` · planned · content · people

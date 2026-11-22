@@ -73,6 +73,14 @@ export function activeBreakStart(data: DeviceData, input: Readonly<Record<string
   return clockSummary(data, input.on === true, "filled")?.breakStart;
 }
 
+function clockDurations(summary: ReturnType<typeof clockSummary>, input: Input) {
+  const shift = summary?.elapsed;
+  if (!input.breakTimer || summary?.breakStart === undefined || shift === undefined) return { shift };
+  const sinceSnapshot = (summary.asOf - summary.breakStart) / millisPerSecond;
+  const onBreak = Math.max(sinceSnapshot, input.liveBreakRunning ? (input.liveBreakSeconds ?? 0) : 0);
+  return { shift: shift + (onBreak - sinceSnapshot), onBreak };
+}
+
 export function timeClockDisplay(
   input: Input,
   state: StateName,
@@ -83,7 +91,7 @@ export function timeClockDisplay(
   const success = state === "success";
   const summary = clockSummary(data, input.on, state);
   const onBreak = summary?.breakStart !== undefined;
-  const elapsed = summary?.elapsed;
+  const { shift: elapsed, onBreak: breakElapsed } = clockDurations(summary, input);
   return {
     shift: input.shift ?? words.shift,
     status: success ? words.clockedOut : onBreak ? words.onBreak : input.on ? words.on : words.off,
@@ -93,17 +101,8 @@ export function timeClockDisplay(
         : undefined,
     elapsed: elapsed === undefined ? undefined : clockLine(elapsed, lang),
     elapsedLabel: elapsed === undefined ? undefined : words.elapsed,
-    breakElapsed:
-      input.breakTimer && summary?.breakStart !== undefined
-        ? clockLine(
-            Math.max(
-              (summary.asOf - summary.breakStart) / millisPerSecond,
-              input.liveBreakRunning ? (input.liveBreakSeconds ?? 0) : 0,
-            ),
-            lang,
-          )
-        : undefined,
-    breakElapsedLabel: input.breakTimer && onBreak ? words.breakElapsed : undefined,
+    breakElapsed: breakElapsed === undefined ? undefined : clockLine(breakElapsed, lang),
+    breakElapsedLabel: breakElapsed === undefined ? undefined : words.breakElapsed,
     breaks: summary
       ? words.breaks(numberLine(summary.breaks, lang), pluralForm(summary.breaks, lang))
       : undefined,

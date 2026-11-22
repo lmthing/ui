@@ -132,20 +132,30 @@ export function TimeClock(input: ClockProps) {
         meta={[
           { text: copy.status, part: "status", tone: state === "success" ? "good" : "muted" },
           { text: copy.since, part: "since" },
-          { text: copy.verification, part: "verification" },
         ]}
         density={density}
       />
       <ClockFigures {...{ copy, density }} />
       {copy.clockAction && (
         <kit.KitContent group="response" density={density}>
+          <kit.KitLayoutText
+            line={{ text: copy.verification, part: "verification", role: "meta", tone: "muted" }}
+            density={density}
+          />
           <kit.KitAction
             part="clock"
-            kind={input.on && copy.elapsed ? "secondary" : "primary"}
+            kind={copy.breakElapsed ? "quiet" : input.on && copy.elapsed ? "secondary" : "primary"}
             label={copy.clockAction}
             full
           />
-          {copy.breakAction && <kit.KitAction part="break" kind="quiet" label={copy.breakAction} full />}
+          {copy.breakAction && (
+            <kit.KitAction
+              part="break"
+              kind={copy.breakElapsed ? "primary" : "quiet"}
+              label={copy.breakAction}
+              full
+            />
+          )}
         </kit.KitContent>
       )}
     </kit.KitCard>
@@ -161,20 +171,36 @@ function ClockFigures({
 }) {
   return (
     <>
-      {copy.elapsed && (
+      {copy.breakElapsed ? (
+        <kit.KitGrid density={density}>
+          <kit.KitLayoutText
+            line={{ text: copy.breakElapsed, part: "break_elapsed", role: "figure", tabular: true }}
+            align="end"
+            density={density}
+            baseline
+          />
+          <kit.KitText part={null} role="number" density={density}>
+            <kit.KitText part="break_elapsed_label" role="label" tone="muted" density={density}>
+              {copy.breakElapsedLabel}
+            </kit.KitText>
+          </kit.KitText>
+          <kit.KitLayoutText
+            line={{ text: copy.elapsed, part: "elapsed", role: "figure", compact: true, tabular: true }}
+            align="end"
+            density={density}
+          />
+          <kit.KitLayoutText
+            line={{ text: copy.elapsedLabel, part: "elapsed_label", role: "meta", tone: "muted" }}
+            density={density}
+          />
+        </kit.KitGrid>
+      ) : copy.elapsed ? (
         <kit.KitFigure
           value={{ text: copy.elapsed, part: "elapsed" }}
-          unit={{ text: copy.elapsedLabel, part: "elapsed_label" }}
+          unit={{ text: copy.elapsedLabel, part: "elapsed_label", role: "meta" }}
           density={density}
         />
-      )}
-      {copy.breakElapsed && (
-        <kit.KitFigure
-          value={{ text: copy.breakElapsed, part: "break_elapsed" }}
-          unit={{ text: copy.breakElapsedLabel, part: "break_elapsed_label" }}
-          density={density}
-        />
-      )}
+      ) : null}
       <kit.KitLayoutText
         line={{ text: copy.breaks, part: "breaks", role: "meta", tone: "muted" }}
         density={density}

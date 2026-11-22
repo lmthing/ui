@@ -113,7 +113,10 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
-  read("Mark Anna's note about the ferns as seen", { address: "h1/r1/seen", action: "check" }),
+  read("Check the acknowledgment box on Anna's fern note, which hasn't been marked seen yet.", {
+    address: "h1/r1/seen",
+    action: "check",
+  }),
 ] satisfies c.Probe[];
 
 type HandoverProps = c.Props<typeof props, typeof meta>;
@@ -127,8 +130,13 @@ function HandoverNote({ note, detail, density }: NoteProps) {
   const { words } = kit.useWords(teamWordsFor);
   const { by, time, text, flag, seen } = note;
   const { markSeen, seenNote } = words.handover;
+  const checkLabel = (
+    <kit.KitLayoutText line={{ text: words.handover.seen, role: "meta", tone: "muted" }} density={density} />
+  );
   const check = (
-    <kit.KitCheck part="seen" done={seen} readonly={seen} label={seen ? seenNote(text) : markSeen(text)} />
+    <kit.KitContent lead={checkLabel} leadingAlign="row" density={density}>
+      <kit.KitCheck part="seen" done={seen} readonly={seen} label={seen ? seenNote(text) : markSeen(text)} />
+    </kit.KitContent>
   );
   return (
     <kit.KitRow item={note.id} label={by} inset="none" lineRole="body" trailing={check} density={density}>
@@ -172,7 +180,7 @@ export function Handover(input: HandoverProps) {
   return (
     <kit.KitCard part="root" padded={state === "filled"} surface={surface} density={density}>
       <kit.KitState part="message" icon="clipboard_list" density={density}>
-        <kit.KitRowGroup spacing="groups" density={density}>
+        <kit.KitRowGroup density={density}>
           {notes.map((note) => (
             <HandoverNote key={note.id} {...{ note, detail, density }} />
           ))}

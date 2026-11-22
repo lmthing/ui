@@ -77,6 +77,38 @@ describe("Roster schema and boundaries", () => {
   });
 });
 
+it("refreshes the mounted day schedule at local midnight without remounting", () => {
+  const midnight = new Date(2026, 10, 17).getTime();
+  vi.useFakeTimers();
+  vi.setSystemTime(midnight - 1_000);
+  const wire = { ...first, style: "day", shifts: [shift, { ...shift, day: 1, role: "Packing" }] };
+  const runtime = createScreenController({
+    screen: { id: "home", components: [{ ...wire, id: "rota", c: "Roster" }] },
+    defs: components,
+  });
+  const parsed = stampItemIds(meta, props.parse(wire));
+  const refresh = vi.fn(() => runtime.liveControls(meta, parsed, "rota"));
+  const unsubscribe = runtime.store.subscribe(refresh);
+  try {
+    runtime.mount();
+    expect(refresh()).toMatchObject({ rosterDate: "2026-11-16", shifts: [{ id: "r1" }] });
+    refresh.mockClear();
+    vi.advanceTimersByTime(1_000);
+    expect(refresh).toHaveBeenCalledTimes(1);
+    expect(refresh.mock.results[0]?.value).toMatchObject({
+      rosterDate: "2026-11-17",
+      shifts: [{ id: "r2" }],
+    });
+    expect(runtime.read()).toContain("Packing");
+    expect(runtime.press("rota/r1").ok).toBe(false);
+    expect(runtime.press("rota/r2").ok).toBe(true);
+  } finally {
+    unsubscribe();
+    runtime.dispose();
+    vi.useRealTimers();
+  }
+});
+
 it("takes the local day or a selected date, groups shifts by station, and preserves action addresses", () => {
   const input = {
     ...first,

@@ -145,9 +145,24 @@ export const probes = [
 type ViewProps = c.Props<typeof props, typeof meta>;
 type SheetRow = ViewProps["rows"][number] & ReturnType<typeof timesheetRow>;
 type MatrixProps = Pick<ViewProps, "rows"> & { brief: boolean; density: c.ThemeDensity };
+type CellText = Parameters<typeof kit.KitText>[0];
+
+function SheetTotalSpacing({
+  children,
+  density,
+}: {
+  children: CellText["children"];
+  density: c.ThemeDensity;
+}) {
+  return (
+    <kit.KitContent group="response" density={density}>
+      {children}
+    </kit.KitContent>
+  );
+}
+
 function SheetMatrix({ rows, brief, density }: MatrixProps) {
   type TableRow = Parameters<typeof kit.KitTable>[0]["rows"][number];
-  type CellText = Parameters<typeof kit.KitText>[0];
   const {
     words: { timesheet: wording },
     lang,
@@ -159,20 +174,24 @@ function SheetMatrix({ rows, brief, density }: MatrixProps) {
   const label = (children: string) => text({ children, part: null, tone: "muted", role: "label" });
   const value = (children: string, part: string | null, tone: CellText["tone"] = "text") =>
     text({ children, part, tone, align: "end", role: "number", numberScale: "compact", tabular: true });
-  const separated = (children: CellText["children"]) => (
-    <kit.KitContent group="response" density={density}>
-      {children}
-    </kit.KitContent>
-  );
   const line = (id: string, title: string, draw: (row: SheetRow) => CellText["children"]): TableRow => ({
     id,
     label: title,
-    heading: id === "total" && !brief ? separated(label(title)) : label(title),
+    heading:
+      id === "total" && !brief ? (
+        <SheetTotalSpacing density={density}>{label(title)}</SheetTotalSpacing>
+      ) : (
+        label(title)
+      ),
     cells: people.map((row) => ({
       id: row.id,
       content: (
         <kit.PartContext.Provider value={{ ...context, item: row.id }}>
-          {id === "total" && !brief ? separated(draw(row)) : draw(row)}
+          {id === "total" && !brief ? (
+            <SheetTotalSpacing density={density}>{draw(row)}</SheetTotalSpacing>
+          ) : (
+            draw(row)
+          )}
         </kit.PartContext.Provider>
       ),
     })),
@@ -214,7 +233,7 @@ function SheetColumns(people: SheetRow[], context: ReturnType<typeof kit.usePart
     label: row.name,
     header: (
       <kit.PartContext.Provider value={{ ...context, item: row.id }}>
-        <kit.KitText part="root" align="center">
+        <kit.KitText part="root" align="end">
           <kit.KitText part="name">{row.name}</kit.KitText>
         </kit.KitText>
       </kit.PartContext.Provider>
@@ -229,17 +248,30 @@ export function Timesheet(input: ViewProps) {
   const { words } = kit.useWords(teamWordsFor);
   return (
     <kit.KitCard padded {...{ density, surface }}>
-      <kit.KitState part="empty" icon="calendar_days" message={words.timesheet.empty} density={density}>
+      <kit.KitState
+        part="empty"
+        icon="calendar_days"
+        message={input.style === "mine" ? words.timesheet.empty : undefined}
+        density={density}
+      >
         <kit.KitContent density={density}>
-          <kit.KitCard part="period" style="inset" surface="plain" padded={input.rows.length > 2}>
-            <kit.KitText role="heading" part={null} density="comfortable">
-              {input.period}
-            </kit.KitText>
-          </kit.KitCard>
           {input.style === "mine" ? (
-            <PersonalSheet {...{ input, density }} brief={detail === "brief"} />
+            <>
+              <kit.KitHeader
+                title={{ text: input.period, part: "period", role: "body", strong: true }}
+                density={density}
+              />
+              <PersonalSheet {...{ input, density }} brief={detail === "brief"} />
+            </>
           ) : (
-            <SheetMatrix rows={input.rows} brief={detail === "brief"} density={density} />
+            <>
+              <kit.KitCard part="period" style="inset" surface="plain" padded={input.rows.length > 2}>
+                <kit.KitText role="heading" part={null} density="comfortable">
+                  {input.period}
+                </kit.KitText>
+              </kit.KitCard>
+              <SheetMatrix rows={input.rows} brief={detail === "brief"} density={density} />
+            </>
           )}
         </kit.KitContent>
       </kit.KitState>
@@ -262,40 +294,15 @@ function PersonalSheet({
   } = kit.useWords(teamWordsFor);
   const row = input.rows[0]!;
   const { total, overtime } = timesheetRow(row.hours, lang);
-  const punches = (row.punches ?? []).map((punch) => timesheetPunch(punch, lang));
   return (
     <>
       <kit.KitRow item={row.id} label={row.name} inset="none" inline fitContent density={density}>
         <kit.KitHeader
-          title={{ text: row.name, part: "name", role: "body", strong: true }}
+          title={{ text: row.name, part: "name", role: "meta", tone: "muted" }}
           meta={row.approved ? { text: w.approved, part: "approved", tone: "good" } : []}
           density={density}
         />
-        {!brief && (
-          <kit.KitContent density={density}>
-            <kit.KitLayoutText
-              line={{ text: w.punches, part: "punches", role: "body", strong: true }}
-              density={density}
-            />
-            <kit.KitRowGroup density={density}>
-              {punches.length ? (
-                punches.map(({ day, time }, index) => (
-                  <kit.KitMetaLine
-                    key={index}
-                    title={{ text: day, role: "meta" }}
-                    meta={{ text: time, tabular: true }}
-                    density={density}
-                  />
-                ))
-              ) : (
-                <kit.KitLayoutText
-                  line={{ text: w.noPunches, role: "meta", tone: "muted" }}
-                  density={density}
-                />
-              )}
-            </kit.KitRowGroup>
-          </kit.KitContent>
-        )}
+        {!brief && <PunchList punches={row.punches} density={density} />}
         <kit.KitMetaLine
           title={{ text: w.totalHours(total), part: "total", role: "body", strong: true, tabular: true }}
           meta={
@@ -310,5 +317,35 @@ function PersonalSheet({
         </kit.KitActionFooter>
       )}
     </>
+  );
+}
+
+function PunchList({ punches, density }: { punches: SheetRow["punches"]; density: c.ThemeDensity }) {
+  const {
+    words: { timesheet: w },
+    lang,
+  } = kit.useWords(teamWordsFor);
+  return (
+    <kit.KitContent group="response" density={density}>
+      <kit.KitLayoutText
+        line={{ text: w.punches, part: "punches", role: "meta", tone: "muted" }}
+        density={density}
+      />
+      <kit.KitRowGroup density={density} spacing="groups" separators={false}>
+        {punches?.length ? (
+          punches.map((punch, index) => {
+            const { day, time } = timesheetPunch(punch, lang);
+            return (
+              <kit.KitGrid key={index} fitLast density={density}>
+                <kit.KitLayoutText line={{ text: day, role: "meta" }} density={density} />
+                <kit.KitLayoutText line={{ text: time, role: "meta", tabular: true }} density={density} />
+              </kit.KitGrid>
+            );
+          })
+        ) : (
+          <kit.KitLayoutText line={{ text: w.noPunches, role: "meta", tone: "muted" }} density={density} />
+        )}
+      </kit.KitRowGroup>
+    </kit.KitContent>
   );
 }

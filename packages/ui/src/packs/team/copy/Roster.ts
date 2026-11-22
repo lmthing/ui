@@ -21,7 +21,7 @@ export const rosterWeek = (week: string, lang?: string) =>
 
 export const rosterDayHeading = (date: string, lang?: string) => appointmentDate(date, lang);
 
-export function rosterLocalDate(now: Date) {
+function rosterLocalDate(now: Date) {
   return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())).toISOString().slice(0, 10);
 }
 
@@ -34,9 +34,21 @@ export function rosterDateInWeek(week: string, date: string) {
   return day >= 0 && day < 7;
 }
 
-export function visibleRosterShifts<T extends Shift>(week: string, date: string, shifts: readonly T[]) {
-  const day = dayOfWeek(week, date);
-  return shifts.filter((shift) => shift.day === day);
+type DayInput<T> = { style?: string; week: string; date?: string | undefined; shifts: readonly T[] };
+
+export function projectRosterDay<T extends Shift>(
+  input: DayInput<T>,
+  now: number,
+): { rosterDate?: string; shifts?: T[] } {
+  if (input.style !== "day") return {};
+  const rosterDate = input.date ?? rosterLocalDate(new Date(now));
+  const day = dayOfWeek(input.week, rosterDate);
+  return { rosterDate, shifts: input.shifts.filter((shift) => shift.day === day) };
+}
+
+export function rosterDayWake(input: Readonly<Record<string, unknown>>, now: number) {
+  if (input.style !== "day" || input.date !== undefined) return;
+  return new Date(now).setHours(24, 0, 0, 0);
 }
 
 export function shiftsByStation<T extends Shift>(shifts: readonly T[]) {
