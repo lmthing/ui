@@ -82,14 +82,16 @@ it("KitSeatGrid aligns aisle gaps, reads taken seats, and moves or activates by 
   expect(farSeat.x + farSeat.width).toBeLessThanOrEqual(390);
   await page.keyboard.press("Space");
   await seat("A15").tap();
-  expect(await presses()).toEqual([
-    { address: "test/seats/r1/root", ok: true },
-    { address: "test/seats/r3/root", ok: true },
-    { address: "test/seats/r3/root", ok: true },
-  ]);
   expect(await grid.locator('[tabindex="0"]').count()).toBe(1);
   await page.keyboard.press("Tab");
   expect(await active()).toBe("C1");
+  await page.keyboard.press("Space");
+  expect(await presses()).toEqual([
+    { address: "test/seats/r1/root", ok: true, via: "toggle" },
+    { address: "test/seats/r3/root", ok: true, via: "press" },
+    { address: "test/seats/r3/root", ok: true, via: "press" },
+    { address: "test/single/r1/root", ok: true, via: "select" },
+  ]);
 });
 
 it("KitCellGrid draws scored states, clues and notes and reaches every coordinate", async () => {
@@ -128,8 +130,8 @@ it("KitCellGrid draws scored states, clues and notes and reaches every coordinat
   await page.keyboard.press("Control+Home");
   expect(await active()).toBe("1, 1, given, G");
   expect(await presses()).toEqual([
-    { address: "test/cells/r2/root", ok: true },
-    { address: "test/cells/r4/root", ok: true },
+    { address: "test/cells/r2/root", ok: true, via: "press" },
+    { address: "test/cells/r4/root", ok: true, via: "press" },
   ]);
   await page.keyboard.press("Control+End");
   const compact = page.getByRole("button", { name: "Compact" });

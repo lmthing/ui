@@ -54,6 +54,7 @@ The operator switches between active and completed work and opens a report, not 
   Counts, age, overdue, headings and order come from records and the clock; the host supplies overflow counts.
 - States: filled, empty, loading, error (retry).
 - Real path: an operator's request records on the device; other people seeing changes need a shared app.
+- Renderer: use stacked `StageBoard` lanes for counted status groups without move controls. The Requests adapter owns urgency/deadline order, active/completed filtering and row links.
 
 ### `RequestTriage` · planned · input · phone
 

@@ -2,25 +2,19 @@ import { XStack, YStack, isWeb } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
 import { usePart } from "../../part";
 import { useKitStyle } from "../../provider";
-import { KitText, shifted } from "../text";
-import { BoardCell, BoardGrid, type Target } from "./board-navigation";
+import { KitText } from "../text";
 import { BoardGlyph, type BoardMark } from "./board-mark";
+import { BoardGrid } from "./board-navigation";
 import { SeatHeading } from "./seat-heading";
+import { SeatTile, type Seat } from "./seat-tile";
 
-type Seat = {
-  id: string;
-  label: string;
-  kind: "free" | "taken" | "selected" | "aisle";
-  seatClass?: BoardMark;
-  target?: Target;
-};
 type Section = {
   id: string;
   label: string;
   rows: readonly { label: string; mark?: BoardMark; seats: readonly Seat[] }[];
 };
 type SeatGridProps = {
-  part?: string;
+  part?: string | null;
   loading?: boolean;
   screenLabel?: string;
   sections: readonly Section[];
@@ -40,48 +34,6 @@ const skeletonSections: readonly Section[] = [
     })),
   },
 ];
-
-function SeatTile({ seat, row, col, loading }: { seat: Seat; row: number; col: number; loading: boolean }) {
-  const ks = useKitStyle();
-  const selected = !loading && seat.kind === "selected";
-  const taken = seat.kind === "taken";
-  return (
-    <BoardCell
-      cell={{
-        row,
-        col,
-        id: seat.id,
-        target: seat.target,
-        label: seat.seatClass ? `${seat.label}, ${seat.seatClass.label}` : seat.label,
-        loading,
-        selected,
-        disabled: taken || undefined,
-      }}
-      width={size.control.md}
-      height={size.control.md}
-      justifyContent="center"
-      alignItems="center"
-      borderRadius={shifted("sm", ks.radiusShift)}
-      borderWidth={selected ? component.base.strongBorder : component.base.borderWidth}
-      borderColor={selected ? "$accent" : taken || loading ? "$line" : "$muted"}
-      backgroundColor={loading ? "$line" : selected ? "$accentSoft" : taken ? "$raised" : "$surface"}
-    >
-      {!loading && (
-        <KitText
-          part={null}
-          role="label"
-          tone={taken ? "muted" : "text"}
-          lines={1}
-          align="center"
-          strike={taken}
-        >
-          {seat.label}
-        </KitText>
-      )}
-      {!loading && seat.seatClass && <BoardGlyph mark={seat.seatClass} />}
-    </BoardCell>
-  );
-}
 
 function SeatRow({
   row,
@@ -158,11 +110,11 @@ function SeatSection({ section, loading }: { section: Section; loading: boolean 
 /** Seat labels and availability are caller-owned; a section is one keyboard grid. */
 export function KitSeatGrid({ part = "root", loading = false, screenLabel, sections }: SeatGridProps) {
   const ks = useKitStyle();
-  const address = usePart(part);
+  const address = usePart(part ?? undefined, part !== null);
   const drawings = loading && !sections.length ? skeletonSections : sections;
   return (
     <YStack
-      {...address}
+      {...(part === null ? {} : address)}
       width="100%"
       minWidth={component.base.none}
       gap={space[ks.density.gap]}

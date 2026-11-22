@@ -26,7 +26,7 @@ it("moves via keyboard, click and agent while keeping the original press link", 
     await page.goto(url(), { waitUntil: "networkidle" });
     await page.waitForFunction(() => Boolean(window.__lmthingUI));
     const item = page.getByTestId("home/c1/r1/root");
-    const finished = item.getByRole("button", { name: "Move Snake plant to Finished" });
+    const finished = item.getByRole("button", { name: "Move Snake plant to Ready" });
     await finished.focus();
     expect(await finished.evaluate((element) => element === document.activeElement)).toBe(true);
     await page.keyboard.press("Enter");
@@ -59,7 +59,7 @@ it("focuses the moved card itself when it has no remaining controls", async () =
   try {
     await page.goto(`${url()}?move-only`, { waitUntil: "networkidle" });
     const card = page.getByTestId("home/c1/r1/root");
-    await card.getByRole("button", { name: "Move Snake plant to Finished" }).press("Enter");
+    await card.getByRole("button", { name: "Move Snake plant to Ready" }).press("Enter");
     await page.waitForFunction(
       () => document.activeElement?.getAttribute("data-testid") === "home/c1/r1/root",
     );

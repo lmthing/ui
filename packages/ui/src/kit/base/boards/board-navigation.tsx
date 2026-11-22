@@ -13,7 +13,7 @@ import { useMoveFocus } from "../../interact";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKit } from "../../provider";
 
-export type Target = { item?: string; part: string };
+export type Target = { item?: string; part: string; action?: "select" | "toggle" };
 type Position = { row: number; col: number };
 type KeyEvent = Pick<KeyboardEvent, "key" | "ctrlKey" | "repeat" | "preventDefault" | "stopPropagation">;
 const positionKey = ({ row, col }: Position) => `${row}:${col}`;
@@ -35,7 +35,6 @@ export function nextPosition(positions: readonly Position[], from: Position, key
 
 const navigationKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"];
 const Navigation = createContext<ReturnType<typeof useNavigation> | null>(null);
-
 function useNavigation(positions: readonly Position[]) {
   const [focused, setFocused] = useState<string>();
   const pending = useRef<string | null>(null);
@@ -147,7 +146,12 @@ function useBoardCell(props: BoardCellProps, valid: boolean) {
   const nav = useContext(Navigation)!;
   const address = usePart(target?.part, valid);
   const { interactive, controller } = useKit();
-  const press = valid && interactive && controller ? () => void controller.press(address.testID) : undefined;
+  const action = target?.action;
+  const press =
+    valid && interactive && controller
+      ? () =>
+          action ? controller.act({ address: address.testID, action }) : controller.press(address.testID)
+      : undefined;
   const key = positionKey(props);
   useMoveFocus(nav.pending, key, address.ref);
   const ref = useCellRef(address.ref, nav.detachedFocus);

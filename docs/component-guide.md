@@ -164,6 +164,35 @@ Choose only axes and values that visibly change this component. These are candid
 See `src/components/Card.tsx` for Card finish and content axes and `src/components/List.tsx` for
 List's grouped rows, peek disclosure, inherited trail and per-row tone and mark.
 
+## Reusing a core renderer in a pack
+
+A view may also import an internal renderer through its kit folder's `index.ts`, such as
+`src/kit/timeline`. Pass named, typed data slots, not a second component definition, arbitrary
+children or model-supplied layout. The adapter formats copy, resolves variants and state, and
+supplies the owner's existing part names and stamped row ids. A missing slot adds no addressed
+part; an all-day label is an explicit time slot, not the default for a missing time.
+
+Keep the parent screen/component context. For a bounded list inside an item, use that item's
+stamped id and one declared part per position (for example `r1/stop_2`), never a synthetic child
+component or item id. Bind actions with the ordinary kit bases to the parent's controller.
+The owner keeps fallback, reading, action metadata, live values, tier and host data; even fold
+state is resolved by the owner and passed into the renderer.
+
+Keep the strict Writer schema and existing recipes unchanged. Test legacy recipe replay, drawn
+parts and action verbs at the old addresses, including hidden or absent slots. The Timeline
+pilot shares event rows and date/rail layout without replacing Agenda or Itinerary on the wire.
+
+| Internal renderer | Owner supplies |
+| --- | --- |
+| `SeatPlan` | Grid sections, optional marker, badges, preview/total and footer; or tables and an unassigned guest tray. Grid targets select or toggle as declared by the owner; table and guest targets retain their separate press/move policies. |
+| `StageBoard` | Ordered lanes, localized headings/counts, stamped cards and optional move presentation. Terminal outcomes, locks and eligible destinations are owner policy. A read-only queue passes no move presentation. |
+| `FeedRow`, `DateRows` | Named author, timestamp, payload, hierarchy and accessory slots. Date groups preserve the caller's order and distinguish explicit time labels from missing time; independently addressed accessories are not nested in a row link. |
+
+Pass seat activation as `target.action` (`select` or `toggle`); the owner decides which seats
+receive a target and when to confirm. Lane destinations carry both their dispatched `value`
+and display `label`. To expose a seat or feed action's label or icon as separate parts, name
+them in `contentParts`; these recipes do not derive additional address names.
+
 ## Words and language
 
 `KitProvider` and `PhoneScreen` take the app's BCP-47 `lang`; the default is English.

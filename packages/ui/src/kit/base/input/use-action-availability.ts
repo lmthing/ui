@@ -1,6 +1,4 @@
-import { useLayoutEffect, useState } from "react";
-import { motion } from "../../../catalog";
-import { useAnimatedValue } from "../../motion";
+import { useLayoutEffect } from "react";
 import { useKit } from "../../provider";
 import { useComponentState, usePartContext, usePartDisabled } from "../../part";
 
@@ -29,14 +27,4 @@ export function useActionAvailability(
     loading,
     inactive: loading || disabled || blocked || Boolean(interactive && controller && !offered),
   };
-}
-
-export function usePressMotion(inactive: boolean) {
-  const { environment, interactive } = useKit();
-  const [pressed, setPressed] = useState(false);
-  const still = environment.reduceMotion || environment.agentMode;
-  const scale = useAnimatedValue(pressed && !still ? motion.pressScale : 1, still);
-  return interactive && !inactive
-    ? { scale, onPressIn: () => setPressed(true), onPressOut: () => setPressed(false) }
-    : { scale };
 }

@@ -1,5 +1,5 @@
 import { XStack, styled, isWeb } from "tamagui";
-import { useActionPress, useCopyFeedback, useRevealControl } from "../../interact";
+import { useCopyFeedback, useRevealControl } from "../../interact";
 import {
   component,
   layoutType,
@@ -13,7 +13,8 @@ import {
 import { useKitStyle } from "../../provider";
 import { usePart } from "../../part";
 import { KitIcon, KitText, shifted, type IconTone, type TextTone } from "../text";
-import { useActionAvailability, usePressMotion } from "./use-action-availability";
+import { useActionAvailability } from "./use-action-availability";
+import { useActionPress } from "./use-action-press";
 
 export type ActionKind = "primary" | "secondary" | "quiet" | "danger";
 const webCopyButton = { tag: "button", type: "button" } as const;
@@ -57,6 +58,8 @@ type ActionProps = {
   kind?: ActionKind;
   goto?: string | undefined;
   part?: string | null;
+  /** When supplied, only these explicit parts are drawn for the label and icon. */
+  contentParts?: { label?: string; icon?: string };
   a11y?: string;
   full?: boolean;
   action?: Exclude<ActionName, "swipe" | "flip">;
@@ -68,14 +71,17 @@ function ActionContent({
   label,
   icon,
   part,
+  contentParts,
   tone,
   loading,
   quiet,
-}: Pick<ActionProps, "label" | "icon" | "part"> & {
+}: Pick<ActionProps, "label" | "icon" | "part" | "contentParts"> & {
   tone: TextTone & IconTone;
   loading: boolean;
   quiet: boolean;
 }) {
+  const labelPart = contentParts ? contentParts.label : `${part}_label`;
+  const iconPart = contentParts ? contentParts.icon : `${part}_icon`;
   return (
     <XStack position="relative" alignItems="center">
       <XStack
@@ -88,15 +94,15 @@ function ActionContent({
             name={icon}
             tone={tone}
             scale={label ? "sm" : "md"}
-            part={`${part}_icon`}
-            decorative={loading || part === null}
+            {...(iconPart ? { part: iconPart } : {})}
+            decorative={loading || part === null || !iconPart}
           />
         )}
         {label && (
           <KitText
             role={layoutType.meta}
             tone={tone}
-            part={loading || part === null ? null : `${part}_label`}
+            part={loading || part === null ? null : (labelPart ?? null)}
           >
             {label}
           </KitText>
@@ -121,6 +127,7 @@ export function KitAction({
   kind = "primary",
   goto,
   part = "root",
+  contentParts,
   a11y,
   full = false,
   action,
@@ -141,7 +148,6 @@ export function KitAction({
   const inactiveTone = kind === "primary" ? "text" : kind === "danger" ? "bad" : "muted";
   const captionTone = loading ? "text" : inactive ? inactiveTone : copied ? "good" : tone;
   const fill = loading ? (kind === "quiet" ? "transparent" : "$line") : inactiveSurface[kind];
-  const motionProps = usePressMotion(inactive);
   const handlers = useActionPress({ action, value, goto }, address.testID, inactive, reveal);
   return (
     <Frame
@@ -159,13 +165,13 @@ export function KitAction({
       {...(inactive ? { "aria-disabled": true, tabIndex: -1 } : {})}
       accessibilityLabel={(copied ? copiedLabel : undefined) ?? label ?? a11y}
       aria-live={copy ? "polite" : undefined}
-      {...motionProps}
       {...handlers}
     >
       <ActionContent
         label={copied && label ? (copiedLabel ?? label) : label}
         icon={copied && icon ? "check" : icon}
         {...{ part, tone: captionTone, loading, quiet: kind === "quiet" }}
+        {...(contentParts ? { contentParts } : {})}
       />
     </Frame>
   );
