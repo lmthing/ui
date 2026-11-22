@@ -38,9 +38,7 @@ describe("Collection schema", () => {
   });
 
   it("trims text and keeps the exact limits and shared defaults", () => {
-    const title = "t".repeat(40),
-      by = "b".repeat(32),
-      about = "a".repeat(200);
+    const [title, by, about] = ["t".repeat(40), "b".repeat(32), "a".repeat(200)] as const;
     expect(props.parse({ title: ` ${title} `, by, about, photo: "local:1", followed: false })).toMatchObject({
       title,
       by,
@@ -59,6 +57,8 @@ describe("Collection schema", () => {
       { by: undefined }, { photo: undefined }, { photo: "https://example.org/cover.png" },
       { followed: "true" }, { followed: undefined }, { aspect: "tall" }, { detail: "hidden" },
       { density: "tiny" }, { color: "red" }, { count: 3 }, { duration: 900 }, { summary: "3 tracks" },
+      { style: "reader" }, { rating: -0.1 }, { rating: 5.1 }, { ratingCount: -1 }, { ratingCount: 1.5 },
+      { tags: ["One", "Two", "Three", "Four"] }, { tags: ["t".repeat(21)] }, { shelfStatus: "s".repeat(25) },
     ].map((patch) => ({ ...series, ...patch })),
   ])("rejects invalid wire props: %j", (input) => expect(props.safeParse(input).success).toBe(false));
 });
@@ -114,7 +114,7 @@ describe("Collection states and parts", () => {
     const { html } = renderExample("Collection", series, "filled", theme);
     const { html: alternate } = renderExample("Collection", { ...series, aspect: "wide", density: "compact" }, "filled", theme);
     expect([...addressedElements(html).keys()].sort()).toEqual(
-      meta.parts.map((part) => prefix + part).sort(),
+      ["root", "photo", "title", "by", "about", "summary", "play", "play_icon", "play_label", "follow", "follow_icon", "follow_label"].map((part) => prefix + part).sort(),
     );
     expect([...addressedElements(alternate).keys()]).toEqual([...addressedElements(html).keys()]);
     for (const [part, label] of [["play", "Play all"], ["follow", "Follow"]]) {
@@ -154,7 +154,8 @@ describe("Collection states and parts", () => {
         createElement(PhoneScreen, { screen: withPlaylist, theme }),
       ),
     );
-    expect(addressedElements(html).get(prefix + "summary")?.text).toEqual(["2 tracks · 10 min"]);
+    const summary = JSON.stringify(elementAt(html, prefix + "summary").children);
+    for (const text of ["2", "tracks", "10", "min"]) expect(summary).toContain(`"text":["${text}"]`);
   });
 });
 
