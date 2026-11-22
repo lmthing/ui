@@ -125,22 +125,32 @@ export const probes = [
   },
 ] satisfies Probe[];
 
-// prettier-ignore
-const points = [[0.16, 0.1], [0.63, 0.1], [0.43, 0.9], [0.83, 0.9], [0.11, 0.9]] as const;
+const points = [
+  [0.16, 0.1],
+  [0.63, 0.1],
+  [0.43, 0.9],
+  [0.83, 0.9],
+  [0.11, 0.9],
+] as const;
 type MapProps = Props<typeof props, typeof meta>;
-// prettier-ignore
 function PinMap({ pins, userLocation, selected }: Pick<MapProps, "pins" | "userLocation" | "selected">) {
   const { words, lang } = kit.useWords();
   if (!userLocation && selected === undefined) return <kit.KitMapTile count={pins.length} />;
   const markers = pins.map(({ id }, index) => {
     const [x, y] = points[index]!;
-    return { id, x, y, mark: "price" as const, label: numberLine(index + 1, lang), selected: selected === index };
+    return {
+      id,
+      x,
+      y,
+      mark: "price" as const,
+      label: numberLine(index + 1, lang),
+      selected: selected === index,
+    };
   });
   const location = { id: "r6", x: 0.56, y: 0.47, label: words.userLocationLabel, mark: "avatar" } as const;
   return <kit.KitMapTile pins={userLocation ? [...markers, location] : markers} />;
 }
 
-// prettier-ignore
 export function MapPins(input: Props<typeof props, typeof meta>) {
   const { pins, trail, selected } = input;
   const density = kit.useVariant("density", meta.variants.density, input.density);
@@ -160,12 +170,32 @@ export function MapPins(input: Props<typeof props, typeof meta>) {
         />
       ) : (
         pins.map((pin, index) => (
-          <kit.KitRow key={pin.id} item={pin.id} label={pin.label} goto={pin.goto}
-            mark={pin.mark} selected={selected === index} density={density} inset={inset}
-            lineRole="body" leadingAlign="line"
-            trailing={pin.goto && trail === "chevron" ? <kit.KitIcon name="chevron_right" decorative /> : undefined}
-            leading={<kit.KitText role="number" numberScale="compact" tone={pin.tone === "neutral" ? "text" : pin.tone}
-              tabular part={null}>{index + 1}</kit.KitText>}>
+          <kit.KitRow
+            key={pin.id}
+            item={pin.id}
+            label={pin.label}
+            goto={pin.goto}
+            mark={pin.mark}
+            selected={selected === index}
+            density={density}
+            inset={inset}
+            lineRole="body"
+            leadingAlign="line"
+            trailing={
+              pin.goto && trail === "chevron" ? <kit.KitIcon name="chevron_right" decorative /> : undefined
+            }
+            leading={
+              <kit.KitText
+                role="number"
+                numberScale="compact"
+                tone={pin.tone === "neutral" ? "text" : pin.tone}
+                tabular
+                part={null}
+              >
+                {index + 1}
+              </kit.KitText>
+            }
+          >
             <kit.KitText
               role="body"
               part="label"

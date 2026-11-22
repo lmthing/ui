@@ -62,22 +62,36 @@ const item = z.strictObject({
   ...itemVariantProps(meta.items.variants),
 });
 
-// prettier-ignore
-export const props = z.strictObject({
-  ...variantProps(meta.variants), style: z.enum(["detail", "picker", "menu"]).default("detail"),
-  title: text(40), sub: text(100).optional(), items: z.array(item).min(1).max(12),
-  at: z.int().min(0).optional(), action: z.strictObject({ label: text(24), goto: screenId.optional() }).optional(),
-})
-  .refine(({ style, items }) => style !== "detail" || (items.length <= 6 && items.every((row) => row.value)),
-    { path: ["items"], message: "Detail takes one to six facts, each with a value" })
-  .refine(({ style, items }) => style !== "picker" || items.length >= 6,
-    { path: ["items"], message: "A picker is for six or more options; use a choice for fewer" })
-  .refine(({ style, items }) => style !== "menu" || (items.length >= 2 && items.length <= 6),
-    { path: ["items"], message: "A menu takes two to six items" })
-  .refine(({ style, at, items }) => at === undefined || (style === "picker" && at < items.length),
-    { path: ["at"], message: "At is the chosen option of a picker" })
-  .refine(({ style, action }) => action === undefined || style === "detail",
-    { path: ["action"], message: "Only a detail has an action" })
+export const props = z
+  .strictObject({
+    ...variantProps(meta.variants),
+    style: z.enum(["detail", "picker", "menu"]).default("detail"),
+    title: text(40),
+    sub: text(100).optional(),
+    items: z.array(item).min(1).max(12),
+    at: z.int().min(0).optional(),
+    action: z.strictObject({ label: text(24), goto: screenId.optional() }).optional(),
+  })
+  .refine(
+    ({ style, items }) => style !== "detail" || (items.length <= 6 && items.every((row) => row.value)),
+    { path: ["items"], message: "Detail takes one to six facts, each with a value" },
+  )
+  .refine(({ style, items }) => style !== "picker" || items.length >= 6, {
+    path: ["items"],
+    message: "A picker is for six or more options; use a choice for fewer",
+  })
+  .refine(({ style, items }) => style !== "menu" || (items.length >= 2 && items.length <= 6), {
+    path: ["items"],
+    message: "A menu takes two to six items",
+  })
+  .refine(({ style, at, items }) => at === undefined || (style === "picker" && at < items.length), {
+    path: ["at"],
+    message: "At is the chosen option of a picker",
+  })
+  .refine(({ style, action }) => action === undefined || style === "detail", {
+    path: ["action"],
+    message: "Only a detail has an action",
+  })
   // `root` says what an item does: a picker option is chosen, a menu item pressed, a fact only read.
   .overwrite((value) => ({
     ...value,
@@ -116,15 +130,15 @@ const walkDetails = {
   ],
   action: { label: "Open booking", goto: "booking" },
 } satisfies z.input<typeof props>;
-// prettier-ignore
 const fernMenu = {
-  style: "menu", title: "Fern",
+  style: "menu",
+  title: "Fern",
   items: [
-    { label: "Edit", icon: "pencil", goto: "edit_plant" }, { label: "Share", icon: "share" },
+    { label: "Edit", icon: "pencil", goto: "edit_plant" },
+    { label: "Share", icon: "share" },
     { label: "Remove", icon: "trash", tone: "bad" },
   ],
 } satisfies z.input<typeof props>;
-// prettier-ignore
 export const examples = [
   walkDetails,
   {
@@ -158,7 +172,6 @@ export const probes = [
   read("Choose Hall", { address: "s1/r3", action: "select" }, 1),
 ] satisfies Probe[];
 
-// prettier-ignore
 export function Sheet(input: Props<typeof props, typeof meta>) {
   const { style, title, sub, items, at, action } = input;
   const density = useVariant("density", meta.variants.density, input.density);
@@ -167,25 +180,50 @@ export function Sheet(input: Props<typeof props, typeof meta>) {
     <KitSheet title={title} sub={sub} closeLabel={closeLabel}>
       {items.map((row, index) => {
         const time = style === "detail" && /(?:^|\s)\d{1,2}:\d{2}\b/.test(row.value ?? "");
-        return <KitRow
-          key={row.id}
-          item={row.id}
-          label={row.label}
-          inset="none"
-          inline={density === "compact" && style === "detail" && !row.goto}
-          density={density}
-          goto={row.goto}
-          leading={
-            row.icon ? <KitIcon name={row.icon} tone={row.tone === "neutral" ? "muted" : row.tone} part="icon" /> : undefined
-          }
-          trailing={style === "picker" && index === at ? <KitTrail kind="check" /> : undefined}
-          {...(style === "detail" ? {} : { role: "button" as const })}
-        >
-          <KitText role="body" tone={row.tone === "neutral" ? "text" : row.tone} part="label" density={density}>{row.label}</KitText>
-          {row.meta && <KitText role="caption" tone="muted" part="meta" density={density}>{row.meta}</KitText>}
-          {row.value && <KitText role={time ? "number" : "body"} numberScale="compact" tabular={time}
-            tone={time ? "text" : "muted"} part="value" density={density}>{row.value}</KitText>}
-        </KitRow>
+        return (
+          <KitRow
+            key={row.id}
+            item={row.id}
+            label={row.label}
+            inset="none"
+            inline={density === "compact" && style === "detail" && !row.goto}
+            density={density}
+            goto={row.goto}
+            leading={
+              row.icon ? (
+                <KitIcon name={row.icon} tone={row.tone === "neutral" ? "muted" : row.tone} part="icon" />
+              ) : undefined
+            }
+            trailing={style === "picker" && index === at ? <KitTrail kind="check" /> : undefined}
+            {...(style === "detail" ? {} : { role: "button" as const })}
+          >
+            <KitText
+              role="body"
+              tone={row.tone === "neutral" ? "text" : row.tone}
+              part="label"
+              density={density}
+            >
+              {row.label}
+            </KitText>
+            {row.meta && (
+              <KitText role="caption" tone="muted" part="meta" density={density}>
+                {row.meta}
+              </KitText>
+            )}
+            {row.value && (
+              <KitText
+                role={time ? "number" : "body"}
+                numberScale="compact"
+                tabular={time}
+                tone={time ? "text" : "muted"}
+                part="value"
+                density={density}
+              >
+                {row.value}
+              </KitText>
+            )}
+          </KitRow>
+        );
       })}
       {action && <KitAction label={action.label} kind="primary" goto={action.goto} part="action" full />}
     </KitSheet>

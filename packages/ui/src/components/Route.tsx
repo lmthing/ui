@@ -1,8 +1,18 @@
 import { z } from "zod";
-// prettier-ignore
 import {
-  probesFor, detailOf, itemsOf, placeholderTitle, text, thingOf, titleOf, variantProps, wordsFor,
-  type FallbackInput, type Meta, type Probe, type Props,
+  probesFor,
+  detailOf,
+  itemsOf,
+  placeholderTitle,
+  text,
+  thingOf,
+  titleOf,
+  variantProps,
+  wordsFor,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
 } from "../catalog";
 import { KitCard, KitContent, KitGrid, KitMetaLine, KitRouteStop, KitRow, KitText, useWords } from "../kit";
 import { prompt } from "../entry/prompt-Route.generated";
@@ -90,35 +100,52 @@ export const examples = [
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Route");
-// prettier-ignore
 export const probes = [
-  choose( "Show the places on our dog walk in the order we visit: Home, Park gate, Pond, Home, covering 3.2 km",
+  choose(
+    "Show the places on our dog walk in the order we visit: Home, Park gate, Pond, Home, covering 3.2 km",
   ),
-  choose( "Show past plant-care events in date order: watered the fern on June 2, repotted basil on June 5, misted the orchid on June 9", "Timeline",
+  choose(
+    "Show past plant-care events in date order: watered the fern on June 2, repotted basil on June 5, misted the orchid on June 9",
+    "Timeline",
   ),
-  write( "Our dog walk visits Home, Park gate, Pond, then Home again, covering 3.2 km; pause for water at Pond",
+  write(
+    "Our dog walk visits Home, Park gate, Pond, then Home again, covering 3.2 km; pause for water at Pond",
   ),
-  { ...write( "Show the dog walk from Home to Pond, 2 km total. Save the note Water break for Pond but hide stop notes on screen."), variant: { axis: "detail", value: "brief" },
+  {
+    ...write(
+      "Show the dog walk from Home to Pond, 2 km total. Save the note Water break for Pond but hide stop notes on screen.",
+    ),
+    variant: { axis: "detail", value: "brief" },
   },
-  { ...write("Show the route from Home to Park gate on foot; it takes 25 min."), expectProps: { mode: "walk" },
+  {
+    ...write("Show the route from Home to Park gate on foot; it takes 25 min."),
+    expectProps: { mode: "walk" },
   },
-  { ...write("Show the route between Home and Park gate. Add the total travel time exactly as 25 min."), expectProps: { duration: "25 min" },
+  {
+    ...write("Show the route between Home and Park gate. Add the total travel time exactly as 25 min."),
+    expectProps: { duration: "25 min" },
   },
 ] satisfies Probe[];
 
 type ViewProps = Props<typeof props, typeof meta>;
-// prettier-ignore
 function TripSummary({ mode, duration }: Pick<ViewProps, "mode" | "duration">) {
   const { routeModes } = useWords().words;
-  return <KitRow part={null} label={mode ? routeModes[mode] : duration!}>
-    <KitGrid columns={2}>
-      <KitMetaLine title={mode ? { text: routeModes[mode], part: "mode" } : { text: duration, part: "duration" }} />
-      {mode && duration && <KitText role="body" part="duration" align="end" tabular>{duration}</KitText>}
-    </KitGrid>
-  </KitRow>;
+  return (
+    <KitRow part={null} label={mode ? routeModes[mode] : duration!}>
+      <KitGrid columns={2}>
+        <KitMetaLine
+          title={mode ? { text: routeModes[mode], part: "mode" } : { text: duration, part: "duration" }}
+        />
+        {mode && duration && (
+          <KitText role="body" part="duration" align="end" tabular>
+            {duration}
+          </KitText>
+        )}
+      </KitGrid>
+    </KitRow>
+  );
 }
 
-// prettier-ignore
 export function Route({ stops, distance, detail, mode, duration }: ViewProps) {
   const measure = distance?.match(/^(\d+(?:[.,]\d+)?)(\s+.*)?$/);
   const hasSummary = Boolean(mode || duration);
@@ -149,15 +176,7 @@ export function Route({ stops, distance, detail, mode, duration }: ViewProps) {
             {header ? (
               <KitGrid columns={2}>
                 {content}
-                <KitText role={measure ? "number" : "body"}
-                  numberScale={detail === "brief" || hasSummary ? "compact" : "display"} align="end" tabular part={null}>
-                  {measure ? measure[1] : distance}
-                  {measure?.[2] && (
-                    <KitText role="caption" tone="muted" part={null}>
-                      {measure[2]}
-                    </KitText>
-                  )}
-                </KitText>
+                {routeDistance(distance, measure, detail === "brief" || hasSummary)}
               </KitGrid>
             ) : (
               content
@@ -173,5 +192,24 @@ export function Route({ stops, distance, detail, mode, duration }: ViewProps) {
         );
       })}
     </KitCard>
+  );
+}
+
+function routeDistance(distance: string, measure: RegExpMatchArray | null | undefined, compact: boolean) {
+  return (
+    <KitText
+      role={measure ? "number" : "body"}
+      numberScale={compact ? "compact" : "display"}
+      align="end"
+      tabular
+      part={null}
+    >
+      {measure ? measure[1] : distance}
+      {measure?.[2] && (
+        <KitText role="caption" tone="muted" part={null}>
+          {measure[2]}
+        </KitText>
+      )}
+    </KitText>
   );
 }

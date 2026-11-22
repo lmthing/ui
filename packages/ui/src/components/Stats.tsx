@@ -124,17 +124,55 @@ export const probes = [
 
 type Tile = Props<typeof props, typeof meta>["tiles"][number];
 
-// prettier-ignore
-function TileValue({ tile, density, grid, reserveUnit }: { tile: Tile; density: ThemeDensity; grid: boolean; reserveUnit: boolean }) {
-  const unit = tile.unit && <KitText role="caption" tone="muted" part="unit" density={density} align={grid ? "start" : "end"}>{grid ? " " : ""}{tile.unit}</KitText>;
-  const value = <KitText role="number" part="value" align={grid ? "start" : "end"} density={density}>
-    {tile.value}{grid && unit}
-  </KitText>;
-  return grid ? value : <>{value}{unit || (reserveUnit && <KitText role="caption" part={null} density={density}>{"\u00a0"}</KitText>)}</>;
+function TileValue({
+  tile,
+  density,
+  grid,
+  reserveUnit,
+}: {
+  tile: Tile;
+  density: ThemeDensity;
+  grid: boolean;
+  reserveUnit: boolean;
+}) {
+  const unit = tile.unit && (
+    <KitText role="caption" tone="muted" part="unit" density={density} align={grid ? "start" : "end"}>
+      {grid ? " " : ""}
+      {tile.unit}
+    </KitText>
+  );
+  const value = (
+    <KitText role="number" part="value" align={grid ? "start" : "end"} density={density}>
+      {tile.value}
+      {grid && unit}
+    </KitText>
+  );
+  return grid ? (
+    value
+  ) : (
+    <>
+      {value}
+      {unit ||
+        (reserveUnit && (
+          <KitText role="caption" part={null} density={density}>
+            {"\u00a0"}
+          </KitText>
+        ))}
+    </>
+  );
 }
 
-// prettier-ignore
-function TileRow({ tile, grid, density, reserveUnit }: { tile: Tile; grid: boolean; density: ThemeDensity; reserveUnit: boolean }) {
+function TileRow({
+  tile,
+  grid,
+  density,
+  reserveUnit,
+}: {
+  tile: Tile;
+  grid: boolean;
+  density: ThemeDensity;
+  reserveUnit: boolean;
+}) {
   const trend = tile.trend && (
     <KitIcon
       name={tile.trend === "up" ? "trending_up" : tile.trend === "down" ? "trending_down" : "minus"}
@@ -143,29 +181,67 @@ function TileRow({ tile, grid, density, reserveUnit }: { tile: Tile; grid: boole
       part="trend"
     />
   );
-  const label = <KitContent lead={trend} lineRole="body" density={density}>
-    <KitText role="body" tone="muted" part="label" density={density}>{tile.label}</KitText>
-  </KitContent>;
+  const label = (
+    <KitContent lead={trend} lineRole="body" density={density}>
+      <KitText role="body" tone="muted" part="label" density={density}>
+        {tile.label}
+      </KitText>
+    </KitContent>
+  );
   const value = <TileValue {...{ tile, density, grid, reserveUnit }} />;
-  return <KitRow item={tile.id} label={tile.label} lineRole="number" density={density} inset={grid ? "none" : "md"}>
-    {grid ? <>{value}{label}</> : <KitGrid fitLast density={density}>{label}{value}</KitGrid>}
-  </KitRow>;
+  return (
+    <KitRow
+      item={tile.id}
+      label={tile.label}
+      lineRole="number"
+      density={density}
+      inset={grid ? "none" : "md"}
+    >
+      {grid ? (
+        <>
+          {value}
+          {label}
+        </>
+      ) : (
+        <KitGrid fitLast density={density}>
+          {label}
+          {value}
+        </KitGrid>
+      )}
+    </KitRow>
+  );
 }
 
-// prettier-ignore
 export function Stats({ arrange, tiles, density: requested }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
   const density = useVariant("density", meta.variants.density, requested);
   const grid = arrange === "grid";
   const reserveUnit = tiles.some((tile) => tile.unit);
   const columns = tiles.length === 3 ? 3 : 2;
-  return <KitCard style="inset" part="root" padded={grid && state !== "empty"} density={density}>
-    {state === "empty" ? <KitEmpty part="label" /> :
-      state === "loading" && !grid ? <KitSkeleton rows={tiles.length} lead="none" shape="pairs" density={density} /> :
-      <KitGrid {...{ arrange, columns, density }}>
-        {tiles.map((tile) => state === "loading"
-          ? <KitSkeleton key={tile.id} rows={1} lead="none" shape="headline" inset="none" density={density} />
-          : <TileRow key={tile.id} {...{ tile, grid, density, reserveUnit }} />)}
-      </KitGrid>}
-  </KitCard>;
+  return (
+    <KitCard style="inset" part="root" padded={grid && state !== "empty"} density={density}>
+      {state === "empty" ? (
+        <KitEmpty part="label" />
+      ) : state === "loading" && !grid ? (
+        <KitSkeleton rows={tiles.length} lead="none" shape="pairs" density={density} />
+      ) : (
+        <KitGrid {...{ arrange, columns, density }}>
+          {tiles.map((tile) =>
+            state === "loading" ? (
+              <KitSkeleton
+                key={tile.id}
+                rows={1}
+                lead="none"
+                shape="headline"
+                inset="none"
+                density={density}
+              />
+            ) : (
+              <TileRow key={tile.id} {...{ tile, grid, density, reserveUnit }} />
+            ),
+          )}
+        </KitGrid>
+      )}
+    </KitCard>
+  );
 }
