@@ -19,7 +19,18 @@ import {
   type Definition,
 } from "@lmthing/ui/catalog";
 
-const ids = ["Feed", "Post", "Comments", "Poll", "Stories", "EventCard", "Challenge", "Invite"] as const;
+const ids = [
+  "Feed",
+  "Post",
+  "Comments",
+  "Poll",
+  "Stories",
+  "EventCard",
+  "Challenge",
+  "Invite",
+  "StoryViewer",
+  "LiveRoom",
+] as const;
 const scoped = createRegistry({ packs: ["social"], includeDrafts: true });
 const empty = { things: [], items: [] };
 const recipes = {

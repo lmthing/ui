@@ -91,7 +91,12 @@ describe("Invite fallback and metadata", () => {
 describe("Invite state, parts and reading", () => {
   it("shows the same invite code as text and in a scannable, labeled QR", () => {
     const drawn = draw(example);
-    expect([...drawn.keys()].sort()).toEqual(meta.parts.map(address).sort());
+    expect([...drawn.keys()].sort()).toEqual(
+      meta.parts
+        .filter((part) => part !== "members_title")
+        .map(address)
+        .sort(),
+    );
     expect(drawn.get(address("title"))?.text).toEqual([example.title]);
     expect(drawn.get(address("code"))?.text).toEqual([example.code]);
     expect(drawn.get(address("qr"))?.attributes).toContain('aria-label="Invite QR code"');

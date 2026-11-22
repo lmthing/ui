@@ -2,7 +2,7 @@ import { numberLine, pluralForm, type StateName } from "../../../catalog";
 import { socialWordsFor } from "../lang";
 
 type InviteCount = { joined?: number | undefined; detail: "full" | "brief" };
-type InviteReading = InviteCount & { qr: boolean };
+type InviteReading = InviteCount & { qr: boolean; style?: string };
 
 export function inviteJoinedLine({ joined, detail }: InviteCount, lang?: string) {
   if (joined === undefined || detail === "brief") return;
@@ -16,6 +16,7 @@ export function inviteReading(input: unknown, state: StateName, lang?: string): 
   const joined = inviteJoinedLine(value, lang);
   return [
     ...(joined === undefined ? [] : [joined]),
+    ...(value.style === "starter_pack" ? [words.members] : []),
     ...(value.qr ? [words.qr] : []),
     words.copy,
     words.share,

@@ -8,11 +8,12 @@ type Row = { id?: string; cells: readonly Cell[] };
 export const tableSummaryModes = ["sum", "avg", "count"] as const;
 type Summary = (typeof tableSummaryModes)[number];
 
-export function tableChoices(columns: readonly Column[]) {
+export function tableChoices(columns: readonly Column[], lang?: string) {
   const repeated = new Set(columns.map(({ label }) => label)).size !== columns.length;
+  const words = dataWordsFor(lang);
   return columns.map(({ label }, value) => ({
     value,
-    label: repeated ? dataWordsFor().tableColumn(label, numberLine(value + 1)) : label,
+    label: repeated ? words.tableColumn(label, numberLine(value + 1, lang)) : label,
   }));
 }
 
@@ -127,7 +128,7 @@ export function tableReading(
   const stamped = rows.map((row, index) => ({ ...row, id: row.id ?? `r${index + 1}` }));
   const summary = summaryRow && tableSummary(columns, rows, summaryRow, lang);
   return [
-    tableChoices(columns)
+    tableChoices(columns, lang)
       .map(({ label }) => label)
       .join(" · "),
     ...tableSections(stamped, columns, group, sort, lang).flatMap(({ label, rows }) => [
