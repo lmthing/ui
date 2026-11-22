@@ -18,7 +18,7 @@ import {
   type Meta,
   type StateName,
 } from "@lmthing/ui/catalog";
-import { renderers, themeFor } from "@lmthing/ui/kit";
+import { kitThemes, renderers } from "@lmthing/ui/kit";
 import { addressedElements, config, exampleDeviceData, renderExample } from "./render";
 import { selectedIds } from "../scripts/build";
 import { conformanceThemes, modes } from "./themes";
@@ -123,16 +123,16 @@ it("validates noncontiguous derived IDs, their item roots, and declared parts", 
 });
 
 describe("themes", () => {
-  it("builds and renders every preset × mode × accent with all roles", () => {
-    expect(Object.keys(config.themes).filter((name) => name.startsWith("kit_"))).toHaveLength(288);
+  it("generates every preset × mode × accent with all roles", () => {
+    expect(Object.keys(kitThemes)).toHaveLength(presets.length * modes.length * accents.length);
     const css = config.getCSS();
+    for (const name of Object.keys(kitThemes)) expect(css).toContain(`.t_${name}`);
     for (const preset of presets)
       for (const mode of modes)
         for (const accent of accents) {
-          const name = themeName({ preset: preset.id, mode, accent: accent.id });
-          const roles = themeRoles(preset, accent, mode);
-          expect(themeFor(name)).toEqual({ ...roles, color: roles.text, background: roles.bg });
-          expect(css).toContain(`.t_${name}`);
+          expect(kitThemes[themeName({ preset: preset.id, mode, accent: accent.id })]).toEqual(
+            themeRoles(preset, accent, mode),
+          );
         }
   });
 });

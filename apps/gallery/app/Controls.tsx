@@ -1,7 +1,7 @@
 import { TamaguiProvider, YStack } from "tamagui";
-import { themeName, type ScreenLike } from "@lmthing/ui/catalog";
+import { accents, presets, themeName, type ScreenLike, type ThemeChoice } from "@lmthing/ui/catalog";
 import { PhoneScreen } from "@lmthing/ui/kit";
-import { config, controlsTheme } from "../index";
+import { config } from "../index";
 import { resolvePhoto } from "./photos";
 const header = { id: "h1", c: "Header", title: "Try the controls" };
 const button = { id: "b1", c: "Button", label: "Save" };
@@ -107,7 +107,11 @@ const onChange = (screen: ScreenLike, values: Record<string, unknown>) =>
   event("gallery-change", { screen, values });
 const requestPhoto = async () => "lib:plants";
 export function Controls({ kind, query }: { kind: string; query: URLSearchParams }) {
-  const theme = controlsTheme(query);
+  const theme: ThemeChoice = {
+    preset: presets.find(({ id }) => id === query.get("preset"))?.id ?? "calm",
+    accent: accents.find(({ id }) => id === query.get("accent"))?.id ?? "moss",
+    mode: query.get("mode") === "dark" ? "dark" : "light",
+  };
   return (
     <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
       <YStack width="100%" maxWidth={430} height="100vh" alignSelf="center">

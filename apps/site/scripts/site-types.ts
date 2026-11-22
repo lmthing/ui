@@ -38,8 +38,9 @@ export type RecordedScreen = {
 export type ReadProbe = { model: string; task: string; text: string; address: string; action: string };
 export type WaveInfo = { wave: number; why: string; packs: string[] };
 
-export type Preset = { id: string; mood: string; shape: string; density: string; font: string };
-export type Accent = { id: string };
+export type Preset = { id: string; mood: string; shape: string; density: string; font: string; roles: Roles };
+export type Roles = { light: Record<string, string>; dark: Record<string, string> };
+export type Accent = { id: string; roles: Roles };
 
 export type Stats = {
   core: number;
@@ -70,4 +71,5 @@ export type SiteData = {
   accents: Accent[];
   stats: Stats;
   waves: WaveInfo[];
+  themeVars: Record<string, Record<string, string>>;
 };

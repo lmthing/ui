@@ -2,9 +2,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider, createTamagui, createTokens } from "tamagui";
 import {
-  accents,
   components,
-  presets,
   selectDeviceData,
   stampItemIds,
   themeName,
@@ -20,14 +18,13 @@ import {
   PartScope,
   PhoneScreen,
   kitFonts,
-  themeFor,
+  kitThemes,
   kitTokens,
   renderers,
 } from "@lmthing/ui/kit";
 import { exampleDeviceData as previewData } from "../src/catalog/probes/fixtures";
 import { createPreviewController } from "../../../apps/gallery/app/draw";
 import { elementAt, type RenderedElement } from "./rendered-elements";
-import { modes } from "./themes";
 
 export {
   addressedElements,
@@ -37,20 +34,17 @@ export {
   type RenderedElement,
 } from "./rendered-elements";
 
-// Conformance also verifies generated CSS for the entire matrix in the Node test runner.
-const testedAccents = typeof document === "undefined" ? accents : [accents[0]];
-const names = presets.flatMap(({ id: preset }) =>
-  modes.flatMap((mode) => testedAccents.map(({ id: accent }) => themeName({ preset, mode, accent }))),
-);
 export const config = createTamagui({
   tokens: createTokens(kitTokens),
   fonts: kitFonts,
   defaultFont: "humanist",
-  themes: {
-    light: themeFor("kit_calm_light_moss"),
-    dark: themeFor("kit_calm_dark_moss"),
-    ...Object.fromEntries(names.map((name) => [name, themeFor(name)])),
-  },
+  themes: Object.fromEntries(
+    Object.entries({
+      light: kitThemes.kit_calm_light_moss,
+      dark: kitThemes.kit_calm_dark_moss,
+      ...kitThemes,
+    }).map(([name, roles]) => [name, { ...roles, color: roles.text, background: roles.bg }]),
+  ),
 });
 
 export type Theme = ThemeChoice;

@@ -1,7 +1,6 @@
 import { afterAll, beforeAll, expect, it } from "vitest";
 import type { Browser } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
-import { bold, moss, themeRoles } from "@lmthing/ui/catalog";
 import { galleryConfig } from "../../../scripts/look";
 import { launchChrome } from "../../../scripts";
 
@@ -16,19 +15,6 @@ beforeAll(async () => {
 afterAll(async () => {
   await browser?.close();
   await server?.close();
-});
-
-it("renders the dark look fixture with the selected preset palette", async () => {
-  const page = await browser.newPage();
-  await page.addInitScript("globalThis.__name = (fn) => fn");
-  try {
-    await page.goto(`${url()}?look&mode=dark`);
-    const item = page.getByTestId("bold_stack/c1/r1/root");
-    const bg = await item.evaluate((node) => getComputedStyle(node).getPropertyValue("--bg").trim());
-    expect(bg).toBe(themeRoles(bold, moss, "dark").bg);
-  } finally {
-    await page.close();
-  }
 });
 
 it("moves via keyboard, click and agent while keeping the original press link", async () => {

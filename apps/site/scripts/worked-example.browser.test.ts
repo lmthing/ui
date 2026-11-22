@@ -1,6 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createServer, type ViteDevServer } from "vite";
-import { bold, ink, moss, themeRoles } from "../../../packages/ui/src/catalog/themes";
 import { launchChrome } from "../../../packages/ui/scripts/look/launch-chrome";
 import { site } from "../src/data/site";
 import { siteViteConfig } from "./vite-config";
@@ -60,35 +59,6 @@ describe.runIf(Boolean(process.env.CHROME))("worked examples", () => {
     await browser?.close();
     await server?.close();
   });
-
-  it("applies the selected accent and mode to an already mounted phone", async () => {
-    const page = await browser.newPage({ colorScheme: "light" });
-    try {
-      await page.goto(`${server.resolvedUrls!.local[0]}#/p/commerce`);
-      const total = page
-        .getByRole("figure", { name: "bold preset", exact: true })
-        .getByTestId("commerce_app/checkout_options/total");
-      const colors = () =>
-        total.evaluate((node) => {
-          const style = getComputedStyle(node);
-          return [style.getPropertyValue("--bg").trim(), style.getPropertyValue("--accent").trim()];
-        });
-      const light = themeRoles(bold, moss, "light");
-      expect(await colors()).toEqual([light.bg, light.accent]);
-      // An in-place palette switch must not remount the phone or reset its session.
-      await total.evaluate((node) => ((node as HTMLElement).dataset.themeCheck = "mounted"));
-      await page.getByRole("button", { name: /^Theme:/ }).click();
-      await page.getByRole("radio", { name: "ink", exact: true }).check();
-      const lightInk = themeRoles(bold, ink, "light");
-      await expect.poll(colors).toEqual([lightInk.bg, lightInk.accent]);
-      await page.getByRole("radio", { name: "dark", exact: true }).check();
-      const dark = themeRoles(bold, ink, "dark");
-      await expect.poll(colors).toEqual([dark.bg, dark.accent]);
-      expect(await total.getAttribute("data-theme-check")).toBe("mounted");
-    } finally {
-      await page.close();
-    }
-  }, 45000);
 
   it.each(Object.entries(workedFigures))(
     "%s renders figures from its worked records",

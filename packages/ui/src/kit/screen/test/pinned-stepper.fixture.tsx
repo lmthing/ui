@@ -12,8 +12,8 @@ import {
   KitTrail,
   PhoneScreen,
   kitFonts,
+  kitThemes,
   kitTokens,
-  themeFor,
 } from "../../index";
 import type { NativeHost } from "../../provider";
 
@@ -125,7 +125,7 @@ function FooterView() {
 }
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeChoice;
-const scheme = themeFor(themeName(theme));
+const scheme = kitThemes.kit_calm_light_moss;
 const config = createTamagui({
   tokens: createTokens(kitTokens),
   fonts: kitFonts,

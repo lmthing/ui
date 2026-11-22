@@ -1,5 +1,6 @@
-import { themeName, type ThemeChoice } from "@lmthing/ui/catalog";
-import { themeFor } from "@lmthing/ui/kit";
+import { site } from "../data/site";
+
+type Choice = { preset: string; accent: string; mode: string };
 
 /** Simple line glyphs on a 24-unit grid, one per photo library tag. Illustrative marks, never fake photographs. */
 const glyphs: Record<string, string> = {
@@ -22,8 +23,9 @@ const tagOf = (ref: string) => {
  * A host-supplied placeholder for `lib:<tag>` photo references: a duotone tile in the current theme's tint
  * with the tag's glyph. It is deliberately a drawing, so it can never be mistaken for a real photo.
  */
-export function placeholderFor(ref: string, choice: ThemeChoice): string {
-  const { accentSoft: from, raised: to, muted: ink } = themeFor(themeName(choice));
+export function placeholderFor(ref: string, choice: Choice): string {
+  const roles = site.themeVars[`${choice.preset}_${choice.accent}_${choice.mode}`] ?? {};
+  const [from = "#eee", to = "#ddd", ink = "#333"] = [roles.accentSoft, roles.raised, roles.muted];
   const glyph = glyphs[tagOf(ref)] ?? fallback;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/></linearGradient></defs><rect width="96" height="96" fill="url(#g)"/><g transform="translate(24 24) scale(2)" fill="none" stroke="${ink}" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" opacity=".6">${glyph}</g></svg>`;
   return `data:image/svg+xml;base64,${btoa(svg)}`;

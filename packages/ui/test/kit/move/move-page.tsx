@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { TamaguiProvider, XStack, YStack } from "tamagui";
 import { space, themeName, type ThemeChoice } from "@lmthing/ui/catalog";
-import { config, registerTheme } from "../../../../../apps/gallery";
+import { config } from "../../../../../apps/gallery/tamagui.config";
 import { PhoneScreen } from "../../../src/kit/screen";
 import { moveScreen, moveDef, moveDefs, MoveFixture } from "./move.fixture";
 
@@ -17,7 +17,6 @@ const defs = moveOnly
     }
   : moveDefs;
 const presets = look ? (["calm", "bold", "editorial"] as const) : (["calm"] as const);
-for (const preset of presets) registerTheme(themeName({ preset, mode, accent: "moss" }));
 
 function Frame({ preset, style }: { preset: ThemeChoice["preset"]; style: "columns" | "stack" }) {
   const theme = { preset, mode, accent: "moss" } satisfies ThemeChoice;
