@@ -24,7 +24,7 @@ export const meta = {
     "Never claim verified identity, legal validity or remote signing. Omit hint unless supplied or useful.",
     'Exact axis defaults are {"density":null,"surface":null,"detail":null}. Override only the one axis explicitly requested: tighter spacing changes density to "compact"; a plain background with no surrounding card changes surface to "plain"; hiding the optional hint changes detail to "brief".',
     'For hiding the hint alone use {"density":null,"surface":null,"detail":"brief"} and keep the supplied hint text in hint. For a plain background alone use {"density":null,"surface":"plain","detail":null}. Never write "plain" merely because the brief asks for fewer words, nor "full" for an unrequested detail axis.',
-    'Use style:"initials" only for hand-drawn initials. Set datedStamp:true only if asked to stamp the signing date on the copy itself; never supply the date. Merely keeping a dated local copy does not request a stamp.',
+    'Default style is "pad" for a signature, drawing pad, or any unspecified mark. Use "initials" only when initials are explicitly requested. A plain background changes surface, not style. Set datedStamp:true only to stamp the signing date on the copy itself; otherwise leave it null. Never supply the date.',
   ],
   region: "body",
   weight: 3,
@@ -108,6 +108,7 @@ export const probes = [
       "Give Mina a drawing pad for the Allotment access form, synthetic original lib:ledge_access. Put the pad and its controls on a plain background with no card around them.",
     ),
     variant: { axis: "surface", value: "plain" },
+    expectProps: { style: "pad" },
   },
   {
     ...write(
