@@ -23,6 +23,8 @@ it("reads only visible copy", () => {
     title: "Gallery exhibit",
     objective: "Light six prints",
     sections: [{ heading: "Setup", body: "Use the existing rails" }],
+    links: [{ label: "Gallery layout" }],
+    editGoto: "brief_edit",
   };
   expect(projectBriefReading(brief, "filled")).toEqual([
     "Gallery exhibit",
@@ -30,6 +32,8 @@ it("reads only visible copy", () => {
     "Owner: Jo Lee",
     "Delivery: 28 Feb 2028 – 1 Mar 2028",
     "Setup: Use the existing rails",
+    "Resources",
+    "Edit brief",
   ]);
   expect(projectBriefReading({ ...brief, detail: "brief" }, "filled")).toEqual([
     "Gallery exhibit",
@@ -37,6 +41,6 @@ it("reads only visible copy", () => {
     "Owner: Jo Lee",
     "Target: 1 Mar 2028",
   ]);
-  expect(projectBriefReading(brief, "empty")).toEqual([]);
+  expect(projectBriefReading(brief, "empty")).toEqual(["No project brief yet"]);
   expect(projectBriefReading(brief, "loading")).toEqual([]);
 });

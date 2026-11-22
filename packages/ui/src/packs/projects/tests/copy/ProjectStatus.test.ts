@@ -45,10 +45,10 @@ it("uses the requested date locale and does not read filled copy in other states
   expect(projectStatusCopy(input, "fr-FR", data("2028-02-28")).updated).toBe("28 févr. 2028");
   expect(projectStatusReading(input, "filled", "en", data("2028-02-28"))).toEqual([
     "On track · Design is ready · 28 Feb 2028",
-    "Wins: Mobile design approved",
-    "Blockers: Copy pending",
+    "Wins: • Mobile design approved",
+    "Blockers: • Copy pending",
     "Next milestone: Sign-off · 1 Mar 2028 · 2 days left",
   ]);
-  expect(projectStatusReading(input, "empty")).toEqual([]);
+  expect(projectStatusReading(input, "empty")).toEqual(["No status update posted yet"]);
   expect(projectStatusReading(input, "loading")).toEqual([]);
 });

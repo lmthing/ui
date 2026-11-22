@@ -39,6 +39,8 @@ export const meta = {
   },
   states: ["filled", "empty", "loading"],
   emptyActions: [],
+  deviceData: ["project_briefs"],
+  previewDeviceData: ({ state }): c.DeviceData => state === "empty" ? { project_briefs: [] } : {},
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
   variantParts: {
     "detail.brief": { hides: ["window", ...sectionParts, ...sectionBodies, "resources", "root", "label", "trail", "open", "open_icon", "edit", "edit_label", "edit_trail"] },

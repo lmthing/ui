@@ -17,6 +17,7 @@ type Snapshot = {
   projectRef: string;
   headline: string;
   author?: string | undefined;
+  postGoto?: string | undefined;
   status: keyof typeof tones;
   updatedAt: string;
   wins: string[];
@@ -56,17 +57,19 @@ export function projectStatusCopy(input: Snapshot, lang?: string, data?: DeviceD
 }
 
 export function projectStatusReading(input: unknown, state: StateName, lang?: string, data?: DeviceData) {
+  const { projectStatus: w } = projectsWordsFor(lang);
+  if (state === "empty") return [w.empty];
   if (state !== "filled") return [];
   const snapshot = input as Snapshot;
-  const { projectStatus: w } = projectsWordsFor(lang);
   const copy = projectStatusCopy(snapshot, lang, data);
   const full = snapshot.detail === "full";
   return [
     [copy.status, snapshot.headline, copy.updated, full && snapshot.author].filter(Boolean).join(w.separator),
-    full && copy.wins.length > 0 && w.group(w.wins, snapshot.wins),
-    full && copy.blockers.length > 0 && w.group(w.blockers, snapshot.blockers),
+    full && copy.wins.length > 0 && w.group(w.wins, copy.wins),
+    full && copy.blockers.length > 0 && w.group(w.blockers, copy.blockers),
     full &&
       copy.milestoneTitle &&
       [copy.milestoneTitle, copy.milestoneDate, copy.remaining].filter(Boolean).join(w.separator),
+    full && snapshot.postGoto && w.update,
   ].filter((line): line is string => Boolean(line));
 }

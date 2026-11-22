@@ -7,7 +7,13 @@ type Dates = {
   target?: string | undefined;
   detail: "full" | "brief";
 };
-type Brief = Dates & { title: string; objective: string; sections: { heading: string; body: string }[] };
+type Brief = Dates & {
+  title: string;
+  objective: string;
+  sections: { heading: string; body: string }[];
+  links: readonly unknown[];
+  editGoto?: string | undefined;
+};
 
 export function projectBriefCopy(input: Dates, lang?: string) {
   const { projectBrief: w } = projectsWordsFor(lang);
@@ -25,15 +31,19 @@ export function projectBriefCopy(input: Dates, lang?: string) {
 }
 
 export function projectBriefReading(input: unknown, state: StateName, lang?: string) {
+  const { projectBrief: w } = projectsWordsFor(lang);
+  if (state === "empty") return [w.empty];
   if (state !== "filled") return [];
   const brief = input as Brief;
-  const { projectBrief: w } = projectsWordsFor(lang);
   const { owner, window } = projectBriefCopy(brief, lang);
+  const full = brief.detail === "full";
   return [
     brief.title,
     brief.objective,
     owner,
     window,
-    ...(brief.detail === "full" ? brief.sections.map(({ heading, body }) => w.section(heading, body)) : []),
+    ...(full ? brief.sections.map(({ heading, body }) => w.section(heading, body)) : []),
+    full && brief.links.length > 0 && w.resources,
+    full && brief.editGoto && w.edit,
   ].filter((line): line is string => Boolean(line));
 }
