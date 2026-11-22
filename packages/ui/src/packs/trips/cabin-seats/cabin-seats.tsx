@@ -1,23 +1,30 @@
-import { moneyLine } from "../../../catalog";
+import { numberLine, type ThemeDensity } from "../../../catalog";
 import {
+  KitAction,
+  KitActionFooter,
   KitCard,
+  KitContent,
+  KitEmpty,
+  KitGrid,
+  KitLayoutText,
   KitState,
   useAppCurrency,
   useComponentState,
+  useHostOperations,
   useWords,
-  type LayoutLine,
 } from "../../../kit";
-import { SeatPlan, type SeatPlanProps } from "../../../kit/renderers";
+import { SeatPlan } from "../../../kit/renderers";
+import {
+  cabinFee,
+  cabinLegend,
+  cabinSeatDetails,
+  cabinSuccess,
+  cabinWindow,
+  type CabinSeat as SeatData,
+} from "../copy";
 import { tripsWordsFor } from "../lang";
 
-type Grid = Extract<SeatPlanProps, { kind: "grid" }>;
-type Seat = Grid["sections"][number]["rows"][number]["seats"][number];
-type CabinSeat = {
-  col: string;
-  status: "open" | "occupied" | "extra" | "selected";
-  fee?: number;
-  target?: Seat["target"];
-};
+type CabinSeat = SeatData & { target?: { item?: string; part: string } };
 type CabinRow = { row: number; exit?: boolean; seats: readonly CabinSeat[] };
 export type CabinSeatsView = {
   cabin: string;
@@ -27,17 +34,18 @@ export type CabinSeatsView = {
   style?: "cabin" | "compact";
   selection?: { row: number; col: string } | null;
   confirmPart: string;
+  density?: ThemeDensity;
+  surface?: "card" | "outlined";
 };
 
-type Words = ReturnType<typeof tripsWordsFor>["cabinSeats"];
-type Picked = { row: number; seat: CabinSeat };
+type Picked = { row: number; seat: CabinSeat; exit?: boolean };
 
 function findSelection(
   rows: readonly CabinRow[],
   columns: readonly string[],
   selection: CabinSeatsView["selection"],
 ): Picked | undefined {
-  for (const { row, seats } of rows) {
+  for (const { row, seats, exit } of rows) {
     const seat = seats.find(
       ({ status, col }) =>
         col &&
@@ -46,103 +54,92 @@ function findSelection(
           ? status === "selected"
           : selection?.row === row && selection.col === col && status !== "occupied"),
     );
-    if (seat) return { row, seat };
+    if (seat) return { row, seat, ...(exit ? { exit } : {}) };
   }
-}
-
-function seatDetails(row: string, seat: CabinSeat, selected: boolean, exit: boolean, words: Words) {
-  const status = seat.status === "selected" ? "open" : seat.status;
-  const note = exit ? words.exit : undefined;
-  const code = words.seat(row, seat.col);
-  return selected
-    ? words.details(code, words.status.selected, status === "extra" ? words.status.extra : undefined, note)
-    : words.details(code, words.status[status], note);
 }
 
 function cabinRow(
   { row, exit, seats }: CabinRow,
   columns: readonly string[],
   selected: Picked | undefined,
-  words: Words,
-  number: Intl.NumberFormat,
+  interactive: boolean,
+  lang: string,
 ) {
-  const label = number.format(row);
   return {
-    label,
-    seats: columns.map((col, index): Seat => {
+    label: numberLine(row, lang),
+    ...(exit ? { mark: { icon: "flag" as const, label: tripsWordsFor(lang).cabinSeats.exit } } : {}),
+    seats: columns.map((col, index) => {
       const seat = col && seats.find((seat) => seat.col === col);
-      if (!seat) return { id: String(index), label: "", kind: "aisle" };
+      if (!seat) return { id: String(index), label: "", kind: "aisle" as const };
       const occupied = seat.status === "occupied";
       const chosen = selected?.row === row && selected.seat === seat;
       return {
         id: col,
-        label: col,
-        kind: occupied ? "taken" : chosen ? "selected" : "free",
-        ...(!occupied && seat.target ? { target: { ...seat.target, action: "select" as const } } : {}),
-        ...(exit || seat.status === "extra" ? { badge: "star" as const } : {}),
-        accessibleLabel: seatDetails(label, seat, chosen, Boolean(exit), words),
+        label: seat.status === "extra" ? tripsWordsFor(lang).cabinSeats.extraLabel(col) : col,
+        kind: occupied ? ("taken" as const) : chosen ? ("selected" as const) : ("free" as const),
+        ...(interactive && !occupied && seat.target
+          ? { target: { ...seat.target, action: "select" as const } }
+          : {}),
+        accessibleLabel: cabinSeatDetails(row, seat, chosen, exit, lang),
       };
     }),
   };
 }
 
 /** The seat owner projects the single selection and supplies select/confirm targets. */
-export function CabinSeats({
-  cabin,
-  columns,
-  rows,
-  passenger,
-  style,
-  selection,
-  confirmPart,
-}: CabinSeatsView) {
-  const {
-    lang,
-    words: { cabinSeats: words },
-  } = useWords(tripsWordsFor);
+// prettier-ignore
+export function CabinSeats({ cabin, columns, rows, passenger, style, selection, confirmPart, density, surface }: CabinSeatsView) {
+  const { lang, words: { cabinSeats: words } } = useWords(tripsWordsFor);
   const currency = useAppCurrency();
   const state = useComponentState();
-  const number = new Intl.NumberFormat(lang, { useGrouping: false });
+  const operation = useHostOperations().find(({ name }) => name === "reserve_seat");
   const selected = findSelection(rows, columns, selection);
-  const index = selected ? rows.findIndex(({ row }) => row === selected.row) : -1;
-  const visible = style === "compact" && index >= 0 ? rows.slice(Math.max(0, index - 1), index + 2) : rows;
-  const cabinRows = visible.map((row) => cabinRow(row, columns, selected, words, number));
-  const preview =
-    selected &&
-    seatDetails(number.format(selected.row), selected.seat, true, Boolean(rows[index]?.exit), words);
-  const fee = selected?.seat.fee;
-  const plan = (
-    <SeatPlan
-      kind="grid"
-      part={null}
-      {...(passenger ? { screenLabel: passenger } : {})}
+  const visible = cabinWindow(rows, selected?.row, style === "compact");
+  const legend = cabinLegend(visible, lang);
+  const cabinRows = visible.map((row) => cabinRow(row, columns, selected, state === "filled", lang));
+  const preview = selected
+    ? cabinSeatDetails(selected.row, selected.seat, true, selected.exit, lang)
+    : words.choose;
+  const fee = cabinFee(selected?.seat.fee, currency, lang);
+  const loading = state === "loading";
+  const finish = { ...(density ? { density } : {}), ...(surface ? { surface } : {}) };
+  if (state === "success") return <KitCard part="root" padded {...finish}>
+    <KitEmpty part="notice" density={density} tone="good" prominence="heading" icon="check" announce="status" decorativeIcon
+      title={cabinSuccess(rows, lang)} sub={words.details(cabin, passenger)} />
+  </KitCard>;
+  const plan = <KitContent density={density}>
+    {passenger && <KitLayoutText line={{ text: passenger, part: "passenger", role: "meta", tone: "muted" }} density={density} />}
+    <SeatPlan kind="grid" part={null}
       sections={cabinRows.length ? [{ id: "cabin", label: cabin, rows: cabinRows }] : []}
-      legend={{ text: words.legend, role: "caption" }}
-      {...(preview ? { preview: { text: preview, role: "body" } } : {})}
-      {...(fee === undefined
-        ? {}
-        : {
-            total: {
-              text: words.upgrade(moneyLine(fee, currency, undefined, lang)),
-              role: "meta",
-            } satisfies LayoutLine,
-          })}
-      {...(state === "filled" || state === "loading"
-        ? {
-            action: {
-              part: confirmPart,
-              action: "press" as const,
-              label: words.confirm,
-              disabled: !selected,
-            },
-          }
-        : {})}
-    />
-  );
+      {...(legend ? { legend: { text: legend, role: "caption", part: "legend" } } : {})}
+      preview={{ text: preview, role: "body", part: "preview" }} />
+    {fee && <KitGrid fitLast density={density}>
+      <KitLayoutText line={{ text: words.upgradeLabel, role: "meta", tone: "muted", part: "fee_label" }} density={density} />
+      <KitLayoutText line={{ text: fee, role: "figure", compact: true, tabular: true, part: "fee" }} align="end" density={density} />
+    </KitGrid>}
+    <KitActionFooter density={density}>
+      <KitAction part={loading ? null : confirmPart} action="press" label={words.confirm} contentParts={{}}
+        kind={selected ? "primary" : "secondary"} disabled={!selected} />
+    </KitActionFooter>
+  </KitContent>;
   return (
-    <KitCard padded>
-      <KitState loading={plan} retain>
-        {plan}
+    <KitCard part="root" padded {...finish}>
+      <KitState
+        part="notice"
+        loading={plan}
+        density={density}
+        message={state === "empty" || state === "error" ? words[state] : undefined}
+      >
+        <KitContent density={density}>
+          {state === "filled" && (operation?.status === "pending" || operation?.status === "rejected") && (
+            <KitLayoutText
+              line={{ text: operation.status === "pending" ? words.pending : words.error,
+                part: "notice", role: "meta", tone: operation.status === "pending" ? "muted" : "bad" }}
+              density={density}
+            />
+          )}
+          {plan}
+        </KitContent>
       </KitState>
     </KitCard>
   );

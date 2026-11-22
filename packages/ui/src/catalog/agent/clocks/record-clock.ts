@@ -1,10 +1,10 @@
 import type { ClockMeta, ClockState } from "../../meta";
 import type { Definition } from "../../probes";
 import type { Values } from "../act";
-import { deviceTimeOf, inLocalWeek, recordKey, selectDeviceData, type DeviceData } from "../device-data";
+import { deviceTimeOf, recordKey, selectDeviceData, type DeviceData } from "../device-data";
 import { rememberRecordIds, validRecordWire, writeRecordWire } from "../report-edits";
 import { projectControlInput } from "../live-props";
-import { journalOperation, journalStep } from "./timing";
+import { inLocalWeek, journalOperation, journalStep } from "./timing";
 
 type Get = (part: string) => unknown;
 type Owners = Readonly<Record<string, string>>;

@@ -1,42 +1,20 @@
-export { partsOf } from "./affordance-parts";
-import { jumpKey } from "./jump";
-import { nestedSpec } from "./nested-spec";
-export { jumpKey } from "./jump";
-export { nestedSpec } from "./nested-spec";
 import type { Definition } from "../../probes";
 import { stampItemIds } from "../../lines";
 import { repairVariants } from "../../rules";
 import { adjustmentAt, projectAdjustments, setAt } from "../clocks";
-export { localValues, selectStep } from "./select-step";
-export { expireProgress, stageStepProgress } from "./progress";
-export { stageItemAdjustment } from "./item-adjustment";
-export { itemActionOffer, itemMoveOffer, moveKey, projectDerivedMoves, projectMoves } from "./move";
-export { projectCollections } from "../collections";
-export { actionValueAddress, findAction } from "./offered-actions";
-export {
-  createPrivateMarks,
-  hostOnlyParts,
-  hostOnlyAddresses,
-  isPrivateMark,
-  planHostAct,
-  privateMarkKey,
-  redactPrivateMarks,
-  registerPrivateMark,
-  secretRevealKey,
-  secretRevealMatches,
-  stageSecretReveal,
-  type PrivateMarks,
-} from "./host-actions";
+export { actionValueAddress, findAction, planHostAct, selectStep } from "./resolve-step";
 import { storeLiveInput } from "../live-inputs";
 import { isKeypadPart } from "../keypad-profile";
 import {
   controlValueKey,
+  isAdjustOnlyItem,
   nestedAt,
   nestedPart,
   parseControlProps,
   projectControlInput,
   resolveKeypadValue,
   validateActionValue,
+  wireAdjustmentKey,
   type ActResult,
   type ActStep,
   type Affordance,
@@ -201,3 +179,47 @@ export function stageValue(
   storeLiveInput(next, screenId, found, next[key]);
   return true;
 }
+
+/** The registered address remains a plain press; the redraw cue is runtime-only. */
+export const jumpKey = (address: string) => `${address}/$jump`;
+
+function nestedSpec(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
+  const [id, ...parts] = address.split("/");
+  const entry = screen.components.find((item) => item.id === id);
+  const def = entry && defs[entry.c];
+  if (!def?.meta.items?.nested) return undefined;
+  const { id: _id, c: _c, state: _state, ...raw } = entry!;
+  const spec = nestedAt(def.meta, parseControlProps(def, raw), parts.join("/"))?.spec;
+  if (!spec) return;
+  return spec.action === "set" || spec.action === "toggle" ? spec : {};
+}
+
+export function stageItemAdjustment(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  address: string,
+  action: string,
+  values: Values,
+  planned?: ReturnType<typeof adjustmentAt>,
+): boolean | undefined {
+  if (action !== "increment" && action !== "decrement") return;
+  const [id, ...parts] = address.split("/");
+  const entry = screen.components.find((item) => item.id === id);
+  const def = entry && defs[entry.c];
+  if (!entry || !def?.meta.items?.adjust) return;
+  const { id: _id, c: _c, state: _state, ...raw } = entry;
+  const base = `${screen.id}/${id}`;
+  const get = (part: string) => values[`${base}/${part}`];
+  const props = parseControlProps(def, raw, get);
+  const now = Number(get("$now") ?? Date.now());
+  const adjustment = planned ?? adjustmentAt(def.meta, props, parts.join("/"), action, get, now);
+  if (!isAdjustOnlyItem(adjustment, action)) return;
+  const slot = wireAdjustmentKey(def, adjustment.key);
+  if (adjustment.next === undefined || !slot) return false;
+  values[`${base}/${slot}`] = adjustment.next;
+  values[`${screen.id}/${address}`] = adjustment.next;
+  return true;
+}
+
+export { componentOffers } from "./screen-offers";
+export { localValues } from "../live-props";

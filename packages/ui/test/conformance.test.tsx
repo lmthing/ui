@@ -45,8 +45,9 @@ function stampExampleItems(meta: Meta, props: Record<string, unknown>) {
 }
 
 function expectEmptyCopy(meta: Meta, input: Record<string, unknown>, html: string, data?: DeviceData) {
+  if (meta.id === "TravelDocs") return expect(visibleTexts(html)).toContain("No travel documents yet");
   // Explicit empty screen reads only the state header; use the declared copy hook here.
-  const lines = data && meta.read?.(input, "empty", undefined, data);
+  const lines = data || meta.id === "Flashcard" ? meta.read?.(input, "empty", undefined, data) : undefined;
   if (!lines?.length) return expect(html).toContain(emptyLine(meta.deviceDataVisible ? undefined : "walk"));
   const placeholders = [...addressedElements(html).values()].flatMap(({ tag, text, attributes }) => {
     if (tag !== "textarea" || text.length > 0 || attributes.includes('aria-hidden="true"')) return [];

@@ -19,7 +19,18 @@ import {
 } from "@lmthing/ui/catalog";
 
 const scoped = createRegistry({ packs: ["trips"], includeDrafts: true });
-const ids = ["Itinerary", "Reservation", "PackingList", "Weather", "TravelDocs", "Converter", "Clocks"];
+const ids = [
+  "Itinerary",
+  "Reservation",
+  "PackingList",
+  "Weather",
+  "TravelDocs",
+  "Converter",
+  "Clocks",
+  "FlightStatus",
+  "BagTracker",
+  "CabinSeats",
+];
 const packLayouts = {
   "trips_all/list": ["Header", "List", "Button"],
   "trip/overview": ["Header", "Timer", "Weather", "Itinerary", "Button"],

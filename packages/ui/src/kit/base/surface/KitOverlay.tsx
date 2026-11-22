@@ -30,8 +30,8 @@ function useModalFocus(onDismiss: () => void) {
       }
       if (event.key === "Tab") {
         const targets = focusable();
-        const first = targets[0],
-          last = targets.at(-1);
+        const first = targets[0];
+        const last = targets.at(-1);
         if (event.shiftKey && document.activeElement === first) {
           event.preventDefault();
           last?.focus();
