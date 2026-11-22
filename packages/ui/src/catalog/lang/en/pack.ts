@@ -21,7 +21,7 @@ export const words = {
   chosen: (label: string) => `${label} chosen`,
   hoursLabel: (start: string, end: string, title: string) => `${start} to ${end}, ${title}`,
   allLabel: "All",
-  loyaltyLabels: { stamp: "Add stamp", redeem: "Redeem reward", earned: "Reward earned" },
+  historyDetailLine: (kind: string, date: string) => `${kind} · ${date}`,
   placeholderTitles: ["Item one", "Item two", "Item three", "Item four", "Item five", "Item six"],
   placeholderDetail: "Details",
   placeholderLabel: "Continue",

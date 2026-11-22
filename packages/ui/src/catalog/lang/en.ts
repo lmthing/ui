@@ -13,6 +13,7 @@ import { words as KeyValueWords } from "./en/KeyValue";
 import { words as PeopleWords } from "./en/People";
 import { words as MapPinsWords } from "./en/MapPins";
 import { words as BarsWords } from "./en/Bars";
+import { words as LoyaltyWords } from "./en/Loyalty";
 import { words as CounterWords } from "./en/Counter";
 import { words as ListWords } from "./en/List";
 import { words as TimerWords } from "./en/Timer";
@@ -43,6 +44,7 @@ export const en = {
   ...PeopleWords,
   ...MapPinsWords,
   ...BarsWords,
+  ...LoyaltyWords,
   ...CounterWords,
   ...ListWords,
   ...TimerWords,

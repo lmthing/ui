@@ -1,5 +1,5 @@
 import { globSync } from "node:fs";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
 import { format, resolveConfig } from "prettier";
 import { splitPrompt } from "./split-prompts";
@@ -33,10 +33,19 @@ export async function splitSources(root: string) {
   const formatted = await Promise.all(
     edits.map(
       async ([file, source]) =>
-        [file, file.endsWith(".md") ? source : await format(source, { ...options, filepath: file })] as const,
+        [
+          file,
+          source === undefined || file.endsWith(".md")
+            ? source
+            : await format(source, { ...options, filepath: file }),
+        ] as const,
     ),
   );
   for (const [file, source] of formatted) {
+    if (source === undefined) {
+      await rm(file);
+      continue;
+    }
     await mkdir(dirname(file), { recursive: true });
     await writeFile(file, source);
   }

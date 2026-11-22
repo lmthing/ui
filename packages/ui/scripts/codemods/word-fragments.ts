@@ -2,7 +2,7 @@ import { globSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
 import ts from "typescript";
-import { objectNamed, parseSource, propertyName } from "./source";
+import { applyEdits, objectNamed, parseSource, propertyName } from "./source";
 import { identifiers } from "./word-owners";
 
 export const wordsBinding = (owner: string) => `${owner}Words`;
@@ -46,7 +46,9 @@ export function dependencies(ast: ts.SourceFile, object: ts.ObjectLiteralExpress
     .filter(
       (node) =>
         node.getEnd() < object.getStart() &&
-        (!ts.isImportDeclaration(node) || !node.moduleSpecifier.getText().startsWith('"./en/')),
+        (!ts.isImportDeclaration(node) ||
+          !ts.isStringLiteral(node.moduleSpecifier) ||
+          !node.moduleSpecifier.text.startsWith("./en/")),
     )
     .map((node) => ({ node, names: dependencyNames(node) }))
     .filter(({ names }) => names.length);
@@ -69,13 +71,64 @@ function dependencySource(node: ts.Statement) {
 export function usedDependencies(nodes: readonly ts.Node[], available: ReturnType<typeof dependencies>) {
   const used = new Set(nodes.flatMap((node) => [...identifiers(node)]));
   const selected = new Set<ts.Statement>();
-  for (const { node, names } of [...available].reverse()) {
-    if (names.some((name) => used.has(name))) {
-      selected.add(node);
-      for (const name of identifiers(node)) used.add(name);
+  let size: number;
+  do {
+    size = selected.size;
+    for (const { node, names } of available) {
+      if (!selected.has(node) && names.some((name) => used.has(name))) {
+        selected.add(node);
+        for (const name of identifiers(node)) used.add(name);
+      }
     }
-  }
+  } while (size !== selected.size);
   return available.filter(({ node }) => selected.has(node)).map(({ node }) => node);
+}
+
+function withoutBindings(node: ts.Statement, names: readonly string[]) {
+  if (dependencyNames(node).every((name) => names.includes(name))) return "";
+  if (!ts.isImportDeclaration(node) || !node.importClause)
+    throw new Error(`${node.getSourceFile().fileName}: merge the overlapping declaration ${node.getText()}`);
+  const clause = node.importClause;
+  const { factory } = ts;
+  const name = clause.name && !names.includes(clause.name.text) ? clause.name : undefined;
+  let bindings = clause.namedBindings;
+  if (bindings && ts.isNamedImports(bindings)) {
+    const elements = bindings.elements.filter(({ name }) => !names.includes(name.text));
+    bindings = elements.length ? factory.updateNamedImports(bindings, elements) : undefined;
+  } else if (bindings && names.includes(bindings.name.text)) bindings = undefined;
+  const remaining = factory.updateImportClause(clause, clause.isTypeOnly, name, bindings);
+  const declaration = factory.updateImportDeclaration(
+    node,
+    node.modifiers,
+    remaining,
+    node.moduleSpecifier,
+    node.attributes,
+  );
+  return ts.createPrinter().printNode(ts.EmitHint.Unspecified, declaration, node.getSourceFile());
+}
+
+function mergeSupport(prefix: string, support: readonly ts.Statement[]) {
+  for (const dependency of support) {
+    const incoming = dependencySource(dependency);
+    const names = dependencyNames(dependency);
+    const current = parseSource(dependency.getSourceFile().fileName, prefix);
+    const conflicts = current.statements.filter((node) =>
+      dependencyNames(node).some((name) => names.includes(name)),
+    );
+    if (!conflicts.length) {
+      prefix = [prefix, incoming].filter(Boolean).join("\n");
+      continue;
+    }
+    prefix = applyEdits(
+      prefix,
+      conflicts.map((node, index) => ({
+        start: node.getStart(),
+        end: node.getEnd(),
+        text: [withoutBindings(node, names), index === 0 ? incoming : ""].filter(Boolean).join("\n"),
+      })),
+    );
+  }
+  return prefix;
 }
 
 export function fragmentSource(
@@ -89,8 +142,10 @@ export function fragmentSource(
   for (const node of props) values.set(propertyName(node)!, node);
   let statement: ts.Node | undefined = previous;
   while (statement && !ts.isVariableStatement(statement)) statement = statement.parent;
-  const prefix = statement?.getSourceFile().text.slice(0, statement.getStart()).trim() ?? "";
-  const extra = support.map(dependencySource).filter((line) => !prefix.includes(line));
+  const prefix = mergeSupport(
+    statement?.getSourceFile().text.slice(0, statement.getStart()).trim() ?? "",
+    support,
+  );
   const members = [...values.values()].map((node) => node.getFullText().trim());
   const check = type
     ? ` satisfies Pick<${type}, ${[...values.keys()].map((key) => JSON.stringify(key)).join(" | ")}>`
@@ -100,7 +155,6 @@ export function fragmentSource(
   return [
     ...typeImport,
     prefix,
-    ...extra,
     `export const words = {\n${members.join(",\n")},\n}${constant ? " as const" : ""}${check};`,
   ]
     .filter(Boolean)

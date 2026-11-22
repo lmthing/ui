@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { URL } from "node:url";
 import { expect, it } from "vitest";
 import { buildBlock, buildEntry } from "../../../src/catalog/prompt";
 import { components } from "../../../src/entry/catalog";

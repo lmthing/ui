@@ -90,3 +90,62 @@ it("moves edits from a pre-split branch after it merges the split", async () => 
   expect(await get(packWords)).toContain('generic: "Shared"');
   expect(await splitSources(root)).toBe(0);
 });
+
+it("restores a spread using the fragment import that survived the merge", async () => {
+  const { root, get, put } = await fixture();
+  await splitSources(root);
+  await put(en, (await get(en)).replace("...SlotsWords,", 'slotLabel: "Edited time",'));
+  expect(await splitSources(root)).toBe(2);
+  const aggregate = await get(en);
+  expect(aggregate.match(/from "\.\/en\/Slots"/g)).toHaveLength(1);
+  expect(aggregate).toContain("...SlotsWords,");
+  expect(await get(slotWords)).toContain('slotLabel: "Edited time"');
+  expect(await splitSources(root)).toBe(0);
+});
+
+it("replaces a changed helper and deduplicates overlapping type imports", async () => {
+  const { root, get, put } = await fixture();
+  await splitSources(root);
+  await put(
+    en,
+    `
+import type { Label, More } from "../../../catalog";
+const suffix = "?";
+${(await get(en)).replace("...SlotsWords,", "...SlotsWords, slotLabel: (name: Label, _other?: More) => name + suffix,")}
+`,
+  );
+  expect(await splitSources(root)).toBe(2);
+  const fragment = await get(slotWords);
+  expect(fragment.match(/const suffix/g)).toHaveLength(1);
+  expect(fragment).toContain('const suffix = "?"');
+  expect(fragment.match(/import type \{ Label/g)).toHaveLength(1);
+  expect(fragment).toContain('import type { Label, More } from "../../../../catalog"');
+  expect(await splitSources(root)).toBe(0);
+});
+
+it.each([true, false])(
+  "reassembles the old core dictionary with legacy options restored: %s",
+  async (restored) => {
+    const { root, get, put } = await fixture();
+    await splitSources(root);
+    const dictionary = "src/catalog/lang/en.ts";
+    const oldOptions = "src/catalog/lang/core-options.ts";
+    const fragment = "src/catalog/lang/en/Composer.ts";
+    await put(fragment, 'export const words = { composer: "Default" };');
+    await put(
+      "src/catalog/lang/en/pack.ts",
+      'export const words = { fieldRange: "Range", calendarRange: "Calendar", routeModes: "Modes", activeBar: "Bar" };',
+    );
+    await put(
+      dictionary,
+      'import { coreOptions } from "./core-options"; export const en = { ...coreOptions, tag: "en" };',
+    );
+    if (restored) await put(oldOptions, 'export const coreOptions = { composer: "Changed" };');
+    await splitSources(root);
+    expect(await get(dictionary)).not.toContain("coreOptions");
+    expect(await get(dictionary)).toContain("...ComposerWords,");
+    expect(await get(fragment)).toContain(restored ? '"Changed"' : '"Default"');
+    await expect(get(oldOptions)).rejects.toMatchObject({ code: "ENOENT" });
+    expect(await splitSources(root)).toBe(0);
+  },
+);

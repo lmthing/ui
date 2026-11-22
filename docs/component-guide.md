@@ -226,6 +226,8 @@ Leave authored text, action identifiers, and stored numeric and date values unch
 
 A pack keeps its words in `src/packs/<pack>/lang/en/<Id>.ts` and shared words in `lang/en/pack.ts`.
 Its `lang/en.ts` assembles the fragments and `lang/index.ts` exposes the lookup.
+Existing locale keys stay in their original lookup to preserve registered translations; for example,
+Loyalty's copy has a named fragment in the core dictionary.
 Use `useWords(<pack>WordsFor)` for pack words and `<pack>WordsFor(lang)` outside React.
 Use `Intl.PluralRules` via `pluralForm` for counted nouns; thing-type inflection belongs in the
 language file. To add a language, write a complete dictionary that `satisfies Words` (or
