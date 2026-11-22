@@ -145,7 +145,7 @@ describe("RequestThread states and parts", () => {
   });
 });
 
-describe("RequestThread read and act", () => {
+describe("RequestThread retry", () => {
   it("retries the same admitted draft and audience only in error", () => {
     const onSend = vi.fn();
     const host = (
@@ -191,7 +191,9 @@ describe("RequestThread read and act", () => {
     expect(onSend).toHaveBeenCalledExactlyOnceWith("Another reply", "desk/t/retry_field", "requester");
     second.dispose();
   });
+});
 
+describe("RequestThread read and act", () => {
   it("keeps the original work address when displaying entries in date and time order", () => {
     const input = { ...full, entries: [message, work, assignment, status] };
     const read = readComponent(components.RequestThread, input, "t").join("\n");
