@@ -184,4 +184,24 @@ describe("KitRangeBand zones", () => {
     expect(html).toContain("Middle (400–700)");
     expect(html).toContain("Last (700–900)");
   });
+  it("lets different fills meet without a dark rule and places four legends in two columns", () => {
+    const html = render(
+      {
+        ...zonesInput,
+        reading: null,
+        max: 1000,
+        zones: [...zonesInput.zones, { label: "Fourth", from: 900, to: 1000, tone: "accent" }],
+      },
+      "calm",
+      "dark",
+    );
+    const [track, legend] = elementAt(html, "home/c1/band").children;
+    const [zones, marker] = track!.children[0]!.children;
+    expect(zones!.children).toHaveLength(4);
+    expect(zones!.children.map((zone) => styleAt(html, zone))).not.toEqual(
+      expect.arrayContaining([expect.stringContaining("border-left-width")]),
+    );
+    expect(styleAt(html, marker!)).toContain("border-left-color:var(--surface)");
+    expect(legend!.children.map((row) => row.children.length)).toEqual([2, 2]);
+  });
 });

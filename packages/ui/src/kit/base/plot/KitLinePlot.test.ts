@@ -3,7 +3,7 @@ import * as jsxRuntime from "react/jsx-dev-runtime";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it, vi } from "vitest";
-import { presets, size, themeName } from "@lmthing/ui/catalog";
+import { presets, size, space, themeName } from "@lmthing/ui/catalog";
 import { KitLinePlot, KitProvider, PartScope, type ScreenController } from "@lmthing/ui/kit";
 import { config, elementAt, styleAt } from "../../../../test/render";
 
@@ -74,20 +74,32 @@ describe("KitLinePlot", () => {
   });
 });
 describe("KitLinePlot states", () => {
-  it("draws decorative overlays without changing addresses, and keeps them in loading", () => {
+  it("draws decorative overlays without changing addresses, but does not reveal them in loading", () => {
     const target = { point: "p3", target: { part: "point" } };
     const props = { series, targets: [target] };
     const original = render(props);
     const overlays = { band: { low: [-6, -3, -1], high: [2, 4, 6] }, baseline: 0 };
     for (const loading of [false, true]) {
       const html = render({ ...props, ...overlays, loading });
-      expect(html).toMatch(/<path [^>]*d="M[^"]+ Z"/);
-      expect(html.match(/<line /g)).toHaveLength(original.match(/<line /g)!.length + 1);
+      if (loading) expect(html).not.toMatch(/<path /);
+      else {
+        expect(html).toMatch(/<path [^>]*d="M[^"]+ Z"/);
+        expect(html.match(/<line /g)).toHaveLength(original.match(/<line /g)!.length + 1);
+      }
       expect(html.match(/data-testid=/g)).toHaveLength(loading ? 1 : 2);
       expect(html).not.toMatch(/NaN|Infinity/);
     }
     const svg = (html: string) => html.match(/<svg\b.*<\/svg>/)?.[0];
     expect(svg(render({ ...props, baseline: Infinity }))).toBe(svg(original));
+    expect(svg(render({ ...props, ...overlays, loading: true }))).toBe(
+      svg(
+        render({
+          ...props,
+          series: [{ ...series[0]!, points: series[0]!.points.map((p) => ({ ...p, value: 100 })) }],
+          loading: true,
+        }),
+      ),
+    );
   });
   it("keeps drawings and target geometry while removing loading controls", () => {
     const props = { series, targets: [{ point: "p3", target: { part: "point" } }] };
@@ -96,8 +108,7 @@ describe("KitLinePlot states", () => {
     expect(loading).toContain('aria-busy="true"');
     expect(loading).not.toContain('role="button"');
     expect(loading).not.toContain('data-testid="home/c1/point"');
-    expect(loading.match(/<path /g)).toHaveLength(filled.match(/<path /g)!.length);
-    expect(loading.match(/<circle /g)).toHaveLength(filled.match(/<circle /g)!.length);
+    expect(loading).not.toMatch(/<path |<circle /);
     const targets = elementAt(loading, "home/c1/root").children.at(-1)!.children;
     expect(styleAt(loading, targets[0]!)).toContain(`min-height:${size.control.md}px`);
     expect(styleAt(filled, "home/c1/point")).toContain(`min-height:${size.control.md}px`);
@@ -108,6 +119,25 @@ describe("KitLinePlot states", () => {
     expect(render({ series, targets: [{ point: "p2", target: { part: "missing" } }] })).not.toContain(
       'role="button"',
     );
+  });
+  it("places dates close to the grid and aligns the endpoint row with the legend", () => {
+    const html = render({ series, part: "plot" });
+    const [drawing, labels] = elementAt(html, "home/c1/plot").children;
+    const [ends, legend] = labels!.children;
+    expect(styleAt(html, ends!)).not.toMatch(/margin-left:|padding-left:/);
+    const endpointType = styleAt(html, ends!.children[0]!.children[0]!.children[0]!.children[0]!).match(
+      /font-size:[^;]+/,
+    )?.[0];
+    expect(endpointType).toBeDefined();
+    expect(styleAt(html, legend!.children[0]!.children[0]!.children[0]!)).toContain(endpointType!);
+    const svg = drawing!.children[1]!.children[0]!;
+    const height = Number(svg.attributes.match(/height="([^"]+)"/)?.[1]);
+    const bottom = Math.max(
+      ...svg.children
+        .filter((node) => node.tag === "line")
+        .map((node) => Number(node.attributes.match(/y1="([^"]+)"/)?.[1])),
+    );
+    expect(height - bottom).toBe(space.xs);
   });
 });
 describe("KitLinePlot actions", () => {

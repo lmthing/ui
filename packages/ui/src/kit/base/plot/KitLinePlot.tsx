@@ -1,5 +1,5 @@
 import { useWords } from "../../provider";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Svg, Path, Line, Circle } from "react-native-svg";
 import { isWeb, XStack, YStack, useTheme } from "tamagui";
 import { component, emptyLine, size, space, type as typography } from "../../../catalog";
@@ -25,13 +25,10 @@ type DrawingProps = LinePlotProps & {
 };
 function PlotPoints({
   series,
-  frame: { x, y, top },
+  frame: { x, y, top, yEnd },
   marked,
   selected,
-  loading,
-  width,
-  height,
-}: DrawingProps) {
+}: Pick<DrawingProps, "series" | "frame" | "marked" | "selected">) {
   const theme = useTheme();
   return (
     <>
@@ -39,14 +36,14 @@ function PlotPoints({
         line.points
           .filter((p) => p.value !== null && Number.isFinite(p.value) && Number.isFinite(p.x))
           .map((p) => (
-            <Svg key={`${line.id}/${p.id}`} width={width} height={height}>
+            <Fragment key={`${line.id}/${p.id}`}>
               {p.id === selected && (
                 <Line
                   x1={x(p.x)}
                   x2={x(p.x)}
                   y1={top}
-                  y2={height - top}
-                  stroke={theme[loading ? "line" : "muted"]?.val}
+                  y2={yEnd}
+                  stroke={theme.muted?.val}
                   strokeWidth={component.base.borderWidth}
                   strokeDasharray={`${space.xs} ${space.xs}`}
                 />
@@ -61,13 +58,32 @@ function PlotPoints({
                     ? space.xs
                     : component.base.borderWidth
                 }
-                fill={theme[loading ? "muted" : (line.tone ?? "accent")]?.val}
-                opacity={loading ? component.base.disabledOpacity : 1}
+                fill={theme[line.tone ?? "accent"]?.val}
               />
-            </Svg>
+            </Fragment>
           )),
       )}
     </>
+  );
+}
+
+function PlotLoading({ width, height, frame: { left, top, yEnd } }: DrawingProps) {
+  const theme = useTheme();
+  return (
+    <Svg width={width} height={height} aria-hidden>
+      {[top, (top + yEnd) / 2, yEnd].map((y) => (
+        <Line key={y} x1={left} x2={width - left} y1={y} y2={y} stroke={theme.line?.val} />
+      ))}
+      <Line
+        x1={width / 3}
+        x2={(width / 3) * 2}
+        y1={height / 2}
+        y2={height / 2}
+        stroke={theme.line?.val}
+        strokeWidth={space.sm}
+        strokeLinecap="round"
+      />
+    </Svg>
   );
 }
 
@@ -79,12 +95,13 @@ function PlotDrawing({ series, goal, baseline, geometry, ...props }: DrawingProp
     loading,
     frame: { x, y, left },
   } = props;
+  if (loading) return <PlotLoading series={series} geometry={geometry} {...props} />;
   const rule = { strokeWidth: component.base.borderWidth, stroke: theme.line?.val };
   return (
     <Svg width={width} height={height} aria-hidden>
       {geometry.bands.map((run, i) => {
         const d = bandPath(run, x, y);
-        return d ? <Path key={i} d={d} fill={theme[loading ? "line" : "accentSoft"]?.val} /> : null;
+        return d ? <Path key={i} d={d} fill={theme.accentSoft?.val} /> : null;
       })}
       {geometry.ticks.map((value, index) => (
         <Line key={index} x1={left} x2={width - left} y1={y(value)} y2={y(value)} {...rule} />
@@ -95,7 +112,7 @@ function PlotDrawing({ series, goal, baseline, geometry, ...props }: DrawingProp
           x2={width - left}
           y1={y(baseline)}
           y2={y(baseline)}
-          stroke={theme[loading ? "line" : "muted"]?.val}
+          stroke={theme.muted?.val}
           strokeWidth={component.base.strongBorder}
         />
       )}
@@ -103,7 +120,7 @@ function PlotDrawing({ series, goal, baseline, geometry, ...props }: DrawingProp
         <Path
           d={`M${left},${y(goal.value)} L${width - left},${y(goal.value)}`}
           fill="none"
-          stroke={theme[loading ? "line" : "muted"]?.val}
+          stroke={theme.muted?.val}
           strokeWidth={component.base.borderWidth}
           strokeDasharray={`${space.sm} ${space.xs}`}
         />
@@ -113,14 +130,13 @@ function PlotDrawing({ series, goal, baseline, geometry, ...props }: DrawingProp
           key={line.id}
           d={plotPaths(line.points, x, y)}
           fill="none"
-          stroke={theme[loading ? "muted" : (line.tone ?? "accent")]?.val}
-          opacity={loading ? component.base.disabledOpacity : 1}
-          strokeWidth={loading ? space.xs : component.base.strongBorder}
+          stroke={theme[line.tone ?? "accent"]?.val}
+          strokeWidth={component.base.strongBorder}
           strokeLinecap="round"
           strokeLinejoin="round"
         />
       ))}
-      <PlotPoints series={series} geometry={geometry} {...props} />
+      <PlotPoints series={series} {...props} />
     </Svg>
   );
 }
@@ -130,23 +146,16 @@ function PlotLabels({
   unit,
   goal,
   loading,
-  style = "full",
   geometry,
-  inset,
-}: LinePlotProps & { geometry: DrawingProps["geometry"]; inset: number }) {
+}: LinePlotProps & { geometry: DrawingProps["geometry"] }) {
   const labels = [
     ...series.map((line) => ({ label: line.label, tone: line.tone ?? "accent" })),
     ...(goal ? [{ label: goal.label, tone: "muted" as const }] : []),
     ...(unit ? [{ label: unit, tone: "muted" as const }] : []),
   ];
   return (
-    <YStack gap={space.sm}>
-      <XStack
-        justifyContent="space-between"
-        gap={space.md}
-        paddingHorizontal={inset}
-        marginLeft={style === "full" ? size.control.md + space.sm : component.base.none}
-      >
+    <YStack gap={space.md}>
+      <XStack justifyContent="space-between" gap={space.md}>
         {(geometry.last ? [geometry.first, geometry.last] : [geometry.first]).map((label, i) => (
           <YStack key={i} flex={1}>
             <PlotLabel
@@ -160,7 +169,7 @@ function PlotLabels({
       </XStack>
       <XStack flexWrap="wrap" gap={space.md}>
         {labels.map((entry, i) => (
-          <PlotLabel key={i} {...entry} loading={!!loading} />
+          <PlotLabel key={i} {...entry} role="caption" loading={!!loading} />
         ))}
       </XStack>
     </YStack>
@@ -181,8 +190,18 @@ function PlotAxis({
   return (
     <YStack width={size.control.md} height={height} position="relative">
       {geometry.ticks.map((value, i) => (
-        <YStack key={i} position="absolute" top={y(value) - typography.caption.lineHeight / 2}>
-          <PlotLabel role="caption" loading={!!loading} label={String(Number(value.toPrecision(4)))} />
+        <YStack
+          key={i}
+          position="absolute"
+          right={component.base.none}
+          top={y(value) - typography.caption.lineHeight / 2}
+        >
+          <PlotLabel
+            role="caption"
+            loading={!!loading}
+            align="end"
+            label={String(Number(value.toPrecision(4)))}
+          />
         </YStack>
       ))}
     </YStack>
@@ -201,11 +220,14 @@ function PlotBody({
   const readings = plotTargets(props.series, props.targets);
   const onMarkers = props.targetPlacement === "marker";
   const pad = onMarkers ? size.control.md / 2 : space.md;
+  const top = plotCoordinate(0, height, pad);
+  const yEnd = height - (onMarkers ? top : space.xs);
   const frame = {
     x: (value: number) => plotCoordinate(geometry.x(value), width, pad),
-    y: (value: number) => plotCoordinate(geometry.y(value), height, pad),
+    y: (value: number) => top + geometry.y(value) * (yEnd - top),
     left: plotCoordinate(0, width, pad),
-    top: plotCoordinate(0, height, pad),
+    top,
+    yEnd,
   };
   if (geometry.empty && !loading) return <PlotEmpty height={height} />;
   return (
@@ -235,7 +257,7 @@ function PlotBody({
           )}
         </YStack>
       </XStack>
-      <PlotLabels {...props} style={style} loading={loading} geometry={geometry} inset={frame.left} />
+      <PlotLabels {...props} loading={loading} geometry={geometry} />
       {!onMarkers && <BelowPlotTargets readings={readings} selected={props.selected} loading={loading} />}
     </>
   );
@@ -261,6 +283,7 @@ export function KitLinePlot({ part = "root", loading = false, style = "full", ..
       {...usePart(part)}
       width="100%"
       gap={space.sm}
+      paddingBottom={space.sm}
       aria-busy={loading}
       {...(loading ? { "aria-hidden": true, accessibilityElementsHidden: true } : {})}
     >

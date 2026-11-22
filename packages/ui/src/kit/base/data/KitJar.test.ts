@@ -42,7 +42,9 @@ describe("KitJar", () => {
           mode,
         );
         const root = elementAt(html, "home/c1/root");
-        expect(styleAt(html, root)).toContain(`width:${component.base.ringMd}px`);
+        expect(styleAt(html, root)).toContain(`max-width:${component.base.ringLg}px`);
+        expect(styleAt(html, root)).toContain("width:100%");
+        expect(styleAt(html, root.children[0]!)).toContain("align-self:stretch");
         const body = root.children[1]!;
         expect(styleAt(html, body)).toContain(`height:${component.base.ringLg - 8}px`);
         expect(styleAt(html, body.children[0]!)).toContain(`height:${percent}%`);
