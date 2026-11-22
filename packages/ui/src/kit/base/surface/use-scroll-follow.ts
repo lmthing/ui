@@ -1,4 +1,5 @@
 import { useCallback, useLayoutEffect, useRef, type ContextType, type RefObject } from "react";
+import { isIos } from "@tamagui/core";
 import { isWeb, type TamaguiElement } from "tamagui";
 import type { PartRefScope } from "../../part";
 import {
@@ -38,28 +39,28 @@ export function useScrollFollow(
     };
   }, []);
   useLayoutEffect(() => {
-    if (!optedIn) {
-      activity.current = { dragging: false, momentum: false, lastManual: -Infinity };
-      return;
-    }
+    // A caller can first enable follow while a gesture is already in progress.
     const node = isWeb ? scroll.current?.getScrollableNode?.() : undefined;
     if (node) return listenForWebScroll(node, activity.current, auto.current);
-  }, [scroll, optedIn]);
-  const animation = useRef(animated);
+  }, [scroll]);
+  // Android's smooth scrollTo animator is not stopped by a non-animated scrollTo.
+  const animate = animated && (isWeb || isIos);
+  const animation = useRef(animate);
   useLayoutEffect(() => {
-    animation.current = animated;
-  }, [animated]);
+    animation.current = animate;
+    if (!optedIn) activity.current.offset = undefined;
+  }, [animate, optedIn]);
   useFollowRequest({ address, scroll, layout, horizontal, animation, activity, refs, auto });
   return {
     register: optedIn ? register : null,
     manualKey: () => {
-      if (!optedIn || !isWeb) return;
+      if (!isWeb) return;
       const node = scroll.current?.getScrollableNode?.();
       if (node) stopWebFollow(node, auto.current);
       auto.current.until = 0;
       activity.current.lastManual = performance.now();
     },
-    nativeProps: optedIn && !isWeb ? nativeScrollEvents(activity) : {},
+    nativeProps: isWeb ? {} : nativeScrollEvents(activity, optedIn),
   };
 }
 
@@ -128,14 +129,18 @@ function useFollowRequest(request: FollowRequest) {
   }, [address, horizontal, layout, scroll, animation, activity, refs, auto]);
 }
 
-function nativeScrollEvents(state: RefObject<ScrollActivity>) {
+function nativeScrollEvents(state: RefObject<ScrollActivity>, trackOffset: boolean) {
   const manual = () => (state.current.lastManual = performance.now());
   return {
-    scrollEventThrottle: 16,
-    onScroll: ({ nativeEvent }: { nativeEvent: { contentOffset: { x: number; y: number } } }) => {
-      state.current.offset = nativeEvent.contentOffset;
-      if (manualScrollActive(state.current, performance.now())) manual();
-    },
+    ...(trackOffset
+      ? {
+          scrollEventThrottle: 16,
+          onScroll: ({ nativeEvent }: { nativeEvent: { contentOffset: { x: number; y: number } } }) => {
+            state.current.offset = nativeEvent.contentOffset;
+            if (manualScrollActive(state.current, performance.now())) manual();
+          },
+        }
+      : {}),
     onScrollBeginDrag: () => {
       state.current.dragging = true;
       state.current.momentum = false;

@@ -7,18 +7,25 @@ import { config } from "../../render";
 
 const theme = { preset: "calm", mode: "light", accent: "moss", motion: "lively" } as const;
 const rows = Array.from({ length: 20 }, (_, index) => index + 1);
-const horizontal = new URLSearchParams(location.search).has("horizontal");
+const options = new URLSearchParams(location.search);
+const horizontal = options.has("horizontal");
 const Stack = horizontal ? XStack : YStack;
 
 function Fixture() {
   const [row, setRow] = useState(1);
   const [enabled, setEnabled] = useState(true);
+  const [optedIn, setOptedIn] = useState(!options.has("manual"));
   return (
     <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss">
       <button type="button">Keep focus here</button>
       <button type="button" onClick={() => setEnabled(!enabled)} aria-pressed={enabled}>
         Follow
       </button>
+      {!optedIn && (
+        <button type="button" onClick={() => setOptedIn(true)}>
+          Start following
+        </button>
+      )}
       {[1, 2, 14, 16, 18, 19, 21].map((number) => (
         <button type="button" key={number} onClick={() => setRow(number)}>
           Show {number}
@@ -30,7 +37,7 @@ function Fixture() {
           <KitScroll
             label="Addressed rows"
             axis={horizontal ? "horizontal" : "vertical"}
-            follow={{ address: `home/c1/r${row}/root`, enabled }}
+            {...(optedIn ? { follow: { address: `home/c1/r${row}/root`, enabled } } : {})}
           >
             <Stack>
               {rows.map((number) => (

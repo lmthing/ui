@@ -50,8 +50,8 @@ const offset = () => region().evaluate((node) => node.scrollTop);
 const edge = async (number: number, side: "top" | "bottom" | "right") =>
   (await row(number).evaluate((node, side) => node.getBoundingClientRect()[side], side)) -
   (await region().evaluate((node, side) => node.getBoundingClientRect()[side], side));
-async function open(horizontal = false) {
-  await page.goto(new URL(`${route}${horizontal ? "?horizontal" : ""}`, server.resolvedUrls!.local[0]).href);
+async function open(mode?: "horizontal" | "manual") {
+  await page.goto(new URL(`${route}${mode ? `?${mode}` : ""}`, server.resolvedUrls!.local[0]).href);
   await row(1).waitFor();
 }
 
@@ -72,38 +72,50 @@ it("reveals active rows at the nearest edge without focusing them, including con
   expect(await button("Keep focus here").evaluate((node) => node === document.activeElement)).toBe(true);
 });
 
-it("does not follow while a native browser touch pan is paused with the finger still down", async () => {
-  const devtools = await page.context().newCDPSession(page);
-  await devtools.send("Emulation.setTouchEmulationEnabled", { enabled: true });
-  try {
-    await open();
-    const box = (await region().boundingBox())!;
-    await region().evaluate((node) => {
-      node.addEventListener("pointercancel", () => node.setAttribute("data-pan-claimed", ""), { once: true });
-    });
-    const touch = (type: "touchStart" | "touchMove" | "touchEnd", y?: number) =>
-      devtools.send("Input.dispatchTouchEvent", {
-        type,
-        touchPoints: y === undefined ? [] : [{ x: box.x + box.width / 2, y: box.y + y }],
+it.each([false, true])(
+  "does not follow during a paused touch pan (opt in during pan: %s)",
+  async (lateOptIn) => {
+    const devtools = await page.context().newCDPSession(page);
+    await devtools.send("Emulation.setTouchEmulationEnabled", { enabled: true });
+    try {
+      await open(lateOptIn ? "manual" : undefined);
+      const box = (await region().boundingBox())!;
+      await region().evaluate((node) => {
+        node.addEventListener("pointercancel", () => node.setAttribute("data-pan-claimed", ""), {
+          once: true,
+        });
       });
-    await touch("touchStart", box.height * 0.75);
-    await touch("touchMove", box.height * 0.5);
-    await touch("touchMove", box.height * 0.25);
-    await expect.poll(offset).toBeGreaterThan(0);
-    expect(await region().getAttribute("data-pan-claimed")).toBe("");
-    await page.waitForTimeout(300);
-    const paused = await offset();
-    await update(18);
-    expect(await offset()).toBe(paused);
-    await touch("touchEnd");
-    await page.waitForTimeout(300);
-    await update(19);
-    expect(await edge(19, "bottom")).toBeCloseTo(0, 0);
-  } finally {
-    await devtools.send("Emulation.setTouchEmulationEnabled", { enabled: false });
-    await devtools.detach();
-  }
-});
+      const touch = (type: "touchStart" | "touchMove" | "touchEnd", y?: number) =>
+        devtools.send("Input.dispatchTouchEvent", {
+          type,
+          touchPoints: y === undefined ? [] : [{ x: box.x + box.width / 2, y: box.y + y }],
+        });
+      await touch("touchStart", box.height * 0.75);
+      await touch("touchMove", box.height * 0.5);
+      await touch("touchMove", box.height * 0.25);
+      await expect.poll(offset).toBeGreaterThan(0);
+      expect(await region().getAttribute("data-pan-claimed")).toBe("");
+      await page.waitForTimeout(300);
+      const paused = await offset();
+      await update(18);
+      if (lateOptIn) {
+        await button("Start following").dispatchEvent("click");
+        await button("Start following").waitFor({ state: "detached" });
+        await page.evaluate(
+          () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+        );
+      }
+      expect(await offset()).toBe(paused);
+      await touch("touchEnd");
+      await page.waitForTimeout(300);
+      await update(19);
+      expect(await edge(19, "bottom")).toBeCloseTo(0, 0);
+    } finally {
+      await devtools.send("Emulation.setTouchEmulationEnabled", { enabled: false });
+      await devtools.detach();
+    }
+  },
+);
 
 it("does not scroll when follow is off and does not replay updates skipped during wheel scrolling", async () => {
   await open();
@@ -126,7 +138,7 @@ it("does not scroll when follow is off and does not replay updates skipped durin
 });
 
 it("reveals the horizontal edge without moving the page or the other axis", async () => {
-  await open(true);
+  await open("horizontal");
   await update(14);
   expect(await edge(14, "right")).toBeCloseTo(0, 0);
   expect(await offset()).toBe(0);

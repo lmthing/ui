@@ -425,7 +425,8 @@ also accept optional `speed` and `loop`; when neither is set, their playback set
 For playhead-driven rows, pass `KitScroll follow={{ address, enabled }}`. Use the mounted child's full
 part address (for example, `home/c1/r4/root` for an addressed `KitRow`). The kit reveals the active
 child at the nearest edge along the scroll axis without moving keyboard or accessibility focus.
-It moves immediately in calm or reduced motion. With follow off, no active address, or during
+It moves immediately in calm or reduced motion, and on Android where smooth scroll cannot be
+interrupted reliably. With follow off, no active address, or during
 manual scrolling, updates do not move the viewport. Updates skipped during scrolling are not
 replayed; a later address change can follow again after scrolling settles.
 
