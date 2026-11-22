@@ -1,5 +1,18 @@
 import { expect, it } from "vitest";
-import { momentumExtent, momentumReading, momentumSummary, momentumTimes, selectedEvent } from "../../copy";
+import {
+  momentumExtent,
+  momentumReading,
+  momentumSummary,
+  momentumTimes,
+  momentumValue,
+  selectedEvent,
+} from "../../copy";
+
+it("keeps the exact percentage points and the locale's percent placement", () => {
+  expect(momentumValue("win_prob", 42.12345, "en")).toBe("42.12345%");
+  expect(momentumValue("win_prob", 42.12345, "de")).toBe("42,12345\u00a0%");
+  expect(momentumValue("win_prob", 42.12345, "tr")).toBe("%42,12345");
+});
 
 it("uses each scale's neutral midpoint and derives the signed advantage", () => {
   expect(momentumSummary("win_prob", 77.5)).toEqual({ baseline: 50, delta: 27.5, side: "home" });

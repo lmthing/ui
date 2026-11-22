@@ -1,4 +1,4 @@
-import { numberLine } from "../../../catalog";
+import { localeOf, numberLine } from "../../../catalog";
 import { sportsWordsFor } from "../lang";
 
 type Mode = "win_prob" | "momentum";
@@ -22,9 +22,13 @@ export function momentumSummary(mode: Mode, value: number) {
 }
 
 export function momentumValue(mode: Mode, value: number, lang?: string): string {
-  return mode === "win_prob"
-    ? new Intl.NumberFormat(lang, { style: "percent", maximumFractionDigits: 2 }).format(value / 100)
-    : numberLine(value, lang);
+  const figure = numberLine(value, lang);
+  if (mode === "momentum") return figure;
+  // Keep the supplied percentage points without rounding or re-scaling a floating-point value.
+  return new Intl.NumberFormat(localeOf(lang), { style: "percent" })
+    .formatToParts(0)
+    .map((part) => (part.type === "integer" ? figure : part.value))
+    .join("");
 }
 
 export function momentumFigure(input: Match, point: Point, lang?: string) {

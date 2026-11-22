@@ -129,3 +129,12 @@ it("addresses only points with events and retains original addresses when skippi
 it("follows pack readiness in live registries", () => {
   expect(createRegistry({ packs: ["sports"] }).ids.includes("MomentumChart")).toBe(packReady("sports"));
 });
+
+it("shows the exact fractional probability on the selected event and in the read", () => {
+  const input = {
+    ...seed,
+    points: seed.points.map((point) => (point.id === "late" ? { ...point, value: 82.12345 } : point)),
+  };
+  expect(renderInstance("MomentumChart", input, "filled", theme)).toContain("84′ · 82.12345%");
+  expect(readComponent(MomentumChart, input, "c1").join("\n")).toContain("84′ · 82.12345%");
+});
