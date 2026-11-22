@@ -1,3 +1,6 @@
+import { words as BoxScoreWords } from "./en/BoxScore";
+import { words as MatchStatsWords } from "./en/MatchStats";
+import { words as MomentumChartWords } from "./en/MomentumChart";
 import { words as BracketWords } from "./en/Bracket";
 import { words as ScoreboardWords } from "./en/Scoreboard";
 import { words as FixturesWords } from "./en/Fixtures";
@@ -13,6 +16,9 @@ export const en = {
   ...MatchFeedWords,
   ...SquadWords,
   ...StandingsWords,
+  ...BoxScoreWords,
+  ...MatchStatsWords,
+  ...MomentumChartWords,
 };
 
 export type SportsWords = typeof en;

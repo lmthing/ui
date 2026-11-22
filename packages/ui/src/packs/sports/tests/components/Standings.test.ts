@@ -99,8 +99,9 @@ describe("Standings fallback and metadata", () => {
 describe("Standings parts, states and reading", () => {
   it("keeps addresses and selection from the input order while drawing the computed ranks", () => {
     const parts = addressedElements(render(sorted));
-    for (const part of meta.parts) expect(parts.has(address(part))).toBe(true);
-    for (const part of meta.items.parts) expect(parts.has(address(`r3/${part}`))).toBe(true);
+    for (const part of meta.parts) expect(parts.has(address(part))).toBe(part !== "group");
+    for (const part of meta.items.parts)
+      expect(parts.has(address(`r3/${part}`))).toBe(part !== "percentage" && part !== "games_behind");
     expect(parts.get(address("r3/root"))?.attributes).toContain('role="button"');
     expect(parts.get(address("r2/root"))?.attributes).toContain('aria-pressed="true"');
     expect(parts.get(address("r3/position"))?.text).toEqual(["1"]);
@@ -131,13 +132,77 @@ describe("Standings parts, states and reading", () => {
     const parts = addressedElements(html);
     expect(parts.has(address("root"))).toBe(true);
     expect(parts.has(address("table"))).toBe(true);
-    expect([...parts.keys()].some((key) => key.startsWith(address("r")) && key !== address("root"))).toBe(
-      false,
+    const rowParts = [...parts.entries()].filter(
+      ([key]) => key.startsWith(address("r")) && key !== address("root"),
     );
+    expect(rowParts).toHaveLength(full.rows.length);
+    expect(
+      rowParts.every(
+        ([key, element]) => key.endsWith("/form") && element.attributes.includes('aria-hidden="true"'),
+      ),
+    ).toBe(true);
     expect(html).not.toContain('role="button"');
     const reading = readComponent(def, full, "s1", "loading").join("\n");
     expect(reading).not.toContain("Fern House");
     expect(reading).not.toContain("press");
+  });
+});
+
+describe("Standings divisions and win-percentage format", () => {
+  const input = {
+    ...full,
+    group: "East Division",
+    format: "pct_gb",
+    mine: 0,
+    lines: [1],
+    rows: [
+      { ...seed, team: "More losses", won: 7, drawn: 0, lost: 4 },
+      { ...seed, team: "Leader", won: 8, drawn: 0, lost: 2 },
+      { ...seed, team: "One tie", won: 5, drawn: 1, lost: 4 },
+      { ...seed, team: "No games", won: 0, drawn: 0, lost: 0 },
+    ],
+  };
+
+  it("orders by percentage with half wins for ties and keeps the original row addresses", () => {
+    const parts = addressedElements(render(input));
+    expect(parts.get(address("group"))?.text).toEqual(["East Division"]);
+    expect(parts.get(address("r2/position"))?.text).toEqual(["1"]);
+    expect(parts.get(address("r2/percentage"))?.text).toEqual(["80%"]);
+    expect(parts.get(address("r1/games_behind"))?.text).toEqual(["1.5"]);
+    expect(parts.get(address("r1/root"))?.attributes).toContain('aria-pressed="true"');
+    expect(parts.get(address("r3/percentage"))?.text).toEqual(["55%"]);
+    expect(parts.get(address("r4/percentage"))?.text).toEqual(["–"]);
+    expect(parts.has(address("r1/points"))).toBe(false);
+    expect(parts.has(address("r1/difference"))).toBe(false);
+    const reading = readComponent(def, input, "s1").join("\n");
+    expect(reading).toContain("r1: More losses · 2 · 11 · 7 · 0 · 4 · 63.6% · 1.5");
+    expect(reading).toContain("East Division");
+    expect(reading).toContain("[s1/r1 press");
+  });
+
+  it("keeps football points as the default and validates the new options", () => {
+    const legacy = { ...full, format: undefined };
+    const parts = addressedElements(render(legacy));
+    const explicit = addressedElements(render(full));
+    expect(parts.get(address("hint"))?.text).toEqual(["Scroll for more stats"]);
+    for (const part of ["position", "points", "difference", "form"])
+      expect(parts.get(address(`r1/${part}`))?.text).toEqual(explicit.get(address(`r1/${part}`))?.text);
+    expect(readComponent(def, legacy, "s1").join("\n")).toContain("Scroll for more stats");
+    expect(props.safeParse({ ...full, group: "x".repeat(17) }).success).toBe(false);
+    expect(props.safeParse({ ...full, format: "wins" }).success).toBe(false);
+    expect(readComponent(def, input, "s1", "loading").join("\n")).not.toContain("East Division");
+  });
+
+  it("ranks a winless team above an unplayed team and leaves unplayed GB blank", () => {
+    const rows = [
+      { ...seed, won: 0, drawn: 0, lost: 0 },
+      { ...seed, won: 0, drawn: 0, lost: 3 },
+    ];
+    const parts = addressedElements(render({ ...input, rows }));
+    expect(parts.get(address("r2/position"))?.text).toEqual(["1"]);
+    expect(parts.get(address("r2/percentage"))?.text).toEqual(["0%"]);
+    expect(parts.get(address("r1/position"))?.text).toEqual(["2"]);
+    expect(parts.get(address("r1/games_behind"))?.text).toEqual(["–"]);
   });
 });
 
