@@ -6,6 +6,7 @@ export const en = {
   audioMatch: {
     title: "Identify music",
     start: "Start listening",
+    again: "Identify another",
     stop: "Stop and identify",
     retry: "Try again",
     open: "Open track",
@@ -13,6 +14,7 @@ export const en = {
     artwork: "Cover artwork",
     empty: "Listen to identify music playing nearby",
     listening: "Listening for music",
+    requesting: "Preparing to listen",
     matching: "Finding a match",
     success: "Track identified",
     error: "Could not identify the track",
