@@ -191,15 +191,15 @@ export const probes = [
 type View = c.Props<typeof props, typeof meta>;
 type ViewRow = View["items"][number] & ReturnType<typeof projectTasks>[number];
 // prettier-ignore
-function TaskRow({ row, density, lang, indent, loading, choices, framed }: {
-  row: ViewRow; density: View["density"]; lang: string; indent: boolean; loading: boolean; choices: readonly string[]; framed?: boolean;
+function TaskRow({ row, density, lang, indent, loading, choices }: {
+  row: ViewRow; density: View["density"]; lang: string; indent: boolean; loading: boolean; choices: readonly string[];
 }) {
   const words = projectsWordsFor(lang).tasks, { state, due, overdue, priority, blockers, repeat, tags } = taskCopy(row, lang);
-  const controls = loading ? row.done !== undefined && <kit.KitSkeleton lead="box" inset="none" items={[{}]} density={density} /> :
+  const controls = loading ? row.done !== undefined && <kit.KitSkeleton shape="control" kind="quiet" /> :
     (row.done !== undefined || row.checked) && <kit.KitCheck part="done" readonly={row.done === undefined} done={!!row.checked} label={words.done(row.title)} />;
   const captions = [due, [state, row.assignee, priority].filter(Boolean).join(words.separator), blockers];
   return <kit.KitRow item={row.id} part={null} label={row.title} trailing={controls} lineRole={due || blockers ? "body" : "heading"}
-    density={density} indent={indent ? 1 : 0} {...(framed ? { inset: "none" as const } : {})}>
+    density={density} indent={indent ? 1 : 0}>
     {loading ? [row.title, ...captions].map((text, index) => text &&
       <kit.KitSkeleton key={index} shape="figure" inset="none" density={density} content={[[index ? "caption" : "body", text]]} />) :
     <kit.KitRow part="root" label={row.title} goto={row.goto} inline density={density}><kit.KitText part="title" role="body">{row.title}</kit.KitText>
@@ -230,11 +230,11 @@ export function Tasks(input: View) {
   const rows = c.visibleItems<ViewRow>(meta, { ...live, items: shown });
   const groups = group === "sections" ? taskGroups(rows) : [{ project: undefined, tasks: rows }];
   const content = <kit.KitContent>{groups.map(({ project, tasks }) => <kit.KitContent key={project ?? tasks[0]?.id} group={project ? "response" : "content"}>
-        {project && <kit.KitContent {...(today ? {} : { inset: "md" as const })}>
+        {project && <kit.KitContent inset="md">
           {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.project(project)]]} /> :
             <kit.KitText role="label" tone="muted" item={tasks[0]?.id} part="project">{words.project(project)}</kit.KitText>}
         </kit.KitContent>}{today ? <kit.KitRowGroup density={density}>
-          {tasks.map((row) => <TaskRow key={row.id} {...{ row, lang, loading, density }} framed
+          {tasks.map((row) => <TaskRow key={row.id} {...{ row, lang, loading, density }}
             indent={Boolean(project && row.parentRef)} choices={assigneeChoices} />)}
         </kit.KitRowGroup> : <kit.KitGrid arrange="rows" list density={density}>
           {tasks.map((row, index) => <kit.KitContent key={row.id} group={!row.parentRef && project && tasks[index - 1]?.parentRef ? "response" : "content"}><TaskRow {...{ row, lang, loading }}
@@ -244,9 +244,14 @@ export function Tasks(input: View) {
   if (!today) return <kit.KitCard part="root" density={density}>
     {state === "empty" ? <kit.KitEmpty part="empty" decorativeIcon /> : content}
   </kit.KitCard>;
-  const todayContent = <><kit.KitHeader title={{ text: words.today, part: "today" }} density={density} />{content}</>;
+  const todayContent = <kit.KitContent rhythm="flush" density={density}>
+    <kit.KitContent inset="md" group="response" density={density}>
+      <kit.KitHeader title={{ text: words.today, part: "today" }} density={density} />
+    </kit.KitContent>
+    {content}
+  </kit.KitContent>;
   const empty = state === "empty" || (!rows.length && state !== "loading");
-  return <kit.KitCard part="root" padded density={density}>
+  return <kit.KitCard part="root" density={density}>
     <kit.PartScope {...scope} state={empty ? "empty" : state}>
       <kit.KitState retain part={empty ? "empty" : "status"} message={!empty && state === "success" ? words.state.done : words.todayEmpty}
         density={density} loading={rows.length ? todayContent : undefined}>

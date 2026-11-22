@@ -155,12 +155,12 @@ function Entry({ copy, density, w, loading }: { copy: Row; density: Input["densi
           <kit.KitText part="title" role="body" emphasis="strong">{row.title}</kit.KitText>
         </kit.KitContent>}
       <kit.KitGrid columns={3} density={density}>{loading ? [`${start}${w.range}${end}`, duration, billable].map((value, index) =>
-          <kit.KitSkeleton key={index} shape="figure" inset="none" density={density} content={[["label", value]]} />) : [
+          <kit.KitSkeleton key={index} shape="figure" inset="none" density={density} content={[["label", value, index === 1 ? "end" : "start"]]} />) : [
       <kit.KitText key="range" role="label" tone="muted" tabular part={null}>
         <kit.KitText part="start" role="label" tone="muted" tabular>{start}</kit.KitText>{w.range}
         <kit.KitText part="end" role="label" tone="muted" tabular>{end}</kit.KitText>
       </kit.KitText>,
-      <kit.KitText key="duration" part="duration" role="label" emphasis="strong" tabular>{duration}</kit.KitText>,
+      <kit.KitText key="duration" part="duration" role="label" align="end" emphasis="strong" tabular>{duration}</kit.KitText>,
       <kit.KitText key="billable" part="billable" role="label" tone={row.billable ? "good" : "muted"}>{billable}</kit.KitText>,
       ]}</kit.KitGrid>
       {note && (loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", note]]} /> :
@@ -175,20 +175,23 @@ function ProjectSummary({ copy, w, density }: { copy: ReturnType<typeof log.time
   ] as const;
   const projects = <>
     <kit.KitLayoutText line={{ text: w.summary, part: "summary", strong: true }} density={density} />
-    <kit.KitRowGroup spacing="groups" density={density}>
-      {copy.projects.map((project) => <kit.KitContent key={project.projectRef} density={density}>
+    <kit.KitRowGroup density={density}>
+      {copy.projects.map((project) => <kit.KitRow key={project.projectRef} part={null} label={project.title} inset="none" density={density}>
+      <kit.KitContent density={density}>
         <kit.KitMetaLine title={{ text: project.title, role: "body", strong: true }} density={density} />
         <kit.KitGrid density={density}>{figures(project).map(([label, value]) =>
           <kit.KitFigure key={label} value={{ text: value, compact: true }} align="end" density={density}
             caption={<kit.KitLayoutText line={{ text: label, role: "caption", tone: "muted" }} align="end" density={density} />} />
         )}</kit.KitGrid>
-      </kit.KitContent>)}
+      </kit.KitContent></kit.KitRow>)}
     </kit.KitRowGroup>
   </>;
   return <>
-    {scope.state !== "empty" && <kit.KitFigure density={density} value={{ text: copy.total, part: "week_total" }}
-      caption={<kit.KitHeader title={{ text: copy.week, part: "week", role: "meta", tone: "muted" }}
-        meta={{ text: w.weekTotal, role: "caption", tone: "muted" }} density={density} />} />}
+    {scope.state !== "empty" && <kit.KitContent density={density}>
+      <kit.KitHeader title={{ text: copy.week, part: "week", role: "meta", tone: "muted" }} density={density} />
+      <kit.KitFigure density={density} value={{ text: copy.total, part: "week_total" }}
+        caption={<kit.KitLayoutText line={{ text: w.weekTotal, role: "caption", tone: "muted" }} density={density} />} />
+    </kit.KitContent>}
     {scope.state === "success" && <kit.KitState retain part="status" message={w.saved} density={density} />}
     <kit.PartScope {...scope} state={
       !copy.projects.length && scope.state !== "loading" ? "empty" : scope.state === "success" ? "filled" : scope.state
@@ -217,9 +220,7 @@ function LogFooter({ input, copy, w, density, empty }: { input: View; copy: { ti
   </>;
   return <kit.KitContent group="response" density={density}>
     {copy.timer && state !== "loading" && <kit.KitText part="elapsed" role="number" tabular>{copy.timer}</kit.KitText>}
-    {input.style === "summary" ? <kit.KitActionFooter density={density}>
-      <kit.KitContent density={density}>{footer}</kit.KitContent>
-    </kit.KitActionFooter> : footer}
+    {input.style === "summary" ? <kit.KitActionFooter density={density}>{footer}</kit.KitActionFooter> : footer}
   </kit.KitContent>;
 }
 
