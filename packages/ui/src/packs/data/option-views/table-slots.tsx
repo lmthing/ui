@@ -69,7 +69,7 @@ function TableHeader({ label, value }: { label: string; value: string }, kind: C
   return <kit.KitRow inline fitContent part={null} label={label} leadingAlign="row" leading={chip}>{null}</kit.KitRow>;
 }
 
-function sectionLabel(label: string, density: c.ThemeDensity) {
+function SectionLabel(label: string, density: c.ThemeDensity) {
   return (
     <kit.KitContent inset="md">
       <kit.KitLayoutText
@@ -80,11 +80,11 @@ function sectionLabel(label: string, density: c.ThemeDensity) {
   );
 }
 
-function sectionCell(value: ReactNode, label: string, density: c.ThemeDensity, heading: boolean) {
+function SectionCell(value: ReactNode, label: string, density: c.ThemeDensity, heading: boolean) {
   return (
     <kit.KitContent density={density}>
       <kit.KitRow inline fitContent part={null} lineRole="label" label={label} density={density}>
-        {heading && sectionLabel(label, density)}
+        {heading && SectionLabel(label, density)}
       </kit.KitRow>
       <kit.KitRow inline part={null} label={label} density={density}>
         {value}
@@ -109,7 +109,7 @@ export function TableMatrix({ input, density, loading, lang, pending }: {
     const short = label && label.length <= shortHeading;
     const records = rows.map((row, index) => {
       const decorate = (value: ReactNode, heading = false) =>
-        index === 0 && short ? sectionCell(value, label, density, heading) : value;
+        index === 0 && short ? SectionCell(value, label, density, heading) : value;
       return {
         id: row.id, label: tableCell(row.cells[0]!, columns[0]!.kind, lang),
         heading: decorate(TableHeading(row, columns[0]!, { selectable, density, loading, lang }), true),
@@ -121,7 +121,7 @@ export function TableMatrix({ input, density, loading, lang, pending }: {
     });
     if (label && !short) records.unshift({
       id: `section_${section}`, label, cells: [],
-      heading: <kit.PartScope {...scope} item={rows[0]!.id}>{sectionLabel(label, density)}</kit.PartScope>,
+      heading: <kit.PartScope {...scope} item={rows[0]!.id}>{SectionLabel(label, density)}</kit.PartScope>,
     });
     return records;
   });
