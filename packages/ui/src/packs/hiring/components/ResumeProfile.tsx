@@ -20,6 +20,7 @@ import {
 import * as kit from "../../../kit";
 import { resumeEducationLine, resumeExperienceLine, resumeProjection, resumeReading } from "../copy";
 import { hiringWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-ResumeProfile.generated";
 
 const experienceLimit = 6;
 const educationLimit = 4;
@@ -39,8 +40,8 @@ export const meta = {
   status: "ready",
   group: "content",
   tier: "phone",
-  pick: "A job seeker's structured CV with work history, education, skills and an optional attachment. For just a name, one supporting line and optional portrait, use Profile. Not employer applicant review (Candidate) or flat facts (KeyValue).",
-  purpose: "Show a job seeker’s work history, education, skills and availability.",
+  pick: prompt.pick,
+  purpose: prompt.purpose,
   region: "body",
   weight: 3,
   realPath:
@@ -105,11 +106,7 @@ export const meta = {
     const lines = resumeReading(projected, lang);
     return state === "success" ? [hiringWordsFor(lang).resumeProfile.success, ...lines] : lines;
   },
-  writeHints: [
-    "Keep work history in newest-first order if using dates written as words. Do not invent jobs, qualifications, skills or a file.",
-    'Use detail "brief" only for a short résumé that shows the headline, latest role and top skills. Brief is display-only: always include every supplied experience entry and qualification in the JSON arrays. Never prune these arrays to match the visible content.',
-    "Set density, surface and detail to null in a normal résumé. For brief detail leave density and surface null unless a separate visual finish is requested.",
-  ],
+  writeHints: prompt.writeHints,
 } as const satisfies Meta;
 export const props = z.strictObject({
   ...variantProps(meta.variants),

@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { resultStats, standingsCopy, standingsReading, summaryStats } from "../copy";
 import { sportsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Standings.generated";
 
 // Core first: List/lead:number ranks one value, not a table of played, wins, draws, losses and form.
 export const meta = {
   id: "Standings",
   status: "ready",
   group: "data",
-  purpose: "Compare teams in a league and see our place in the season.",
-  pick: "A league table with played, wins, draws, losses, goal difference, points and recent form. Not a ranking on one value (List) or a general records table (Table).",
-  writeHints: [
-    "Write wins, draws, losses and goals for and against; never write played, points, goal difference or rank. Mine is a zero-based index in the input rows; lines are one-based cut positions in the ordered table.",
-    'To hide recent form, write detail "brief" and still supply the form data. Write density: null unless the person asks to change spacing. Omit scoring unless the league awards nonstandard points per win or draw.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

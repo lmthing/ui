@@ -34,7 +34,7 @@ The scope table is the full requirement, not a claim that each row is complete.
 
 1. **Data first.** Every component is defined once as data. The prompt line, the Zod schema, the default content and the kit prop types all come from that one definition, so they share one source.
 2. **No free values.** Nothing the catalog accepts carries a colour, size, spacing, layout or motion value. Look comes from tokens, presets and fixed tables.
-3. **One file per component.** Each id has one file, named after it, holding its data (`meta`, `props`, `fallback`, `examples`) and its view. The view's prop types come from the file's own schema. A non-draft file without a view fails a test.
+3. **One definition per component.** `<Name>.tsx` holds its data (`meta`, `props`, `fallback`, `examples`) and view. Model-facing purpose, pick (including near misses) and Writer guidance live beside it in `<Name>.prompt.md`; the entry builder makes them available as typed metadata without runtime file reads. The view's prop types come from the file's own schema. A non-draft file without a view fails a test.
 4. **Host owns the world.** The kit never navigates or measures the stage. It keeps ephemeral interaction state and invokes host callbacks for links, photos and media. Hosts own persistence and outside effects; render issue detectors remain pending.
 5. **Peer dependencies, not bundled ones.** React, React Native Web, Tamagui, Lucide icons and SVG are current kit peers. React Native and Reanimated peers are **pending** (5.1). The catalog entry depends on `zod` only.
 6. **Plain code, grouped by purpose.** At most 60 lines per function. No hard code file-size limit; `pnpm rules` warns above 400 lines per file or 12 files per non-exempt folder. Named exports only (default exports only in the gallery's route files), plain functions and plain data, no classes. Other folders import a folder only through its `index.ts`. `pnpm build:entries` generates the gitignored re-export doors for pack `components/` and `copy/`, `kit/base/` and `catalog/copy/`. Edit the source modules, not those doors. Doors with logic stay hand-written.
@@ -68,7 +68,7 @@ packages/ui/
     registry/       create-registry
     migrations/     aliases, day-timeline
     icons.ts, signatures.ts
-  src/components/   45 PascalCase files, each with data and view; adjacent tests
+  src/components/   PascalCase definitions and views; adjacent prompt Markdown and tests
   src/kit/
     provider/       KitProvider, context, useKit, useKitStyle, environment, useEnvironment
     tamagui/        tokens, fonts, animations, themes.generated, theme-name
@@ -1002,6 +1002,7 @@ filled/loading parity, and last-column reachability separately from gallery fixt
 Views are named React functions typed from their own schema through `Props<typeof props, typeof meta>`.
 They compose bases; user-facing text comes from props, cast or shared copy helpers.
 Built-in words come from per-language core and pack dictionaries, using the app's BCP-47 `lang` for copy and `Intl` formatting.
+Each English dictionary assembles `lang/en/<Name>.ts` modules for component-owned words and `lang/en/pack.ts` for shared words.
 
 - `part` stamps an address and `testID`; `item` supplies item context. Bases supply roles, labels and
   control state. `usePart` measures on layout and unregisters on unmount.

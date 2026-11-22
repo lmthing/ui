@@ -4,18 +4,16 @@ import type { FallbackInput, Meta, Probe, Props } from "../../../catalog";
 import * as kit from "../../../kit";
 import { chartPoints, chartTicks, pointReading, pointValue, seriesId, seriesTones } from "../copy";
 import { dataWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-LineChart.generated";
 
 // Core first: Sparkline/default shows one compact trend, not labelled, selectable points from several series.
 export const meta = {
   id: "LineChart",
   status: "ready",
   group: "data",
-  purpose: "Compare trends over time and inspect individual values.",
-  pick: "Compare one to three time series over four or more labelled points, with labelled axes and readable points. Not a tiny trend under one headline number (Sparkline), category amounts (Bars) or a holding's price (PriceChart).",
-  writeHints: [
-    "Series values are numbers, one per label in the same order. Labels are at most six characters. Do not write axes, latest values, ticks or colours.",
-    'If asked to omit the latest-value summary but keep the chart and point controls, use detail "brief"; otherwise leave detail null. Leave density and surface null unless requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

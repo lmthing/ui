@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { departuresCopy, departuresReading } from "../copy";
 import { placesWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Departures.generated";
 
 // Core first: Timeline/hours cannot show live countdowns and delays for transit lines leaving one stop.
 export const meta = {
   id: "Departures",
   status: "ready",
   group: "data",
-  purpose: "See what leaves a transit stop next and whether it is delayed.",
-  pick: "Next live buses, trains or ferries from one stop, with line badges, destinations, minutes and delays. Not a day's events (Timeline) or a journey's ordered stops (Route).",
-  writeHints: [
-    "Write the stop and rows of line and destination. Never write minutes, delay, or total; the transit service supplies them.",
-    'Use detail "brief" only when asked to keep the late indicator but hide how many minutes late. Otherwise leave detail null. Leave density and surface null unless requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "service",

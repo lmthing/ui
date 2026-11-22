@@ -17,18 +17,16 @@ import {
 import * as kit from "../../../kit";
 import { heatCells, heatGrid, heatReading } from "../copy";
 import { dataWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Heatmap.generated";
 
 // Core first: Calendar/month marks dates with events, not quantitative intensity across days or hours.
 export const meta = {
   id: "Heatmap",
   status: "ready",
   group: "data",
-  purpose: "Spot recurring highs and lows across days or two-hour time blocks.",
-  pick: "Shade each cell by numeric intensity across weeks of days or weekdays by two-hour blocks. Not a month of dates with event marks (Calendar) or a weekly habit checklist (HabitGrid).",
-  writeHints: [
-    'For style "weeks" write 4 to 26 weeks of exactly 7 numbers each, and omit days. For style "hours" write exactly 7 days of 12 numbers each, and omit weeks. Days are Monday first; two-hour blocks start at midnight.',
-    'Use JSON null for each unrequested axis: density, detail and emphasis. Do not write "comfortable", "full" or "normal" to apply defaults. If asked to omit the explanatory line under the title, set only detail to "brief"; keep the grid and scale. Never write cells, axes or the legend.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

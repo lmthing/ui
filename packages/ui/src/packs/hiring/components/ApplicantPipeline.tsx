@@ -4,14 +4,15 @@ import * as kit from "../../../kit";
 import { applicantCopy, pipelineCopy, pipelineOutcomes, pipelineReading } from "../copy";
 import { hiringWordsFor } from "../lang";
 import { activeStages, outcomes, seedDate, seedGoto, seedJobId, seedRows } from "../seeds";
+import { prompt } from "../../../entry/prompt-ApplicantPipeline.generated";
 
 // Core first: List/badge can show a stage label but cannot move active applicants across counted hiring stages.
 export const meta = {
   id: "ApplicantPipeline",
   status: "ready",
   group: "data",
-  purpose: "Move active applicants between counted hiring stages for one opening.",
-  pick: "Only when an employer needs both counted stage lanes and moves between them for one opening. For a flat directory with one tappable row per applicant, use List even if the rows show status badges. Not a generic board (Board) or a seeker's own tracker (Applications).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   dense: true,
@@ -32,10 +33,7 @@ export const meta = {
   },
   states: ["filled", "empty", "loading", "error"],
   actions: { items: { root: ["press", "move"] }, when: { root: { outcome: "active" } } },
-  writeHints: [
-    "Write one record per applicant. Stage is the last active stage even for a terminal outcome; do not write stage counts, outcome counts or column objects.",
-    'Use arrange "rows" for stages stacked vertically, otherwise null. Leave density and surface null unless requested.',
-  ],
+  writeHints: prompt.writeHints,
   live: {
     derive: ({ applicants }): c.Values => ({
       closed: pipelineOutcomes(applicants as z.output<typeof props>["applicants"]),

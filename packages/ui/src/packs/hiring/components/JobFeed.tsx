@@ -5,6 +5,7 @@ import { FeedRow, type FeedRowData } from "../../../kit/renderers";
 import { jobFeedCopy, jobFeedReading } from "../copy";
 import { hiringWordsFor } from "../lang";
 import { payPeriods, seedDate, seedGoto, seedRows } from "../seeds";
+import { prompt } from "../../../entry/prompt-JobFeed.generated";
 
 // Core first: List with a badge trail can link short vacancy rows, but cannot show structured pay,
 // workplace, posted age, local bookmarks and easy apply together per opening.
@@ -15,8 +16,8 @@ export const meta = {
   region: "body",
   weight: 2,
   tier: "phone",
-  purpose: "Browse open jobs, compare their pay and workplace, and bookmark openings.",
-  pick: "Multiple open jobs with workplace mode, pay and bookmarks. Not short link rows (List), one full opening (JobPost), or tracking jobs already applied to (Applications).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   realPath: "Openings and bookmarks can live on the phone; external applications need a job-board service.",
   variants: {
     density: ["comfortable", "compact"],
@@ -67,11 +68,7 @@ export const meta = {
     const content = jobFeedReading((input as z.output<typeof props>).jobs, currency, lang);
     return state === "success" ? [hiringWordsFor(lang).jobFeed.success, ...content] : content;
   },
-  writeHints: [
-    "Write one to six open jobs. Give each a distinct jobId, its original posted date and a link to details.",
-    "Pay numbers are optional with min at most max; never write a currency, formatted pay, or calculated age.",
-    'Use style "cards" only if individual cards are requested. Use detail "brief" only if asked to hide posting dates and locations. In both cases keep density and surface null unless the request separately asks for a finish; never fill in the default surface.',
-  ],
+  writeHints: prompt.writeHints,
 } as const satisfies c.Meta;
 
 const job = z.strictObject({

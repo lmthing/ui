@@ -14,16 +14,14 @@ import {
   type Props,
 } from "../catalog";
 import { KitCard, KitGrid, KitSkeleton, KitSpark, KitText, useComponentState, useVariant } from "../kit";
+import { prompt } from "../entry/prompt-Sparkline.generated";
 
 export const meta = {
   id: "Sparkline",
   group: "data",
-  purpose: "See how one measurement is changing, alongside its latest value.",
-  pick: "One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).",
-  writeHints: [
-    'If asked only to hide the trend line: detail "brief", density null, tone null; still store the series. Never choose compact density just because the brief hides the line.',
-    'If asked to warn about a series, use tone "warn" and keep detail and density null. The line is normally visible; a warning, a latest value or a falling series never asks to hide it.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 1,
   tier: "phone",

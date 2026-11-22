@@ -11,18 +11,15 @@ import {
 import { investWordsFor } from "../lang";
 import { performanceLedger, portfolioKind, type Portfolio } from "../ledger";
 import { compareInstants, dateTime, distinct, recordId, seedAssets, seedPortfolio, seedTime } from "../seeds";
+import { prompt } from "../../../entry/prompt-Performance.generated";
 
 // Core first: Sparkline/full shows a single trend, not portfolio value and net money invested together.
 // prettier-ignore
 export const meta = {
   id: "Performance", status: "ready", group: "data",
-  purpose: "Separate changes in portfolio value from the money I put in or took out.",
-  pick: "Compare portfolio value with net external contributions as two labelled lines over time, with latest money gain or loss. Not one market price (PriceChart), one small trend (Sparkline), or a generic series (LineChart).",
-  writeHints: [
-    "Write 2–60 dated quote observations in increasing time order, with at most one quote per asset in each sample. Missing quotes are omitted, never written as zero; do not write portfolio values, contributions, gains or rates.",
-    "Use ISO datetimes with offsets. Range filters the displayed points, not the contribution baseline.",
-    'Use detail "brief" only when asked to omit the heading above the valuation figures. Unless explicitly requested, leave density null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath: "The device replays the opening statement, trades, cash flows and receipts for each observation, valuing positions from stored quotes without a market service.",
   variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },

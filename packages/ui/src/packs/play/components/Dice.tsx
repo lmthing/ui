@@ -22,18 +22,16 @@ import {
 } from "../../../kit";
 import { diceFaceLabel, diceSetupLine, diceSumLine } from "../copy";
 import { playWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Dice.generated";
 
 // Core first: Counter/default cannot draw unbiased numbered dice or hold faces between rerolls.
 export const meta = {
   id: "Dice",
   status: "ready",
   group: "action",
-  purpose: "Roll numbered dice and hold individual faces while rerolling the others.",
-  pick: "Random numbered dice with optional holds and a computed sum. Not manual counting (Counter), named random options (Spinner), or a loading indicator.",
-  writeHints: [
-    'sides is the number 4, 6, 8, 10, 12 or 20. Use style: "numbers" unless sides is 6; pips is six-sided only. Never write faces, held flags or sum.',
-    'For hiding the setup caption alone use {"detail":"brief","density":null}. Always write density null, not comfortable, unless spacing is separately requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

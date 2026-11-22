@@ -13,18 +13,19 @@ import {
   type Props,
 } from "../catalog";
 import { KitChip, KitRow, KitTrack, useVariant } from "../kit";
+import { prompt } from "../entry/prompt-Segmented.generated";
 
 export const meta = {
   id: "Segmented",
   group: "input",
-  purpose: "Switch between two to four views of the same screen.",
-  pick: "One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "top",
   weight: 1,
   tier: "phone",
   realPath: "A local selection changes which view of the screen's data is shown.",
   variants: { surface: ["plain", "outlined"] },
-  writeHints: ['Use surface "outlined" only when asked for a border around the entire switcher.'],
+  writeHints: prompt.writeHints,
   items: { key: "options", parts: ["root", "label"] },
   select: { prop: "at", value: "index" },
   parts: ["root"],

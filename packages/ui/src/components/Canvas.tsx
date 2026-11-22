@@ -12,18 +12,19 @@ import {
   type Props,
 } from "../catalog";
 import { KitCard, KitEmpty } from "../kit";
+import { prompt } from "../entry/prompt-Canvas.generated";
 
 export const meta = {
   id: "Canvas",
   group: "escape",
-  purpose: "An idea no existing component can express, such as a game or a drawing tool.",
-  pick: "Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   tier: "phone",
   realPath: "A custom on-device interaction not represented by the catalog, recorded by the host as a miss.",
   variants: { surface: ["outlined", "plain"] },
-  writeHints: ['Use surface "plain" only when asked to remove the outline or card around the placeholder.'],
+  writeHints: prompt.writeHints,
   parts: ["root", "caption"],
   states: ["filled"],
 } as const satisfies Meta;
