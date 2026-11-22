@@ -13,7 +13,8 @@ export const meta = {
   pick: "Browse six or more places with matching detailed rows and pins, or switch between a linked map and list-only view. Not a small map of up to five pins (MapPins) or rows without any map (List).",
   writeHints: [
     "Keep up to six places with one short note each and a goto link. Never write distances, pin positions, a total count, or view selection.",
-    'Leave style null for the usual map with matching rows. Use "map" only if asked to hide all rows, "list" to hide the map at first, or "split" for an explicit both-visible starting layout.',
+    'A request for a three-way selector with both panes initially visible REQUIRES "style":"split". Null gives only two choices (With map and Just the list), not a three-way selector.',
+    'Start with just pins using "style":"map" or just rows using "style":"list". Never use "map" when rows must be shown. For the usual two-choice map-and-rows layout, leave style null.',
     'Hiding the notes uses detail "brief", not compact density. Still write each note in meta. Leave density and surface null unless specifically requested.',
   ],
   region: "body",
@@ -127,7 +128,7 @@ export const probes = [
     ...write("Let me browse Riverside Nursery (nursery, outdoor plants) in a map browser, but start with only the list and hide the map."),
     expectProps: { style: "list" },
   },
-  { ...write("For Riverside Nursery (nursery, outdoor plants), give me the three-way selector: Map + list, Map, or List. Select Map + list initially."), expectProps: { style: "split" } },
+  { ...write("For Riverside Nursery (nursery, outdoor plants), use the split style. I want the three-way selector, with both the map and the rows visible at first."), expectProps: { style: "split" } },
 ] satisfies c.Probe[];
 
 type MapListProps = c.Props<typeof props, typeof meta>;

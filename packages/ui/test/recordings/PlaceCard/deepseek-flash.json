@@ -617,8 +617,8 @@
       "{\"address\": \"p1\", \"action\": \"press\"}"
     ]
   },
-  "PlaceCard%2Fread%2FSave%20Riverside%20Nursery%20without%20opening%20it/277a6fdf927d4c1e/62769fdc36ecb30c": {
-    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 PlaceCard Rating 4.7 out of 5 — Price level 2 out of 4 — 0.75 mi away — Open now — \"Riverside Nursery\" — \"Garden centre\" — photo:plants — \"Member deal\" [p1 press→nursery !needs-ok] [p1/save toggle:off] [p1/unit select = \"mi\"; choices [\"km\",\"mi\"]]\n\nTask: Save Riverside Nursery without opening it\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+  "PlaceCard%2Fread%2FSave%20Riverside%20Nursery%20without%20opening%20it/24be3631eb3b4468/1a077f5e23c16d9b": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 PlaceCard Rating 4.7 out of 5 — Price level 2 out of 4 — 0.75 mi away — Open now — Save place — \"Riverside Nursery\" — \"Garden centre\" — photo:plants — \"Member deal\" [p1 press→nursery !needs-ok] [p1/save toggle:off] [p1/unit select = \"mi\"; choices [\"km\",\"mi\"]]\n\nTask: Save Riverside Nursery without opening it\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"p1/save\", \"action\": \"toggle\"}",
     "replies": [
       "{\"address\": \"p1/save\", \"action\": \"toggle\"}",
@@ -626,8 +626,8 @@
       "{\"address\": \"p1/save\", \"action\": \"toggle\"}"
     ]
   },
-  "PlaceCard%2Fread%2FSwitch%20the%20distance%20at%20Riverside%20Nursery%20to%20kilometres/d3118eda4b902aee/f02bb3a3a294fde4": {
-    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 PlaceCard Rating 4.7 out of 5 — Price level 2 out of 4 — 0.75 mi away — Open now — \"Riverside Nursery\" — \"Garden centre\" — photo:plants — \"Member deal\" [p1 press→nursery !needs-ok] [p1/save toggle:off] [p1/unit select = \"mi\"; choices [\"km\",\"mi\"]]\n\nTask: Switch the distance at Riverside Nursery to kilometres\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+  "PlaceCard%2Fread%2FSwitch%20the%20distance%20at%20Riverside%20Nursery%20to%20kilometres/3b590e2d9009a98b/fe863b2263129957": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 PlaceCard Rating 4.7 out of 5 — Price level 2 out of 4 — 0.75 mi away — Open now — Save place — \"Riverside Nursery\" — \"Garden centre\" — photo:plants — \"Member deal\" [p1 press→nursery !needs-ok] [p1/save toggle:off] [p1/unit select = \"mi\"; choices [\"km\",\"mi\"]]\n\nTask: Switch the distance at Riverside Nursery to kilometres\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"p1/unit\", \"action\": \"select\"}",
     "replies": [
       "{\"address\": \"p1/unit\", \"action\": \"select\"}",
@@ -808,11 +808,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"PlaceCard\",\"density\":null,\"media\":\"cover\",\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":\"Member deal\",\"saved\":null,\"unit\":null}",
+    "reply": "{\"c\":\"PlaceCard\",\"density\":null,\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":\"Member deal\",\"saved\":null,\"unit\":null}",
     "replies": [
-      "{\"c\":\"PlaceCard\",\"density\":null,\"media\":\"cover\",\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":\"Member deal\",\"saved\":null,\"unit\":null}",
+      "{\"c\":\"PlaceCard\",\"density\":null,\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":\"Member deal\",\"saved\":null,\"unit\":null}",
       "{\"c\":\"PlaceCard\",\"density\":null,\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":null,\"rating\":null,\"priceLevel\":null,\"opens\":null,\"closes\":null,\"goto\":\"nursery\",\"badge\":\"Member deal\",\"saved\":null,\"unit\":null}",
-      "{\"c\":\"PlaceCard\",\"density\":null,\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":null,\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":\"Member deal\",\"saved\":null,\"unit\":null}"
+      "{\"c\":\"PlaceCard\",\"density\":null,\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":\"Member deal\",\"saved\":null,\"unit\":null}"
     ]
   },
   "PlaceCard%2Fwrite%2FFeature%20Riverside%20Nursery%2C%20a%20garden%20centre%20rated%204.7%20at%20price%20level%202%2C%20open%2009%3A00%20to%2018%3A00.%20Tap%20to%20open%20nursery./d3e20b69bbc0583f/0b609b491e1562b2": {
@@ -992,7 +992,7 @@
     "replies": [
       "{\"c\":\"PlaceCard\",\"density\":null,\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":null,\"unit\":null}",
       "{\"c\":\"PlaceCard\",\"density\":null,\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":null,\"unit\":null}",
-      "{\"c\":\"PlaceCard\",\"density\":null,\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":null,\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":null,\"unit\":null}"
+      "{\"c\":\"PlaceCard\",\"density\":null,\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":null,\"unit\":null}"
     ]
   },
   "PlaceCard%2Fwrite%2FFeature%20Riverside%20Nursery%2C%20a%20garden%20centre%20that%20opens%20nursery%20on%20tap.%20Let%20me%20switch%20distance%20units%20and%20start%20in%20miles./2a57d9bfe4dde0a9/76efeab277c2322b": {
@@ -1171,7 +1171,7 @@
     "reply": "{\"c\":\"PlaceCard\",\"density\":null,\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":false,\"unit\":\"mi\"}",
     "replies": [
       "{\"c\":\"PlaceCard\",\"density\":null,\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":false,\"unit\":\"mi\"}",
-      "{\"c\":\"PlaceCard\",\"density\":null,\"media\":\"cover\",\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":null,\"unit\":\"mi\"}",
+      "{\"c\":\"PlaceCard\",\"density\":null,\"media\":\"cover\",\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":false,\"unit\":\"mi\"}",
       "{\"c\":\"PlaceCard\",\"density\":null,\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":false,\"unit\":\"mi\"}"
     ]
   },
@@ -1348,11 +1348,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"PlaceCard\",\"density\":null,\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":null,\"priceLevel\":null,\"opens\":null,\"closes\":null,\"goto\":\"nursery\",\"badge\":null,\"saved\":false,\"unit\":null}",
+    "reply": "{\"c\":\"PlaceCard\",\"density\":null,\"media\":\"cover\",\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":false,\"unit\":null}",
     "replies": [
-      "{\"c\":\"PlaceCard\",\"density\":null,\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":null,\"priceLevel\":null,\"opens\":null,\"closes\":null,\"goto\":\"nursery\",\"badge\":null,\"saved\":false,\"unit\":null}",
+      "{\"c\":\"PlaceCard\",\"density\":null,\"media\":\"cover\",\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":false,\"unit\":null}",
       "{\"c\":\"PlaceCard\",\"density\":null,\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":false,\"unit\":null}",
-      "{\"c\":\"PlaceCard\",\"density\":null,\"media\":\"cover\",\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":false,\"unit\":null}"
+      "{\"c\":\"PlaceCard\",\"density\":null,\"media\":null,\"name\":\"Riverside Nursery\",\"category\":\"Garden centre\",\"photo\":\"lib:plants\",\"rating\":4.7,\"priceLevel\":2,\"opens\":\"09:00\",\"closes\":\"18:00\",\"goto\":\"nursery\",\"badge\":null,\"saved\":false,\"unit\":null}"
     ]
   },
   "PlaceCard%2Fwrite%2FRiverside%20Nursery%20is%20a%20garden%20centre.%20Keep%20lib%3Aplants%20as%20its%20photo%20reference%2C%20but%20do%20not%20show%20the%20photo.%20Tap%20to%20open%20nursery./28bf8d10c156b6dc/6ceda05307706515": {
