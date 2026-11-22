@@ -37,6 +37,33 @@ function capture(options: Partial<Parameters<typeof useSlider>[0]> = {}) {
   return { act, control: control! };
 }
 describe("KitSlider wave 2 step and disabled controls", () => {
+  it("uses the full shared track for a thumb but never crosses its peer", () => {
+    const { act, control } = capture({
+      address: "home/c1/lower",
+      min: 0,
+      max: 6,
+      value: 2,
+      step: 1,
+      declared: true,
+      track: { min: 0, max: 10, offset: 0, width: { current: 200 } },
+    });
+    const add = vi.fn<(type: string, listener: (event: PointerEvent) => void) => void>();
+    vi.stubGlobal("document", { addEventListener: add, removeEventListener: vi.fn() });
+    try {
+      const handlers = control.handlers as { onPointerDown(event: object): void };
+      handlers.onPointerDown({
+        currentTarget: { parentElement: { getBoundingClientRect: () => ({ left: 0, width: 200 }) } },
+        clientX: 80,
+      });
+      expect(act).toHaveBeenLastCalledWith({ address: "home/c1/lower", action: "set", value: 4 });
+      handlers.onPointerDown({ clientX: 180 }); // Ignore a second pointer while the thumb is held.
+      expect(act).toHaveBeenCalledOnce();
+      add.mock.calls.find(([type]) => type === "pointermove")?.[1]({ clientX: 180 } as PointerEvent);
+      expect(act).toHaveBeenLastCalledWith({ address: "home/c1/lower", action: "set", value: 6 });
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
   it("steps keyboard actions relative to min and clamps at valid end steps", () => {
     const { act, control } = capture();
     const handlers = control.handlers as { onKeyDown(event: { key: string; preventDefault(): void }): void };

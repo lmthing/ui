@@ -1,22 +1,16 @@
 import { z } from "zod";
+// prettier-ignore
 import {
-  probesFor,
-  detailOf,
-  itemsOf,
-  placeholderTitle,
-  text,
-  thingOf,
-  titleOf,
-  variantProps,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
+  probesFor, detailOf, itemsOf, placeholderTitle, text, thingOf, titleOf, variantProps, wordsFor,
+  type FallbackInput, type Meta, type Probe, type Props,
 } from "../catalog";
-import { KitCard, KitContent, KitGrid, KitRouteStop, KitText } from "../kit";
+import { KitCard, KitContent, KitGrid, KitMetaLine, KitRouteStop, KitText, useWords } from "../kit";
+
+const modes = ["walk", "bike", "car", "transit", "flight"] as const;
 
 export const meta = {
   id: "Route",
+  status: "ready",
   signature: "route_draw",
   group: "data",
   purpose: "Follow a path between places, from the first stop to the last.",
@@ -31,8 +25,12 @@ export const meta = {
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["meta"] } },
   items: { key: "stops", parts: ["root", "label", "meta"] },
-  parts: ["root", "distance"],
+  parts: ["root", "distance", "mode", "duration"],
   states: ["filled"],
+  read: (input, _state, lang): string[] => {
+    const { mode } = input as { mode?: (typeof modes)[number] };
+    return mode ? [wordsFor(lang).routeModes[mode]] : [];
+  },
 } as const satisfies Meta;
 
 export const props = z
@@ -43,6 +41,8 @@ export const props = z
       .min(2)
       .max(6),
     distance: text(12).optional(),
+    mode: z.enum(modes).optional(),
+    duration: text(12).optional(),
   })
   .overwrite((value) =>
     value.detail === "brief"
@@ -87,32 +87,46 @@ export const examples = [
     ],
     distance: "3.2 km",
   },
+  { stops: [{ label: "Home" }, { label: "Park gate" }], mode: "walk", duration: "25 min", distance: "2 km" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Route");
+// prettier-ignore
 export const probes = [
-  choose(
-    "Show the places on our dog walk in the order we visit: Home, Park gate, Pond, Home, covering 3.2 km",
+  choose( "Show the places on our dog walk in the order we visit: Home, Park gate, Pond, Home, covering 3.2 km",
   ),
-  choose(
-    "Show past plant-care events in date order: watered the fern on June 2, repotted basil on June 5, misted the orchid on June 9",
-    "Timeline",
+  choose( "Show past plant-care events in date order: watered the fern on June 2, repotted basil on June 5, misted the orchid on June 9", "Timeline",
   ),
-  write(
-    "Our dog walk visits Home, Park gate, Pond, then Home again, covering 3.2 km; pause for water at Pond",
+  write( "Our dog walk visits Home, Park gate, Pond, then Home again, covering 3.2 km; pause for water at Pond",
   ),
-  {
-    ...write(
-      "Show the dog walk from Home to Pond, 2 km total. Save the note Water break for Pond but hide stop notes on screen.",
-    ),
-    variant: { axis: "detail", value: "brief" },
+  { ...write( "Show the dog walk from Home to Pond, 2 km total. Save the note Water break for Pond but hide stop notes on screen."), variant: { axis: "detail", value: "brief" },
+  },
+  { ...write("Show the route from Home to Park gate on foot; it takes 25 min."), expectProps: { mode: "walk" },
+  },
+  { ...write("Show the route between Home and Park gate. Add the total travel time exactly as 25 min."), expectProps: { duration: "25 min" },
   },
 ] satisfies Probe[];
 
-export function Route({ stops, distance, detail }: Props<typeof props, typeof meta>) {
+export function Route({ stops, distance, detail, mode, duration }: Props<typeof props, typeof meta>) {
   const measure = distance?.match(/^(\d+(?:[.,]\d+)?)(\s+.*)?$/);
+  const { routeModes } = useWords().words;
+  const hasSummary = Boolean(mode || duration);
   return (
     <KitCard style="inset" part="root">
+      {hasSummary && (
+        <KitContent inset="md" lineRole="body">
+          <KitGrid columns={2}>
+            <KitMetaLine
+              title={mode ? { text: routeModes[mode], part: "mode" } : { text: duration, part: "duration" }}
+            />
+            {mode && duration && (
+              <KitText role="body" part="duration" align="end" tabular>
+                {duration}
+              </KitText>
+            )}
+          </KitGrid>
+        </KitContent>
+      )}
       {stops.map((stop, index) => {
         const header = index === 0 && distance;
         const content = (
@@ -139,7 +153,7 @@ export function Route({ stops, distance, detail }: Props<typeof props, typeof me
                 {content}
                 <KitText
                   role={measure ? "number" : "body"}
-                  numberScale={detail === "brief" ? "compact" : "display"}
+                  numberScale={detail === "brief" || hasSummary ? "compact" : "display"}
                   align="end"
                   tabular
                   part={null}
