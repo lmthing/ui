@@ -2,7 +2,7 @@ import { expect, it } from "vitest";
 import { z } from "zod";
 import type { Meta } from "../../meta";
 import { planAct, readScreen, type DeviceData } from "../index";
-import { itemActionOffer, moveKey, projectMoves } from "../collections";
+import { itemActionOffer, moveKey, projectMoves } from "./item-move";
 
 const meta = {
   id: "MoveFixture",

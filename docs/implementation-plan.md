@@ -717,8 +717,10 @@ choice of primitive. The kit side of each contract is in [5.9](#59-reading-and-a
 
 Offer generation uses the parsed wire seed plus staged projection, state gates and current host
 policy. The mounted kit adds eligibility checks; it does not define a separate set of component
-offers. A component-specific rule belongs in its schema, reducer, gate, record builder or public
-projection. It does not select another runtime path by component id.
+offers. For compatibility, when there is no projected state, the detached planner ignores wire
+state for definitions without a runtime state opt-in; mounted lookup honors it. A component-specific
+rule belongs in its schema, reducer, gate, record builder or public projection. It does not select
+another runtime path by component id.
 
 **Pending reader API:** `readScreen(screen, registry, { depth, address, since, values, marks })`,
 `readApp({ name, sections, screens })`, and deltas (new/changed components whole, removals as `- id`,

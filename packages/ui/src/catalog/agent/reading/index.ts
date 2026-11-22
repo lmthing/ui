@@ -199,7 +199,7 @@ export function readItems(
 }
 
 /** Keep first appearance order and every row's original address; unnamed rows stay separate. */
-function groupItemLines(items: Values[], field: string, render: (item: Values) => string): string[] {
+function groupItemLines(items: Props[], field: string, render: (item: Props) => string): string[] {
   const groups = new Map<string, string[]>();
   const lines: string[][] = [];
   for (const item of items) {
