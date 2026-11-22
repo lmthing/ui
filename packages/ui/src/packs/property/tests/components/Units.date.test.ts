@@ -65,3 +65,57 @@ it("projects date edits into the addressed field, rows and both readers, rejecti
   expect(controller.snapshotScreen()).toEqual(before);
   controller.dispose();
 });
+
+it("filters vacancies on the live date and never renumbers or offers a hidden row", () => {
+  const { units, lets, on } = components.Units.examples[0]!;
+  const notice = { ...lets[0]!, end: "2026-12-01", noticeGivenOn: "2026-11-20" };
+  const stay = {
+    letRef: "cedar_stay",
+    unitRef: "flat_b",
+    occupant: "Lee",
+    kind: "stay",
+    start: "2026-11-19",
+    end: "2026-11-23",
+    rent: 85,
+    per: "night",
+  };
+  const defs = { Units: components.Units };
+  const screen = {
+    id: "home",
+    components: [
+      {
+        c: "Units",
+        id: "u1",
+        style: "vacancies",
+        on,
+        units,
+        lets: [notice, stay],
+      },
+    ],
+  };
+  const controller = createScreenController({ screen, defs });
+  const open = { address: "u1/r1", action: "press" };
+  for (const [date, willow, cedar] of [
+    ["2026-11-18", undefined, undefined],
+    ["2026-11-20", "Notice given", undefined],
+    ["2026-11-23", "Notice given", "vacant"],
+    ["2026-12-01", "vacant", "vacant"],
+    ["2026-11-19", undefined, undefined],
+  ] as const) {
+    const set = { address: "u1/date", action: "set", value: date };
+    expect(controller.act(set).ok).toBe(true);
+    const html = drawLive(controller);
+    const parts = addressedElements(html);
+    expect(parts.has("home/u1/r1/root")).toBe(Boolean(willow));
+    expect(parts.has("home/u1/r2/root")).toBe(Boolean(cedar));
+    expect(textOf(parts.get("home/u1/r1/occupancy"))).toBe(willow ?? "");
+    expect(textOf(parts.get("home/u1/r2/occupancy"))).toBe(cedar ?? "");
+    expect(controller.read().includes("Willow Flat")).toBe(Boolean(willow));
+    expect(controller.read().includes("Cedar Flat")).toBe(Boolean(cedar));
+    expect(html.includes("No vacant units")).toBe(!willow && !cedar);
+    expect(planAct(screen, defs, {}, [set, open]).ok).toBe(Boolean(willow));
+  }
+  expect(controller.act(open).ok).toBe(false);
+  expect(controller.snapshotScreen().components[0]?.units).toEqual(units);
+  controller.dispose();
+});

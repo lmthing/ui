@@ -23,6 +23,8 @@ type Check = {
   condition: (typeof inspectionConditions)[number];
   note?: string | undefined;
   photos: readonly string[];
+  tenantSignoff?: "pending" | "signed" | undefined;
+  disputeComment?: string | undefined;
 };
 type Room = { roomRef: string; title: string; checks: readonly Check[] };
 type Report = {
@@ -58,10 +60,16 @@ export function inspectionEntries(input: Report) {
       roomRef,
       entryKind: "check" as const,
       visible: input.style === "report" || roomRef === input.rooms[0]?.roomRef,
-      editable,
+      editable: editable && check.tenantSignoff !== "signed",
       note: check.note ?? "",
       hasPhoto: check.photos.length > 0,
       canAddPhoto: check.photos.length < inspectionPhotoParts.length,
+      canDispute: editable && check.tenantSignoff === "pending",
+      canSign:
+        editable &&
+        check.tenantSignoff === "pending" &&
+        check.condition !== "unrecorded" &&
+        !check.disputeComment,
     })),
   ]);
 }
@@ -122,6 +130,8 @@ export function readInspection(raw: unknown, state: StateName, lang?: string): s
             words.condition[row.condition],
             row.note,
             ...row.photos,
+            row.tenantSignoff === "signed" && words.coSigned,
+            row.disputeComment && words.disputeReading(row.disputeComment),
             state === "filled" && row.editable && row.canAddPhoto && words.addPhoto,
             state === "filled" && row.editable && row.hasPhoto && words.removePhoto,
           ]

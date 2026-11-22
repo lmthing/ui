@@ -24,6 +24,10 @@ type ReceiptLine = Extract<LedgerLine, { kind: "receipt" }>;
 type Figures = "short" | "exact";
 type Money = (value: number) => string;
 
+export function autopayLabel(autopay: boolean | undefined, lang?: string) {
+  return autopay === undefined ? undefined : propertyWordsFor(lang).rentRoll.autopay[autopay ? "on" : "off"];
+}
+
 export function rentCopy(figures: Figures, lang?: string) {
   const words = propertyWordsFor(lang).rentRoll;
   const money: Money = (value) =>
@@ -76,16 +80,25 @@ export function rentGroups<T extends LedgerLine>(lines: readonly T[]) {
   );
 }
 
-type ReadInput = Omit<Reconciled, "lines"> & { figures: Figures; lines: (LedgerLine & { id: string })[] };
+type ReadInput = Omit<Reconciled, "lines"> & {
+  figures: Figures;
+  style: "ledger" | "outstanding" | "tenant";
+  autopay?: boolean;
+  lines: (LedgerLine & { id: string })[];
+};
 
 export function rentReading(input: unknown, state: string, lang?: string): string[] {
   const words = propertyWordsFor(lang).rentRoll;
   if (state !== "filled") return state === "success" ? [words.success] : [];
-  const { figures, lines, totals } = input as ReadInput;
+  const { figures, lines, totals, style, autopay } = input as ReadInput;
+  const tenant = style === "tenant";
+  const autopayStatus = tenant ? autopayLabel(autopay, lang) : undefined;
   const copy = rentCopy(figures, lang);
   const groups = rentGroups(lines);
   const summary = copy.summary(totals);
   return [
+    ...(tenant ? [words.tenant] : []),
+    ...(autopayStatus ? [autopayStatus] : []),
     words.summaryReading(
       copy.month(totals.month),
       summary.map(({ label, value }) => words.metricReading(label, value)),
@@ -93,7 +106,7 @@ export function rentReading(input: unknown, state: string, lang?: string): strin
     ...summary.map(({ label }) => label),
     ...(!groups.length ? [words.noCharges] : []),
     ...groups.flatMap(({ charge, receipts }) => [
-      chargeReading(charge, copy, lang),
+      chargeReading(charge, copy, tenant, lang),
       ...(receipts.length ? [words.receipts] : []),
       ...receipts.map((line) => {
         const { date, method, value } = copy.receipt(line);
@@ -102,14 +115,19 @@ export function rentReading(input: unknown, state: string, lang?: string): strin
           date,
           method,
           value,
-          line.voided ? words.voided : words.void,
+          ...(line.voided ? [words.voided] : tenant ? [] : [words.void]),
         ]);
       }),
     ]),
   ];
 }
 
-function chargeReading(line: ChargeLine & { id: string }, copy: ReturnType<typeof rentCopy>, lang?: string) {
+function chargeReading(
+  line: ChargeLine & { id: string },
+  copy: ReturnType<typeof rentCopy>,
+  tenant: boolean,
+  lang?: string,
+) {
   const words = propertyWordsFor(lang).rentRoll;
   const { due, fields } = copy.charge(line);
   return words.rowReading(line.id, [
@@ -117,7 +135,6 @@ function chargeReading(line: ChargeLine & { id: string }, copy: ReturnType<typeo
     line.occupant,
     due,
     ...fields.map(({ label, value }) => words.metricReading(label, value, true)),
-    words.record,
-    ...(line.unpaid ? [words.remind] : []),
+    ...(tenant ? (line.unpaid ? [words.pay] : []) : [words.record, ...(line.unpaid ? [words.remind] : [])]),
   ]);
 }
