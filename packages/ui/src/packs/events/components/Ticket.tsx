@@ -18,7 +18,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "The app issues the admission ticket; the organiser scans it at the door.",
-  variants: { density: ["comfortable", "compact"], align: ["start", "center"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["hint"] } },
   parts: ["root", "event", "date", "time", "place", "type", "holder", "number", "code", "hint"],
   states: ["filled", "success"],
@@ -68,7 +68,6 @@ export const examples = [
     type: "Member",
     holder: "Hugo Wells",
     number: "SO0081",
-    align: "center",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -93,7 +92,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type TicketProps = c.Props<typeof props, typeof meta>;
-type Finish = Pick<TicketProps, "align" | "density">;
+type Finish = { align: c.ContentAlign } & { density: c.ThemeDensity };
 
 // prettier-ignore
 function TicketBody({ input, finish, used }: { input: TicketProps; finish: Finish; used: boolean }) {
@@ -121,8 +120,8 @@ function TicketBody({ input, finish, used }: { input: TicketProps; finish: Finis
 export function Ticket(input: TicketProps) {
   const used = kit.useComponentState() === "success";
   const { words: { ticket } } = kit.useWords(eventsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const align = kit.useVariant("align", meta.variants.align, input.align);
+  const density = kit.useKit().density;
+  const align = "start";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const stub = used ? <kit.KitContent align="center" density={density}>
     <kit.KitIcon name="circle_check" tone="good" decorative />

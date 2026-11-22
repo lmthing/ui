@@ -36,7 +36,6 @@ describe("Loans schema", () => {
   it("accepts exact bounds, same-day due dates and the shared defaults", () => {
     const max = { ...loan, thing: "a".repeat(28), person: "b".repeat(20), photo: "local:1", due: loan.since };
     expect(props.parse({ loans: Array(6).fill(max) })).toMatchObject({
-      surface: "card",
       detail: "full",
       loans: Array(6).fill(max),
     });
@@ -122,7 +121,7 @@ describe("Loans states and parts", () => {
   });
 
   it("brief hides only the start date while keeping its wire value, and dates use the app language", () => {
-    const brief = { ...input, detail: "brief", surface: "outlined", density: "compact" };
+    const brief = { ...input, detail: "brief" };
     expect(props.parse(brief).loans[0]?.since).toBe(loan.since);
     const parts = render(brief, "filled", "en-US");
     expect([...parts.keys()]).toEqual([...render(input).keys()].filter((key) => !key.endsWith("/since")));

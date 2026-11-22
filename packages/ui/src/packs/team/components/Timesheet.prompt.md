@@ -9,4 +9,4 @@ Review each worker's actual hours for seven days and approve their weekly row. N
 ## Writer
 
 - Give seven daily hours, Monday first, using zero for days not worked. Do not write totals or overtime.
-- When asked to hide the daily breakdown, write detail "brief" and still supply all seven hours. Use null for unrequested density, surface and detail.
+- When asked to hide the daily breakdown, write detail "brief" and still supply all seven hours. Use null for unrequested detail.

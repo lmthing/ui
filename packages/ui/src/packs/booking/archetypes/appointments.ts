@@ -1,4 +1,4 @@
-import { packListDefaults, type ArchetypeMeta } from "../../../catalog";
+import { type ArchetypeMeta } from "../../../catalog";
 
 export const appointments = {
   id: "appointments",
@@ -8,7 +8,7 @@ export const appointments = {
     upcoming: {
       writeHints: [
         "Always include the required List after Appointment, even with an empty cast. Its 1–6 rows summarize past appointments: short service titles, dates or status in meta, and optional goto links. Do not omit this slot; use the valid default List when no past records are supplied.",
-        'Use one List with surface "card", no style, and no numbered lead. On every row, me is false or null, photo is null and body is null. These are past appointment records, never a personal "me" row, a photo shelf or expandable answers.',
+        'Use one List without a style or numbered lead. On every row, me is false or null, photo is null and body is null. These are past appointment records, never a personal "me" row, a photo shelf or expandable answers.',
       ],
       recipe: [
         { allow: ["Header"], required: true },
@@ -20,7 +20,7 @@ export const appointments = {
         { id: "h1", c: "Header" },
         { id: "s1", c: "Segmented" },
         { id: "a1", c: "Appointment" },
-        { id: "l1", c: "List", ...packListDefaults["appointments/upcoming"] },
+        { id: "l1", c: "List" },
       ],
     },
     history: {

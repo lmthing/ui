@@ -8,4 +8,4 @@ Decide which of several things to keep or skip, one at a time. Swipe only the to
 
 ## Writer
 
-- A request to hide only photos sets media to "none" and leaves detail and density null. Descriptions remain visible. Set detail to "brief" only when asked to hide descriptions. When spacing is not requested, density must be null, never "comfortable".
+- A request to hide only photos sets media to "none" and leaves detail. Descriptions remain visible. Set detail to "brief" only when asked to hide descriptions. When spacing is not requested must be null.

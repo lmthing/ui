@@ -8,13 +8,13 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
-import { KitCard, KitOption, KitSkeleton, KitText, useComponentState, useVariant } from "../kit";
+import { KitCard, KitOption, KitSkeleton, KitText, useComponentState } from "../kit";
 import { prompt } from "../entry/prompt-Choice.generated";
 
 export const meta = {
@@ -26,7 +26,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "The chosen option is stored on one record in the on-device database.",
-  variants: { surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["sub"] } },
   writeHints: prompt.writeHints,
   items: { key: "options", parts: ["root", "icon", "title", "badge", "sub", "value"] },
@@ -110,7 +110,6 @@ export const examples = [
     at: 0,
   },
   {
-    surface: "plain",
     question: "Pick a walk plan",
     options: [
       { title: "Single walk", sub: "One 30 minute walk.", value: "£15" },
@@ -141,9 +140,9 @@ export const probes = [
   read("Choose every two weeks", { address: "c1/r2", action: "select" }),
 ] satisfies Probe[];
 
-export function Choice({ surface, detail, question, options, multi }: Props<typeof props, typeof meta>) {
+export function Choice({ detail, question, options, multi }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
-  const look = useVariant("surface", meta.variants.surface, surface) === "plain" ? "list" : "cards";
+  const look = "cards";
   const shown = detail === "brief" ? options.map((option) => ({ ...option, sub: undefined })) : options;
   if (state === "loading") {
     return (

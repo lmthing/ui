@@ -8,4 +8,4 @@ Long body-measurement history with a dashed goal reference, latest value, change
 
 ## Writer
 
-- Write surface null unless asked for an outline. Do not write the default surface card. Use detail brief to hide the change since the first reading; keep all measurement points and any supplied goal.
+- Use detail brief to hide the change since the first reading; keep all measurement points and any supplied goal.

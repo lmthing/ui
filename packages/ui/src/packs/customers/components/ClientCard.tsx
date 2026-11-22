@@ -1,9 +1,9 @@
 // prettier-ignore
-import { useWords, KitAction, KitCard, KitContent, KitGrid, KitHeader, KitLayoutText, KitPhoto, KitState, KitTrail, useComponentState, useVariant } from "../../../kit";
+import { useWords, KitAction, KitCard, KitContent, KitGrid, KitHeader, KitLayoutText, KitPhoto, KitState, KitTrail, useComponentState, useKit } from "../../../kit";
 import { customersWordsFor } from "../lang";
 import { z } from "zod";
 // prettier-ignore
-import { detailOf, itemsOf, photo, placeholderTitle, probesFor, isoDate, text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+import { detailOf, itemsOf, photo, placeholderTitle, probesFor, isoDate, text, thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props, type ThemeDensity, variantProps } from "../../../catalog";
 import { clientBalanceLine, clientReading, sinceLine, nextLine, tagsLine, type contactLabels } from "../copy";
 import { prompt } from "../../../entry/prompt-ClientCard.generated";
 
@@ -20,8 +20,6 @@ export const meta = {
   tier: "phone",
   realPath: "A client record on the device; calling and messaging use the phone's own apps.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     media: ["thumb", "none"],
     detail: ["full", "brief"],
   },
@@ -100,8 +98,8 @@ export const examples = [
     phone: false,
     address: false,
   },
-  { ...variantExample, density: "compact" },
-  { ...variantExample, surface: "outlined" },
+  { ...variantExample },
+  { ...variantExample },
   { ...variantExample, media: "none" },
   { ...variantExample, detail: "brief" },
   { ...variantExample, company: "Maple Studio", billing: { charged: 120, paid: 80 }, email: true },
@@ -138,7 +136,7 @@ function ContactAction({ part }: { part: keyof typeof contactLabels }) {
 }
 
 // prettier-ignore
-function ClientContacts({ phone, address, email, density }: Pick<ClientProps, "phone" | "address" | "email" | "density">) {
+function ClientContacts({ phone, address, email, density }: Pick<ClientProps, "phone" | "address" | "email"> & { density: ThemeDensity }) {
   const controls = [
     ...(phone ? [<ContactAction key="call" part="call" />] : []),
     ...(address ? [<ContactAction key="directions" part="directions" />] : []),
@@ -160,8 +158,9 @@ function ClientContacts({ phone, address, email, density }: Pick<ClientProps, "p
 
 // prettier-ignore
 export function ClientCard(input: ClientProps) {
-  const { name, photo, since, next, tags, phone, address, media, surface, company, billing, email } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const { name, photo, since, next, tags, phone, address, media, company, billing, email  } = input;
+  const surface = "card";
+  const density = useKit().density;
   const { lang } = useWords();
   const loading = useComponentState() === "loading";
   const content = (

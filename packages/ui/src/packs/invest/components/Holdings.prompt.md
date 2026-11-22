@@ -9,5 +9,5 @@ Owned investment positions with units, cost basis, dated quotes and unrealised g
 ## Writer
 
 - Use short snake_case record ids and ISO datetimes with offsets. Write opening units and unit cost, not computed value or gain. Zero opening units register an instrument for later activity.
-- To show just units and value, write "detail":"brief","density":null and retain the seed data. Only an explicit spacing request sets density; never fill in "comfortable".
+- To show just units and value, write "detail":"brief" and retain the seed data.
 - A single-position filter uses an assetId from the portfolio.

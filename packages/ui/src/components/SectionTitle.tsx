@@ -6,13 +6,13 @@ import {
   screenId,
   text,
   thingOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
-import { KitAction, KitBlock, KitText, useVariant } from "../kit";
+import { KitAction, KitBlock, KitText, useKit } from "../kit";
 import { prompt } from "../entry/prompt-SectionTitle.generated";
 
 export const meta = {
@@ -25,7 +25,7 @@ export const meta = {
   weight: 1,
   tier: "phone",
   realPath: "A label above a group and an optional navigation link in the on-device app.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["link", "link_label"] } },
   parts: ["root", "text", "link", "link_label"],
   states: ["filled"],
@@ -53,7 +53,7 @@ export const examples = [
   { text: "Today's walks" },
   { text: "Upcoming walks", link: { label: "See schedule", goto: "schedule" } },
   { text: "Upcoming walks", link: { label: "See schedule", goto: "schedule" }, detail: "brief" },
-  { text: "Needs water", link: { label: "See all", goto: "plants" }, density: "compact" },
+  { text: "Needs water", link: { label: "See all", goto: "plants" } },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("SectionTitle");
@@ -70,7 +70,7 @@ export const probes = [
 
 export function SectionTitle(input: Props<typeof props, typeof meta>) {
   const { text, link } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   return (
     <KitBlock
       label={text}

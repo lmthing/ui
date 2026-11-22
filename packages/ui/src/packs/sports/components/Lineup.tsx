@@ -19,8 +19,6 @@ export const meta = {
   tier: "phone",
   realPath: "The coach sets the lineup on one phone and teammates see the selection in a shared app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["shape"] } },
@@ -88,8 +86,6 @@ export const examples = [
   },
   {
     style: "list",
-    density: "compact",
-    surface: "outlined",
     lines: [
       { players: [{ number: 1, name: "Porter" }] },
       {
@@ -155,8 +151,8 @@ function Bench({ players, density, style }: {
 export function Lineup(input: LineupProps) {
   const { lang, words: { lineup } } = kit.useWords(sportsWordsFor);
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const title = <kit.KitText part="title" role="heading" density="comfortable">{lineup.title}</kit.KitText>;
   const titleRow = detail === "brief" || state === "empty" ? title : <kit.KitGrid fitLast density={density}>

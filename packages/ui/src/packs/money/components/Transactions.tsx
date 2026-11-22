@@ -17,7 +17,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Entries added on the device or imported from a bank file on the device.",
-  variants: { density: ["comfortable", "compact"], lead: ["icon", "none"] },
+  variants: { lead: ["icon", "none"] },
   variantParts: { "lead.none": { hides: ["icon", "receipt"] } },
   parts: ["root", "empty"],
   items: {
@@ -87,7 +87,7 @@ export const examples = [
     ],
   },
   { ...ledgeEntries, lead: "none" },
-  { ...ledgeEntries, density: "compact" },
+  { ...ledgeEntries },
   ...(["good", "warn", "bad"] as const).map((tone) => withItemFinish({ tone })),
   ...(["highlight", "muted", "new"] as const).map((mark) => withItemFinish({ mark })),
   { entries: [
@@ -127,7 +127,7 @@ type Entry = TransactionsProps["entries"][number];
 
 // prettier-ignore
 function TransactionRow({ entry, density, lead, framed, mixed }:
-  Pick<TransactionsProps, "density" | "lead"> & { entry: Entry; framed: boolean; mixed: boolean }) {
+  Pick<TransactionsProps, "lead"> & { density: c.ThemeDensity } & { entry: Entry; framed: boolean; mixed: boolean }) {
   const { lang, words } = kit.useWords(moneyWordsFor);
   const { amount, label, status } = transactionCopy(entry, lang, lead === "icon");
   if (kit.useComponentState() === "loading") return (
@@ -170,8 +170,8 @@ function DateHeading({ item, day }: { item: string; day: string }) {
 }
 
 // prettier-ignore
-export function Transactions({ entries, density: requested, lead }: TransactionsProps) {
-  const density = kit.useVariant("density", meta.variants.density, requested);
+export function Transactions({ entries, lead }: TransactionsProps) {
+  const density = kit.useKit().density;
   const state = kit.useComponentState();
   const { lang } = kit.useWords(moneyWordsFor);
   const framed = entries.some(({ tone, mark }) => tone !== "neutral" || mark !== "none");

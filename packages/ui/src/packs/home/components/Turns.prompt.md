@@ -9,4 +9,4 @@ One household job rotating through people, with current and next holders. Not a 
 ## Writer
 
 - at is a zero-based index smaller than people.length. The next people and next index are computed.
-- Use lead "none" only when asked to show the rotation without portraits or initials. Keep current and upcoming names, and use surface:null and emphasis:null unless asked to change the card finish or prominence.
+- Use lead "none" only when asked to show the rotation without portraits or initials. Keep current and upcoming names. Leave emphasis null unless asked to change prominence.

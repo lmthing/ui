@@ -20,7 +20,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "Manual meter series live on the device, without a smart-meter service or bill calculation.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["previous"] } },
   parts: ["root", "title", "selector", "empty", "status", "sub", "add", "add_label"],
   items: { key: "entries", parts: ["root", "title", "latest", "previous", "at", "value", "usage", "photo", "evidence"], visibleWhen: { visible: true } },
@@ -94,7 +94,7 @@ export const examples = [
       { readingRef: "willow_nov", meterRef: "willow_electric", at: "2026-11-18T08:00:00Z", value: 1246 },
       { readingRef: "willow_water_nov", meterRef: "willow_water", at: "2026-11-18T08:00:00Z", value: 17.5 },
     ], addGoto: "add_reading" },
-  historyExample, { ...historyExample, density: "compact" },
+  historyExample, { ...historyExample },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Meters");
@@ -111,7 +111,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type MetersProps = c.Props<typeof props, typeof meta>;
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 // prettier-ignore
 function meterDisplay(input: MetersProps, selection: unknown): Pick<MetersProps, "style" | "entries"> {
   const selected = input.meters.find((meter) => meter.meterRef === selection)?.meterRef;
@@ -181,10 +181,10 @@ export function Meters(input: MetersProps) {
   const { screen, component, thing } = kit.usePartContext();
   const state = kit.useComponentState();
   const selection = kit.useControlValue<unknown>(`${screen}/${component}/$meterRef`, undefined);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const display = { ...input, ...meterDisplay(input, selection) };
-  return <kit.KitCard part="root" padded surface={input.surface} density={density}>
+  return <kit.KitCard part="root" padded surface={"card"} density={density}>
     {state === "loading" ? <>
       <kit.KitSkeleton shape="figure" inset="none" content={[["heading", words[display.style]]]} />
       <MeterRegister input={display} {...{ detail, density, lang }} />

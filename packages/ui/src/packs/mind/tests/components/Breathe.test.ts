@@ -29,7 +29,6 @@ describe("Breathe schema", () => {
       pattern: "box",
       style: "circle",
       rounds: 1,
-      surface: "card",
       emphasis: "normal",
       detail: "full",
     });

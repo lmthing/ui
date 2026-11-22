@@ -21,7 +21,7 @@ export const meta = {
   writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Reports and inspector sign-off live locally; adding evidence uses camera or library permission, not tenant consent.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["previous"] } },
   parts: ["root", "unit", "date", "kind", "completion", "previous", "signed", "rooms", "finalise", "message", "help"],
   items: {
@@ -126,7 +126,7 @@ export const probes = [
 type InspectionProps = c.Props<typeof props, typeof meta> & { roomRef?: string };
 type Entry = InspectionProps["entries"][number];
 type Check = Extract<Entry, { entryKind: "check" }>;
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 // prettier-ignore
 function InspectionReport({ input, density, state, lang }: { input: InspectionProps; density: Density; state: c.StateName; lang: string }) {
   const { words: { inspections: words } } = kit.useWords(propertyWordsFor);
@@ -169,8 +169,8 @@ export function Inspections(input: InspectionProps) {
   const state = kit.useComponentState();
   const { lang, words: { inspections: words } } = kit.useWords(propertyWordsFor);
   const visible = kit.useLiveControls(meta, input) as InspectionProps;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const content = <InspectionReport {...{ input: { ...visible, detail }, density, state, lang }} />;
   return <kit.KitCard part="root" padded {...{ density, surface }}>

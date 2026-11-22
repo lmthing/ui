@@ -112,7 +112,7 @@ describe("Collection states and parts", () => {
   // prettier-ignore
   it("renders all supplied parts and keeps finish variants addressed", () => {
     const { html } = renderExample("Collection", series, "filled", theme);
-    const { html: alternate } = renderExample("Collection", { ...series, aspect: "wide", density: "compact" }, "filled", theme);
+    const { html: alternate } = renderExample("Collection", { ...series, aspect: "wide" }, "filled", theme);
     expect([...addressedElements(html).keys()].sort()).toEqual(
       ["root", "photo", "title", "by", "about", "summary", "play", "play_icon", "play_label", "follow", "follow_icon", "follow_label"].map((part) => prefix + part).sort(),
     );

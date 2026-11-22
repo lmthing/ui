@@ -1,7 +1,9 @@
 import { z } from "zod";
 // prettier-ignore
 import { detailOf, isoDate, itemVariantProps, itemsOf, placeholderTitle, wordsFor, probesFor, screenId,
-  text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+  text, thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props,
+  variantProps,
+} from "../../../catalog";
 // prettier-ignore
 import { KitCard, KitContent, KitEmpty, KitGrid, KitIcon, KitRow, KitText,
   useComponentState, useVariant, useWords } from "../../../kit";

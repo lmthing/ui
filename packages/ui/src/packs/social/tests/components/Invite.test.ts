@@ -28,8 +28,8 @@ describe("Invite schema", () => {
   it("trims the title and code and accepts exact bounds", () => {
     const boundary = { ...example, title: "T".repeat(32), code: "W".repeat(12), joined: 999999 };
     const parsed = props.parse({ ...boundary, code: `  ${boundary.code}  ` });
-    expect(parsed).toMatchObject({ ...boundary, align: "start", surface: "card", detail: "full" });
-    expect(parsed.density).toBeUndefined();
+    expect(parsed).toMatchObject({ ...boundary, detail: "full" });
+    expect(parsed).not.toHaveProperty("density");
     expect(draw(boundary).get(address("code"))?.text).toEqual([boundary.code]);
     expect(props.safeParse({ ...example, joined: 0 }).success).toBe(true);
     type View = Props<typeof props, typeof meta>;
@@ -119,7 +119,7 @@ describe("Invite state, parts and reading", () => {
   });
   it("preserves finish addresses and hides only the count in brief without dropping the value", () => {
     const full = [...draw(example).keys()];
-    const compact = { ...example, density: "compact", surface: "outlined", align: "center" };
+    const compact = { ...example };
     const brief = { ...example, detail: "brief" };
     expect([...draw(compact).keys()]).toEqual(full);
     expect([...draw(brief).keys()]).toEqual(full.filter((key) => key !== address("joined")));

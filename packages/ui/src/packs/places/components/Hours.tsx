@@ -18,7 +18,7 @@ export const meta = {
   tier: "phone",
   realPath: "Opening hours are stored with the place.",
   dense: true,
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["special"] } },
   items: { key: "days", parts: ["root", "day", "from", "to", "closed"] },
   parts: ["root", "open_state", "special"],
@@ -148,7 +148,7 @@ function NoticeText({ text, density }: { text: string; density: c.ThemeDensity }
 
 // prettier-ignore
 export function Hours(input: HoursProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang, words } = kit.useWords(placesWordsFor);
   const copy = hoursCopy({ ...input, detail }, new Date(), lang);

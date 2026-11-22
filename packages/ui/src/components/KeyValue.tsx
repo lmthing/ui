@@ -1,8 +1,9 @@
 import { z } from "zod";
 // prettier-ignore
 import { probesFor, clip, icon, itemVariantProps, itemsOf, placeholderTitle,
-  placeholderValue, secretRevealKey, secretRevealMatches, text, thingOf, variantProps, type FallbackInput, type Meta, type Probe,
+  placeholderValue, secretRevealKey, secretRevealMatches, text, thingOf, type FallbackInput, type Meta, type Probe,
   type Props, type ThemeDensity,
+  variantProps,
 } from "../catalog";
 import * as kit from "../kit";
 import { prompt } from "../entry/prompt-KeyValue.generated";
@@ -20,8 +21,6 @@ export const meta = {
   realPath: "Fields of one record in the on-device database.",
   variants: {
     arrange: ["rows", "grid"],
-    density: ["comfortable", "compact"],
-    surface: ["card", "plain", "outlined"],
     lead: ["icon", "none"],
   },
   items: {
@@ -99,9 +98,9 @@ export const examples = [
       { label: "Notes", value: "Quiet parks" },
     ],
   },
-  { density: "compact", pairs: [...facts] },
-  { surface: "plain", pairs: [...facts] },
-  { surface: "outlined", pairs: [...facts] },
+  { pairs: [...facts] },
+  { pairs: [...facts] },
+  { pairs: [...facts] },
   { lead: "none", pairs: [...facts] },
   { pairs: [{ label: "Plant health", value: "Healthy", icon: "heart", tone: "good" }, ...facts.slice(1)] },
   { pairs: [{ label: "Soil moisture", value: "Dry", icon: "drop", tone: "warn" }, ...facts.slice(1)] },
@@ -180,9 +179,10 @@ function PairRow({ pair, horizontal, density, loading, masked }: {
 }
 
 // prettier-ignore
-export function KeyValue({ arrange, pairs, surface, masked = false, density: requestedDensity }: Props<typeof props, typeof meta>) {
+export function KeyValue({ arrange, pairs, masked = false  }: Props<typeof props, typeof meta>) {
+  const surface = "card";
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, requestedDensity);
+  const density = kit.useKit().density;
   const grid = arrange === "grid";
   const spacing = grid ? "compact" : density;
   return (

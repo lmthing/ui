@@ -24,7 +24,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "The collection details are stored with the app's media.",
-  variants: { density: ["comfortable", "compact"], aspect: ["square", "wide"], detail: ["full", "brief"] },
+  variants: { aspect: ["square", "wide"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["about"] } },
   parts: ["root", "photo", "title", "by", "about", "summary", "rating", "rating_count", "tags", "shelf_status",
     "play", "play_icon", "play_label", "follow", "follow_icon", "follow_label"],
@@ -155,7 +155,7 @@ function CollectionFigures({ input, source, density, lang, loading }: {
 // prettier-ignore
 export function Collection(input: CollectionProps) {
   const { title, by, about, photo, followed, style } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const aspect = kit.useVariant("aspect", meta.variants.aspect, input.aspect);
   const loading = kit.useComponentState() === "loading";
   const { controller } = kit.useKit();

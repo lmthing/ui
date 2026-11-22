@@ -5,13 +5,12 @@ import {
   searchLine,
   text,
   thingOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import { KitRow, KitInput, useVariant } from "../kit";
+import { KitRow, KitInput, useKit } from "../kit";
 import { prompt } from "../entry/prompt-Search.generated";
 
 export const meta = {
@@ -23,14 +22,12 @@ export const meta = {
   weight: 1,
   tier: "phone",
   realPath: "A text query over a list of things in the on-device database.",
-  variants: { density: ["comfortable", "compact"] },
-  writeHints: prompt.writeHints,
   parts: ["root", "field"],
   states: ["filled"],
   actions: { parts: { field: ["type"] } },
 } as const satisfies Meta;
 
-export const props = z.strictObject({ ...variantProps(meta.variants), hint: text(40) });
+export const props = z.strictObject({ hint: text(40) });
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   // Reuse the shared copy helper's normalization and plural rather than a second vocabulary.
@@ -40,7 +37,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 export const examples = [
   { hint: "Search plants" },
   { hint: "Search clients" },
-  { hint: "Search plants", density: "compact" },
+  { hint: "Search plants" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Search");
@@ -48,15 +45,11 @@ export const probes = [
   choose("Let me find any plant by typing part of its name above the list"),
   choose("Narrow my plants with a few fixed filters for All, Needs water and Favorites", "Chips"),
   write("Let me find plants by typing, with the placeholder Search plants"),
-  {
-    ...write("Put a compact search bar above my walks so it takes up less room. Say Search walks."),
-    variant: { axis: "density", value: "compact" },
-  },
   read("Look for the fern", { address: "s1/field", action: "type" }),
 ] satisfies Probe[];
 
-export function Search({ hint, density: requested }: Props<typeof props, typeof meta>) {
-  const density = useVariant("density", meta.variants.density, requested);
+export function Search({ hint }: Props<typeof props, typeof meta>) {
+  const density = useKit().density;
   const compact = density === "compact";
   return (
     <KitRow label={hint} part="root" inset="none" density={density} inline={compact}>

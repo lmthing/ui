@@ -28,7 +28,7 @@ describe("Vitals schema", () => {
         ...input,
         readings: [{ ...reading, label: " Blood pressure ", unit: " mmHg ", at: " 08:10 " }],
       }),
-    ).toEqual({ ...input, surface: "card", detail: "full" });
+    ).toEqual({ ...input, detail: "full" });
   });
   it.each([
     {},

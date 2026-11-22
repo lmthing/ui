@@ -18,7 +18,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "A product query runs on the device.",
-  variants: { density: ["comfortable", "compact"], arrange: ["grid", "rows"] },
+  variants: { arrange: ["grid", "rows"] },
   variantParts: { "arrange.rows": { adds: ["sub"] } },
   parts: ["root", "empty", "deals_header", "deals", "countdown"],
   // prettier-ignore
@@ -172,8 +172,8 @@ function ProductSkeleton({ item, menu, density, deals, offerSlot }: TileProps) {
 
 // prettier-ignore
 export function ProductGrid(input: GridProps) {
-  const { items, arrange: requested, density: spacing, style } = input, deals = style === "deals";
-  const density = kit.useVariant("density", meta.variants.density, spacing), arrange = kit.useVariant("arrange", meta.variants.arrange, requested);
+  const { items, arrange: requested, style } = input, deals = style === "deals";
+  const density = kit.useKit().density, arrange = kit.useVariant("arrange", meta.variants.arrange, requested);
   const context = kit.usePartContext(), menu = arrange === "rows";
   const { words, lang } = kit.useWords(commerceWordsFor);
   kit.useControlValue(`${context.screen}/${context.component}/$offer`, 0);

@@ -9,5 +9,5 @@ Seven weekdays with working switches, start and end times and breaks. Not one ti
 ## Writer
 
 - Write each weekday once, mon through sun. End follows start; breaks need both endpoints inside working hours.
-- Leave density and detail null unless requested. For working times without visible breaks, use detail "brief" and keep the breaks in the data.
+- Leave detail null unless requested. For working times without visible breaks, use detail "brief" and keep the breaks in the data.
 - Use bufferMinutes only for requested gaps between bookings. Use dateOverrides only for specific dates the provider is not taking bookings (kind "blocked" or "holiday").

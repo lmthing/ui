@@ -18,7 +18,7 @@ export const meta = {
   pick: prompt.pick,
   region: "body", weight: 2, tier: "phone",
   realPath: "Bundled sound loops are mixed and played on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], arrange: ["grid", "rows"] },
+  variants: { arrange: ["grid", "rows"] },
   writeHints: prompt.writeHints,
   parts: ["root", "mix", "mix_label", "mix_icon", "timer", "timer_label", "presets"],
   items: {
@@ -163,8 +163,8 @@ function SoundRows({ sounds, density, arrange, presets }: Pick<SoundscapeProps, 
 // prettier-ignore
 export function Soundscape(input: SoundscapeProps) {
   const { words: { soundscape: { play, pause, sleep, presets: presetLabel } }, lang } = kit.useWords(mindWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   const live = kit.useLiveControls(meta, input);
   const { running, sounds, timer } = live as SoundscapeProps & { running?: boolean };

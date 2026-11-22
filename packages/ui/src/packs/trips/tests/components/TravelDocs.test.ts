@@ -27,7 +27,6 @@ describe("TravelDocs schema", () => {
   it("accepts exact bounds and blank numbers, trims owners and defaults the finish and detail", () => {
     const bound = { ...doc, who: ` ${"A".repeat(16)} `, number: "X".repeat(16) };
     expect(props.parse({ docs: Array(6).fill(bound) })).toMatchObject({
-      surface: "card",
       detail: "full",
       docs: Array(6).fill({ ...bound, who: "A".repeat(16) }),
     });

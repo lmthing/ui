@@ -23,7 +23,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Breathing is paced by an on-device animation with optional gentle haptics.",
-  variants: { surface: ["card", "plain"], emphasis: ["normal", "quiet"], detail: ["full", "brief"] },
+  variants: { emphasis: ["normal", "quiet"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["rounds"] } },
   parts: ["root", "circle", "phase", "rounds", "grounding", "step", "next"],
   states: ["filled", "success"],
@@ -95,7 +95,7 @@ export function fallback(_input: c.FallbackInput): z.input<typeof props> {
 // prettier-ignore
 export const examples = [
   { pattern: "box", rounds: 4 },
-  { surface: "plain", pattern: "custom", rounds: 6, inhale: 4, hold: 2, exhale: 6, rest: 0 },
+  { pattern: "custom", rounds: 6, inhale: 4, hold: 2, exhale: 6, rest: 0 },
   { pattern: "calm", rounds: 4, emphasis: "quiet" },
   { pattern: "even", rounds: 4, detail: "brief" },
   { style: "grounding", pattern: "box", rounds: 1 },
@@ -158,7 +158,7 @@ function Grounding({ index }: { index: number }) {
 // prettier-ignore
 export function Breathe(input: BreathProps) {
   const live = kit.useLiveControls(meta, input);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const surface = "card";
   return <kit.KitCard part="root" surface={surface} padded>
     {input.style === "grounding"
       ? <Grounding index={Number(live.groundingAt ?? 0)} />

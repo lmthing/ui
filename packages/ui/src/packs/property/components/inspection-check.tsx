@@ -9,7 +9,7 @@ import {
 import { propertyWordsFor } from "../lang";
 
 type Check = Extract<ReturnType<typeof inspectionEntries>[number], { entryKind: "check" }>;
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 const conditionTone = {
   good: "good",
   worn: "warn",

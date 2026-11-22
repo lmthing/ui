@@ -23,7 +23,7 @@ export const meta = {
   realPath:
     "A connected camera service supplies preview frames and motion clips; two-way talk also needs microphone permission.",
   items: { key: "events", parts: ["root", "kind", "time", "clip", "trail"] },
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["clip"] } },
   parts: ["root", "room", "status", "preview", "mode", "audio", "audio_label",
     "talk", "talk_label", "siren", "siren_label", "feedback", "events", "empty"],
@@ -163,8 +163,8 @@ function EventList({ input, density }: Display) {
 export function CameraFeed(input: View) {
   const { lang, words: { cameraFeed: w } } = kit.useWords(homeWordsFor);
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const liveLayout = input.style === "live";
   const photo = cameraFrame(input);
   const loading = state === "loading";

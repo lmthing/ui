@@ -38,7 +38,6 @@ describe("Vendors contract and boundaries", () => {
   );
   it("defaults to full cards and derives the call gate from trimmed contact data", () => {
     expect(props.parse(withRow({ name: "  Juniper Kitchen  ", phone: "  01632 960123  " }))).toMatchObject({
-      surface: "card",
       detail: "full",
       vendors: [{ name: row.name, phone: row.phone, canCall: true }],
     });
@@ -107,9 +106,7 @@ describe("Vendors parts and states", () => {
     expect(parts.slice(0, 2)).toEqual([`${address}/root`, `${address}/totals`]);
     for (const part of meta.items.parts) expect(parts).toContain(`${address}/r1/${part}`);
     for (const part of ["due", "call", "call_icon"]) expect(parts).not.toContain(`${address}/r2/${part}`);
-    expect([
-      ...addressedElements(render({ ...example, density: "compact", surface: "outlined" })).keys(),
-    ]).toEqual(parts);
+    expect([...addressedElements(render({ ...example })).keys()]).toEqual(parts);
     const brief = { ...example, detail: "brief" };
     expect([...addressedElements(render(brief)).keys()]).toEqual(
       parts.filter((part) => !part.endsWith("/due")),

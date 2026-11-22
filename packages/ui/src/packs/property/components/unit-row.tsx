@@ -1,4 +1,4 @@
-import type { Props } from "../../../catalog";
+import type { Props, ThemeDensity } from "../../../catalog";
 import {
   KitContent,
   KitGrid,
@@ -21,7 +21,7 @@ export function UnitRow({ unit, snapshot, media, density, loading, notice, inlin
   unit: Unit;
   snapshot: ReturnType<typeof unitSnapshot>;
   media: UnitsProps["media"];
-  density: NonNullable<UnitsProps["density"]>;
+  density: ThemeDensity;
   loading: boolean;
   notice: boolean;
   inline: boolean;

@@ -44,7 +44,6 @@ describe("RSVP contract and fallback", () => {
       event: "x".repeat(32),
       allowsPlus: true,
       allowsMeals: true,
-      surface: "card",
       detail: "full",
     });
   });
@@ -101,9 +100,7 @@ describe("RSVP states and parts", () => {
         "send_label",
       ].map(address),
     );
-    expect([
-      ...addressedElements(render({ ...invitation, surface: "outlined", density: "compact" })).keys(),
-    ]).toEqual(parts);
+    expect([...addressedElements(render({ ...invitation })).keys()]).toEqual(parts);
     const date = appointmentDate(invitation.date, "en-GB");
     expect(addressedElements(render()).get(address("date"))?.text).toEqual([date]);
     expect(readComponent(RSVP, invitation, "r1", "filled", {}, "en-GB").join()).toContain(date);

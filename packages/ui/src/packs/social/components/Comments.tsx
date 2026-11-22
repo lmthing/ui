@@ -18,7 +18,7 @@ export const meta = {
   dense: true,
   tier: "people",
   realPath: "Replies in a shared app; new replies come from a reply Composer below.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["time"] } },
   parts: ["root", "empty"],
   items: {
@@ -176,8 +176,8 @@ function Comment({ row, density, parent, detail }: Finish & {
 // prettier-ignore
 export function Comments(input: CommentsProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   let parent: string | undefined;
   return <kit.KitCard part="root" padded {...{ density, surface }}>

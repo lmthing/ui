@@ -36,7 +36,6 @@ describe("MatchFeed schema and bounds", () => {
     type View = Props<typeof props, typeof meta>;
     expectTypeOf<View["events"][number]["id"]>().toEqualTypeOf<string>();
     expect(props.parse({ events: [{ ...first, text: ` ${first.text}  ` }] })).toMatchObject({
-      surface: "card",
       detail: "full",
       events: [first],
     });
@@ -127,7 +126,7 @@ describe("MatchFeed parts, states and reading", () => {
   it("only removes the written kinds in brief detail, and finish keeps every address", () => {
     const full = addressedElements(render(sample));
     const brief = addressedElements(render({ ...sample, detail: "brief" }));
-    const compact = addressedElements(render({ ...sample, density: "compact", surface: "plain" }));
+    const compact = addressedElements(render({ ...sample }));
     expect([...full.keys()].filter((key) => !brief.has(key))).toEqual(
       sample.events.map((_, i) => address(`r${i + 1}/kind_label`)),
     );

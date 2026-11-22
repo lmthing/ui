@@ -3,6 +3,7 @@ import { z } from "zod";
 import { packReady } from "../registry";
 import {
   components,
+  buildEntry,
   createRegistry,
   registryOf,
   writerFormat,
@@ -18,9 +19,26 @@ const core = createRegistry({ includeDrafts: true });
 // These fixtures read definitions uniformly; don't spread the union of every catalog schema.
 const coreDefs: readonly Definition[] = core.defs;
 
+it("keeps presentation fields out of core and pack Writer formats and prompt entries", () => {
+  const defs: readonly Definition[] = Object.values(components);
+  for (const def of defs) {
+    if (def.meta.codeOwned) continue;
+    const { properties } = writerFormatFor(def).json_schema.schema;
+    for (const key of ["density", "surface", "bleed", "align"]) {
+      expect(def.meta.variants ?? {}, def.meta.id).not.toHaveProperty(key);
+      expect(properties, def.meta.id).not.toHaveProperty(key);
+      expect(buildEntry(def), def.meta.id).not.toMatch(new RegExp(`\\b${key}\\b`, "i"));
+    }
+  }
+  expect(writerFormatFor(components.List).json_schema.schema.properties).toHaveProperty("detail");
+  expect(writerFormatFor(components.Progress).json_schema.schema.properties).toHaveProperty("emphasis");
+});
+
 function checkObjects(schema: JsonSchema) {
   if (schema.properties) {
     expect(schema.additionalProperties).toBe(false);
+    for (const key of ["density", "surface", "bleed", "align"])
+      expect(schema.properties).not.toHaveProperty(key);
     expect(schema.required).toEqual(Object.keys(schema.properties));
     Object.values(schema.properties).forEach(checkObjects);
   }

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 // prettier-ignore
-import { KitCard, KitContent, KitGrid, KitHeader, KitInput, KitLayoutText, KitRowGroup, KitSkeleton, KitState, useAppCurrency, useComponentState, useLiveControls, useVariant, useWords } from "../../../kit";
+import { KitCard, KitContent, KitGrid, KitHeader, KitInput, KitLayoutText, KitRowGroup, KitSkeleton, KitState, useAppCurrency, useComponentState, useLiveControls, useVariant, useWords, useKit } from "../../../kit";
 import * as unitView from "./unit-row";
 import { exclusiveLets, unitDisplay, unitReading, unitSnapshot } from "../copy";
 import { propertyWordsFor } from "../lang";
@@ -22,7 +22,7 @@ export const meta = {
   tier: "phone",
   realPath:
     "Units and agreed tenancy or stay records live on the device, without a booking engine or lease editor.",
-  variants: { density: ["comfortable", "compact"], surface: ["plain", "card"], media: ["none", "thumb"] },
+  variants: { media: ["none", "thumb"] },
   variantParts: { "media.thumb": { adds: ["photo"] } },
   parts: ["root", "date", "message", "vacancies"],
   items: {
@@ -154,8 +154,8 @@ export function Units(input: UnitsProps) {
   const loading = state === "loading";
   const { words, lang } = useWords(propertyWordsFor);
   const currency = useAppCurrency();
-  const density = useVariant("density", meta.variants.density, input.density);
-  const surface = useVariant("surface", meta.variants.surface, input.surface);
+  const density = useKit().density;
+  const surface = "plain";
   const media = useVariant("media", meta.variants.media, input.media);
   const rows = units.filter(({ visible }) => visible).map((unit) => <unitView.UnitRow key={unit.id} notice={unit.notice}
     snapshot={unitSnapshot(unit, lets, on, lang, currency)} inline={style === "vacancies"} {...{ unit, media, density, loading }} />);

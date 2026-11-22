@@ -9,4 +9,4 @@ The family's next seven days grouped by date: each day heading has timed or all-
 ## Writer
 
 - days holds 1–7 dates with 1–6 events each. Each event has 1–4 who labels; use ["Everyone"] for the whole family. Omit time for an all-day event. Code computes conflicts.
-- Use group "none" only when asked to hide day headings. Keep the dates in days. Write surface:null unless asked for an outlined card; removing headings does not change its finish.
+- Use group "none" only when asked to hide day headings. Keep the dates in days.

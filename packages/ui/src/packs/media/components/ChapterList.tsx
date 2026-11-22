@@ -19,7 +19,6 @@ export const meta = {
   tier: "phone",
   realPath: "The chapter marks are stored with the recording.",
   drives: "Player",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain", "outlined"] },
   parts: ["root"],
   items: { key: "chapters", parts: ["root", "title", "at"] },
   states: ["filled"],
@@ -30,7 +29,6 @@ export const meta = {
 
 export const props = z
   .strictObject({
-    ...c.variantProps(meta.variants),
     chapters: z
       .array(z.strictObject({ title: c.text(32), at: z.int().min(0).max(36000) }))
       .min(2)
@@ -69,7 +67,6 @@ export const examples = [
       { title: "Clip on the lead", at: 0 },
       { title: "Cross at the gate", at: 80 },
     ],
-    density: "compact",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -90,8 +87,9 @@ const hourInSeconds = 3600;
 
 // prettier-ignore
 export function ChapterList(input: ChapterListProps) {
-  const { chapters, current, surface } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const { chapters, current } = input;
+  const surface = "card";
+  const density = kit.useKit().density;
   const { lang, words } = kit.useWords(mediaWordsFor);
   const showsHours = chapters.some(({ at }) => at >= hourInSeconds);
   return (

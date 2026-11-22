@@ -6,13 +6,13 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
-import { KitCard, KitContent, KitPhoto, KitSkeleton, KitText, useComponentState } from "../kit";
+import { KitCard, KitPhoto, KitSkeleton, KitText, useComponentState } from "../kit";
 import { prompt } from "../entry/prompt-Photo.generated";
 
 export const meta = {
@@ -25,7 +25,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "A photo reference on one thing in the on-device database.",
-  variants: { aspect: ["wide", "square", "tall"], bleed: ["inset", "edge"], detail: ["full", "brief"] },
+  variants: { aspect: ["wide", "square", "tall"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["caption"] } },
   parts: ["root", "photo", "caption"],
   states: ["filled", "loading"],
@@ -54,7 +54,7 @@ export const examples = [
   clover,
   { ...fern, aspect: "square" },
   { ...fern, aspect: "tall" },
-  { ...fern, bleed: "edge" },
+  { ...fern },
   { ...fern, detail: "brief" },
   { photo: "lib:plants" },
 ] satisfies z.input<typeof props>[];
@@ -72,22 +72,12 @@ export const probes = [
   },
 ] satisfies Probe[];
 
-export function Photo({ aspect, bleed, photo, caption }: Props<typeof props, typeof meta>) {
+export function Photo({ aspect, photo, caption }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
-  const edge = bleed === "edge";
   if (state === "loading") {
     return (
-      <KitCard style="plain" part="root" bleed={bleed}>
-        <KitSkeleton
-          shape="media"
-          lead="none"
-          aspect={aspect}
-          inset={edge ? "none" : "md"}
-          content={edge ? [] : [["caption", caption]]}
-        />
-        {edge && caption && (
-          <KitSkeleton shape="media" lead="none" aspect="none" content={[["caption", caption]]} />
-        )}
+      <KitCard style="plain" part="root">
+        <KitSkeleton shape="media" lead="none" aspect={aspect} inset="md" content={[["caption", caption]]} />
       </KitCard>
     );
   }
@@ -97,9 +87,9 @@ export function Photo({ aspect, bleed, photo, caption }: Props<typeof props, typ
     </KitText>
   );
   return (
-    <KitCard style="plain" part="root" padded bleed={bleed} inset={edge ? "none" : "md"}>
+    <KitCard style="plain" part="root" padded inset="md">
       <KitPhoto photo={photo} aspect={aspect} part="photo" />
-      {line && (edge ? <KitContent inset="md">{line}</KitContent> : line)}
+      {line}
     </KitCard>
   );
 }
