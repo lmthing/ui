@@ -31,8 +31,8 @@ export function UnitRow({ unit, snapshot, media, density, loading, notice, inlin
   const photo = media === "thumb" && unit.photo;
   const lines = [
     { part: "title", text: unit.title, role: "body", tone: unit.goto ? "accent" : "text" },
-    { part: "address", text: unit.address, role: "caption", tone: "muted" },
-    { part: "occupant", text: occupant, role: "caption", tone: "muted" },
+    { part: "address", text: unit.address, role: "meta", tone: "muted" },
+    { part: "occupant", text: occupant, role: "meta", tone: "muted" },
   ] as const;
   return (
     <KitRow item={unit.id} label={loading ? "" : unit.title} goto={loading ? undefined : unit.goto} density={density}

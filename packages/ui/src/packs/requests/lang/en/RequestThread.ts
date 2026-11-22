@@ -5,6 +5,7 @@ export const words = {
     audiences: { requester: "To requester", internal: "Keep internal" },
     field: "Write a reply",
     send: "Send reply",
+    retry: "Retry reply",
     sent: "Reply sent",
     failed: "Reply not sent",
     photo: "Attached photo",

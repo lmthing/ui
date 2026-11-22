@@ -12,13 +12,13 @@ function QueueRow({ row, now, density, grouped, loading }: {
   const { lang, words: { queue } } = kit.useWords(requestsWordsFor);
   const line = requestLines(row, now, lang);
   const sub = { role: "caption", tone: "muted", density } as const, compact = density === "compact";
-  if (loading) return <kit.KitRow part={null} label={row.title} inline>
+  const trailing = <kit.KitIcon name="chevron_right" tone="muted" decorative scale="sm" loading={loading} />;
+  if (loading) return <kit.KitRow part={null} label={row.title} inline lineRole="heading" density="comfortable" trailing={trailing}>
     {requestSkeleton(row, line, grouped, compact, lang).map(({ key, ...entry }) => <kit.KitSkeleton key={key} shape="figure" inset="none" density={density} lines={[entry]} />)}
   </kit.KitRow>;
   const place = row.place && <kit.KitText part="place" {...sub}>{row.place}</kit.KitText>;
   const who = line.who && <kit.KitText part="who" {...sub}>{line.who}</kit.KitText>;
-  return <kit.KitRow item={row.id} label={row.title} goto={row.goto} inline lineRole="heading" density="comfortable"
-    trailing={<kit.KitIcon name="chevron_right" tone="muted" decorative scale="sm" />}>
+  return <kit.KitRow item={row.id} label={row.title} goto={row.goto} inline lineRole="heading" density="comfortable" trailing={trailing}>
     <kit.KitText part="title" role="heading" density="comfortable">{row.title}</kit.KitText>
     <kit.KitText part={null} {...sub}>
       <kit.KitText part="number" {...sub} tabular>{row.number}</kit.KitText>{queue.separator}
@@ -39,15 +39,24 @@ export function QueueRows({ rows, now, density, grouped, personal, loading = fal
 }) {
   const { words: { queue }, lang } = kit.useWords(requestsWordsFor);
   const groupedRows = requestGroups(rows, grouped);
-  if (personal && grouped) return <kit.KitContent inset="md">
-    <kit.KitColumns part={loading ? null : "status_heading"} style="stack" {...{ loading }}
-      columns={groupedRows.flatMap(({ status, rows }) => status ? [{
-        id: status, label: queue.status[status], count: c.numberLine(rows.length, lang),
-        children: <kit.KitRowGroup separators={false} {...{ density }}>
-          {rows.map((row) => <QueueRow key={row.id} {...{ row, now, density, grouped, loading }} />)}
-        </kit.KitRowGroup>,
-      }] : [])} />
-  </kit.KitContent>;
+  if (personal && grouped) {
+    const lanes = <kit.KitContent inset="md">
+      <kit.KitRowGroup spacing="groups" separators={false} density={density}>
+        {groupedRows.map(({ status, rows }) => status && <kit.KitRow key={status} part={null} label={queue.status[status]} tone="muted" density={density}>
+          <kit.KitContent density={density}>
+            <kit.KitGrid fitLast density={density}>
+              <kit.KitLayoutText line={{ text: queue.status[status], strong: true }} />
+              <kit.KitLayoutText line={{ text: c.numberLine(rows.length, lang), role: "figure", compact: true, tabular: true }} align="end" />
+            </kit.KitGrid>
+            <kit.KitRowGroup separators={false} density={density}>
+              {rows.map((row) => <QueueRow key={row.id} {...{ row, now, density, grouped, loading }} />)}
+            </kit.KitRowGroup>
+          </kit.KitContent>
+        </kit.KitRow>)}
+      </kit.KitRowGroup>
+    </kit.KitContent>;
+    return loading ? lanes : <kit.KitCard style="plain" part="status_heading">{lanes}</kit.KitCard>;
+  }
   const groups = <kit.KitContent inset="md" group={density === "compact" ? "content" : "response"}>
     <kit.KitGrid arrange="rows" list listRowGap="cards" density={density}>
       {groupedRows.map(({ status, rows }, index) => <kit.KitContent key={status ?? "rows"} group={index ? "response" : "content"}>

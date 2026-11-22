@@ -21,6 +21,20 @@ export const report = {
         { id: "b1", c: "Bars", style: "share" },
       ],
     },
+    funnel: {
+      recipe: [
+        { allow: ["Header"], required: true },
+        { allow: ["Segmented"], required: true },
+        { allow: ["Funnel"], required: true },
+        { allow: ["Note"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header" },
+        { id: "s1", c: "Segmented" },
+        { id: "f1", c: "Funnel" },
+        { id: "n1", c: "Note" },
+      ],
+    },
     patterns: {
       recipe: [
         { allow: ["Header"], required: true },
@@ -43,6 +57,13 @@ export const probes = [
     layout: "charts",
     brief:
       "Start with a Sales heading and a Week / Month view switcher. Summarize Orders 45 and Returns 4. Draw Weekly sales as a line with labels W1 through W4 and Orders 6, 9, 12, 18. Finish with a share breakdown of 45 Orders: Tools 20 and Seeds 25.",
+  },
+  {
+    kind: "compose",
+    archetype: "report",
+    layout: "funnel",
+    brief:
+      "Start with an Order conversion heading and a Week / Month switcher. Show Checkouts with ordered stage counts: Cart 100, Checkout 60, Paid 45. Finish with a short note that counts are from this week.",
   },
   {
     kind: "compose",

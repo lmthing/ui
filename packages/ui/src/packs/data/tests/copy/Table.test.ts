@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { tableCell, tableChoices, tableCount, tableReading, tableRows } from "../../copy";
+import { tableCell, tableChoices, tableCount, tableReading, tableRows, tableSummary } from "../../copy";
 
 const columns = [
   { label: "Value", kind: "number" },
@@ -35,5 +35,26 @@ describe("Table copy", () => {
       "r3: 2 · Review",
       "r1: 10 · Ready",
     ]);
+  });
+
+  it("computes signed sums, averages and a count without aggregating status values", () => {
+    const rows = [{ cells: [-3, "Ready"] }, { cells: [9, "Review"] }];
+    expect(tableSummary(columns, rows, "sum")).toEqual({ label: "Total", cells: ["6", undefined] });
+    expect(tableSummary(columns, rows, "avg")).toEqual({ label: "Average", cells: ["3", undefined] });
+    expect(tableSummary(columns, rows, "count")).toEqual({
+      label: "Record count",
+      cells: ["2", undefined],
+    });
+    const large = [{ cells: [Number.MAX_VALUE, "Ready"] }, { cells: [Number.MAX_VALUE, "Ready"] }];
+    expect(tableSummary(columns, large, "sum").cells[0]).toBe("Not available");
+    expect(tableSummary(columns, large, "avg").cells[0]).toBe(tableCell(Number.MAX_VALUE, "number"));
+    const same = Array.from({ length: 5 }, () => large[0]!);
+    expect(tableSummary(columns, same, "avg").cells[0]).toBe(tableCell(Number.MAX_VALUE, "number"));
+    const cancelled = [1e16, 1, -1e16].map((value) => ({ cells: [value, "Ready"] }));
+    expect(tableSummary(columns, cancelled, "sum").cells[0]).toBe("1");
+    expect(tableSummary(columns, cancelled, "avg").cells[0]).toBe(tableCell(1 / 3, "number"));
+    const max = Number.MAX_VALUE;
+    const overflow = [max, max, -1e308, -max, -(max - 1e308)].map((value) => ({ cells: [value, "Ready"] }));
+    expect(tableSummary(columns, overflow, "sum").cells[0]).toBe("0");
   });
 });

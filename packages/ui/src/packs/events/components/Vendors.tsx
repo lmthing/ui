@@ -133,10 +133,11 @@ type AmountFigure = ReturnType<typeof vendorAmounts>[number];
 function PaymentFigure({ label, value, part, density, focal = false }: {
   label: string; value: string; part: string | null; density: c.ThemeDensity; focal?: boolean;
 }) {
+  const align = focal ? "start" : "end";
   return <kit.KitContent density={density}>
-    <kit.KitText part={null} role="caption" tone="muted">{label}</kit.KitText>
+    <kit.KitText part={null} role="caption" tone="muted" align={align}>{label}</kit.KitText>
     <kit.KitText part={part} role="number" numberScale={focal ? "display" : "compact"} tabular
-      tone={focal ? "accent" : "text"} density={density}>{value}</kit.KitText>
+      tone={focal ? "accent" : "text"} align={align} density={density}>{value}</kit.KitText>
   </kit.KitContent>;
 }
 
