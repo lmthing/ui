@@ -44,7 +44,7 @@ function Screen({
         theme={{ preset, mode, accent: accents[0]!.id } as never}
         parts={galleryParts}
         resolvePhoto={(ref) => resolvePhoto(ref, { preset, mode, accent: accents[0]!.id } as never, id)}
-        interactive={Boolean(def.meta.actions?.reveal)}
+        interactive={Boolean(def.meta.actions?.reveal || controller?.scannerBrightnessAvailable())}
         {...(controller ? { controller, environment: drawPreviewEnvironment } : {})}
       >
         <YStack
