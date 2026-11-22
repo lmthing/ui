@@ -1,151 +1,25 @@
-import type { LDMLPluralRule, repeatOptions } from "../../../catalog";
-
-type CareRepeat = Exclude<(typeof repeatOptions)[number], "never">;
-const repeatUnits = {
-  daily: "day",
-  weekdays: "weekday",
-  weekly: "week",
-  monthly: "month",
-  yearly: "year",
-};
+import { words as AgendaWords } from "./en/Agenda";
+import { words as BabyLogWords } from "./en/BabyLog";
+import { words as CameraFeedWords } from "./en/CameraFeed";
+import { words as CareScheduleWords } from "./en/CareSchedule";
+import { words as packWords } from "./en/pack";
+import { words as ChoresWords } from "./en/Chores";
+import { words as DevicesWords } from "./en/Devices";
+import { words as RewardsWords } from "./en/Rewards";
+import { words as RoutinesWords } from "./en/Routines";
+import { words as TurnsWords } from "./en/Turns";
 
 export const en = {
-  agendaLabels: { add: "Add event", allDay: "All day", conflict: "Time conflict", everyone: "Everyone" },
-  babyLabels: {
-    feed_left: "Feed left",
-    feed_right: "Feed right",
-    bottle: "Bottle",
-    nappy: "Nappy",
-    sleep: "Sleep",
-    none: "None running",
-  },
-  babyLog: {
-    title: "Today’s log",
-    history: "History",
-    empty: "No entries yet",
-    running: (label: string) => `${label} running`,
-    last: (time?: string) => (time ? `Last ${time}` : "—"),
-  },
-  cameraFeed: {
-    modes: { home: "Home", away: "Away", disarmed: "Disarmed", privacy: "Privacy" },
-    kinds: { motion: "Motion", person: "Person", doorbell: "Doorbell", sound: "Sound" },
-    mode: "Arming mode",
-    preview: "Camera preview",
-    live: "Live feed",
-    snapshot: "Not live",
-    noFrame: "No frame available",
-    private: "Camera is private",
-    audioOn: "Mute",
-    audioOff: "Unmute",
-    talk: "Talk",
-    siren: "Siren",
-    events: "Recent events",
-    empty: "No recent events",
-    success: "Mode updated",
-    error: "Camera offline or feed unavailable",
-    eventDate: (date: string) => ` · ${date}`,
-    eventLine: (id: string, label: string, date: string, clock: string) =>
-      `${id} ${label} · ${date} · ${clock}`,
-  },
-  careLabels: {
-    categorySeparator: " · ",
-    last: "Last",
-    next: "Next",
-    today: "Due today",
-    overdue: "Late",
-    noNext: "No next date",
-    done: "Log done",
-    success: "Care logged",
-  },
-  careRepeat: (repeat: CareRepeat | "never", count: string, form: LDMLPluralRule) =>
-    repeat === "never"
-      ? "Does not repeat"
-      : `Every ${form === "one" ? repeatUnits[repeat] : `${count} ${repeatUnits[repeat]}s`}`,
-  careCategory: { pet: "Pet care", plant: "Plant care", car: "Car care", house: "House care" },
-  careDate: (label: string, date: string) => `${label} ${date.replace(/ /g, "\u00a0")}`,
-  choreLabels: {
-    once: "No repeat",
-    ready: "Ready to do",
-    today: "Due today",
-    done: "Done for now",
-    complete: "Chores complete",
-  },
-  chorePoints: (count: string, form: LDMLPluralRule) => ({
-    count,
-    suffix: form === "one" ? " point" : " points",
-  }),
-  choreCheck: (title: string) => `Mark ${title} done`,
-  deviceLabels: {
-    reading: "Reading",
-    setPoint: "Set point",
-    normal: "Normal range",
-    outOfRange: "Outside normal range",
-    apply: "Apply scene",
-    secure: "Apply scene, asks first",
-    locked: "Locked",
-    unlocked: "Unlocked",
-  },
-  deviceUnits: {
-    celsius: "°C",
-    percent: "%",
-    ppm: "ppm",
-    lux: "lux",
-  },
-  deviceFocus: (name: string) => `Focused device: ${name}`,
-  thermostat: {
-    modes: { heat: "Heat", cool: "Cool", auto: "Auto", off: "Off" },
-    mode: (value: string) => `Mode: ${value}`,
-    heating: "Heating set point",
-    heatTarget: "Heat target",
-    coolTarget: "Cool target",
-    adjustHeat: "Adjust heat target",
-    increase: "Increase heating set point",
-    decrease: "Decrease heating set point",
-    cooling: (value: string) => `Cooling set point: ${value}`,
-  },
-  devicePanel: {
-    preview: "Devices (preview)",
-    success: "Command acknowledged",
-    error: "Device offline or command failed",
-    scenes: "Saved scenes",
-    apply: "Apply",
-    secure: "Review",
-    reviewScene: (label: string) => `Press ${label} to open confirmation for this scene`,
-    controls: "Details",
-    increase: "Increase set point",
-    decrease: "Decrease set point",
-    level: { light: "Brightness", fan: "Speed", blind: "Open" },
-    value: (number: string, unit: string) => `${number} ${unit}`,
-    measure: (label: string, unit: string) => `${label} · ${unit}`,
-    limits: (low: string, high: string) => `${low}–${high}`,
-  },
-  rewardLabels: {
-    units: { one: "point", other: "points" },
-    heading: "Rewards",
-    claim: "Claim",
-    unavailable: "Unavailable",
-    success: "Prize claimed",
-  },
-  rewardPoints: (value: string, unit: string) => `${value} ${unit}`,
-  rewardEntry: (name: string, amount: string) => `${name}: ${amount}`,
-  rewardNeeds: (amount?: string) => (amount ? `Needs ${amount} more` : "Needs more"),
-  rewardPrizeStatus: (line: string, reason: string) => `${line} · ${reason}`,
-  routines: {
-    rules: "Automation rules",
-    activity: "Recent runs",
-    run: "Run now",
-    automatic: "Auto run",
-    enabled: (name: string) => `Enable ${name}`,
-    last: (date: string, clock: string) => `Last run: ${date} · ${clock}`,
-    never: "Not run yet",
-    success: "Routine command acknowledged",
-    error: "Couldn’t complete the routine command",
-    trigger: (summary: string) => `When: ${summary}`,
-    action: (summary: string) => `Then: ${summary}`,
-  },
-  turnLabels: { current: "Current turn", upcoming: "Up next", next: "Done, next", skip: "Skip" },
-  turnHolder: (label: string, name: string) => `${label}: ${name}`,
-  turnQueue: (names: string[]) => names.join(", "),
+  ...AgendaWords,
+  ...BabyLogWords,
+  ...CameraFeedWords,
+  ...CareScheduleWords,
+  ...packWords,
+  ...ChoresWords,
+  ...DevicesWords,
+  ...RewardsWords,
+  ...RoutinesWords,
+  ...TurnsWords,
 };
 
 export type HomeWords = typeof en;

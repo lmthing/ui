@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { postCountParts, postReading } from "../copy";
 import { socialWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Post.generated";
 
 const imageParts = ["images", "image_2", "image_3", "image_4"] as const;
 export const meta = {
   id: "Post",
   status: "ready",
   group: "content",
-  purpose: "Read and react to one community post in full.",
-  pick: "One community post in full, with author, long text, optional photo carousel and like, comment and share controls. Not several posts (Feed), an article (Article), or one featured thing preview (Card).",
-  writeHints: [
-    'Write null for unrequested variants, not an explicit default. If only asked to hide attachments, write "density":null, "surface":null, "media":"none". Preserve the images array and the author photo.',
-    "Use images for up to four post attachments, not for the author avatar. Use zero for unknown counts and false for an unknown liked state.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",

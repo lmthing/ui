@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { readSla, slaClocks, slaReading, validSlaTimes } from "../copy";
 import { requestsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-SlaPolicy.generated";
 
 // Core first: Timer[until] counts down to one instant but cannot track two contractual targets or record a breach.
 // prettier-ignore
 export const meta = {
   id: "SlaPolicy", status: "ready", group: "data", tier: "phone", region: "body", weight: 2,
-  purpose: "Track contractual first-response and resolution deadlines for a request.",
-  pick: "Track the service-level policy and both first-response and resolution targets on one ticket, including missed targets. Not a generic countdown (Timer), an operational queue (RequestQueue), or static policy facts (KeyValue).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   realPath: "The host calculates contractual deadlines from the request's policy and timestamps or syncs them from a shared service desk.",
-  writeHints: [
-    "Use ISO date-times with seconds and a UTC offset (Z for UTC). Order the opening, response deadline and resolution deadline chronologically. Only set an event timestamp when that event has happened. Never write the computed statuses or countdown.",
-    'When both targets should be visible, output detail null; the default is the full tracker. Only if the brief explicitly asks for a single badge/countdown row, set detail to "brief". Keep every timestamp. Set surface and density to null unless separately requested.',
-  ],
+  writeHints: prompt.writeHints,
   variants: { detail: ["full", "brief"], surface: ["card", "outlined"], density: ["comfortable", "compact"] },
   variantParts: { "detail.brief": { hides: ["request", "response", "meter", "status"] } },
   parts: ["root", "request", "tier", "response", "resolution", "meter", "status", "policy", "policy_label"],

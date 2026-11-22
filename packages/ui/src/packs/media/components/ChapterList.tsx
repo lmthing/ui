@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { chapterReading } from "../copy";
 import { mediaWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-ChapterList.generated";
 
 // Core first: Player/default can scrub one recording but cannot jump to named chapter marks.
 export const meta = {
   id: "ChapterList",
   status: "ready",
   group: "content",
-  purpose: "Jump to named chapters of the recording already on this screen.",
-  pick: "Named timestamps inside the recording already on this screen; choose one to jump to its start. Not playback controls for one recording (Player), separate recordings (Playlist), or recipe steps (CookSteps).",
-  writeHints: [
-    'Use only next to a Player on the same screen. Put 2–16 chapter times in strictly increasing order, whole seconds from the start. "current" is a zero-based index.',
-    "Leave density and surface null unless a different spacing or surface is requested.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

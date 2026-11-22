@@ -2,20 +2,16 @@ import { z } from "zod";
 import { articleEdges, articleHeader, articleReading, parseArticleBody, type ArticleBlock } from "../catalog";
 import * as c from "../catalog";
 import * as kit from "../kit";
+import { prompt } from "../entry/prompt-Article.generated";
 
 // Core first: Note/default cannot show a long structured reading with links to other screens.
 export const meta = {
   id: "Article",
   status: "ready",
   group: "content",
-  purpose: "Read a long piece with headings, paragraphs, quotes and links.",
-  pick: "A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).",
-  writeHints: [
-    "Body uses headings, paragraphs, lists, quotes, > [!NOTE] callouts, bold, italic and [label](screen:screen_id) links. No HTML or external links.",
-    'Use style "book" for a book page, "response" for a long answer with attribution at the end, or omit for a regular article. Set paper and fontScale only when requested.',
-    'Copy this JSON body pattern: "## Heading\\nFirst paragraph.\\n\\nSecond paragraph." Put each heading, quote and list item on its own line. Use JSON escapes, not tabs, spaces or invisible characters for line breaks. Keep headings short and paragraphs focused.',
-    'For body-only reading with no header, set detail "brief". Keep title in the line; reading time is computed. Leave density null unless the brief explicitly asks for tighter spacing.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

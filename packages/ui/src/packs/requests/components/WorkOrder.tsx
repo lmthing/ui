@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { workOrderCopy, workOrderLine, workOrderReading, type WorkLine } from "../copy";
 import { requestsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-WorkOrder.generated";
 import * as notesView from "./work-order-notes";
 // prettier-ignore
 const blocker = z.enum(["information", "access", "parts", "other"]), maxNote = 120;
@@ -10,14 +11,8 @@ const blocker = z.enum(["information", "access", "parts", "other"]), maxNote = 1
 // prettier-ignore
 export const meta = {
   id: "WorkOrder", status: "ready", group: "input",
-  purpose: "Carry out a repair with required checks, time and parts used.", pick: "One assigned execution record tied to a service request, with required checks, time and consumed parts. Not simple jobs to tick (Checklist), attendance (TimeClock), or a booked visit (Appointment).",
-  writeHints: [
-    'Use "worksheet" or null for active work, including status "working". Use "summary" only for an explicitly read-only, completed order with status "done".',
-    "Provide date/from/to only when supplied, together with from before to. A blocked order needs blockedBy and note.",
-    "Write previously recorded minutes and individual numeric quantities and unit costs only, not costs summed across parts or elapsed clock time.",
-    "Give assetRef only for a supplied asset identifier. Leave signOff null unless this order requires sign-off; write false when still unsigned, or true only when already signed off.",
-    'Use null for unrequested axes. Only when asked to hide the assignee and planned window, write {"detail":"brief","density":null,"surface":null} unless those other axes are requested too. Always keep any supplied assignee and window in the data.',
-  ],
+  purpose: prompt.purpose, pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Work records and clock events live on the technician's device without changing stock or payments.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },

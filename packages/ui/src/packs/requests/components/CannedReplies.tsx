@@ -10,18 +10,16 @@ import {
   validReplyCategories,
 } from "../copy";
 import { requestsWordsFor, type RequestsWords } from "../lang";
+import { prompt } from "../../../entry/prompt-CannedReplies.generated";
 
 // Core first: Composer[reply] edits one draft but cannot browse, preview or insert a saved reply template.
 // prettier-ignore
 export const meta = {
   id: "CannedReplies", status: "ready", group: "input", tier: "phone", region: "body", weight: 3, dense: true,
-  purpose: "Find a saved reply and put it in a support draft without sending it.",
-  pick: "Filter and preview reusable support or repair reply templates, then insert one into the active draft without sending. Not typing a blank reply (Composer), browsing generic rows (List), or showing the request stream (RequestThread).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   realPath: "Reply templates are saved on the operator's phone or shared library, and RequestThread sends only on a separate action.",
-  writeHints: [
-    "Every template category and activeCategory must match a declared category. Use null for an uncategorized template or to start on All. All is a built-in filter, not a category to write.",
-    'For title chips with no initial snippets set detail to "brief" and keep every template body. Use null on unrequested density and surface axes.',
-  ],
+  writeHints: prompt.writeHints,
   variants: { detail: ["full", "brief"], surface: ["card", "outlined"], density: ["comfortable", "compact"] },
   variantParts: { "detail.brief": { hides: ["snippet"] } },
   parts: ["root", "title", "category", "empty"],

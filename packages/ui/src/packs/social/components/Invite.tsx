@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { inviteJoinedLine, inviteReading } from "../copy";
 import { socialWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Invite.generated";
 
 // Core first: People/default draws a current roster, not a copyable, shareable QR invite and its join count.
 export const meta = {
   id: "Invite",
   status: "ready",
   group: "action",
-  purpose: "Bring new members in with a code they can share or scan.",
-  pick: "Invite people to join an app or group using a copyable, shareable code and optional QR. Not sharing a post (Post) or listing existing members (People).",
-  writeHints: [
-    'If the brief says to keep the number who joined without displaying it, write both fields: "joined":3,"detail":"brief" (use the supplied number, not necessarily 3). A null detail shows the count, so use null only when hiding the count was not requested.',
-    "The joined field is null only if the count is unknown. Set qr to true for a scannable version of code. Leave density, surface and align null unless requested.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",

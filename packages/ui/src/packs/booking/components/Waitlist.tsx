@@ -11,23 +11,22 @@ import {
   type Props,
 } from "../../../catalog";
 import { queueAhead, queueCount, queueExact } from "../copy";
+import { prompt } from "../../../entry/prompt-Waitlist.generated";
 
 // Core first: Progress/compact shows capacity, not membership or position in a waiting queue.
 export const meta = {
   id: "Waitlist",
   status: "ready",
   group: "action",
-  purpose: "Join or leave the queue for a full session and see your place.",
-  pick: "A full session's waiting queue: join, leave, place in line and people ahead. Not capacity or progress toward a target (Progress).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "A queue in a shared app; notifications tell the next person when a place opens.",
   variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["ahead"] } },
-  writeHints: [
-    'Leave density and detail null unless requested. For a joined queue with a known position, detail "brief" shows the position without the number ahead; retain ahead in the data.',
-  ],
+  writeHints: prompt.writeHints,
   parts: ["root", "title", "position", "label", "ahead", "join", "leave"],
   confirmParts: ["leave"],
   states: ["filled", "success"],

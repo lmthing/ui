@@ -18,16 +18,14 @@ import {
   percentLine,
 } from "../../../catalog";
 import { foodLogGroups, foodLogRead, foodLogTotal, kcalLine, targetLine } from "../copy";
+import { prompt } from "../../../entry/prompt-FoodLog.generated";
 export const meta = {
   id: "FoodLog",
   status: "ready",
   group: "input",
-  purpose: "Record foods eaten by meal and see their calories against a daily target.",
-  pick: "Today's eaten foods grouped by meal with calories and an add action per meal. Not a plain list (List), plans for the week (MealPlan), or calorie goals alone (Progress).",
-  writeHints: [
-    "Write calories per food, never meal or day totals. Each meal occurs once. goto is the add-food screen; a database lookup there needs a service.",
-    'To hide portions, set detail to "brief", but keep amount in the data. Write null for density unless explicitly asked for spacing; hiding portions does not change density.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
