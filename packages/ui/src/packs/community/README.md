@@ -6,7 +6,7 @@ Built in step U5 (drafts in U3), wave to be decided. Read `docs/catalog/packs/co
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
-- `components/`: `Members.tsx` `Dues.tsx` `Vote.tsx` `SignUpSheet.tsx` `Minutes.tsx`
+- `components/`: `Members.tsx` `Dues.tsx` `Vote.tsx` `SignUpSheet.tsx` `Minutes.tsx` `ModQueue.tsx`
 - `archetypes/`: `noticeboard.ts` `meeting.ts` `membership.ts`
 
 Rules:

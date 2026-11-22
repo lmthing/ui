@@ -1,7 +1,7 @@
 import { expect, it, vi } from "vitest";
 import { components, migrateLine, readComponent } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { elementAt, renderInstance } from "../../../../../test/render";
+import { addressedElements, elementAt, renderInstance, styleAt } from "../../../../../test/render";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const booking = components.Appointment.examples[0]!;
@@ -143,7 +143,10 @@ it("shows a group limit and zero deposit, and uses different destinations for bo
     expect(html).not.toContain(`home/c1/r2/${part}`);
   }
   expect(html).toContain("Up to 4 people");
-  expect(html).toContain("$0 deposit");
+  const deposit = addressedElements(html).get("home/c1/r1/deposit")!;
+  expect(deposit.text).toEqual([" deposit"]);
+  expect(deposit.children[0]?.text).toEqual(["$0"]);
+  expect(styleAt(html, deposit.children[0]!)).toContain("font-variant:tabular-nums");
   expect(elementAt(html, "home/c1/r1/portfolio").attributes).toContain('role="link"');
   expect(renderInstance("ServiceMenu", input, "loading", theme)).not.toContain('role="link"');
   const onLink = vi.fn();

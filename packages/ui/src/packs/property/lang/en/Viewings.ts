@@ -9,6 +9,7 @@ export const words = {
     },
     actions: { edit: "Edit", confirm: "Confirm", cancel: "Cancel", invite: "Invite" },
     outcome: "Record attendance",
+    editOutcome: "Change attendance",
     past: "Past viewing",
     empty: "No viewings yet",
     success: "Viewing updated",

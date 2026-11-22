@@ -6,3 +6,4 @@
 - `Hours.test.ts`: weekly hours, date exceptions, addressed rows, and read-only behavior.
 - `MapList.test.ts`: bounded results, live distances, state and variant parts, and independent pin and row actions.
 - `PlaceCard.test.ts`: bounded props, fallback, rendered states and parts, and navigation.
+- `StationRates.test.ts`: rate and stall bounds, states, variant parts, and station actions.

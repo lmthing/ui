@@ -1,26 +1,34 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
-import { communityWordsFor } from "../lang";
 import { dateTime, distinct, ref } from "../seeds";
+import {
+  electionFacts,
+  motionChoices,
+  validVoteShape,
+  voteBallot,
+  voteRule,
+  type ElectionSeed,
+} from "./election";
 
-const voteChoices = ["for", "against", "abstain"] as const;
-export const voteBallot = z.strictObject({ memberId: ref, choice: z.enum(voteChoices) });
-export const voteRule = z.enum(["majority", "two_thirds", "unanimous"]);
+export { validVoteShape, voteBallot, voteCandidate, voteRule } from "./election";
+export { voteCopy, voteReading } from "./vote-reading";
 type Ballot = z.output<typeof voteBallot>;
-type Choice = Ballot["choice"];
+type Choice = (typeof motionChoices)[number];
 type Rule = z.output<typeof voteRule>;
 type Schedule = { opens: string; closes: string };
 type Motion = Schedule & { quorum: number; rule: Rule; ballots: Ballot[]; cancelled: boolean };
-type Seed = Motion & { voteId: string; style: "ballot" | "result" };
+type Seed = Motion & ElectionSeed & { voteId: string; candidateEntries?: ElectionSeed["candidates"] };
 type Phase = "scheduled" | "open" | "closed" | "cancelled";
 export type VoteFacts = Motion & {
   phase: Phase;
   can_vote: boolean;
   can_cancel: boolean;
+  motion_ballot: boolean;
   own_ballot: Choice | undefined;
   counts: Record<Choice, number>;
   participation: number;
   decision?: "passed" | "failed" | "noQuorum";
+  election?: ReturnType<typeof electionFacts>;
 };
 
 const voteRecordKind = "community_votes";
@@ -45,13 +53,14 @@ const hostRecord = z
     return distinct(ballots, (row) => row.memberId) && ballots.every((row) => electorate.has(row.memberId));
   });
 
-function matchingRecord(data: c.DeviceData, voteId: string) {
+function matchingRecord(data: c.DeviceData, seed: Seed) {
   const rows = data[voteRecordKind]?.filter((row): row is { voteId: string; [previewClock]?: number } =>
-    Boolean(row && typeof row === "object" && "voteId" in row && row.voteId === voteId),
+    Boolean(row && typeof row === "object" && "voteId" in row && row.voteId === seed.voteId),
   );
   if (rows?.length !== 1) return;
   const result = hostRecord.safeParse(rows[0]);
-  if (result.success) return { ...result.data, sampleTime: rows[0]?.[previewClock] };
+  if (result.success && validVoteShape({ ...seed, ballots: result.data.ballots }))
+    return { ...result.data, sampleTime: rows[0]?.[previewClock] };
 }
 
 function phaseOf(motion: Motion, now: number): Phase {
@@ -69,15 +78,19 @@ function resultOf(rule: Rule, counts: Record<Choice, number>, reached: boolean) 
 }
 
 export function voteFacts(seed: Seed, data: c.DeviceData, now: number): VoteFacts {
-  const record = matchingRecord(data, seed.voteId);
+  const record = matchingRecord(data, seed);
   const { opens, closes, cancelled, quorum, rule, ballots } = record ?? seed;
   const motion = { opens, closes, cancelled, quorum, rule, ballots };
   const phase = phaseOf(motion, record?.sampleTime ?? now);
+  const closed = phase === "closed",
+    reached = ballots.length >= quorum;
+  const electing = seed.style === "election";
   const counts = { for: 0, against: 0, abstain: 0 };
-  for (const { choice } of ballots) counts[choice]++;
+  for (const { choice } of ballots) if (!Array.isArray(choice)) counts[choice]++;
   const participation = ballots.length;
   const viewer = record?.viewer;
-  const interactive = seed.style === "ballot" && Boolean(viewer);
+  const interactive = seed.style !== "result" && Boolean(viewer);
+  const own = viewer ? ballots.find((row) => row.memberId === viewer)?.choice : undefined;
   return {
     ...motion,
     phase,
@@ -85,13 +98,35 @@ export function voteFacts(seed: Seed, data: c.DeviceData, now: number): VoteFact
     participation,
     can_vote: interactive && phase === "open" && Boolean(record?.eligible.includes(viewer!)),
     can_cancel: interactive && (phase === "open" || phase === "scheduled") && viewer === record?.chair,
-    own_ballot: viewer ? ballots.find((row) => row.memberId === viewer)?.choice : undefined,
-    ...(phase === "closed" ? { decision: resultOf(rule, counts, participation >= quorum) } : {}),
+    motion_ballot: !electing,
+    own_ballot: !electing && typeof own === "string" ? own : undefined,
+    ...(electing
+      ? {
+          election: electionFacts(
+            { ...seed, candidates: seed.candidateEntries ?? seed.candidates, ballots },
+            rule,
+            own,
+            closed,
+            reached,
+          ),
+        }
+      : {}),
+    ...(closed && !electing ? { decision: resultOf(rule, counts, reached) } : {}),
   };
 }
 
 export function projectVote({ props, data, now }: Pick<c.RecordContext, "props" | "data" | "now">) {
-  return voteFacts(props as Seed, data, now);
+  const seed = props as Seed,
+    facts = voteFacts(seed, data, now);
+  return facts.election
+    ? {
+        ...facts,
+        candidateEntries: seed.candidateEntries?.map((row, index) => ({
+          ...row,
+          can_select: facts.election!.electionRows[index]?.can_select,
+        })),
+      }
+    : facts;
 }
 
 export function voteWake(_data: c.DeviceData, props: Readonly<c.Values>, now: number) {
@@ -117,62 +152,10 @@ export function previewVote({ input }: { input: Readonly<c.Values> }): c.DeviceD
         eligible: [...new Set([viewer, ...ballots.map((row) => row.memberId)])],
         chair: viewer,
         viewer,
-        [previewClock]: Date.parse(style === "result" ? closes : opens),
+        [previewClock]: Date.parse(
+          style === "result" || (style === "election" && ballots.length >= quorum) ? closes : opens,
+        ),
       },
     ],
   };
-}
-
-function stamp(value: string, lang?: string) {
-  return new Intl.DateTimeFormat(c.dateLocaleOf(lang), {
-    day: "numeric",
-    month: "short",
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone: "UTC",
-    timeZoneName: "short",
-  }).format(new Date(value));
-}
-
-export function voteCopy(facts: VoteFacts, state: c.StateName, lang?: string) {
-  const w = communityWordsFor(lang).vote;
-  const { opens, closes, phase, quorum, participation, own_ballot, decision } = facts;
-  const quorumRuns = w.participation(c.numberLine(participation, lang), c.numberLine(quorum, lang));
-  return {
-    status: state === "success" ? w.saved : state === "error" ? w.error : w.phase[phase],
-    opens: w.opens(stamp(opens, lang)),
-    closes: w.closes(stamp(closes, lang)),
-    rule: w.rule[facts.rule],
-    quorumRuns,
-    participation: quorumRuns.map((run) => (typeof run === "string" ? run : run.number)).join(""),
-    decision: decision && w.decision[decision],
-    own: own_ballot && (state === "error" ? w.recorded : w.own)(w.choice[own_ballot]),
-    counts: voteChoices.map((choice) => ({
-      choice,
-      label: w.choice[choice],
-      count: c.numberLine(facts.counts[choice], lang),
-    })),
-  };
-}
-
-export function voteReading(input: unknown, state: c.StateName, lang?: string) {
-  const facts = input as VoteFacts;
-  const w = communityWordsFor(lang).vote;
-  const { status, opens, closes, rule, participation, decision, own, counts } = voteCopy(facts, state, lang);
-  return [
-    status,
-    opens,
-    closes,
-    rule,
-    w.quorum,
-    participation,
-    decision,
-    own,
-    ...(decision
-      ? counts.map(({ label, count }) => w.count(label, count))
-      : facts.can_vote && state === "filled"
-        ? voteChoices.map((choice) => w.choice[choice])
-        : []),
-    ...(facts.can_cancel && state === "filled" ? [w.cancel] : []),
-  ].filter((line): line is string => Boolean(line));
 }

@@ -146,22 +146,27 @@ function MicReading({
       : undefined;
   const settled =
     environment.reduceMotion || environment.agentMode || motion === "calm" || !listening || disabled;
+  const offline = !loading && unavailable;
   return (
-    <>
-      <XStack gap={space.sm} alignItems="center" minHeight={size.icon.md}>
-        <LevelBar level={listening ? level : 0} {...{ settled, loading }} />
-        {!loading && time !== undefined && (
-          <KitText part={null} role="caption" tabular tone={listening ? "accent" : "muted"}>
-            {time}
-          </KitText>
-        )}
-      </XStack>
-      {!loading && unavailable && (
+    <XStack
+      gap={space.sm}
+      alignItems="center"
+      minHeight={offline ? undefined : size.icon.md}
+      justifyContent={offline ? "space-between" : undefined}
+    >
+      {offline ? (
         <KitText part={null} role="caption" tone="muted">
           {words.mediaUnavailable}
         </KitText>
+      ) : (
+        <LevelBar level={listening ? level : 0} {...{ settled, loading }} />
       )}
-    </>
+      {!loading && time !== undefined && (
+        <KitText part={null} role="caption" tabular tone={listening ? "accent" : "muted"}>
+          {time}
+        </KitText>
+      )}
+    </XStack>
   );
 }
 /** An ok-tier host capture; props carry the sampled level and elapsed clock, not audio. */

@@ -18,5 +18,6 @@ export const example = `{"id":"h1","c":"Header","title":"Vows","sub":"A wedding 
 {"id":"r2","c":"Registry","gifts":[{"title":"Linen tablecloth","photo":"lib:linen","price":45,"where":"Loom House","claimed":false},{"title":"Blue serving bowl","photo":"lib:bowl","price":32,"claimed":true}],"host":false}
 {"id":"d1","c":"Door","hint":"Scan a Vows admission pass"}
 {"id":"t2","c":"Ticket","event":"Ruth and Sam's wedding","date":"2027-06-12","time":"17:00","place":"Harbour Hall","type":"Guest","holder":"Imani Cole","number":"VOWS0052"}
+{"id":"s2","c":"Sessions","tracks":["Hall","Garden"],"sessions":[{"id":"toast","title":"Welcome toast","track":"Hall","start":"18:00","end":"18:20","room":"Harbour Hall","speaker":"Sam Gray","saved":true},{"id":"photos","title":"Garden photos","track":"Garden","start":"18:15","end":"18:45","room":"Rose Garden","saved":false}]}
 {"id":"f1","c":"FindDate","dates":[{"date":"2027-05-14","time":"18:00"},{"date":"2027-05-15","time":"12:00"}],"people":[{"name":"Ruth Shah","answers":["maybe","yes"]},{"name":"Sam Gray","answers":["no","yes"]}]}
 `;

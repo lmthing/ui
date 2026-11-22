@@ -6,6 +6,7 @@ import { component, radius, size, space, type as typography } from "../../../cat
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { KitContent, KitIcon, KitText } from "../text";
+import { SkeletonText } from "../helpers";
 
 type Position = "start" | "middle" | "end";
 type RouteProps = {
@@ -117,21 +118,25 @@ function loadingLines(children: ReactNode): ReactNode[] {
       ];
     if (!isValidElement<TextProps>(node)) return [];
     if (node.type !== KitText) return loadingLines(node.props.children);
+    const {
+      children: runs,
+      role = "body",
+      align,
+      numberScale,
+      lines,
+      density,
+      tabular,
+      emphasis,
+    } = node.props;
+    const text = Children.toArray(textOnly(runs)).join("");
+    if (!text.trim()) return [];
     return [
-      <YStack key={node.key} justifyContent="center">
-        <YStack opacity={component.base.none} accessibilityElementsHidden pointerEvents="none">
-          <KitText {...node.props} part={null} goto={undefined} item={undefined}>
-            {textOnly(node.props.children)}
-          </KitText>
-        </YStack>
-        <YStack
-          position="absolute"
-          width="72%"
-          height={space.sm}
-          borderRadius={radius.sm}
-          backgroundColor="$line"
-        />
-      </YStack>,
+      <SkeletonText
+        key={node.key}
+        {...{ text, role, align, numberScale, lines, density, tabular }}
+        strong={emphasis === "strong"}
+        wrap
+      />,
     ];
   });
 }
@@ -181,7 +186,11 @@ function Stop({ label, position, children, goto, mark = "route" }: Omit<RoutePro
       <StopContent {...{ pad, loading, label }}>{children}</StopContent>
       {goto && (
         <YStack width={size.icon.sm} height={line} marginTop={pad} justifyContent="center" aria-hidden>
-          {!loading && <ChevronRight size={size.icon.sm} color="$muted" />}
+          {loading ? (
+            <YStack width={space.sm} height={space.sm} borderRadius={radius.sm} backgroundColor="$line" />
+          ) : (
+            <ChevronRight size={size.icon.sm} color="$muted" />
+          )}
         </YStack>
       )}
     </XStack>

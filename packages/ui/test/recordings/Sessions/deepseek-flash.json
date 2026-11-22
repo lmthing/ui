@@ -1,0 +1,968 @@
+{
+  "Sessions%2Fchoose%2FShow%20our%20festival's%20sessions%20in%20time%20order%20by%20stage%2C%20how%20many%20seats%20are%20left%2C%20and%20let%20me%20bookmark%20the%20talks%20for%20my%20own%20agenda./5348abf089eaef5d/1c27131eb785978f": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Door: Admit people by scanning tickets or finding names, and track arrivals. Pick: Admission at an event entrance: scan tickets to check people in, look up a guest for manual check-in and see arrivals. Not a standalone photo or code capture (Camera), a guest's own pass (Ticket) or pre-event replies (GuestList).\n- FindDate: Compare people's availability and find the best date for a gathering. Pick: A date-finding matrix: dates as columns and people as rows with yes, maybe or no per date, and the best date computed. Not a calendar to pick a day (Calendar) or a general poll (Poll).\n- GuestList: Track who is invited, who is coming and what each party needs. Pick: An event's invitation roster with party groups, RSVP statuses, plus-ones and dietary needs. Not a plain roster of people (People), a guest sending their own reply (RSVP), clients (ClientCard) or a squad's availability (Squad).\n- RSVP: Reply to an event invitation with attendance, companions and a meal choice. Pick: A guest answers one invitation: yes or no, plus-ones, meal, note and send. Not a standalone choice with explanations (Choice), a poll (Poll), booking a time (Slots), or tracking all replies (GuestList).\n- Registry: Share a gift list and keep guests from choosing the same gift. Pick: A shared event gift list with gift prices, where to buy, and who claimed a gift for hosts. Not a checklist for personal tasks (Checklist), shopping (ProductGrid) or a personal wishlist (Wishlist).\n- Seating: Arrange guests at tables and see who still needs a seat. Pick: A seating plan of round or long tables with guest initials, available seats and a tray of unseated guests. Not locations on a geographic map (MapPins), an invitation roster (GuestList) or a staff rota (Roster).\n- Sessions: Find sessions across an event's tracks and bookmark a personal agenda. Pick: Multi-room or multi-stage sessions at one event, with track filters, capacity and personal bookmarks. Not a single-track day (Timeline), a holiday itinerary (Itinerary) or weekly classes (Timetable).\n- Ticket: Show the holder's admission pass and code for one event. Pick: One issued event admission pass with holder, ticket type, venue and scannable ticket number. Not ordinary label/value facts (KeyValue), a travel confirmation (Reservation), a discount code (Promo) or the door scanner (Door).\n- Vendors: Keep track of event suppliers, bookings, payments and what is still owed. Pick: Suppliers for one event with roles, bookings, amounts agreed and paid, due dates and phone calls. Not a general directory (List), the business's own clients (ClientCard) or personal bills (Bills).\n\nNeed, in the person's words: \"Show our festival's sessions in time order by stage, how many seats are left, and let me bookmark the talks for my own agenda.\"\nReply with only the component id, nothing else.",
+    "reply": "Sessions",
+    "replies": [
+      "Sessions",
+      "Sessions",
+      "Sessions"
+    ]
+  },
+  "Sessions%2Fchoose%2FShow%20our%20festival's%20sessions%20in%20time%20order%20by%20stage%2C%20how%20many%20seats%20are%20left%2C%20and%20let%20me%20bookmark%20the%20talks%20for%20my%20own%20agenda./84a1808c1dacd48b/1c27131eb785978f": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Door: Admit people by scanning tickets or finding names, and track arrivals. Pick: Admission at an event entrance: scan tickets to check people in, look up a guest for manual check-in and see arrivals. Not a standalone photo or code capture (Camera), a guest's own pass (Ticket) or pre-event replies (GuestList).\n- FindDate: Compare people's availability and find the best date for a gathering. Pick: A date-finding matrix: dates as columns and people as rows with yes, maybe or no per date, and the best date computed. Not a calendar to pick a day (Calendar) or a general poll (Poll).\n- GuestList: Track who is invited, who is coming and what each party needs. Pick: An event's invitation roster with party groups, RSVP statuses, plus-ones and dietary needs. Not a plain roster of people (People), a guest sending their own reply (RSVP), clients (ClientCard) or a squad's availability (Squad).\n- RSVP: Reply to an event invitation with attendance, companions and a meal choice. Pick: A guest answers one invitation: yes or no, plus-ones, meal, note and send. Not a standalone choice with explanations (Choice), a poll (Poll), booking a time (Slots), or tracking all replies (GuestList).\n- Registry: Share a gift list and keep guests from choosing the same gift. Pick: A shared event gift list with gift prices, where to buy, and who claimed a gift for hosts. Not a checklist for personal tasks (Checklist), shopping (ProductGrid) or a personal wishlist (Wishlist).\n- Seating: Arrange guests at tables and see who still needs a seat. Pick: A seating plan of round or long tables with guest initials, available seats and a tray of unseated guests. Not locations on a geographic map (MapPins), an invitation roster (GuestList) or a staff rota (Roster).\n- Sessions: Find sessions across an event's tracks and bookmark a personal agenda. Pick: Multi-room or multi-stage sessions at one event, with track filters, capacity and personal bookmarks. Not a single-track day (Timeline), a holiday itinerary (Itinerary) or weekly classes (Timetable).\n- Ticket: Show the holder's admission pass and code for one event. Pick: One issued event admission pass with holder, ticket type, venue and scannable ticket number. Not ordinary label/value facts (KeyValue), a travel confirmation (Reservation), a discount code (Promo) or the door scanner (Door).\n- Vendors: Keep track of event suppliers, bookings, payments and what is still owed. Pick: Suppliers for one event with roles, bookings, amounts agreed and paid, due dates and phone calls. Not a general directory (List), the business's own clients (ClientCard) or personal bills (Bills).\n\nNeed, in the person's words: \"Show our festival's sessions in time order by stage, how many seats are left, and let me bookmark the talks for my own agenda.\"\nReply with only the component id, nothing else.",
+    "reply": "Sessions",
+    "replies": [
+      "Sessions",
+      "Sessions",
+      "Sessions"
+    ]
+  },
+  "Sessions%2Fchoose%2FShow%20the%20start%20and%20finish%20times%20for%20three%20activities%20on%20one%20day's%20hour%20rail%2C%20with%20gaps%20between%20them./0713ef830f40c403/6ac4c62982ad967b": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Door: Admit people by scanning tickets or finding names, and track arrivals. Pick: Admission at an event entrance: scan tickets to check people in, look up a guest for manual check-in and see arrivals. Not a standalone photo or code capture (Camera), a guest's own pass (Ticket) or pre-event replies (GuestList).\n- FindDate: Compare people's availability and find the best date for a gathering. Pick: A date-finding matrix: dates as columns and people as rows with yes, maybe or no per date, and the best date computed. Not a calendar to pick a day (Calendar) or a general poll (Poll).\n- GuestList: Track who is invited, who is coming and what each party needs. Pick: An event's invitation roster with party groups, RSVP statuses, plus-ones and dietary needs. Not a plain roster of people (People), a guest sending their own reply (RSVP), clients (ClientCard) or a squad's availability (Squad).\n- RSVP: Reply to an event invitation with attendance, companions and a meal choice. Pick: A guest answers one invitation: yes or no, plus-ones, meal, note and send. Not a standalone choice with explanations (Choice), a poll (Poll), booking a time (Slots), or tracking all replies (GuestList).\n- Registry: Share a gift list and keep guests from choosing the same gift. Pick: A shared event gift list with gift prices, where to buy, and who claimed a gift for hosts. Not a checklist for personal tasks (Checklist), shopping (ProductGrid) or a personal wishlist (Wishlist).\n- Seating: Arrange guests at tables and see who still needs a seat. Pick: A seating plan of round or long tables with guest initials, available seats and a tray of unseated guests. Not locations on a geographic map (MapPins), an invitation roster (GuestList) or a staff rota (Roster).\n- Sessions: Find sessions across an event's tracks and bookmark a personal agenda. Pick: Multi-room or multi-stage sessions at one event, with track filters, capacity and personal bookmarks. Not a single-track day (Timeline), a holiday itinerary (Itinerary) or weekly classes (Timetable).\n- Ticket: Show the holder's admission pass and code for one event. Pick: One issued event admission pass with holder, ticket type, venue and scannable ticket number. Not ordinary label/value facts (KeyValue), a travel confirmation (Reservation), a discount code (Promo) or the door scanner (Door).\n- Vendors: Keep track of event suppliers, bookings, payments and what is still owed. Pick: Suppliers for one event with roles, bookings, amounts agreed and paid, due dates and phone calls. Not a general directory (List), the business's own clients (ClientCard) or personal bills (Bills).\n\nNeed, in the person's words: \"Show the start and finish times for three activities on one day's hour rail, with gaps between them.\"\nReply with only the component id, nothing else.",
+    "reply": "Timeline",
+    "replies": [
+      "Timeline",
+      "Timeline",
+      "Timeline"
+    ]
+  },
+  "Sessions%2Fchoose%2FShow%20the%20start%20and%20finish%20times%20for%20three%20activities%20on%20one%20day's%20hour%20rail%2C%20with%20gaps%20between%20them./e73a1c9b0e4bff24/6ac4c62982ad967b": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Door: Admit people by scanning tickets or finding names, and track arrivals. Pick: Admission at an event entrance: scan tickets to check people in, look up a guest for manual check-in and see arrivals. Not a standalone photo or code capture (Camera), a guest's own pass (Ticket) or pre-event replies (GuestList).\n- FindDate: Compare people's availability and find the best date for a gathering. Pick: A date-finding matrix: dates as columns and people as rows with yes, maybe or no per date, and the best date computed. Not a calendar to pick a day (Calendar) or a general poll (Poll).\n- GuestList: Track who is invited, who is coming and what each party needs. Pick: An event's invitation roster with party groups, RSVP statuses, plus-ones and dietary needs. Not a plain roster of people (People), a guest sending their own reply (RSVP), clients (ClientCard) or a squad's availability (Squad).\n- RSVP: Reply to an event invitation with attendance, companions and a meal choice. Pick: A guest answers one invitation: yes or no, plus-ones, meal, note and send. Not a standalone choice with explanations (Choice), a poll (Poll), booking a time (Slots), or tracking all replies (GuestList).\n- Registry: Share a gift list and keep guests from choosing the same gift. Pick: A shared event gift list with gift prices, where to buy, and who claimed a gift for hosts. Not a checklist for personal tasks (Checklist), shopping (ProductGrid) or a personal wishlist (Wishlist).\n- Seating: Arrange guests at tables and see who still needs a seat. Pick: A seating plan of round or long tables with guest initials, available seats and a tray of unseated guests. Not locations on a geographic map (MapPins), an invitation roster (GuestList) or a staff rota (Roster).\n- Sessions: Find sessions across an event's tracks and bookmark a personal agenda. Pick: Multi-room or multi-stage sessions at one event, with track filters, capacity and personal bookmarks. Not a single-track day (Timeline), a holiday itinerary (Itinerary) or weekly classes (Timetable).\n- Ticket: Show the holder's admission pass and code for one event. Pick: One issued event admission pass with holder, ticket type, venue and scannable ticket number. Not ordinary label/value facts (KeyValue), a travel confirmation (Reservation), a discount code (Promo) or the door scanner (Door).\n- Vendors: Keep track of event suppliers, bookings, payments and what is still owed. Pick: Suppliers for one event with roles, bookings, amounts agreed and paid, due dates and phone calls. Not a general directory (List), the business's own clients (ClientCard) or personal bills (Bills).\n\nNeed, in the person's words: \"Show the start and finish times for three activities on one day's hour rail, with gaps between them.\"\nReply with only the component id, nothing else.",
+    "reply": "Timeline",
+    "replies": [
+      "Timeline",
+      "Timeline",
+      "Timeline"
+    ]
+  },
+  "Sessions%2Fread%2FBookmark%20Opening%20keynote%20without%20opening%20it./08c4c68e89e2f95a/399ca8713d95535b": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 Sessions Filter by track — All tracks — Main stage — Workshops — r1 · 09:00–09:45 · Opening keynote · Main stage · Harbour Hall · Ruth Shah — r2 · 09:30–10:15 · Design by hand · Workshops · North Studio · Imani Cole · 4 left — r3 · 10:30–11:15 · Ask the makers · Main stage · Harbour Hall · Full [s1/track select = \"All tracks\"; choices [\"All tracks\",\"Main stage\",\"Workshops\"]]\n  r1 \"r1\" · \"Opening keynote\" · \"Main stage\" · \"Harbour Hall\" · \"Ruth Shah\" [s1/r1 press→keynote] [s1/r1/save toggle:off]\n  r2 \"r2\" · \"Design by hand\" · \"Workshops\" · \"North Studio\" · \"Imani Cole\" [s1/r2/save toggle:on]\n  r3 \"r3\" · \"Ask the makers\" · \"Main stage\" · \"Harbour Hall\" [s1/r3/save toggle:off]\n\nTask: Bookmark Opening keynote without opening it.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/r1/save\", \"action\": \"toggle\"}",
+    "replies": [
+      "{\"address\": \"s1/r1/save\", \"action\": \"toggle\"}",
+      "{\"address\": \"s1/r1/save\", \"action\": \"toggle\"}",
+      "{\"address\": \"s1/r1/save\", \"action\": \"toggle\"}"
+    ]
+  },
+  "Sessions%2Fread%2FBookmark%20Opening%20keynote%20without%20opening%20it./67b5670e0e4bee67/f57b4b5f03c7cf16": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 Sessions Filter by track — All tracks — Main stage — Workshops — r1 · 09:00–09:45 · Opening keynote · Main stage · Harbour Hall · Ruth Shah — r2 · 09:30–10:15 · Design by hand · Workshops · North Studio · Imani Cole · 4 left — r3 · 10:30–11:15 · Ask the makers · Main stage · Harbour Hall · Full [s1/track select = \"All tracks\"; choices [\"All tracks\",\"Main stage\",\"Workshops\"]]\n  r1 \"Opening keynote\" · \"Main stage\" · \"Harbour Hall\" · \"Ruth Shah\" [s1/r1 press→keynote] [s1/r1/save toggle:off]\n  r2 \"Design by hand\" · \"Workshops\" · \"North Studio\" · \"Imani Cole\" [s1/r2/save toggle:on]\n  r3 \"Ask the makers\" · \"Main stage\" · \"Harbour Hall\" [s1/r3/save toggle:off]\n\nTask: Bookmark Opening keynote without opening it.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/r1/save\", \"action\": \"toggle\"}",
+    "replies": [
+      "{\"address\": \"s1/r1/save\", \"action\": \"toggle\"}",
+      "{\"address\": \"s1/r1/save\", \"action\": \"toggle\"}",
+      "{\"address\": \"s1/r1/save\", \"action\": \"toggle\"}"
+    ]
+  },
+  "Sessions%2Fread%2FFilter%20the%20schedule%20to%20Workshops./53fa1e7ce295ff87/4963725425535a56": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 Sessions Filter by track — All tracks — Main stage — Workshops — r1 · 09:00–09:45 · Opening keynote · Main stage · Harbour Hall · Ruth Shah — r2 · 09:30–10:15 · Design by hand · Workshops · North Studio · Imani Cole · 4 left — r3 · 10:30–11:15 · Ask the makers · Main stage · Harbour Hall · Full [s1/track select = \"All tracks\"; choices [\"All tracks\",\"Main stage\",\"Workshops\"]]\n  r1 \"r1\" · \"Opening keynote\" · \"Main stage\" · \"Harbour Hall\" · \"Ruth Shah\" [s1/r1 press→keynote] [s1/r1/save toggle:off]\n  r2 \"r2\" · \"Design by hand\" · \"Workshops\" · \"North Studio\" · \"Imani Cole\" [s1/r2/save toggle:on]\n  r3 \"r3\" · \"Ask the makers\" · \"Main stage\" · \"Harbour Hall\" [s1/r3/save toggle:off]\n\nTask: Filter the schedule to Workshops.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/track\", \"action\": \"select\"}",
+    "replies": [
+      "{\"address\": \"s1/track\", \"action\": \"select\"}",
+      "{\"address\": \"s1/track\", \"action\": \"select\"}",
+      "{\"address\": \"s1/track\", \"action\": \"select\"}"
+    ]
+  },
+  "Sessions%2Fread%2FFilter%20the%20schedule%20to%20Workshops./d887c9cfcc89e451/d3db8be42e780a4c": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 Sessions Filter by track — All tracks — Main stage — Workshops — r1 · 09:00–09:45 · Opening keynote · Main stage · Harbour Hall · Ruth Shah — r2 · 09:30–10:15 · Design by hand · Workshops · North Studio · Imani Cole · 4 left — r3 · 10:30–11:15 · Ask the makers · Main stage · Harbour Hall · Full [s1/track select = \"All tracks\"; choices [\"All tracks\",\"Main stage\",\"Workshops\"]]\n  r1 \"Opening keynote\" · \"Main stage\" · \"Harbour Hall\" · \"Ruth Shah\" [s1/r1 press→keynote] [s1/r1/save toggle:off]\n  r2 \"Design by hand\" · \"Workshops\" · \"North Studio\" · \"Imani Cole\" [s1/r2/save toggle:on]\n  r3 \"Ask the makers\" · \"Main stage\" · \"Harbour Hall\" [s1/r3/save toggle:off]\n\nTask: Filter the schedule to Workshops.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/track\", \"action\": \"select\"}",
+    "replies": [
+      "{\"address\": \"s1/track\", \"action\": \"select\"}",
+      "{\"address\": \"s1/track\", \"action\": \"select\"}",
+      "{\"address\": \"s1/track\", \"action\": \"select\"}"
+    ]
+  },
+  "Sessions%2Fread%2FOpen%20the%20Opening%20keynote%20details./27bfe4ab9faa644f/45d7970bfb76958b": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 Sessions Filter by track — All tracks — Main stage — Workshops — r1 · 09:00–09:45 · Opening keynote · Main stage · Harbour Hall · Ruth Shah — r2 · 09:30–10:15 · Design by hand · Workshops · North Studio · Imani Cole · 4 left — r3 · 10:30–11:15 · Ask the makers · Main stage · Harbour Hall · Full [s1/track select = \"All tracks\"; choices [\"All tracks\",\"Main stage\",\"Workshops\"]]\n  r1 \"r1\" · \"Opening keynote\" · \"Main stage\" · \"Harbour Hall\" · \"Ruth Shah\" [s1/r1 press→keynote] [s1/r1/save toggle:off]\n  r2 \"r2\" · \"Design by hand\" · \"Workshops\" · \"North Studio\" · \"Imani Cole\" [s1/r2/save toggle:on]\n  r3 \"r3\" · \"Ask the makers\" · \"Main stage\" · \"Harbour Hall\" [s1/r3/save toggle:off]\n\nTask: Open the Opening keynote details.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/r1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"s1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"s1/r1\", \"action\": \"press\"}"
+    ]
+  },
+  "Sessions%2Fread%2FOpen%20the%20Opening%20keynote%20details./671c78afda4a5c0d/f67f6f981b654c57": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 Sessions Filter by track — All tracks — Main stage — Workshops — r1 · 09:00–09:45 · Opening keynote · Main stage · Harbour Hall · Ruth Shah — r2 · 09:30–10:15 · Design by hand · Workshops · North Studio · Imani Cole · 4 left — r3 · 10:30–11:15 · Ask the makers · Main stage · Harbour Hall · Full [s1/track select = \"All tracks\"; choices [\"All tracks\",\"Main stage\",\"Workshops\"]]\n  r1 \"Opening keynote\" · \"Main stage\" · \"Harbour Hall\" · \"Ruth Shah\" [s1/r1 press→keynote] [s1/r1/save toggle:off]\n  r2 \"Design by hand\" · \"Workshops\" · \"North Studio\" · \"Imani Cole\" [s1/r2/save toggle:on]\n  r3 \"Ask the makers\" · \"Main stage\" · \"Harbour Hall\" [s1/r3/save toggle:off]\n\nTask: Open the Opening keynote details.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/r1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"s1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"s1/r1\", \"action\": \"press\"}"
+    ]
+  },
+  "Sessions%2Fwrite%2FList%20the%20Design%20Fair%20tracks%20Main%20stage%20and%20Workshops.%20Opening%20keynote%20is%2009%3A00%E2%80%9309%3A45%20in%20Harbour%20Hall%20with%20Ruth%20Shah%2C%20not%20saved.%20Design%20by%20hand%20is%2009%3A30%E2%80%9310%3A15%20in%20North%20Studio%20with%20Imani%20Cole%2C%2014%20of%2018%20seats%20booked%2C%20saved.%20Show%20all%20tracks./2bd02305ab996fe5/752f5abab61f0fee": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSessions: Find sessions across an event's tracks and bookmark a personal agenda.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", tracks: [1..6 text≤16], selectedTrack?: text≤16, sessions: [1..24 { id: text≤24, title: text≤32, track: text≤16, start: time HH:MM, end: time HH:MM, room: text≤20, speaker?: text≤24, booked?: int 0..9007199254740991, capacity?: int 0..9007199254740991, saved: boolean, goto?: id snake_case }], style?: tracks|mine=\"tracks\" }\nRule: Give each session a distinct id and a track from tracks. Use HH:MM with end later than start. If supplied together, booked cannot exceed capacity. Do not write remaining capacity or conflicts.\nRule: Use style \"mine\" for the bookmarked agenda. Use detail \"brief\" only to hide speaker names; keep writing any supplied speaker names. Leave density, surface and detail null unless requested.\nexample: {\"c\":\"Sessions\",\"tracks\":[\"Main stage\",\"Workshops\"],\"sessions\":[{\"id\":\"welcome\",\"title\":\"Opening keynote\",\"track\":\"Main stage\",\"start\":\"09:00\",\"end\":\"09:45\",\"room\":\"Harbour Hall\",\"speaker\":\"Ruth Shah\",\"saved\":false,\"goto\":\"keynote\"},{\"id\":\"studio\",\"title\":\"Design by hand\",\"track\":\"Workshops\",\"start\":\"09:30\",\"end\":\"10:15\",\"room\":\"North Studio\",\"speaker\":\"Imani Cole\",\"capacity\":18,\"booked\":14,\"saved\":true},{\"id\":\"panel\",\"title\":\"Ask the makers\",\"track\":\"Main stage\",\"start\":\"10:30\",\"end\":\"11:15\",\"room\":\"Harbour Hall\",\"capacity\":60,\"booked\":60,\"saved\":false}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: List the Design Fair tracks Main stage and Workshops. Opening keynote is 09:00–09:45 in Harbour Hall with Ruth Shah, not saved. Design by hand is 09:30–10:15 in North Studio with Imani Cole, 14 of 18 seats booked, saved. Show all tracks.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Sessions",
+              "enum": [
+                "Sessions"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "tracks": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 16
+              }
+            },
+            "selectedTrack": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sessions": {
+              "minItems": 1,
+              "maxItems": 24,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "track": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  },
+                  "start": {
+                    "type": "string",
+                    "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "end": {
+                    "type": "string",
+                    "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "room": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "speaker": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "booked": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "capacity": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "saved": {
+                    "type": "boolean"
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "track",
+                  "start",
+                  "end",
+                  "room",
+                  "speaker",
+                  "booked",
+                  "capacity",
+                  "saved",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "tracks",
+                    "mine"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "tracks",
+            "selectedTrack",
+            "sessions",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Sessions\",\"density\":null,\"surface\":null,\"detail\":null,\"tracks\":[\"Main stage\",\"Workshops\"],\"selectedTrack\":null,\"sessions\":[{\"id\":\"welcome\",\"title\":\"Opening keynote\",\"track\":\"Main stage\",\"start\":\"09:00\",\"end\":\"09:45\",\"room\":\"Harbour Hall\",\"speaker\":\"Ruth Shah\",\"booked\":null,\"capacity\":null,\"saved\":false,\"goto\":null},{\"id\":\"studio\",\"title\":\"Design by hand\",\"track\":\"Workshops\",\"start\":\"09:30\",\"end\":\"10:15\",\"room\":\"North Studio\",\"speaker\":\"Imani Cole\",\"booked\":14,\"capacity\":18,\"saved\":true,\"goto\":null}],\"style\":\"tracks\"}",
+    "replies": [
+      "{\"c\":\"Sessions\",\"density\":null,\"surface\":null,\"detail\":null,\"tracks\":[\"Main stage\",\"Workshops\"],\"selectedTrack\":null,\"sessions\":[{\"id\":\"welcome\",\"title\":\"Opening keynote\",\"track\":\"Main stage\",\"start\":\"09:00\",\"end\":\"09:45\",\"room\":\"Harbour Hall\",\"speaker\":\"Ruth Shah\",\"booked\":null,\"capacity\":null,\"saved\":false,\"goto\":null},{\"id\":\"studio\",\"title\":\"Design by hand\",\"track\":\"Workshops\",\"start\":\"09:30\",\"end\":\"10:15\",\"room\":\"North Studio\",\"speaker\":\"Imani Cole\",\"booked\":14,\"capacity\":18,\"saved\":true,\"goto\":null}],\"style\":\"tracks\"}",
+      "{\"c\":\"Sessions\",\"density\":null,\"surface\":null,\"detail\":null,\"tracks\":[\"Main stage\",\"Workshops\"],\"selectedTrack\":null,\"sessions\":[{\"id\":\"opening_keynote\",\"title\":\"Opening keynote\",\"track\":\"Main stage\",\"start\":\"09:00\",\"end\":\"09:45\",\"room\":\"Harbour Hall\",\"speaker\":\"Ruth Shah\",\"booked\":null,\"capacity\":null,\"saved\":false,\"goto\":null},{\"id\":\"design_by_hand\",\"title\":\"Design by hand\",\"track\":\"Workshops\",\"start\":\"09:30\",\"end\":\"10:15\",\"room\":\"North Studio\",\"speaker\":\"Imani Cole\",\"booked\":14,\"capacity\":18,\"saved\":true,\"goto\":null}],\"style\":\"tracks\"}",
+      "{\"c\":\"Sessions\",\"density\":null,\"surface\":null,\"detail\":null,\"tracks\":[\"Main stage\",\"Workshops\"],\"selectedTrack\":null,\"sessions\":[{\"id\":\"welcome\",\"title\":\"Opening keynote\",\"track\":\"Main stage\",\"start\":\"09:00\",\"end\":\"09:45\",\"room\":\"Harbour Hall\",\"speaker\":\"Ruth Shah\",\"booked\":null,\"capacity\":null,\"saved\":false,\"goto\":null},{\"id\":\"studio\",\"title\":\"Design by hand\",\"track\":\"Workshops\",\"start\":\"09:30\",\"end\":\"10:15\",\"room\":\"North Studio\",\"speaker\":\"Imani Cole\",\"booked\":14,\"capacity\":18,\"saved\":true,\"goto\":null}],\"style\":\"tracks\"}"
+    ]
+  },
+  "Sessions%2Fwrite%2FList%20the%20Design%20Fair%20tracks%20Main%20stage%20and%20Workshops.%20Opening%20keynote%20is%2009%3A00%E2%80%9309%3A45%20in%20Harbour%20Hall%20with%20Ruth%20Shah%2C%20not%20saved.%20Design%20by%20hand%20is%2009%3A30%E2%80%9310%3A15%20in%20North%20Studio%20with%20Imani%20Cole%2C%2014%20of%2018%20seats%20booked%2C%20saved.%20Show%20all%20tracks./a0102674f134f6ac/752f5abab61f0fee": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSessions: Find sessions across an event's tracks and bookmark a personal agenda.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", tracks: [1..6 text≤16], selectedTrack?: text≤16, sessions: [1..24 { id: text≤24, title: text≤32, track: text≤16, start: time HH:MM, end: time HH:MM, room: text≤20, speaker?: text≤24, booked?: int 0..9007199254740991, capacity?: int 0..9007199254740991, saved: boolean, goto?: id snake_case }], style?: tracks|mine=\"tracks\" }\nRule: Give each session a distinct id and a track from tracks. Use HH:MM with end later than start. If supplied together, booked cannot exceed capacity. Do not write remaining capacity or conflicts.\nRule: Use style \"mine\" for the bookmarked agenda. Use detail \"brief\" only to hide speaker names; keep writing any supplied speaker names. Leave density, surface and detail null unless requested.\nexample: {\"c\":\"Sessions\",\"tracks\":[\"Main stage\",\"Workshops\"],\"sessions\":[{\"id\":\"welcome\",\"title\":\"Opening keynote\",\"track\":\"Main stage\",\"start\":\"09:00\",\"end\":\"09:45\",\"room\":\"Harbour Hall\",\"speaker\":\"Ruth Shah\",\"saved\":false,\"goto\":\"keynote\"},{\"id\":\"studio\",\"title\":\"Design by hand\",\"track\":\"Workshops\",\"start\":\"09:30\",\"end\":\"10:15\",\"room\":\"North Studio\",\"speaker\":\"Imani Cole\",\"capacity\":18,\"booked\":14,\"saved\":true},{\"id\":\"panel\",\"title\":\"Ask the makers\",\"track\":\"Main stage\",\"start\":\"10:30\",\"end\":\"11:15\",\"room\":\"Harbour Hall\",\"capacity\":60,\"booked\":60,\"saved\":false}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: List the Design Fair tracks Main stage and Workshops. Opening keynote is 09:00–09:45 in Harbour Hall with Ruth Shah, not saved. Design by hand is 09:30–10:15 in North Studio with Imani Cole, 14 of 18 seats booked, saved. Show all tracks.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Sessions",
+              "enum": [
+                "Sessions"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "tracks": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 16
+              }
+            },
+            "selectedTrack": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sessions": {
+              "minItems": 1,
+              "maxItems": 24,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "track": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  },
+                  "start": {
+                    "type": "string",
+                    "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "end": {
+                    "type": "string",
+                    "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "room": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "speaker": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "booked": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "capacity": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "saved": {
+                    "type": "boolean"
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "track",
+                  "start",
+                  "end",
+                  "room",
+                  "speaker",
+                  "booked",
+                  "capacity",
+                  "saved",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "tracks",
+                    "mine"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "tracks",
+            "selectedTrack",
+            "sessions",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Sessions\",\"density\":null,\"surface\":null,\"detail\":null,\"tracks\":[\"Main stage\",\"Workshops\"],\"selectedTrack\":null,\"sessions\":[{\"id\":\"keynote\",\"title\":\"Opening keynote\",\"track\":\"Main stage\",\"start\":\"09:00\",\"end\":\"09:45\",\"room\":\"Harbour Hall\",\"speaker\":\"Ruth Shah\",\"booked\":null,\"capacity\":null,\"saved\":false,\"goto\":null},{\"id\":\"workshop\",\"title\":\"Design by hand\",\"track\":\"Workshops\",\"start\":\"09:30\",\"end\":\"10:15\",\"room\":\"North Studio\",\"speaker\":\"Imani Cole\",\"booked\":14,\"capacity\":18,\"saved\":true,\"goto\":null}],\"style\":\"tracks\"}",
+    "replies": [
+      "{\"c\":\"Sessions\",\"density\":null,\"surface\":null,\"detail\":null,\"tracks\":[\"Main stage\",\"Workshops\"],\"selectedTrack\":null,\"sessions\":[{\"id\":\"keynote\",\"title\":\"Opening keynote\",\"track\":\"Main stage\",\"start\":\"09:00\",\"end\":\"09:45\",\"room\":\"Harbour Hall\",\"speaker\":\"Ruth Shah\",\"booked\":null,\"capacity\":null,\"saved\":false,\"goto\":null},{\"id\":\"workshop\",\"title\":\"Design by hand\",\"track\":\"Workshops\",\"start\":\"09:30\",\"end\":\"10:15\",\"room\":\"North Studio\",\"speaker\":\"Imani Cole\",\"booked\":14,\"capacity\":18,\"saved\":true,\"goto\":null}],\"style\":\"tracks\"}",
+      "{\"c\":\"Sessions\",\"density\":null,\"surface\":null,\"detail\":null,\"tracks\":[\"Main stage\",\"Workshops\"],\"selectedTrack\":null,\"sessions\":[{\"id\":\"welcome\",\"title\":\"Opening keynote\",\"track\":\"Main stage\",\"start\":\"09:00\",\"end\":\"09:45\",\"room\":\"Harbour Hall\",\"speaker\":\"Ruth Shah\",\"booked\":null,\"capacity\":null,\"saved\":false,\"goto\":null},{\"id\":\"studio\",\"title\":\"Design by hand\",\"track\":\"Workshops\",\"start\":\"09:30\",\"end\":\"10:15\",\"room\":\"North Studio\",\"speaker\":\"Imani Cole\",\"booked\":14,\"capacity\":18,\"saved\":true,\"goto\":null}],\"style\":\"tracks\"}",
+      "{\"c\":\"Sessions\",\"density\":null,\"surface\":null,\"detail\":null,\"tracks\":[\"Main stage\",\"Workshops\"],\"selectedTrack\":null,\"sessions\":[{\"id\":\"opening_keynote\",\"title\":\"Opening keynote\",\"track\":\"Main stage\",\"start\":\"09:00\",\"end\":\"09:45\",\"room\":\"Harbour Hall\",\"speaker\":\"Ruth Shah\",\"booked\":null,\"capacity\":null,\"saved\":false,\"goto\":null},{\"id\":\"design_by_hand\",\"title\":\"Design by hand\",\"track\":\"Workshops\",\"start\":\"09:30\",\"end\":\"10:15\",\"room\":\"North Studio\",\"speaker\":\"Imani Cole\",\"booked\":14,\"capacity\":18,\"saved\":true,\"goto\":null}],\"style\":\"tracks\"}"
+    ]
+  },
+  "Sessions%2Fwrite%2FShow%20the%20Talks%20track%20with%20Lighting%20on%20location%2C%2013%3A00%E2%80%9313%3A45%20in%20Elm%20Room%2C%20speaker%20Hugo%20Wells%2C%20not%20saved.%20Keep%20the%20speaker%20in%20the%20data%20but%20hide%20the%20speaker%20name%20in%20the%20list.%20Leave%20spacing%20and%20card%20surface%20unset./274566ae07f834da/b6c42373e9dc7a97": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSessions: Find sessions across an event's tracks and bookmark a personal agenda.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", tracks: [1..6 text≤16], selectedTrack?: text≤16, sessions: [1..24 { id: text≤24, title: text≤32, track: text≤16, start: time HH:MM, end: time HH:MM, room: text≤20, speaker?: text≤24, booked?: int 0..9007199254740991, capacity?: int 0..9007199254740991, saved: boolean, goto?: id snake_case }], style?: tracks|mine=\"tracks\" }\nRule: Give each session a distinct id and a track from tracks. Use HH:MM with end later than start. If supplied together, booked cannot exceed capacity. Do not write remaining capacity or conflicts.\nRule: Use style \"mine\" for the bookmarked agenda. Use detail \"brief\" only to hide speaker names; keep writing any supplied speaker names. Leave density, surface and detail null unless requested.\nexample: {\"c\":\"Sessions\",\"tracks\":[\"Main stage\",\"Workshops\"],\"sessions\":[{\"id\":\"welcome\",\"title\":\"Opening keynote\",\"track\":\"Main stage\",\"start\":\"09:00\",\"end\":\"09:45\",\"room\":\"Harbour Hall\",\"speaker\":\"Ruth Shah\",\"saved\":false,\"goto\":\"keynote\"},{\"id\":\"studio\",\"title\":\"Design by hand\",\"track\":\"Workshops\",\"start\":\"09:30\",\"end\":\"10:15\",\"room\":\"North Studio\",\"speaker\":\"Imani Cole\",\"capacity\":18,\"booked\":14,\"saved\":true},{\"id\":\"panel\",\"title\":\"Ask the makers\",\"track\":\"Main stage\",\"start\":\"10:30\",\"end\":\"11:15\",\"room\":\"Harbour Hall\",\"capacity\":60,\"booked\":60,\"saved\":false}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show the Talks track with Lighting on location, 13:00–13:45 in Elm Room, speaker Hugo Wells, not saved. Keep the speaker in the data but hide the speaker name in the list. Leave spacing and card surface unset.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Sessions",
+              "enum": [
+                "Sessions"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "tracks": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 16
+              }
+            },
+            "selectedTrack": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sessions": {
+              "minItems": 1,
+              "maxItems": 24,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "track": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  },
+                  "start": {
+                    "type": "string",
+                    "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "end": {
+                    "type": "string",
+                    "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "room": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "speaker": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "booked": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "capacity": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "saved": {
+                    "type": "boolean"
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "track",
+                  "start",
+                  "end",
+                  "room",
+                  "speaker",
+                  "booked",
+                  "capacity",
+                  "saved",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "tracks",
+                    "mine"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "tracks",
+            "selectedTrack",
+            "sessions",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Sessions\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"tracks\":[\"Talks\"],\"selectedTrack\":null,\"sessions\":[{\"id\":\"lighting\",\"title\":\"Lighting on location\",\"track\":\"Talks\",\"start\":\"13:00\",\"end\":\"13:45\",\"room\":\"Elm Room\",\"speaker\":\"Hugo Wells\",\"booked\":null,\"capacity\":null,\"saved\":false,\"goto\":null}],\"style\":null}",
+    "replies": [
+      "{\"c\":\"Sessions\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"tracks\":[\"Talks\"],\"selectedTrack\":null,\"sessions\":[{\"id\":\"lighting\",\"title\":\"Lighting on location\",\"track\":\"Talks\",\"start\":\"13:00\",\"end\":\"13:45\",\"room\":\"Elm Room\",\"speaker\":\"Hugo Wells\",\"booked\":null,\"capacity\":null,\"saved\":false,\"goto\":null}],\"style\":null}",
+      "{\"c\":\"Sessions\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"tracks\":[\"Talks\"],\"selectedTrack\":\"Talks\",\"sessions\":[{\"id\":\"lighting\",\"title\":\"Lighting on location\",\"track\":\"Talks\",\"start\":\"13:00\",\"end\":\"13:45\",\"room\":\"Elm Room\",\"speaker\":\"Hugo Wells\",\"booked\":null,\"capacity\":null,\"saved\":false,\"goto\":null}],\"style\":\"tracks\"}",
+      "{\"c\":\"Sessions\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"tracks\":[\"Talks\"],\"selectedTrack\":\"Talks\",\"sessions\":[{\"id\":\"lighting\",\"title\":\"Lighting on location\",\"track\":\"Talks\",\"start\":\"13:00\",\"end\":\"13:45\",\"room\":\"Elm Room\",\"speaker\":\"Hugo Wells\",\"booked\":null,\"capacity\":null,\"saved\":false,\"goto\":null}],\"style\":null}"
+    ]
+  },
+  "Sessions%2Fwrite%2FShow%20the%20Talks%20track%20with%20Lighting%20on%20location%2C%2013%3A00%E2%80%9313%3A45%20in%20Elm%20Room%2C%20speaker%20Hugo%20Wells%2C%20not%20saved.%20Keep%20the%20speaker%20in%20the%20data%20but%20hide%20the%20speaker%20name%20in%20the%20list.%20Leave%20spacing%20and%20card%20surface%20unset./f5d2620b6458845e/b6c42373e9dc7a97": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSessions: Find sessions across an event's tracks and bookmark a personal agenda.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", tracks: [1..6 text≤16], selectedTrack?: text≤16, sessions: [1..24 { id: text≤24, title: text≤32, track: text≤16, start: time HH:MM, end: time HH:MM, room: text≤20, speaker?: text≤24, booked?: int 0..9007199254740991, capacity?: int 0..9007199254740991, saved: boolean, goto?: id snake_case }], style?: tracks|mine=\"tracks\" }\nRule: Give each session a distinct id and a track from tracks. Use HH:MM with end later than start. If supplied together, booked cannot exceed capacity. Do not write remaining capacity or conflicts.\nRule: Use style \"mine\" for the bookmarked agenda. Use detail \"brief\" only to hide speaker names; keep writing any supplied speaker names. Leave density, surface and detail null unless requested.\nexample: {\"c\":\"Sessions\",\"tracks\":[\"Main stage\",\"Workshops\"],\"sessions\":[{\"id\":\"welcome\",\"title\":\"Opening keynote\",\"track\":\"Main stage\",\"start\":\"09:00\",\"end\":\"09:45\",\"room\":\"Harbour Hall\",\"speaker\":\"Ruth Shah\",\"saved\":false,\"goto\":\"keynote\"},{\"id\":\"studio\",\"title\":\"Design by hand\",\"track\":\"Workshops\",\"start\":\"09:30\",\"end\":\"10:15\",\"room\":\"North Studio\",\"speaker\":\"Imani Cole\",\"capacity\":18,\"booked\":14,\"saved\":true},{\"id\":\"panel\",\"title\":\"Ask the makers\",\"track\":\"Main stage\",\"start\":\"10:30\",\"end\":\"11:15\",\"room\":\"Harbour Hall\",\"capacity\":60,\"booked\":60,\"saved\":false}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show the Talks track with Lighting on location, 13:00–13:45 in Elm Room, speaker Hugo Wells, not saved. Keep the speaker in the data but hide the speaker name in the list. Leave spacing and card surface unset.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Sessions",
+              "enum": [
+                "Sessions"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "tracks": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 16
+              }
+            },
+            "selectedTrack": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sessions": {
+              "minItems": 1,
+              "maxItems": 24,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "track": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  },
+                  "start": {
+                    "type": "string",
+                    "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "end": {
+                    "type": "string",
+                    "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "room": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "speaker": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "booked": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "capacity": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "saved": {
+                    "type": "boolean"
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "track",
+                  "start",
+                  "end",
+                  "room",
+                  "speaker",
+                  "booked",
+                  "capacity",
+                  "saved",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "tracks",
+                    "mine"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "tracks",
+            "selectedTrack",
+            "sessions",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Sessions\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"tracks\":[\"Talks\"],\"selectedTrack\":\"Talks\",\"sessions\":[{\"id\":\"lightning\",\"title\":\"Lighting on location\",\"track\":\"Talks\",\"start\":\"13:00\",\"end\":\"13:45\",\"room\":\"Elm Room\",\"speaker\":\"Hugo Wells\",\"booked\":null,\"capacity\":null,\"saved\":false,\"goto\":null}],\"style\":\"tracks\"}",
+    "replies": [
+      "{\"c\":\"Sessions\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"tracks\":[\"Talks\"],\"selectedTrack\":\"Talks\",\"sessions\":[{\"id\":\"lightning\",\"title\":\"Lighting on location\",\"track\":\"Talks\",\"start\":\"13:00\",\"end\":\"13:45\",\"room\":\"Elm Room\",\"speaker\":\"Hugo Wells\",\"booked\":null,\"capacity\":null,\"saved\":false,\"goto\":null}],\"style\":\"tracks\"}",
+      "{\"c\":\"Sessions\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"tracks\":[\"Main stage\",\"Workshops\",\"Talks\"],\"selectedTrack\":null,\"sessions\":[{\"id\":\"lightning\",\"title\":\"Lighting on location\",\"track\":\"Talks\",\"start\":\"13:00\",\"end\":\"13:45\",\"room\":\"Elm Room\",\"speaker\":\"Hugo Wells\",\"booked\":null,\"capacity\":null,\"saved\":false,\"goto\":null}],\"style\":null}",
+      "{\"c\":\"Sessions\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"tracks\":[\"Talks\"],\"selectedTrack\":\"Talks\",\"sessions\":[{\"id\":\"lighting\",\"title\":\"Lighting on location\",\"track\":\"Talks\",\"start\":\"13:00\",\"end\":\"13:45\",\"room\":\"Elm Room\",\"speaker\":\"Hugo Wells\",\"booked\":null,\"capacity\":null,\"saved\":false,\"goto\":null}],\"style\":null}"
+    ]
+  }
+}

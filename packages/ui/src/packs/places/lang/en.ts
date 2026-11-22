@@ -1,3 +1,4 @@
+import { words as StationRatesWords } from "./en/StationRates";
 import { words as packWords } from "./en/pack";
 import { words as PlaceCardWords } from "./en/PlaceCard";
 import { words as HoursWords } from "./en/Hours";
@@ -13,6 +14,7 @@ export const en = {
   ...AddressWords,
   ...DeparturesWords,
   ...DeliveryTrackerWords,
+  ...StationRatesWords,
 };
 
 export type PlacesWords = typeof en;
