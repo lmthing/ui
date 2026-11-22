@@ -161,6 +161,16 @@ describe("Playlist states and parts", () => {
     expect(html).not.toMatch(/role="(button|link)"/);
     expect(readComponent(def, tracks, "c1", state)).toEqual([`c1 Playlist (${state})`]);
   });
+
+  it("keeps the artwork slot in loading without exposing the lead address", () => {
+    const html = renderInstance("Playlist", episodes, "loading", theme);
+    expect([...addressedElements(html).keys()]).toEqual([
+      `${prefix}root`,
+      `${prefix}r1/played`,
+      `${prefix}r2/played`,
+    ]);
+    expect(html).not.toContain('role="img"');
+  });
 });
 
 describe("Playlist read and act", () => {

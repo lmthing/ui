@@ -1,10 +1,17 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { collectionExtras, collectionReading, collectionSummary } from "../copy";
+import {
+  collectionExtraReading,
+  collectionExtras,
+  collectionFigures,
+  collectionPlayLabel,
+  collectionReading,
+} from "../copy";
 import { mediaWordsFor } from "../lang";
 
 // Core first: Hero/media cover cannot combine collection credits, computed totals, play-all and follow.
+// prettier-ignore
 export const meta = {
   id: "Collection",
   status: "ready",
@@ -22,39 +29,20 @@ export const meta = {
   realPath: "The collection details are stored with the app's media.",
   variants: { density: ["comfortable", "compact"], aspect: ["square", "wide"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["about"] } },
-  parts: [
-    "root",
-    "photo",
-    "title",
-    "by",
-    "about",
-    "summary",
-    "rating",
-    "rating_count",
-    "tags",
-    "shelf_status",
-    "play",
-    "play_icon",
-    "play_label",
-    "follow",
-    "follow_icon",
-    "follow_label",
-  ],
+  parts: ["root", "photo", "title", "by", "about", "summary", "rating", "rating_count", "tags", "shelf_status",
+    "play", "play_icon", "play_label", "follow", "follow_icon", "follow_label"],
   states: ["filled", "loading"],
   actions: { parts: { play: ["press"], follow: ["toggle"] } },
   deviceData: ["playlist"],
-  previewDeviceData: () => ({
-    playlist: [{ style: "episodes", items: [1080, 1260, 840].map((seconds) => ({ seconds })) }],
+  previewDeviceData: ({ input }) => ({
+    playlist: [{ style: input.style === "album" || input.style === "book" ? "tracks" : "episodes",
+      items: (input.style === "album" ? [185, 224, 198] : [1080, 1260, 840]).map((seconds) => ({ seconds })) }],
   }),
-  read: (input, state, lang, data): string[] =>
-    state === "filled"
-      ? [
-          ...Object.values(collectionExtras(input as CollectionProps, lang)).filter(
-            (text): text is string => !!text,
-          ),
-          ...collectionReading(data?.playlist?.[0], (input as CollectionProps).followed, lang),
-        ]
-      : [],
+  read: (value, state, lang, data): string[] => {
+    const input = value as CollectionProps;
+    return state === "filled" ? [...collectionExtraReading(input, lang),
+      ...collectionReading(data?.playlist?.[0], input.followed, lang, input.style)] : [];
+  },
 } as const satisfies c.Meta;
 
 export const props = z
@@ -84,39 +72,12 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
+// prettier-ignore
 export const examples = [
-  {
-    title: "The Fern Shelf",
-    by: "Noor Martin",
-    photo: "lib:plants",
-    about: "A short series on growing ferns indoors.",
-    followed: false,
-  },
-  {
-    title: "The Slow Walk",
-    by: "Ella Price",
-    photo: "lib:dogs",
-    about: "Slow walks for curious dogs.",
-    followed: true,
-  },
-  {
-    style: "album",
-    title: "Quiet Mornings",
-    by: "Noor Martin",
-    photo: "lib:fern",
-    followed: false,
-    rating: 4.5,
-    ratingCount: 18,
-  },
-  {
-    style: "book",
-    title: "Window Pots",
-    by: "Maya Chen",
-    photo: "lib:basil",
-    followed: true,
-    tags: ["Gardening", "Field guide"],
-    shelfStatus: "Want to read",
-  },
+  { title: "The Fern Shelf", by: "Noor Martin", photo: "lib:plants", about: "A short series on growing ferns indoors.", followed: false },
+  { title: "The Slow Walk", by: "Ella Price", photo: "lib:dogs", about: "Slow walks for curious dogs.", followed: true },
+  { style: "album", title: "Quiet Mornings", by: "Noor Martin", photo: "lib:fern", followed: false, rating: 4.5, ratingCount: 18 },
+  { style: "book", title: "Window Pots", by: "Maya Chen", photo: "lib:basil", followed: true, tags: ["Gardening", "Field guide"], shelfStatus: "Want to read" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Collection");
@@ -134,7 +95,7 @@ export const probes = [
   ),
   {
     ...write(
-      "Feature The Slow Walk by Ella Price with lib:dogs artwork, already followed. Save the description Field notes on exploring at a dog's pace, but don't show the description. Keep the credits, play-all and follow controls visible.",
+      "Feature The Slow Walk by Ella Price with lib:dogs artwork, already followed. Save the description Field notes on exploring at a dog's pace, but change the detail setting to hide it. Keep the credits, play-all and follow controls visible and leave other settings unspecified.",
     ),
     variant: { axis: "detail", value: "brief" },
   },
@@ -144,7 +105,7 @@ export const probes = [
     action: "press",
   }),
   { ...write("Use the explicit show layout for Fern Shelf by Noor Martin, cover lib:fern, not followed."), expectProps: { style: "show" } },
-  { ...write("Use the album overview for Quiet Mornings by Noor Martin, cover lib:fern, not followed."), expectProps: { style: "album" } },
+  { ...write("Use the album layout, with the title and credits centered below the cover, for Quiet Mornings by Noor Martin, cover lib:fern, not followed."), expectProps: { style: "album" } },
   { ...write("Use the book overview for Window Pots by Maya Chen, cover lib:basil, not followed."), expectProps: { style: "book" } },
   { ...write("Use the show overview for Fern Shelf by Noor Martin, cover lib:fern, not followed. Show a rating of 4.5 out of 5."), expectProps: { rating: 4.5 } },
   { ...write("Use the show overview for Fern Shelf by Noor Martin, cover lib:fern, not followed. Show its 18 ratings; the average isn't known."), expectProps: { ratingCount: 18 } },
@@ -155,17 +116,43 @@ export const probes = [
 type CollectionProps = c.Props<typeof props, typeof meta>;
 
 // prettier-ignore
-function CollectionActions({ followed, density }: { followed: boolean; density: c.ThemeDensity }) {
+function CollectionActions({ followed, density, style }: Pick<CollectionProps, "followed" | "style"> & { density: c.ThemeDensity }) {
   const { screen, component } = kit.usePartContext();
   const following = kit.useControlValue(`${screen}/${component}/follow`, followed);
   const loading = kit.useComponentState() === "loading";
-  const { words: { collection: words } } = kit.useWords(mediaWordsFor);
+  const { lang, words: { collection: words } } = kit.useWords(mediaWordsFor);
   const followIcon = following ? "check" : "plus";
   const followLabel = following ? words.following : words.follow;
   return <kit.KitActionFooter density={density}><kit.KitGrid density={density}>
-    <kit.KitAction part={loading ? null : "play"} action="press" label={words.playAll} icon="play" full />
+    <kit.KitAction part={loading ? null : "play"} action="press" label={collectionPlayLabel(style, lang)} icon="play" full />
     <kit.KitAction part={loading ? null : "follow"} action="toggle" label={followLabel} icon={followIcon} kind="secondary" full />
   </kit.KitGrid></kit.KitActionFooter>;
+}
+
+// prettier-ignore
+function CollectionFigures({ input, source, density, lang, loading }: {
+  input: CollectionProps; source: unknown; density: c.ThemeDensity; lang: string; loading: boolean;
+}) {
+  const totals = collectionFigures(source, lang, input.style);
+  const { rating, ratingCount, tags, shelfStatus } = collectionExtras(input, lang);
+  const align = input.style === "album" ? "center" : "start";
+  const figure = ({ value, unit }: { value: string; unit: string }, part: string | null = null) =>
+    <kit.KitFigure {...{ density, align }} value={{ text: value, compact: true, part, lines: 1 }}
+      unit={{ text: unit }} />;
+  return <>
+    {totals && <kit.KitRow part={loading ? null : "summary"} inline fitContent label="" density={density}>
+      <kit.KitGrid columns={totals.duration.length === 1 ? 2 : 3} density={density}>
+        {figure(totals.count)}
+        {totals.duration.map((duration, index) => <kit.KitContent key={index}>{figure(duration)}</kit.KitContent>)}
+      </kit.KitGrid>
+    </kit.KitRow>}
+    {(rating || ratingCount) && <kit.KitContent density={density}>
+      {rating && figure(rating, "rating")}
+      {ratingCount && figure(ratingCount, "rating_count")}
+    </kit.KitContent>}
+    <kit.KitLayoutText {...{ density, align }} line={{ text: tags, part: "tags", role: "caption", tone: "muted" }} />
+    <kit.KitLayoutText {...{ density, align }} line={{ text: shelfStatus, part: "shelf_status", role: "caption" }} />
+  </>;
 }
 
 // prettier-ignore
@@ -178,22 +165,15 @@ export function Collection(input: CollectionProps) {
   const { playlist } = kit.useDeviceData();
   const { lang } = kit.useWords(mediaWordsFor);
   const sibling = controller?.snapshotScreen().components.find(({ c }) => c === "Playlist");
-  const summary = collectionSummary(sibling ?? playlist?.[0], lang);
-  const extras = collectionExtras(input, lang);
-  const header = <kit.KitHeader density={density} align={style === "album" ? "center" : "start"}
+  const align = style === "album" ? "center" : "start";
+  const header = <kit.KitHeader {...{ density, align }}
     title={{ text: title, part: "title" }} meta={{ text: by, part: "by", role: "caption" }} />;
   const cover = <kit.KitPhoto part={loading ? null : "photo"} label={title} {...{ photo, aspect, loading }} />;
   const content = <>
     {style === "book" ? <>{header}{cover}</> : <>{cover}{header}</>}
-    <kit.KitLayoutText density={density} line={{ text: about, part: "about" }} />
-    {summary && <kit.KitFigure density={density} value={{ text: summary, part: "summary", compact: true }} />}
-    {(extras.rating || extras.ratingCount) && <kit.KitFigure density={density}
-      value={{ text: extras.rating ?? extras.ratingCount, part: extras.rating ? "rating" : "rating_count", compact: true }}
-      {...(extras.rating && extras.ratingCount ? { caption: <kit.KitLayoutText density={density}
-        line={{ text: extras.ratingCount, part: "rating_count", role: "caption", tone: "muted" }} /> } : {})} />}
-    <kit.KitLayoutText density={density} line={{ text: extras.tags, part: "tags", role: "caption", tone: "muted" }} />
-    <kit.KitLayoutText density={density} line={{ text: extras.shelfStatus, part: "shelf_status", role: "caption" }} />
-    <CollectionActions {...{ followed, density }} />
+    <kit.KitLayoutText {...{ density, align }} line={{ text: about, part: "about" }} />
+    <CollectionFigures {...{ input, density, lang, loading }} source={sibling ?? playlist?.[0]} />
+    <CollectionActions {...{ followed, density, style }} />
   </>;
   return <kit.KitCard part="root" padded density={density}>
     <kit.KitState density={density} loading={content}>{content}</kit.KitState>

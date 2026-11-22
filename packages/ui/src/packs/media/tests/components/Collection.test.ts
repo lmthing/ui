@@ -148,14 +148,15 @@ describe("Collection states and parts", () => {
   it("shows only authored extras and retains controls when the book layout puts the title first", () => {
     const book = { ...series, style: "book", rating: 0, ratingCount: 0, tags: ["Field guide", "Gardening"], shelfStatus: "Want to read" };
     const parts = addressedElements(renderInstance("Collection", book, "filled", theme));
-    for (const [part, value] of [["rating", "0 out of 5"], ["rating_count", "0 ratings"],
-      ["tags", "Field guide · Gardening"], ["shelf_status", "Want to read"]]) {
+    for (const [part, value, reading] of [["rating", "0", "0 out of 5"], ["rating_count", "0", "0 ratings"],
+      ["tags", "Field guide · Gardening", "Field guide · Gardening"], ["shelf_status", "Want to read", "Want to read"]]) {
       expect(parts.get(prefix + part)?.text).toEqual([value]);
-      expect(readComponent(def, book, "c1").join("\n")).toContain(value);
+      expect(readComponent(def, book, "c1").join("\n")).toContain(reading);
     }
     const order = [...parts.keys()];
     expect(order.indexOf(prefix + "title")).toBeLessThan(order.indexOf(prefix + "photo"));
     expect(parts.get(prefix + "play")?.attributes).toContain('role="button"');
+    expect(parts.get(prefix + "play")?.attributes).toContain('aria-label="Play audiobook"');
     expect(parts.get(prefix + "follow")?.attributes).toContain('role="button"');
   });
 
@@ -171,7 +172,8 @@ describe("Collection states and parts", () => {
         createElement(PhoneScreen, { screen: withPlaylist, theme }),
       ),
     );
-    expect(addressedElements(html).get(prefix + "summary")?.text).toEqual(["2 tracks · 10 min"]);
+    const summary = JSON.stringify(elementAt(html, prefix + "summary").children);
+    for (const text of ["2", "tracks", "10", "min"]) expect(summary).toContain(`"text":["${text}"]`);
   });
 });
 

@@ -7,12 +7,13 @@ import {
   packReady,
   placeholderTitle,
   readComponent,
+  variants,
   type CastLike,
   type Props,
   type ThemeChoice,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { addressedElements, elementAt, renderInstance } from "../../../../../test/render";
+import { addressedElements, elementAt, renderInstance, styleAt } from "../../../../../test/render";
 
 const def = components.Library;
 const { props, meta, examples, fallback, probes } = def;
@@ -185,6 +186,22 @@ it.each([{ arrange: "grid" }, { arrange: "rows" }, { arrange: "strip" }, { style
   expect(reading).toContain("Fern Shelf · Due Friday");
   expect(reading).toContain("[l1/r2 press→window_garden]");
   expect(addresses.get(`${prefix}r2/root`)?.attributes).toContain('role="link"');
+});
+
+it("keeps the grid default and respects explicit loan arrangement and row crop", () => {
+  const draw = (layout: Record<string, string>) =>
+    renderInstance("Library", { ...grid, ...layout }, "filled", theme);
+  const photo = `${prefix}r1/photo`;
+  expect(draw({})).toEqual(draw({ arrange: "grid" }));
+  expect(draw({ style: "loans" })).toEqual(draw({ style: "loans", arrange: "grid" }));
+  expect(draw({ style: "loans", arrange: "rows" })).not.toEqual(draw({ style: "loans" }));
+  expect(draw({ style: "loans", arrange: "strip" })).not.toEqual(draw({ style: "loans" }));
+  expect(styleAt(draw({ arrange: "rows", aspect: "tall" }), photo)).toContain(
+    `aspect-ratio:${variants.aspect.tall}`,
+  );
+  expect(styleAt(draw({ arrange: "rows", aspect: "square" }), photo)).toContain(
+    `aspect-ratio:${variants.aspect.square}`,
+  );
 });
 
 describe("Library read and act", () => {

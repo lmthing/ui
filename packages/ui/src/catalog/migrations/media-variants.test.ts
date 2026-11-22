@@ -24,7 +24,7 @@ it.each([
   expect(migrateLine({ ...line, style, arrange: "strip" })).toMatchObject({ arrange: "strip" });
 });
 
-it("keeps an omitted layout on grid and does not rewrite the loans style", () => {
+it("does not rewrite an omitted layout or the loans style", () => {
   const { props } = components.Library;
   expect(migrateLine(line)).toBe(line);
   expect(props.parse({ items: line.items }).arrange).toBe("grid");

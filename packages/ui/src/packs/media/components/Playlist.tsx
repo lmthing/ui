@@ -110,7 +110,7 @@ export const probes = [
   ),
   {
     ...write(
-      "List the separate podcast episodes Sniff break (1080 seconds, fully played, opens sniff_break, note A quieter route) and After the rain (820 seconds, unplayed, opens after_rain, note Wet weather tips). Show their length, playback progress and download controls, but hide the episode notes.",
+      "List the separate podcast episodes Sniff break (1080 seconds, fully played, opens sniff_break, note A quieter route) and After the rain (820 seconds, unplayed, opens after_rain, note Wet weather tips). Change only the detail setting to hide episode notes. Keep length, playback progress and downloads visible and leave surface and spacing unspecified.",
     ),
     variant: { axis: "detail", value: "brief", itemTitles: ["Sniff break", "After the rain"] },
   },
@@ -138,7 +138,7 @@ type RowProps = {
 // prettier-ignore
 function PlaylistLead({ item, index, current, episodes, density, loading }: RowProps) {
   if (current) return <kit.KitIcon name="activity" part="lead" tone="accent" scale="lg" loading={loading} />;
-  if (episodes && item.photo) return <kit.KitPhoto photo={item.photo} label={item.title} part="lead" loading={loading} />;
+  if (episodes && item.photo) return <kit.KitPhoto photo={item.photo} label={item.title} part={loading ? null : "lead"} loading={loading} />;
   if (loading) return <kit.KitLayoutText line={{ text: c.numberLine(index + 1), role: "meta", tabular: true }} density={density} />;
   return <kit.KitRank place={index + 1} part="lead" density={density} />;
 }
@@ -152,14 +152,15 @@ function PlaylistRow(row: RowProps) {
   const download = <kit.KitAction part={loading ? null : "trail"} action="press" kind="quiet" icon="download" a11y={words.download(item.title)} />;
   return <kit.KitRow part={null} label={loading ? "" : label} role="group" selected={!loading && current}
     {...{ density, trailing: download }}>
-    <kit.KitRow inline part={loading ? null : "root"} goto={loading ? undefined : item.goto} label={item.title}
-      leading={<PlaylistLead {...row} />} leadingAlign={episodes && item.photo && !current ? "row" : "line"}
-      density={density} {...(episodes ? { leadingWidth: "avatar" as const } : {})}>
-      <kit.KitContent group="content" density={density}>
+    <kit.KitRow inline part={loading ? null : "root"} goto={loading ? undefined : item.goto} label={item.title} density={density}>
+      <kit.KitContent lineRole="body" leadingAlign={episodes && item.photo && !current ? "row" : "line"} density={density}
+        lead={<kit.KitRow inline fitContent part={null} label="" leadingWidth="avatar" leading={<PlaylistLead {...row} />}>{null}</kit.KitRow>}>
         <kit.KitMetaLine density={density} title={{ text: item.title, part: "title" }}
           meta={{ text: item.sub, part: "sub", role: "caption" }} />
-        <kit.KitStepsTrack style="bar" part="played" count={1} at={loading ? 0 : item.played} />
-        <kit.KitLayoutText density={density} line={{ text: timing, part: "seconds", role: "caption", tone: "muted", tabular: true }} />
+        <kit.KitContent group={item.sub ? "response" : "content"} density={density}>
+          <kit.KitStepsTrack style="bar" part="played" count={1} at={loading ? 0 : item.played} />
+          <kit.KitLayoutText density={density} line={{ text: timing, part: "seconds", role: "caption", tone: "muted", tabular: true }} />
+        </kit.KitContent>
       </kit.KitContent>
     </kit.KitRow>
   </kit.KitRow>;
@@ -178,14 +179,14 @@ export function Playlist(input: PlaylistProps) {
   </kit.PartScope>);
   const next = playlistNext(input);
   const content = <>
-    <kit.KitRowGroup density={density}>{rows.slice(0, next)}</kit.KitRowGroup>
+    <kit.KitRowGroup density={density} separators={playing === undefined} spacing={playing === undefined ? "rows" : "groups"}>{rows.slice(0, next)}</kit.KitRowGroup>
     {next < rows.length && <>
-      <kit.KitContent inset="md" density={density}><kit.KitLayoutText density={density}
+      <kit.KitContent inset="md" group={next ? "response" : "content"} density={density}><kit.KitLayoutText density={density}
         line={{ text: words.playlist.upNext, part: "queue_label", role: "meta", strong: true }} /></kit.KitContent>
       <kit.KitRowGroup density={density}>{rows.slice(next)}</kit.KitRowGroup>
     </>}
   </>;
-  return <kit.KitCard part="root" {...{ density, surface }}>
+  return <kit.KitCard part="root" padded {...{ density, surface }}>
     <kit.KitState density={density} loading={content} part="empty" icon="music">{content}</kit.KitState>
   </kit.KitCard>;
 }
