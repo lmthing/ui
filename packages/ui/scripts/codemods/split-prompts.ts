@@ -5,6 +5,7 @@ import {
   parsePrompt,
   promptLiteralStyle,
   promptModule,
+  quoteLiteral,
   renderPrompt,
   type PromptField,
   type PromptLiteralStyle,
@@ -13,10 +14,11 @@ import {
 import { applyEdits, objectNamed, parseSource, propertyName, readOptional, removeProperty } from "./source";
 
 const fields: ReadonlySet<string> = new Set<PromptField>(["purpose", "pick", "writeHints"]);
+const quoteOf = (node: ts.Node) => (node.getText()[0] === "'" ? "s" : "d");
 
 function stringValue(node: ts.Node) {
-  if (ts.isStringLiteralLike(node)) return node.text;
-  throw new Error(`${node.getSourceFile().fileName}: expected literal prompt text at ${node.getText()}`);
+  if (ts.isStringLiteral(node) && quoteLiteral(node.text, quoteOf(node)) === node.getText()) return node.text;
+  throw new Error(`${node.getSourceFile().fileName}: unsupported prompt literal syntax for replay`);
 }
 
 function inlineText(nodes: readonly ts.PropertyAssignment[]): Partial<PromptText> {
@@ -36,22 +38,20 @@ function inlineText(nodes: readonly ts.PropertyAssignment[]): Partial<PromptText
 
 function inlineStyle(nodes: readonly ts.PropertyAssignment[]) {
   const style: Partial<PromptLiteralStyle> = {};
-  const quote = (node: ts.Node) => (node.getText()[0] === "'" ? "s" : "d");
   for (const node of nodes) {
     const field = propertyName(node) as PromptField;
     const value = node.initializer;
     if (field !== "writeHints") {
-      style[field] = quote(value);
+      style[field] = quoteOf(value);
     } else if (ts.isArrayLiteralExpression(value)) {
       const layout = value.getText().includes("\n") ? "m" : "i";
-      style.writeHints = `${layout}${value.elements.hasTrailingComma ? "c" : "n"}${value.elements.map(quote).join("")}`;
+      style.writeHints = `${layout}${value.elements.hasTrailingComma ? "c" : "n"}${value.elements.map(quoteOf).join("")}`;
     }
   }
   return style;
 }
 
-function promptImport(ast: ts.SourceFile, root: string, file: string) {
-  const name = basename(file, ".tsx");
+export function promptImport(ast: ts.SourceFile, root: string, file: string, name = basename(file, ".tsx")) {
   const module = relative(dirname(file), join(root, "src/entry", promptModule(name)));
   const present = ast.statements.some(
     (node) =>

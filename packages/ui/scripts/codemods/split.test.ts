@@ -4,7 +4,7 @@ import { dirname, join } from "node:path";
 import { runInNewContext } from "node:vm";
 import ts from "typescript";
 import { afterEach, expect, it } from "vitest";
-import { parsePrompt } from "../build/entries";
+import { parsePrompt, renderPrompt } from "../build/entries";
 import { splitSources } from "./split";
 
 const roots: string[] = [];
@@ -93,6 +93,50 @@ it("moves edits from a pre-split branch after it merges the split", async () => 
   expect(await get(slotWords)).toContain('slotLabel: "Changed label"');
   expect(await get(slotWords)).toContain('slotsEmpty: "Empty"');
   expect(await get(packWords)).toContain('generic: "Shared"');
+  expect(await splitSources(root)).toBe(0);
+});
+
+it.each(["`Show times.`", String.raw`"Show\u00a0times."`])(
+  "rejects unsupported replay literal syntax before writing %s",
+  async (syntax) => {
+    const { root, get, put } = await fixture();
+    const before = (await get(component)).replace('"Show times."', syntax);
+    await put(component, before);
+    await expect(splitSources(root)).rejects.toThrow("unsupported prompt literal syntax for replay");
+    expect(await get(component)).toBe(before);
+    await expect(get(markdown)).rejects.toMatchObject({ code: "ENOENT" });
+  },
+);
+
+it("moves merged Devices edits from both home modules without reordering the metadata", async () => {
+  const { root, get, put } = await fixture();
+  await splitSources(root);
+  const path = "src/packs/home/";
+  const component = `${path}components/Devices.tsx`;
+  const md = component.replace(".tsx", ".prompt.md");
+  const contract = `${path}device-contract.ts`;
+  const fixtures = `${path}device-fixtures.ts`;
+  const definitions =
+    'export const meta = { id: "Devices", writeHints: home.deviceWriteHints, ...home.deviceControls };';
+  await put(component, definitions);
+  await put(md, renderPrompt(md, { purpose: "Old purpose", pick: "Old choice", writeHints: ["Old hint"] }));
+  await put(
+    contract,
+    'export const deviceControls = { group: "input", purpose: "New purpose", pick: "New choice", region: "body" };',
+  );
+  await put(fixtures, 'export const deviceWriteHints = ["New hint"] as const;');
+  expect(await splitSources(root)).toBe(3);
+  expect(parsePrompt(md, await get(md))).toEqual({
+    purpose: "New purpose",
+    pick: "New choice",
+    writeHints: ["New hint"],
+  });
+  const words = await get(contract);
+  expect(words.match(/group:|purpose:|pick:|region:/g)).toEqual(["group:", "purpose:", "pick:", "region:"]);
+  expect(words).toContain("purpose: prompt.purpose");
+  expect(words).toContain("pick: prompt.pick");
+  expect(await get(fixtures)).toContain("deviceWriteHints = prompt.writeHints");
+  expect(await get(component)).toBe(definitions);
   expect(await splitSources(root)).toBe(0);
 });
 

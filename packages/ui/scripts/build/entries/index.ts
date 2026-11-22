@@ -4,6 +4,7 @@ export { parsePrompt, promptModule, renderPrompt, type PromptText } from "./prom
 export {
   defaultLiteralStyle,
   promptLiteralStyle,
+  quoteLiteral,
   replayLiteral,
   type PromptField,
   type PromptLiteralStyle,

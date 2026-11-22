@@ -11,13 +11,20 @@ export async function readOptional(file: string) {
 export const parseSource = (file: string, source: string) =>
   ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true);
 
-export function objectNamed(ast: ts.SourceFile, name: string) {
-  const declaration = ast.statements
+export function initializerNamed(ast: ts.SourceFile, name: string) {
+  return ast.statements
     .filter(ts.isVariableStatement)
     .flatMap(({ declarationList }) => [...declarationList.declarations])
-    .find((node) => ts.isIdentifier(node.name) && node.name.text === name);
-  let value = declaration?.initializer;
+    .find((node) => ts.isIdentifier(node.name) && node.name.text === name)?.initializer;
+}
+
+export function unwrapExpression(value?: ts.Expression) {
   while (value && (ts.isAsExpression(value) || ts.isSatisfiesExpression(value))) value = value.expression;
+  return value;
+}
+
+export function objectNamed(ast: ts.SourceFile, name: string) {
+  const value = unwrapExpression(initializerNamed(ast, name));
   return value && ts.isObjectLiteralExpression(value) ? value : undefined;
 }
 

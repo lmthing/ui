@@ -44,7 +44,7 @@ export function renderLiteralStyle(text: PromptText, style: PromptLiteralStyle) 
   return `<!-- replay-literals: ${style.purpose} ${style.pick}${style.writeHints === undefined ? "" : ` ${style.writeHints}`} -->\n\n`;
 }
 
-function quoteLiteral(value: string, quote: Quote) {
+export function quoteLiteral(value: string, quote: Quote) {
   const json = JSON.stringify(value);
   if (quote === "d") return json;
   return `'${json

@@ -3,6 +3,7 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
 import { format, resolveConfig } from "prettier";
 import { splitPrompt } from "./split-prompts";
+import { splitDevicePrompt } from "./split-device-prompt";
 import { splitWords } from "./split-words";
 
 export async function splitSources(root: string) {
@@ -28,7 +29,7 @@ export async function splitSources(root: string) {
       components.map((source) => join(root, source)),
     );
   });
-  const edits = (await Promise.all([...prompts, ...words])).flat();
+  const edits = (await Promise.all([...prompts, ...words, splitDevicePrompt(root)])).flat();
   const options = await resolveConfig(join(root, "package.json"));
   const formatted = await Promise.all(
     edits.map(
