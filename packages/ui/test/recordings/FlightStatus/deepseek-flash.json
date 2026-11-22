@@ -8,6 +8,15 @@
       "Reservation"
     ]
   },
+  "FlightStatus%2Fchoose%2FGive%20me%20the%20boarding%20pass%20for%20my%20booked%20flight%2C%20with%20my%20seat%20and%20booking%20reference%20and%20a%20code%20to%20scan./260773a8af8e8a47/1820e28133d5ef22": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- BagTracker: See where my checked bags were scanned and where to collect them. Pick: Track several checked bags by tag across airline scan checkpoints. Not guided steps (Steps), trip packing (PackingList), parcels (DeliveryTracker) or retail orders (OrderStatus).\n- Clocks: Compare local time in several places with the time back home. Pick: Current local clock times in two to four named time zones, with offsets from home. Not elapsed or remaining time (Timer) or scheduled events (Timeline).\n- Converter: Convert between home and local currencies by entering either amount. Pick: Convert two editable amounts between home and destination currencies with a swap control. Not displaying one sum (Amount) or entering an expense (AmountPad).\n- FlightStatus: Track one booked flight's live status, airport details and progress. Pick: Live operational status, gate updates and progress for one specific flight. Not static facts (KeyValue), a boarding pass (Reservation) or airport-wide boards (Departures).\n- Itinerary: See the whole trip day by day, including stops and travel between them. Pick: A whole trip grouped into foldable dated days with places, timed stops and travel legs. Not a single day's time order (Timeline), a path through places (Route), or a family week (Agenda).\n- PackingList: Pack by category or person, track quantities and see what remains. Pick: Items to put in luggage, grouped by category or traveller, with optional quantities and an overall packed share. Not everyday tasks (Checklist) or shopping for groceries (GroceryList).\n- Reservation: Keep a travel confirmation, reference and gate pass together. Pick: One travel or lodging confirmation, with a copyable reference, optional seat and optional scannable pass. Not simple label/value facts (KeyValue), booking a provider (Appointment), running an event (Ticket), or buying goods (OrderSummary).\n- TravelDocs: Keep travel documents together and see whether they expire near the trip. Pick: A travel document wallet with owners, masked numbers and expiry warnings. Not facts about one thing (KeyValue) or warranties for belongings (Warranties).\n- Weather: See the forecast or typical weather for the place and dates of a trip. Pick: A place's local weather or trip forecast, including conditions and rain chance. Not personal figures (Stats) or a series showing a trend (Sparkline).\n\nNeed, in the person's words: \"Give me the boarding pass for my booked flight, with my seat and booking reference and a code to scan.\"\nReply with only the component id, nothing else.",
+    "reply": "Reservation",
+    "replies": [
+      "Reservation",
+      "Reservation",
+      "Reservation"
+    ]
+  },
   "FlightStatus%2Fchoose%2FGive%20me%20the%20boarding%20pass%20for%20my%20booked%20flight%2C%20with%20my%20seat%20and%20booking%20reference%20and%20a%20code%20to%20scan./39d9b14377427077/5d934b473db45654": {
     "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Clocks: Compare local time in several places with the time back home. Pick: Current local clock times in two to four named time zones, with offsets from home. Not elapsed or remaining time (Timer) or scheduled events (Timeline).\n- Converter: Convert between home and local currencies by entering either amount. Pick: Convert two editable amounts between home and destination currencies with a swap control. Not displaying one sum (Amount) or entering an expense (AmountPad).\n- FlightStatus: Track one booked flight's live status, airport details and progress. Pick: Live operational status, gate updates and progress for one specific flight. Not static facts (KeyValue), a boarding pass (Reservation) or airport-wide boards (Departures).\n- Itinerary: See the whole trip day by day, including stops and travel between them. Pick: A whole trip grouped into foldable dated days with places, timed stops and travel legs. Not a single day's time order (Timeline), a path through places (Route), or a family week (Agenda).\n- PackingList: Pack by category or person, track quantities and see what remains. Pick: Items to put in luggage, grouped by category or traveller, with optional quantities and an overall packed share. Not everyday tasks (Checklist) or shopping for groceries (GroceryList).\n- Reservation: Keep a travel confirmation, reference and gate pass together. Pick: One travel or lodging confirmation, with a copyable reference, optional seat and optional scannable pass. Not simple label/value facts (KeyValue), booking a provider (Appointment), running an event (Ticket), or buying goods (OrderSummary).\n- TravelDocs: Keep travel documents together and see whether they expire near the trip. Pick: A travel document wallet with owners, masked numbers and expiry warnings. Not facts about one thing (KeyValue) or warranties for belongings (Warranties).\n- Weather: See the forecast or typical weather for the place and dates of a trip. Pick: A place's local weather or trip forecast, including conditions and rain chance. Not personal figures (Stats) or a series showing a trend (Sparkline).\n\nNeed, in the person's words: \"Give me the boarding pass for my booked flight, with my seat and booking reference and a code to scan.\"\nReply with only the component id, nothing else.",
     "reply": "Reservation",
@@ -15,6 +24,15 @@
       "Reservation",
       "Reservation",
       "Reservation"
+    ]
+  },
+  "FlightStatus%2Fchoose%2FI%20want%20a%20plain%20table%20of%20two%20static%20facts%3A%20my%20travel%20agent%20and%20its%20phone%20number.%20No%20ticket%2C%20flight%20or%20live%20updates./37dffddc220c3095/1fff25d39db6d6d5": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- BagTracker: See where my checked bags were scanned and where to collect them. Pick: Track several checked bags by tag across airline scan checkpoints. Not guided steps (Steps), trip packing (PackingList), parcels (DeliveryTracker) or retail orders (OrderStatus).\n- Clocks: Compare local time in several places with the time back home. Pick: Current local clock times in two to four named time zones, with offsets from home. Not elapsed or remaining time (Timer) or scheduled events (Timeline).\n- Converter: Convert between home and local currencies by entering either amount. Pick: Convert two editable amounts between home and destination currencies with a swap control. Not displaying one sum (Amount) or entering an expense (AmountPad).\n- FlightStatus: Track one booked flight's live status, airport details and progress. Pick: Live operational status, gate updates and progress for one specific flight. Not static facts (KeyValue), a boarding pass (Reservation) or airport-wide boards (Departures).\n- Itinerary: See the whole trip day by day, including stops and travel between them. Pick: A whole trip grouped into foldable dated days with places, timed stops and travel legs. Not a single day's time order (Timeline), a path through places (Route), or a family week (Agenda).\n- PackingList: Pack by category or person, track quantities and see what remains. Pick: Items to put in luggage, grouped by category or traveller, with optional quantities and an overall packed share. Not everyday tasks (Checklist) or shopping for groceries (GroceryList).\n- Reservation: Keep a travel confirmation, reference and gate pass together. Pick: One travel or lodging confirmation, with a copyable reference, optional seat and optional scannable pass. Not simple label/value facts (KeyValue), booking a provider (Appointment), running an event (Ticket), or buying goods (OrderSummary).\n- TravelDocs: Keep travel documents together and see whether they expire near the trip. Pick: A travel document wallet with owners, masked numbers and expiry warnings. Not facts about one thing (KeyValue) or warranties for belongings (Warranties).\n- Weather: See the forecast or typical weather for the place and dates of a trip. Pick: A place's local weather or trip forecast, including conditions and rain chance. Not personal figures (Stats) or a series showing a trend (Sparkline).\n\nNeed, in the person's words: \"I want a plain table of two static facts: my travel agent and its phone number. No ticket, flight or live updates.\"\nReply with only the component id, nothing else.",
+    "reply": "KeyValue",
+    "replies": [
+      "KeyValue",
+      "KeyValue",
+      "KeyValue"
     ]
   },
   "FlightStatus%2Fchoose%2FI%20want%20a%20plain%20table%20of%20two%20static%20facts%3A%20my%20travel%20agent%20and%20its%20phone%20number.%20No%20ticket%2C%20flight%20or%20live%20updates./bb80557e6a5ad7ab/159a6ef8c5ba1f2f": {
@@ -33,6 +51,15 @@
       "KeyValue",
       "KeyValue",
       "KeyValue"
+    ]
+  },
+  "FlightStatus%2Fchoose%2FShow%20whether%20my%20booked%20flight%20NH%20212%20is%20boarding%2C%20delayed%20or%20in%20the%20air%20right%20now%2C%20with%20live%20gate%20updates%20and%20how%20far%20it%20has%20flown./602455c25021379d/782b7eb56eaab95a": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- BagTracker: See where my checked bags were scanned and where to collect them. Pick: Track several checked bags by tag across airline scan checkpoints. Not guided steps (Steps), trip packing (PackingList), parcels (DeliveryTracker) or retail orders (OrderStatus).\n- Clocks: Compare local time in several places with the time back home. Pick: Current local clock times in two to four named time zones, with offsets from home. Not elapsed or remaining time (Timer) or scheduled events (Timeline).\n- Converter: Convert between home and local currencies by entering either amount. Pick: Convert two editable amounts between home and destination currencies with a swap control. Not displaying one sum (Amount) or entering an expense (AmountPad).\n- FlightStatus: Track one booked flight's live status, airport details and progress. Pick: Live operational status, gate updates and progress for one specific flight. Not static facts (KeyValue), a boarding pass (Reservation) or airport-wide boards (Departures).\n- Itinerary: See the whole trip day by day, including stops and travel between them. Pick: A whole trip grouped into foldable dated days with places, timed stops and travel legs. Not a single day's time order (Timeline), a path through places (Route), or a family week (Agenda).\n- PackingList: Pack by category or person, track quantities and see what remains. Pick: Items to put in luggage, grouped by category or traveller, with optional quantities and an overall packed share. Not everyday tasks (Checklist) or shopping for groceries (GroceryList).\n- Reservation: Keep a travel confirmation, reference and gate pass together. Pick: One travel or lodging confirmation, with a copyable reference, optional seat and optional scannable pass. Not simple label/value facts (KeyValue), booking a provider (Appointment), running an event (Ticket), or buying goods (OrderSummary).\n- TravelDocs: Keep travel documents together and see whether they expire near the trip. Pick: A travel document wallet with owners, masked numbers and expiry warnings. Not facts about one thing (KeyValue) or warranties for belongings (Warranties).\n- Weather: See the forecast or typical weather for the place and dates of a trip. Pick: A place's local weather or trip forecast, including conditions and rain chance. Not personal figures (Stats) or a series showing a trend (Sparkline).\n\nNeed, in the person's words: \"Show whether my booked flight NH 212 is boarding, delayed or in the air right now, with live gate updates and how far it has flown.\"\nReply with only the component id, nothing else.",
+    "reply": "FlightStatus",
+    "replies": [
+      "FlightStatus",
+      "FlightStatus",
+      "FlightStatus"
     ]
   },
   "FlightStatus%2Fchoose%2FShow%20whether%20my%20booked%20flight%20NH%20212%20is%20boarding%2C%20delayed%20or%20in%20the%20air%20right%20now%2C%20with%20live%20gate%20updates%20and%20how%20far%20it%20has%20flown./adad81c9d0ab8140/74de41391fdb4355": {
@@ -69,6 +96,252 @@
       "{\"address\": \"f1/inbound\", \"action\": \"press\"}",
       "{\"address\": \"f1/inbound\", \"action\": \"press\"}",
       "{\"address\": \"f1/inbound\", \"action\": \"press\"}"
+    ]
+  },
+  "FlightStatus%2Fread%2FOpen%20the%20linked%20inbound%20aircraft's%20previous%20leg%20NH%20211./e7fae38b5a2b0d8f/efeb5f2770c61b70": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nf1 FlightStatus In the air — \"LHR\" (\"London\") → \"HND\" (\"Tokyo\") — of route: 62% — Departure: 19:00 — Est. 19:45 · +45 min — Arrival: 17:20 — Est. 18:05 · +45 min — Terminal: \"2\" — Gate: \"B42\" — Baggage claim: \"Carousel 5\" — \"NH 212\" — \"All Nippon Airways\" — \"LHR\" — \"London\" — \"HND\" — \"Tokyo\" — \"2\" — \"B42\" — \"Carousel 5\" — \"NH 211\" [f1/inbound press→inbound_flight]\n\nTask: Open the linked inbound aircraft's previous leg NH 211.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"f1/inbound\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"f1/inbound\", \"action\": \"press\"}",
+      "{\"address\": \"f1/inbound\", \"action\": \"press\"}",
+      "{\"address\": \"f1/inbound\", \"action\": \"press\"}"
+    ]
+  },
+  "FlightStatus%2Fwrite%2FTrack%20my%20booked%20flight%20TP%201357%20on%20TAP%20Air%20Portugal%2C%20London%20LHR%20to%20Lisbon%20LIS.%20Scheduled%20off%20at%2012%3A25%20and%20in%20at%2015%3A10%20local.%20It%20is%20boarding%20at%20gate%20A18./76aad74204cd727f/1d4c70fbe510ba4a": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nFlightStatus: Track one booked flight's live status, airport details and progress.\nprops: { detail?: full|brief=\"full\", density?: comfortable|compact, surface?: card|plain=\"card\", flight: text≤10, airline: text≤24, origin: text≤4, originCity: text≤20, destination: text≤4, destinationCity: text≤20, scheduledDep: time HH:MM, estimatedDep?: time HH:MM, scheduledArr: time HH:MM, estimatedArr?: time HH:MM, status: scheduled|on_time|delayed|boarding|in_air|landed|cancelled, progress?: num 0..1, terminal?: text≤8, gate?: text≤8, baggage?: text≤12, inboundFlight?: text≤10, inboundGoto?: id snake_case }\nRule: Use local HH:MM for each airport; progress is a fraction, not a percent. Only write an estimate if known. For a single strip with status, gate and departure, set detail to \"brief\". Leave density and surface null unless explicitly requested; do not write \"card\" for the default surface.\nexample: {\"c\":\"FlightStatus\",\"flight\":\"NH 212\",\"airline\":\"All Nippon Airways\",\"origin\":\"LHR\",\"originCity\":\"London\",\"destination\":\"HND\",\"destinationCity\":\"Tokyo\",\"scheduledDep\":\"19:00\",\"estimatedDep\":\"19:45\",\"scheduledArr\":\"17:20\",\"estimatedArr\":\"18:05\",\"status\":\"in_air\",\"progress\":0.62,\"terminal\":\"2\",\"gate\":\"B42\",\"baggage\":\"Carousel 5\",\"inboundFlight\":\"NH 211\",\"inboundGoto\":\"inbound_flight\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Track my booked flight TP 1357 on TAP Air Portugal, London LHR to Lisbon LIS. Scheduled off at 12:25 and in at 15:10 local. It is boarding at gate A18.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "FlightStatus",
+              "enum": [
+                "FlightStatus"
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "flight": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 10
+            },
+            "airline": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "origin": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4
+            },
+            "originCity": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "destination": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4
+            },
+            "destinationCity": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "scheduledDep": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "estimatedDep": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "scheduledArr": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "estimatedArr": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "scheduled",
+                "on_time",
+                "delayed",
+                "boarding",
+                "in_air",
+                "landed",
+                "cancelled"
+              ]
+            },
+            "progress": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "terminal": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "gate": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "baggage": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "inboundFlight": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 10
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "inboundGoto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "detail",
+            "density",
+            "surface",
+            "flight",
+            "airline",
+            "origin",
+            "originCity",
+            "destination",
+            "destinationCity",
+            "scheduledDep",
+            "estimatedDep",
+            "scheduledArr",
+            "estimatedArr",
+            "status",
+            "progress",
+            "terminal",
+            "gate",
+            "baggage",
+            "inboundFlight",
+            "inboundGoto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"FlightStatus\",\"detail\":\"brief\",\"density\":null,\"surface\":null,\"flight\":\"TP 1357\",\"airline\":\"TAP Air Portugal\",\"origin\":\"LHR\",\"originCity\":\"London\",\"destination\":\"LIS\",\"destinationCity\":\"Lisbon\",\"scheduledDep\":\"12:25\",\"estimatedDep\":null,\"scheduledArr\":\"15:10\",\"estimatedArr\":null,\"status\":\"boarding\",\"progress\":null,\"terminal\":null,\"gate\":\"A18\",\"baggage\":null,\"inboundFlight\":null,\"inboundGoto\":null}",
+    "replies": [
+      "{\"c\":\"FlightStatus\",\"detail\":\"brief\",\"density\":null,\"surface\":null,\"flight\":\"TP 1357\",\"airline\":\"TAP Air Portugal\",\"origin\":\"LHR\",\"originCity\":\"London\",\"destination\":\"LIS\",\"destinationCity\":\"Lisbon\",\"scheduledDep\":\"12:25\",\"estimatedDep\":null,\"scheduledArr\":\"15:10\",\"estimatedArr\":null,\"status\":\"boarding\",\"progress\":null,\"terminal\":null,\"gate\":\"A18\",\"baggage\":null,\"inboundFlight\":null,\"inboundGoto\":null}",
+      "{\"c\":\"FlightStatus\",\"detail\":\"brief\",\"density\":null,\"surface\":null,\"flight\":\"TP 1357\",\"airline\":\"TAP Air Portugal\",\"origin\":\"LHR\",\"originCity\":\"London\",\"destination\":\"LIS\",\"destinationCity\":\"Lisbon\",\"scheduledDep\":\"12:25\",\"estimatedDep\":null,\"scheduledArr\":\"15:10\",\"estimatedArr\":null,\"status\":\"boarding\",\"progress\":0.75,\"terminal\":null,\"gate\":\"A18\",\"baggage\":null,\"inboundFlight\":null,\"inboundGoto\":null}",
+      "{\"c\":\"FlightStatus\",\"detail\":\"brief\",\"density\":null,\"surface\":null,\"flight\":\"TP 1357\",\"airline\":\"TAP Air Portugal\",\"origin\":\"LHR\",\"originCity\":\"London\",\"destination\":\"LIS\",\"destinationCity\":\"Lisbon\",\"scheduledDep\":\"12:25\",\"estimatedDep\":null,\"scheduledArr\":\"15:10\",\"estimatedArr\":null,\"status\":\"boarding\",\"progress\":null,\"terminal\":null,\"gate\":\"A18\",\"baggage\":null,\"inboundFlight\":null,\"inboundGoto\":null}"
     ]
   },
   "FlightStatus%2Fwrite%2FTrack%20my%20booked%20flight%20TP%201357%20on%20TAP%20Air%20Portugal%2C%20London%20LHR%20to%20Lisbon%20LIS.%20Scheduled%20off%20at%2012%3A25%20and%20in%20at%2015%3A10%20local.%20It%20is%20boarding%20at%20gate%20A18./b0f87bc8c8af4512/b27b418a9dc5f5b3": {
@@ -1017,6 +1290,243 @@
       "{\"c\":\"FlightStatus\",\"detail\":\"brief\",\"density\":null,\"surface\":null,\"flight\":\"TP 1357\",\"airline\":\"TAP Air Portugal\",\"origin\":\"LHR\",\"originCity\":\"London\",\"destination\":\"LIS\",\"destinationCity\":\"Lisbon\",\"scheduledDep\":\"12:25\",\"estimatedDep\":null,\"scheduledArr\":\"15:10\",\"estimatedArr\":null,\"status\":\"boarding\",\"progress\":null,\"terminal\":null,\"gate\":\"A18\",\"baggage\":null,\"inboundFlight\":null,\"inboundGoto\":null}",
       "{\"c\":\"FlightStatus\",\"detail\":\"brief\",\"density\":null,\"surface\":null,\"flight\":\"TP 1357\",\"airline\":\"TAP Air Portugal\",\"origin\":\"LHR\",\"originCity\": \"London\",\"destination\":\"LIS\",\"destinationCity\":\"Lisbon\",\"scheduledDep\":\"12:25\",\"estimatedDep\":null,\"scheduledArr\":\"15:10\",\"estimatedArr\":null,\"status\":\"boarding\",\"progress\":null,\"terminal\":null,\"gate\":\"A18\",\"baggage\":null,\"inboundFlight\":null,\"inboundGoto\":null}",
       "{\"c\":\"FlightStatus\",\"detail\":\"brief\",\"density\":null,\"surface\":null,\"flight\":\"TP 1357\",\"airline\":\"TAP Air Portugal\",\"origin\":\"LHR\",\"originCity\":\"London\",\"destination\":\"LIS\",\"destinationCity\":\"Lisbon\",\"scheduledDep\":\"12:25\",\"estimatedDep\":null,\"scheduledArr\":\"15:10\",\"estimatedArr\":null,\"status\":\"boarding\",\"progress\":null,\"terminal\":null,\"gate\":\"A18\",\"baggage\":null,\"inboundFlight\":null,\"inboundGoto\":null}"
+    ]
+  },
+  "FlightStatus%2Fwrite%2FTrack%20my%20booked%20flight%20TP%201357%20on%20TAP%20Air%20Portugal%2C%20London%20LHR%20to%20Lisbon%20LIS.%20Scheduled%20off%20at%2012%3A25%20and%20in%20at%2015%3A10%20local.%20It%20is%20boarding%20at%20gate%20A18.%20Show%20a%20short%20strip%20with%20only%20the%20flight%20status%2C%20gate%20and%20departure%2C%20without%20the%20route%20and%20arrival%20details./a455bc61598e856c/ee49426366bdf538": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nFlightStatus: Track one booked flight's live status, airport details and progress.\nprops: { detail?: full|brief=\"full\", density?: comfortable|compact, surface?: card|plain=\"card\", flight: text≤10, airline: text≤24, origin: text≤4, originCity: text≤20, destination: text≤4, destinationCity: text≤20, scheduledDep: time HH:MM, estimatedDep?: time HH:MM, scheduledArr: time HH:MM, estimatedArr?: time HH:MM, status: scheduled|on_time|delayed|boarding|in_air|landed|cancelled, progress?: num 0..1, terminal?: text≤8, gate?: text≤8, baggage?: text≤12, inboundFlight?: text≤10, inboundGoto?: id snake_case }\nRule: Use local HH:MM for each airport; progress is a fraction, not a percent. Only write an estimate if known. For a single strip with status, gate and departure, set detail to \"brief\". Leave density and surface null unless explicitly requested; do not write \"card\" for the default surface.\nexample: {\"c\":\"FlightStatus\",\"flight\":\"NH 212\",\"airline\":\"All Nippon Airways\",\"origin\":\"LHR\",\"originCity\":\"London\",\"destination\":\"HND\",\"destinationCity\":\"Tokyo\",\"scheduledDep\":\"19:00\",\"estimatedDep\":\"19:45\",\"scheduledArr\":\"17:20\",\"estimatedArr\":\"18:05\",\"status\":\"in_air\",\"progress\":0.62,\"terminal\":\"2\",\"gate\":\"B42\",\"baggage\":\"Carousel 5\",\"inboundFlight\":\"NH 211\",\"inboundGoto\":\"inbound_flight\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Track my booked flight TP 1357 on TAP Air Portugal, London LHR to Lisbon LIS. Scheduled off at 12:25 and in at 15:10 local. It is boarding at gate A18. Show a short strip with only the flight status, gate and departure, without the route and arrival details.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "FlightStatus",
+              "enum": [
+                "FlightStatus"
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "flight": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 10
+            },
+            "airline": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "origin": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4
+            },
+            "originCity": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "destination": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4
+            },
+            "destinationCity": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "scheduledDep": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "estimatedDep": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "scheduledArr": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "estimatedArr": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "scheduled",
+                "on_time",
+                "delayed",
+                "boarding",
+                "in_air",
+                "landed",
+                "cancelled"
+              ]
+            },
+            "progress": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "terminal": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "gate": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "baggage": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "inboundFlight": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 10
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "inboundGoto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "detail",
+            "density",
+            "surface",
+            "flight",
+            "airline",
+            "origin",
+            "originCity",
+            "destination",
+            "destinationCity",
+            "scheduledDep",
+            "estimatedDep",
+            "scheduledArr",
+            "estimatedArr",
+            "status",
+            "progress",
+            "terminal",
+            "gate",
+            "baggage",
+            "inboundFlight",
+            "inboundGoto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"FlightStatus\",\"detail\":\"brief\",\"density\":null,\"surface\":null,\"flight\":\"TP 1357\",\"airline\":\"TAP Air Portugal\",\"origin\":\"LHR\",\"originCity\":\"London\",\"destination\":\"LIS\",\"destinationCity\":\"Lisbon\",\"scheduledDep\":\"12:25\",\"estimatedDep\":null,\"scheduledArr\":\"15:10\",\"estimatedArr\":null,\"status\":\"boarding\",\"progress\":null,\"terminal\":null,\"gate\":\"A18\",\"baggage\":null,\"inboundFlight\":null,\"inboundGoto\":null}",
+    "replies": [
+      "{\"c\":\"FlightStatus\",\"detail\":\"brief\",\"density\":null,\"surface\":null,\"flight\":\"TP 1357\",\"airline\":\"TAP Air Portugal\",\"origin\":\"LHR\",\"originCity\":\"London\",\"destination\":\"LIS\",\"destinationCity\":\"Lisbon\",\"scheduledDep\":\"12:25\",\"estimatedDep\":null,\"scheduledArr\":\"15:10\",\"estimatedArr\":null,\"status\":\"boarding\",\"progress\":null,\"terminal\":null,\"gate\":\"A18\",\"baggage\":null,\"inboundFlight\":null,\"inboundGoto\":null}",
+      "{\"c\":\"FlightStatus\",\"detail\":\"brief\",\"density\":null,\"surface\":null,\"flight\":\"TP 1357\",\"airline\":\"TAP Air Portugal\",\"origin\":\"LHR\",\"originCity\":\"London\",\"destination\":\"LIS\",\"destinationCity\":\"Lisbon\",\"scheduledDep\":\"12:25\",\"estimatedDep\":null,\"scheduledArr\":\"15:10\",\"estimatedArr\":null,\"status\":\"boarding\",\"progress\":null,\"terminal\":null,\"gate\":\"A18\",\"baggage\":null,\"inboundFlight\":null,\"inboundGoto\":null}",
+      "{\"c\":\"FlightStatus\",\"detail\":\"brief\",\"density\":null,\"surface\":null,\"flight\":\"TP 1357\",\"airline\":\"TAP Air Portugal\",\"origin\":\"LHR\",\"originCity\": \"London\",\"destination\":\"LIS\",\"destinationCity\":\"Lisbon\",\"scheduledDep\":\"12:25\",\"estimatedDep\":null,\"scheduledArr\":\"15:10\",\"estimatedArr\":null,\"status\":\"boarding\",\"progress\":null,\"terminal\":null,\"gate\":\"A18\",\"baggage\":null,\"inboundFlight\":null,\"inboundGoto\":null}"
     ]
   }
 }

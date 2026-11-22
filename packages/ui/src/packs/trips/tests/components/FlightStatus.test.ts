@@ -80,11 +80,11 @@ it("renders its full and brief parts and uses inert loading and a specific error
   expect(error).not.toContain("NH 211");
 });
 
-it("refreshes the validated flight through the service host, including on error", () => {
+it.each(["filled", "error", "loading"] as const)("gates the service refresh in %s", (state) => {
   const run = vi.fn(() => ({ status: "accepted" as const }));
   const screen = {
     id: "home",
-    components: [{ ...examples[0]!, c: "FlightStatus", id: "f1", state: "error" as const }],
+    components: [{ ...examples[0]!, c: "FlightStatus", id: "f1", state }],
   };
   const controller = createScreenController({
     screen,
@@ -92,8 +92,14 @@ it("refreshes the validated flight through the service host, including on error"
     hostCommands: { commands: { refresh_flight: { allows: () => true, run } } },
   });
   try {
-    expect(controller.actionsAt("home/f1/refresh")).toEqual(["press"]);
-    expect(controller.act({ address: "home/f1/refresh", action: "press" }).ok).toBe(true);
+    const address = state === "error" ? "home/f1/refresh_error" : "home/f1/refresh";
+    expect(controller.actionsAt(address)).toEqual(state === "loading" ? [] : ["press"]);
+    expect(controller.actionsAt(state === "error" ? "home/f1/refresh" : "home/f1/refresh_error")).toEqual([]);
+    expect(controller.act({ address, action: "press" }).ok).toBe(state !== "loading");
+    if (state === "loading") {
+      expect(run).not.toHaveBeenCalled();
+      return;
+    }
     expect(run).toHaveBeenCalledOnce();
     expect(run.mock.calls[0]).toEqual(
       expect.arrayContaining([expect.objectContaining({ input: { flight: "NH 212" } })]),

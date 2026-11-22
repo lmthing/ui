@@ -4,6 +4,12 @@ import * as kit from "../../../kit";
 import { flightReading, flightView } from "../copy";
 import { tripsWordsFor } from "../lang";
 
+const refreshFlight = {
+  kind: "command",
+  name: "refresh_flight",
+  input: ({ props }: { props: Readonly<c.Values> }) => ({ flight: String(props.flight) }),
+} as const;
+
 // Core first: KeyValue/pairs lists static booking facts, not flight progress or live schedule changes.
 // prettier-ignore
 export const meta = {
@@ -27,14 +33,15 @@ export const meta = {
   parts: [
     "root", "flight", "airline", "status", "route", "origin_city", "destination_city",
     "departure", "estimated_departure", "arrival", "estimated_arrival", "gate", "terminal",
-    "baggage", "notice", "refresh", "inbound", "inbound_label",
+    "baggage", "notice", "refresh", "refresh_error", "inbound", "inbound_label",
   ],
-  actions: { parts: { refresh: ["press"], inbound: ["press"] }, when: { inbound: { linked: true } } },
-  hostCommands: { parts: { "refresh.press": {
-    kind: "command", name: "refresh_flight", input: ({ props }) => ({ flight: String(props.flight) }),
-  } } },
-  errorActions: ["refresh.press"],
-  partTiers: { inbound: "phone", refresh: "service" },
+  actions: {
+    parts: { refresh: ["press"], refresh_error: ["press"], inbound: ["press"] },
+    when: { inbound: { linked: true } },
+  },
+  hostCommands: { parts: { "refresh.press": refreshFlight, "refresh_error.press": refreshFlight } },
+  errorActions: ["refresh_error.press"],
+  partTiers: { inbound: "phone", refresh: "service", refresh_error: "service" },
   states: ["filled", "loading", "error"],
   read: (input, state, lang): string[] =>
     state === "filled" ? flightReading(input as Parameters<typeof flightReading>[0], lang) : [],
@@ -157,7 +164,7 @@ export function FlightStatus(input: FlightProps) {
     <kit.KitHeader title={{ text: input.flight, part: "flight" }} meta={{ text: input.airline, part: "airline" }} density={density} />
     <kit.KitTrail kind="badge" value={view.status} tone={view.tone} part="status" />
   </kit.KitGrid>;
-  const refresh = <kit.KitAction part="refresh" label={flightStatus.refresh} kind="quiet" action="press" full={state === "error"} contentParts={{}} />;
+  const refresh = <kit.KitAction part={state === "error" ? "refresh_error" : "refresh"} label={flightStatus.refresh} kind="quiet" action="press" full={state === "error"} contentParts={{}} />;
   if (state === "error") return <kit.KitCard part="root" padded {...{ density, surface }}>
     <kit.KitContent density={density} align="center">
       <kit.KitState retain part="notice" message={flightStatus.error} density="compact">{refresh}</kit.KitState>
