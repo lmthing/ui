@@ -161,22 +161,20 @@ function StageActions({ room, density }: { room: RoomLive; density: c.ThemeDensi
       {room.joined && <kit.KitAction part="hand" label={room.handRaised ? words.lower : words.hand} kind="secondary" action="toggle" contentParts={{}} />}
       {room.canSpeak && <kit.KitAction part="speak" label={room.micOn ? words.mute : words.speak} icon="mic" kind="quiet" action="toggle" contentParts={{}} />}
       <kit.KitAction part="react" icon="smile" a11y={room.reactionsOpen ? words.closeReact : words.react} kind="quiet" action="press" contentParts={{}} />
-      {room.joined && <LeaveRoom />}
+      {room.joined && <LeaveRoom stage />}
+      {room.canModerate && <kit.KitAction part="end" label={words.end} kind="danger" action="press" contentParts={{}} />}
     </kit.KitActionFooter>
     {room.reactionsOpen && <kit.KitActionFooter density={density}>
       <kit.KitAction part="applaud" label={words.applaud} kind="secondary" action="press" contentParts={{}} />
       <kit.KitAction part="heart" label={words.heart} icon="heart" kind="secondary" action="press" contentParts={{}} />
     </kit.KitActionFooter>}
-    {room.canModerate && <kit.KitActionFooter density={density} align="end">
-      <kit.KitAction part="end" label={words.end} kind="danger" action="press" contentParts={{}} />
-    </kit.KitActionFooter>}
   </>;
 }
 
 // prettier-ignore
-function LeaveRoom() {
+function LeaveRoom({ stage = false }: { stage?: boolean }) {
   const { words } = kit.useWords(socialWordsFor);
-  return <kit.KitAction part="leave" label={words.liveRoom.leave} icon="close" kind="quiet" action="press" contentParts={{}} />;
+  return <kit.KitAction part="leave" label={stage ? undefined : words.liveRoom.leave} a11y={words.liveRoom.leave} icon="close" kind="quiet" action="press" contentParts={{}} />;
 }
 
 // prettier-ignore
