@@ -1,8 +1,9 @@
-import { XStack, YStack } from "tamagui";
+import type { ReactNode } from "react";
+import { XStack, YStack, isWeb } from "tamagui";
 import { component, numberLine, radius, size, space, type IconName } from "../../../catalog";
-import { PartContext, usePart, usePartContext } from "../../part";
-import { useWords } from "../../provider";
-import { KitRow } from "../surface";
+import { PartContext, useComponentState, usePart, usePartContext, usePartDisabled } from "../../part";
+import { useKit, useWords } from "../../provider";
+import { buttonEvents } from "../controls";
 import { KitIcon, KitText } from "../text";
 
 // One accent, fading by step in the order the parts are written.
@@ -18,6 +19,29 @@ type SharePoint = {
 
 type Legend = { icons: boolean; actions: boolean };
 
+function LegendRow({ press, label, children }: { press: boolean; label: string; children: ReactNode }) {
+  const address = usePart();
+  const { controller, interactive } = useKit();
+  const state = useComponentState();
+  const blocked = usePartDisabled(address.testID);
+  const active = press && !blocked && interactive && controller?.canPress(address.testID);
+  return (
+    <XStack
+      {...address}
+      {...(press ? { accessibilityRole: "button", accessibilityLabel: label } : {})}
+      aria-disabled={(press && (blocked || state === "loading" || (interactive && !active))) || undefined}
+      {...(active && isWeb ? { tabIndex: 0, cursor: "pointer" } : {})}
+      {...(active ? buttonEvents(() => controller!.press(address.testID)) : {})}
+      minHeight={size.control.md}
+      alignItems="center"
+      gap={space.sm}
+    >
+      {children}
+      {press ? <KitIcon name="chevron_right" decorative /> : <YStack width={size.icon.md} aria-hidden />}
+    </XStack>
+  );
+}
+
 function Entry({
   point,
   percent,
@@ -31,7 +55,7 @@ function Entry({
 } & Legend) {
   const { lang } = useWords();
   const address = usePart("root", !actions);
-  const { label, value, icon, press } = point;
+  const { label, value, icon, press = false } = point;
   const leading = icon ? (
     <YStack opacity={fade(index)}>
       <KitIcon name={icon} decorative tone="accent" />
@@ -77,12 +101,9 @@ function Entry({
     </>
   );
   return actions ? (
-    <KitRow part="root" role={press ? "button" : "text"} label={label} inline>
-      <XStack alignItems="center" gap={space.sm}>
-        {content}
-        {press ? <KitIcon name="chevron_right" decorative /> : <YStack width={size.icon.md} aria-hidden />}
-      </XStack>
-    </KitRow>
+    <LegendRow press={press} label={`${label}, ${numberLine(value, lang)}, ${percent}`}>
+      {content}
+    </LegendRow>
   ) : (
     <XStack {...address} alignItems="center" gap={space.sm}>
       {content}

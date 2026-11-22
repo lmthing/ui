@@ -14,10 +14,10 @@ type SliderControl = {
   declared?: boolean;
   inset?: number;
   action?: "set" | "seek" | undefined;
-  track?: { min: number; max: number; offset: number; width: RefObject<number> } | undefined;
+  keyboardOnly?: boolean;
 };
 function webHandlers(
-  { min, max, value, step = 1, inset = size.icon.lg, track }: SliderControl,
+  { min, max, value, step = 1, inset = size.icon.lg, keyboardOnly }: SliderControl,
   dispatch: (next: number) => void,
   drag: RefObject<(() => void) | null>,
 ) {
@@ -40,15 +40,13 @@ function webHandlers(
       }
     },
     onPointerDown: (event: PointerEvent) => {
+      if (keyboardOnly) return;
       if (event.isPrimary === false || drag.current) return;
       const node = event.currentTarget as HTMLElement;
-      const rect = (track ? (node.parentElement ?? node) : node).getBoundingClientRect();
+      const rect = node.getBoundingClientRect();
       const pointer = event.pointerId;
-      const first = track?.min ?? min;
-      const span = (track?.max ?? max) - first;
-      const padding = track ? 0 : inset;
       const position = (x: number) =>
-        first + ((x - rect.left - padding / 2) / Math.max(1, rect.width - padding)) * span;
+        min + ((x - rect.left - inset / 2) / Math.max(1, rect.width - inset)) * (max - min);
       dispatch(position(event.clientX));
       const move = (next: PointerEvent) => {
         if (next.pointerId === pointer) dispatch(position(next.clientX));
@@ -68,39 +66,10 @@ function webHandlers(
     },
   };
 }
-
-type SliderTouch = { nativeEvent: { locationX: number; pageX: number } };
-
-function nativeHandlers(
-  { min, max, value, step = 1, track }: SliderControl,
-  dispatch: (next: number) => void,
-  width: RefObject<number>,
-  origin: RefObject<number>,
-) {
-  const first = track?.min ?? min;
-  const span = (track?.max ?? max) - first;
-  const position = (x: number) => first + (x / Math.max(1, track?.width.current ?? width.current)) * span;
-  return {
-    onStartShouldSetResponder: () => true,
-    onResponderGrant: ({ nativeEvent: { locationX, pageX } }: SliderTouch) => {
-      origin.current = (track?.offset ?? 0) * (track?.width.current ?? 0) + locationX - pageX;
-      dispatch(position(track ? origin.current + pageX : locationX));
-    },
-    onResponderMove: ({ nativeEvent: { locationX, pageX } }: SliderTouch) =>
-      dispatch(position(track ? origin.current + pageX : locationX)),
-    accessibilityActions: [{ name: "increment" }, { name: "decrement" }],
-    onAccessibilityAction: ({ nativeEvent: { actionName } }: { nativeEvent: { actionName: string } }) => {
-      if (actionName === "increment" || actionName === "decrement")
-        dispatch(value + (actionName === "increment" ? step : -step));
-    },
-  };
-}
-
 export function useSlider(control: SliderControl) {
   const { address, part, value, min, max, step = 1, disabled = false } = control;
   const kit = useKit();
   const width = useRef(0);
-  const origin = useRef(0);
   const drag = useRef<(() => void) | null>(null);
   useEffect(
     () => () => drag.current?.(),
@@ -115,8 +84,6 @@ export function useSlider(control: SliderControl) {
       control.declared,
       control.inset,
       control.action,
-      control.track?.min,
-      control.track?.max,
     ],
   );
   const dispatch = (next: number) => {
@@ -137,6 +104,15 @@ export function useSlider(control: SliderControl) {
       ? {}
       : isWeb
         ? webHandlers(control, dispatch, drag)
-        : nativeHandlers(control, dispatch, width, origin);
+        : {
+            onStartShouldSetResponder: () => !control.keyboardOnly,
+            onResponderGrant: (event: { nativeEvent: { locationX: number } }) =>
+              dispatch(min + (event.nativeEvent.locationX / Math.max(1, width.current)) * (max - min)),
+            onResponderMove: (event: { nativeEvent: { locationX: number } }) =>
+              dispatch(min + (event.nativeEvent.locationX / Math.max(1, width.current)) * (max - min)),
+            accessibilityActions: [{ name: "increment" }, { name: "decrement" }],
+            onAccessibilityAction: (event: { nativeEvent: { actionName: string } }) =>
+              dispatch(value + (event.nativeEvent.actionName === "increment" ? step : -step)),
+          };
   return { width, handlers };
 }

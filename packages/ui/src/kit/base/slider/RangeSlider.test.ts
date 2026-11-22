@@ -1,7 +1,8 @@
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import { components, readComponent } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { renderInstance } from "../../../../test/render";
+import { rangeGesture } from "./use-range-gesture";
 
 it("validates ordered range endpoints and reports the permission tier for media fields", () => {
   const range = { label: "Length", kind: "range", min: 0, max: 10, lower: 2, upper: 7 };
@@ -32,3 +33,35 @@ it("uses live endpoint bounds and does not let either thumb cross", () => {
   expect(html).toContain('aria-label="Length, minimum"');
   expect(html).toContain('aria-label="Length, maximum"');
 });
+
+it.each([
+  { lower: 0, upper: 0, down: 0, drag: 5, address: "upper", end: 5 },
+  { lower: 10, upper: 10, down: 10, drag: 5, address: "lower", end: 5 },
+  { lower: 0, upper: 1, down: 1, drag: 5, address: "upper", end: 5 },
+  { lower: 9, upper: 10, down: 9, drag: 5, address: "lower", end: 5 },
+  { lower: 2, upper: 7, down: 2, drag: 9, address: "lower", end: 7 },
+  { lower: 2, upper: 7, down: 7, drag: 0, address: "upper", end: 2 },
+])(
+  "chooses the $address thumb for a drag from $down to $drag",
+  ({ lower, upper, down, drag, address, end }) => {
+    const write = vi.fn();
+    const gesture = rangeGesture(
+      {
+        min: 0,
+        max: 10,
+        step: 1,
+        disabled: false,
+        ends: [
+          { address: "lower", value: lower, min: 0, max: upper, disabled: false },
+          { address: "upper", value: upper, min: lower, max: 10, disabled: false },
+        ],
+      },
+      144,
+      write,
+    );
+    gesture(22 + down * 10);
+    expect(write).not.toHaveBeenCalled();
+    gesture(22 + drag * 10);
+    expect(write).toHaveBeenCalledExactlyOnceWith(address, end);
+  },
+);

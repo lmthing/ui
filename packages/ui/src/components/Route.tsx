@@ -4,7 +4,7 @@ import {
   probesFor, detailOf, itemsOf, placeholderTitle, text, thingOf, titleOf, variantProps, wordsFor,
   type FallbackInput, type Meta, type Probe, type Props,
 } from "../catalog";
-import { KitCard, KitContent, KitGrid, KitMetaLine, KitRouteStop, KitText, useWords } from "../kit";
+import { KitCard, KitContent, KitGrid, KitMetaLine, KitRouteStop, KitRow, KitText, useWords } from "../kit";
 
 const modes = ["walk", "bike", "car", "transit", "flight"] as const;
 
@@ -114,7 +114,7 @@ export function Route({ stops, distance, detail, mode, duration }: Props<typeof 
   return (
     <KitCard style="inset" part="root">
       {hasSummary && (
-        <KitContent inset="md" lineRole="body">
+        <KitRow part={null} label={mode ? routeModes[mode] : duration!}>
           <KitGrid columns={2}>
             <KitMetaLine
               title={mode ? { text: routeModes[mode], part: "mode" } : { text: duration, part: "duration" }}
@@ -125,7 +125,7 @@ export function Route({ stops, distance, detail, mode, duration }: Props<typeof 
               </KitText>
             )}
           </KitGrid>
-        </KitContent>
+        </KitRow>
       )}
       {stops.map((stop, index) => {
         const header = index === 0 && distance;

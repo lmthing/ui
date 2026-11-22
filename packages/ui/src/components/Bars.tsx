@@ -6,7 +6,7 @@ import {
 import { z } from "zod";
 // prettier-ignore
 import {
-  probesFor, clip, itemsOf, icon, percentageLine, placeholderTitle, text, thingOf, titleOf, screenId,
+  probesFor, clip, itemsOf, icon, localeOf, placeholderTitle, text, thingOf, titleOf, screenId,
   totalLine, numberLine, wordsFor, variantProps, type ThemeDensity, type FallbackInput, type Meta,
   type Probe, type Props,
 } from "../catalog";
@@ -73,7 +73,9 @@ function largestFirst<T extends { value: number }>(points: readonly T[]) {
 }
 
 function shareLine(value: number, total: number, lang?: string) {
-  return percentageLine(total > 0 ? Math.round((value / total) * 1000) / 10 : 0, lang);
+  return new Intl.NumberFormat(localeOf(lang), { style: "percent", maximumFractionDigits: 1 }).format(
+    total > 0 ? value / total : 0,
+  );
 }
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
@@ -143,11 +145,11 @@ export const probes = [
   write("Show how this month's spending splits across Groceries €240, Rent €800 and Fun €120 in one stacked bar of shares, not a series of columns."),
   { ...write("Compare Mon 3, Tue 5 and Wed 4 walks. Keep the point labels but hide the combined total."), variant: { axis: "detail", value: "brief" },
   },
-  { ...write("Compare arrivals at 8am: 3, 9am: 8, and 10am: 6. Highlight 8am as the current column."), expectProps: { active: 0 },
+  { ...write('Compare arrivals in columns labelled exactly "8a", "9a", and "10a", with values 3, 8, and 6. Highlight the 8a column as current.'), expectProps: { active: 0 },
   },
   { ...write("Compare arrivals at 8am: 3 and 9am: 8. Under the title, show the status Busier than usual."), expectProps: { status: "Busier than usual" },
   },
-  { ...write("Split 40 walking minutes into Park 15 and River 25, with a tree icon by Park and waves by River. Tapping Park opens the screen whose ID is park."),
+  { ...write("Use one stacked share bar, not columns, for 40 walking minutes: Park 15, River 25. Show a tree icon by Park and waves by River. Tapping Park opens the screen whose ID is park."),
     expectProps: { style: "share", points: [{ label: "Park", icon: "tree", goto: "park" }, { label: "River", icon: "waves" }] } },
   read("Open Park", { address: "c1/r1", action: "press" }, 6),
 ] satisfies Probe[];

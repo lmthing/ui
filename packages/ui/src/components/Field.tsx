@@ -151,8 +151,8 @@ export const probes = [
   choose("Find a plant in my collection by typing part of its name", "Search"),
   write("A form input labelled Plant name, with Fern already entered"),
   write("A form input labelled Water it, set to repeat every week"),
-  { ...write( 'A usual-size input called Plant name. Save the hint "Use a short name", but hide it on screen.'), variant: { axis: "detail", value: "brief" },
-  },
+  { ...write('A usual-size input called Plant name. Save the hint "Use a short name", but hide it on screen.'),
+    variant: { axis: "detail", value: "brief" } },
   read("Name the plant Basil", { address: "f1/field", action: "type" }),
   { ...write("On the form, let me choose both ends of a Walk duration range. The scale goes from 0 to 90; start the two handles at 20 and 60."),
     expectProps: { kind: "range", min: 0, max: 90, lower: 20, upper: 60 } },
@@ -165,9 +165,7 @@ function RangeField(input: Props<typeof props, typeof meta>) {
   const { min, max, lower, upper } = useLiveControls(meta, input) as z.output<typeof props>;
   const { fieldRange } = words;
   return <>
-      <KitText part="range_reading" role="number" numberScale="compact" density={input.density} tabular>
-        {fieldRange.reading(numberLine(lower!, lang), numberLine(upper!, lang))}
-      </KitText>
+      <KitText part="range_reading" role="number" numberScale="compact" density={input.density} tabular>{fieldRange.reading(numberLine(lower!, lang), numberLine(upper!, lang))}</KitText>
       <KitSlider min={min!} max={max!} range={[
           { part: "lower", value: lower!, label: fieldRange.lower(input.label) },
           { part: "upper", value: upper!, label: fieldRange.upper(input.label) },

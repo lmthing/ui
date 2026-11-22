@@ -1,9 +1,9 @@
-import { useRef, type RefObject } from "react";
 import { YStack, isWeb } from "tamagui";
 import { component, radius, size, snapNumber, space } from "../../../catalog";
 import { useNumericControl } from "../../interact";
 import { useComponentState, usePart, usePartDisabled } from "../../part";
 import { useSlider } from "./use-slider";
+import { useRangeGesture } from "./use-range-gesture";
 
 type Endpoint = { part: string; label: string; value: number };
 export type RangeSliderProps = {
@@ -13,7 +13,6 @@ export type RangeSliderProps = {
   step?: number;
   disabled?: boolean;
 };
-type Track = { min: number; max: number; width: RefObject<number> };
 const percent = (share: number): `${number}%` => `${share * 100}%`;
 const trackHeight = space.xs + space.xs / 2;
 const thumbSize = size.icon.lg;
@@ -53,17 +52,15 @@ function ThumbMark({ share, inactive }: { share: number; inactive: boolean }) {
 
 type Region = {
   endpoint: ReturnType<typeof useEndpoint>;
-  track: Track;
   min: number;
   max: number;
   value: number;
   step: number;
   inactive: boolean;
-  left: number;
-  right: number;
+  share: number;
 };
 
-function ThumbRegion({ endpoint, track, min, max, step, value, inactive, left, right }: Region) {
+function ThumbRegion({ endpoint, min, max, step, value, inactive, share }: Region) {
   const disabled = inactive || endpoint.disabled;
   const { handlers } = useSlider({
     address: endpoint.address.testID,
@@ -75,7 +72,7 @@ function ThumbRegion({ endpoint, track, min, max, step, value, inactive, left, r
     step,
     disabled,
     declared: Boolean(endpoint.numeric),
-    track: { ...track, offset: left },
+    keyboardOnly: true,
   });
   return (
     <YStack
@@ -84,8 +81,10 @@ function ThumbRegion({ endpoint, track, min, max, step, value, inactive, left, r
       position="absolute"
       top={component.base.none}
       bottom={component.base.none}
-      left={percent(left)}
-      right={percent(right)}
+      left={percent(share)}
+      width={size.control.md}
+      marginLeft={-size.control.md / 2}
+      pointerEvents="none"
       accessibilityRole="adjustable"
       {...(isWeb ? { role: "slider" } : { accessibilityState: { disabled } })}
       aria-label={endpoint.label}
@@ -135,9 +134,9 @@ function RangeTrack({
 }
 
 /** One shared track with an independently addressed, non-crossing control for each endpoint. */
+// prettier-ignore
 export function RangeSlider({ range, min, max, step = 1, disabled = false }: RangeSliderProps) {
   const loading = useComponentState() === "loading";
-  const width = useRef(0);
   const lower = useEndpoint(range[0], loading);
   const upper = useEndpoint(range[1], loading);
   const tick = Number.isFinite(step) && step > 0 ? step : 1;
@@ -145,44 +144,38 @@ export function RangeSlider({ range, min, max, step = 1, disabled = false }: Ran
   const hi = Math.max(lo, snapNumber(upper.value, min, max, tick));
   const last = snapNumber(max, min, max, tick);
   const share = (value: number) => (max > min ? (value - min) / (max - min) : 0);
-  const spread = (share(lo) + share(hi)) / 2;
-  const region = { track: { min, max, width }, step: tick, inactive: disabled };
   const clampMin = (value: number | undefined) => Math.max(min, value ?? min);
   const clampMax = (value: number | undefined) => Math.min(last, value ?? last);
+  const first = { min: clampMin(lower.numeric?.min), max: Math.min(hi, clampMax(lower.numeric?.max)) };
+  const second = { min: Math.max(lo, clampMin(upper.numeric?.min)), max: clampMax(upper.numeric?.max) };
+  const { width, handlers } = useRangeGesture({
+    min, max, step: tick, disabled: disabled || loading,
+    ends: [
+      { ...first, address: lower.address.testID, value: lo, disabled: lower.disabled },
+      { ...second, address: upper.address.testID, value: hi, disabled: upper.disabled },
+    ],
+  });
   return (
     <YStack
       height={size.control.md}
-      marginHorizontal={thumbSize / 2}
       aria-busy={loading || undefined}
+      {...(handlers as object)}
+      {...(isWeb && handlers ? { touchAction: "pan-y" as const } : {})}
       onLayout={(event) => {
         width.current = event.nativeEvent.layout.width;
       }}
     >
-      <RangeTrack start={share(lo)} end={share(hi)} loading={loading} disabled={disabled} />
-      {!loading && (
-        <>
-          <ThumbMark share={share(lo)} inactive={disabled || lower.disabled} />
-          <ThumbMark share={share(hi)} inactive={disabled || upper.disabled} />
-          <ThumbRegion
-            endpoint={lower}
-            {...region}
-            min={clampMin(lower.numeric?.min)}
-            max={Math.min(hi, clampMax(lower.numeric?.max))}
-            value={lo}
-            left={0}
-            right={1 - spread}
-          />
-          <ThumbRegion
-            endpoint={upper}
-            {...region}
-            min={Math.max(lo, clampMin(upper.numeric?.min))}
-            max={clampMax(upper.numeric?.max)}
-            value={hi}
-            left={spread}
-            right={0}
-          />
-        </>
-      )}
+      <YStack marginHorizontal={size.control.md / 2} height="100%" pointerEvents="box-none">
+        <RangeTrack start={share(lo)} end={share(hi)} loading={loading} disabled={disabled} />
+        {!loading && (
+          <>
+            <ThumbMark share={share(lo)} inactive={disabled || lower.disabled} />
+            <ThumbMark share={share(hi)} inactive={disabled || upper.disabled} />
+            <ThumbRegion endpoint={lower} {...first} step={tick} inactive={disabled} value={lo} share={share(lo)} />
+            <ThumbRegion endpoint={upper} {...second} step={tick} inactive={disabled} value={hi} share={share(hi)} />
+          </>
+        )}
+      </YStack>
     </YStack>
   );
 }
