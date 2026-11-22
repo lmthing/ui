@@ -109,7 +109,7 @@ describe("Steps metadata and probes", () => {
     expect(meta.read({ count: 3, at: 2 }, "loading")).toEqual([]);
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Checklist");
-    expect(meta.pick).toContain("Ring");
+    expect(meta.pick).toContain("Progress");
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Checklist")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Steps" });

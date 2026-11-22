@@ -1834,8 +1834,8 @@
     "reply": "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":null,\"media\":null,\"tone\":\"warn\",\"style\":\"number\",\"title\":\"2\",\"sub\":\"Plants need water\",\"photo\":null}",
     "replies": [
       "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":null,\"media\":null,\"tone\":\"warn\",\"style\":\"number\",\"title\":\"2\",\"sub\":\"Plants need water\",\"photo\":null}",
-      "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":null,\"media\":null,\"tone\":\"warn\",\"style\":\"number\",\"title\":\"2\",\"sub\":\"Plants need water\",\"photo\":null}",
-      "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":null,\"media\":null,\"tone\":\"warn\",\"style\":\"number\",\"title\":\"2\",\"sub\":\"plants need water\",\"photo\":null}"
+      "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":null,\"media\":null,\"tone\":\"warn\",\"style\":null,\"title\":\"2\",\"sub\":\"Plants need water\",\"photo\":null}",
+      "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":\"brief\",\"media\":null,\"tone\":\"warn\",\"style\":\"number\",\"title\":\"2\",\"sub\":\"Plants need water\",\"photo\":null}"
     ]
   },
   "Hero%2Fwrite%2FPut%20a%20wide%20photo%20of%20lib%3Adogs%20above%20the%20main%20headline%2C%20Morning%20walk.%20Keep%20the%20subtitle%2C%20Clover%20and%20Pip%20at%2009%3A00./b1cbe2401940851d/8e92a8be98dc9fe6": {

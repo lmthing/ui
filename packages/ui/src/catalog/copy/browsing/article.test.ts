@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { articleEdges, articleHeader, articleReading, parseArticleBody } from "../../copy";
+import { articleEdges, articleHeader, articleReading, parseArticleBody } from "./article";
 
 describe("Article Markdown", () => {
   it("groups paragraphs and quotes, and keeps list order and inline runs", () => {

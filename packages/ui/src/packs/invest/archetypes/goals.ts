@@ -7,18 +7,18 @@ export const goals = {
   layouts: {
     invest_goal: {
       writeHints: [
-        "The Ring is the focus and is the only component that may use hero emphasis. Set emphasis to null on Amount, Header and Note; the Amount below the ring is a supporting number.",
+        "The Progress ring is the focus and is the only component that may use hero emphasis. Set emphasis to null on Amount, Header and Note; the Amount below the ring is a supporting number.",
       ],
       recipe: [
         { allow: ["Header"], required: true },
-        { allow: ["Ring"], required: true },
+        { allow: ["Progress"], required: true, variant: "ring" },
         { allow: ["Amount"], required: true },
         { allow: ["Note"], required: true },
         { allow: ["Button"], required: true },
       ],
       defaults: [
         { id: "h1", c: "Header" },
-        { id: "r1", c: "Ring" },
+        { id: "r1", c: "Progress", style: "ring" },
         { id: "a1", c: "Amount" },
         { id: "n1", c: "Note" },
         { id: "b1", c: "Button" },

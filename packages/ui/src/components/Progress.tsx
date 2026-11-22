@@ -1,84 +1,96 @@
-import {
-  useWords,
-  KitCard,
-  KitEmpty,
-  KitMeter,
-  KitRow,
-  KitSkeleton,
-  useComponentState,
-  useVariant,
-} from "../kit";
 import { z } from "zod";
+// prettier-ignore
 import {
-  probesFor,
-  itemVariantProps,
-  localeOf,
-  numberLine,
-  itemsOf,
-  placeholderTitle,
-  screenId,
-  text,
-  thingOf,
-  titleOf,
-  variantProps,
-  wordsFor,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
+  KitCard, KitFigure, KitHeader, KitLayoutText, KitMeter, KitRing, KitRow, KitSkeleton, KitState, useVariant, useWords,
+} from "../kit";
+// prettier-ignore
+import {
+  probesFor, goalLine, itemVariantProps, localeOf, numberLine, itemsOf, placeholderTitle,
+  screenId, text, thingOf, titleOf, variantProps, wordsFor,
+  type FallbackInput, type Meta, type Probe, type Props,
 } from "../catalog";
-
 export const meta = {
   id: "Progress",
+  status: "ready",
   group: "data",
-  purpose: "Progress toward several targets at once, each bar with its amount and target.",
-  pick: "Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).",
+  purpose: "See measured progress toward one or more targets.",
+  pick: "One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).",
   writeHints: [
-    "Use JSON null for every unrequested Progress and bar axis, even when another axis is set. Crossing a target by itself does not request a special tone.",
-    'Set only figures to "short" if asked to abbreviate counts; keep the original numbers in value and of. Use density "compact" only for requested tighter rows.',
+    'Use style "ring" for one circular goal. Put its label (up to 24 characters), value and of in one bars entry. Leave unit, tone and goto null. Set style "bars" for requested bars or null for an ordinary ratio; either way, shorten every horizontal bar label to at most 20 characters.',
+    'For a ring, always set figures to null. Write a requested caption verbatim in sub, even when asked to hide it with detail "brief". Use emphasis "hero" only for a large focal ring. Send null for all other unrequested axes and row options.',
+    'Set figures to "short" only to abbreviate bar counts without changing stored numbers. A bar crossing a target does not by itself request a special tone.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
-  realPath:
-    "Amounts summed from records in the on-device database, each compared with a target stored there.",
-  variants: { density: ["comfortable", "compact"], figures: ["exact", "short"] },
-  items: { key: "bars", parts: ["root", "label", "amount"], variants: { tone: ["warn", "good", "bad"] } },
-  parts: ["root"],
+  realPath: "Amounts summed from records on the device, each compared with a stored target.",
+  signatureByStyle: { ring: "ring_fill" },
+  // prettier-ignore
+  variants: { density: ["comfortable", "compact"], figures: ["exact", "short"], emphasis: ["normal", "hero"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["sub"] } },
+  items: {
+    key: "bars",
+    parts: ["root", "label", "amount"],
+    addressedWhen: { style: "bars" },
+    variants: { tone: ["warn", "good", "bad"] },
+  },
+  parts: ["root", "ring", "value", "label", "sub"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] } },
-  read: (input, state, lang?: string): string[] => {
+  read: (input, state, lang): string[] => {
     if (state !== "filled") return [];
-    const { bars, figures } = input as z.output<typeof props>;
-    return bars.map((bar) => amountLine(bar, figures, lang));
+    const { style, bars, figures, sub, detail } = input as {
+      style: "bars" | "ring";
+      bars: (Goal & { label: string })[];
+      figures: "exact" | "short";
+      sub?: string;
+      detail: "full" | "brief";
+    };
+    if (style !== "ring") return bars.map((bar) => amountLine(bar, figures, lang));
+    const goal = bars[0];
+    return goal
+      ? [
+          amountLine(goal, "exact", lang),
+          JSON.stringify(goal.label),
+          ...(sub && detail !== "brief" ? [JSON.stringify(sub)] : []),
+        ]
+      : [];
   },
 } as const satisfies Meta;
 
 export const props = z
   .strictObject({
     ...variantProps(meta.variants),
-    bars: z
-      .array(
-        z.strictObject({
-          label: text(20),
-          value: z.number().min(0),
-          of: z.number().positive(),
-          unit: text(8).optional(),
-          ...itemVariantProps(meta.items.variants),
-          goto: screenId.optional(),
-        }),
-      )
-      .min(1)
-      .max(5),
+    style: z.enum(["bars", "ring"]).default("bars"),
+    // prettier-ignore
+    bars: z.array(z.strictObject({
+      label: text(24), value: z.number().min(0), of: z.number().positive(),
+      unit: text(8).optional(), ...itemVariantProps(meta.items.variants), goto: screenId.optional(),
+    })).min(1).max(5),
+    sub: text(48).optional().meta({ read: false }),
   })
-  // Only linked bars expose a root action to the shared reader.
-  .overwrite((value) => ({ ...value, bars: value.bars.map((bar) => ({ ...bar, root: bar.goto })) }));
+  .superRefine((input, ctx) => {
+    const { style, bars, sub } = input;
+    const issue = (path: (string | number)[], message: string) =>
+      ctx.addIssue({ code: "custom", path, message });
+    if (style === "ring") {
+      if (bars.length !== 1) issue(["bars"], "A ring needs exactly one goal");
+      if (input.figures !== "exact") issue(["figures"], "Only bars can abbreviate figures");
+      if (bars.some(({ unit, tone, goto }) => unit || tone !== "warn" || goto))
+        issue(["bars", 0], "A ring goal has only label, value and of");
+    } else {
+      if (sub !== undefined) issue(["sub"], "The caption belongs to a ring");
+      for (const [index, { label }] of bars.entries())
+        if (label.length > 20) issue(["bars", index, "label"], "A bar label has at most 20 characters");
+    }
+  })
+  .overwrite((value) => ({
+    ...value,
+    bars: value.style === "ring" ? value.bars : value.bars.map((bar) => ({ ...bar, root: bar.goto })),
+  }));
 
-function amountLine(
-  { value, of, unit }: { value: number; of: number; unit?: string | undefined },
-  figures: z.output<typeof props>["figures"],
-  lang?: string,
-) {
+type Goal = { value: number; of: number; unit?: string | undefined };
+function amountLine({ value, of, unit }: Goal, figures: "exact" | "short", lang?: string) {
   const compact =
     figures === "short" ? new Intl.NumberFormat(localeOf(lang), { notation: "compact" }) : undefined;
   const display = (n: number) => compact?.format(n) ?? numberLine(n, lang);
@@ -92,9 +104,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     return label ? [{ label, value: 0, of: 1 }] : [];
   });
   return {
-    bars: bars.length
-      ? bars
-      : [0, 1].map((index) => ({ label: placeholderTitle(index, lang), value: 0, of: 1 })),
+    bars: bars.length ? bars : [0, 1].map((i) => ({ label: placeholderTitle(i, lang), value: 0, of: 1 })),
   };
 }
 
@@ -105,74 +115,86 @@ const walkMeters = [
 ];
 const steps = { label: "Steps walked", value: 4200, of: 6000, unit: "steps" };
 const bookings = { label: "Walks booked", value: 14, of: 12, unit: "walks" };
-const treats = { label: "Extra treats", value: 7, of: 5, unit: "treats" };
-
+const ring = {
+  style: "ring" as const,
+  bars: [{ label: "Walks this week", value: 9, of: 12 }],
+  sub: "3 to go",
+};
+// prettier-ignore
 export const examples = [
-  {
-    bars: [
-      { label: "Watered this week", value: 3, of: 5, unit: "plants" },
-      { label: "Fed this month", value: 1, of: 4, unit: "plants" },
-    ],
-  },
+  { bars: [{ label: "Watered this week", value: 3, of: 5, unit: "plants" }, { label: "Fed this month", value: 1, of: 4, unit: "plants" }] },
   { density: "compact", bars: walkMeters },
   { bars: walkMeters },
   { bars: [steps] },
   { figures: "short", bars: [steps] },
   { bars: [bookings] },
-  { bars: [{ ...bookings, tone: "good" }] },
-  { bars: [treats] },
-  { bars: [{ ...treats, tone: "bad" }] },
+  { bars: [{ ...bookings, label: "Minimum bookings", tone: "good" }] },
+  { bars: [{ label: "Daily treat limit", value: 7, of: 5, unit: "treats", tone: "bad" }] },
+  ring,
+  { ...ring, emphasis: "hero" },
+  { ...ring, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Progress");
+// prettier-ignore
 export const probes = [
   choose("Show how far along I am with protein, carbs and fats against my daily limits, all together"),
-  choose(
-    "Show how close I am to my one goal of watering all five plants today, as a single big ring",
-    "Ring",
-  ),
+  choose("Show three of the five plants I planned to water today as one amount completed out of the target"),
+  choose("Show how close I am to watering all five plants today as a single big circular meter"),
+  choose("Show my total plants, the number watered today and the number due together", "Stats"),
+  choose("I'm at stage two of a four-stage sign-up and need to see my place in the sequence", "Steps"),
   write("Two bars: plants watered this week 3 of 5, and plants fed this month 1 of 4"),
-  {
-    ...write(
-      "Two target bars: Steps walked 4,200 out of 6,000 and Distance 1,500 out of 2,000 metres. Store the exact values, but abbreviate the displayed numbers as 4.2K, 6K, 1.5K and 2K.",
-    ),
-    variant: { axis: "figures", value: "short" },
-  },
+  { ...write("Show a single horizontal target bar labelled Watered today, 3 out of 5."),
+    expectProps: { style: "bars", bars: [{ label: "Watered today", value: 3, of: 5 }] } },
+  { ...write("Draw one circular meter. Label it Walks booked and show 4 out of 7. Store Morning route as the extra caption but hide it on screen."),
+    variant: { axis: "detail", value: "brief" },
+    expectProps: { style: "ring", bars: [{ label: "Walks booked", value: 4, of: 7 }], sub: "Morning route" } },
+  { ...write("Two target bars: Steps walked 4,200 out of 6,000 and Distance 1,500 out of 2,000 metres. Store the exact values, but abbreviate the displayed numbers as 4.2K, 6K, 1.5K and 2K."),
+    variant: { axis: "figures", value: "short" } },
   read("Open the hours bar", { address: "p1/r2", action: "press" }, 1),
 ] satisfies Probe[];
 
-export function Progress(input: Props<typeof props, typeof meta>) {
-  const { bars, figures } = input;
+type ViewProps = Props<typeof props, typeof meta>;
+
+// prettier-ignore
+function ProgressRing({ bars, emphasis, density, detail, sub }: ViewProps) {
+  const goal = bars[0]!;
+  const scale = emphasis === "hero" ? "lg" : "md";
+  const { lang } = useWords();
+  const caption = <KitHeader align="center" density={density}
+    title={{ text: goal.label, part: "label", role: "body" }}
+    meta={{ text: detail === "brief" ? undefined : sub, part: "sub" }} />;
+  const loading = <KitFigure caption={caption}
+    media={<KitSkeleton shape="ring" ring={scale} lead="none" inset="none" density={density} />} />;
+  return (
+    <KitState density={density} loading={loading}>
+      <KitFigure caption={caption} media={
+        <KitRing value={goal.value} of={goal.of} scale={scale} part="ring">
+          <KitLayoutText line={{ text: numberLine(goal.value, lang), part: "value", role: "figure" }} align="center" density={density} />
+          <KitLayoutText line={{ text: goalLine(goal.of, lang), role: "caption", tone: "muted" }} align="center" density={density} />
+        </KitRing>
+      } />
+    </KitState>
+  );
+}
+
+// prettier-ignore
+export function Progress(input: ViewProps) {
+  const { bars, figures, style } = input;
   const density = useVariant("density", meta.variants.density, input.density);
   const { lang } = useWords();
-  const state = useComponentState();
-  if (state === "loading") {
-    return (
-      <KitCard style="inset" padded density={density}>
-        <KitSkeleton rows={bars.length} lead="none" density={density} />
-      </KitCard>
-    );
-  }
-  if (state === "empty") {
-    return (
-      <KitCard style="inset" padded density={density}>
-        <KitEmpty part="title" />
-      </KitCard>
-    );
-  }
   return (
     <KitCard style="inset" part="root" padded density={density}>
-      {bars.map((bar) => (
-        <KitRow key={bar.id} item={bar.id} label={bar.label} goto={bar.goto} inset="none" density={density}>
-          <KitMeter
-            label={bar.label}
-            amount={amountLine(bar, figures, lang)}
-            ratio={bar.value / bar.of}
-            tone={bar.value > bar.of ? bar.tone : "accent"}
-            slim={density === "compact"}
-          />
-        </KitRow>
-      ))}
+      {style === "ring" ? <ProgressRing {...input} density={density} /> : (
+        <KitState density={density} loading={<KitSkeleton rows={bars.length} lead="none" inset="none" density={density} />}>
+          {bars.map((bar) => (
+            <KitRow key={bar.id} item={bar.id} label={bar.label} goto={bar.goto} inset="none" density={density}>
+              <KitMeter label={bar.label} amount={amountLine(bar, figures, lang)} ratio={bar.value / bar.of}
+                tone={bar.value > bar.of ? bar.tone : "accent"} slim={density === "compact"} />
+            </KitRow>
+          ))}
+        </KitState>
+      )}
     </KitCard>
   );
 }

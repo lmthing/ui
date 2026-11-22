@@ -1,7 +1,8 @@
-import { numberLine, pluralForm } from "../../../catalog";
+import { numberLine, pluralForm, stepLine } from "../../../catalog";
 import { mindWordsFor } from "../lang";
 
 const phases = ["inhale", "hold", "exhale", "rest"] as const;
+export const groundingSteps = mindWordsFor().breathe.grounding.cues.length;
 type Phase = (typeof phases)[number];
 const presets = {
   box: { inhale: 4, hold: 4, exhale: 4, rest: 4 },
@@ -54,5 +55,21 @@ export function breathCopy(frame: Frame, lang?: string) {
   return {
     cue: count ? phase[frame.phase] : complete,
     rounds: { ...roundsLeft(pluralForm(count, lang)), count: numberLine(count, lang) },
+  };
+}
+
+export function groundingCopy(index: number, lang?: string) {
+  const { title, cues, next, finish, done } = mindWordsFor(lang).breathe.grounding;
+  const cue = cues[index];
+  if (!cue) return { title, cue: done };
+  const step = stepLine(index + 1, groundingSteps, lang);
+  const count = numberLine(index + 1, lang);
+  const at = step.indexOf(count);
+  return {
+    title,
+    cue,
+    step,
+    progress: { before: step.slice(0, at), count, after: step.slice(at + count.length) },
+    next: index + 1 === groundingSteps ? finish : next,
   };
 }

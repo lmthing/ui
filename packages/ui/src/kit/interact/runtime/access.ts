@@ -12,12 +12,15 @@ import { actionFailure } from "../actions";
 import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
 import { createAct, discardHiddenConfirmation } from "./dispatch";
 import { createMediaRuntime } from "./media";
+import { captureAccess } from "./capture";
+import { registerHoldPart } from "./hold";
 import { driveRefresh, registerEntry, registerPart } from "./part-registration";
 import { driveAccess } from "./planning";
-import { actionsAt, numericControlAt } from "./offers";
+import { actionsAt, numericControlAt, offersMicCapture } from "./offers";
 import { commandForConfirmation } from "./host";
 import { isKeypad, readControls } from "./read-controls";
 type Act = ReturnType<typeof createAct>;
+type Revoke = (address: string) => void;
 const pressActions = "press select toggle check increment decrement start stop send copy dismiss".split(" ");
 function press(ctx: ControllerContext, act: Act, address: string) {
   const local = ctx.relative(address);
@@ -39,9 +42,8 @@ function press(ctx: ControllerContext, act: Act, address: string) {
         ? "pause"
         : "play"
       : undefined);
-  return action
-    ? act({ address, action })
-    : actionFailure(0, "not_actionable", "No press action at this address");
+  if (action) return act({ address, action });
+  return actionFailure(0, "not_actionable", "No press action at this address");
 }
 function isPressAction(ctx: ControllerContext, local: string, action: string) {
   if (pressActions.includes(action)) return true;
@@ -142,16 +144,15 @@ export function createStandaloneAccess(options: ControllerOptions, currency?: Ap
   const ctx = createControllerContext(options, !full);
   return { act: createAct(ctx, createMediaRuntime(ctx), () => {}), read: () => read(ctx, currency) };
 }
-export function createAccess(
-  ctx: ControllerContext,
-  act: Act,
-  currency?: AppCurrency,
-  revokeReveal?: (address: string) => void,
-) {
+export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCurrency, revoke?: Revoke) {
   const refresh = driveRefresh(ctx);
   return {
+    ...captureAccess(ctx, act, (address, ignore) => offersMicCapture(ctx, address, ignore)),
+    registerHoldPart: (address: string) => registerHoldPart(ctx, act, address),
     registerCopyTarget: ctx.clipboard.register,
     copiedAt: ctx.clipboard.copiedAt,
+    registerHostCopyTarget: ctx.clipboard.registerHostTarget,
+    hostCopiedAt: ctx.clipboard.hostCopiedAt,
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>
       actionsAt(ctx, address, false, options?.ignoreDisabledPart),
     numericControl: (address: string) => numericControlAt(ctx, address),
@@ -172,8 +173,7 @@ export function createAccess(
       }
       return result;
     },
-    registerPart: (address: string) =>
-      registerPart(ctx.mounted, ctx.relative(address), revokeReveal, refresh),
+    registerPart: (address: string) => registerPart(ctx.mounted, ctx.relative(address), revoke, refresh),
     registerAnchor: (address: string, handler: (action: "focus" | "jump") => void) =>
       registerEntry(ctx.anchors, ctx.relative(address), handler, refresh),
     isPartDisabled: (address: string) => ctx.disabledParts.has(ctx.relative(address)),
@@ -182,7 +182,7 @@ export function createAccess(
       const local = ctx.relative(address);
       const remove = ctx.disabledRegistry.register(local);
       refresh();
-      revokeReveal?.(local);
+      revoke?.(local);
       return () => {
         remove();
         refresh();
@@ -193,9 +193,7 @@ export function createAccess(
 function canPress(ctx: ControllerContext, address: string, ignoreDisabledPart = false) {
   const offered = actionsAt(ctx, address, false, ignoreDisabledPart);
   const local = ctx.relative(address);
-  return (
-    Boolean(clipTap(ctx, local, offered)) ||
-    offered.some((action) => isPressAction(ctx, local, action)) ||
-    (address.endsWith("/play") && offered.includes("play"))
-  );
+  const playback = address.endsWith("/play") && offered.includes("play");
+  if (clipTap(ctx, local, offered) || playback) return true;
+  return offered.some((action) => isPressAction(ctx, local, action));
 }

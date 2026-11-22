@@ -83,7 +83,13 @@ export function readOffers(
     baselineInput: wire,
   });
   const hostOnly = hostOnlyAddresses(def, instance, offered);
-  const visible = offered.filter(({ address }) => !hostOnly?.has(address) && !addresses.has(address));
+  const visible = offered.filter(
+    ({ address, hostSecret }) =>
+      hostSecret !== "input" &&
+      (!hostSecret || !host?.isDisabled?.(address)) &&
+      !hostOnly?.has(address) &&
+      !addresses.has(address),
+  );
   const destination =
     target && (!("address" in target) || !addresses.has(target.address)) ? target : undefined;
   return driveAffordances(def.meta, props, instance, visible, destination);
@@ -118,6 +124,22 @@ function nestedChoices({ options, current }: NonNullable<Affordance["nestedChoic
   return { choices, selected: choices.find(({ value }) => value === current)?.offered ?? current };
 }
 
+function keypadDetail({ profile, initial }: NonNullable<Affordance["keypad"]>, draft: unknown) {
+  const value = typeof draft === "string" ? draft : initial;
+  return ` = ${JSON.stringify(value)}; chars ${JSON.stringify(profile.characters)}; length ${profile.maxLength}`;
+}
+
+function numericDetail(numeric: Affordance["numeric"]) {
+  if (!numeric?.spec.declared) return "";
+  const { min, max, step } = numeric.spec;
+  const limits = [
+    Number.isFinite(min) ? `min ${min}` : "",
+    Number.isFinite(max) ? `max ${max}` : "",
+    step === undefined ? "" : `step ${step}`,
+  ].filter(Boolean);
+  return limits.length ? `; ${limits.join(", ")}` : "";
+}
+
 export function readAffordances(
   affordances: Affordance[],
   values: Values,
@@ -130,7 +152,12 @@ export function readAffordances(
   props = sessionActionProps(meta, props, session);
   const answers = session?.kind === "rounds" ? session.assessment?.answers : undefined;
   return affordances.map((a) => {
-    if (a.hostReveal) return { ...a, detail: risks.ok! };
+    if (a.hostReveal || a.hostSecret) return { ...a, detail: risks.ok! };
+    if (a.keypad)
+      return {
+        ...a,
+        detail: `${keypadDetail(a.keypad, values[a.address])}${risks[partTierAt(meta, props, a.part)] ?? ""}`,
+      };
     if (a.dateSpan) return { ...a, detail: risks[partTierAt(meta, props, a.part)] ?? "" };
     if (a.rowSelection || a.flagKey || a.sequence)
       return { ...a, detail: `${a.detail}${risks[partTierAt(meta, props, a.part)] ?? ""}` };
@@ -166,15 +193,7 @@ export function readAffordances(
     if (choice)
       detail += `${detail ? ";" : ""} choices ${JSON.stringify(choice.choices.map(({ offered }) => offered))}`;
     if (a.move) detail = ` = ${JSON.stringify(a.move.current)}; choices ${JSON.stringify(a.move.choices)}`;
-    if (a.numeric?.spec.declared) {
-      const { min, max, step } = a.numeric.spec;
-      const limits = [
-        Number.isFinite(min) ? `min ${min}` : "",
-        Number.isFinite(max) ? `max ${max}` : "",
-        step === undefined ? "" : `step ${step}`,
-      ].filter(Boolean);
-      if (limits.length) detail += `; ${limits.join(", ")}`;
-    }
+    detail += numericDetail(a.numeric);
     return { ...a, detail: `${detail}${risks[partTierAt(meta, props, a.part)] ?? ""}` };
   });
 }

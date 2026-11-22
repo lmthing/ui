@@ -1,11 +1,11 @@
 import { YStack, isWeb } from "tamagui";
-import { component, radius, size, space } from "../../../catalog";
+import { component, radius, size, space, type KeypadEdit } from "../../../catalog";
 import { usePart } from "../../part";
 import { useKit, useKitStyle } from "../../provider";
 import { KitText, shifted } from "../text";
+import { sendKeypadEdit } from "./use-keypad-target";
 
-type KeyValue = string | { append: string } | { backspace: true } | { clear: true };
-export type Key = { id: string; label: string; value: KeyValue; disabled?: boolean };
+export type Key = { id: string; label: string; sublabel?: string; value: KeypadEdit; disabled?: boolean };
 const finishes = {
   plain: { fill: "$raised", tone: "text", line: "$line" },
   accent: { fill: "$accentSoft", tone: "text", line: "$line" },
@@ -35,6 +35,7 @@ function keyHandlers(press: (() => void) | undefined, inactive: boolean, disable
 export function KeyButton({
   label,
   glyph = label,
+  sublabel,
   loading,
   disabled,
   press,
@@ -44,6 +45,7 @@ export function KeyButton({
 }: {
   label: string;
   glyph?: string;
+  sublabel?: string | undefined;
   loading: boolean;
   disabled: boolean;
   press?: (() => void) | undefined;
@@ -67,15 +69,25 @@ export function KeyButton({
       borderWidth={component.base.borderWidth}
       borderColor={loading ? "$line" : line}
       accessibilityRole={loading ? undefined : "button"}
-      accessibilityLabel={loading ? undefined : label}
+      accessibilityLabel={loading ? undefined : sublabel ? `${label} ${sublabel}` : label}
       aria-disabled={disabled || undefined}
       aria-hidden={loading || undefined}
       {...keyHandlers(press, loading || disabled, disabled)}
     >
-      <YStack opacity={loading ? component.base.none : undefined} aria-hidden={loading || undefined}>
+      <YStack
+        alignItems={sublabel ? "center" : undefined}
+        gap={sublabel ? space.xs : undefined}
+        opacity={loading ? component.base.none : undefined}
+        aria-hidden={loading || undefined}
+      >
         <KitText role="number" numberScale="compact" tone={tone} part={null}>
           {glyph}
         </KitText>
+        {sublabel && (
+          <KitText role="caption" tone={tone} part={null}>
+            {sublabel}
+          </KitText>
+        )}
       </YStack>
     </YStack>
   );
@@ -99,11 +111,17 @@ export function PadKey({
   const unavailable = disabled || Boolean(keyValue.disabled);
   const press =
     kit.interactive && kit.controller
-      ? () => void kit.controller?.act({ address: target, action: "type", value: keyValue.value })
+      ? () => sendKeypadEdit(kit.controller, target, keyValue.value)
       : undefined;
   return (
     <YStack {...(addressed ? address : {})} width={`${100 / 3}%`} padding={space.xs}>
-      <KeyButton label={keyValue.label} loading={loading} disabled={unavailable} press={press} />
+      <KeyButton
+        label={keyValue.label}
+        sublabel={keyValue.sublabel}
+        loading={loading}
+        disabled={unavailable}
+        press={press}
+      />
     </YStack>
   );
 }
