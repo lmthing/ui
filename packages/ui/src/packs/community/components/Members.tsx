@@ -6,6 +6,7 @@ import { communityWordsFor } from "../lang";
 import { distinct, ref, seedDate, seedTitle } from "../seeds";
 
 // Core first: People/rows shows names and roles, not membership dates, voting rights or reconciled dues.
+// prettier-ignore
 export const meta = {
   id: "Members",
   status: "ready" as "ready" | "draft",
@@ -27,21 +28,8 @@ export const meta = {
   parts: ["root", "empty"],
   items: {
     key: "members",
-    parts: [
-      "root",
-      "name",
-      "role",
-      "other_roles",
-      "joined",
-      "ended",
-      "voting_rights",
-      "photo",
-      "dues",
-      "badge",
-      "committee",
-      "end",
-      "end_label",
-    ],
+    parts: ["root", "name", "role", "other_roles", "joined", "ended", "voting_rights",
+      "photo", "dues", "badge", "committee", "end", "end_label"],
   },
   states: ["filled", "empty", "loading", "success", "error"],
   actions: {
