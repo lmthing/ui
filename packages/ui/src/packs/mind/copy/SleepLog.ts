@@ -81,20 +81,19 @@ export function wearableLines({ hrAvg, hrv }: Night, lang?: string) {
 export function readSleepLog(input: Night, full: boolean, lang?: string): string[] {
   const { editSleep, sleep: words } = mindWordsFor(lang);
   const lines = sleepLogLines(input, lang);
+  const stages = input.style === "stages" && input.stages;
   return [
     words.reading(words.bed, lines.bed),
     words.reading(words.wake, lines.wake),
     words.reading(words.duration, words.minuteReading(lines.duration, lines.asleepMinutes)),
-    lines.share,
-    lines.awake,
+    ...(stages
+      ? sleepStagePoints(stages, lang).map(({ label, value }) =>
+          words.reading(label, durationLine(value, lang)),
+        )
+      : [lines.share, lines.awake]),
     ...(lines.quality === undefined ? [] : [words.reading(words.quality, lines.quality)]),
     ...(full && lines.average !== undefined && lines.averageMinutes !== undefined
       ? [words.reading(words.average, words.minuteReading(lines.average, lines.averageMinutes))]
-      : []),
-    ...(input.style === "stages" && input.stages
-      ? sleepStagePoints(input.stages, lang).map(({ label, value }) =>
-          words.reading(label, durationLine(value, lang)),
-        )
       : []),
     ...wearableLines(input, lang).map(({ label, value }) => words.reading(label, value)),
     words.import,

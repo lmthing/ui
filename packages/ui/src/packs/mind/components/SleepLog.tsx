@@ -139,13 +139,13 @@ function NightSummary({ input, density, full }: { input: SleepLogProps; density:
           <SleepValue part="wake" label={sleep.wake} value={lines.wake} density={density} />
         </kit.KitGrid>
       </kit.KitContent>
-      <kit.KitContent group="response" density={density}>
+      {input.style === "stages" && input.stages ? <StageBreakdown {...{ input, density }} /> : <kit.KitContent group="response" density={density}>
         <kit.KitGrid density={density}>
           <kit.KitText part={null} role="caption" density={density}>{lines.share}</kit.KitText>
           <kit.KitText part={null} role="caption" density={density} tone="muted">{lines.awake}</kit.KitText>
         </kit.KitGrid>
         <kit.KitStepsTrack part="night" style="bar" {...lines.track} />
-      </kit.KitContent>
+      </kit.KitContent>}
       {(lines.quality !== undefined || (full && lines.average !== undefined)) && (
         <kit.KitContent group="response" density={density}>
           <kit.KitGrid density={density}>
@@ -182,7 +182,6 @@ export function SleepLog(input: SleepLogProps) {
         ? <kit.KitState part="empty" icon="moon" density={density} />
         : <>
           <NightSummary {...{ input, density, full }} />
-          <StageBreakdown {...{ input, density }} />
           {wearable.length > 0 && <kit.KitContent group="response" density={density}>
             <kit.KitGrid density={density}>{wearable.map((line) => <SleepValue key={line.part} {...line} density={density} />)}</kit.KitGrid>
           </kit.KitContent>}

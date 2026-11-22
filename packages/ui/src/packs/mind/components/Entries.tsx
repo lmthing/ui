@@ -20,8 +20,9 @@ export const meta = {
     density: ["comfortable", "compact"],
     surface: ["card", "outlined"],
     detail: ["full", "brief"],
+    media: ["thumb", "none"],
   },
-  variantParts: { "detail.brief": { hides: ["tags"] } },
+  variantParts: { "detail.brief": { hides: ["tags"] }, "media.none": { hides: ["photo"] } },
   parts: ["root", "month", "empty", "prompt"],
   items: { key: "entries", parts: ["root", "date", "mood", "text", "tags", "photo"] },
   states: ["filled", "empty", "loading"],
@@ -29,7 +30,7 @@ export const meta = {
   writeHints: [
     "Use real dates in YYYY-MM-DD, newest first. Each entry needs a goto screen id; when fewer than three tags are known, provide only those tags.",
     'Use detail null when tags should be visible, including whenever the journal brief names tags to show. Use detail "brief" only when explicitly asked to hide tags. Write null for unrequested density and surface; never fill in default variant names.',
-    'Use style "compact" for a one-line excerpt without thumbnails; density sets spacing only. Keep any source photos in entries. Leave style null for the ordinary two-line feed, and supply prompt only if a shared journal prompt badge is requested.',
+    'For a compact digest with one-line excerpts and no thumbnails, use {"density":"compact","media":"none"}. Media "none" suppresses thumbnails and makes excerpts single-line; keep any source photos in entries. Leave media null for the ordinary feed. Supply prompt only if a shared journal prompt badge is requested.',
   ],
   read: (input, state, lang): string[] => {
     if (state !== "filled") return [];
@@ -66,7 +67,6 @@ const entry = z.strictObject({
 export const props = z
   .strictObject({
     ...c.variantProps(meta.variants),
-    style: z.enum(["feed", "compact"]).default("feed"),
     prompt: c.text(24).optional(),
     entries: z.array(entry).min(1).max(6),
   })
@@ -103,7 +103,7 @@ export const examples = [
     { date: "2026-11-04", mood: 3, text: "I put my phone away early to write.",
       tags: ["Evening"], goto: "nov_04" },
   ] },
-  { style: "compact", prompt: "Small joys", entries: [
+  { density: "compact", media: "none", prompt: "Small joys", entries: [
     { date: "2026-10-02", text: "I took my time over breakfast.",
       tags: [], photo: "lib:parks", goto: "oct_02" },
     { date: "2026-09-29", mood: 5, text: "I laughed on the way home.",
@@ -132,9 +132,9 @@ export const probes = [
   read("Open the reflection about putting my phone away early.", { address: "e1/r2", action: "press" }),
   {
     ...write(
-      "Show a journal entry dated 2026-11-19, ‘I felt calmer after walking’, linking to nov_19. Use the layout with one line of excerpt per entry and no thumbnails.",
+      "Show a journal entry dated 2026-11-19, ‘I felt calmer after walking’, linking to nov_19. Make a compact digest with one-line excerpts and no thumbnails.",
     ),
-    expectProps: { style: "compact" },
+    expectProps: { density: "compact", media: "none" },
   },
   {
     ...write(
@@ -182,7 +182,7 @@ export function Entries(input: EntriesProps) {
         return <kit.KitContent key={month} group={index ? "response" : "content"} {...{ density }}>
           <kit.KitHeader title={{ text: heading, part: index ? null : "month" }} density="comfortable" />
           <kit.KitRowGroup density={density}>
-            {rows.map((entry) => <EntryRow key={entry.id} {...{ entry, density }} compact={input.style === "compact"} />)}
+            {rows.map((entry) => <EntryRow key={entry.id} {...{ entry, density }} compact={input.media === "none"} />)}
           </kit.KitRowGroup>
         </kit.KitContent>;
   });
