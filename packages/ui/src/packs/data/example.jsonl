@@ -7,6 +7,7 @@
 {"id":"s2","c":"Stats","tiles":[{"label":"Orders","value":"45"},{"label":"Returns","value":"4"}]}
 {"id":"l1","c":"LineChart","title":"Weekly sales","unit":"orders","labels":["W1","W2","W3","W4"],"series":[{"label":"Orders","values":[6,9,12,18]},{"label":"Returns","values":[0,1,1,2]}]}
 {"id":"b2","c":"Bars","title":"Sales by category","unit":"orders","style":"share","points":[{"label":"Tools","value":20},{"label":"Seeds","value":25}]}
+{"id":"v1","c":"Funnel","title":"Order conversion","unit":"orders","stages":[{"label":"Cart opened","count":100},{"label":"Checkout started","count":60},{"label":"Paid","count":45}]}
 {"id":"h3","c":"Header","title":"Stockroom traffic"}
 {"id":"m1","c":"Heatmap","title":"Busy hours","unit":"visits","style":"hours","days":[[0,0,0,0,2,4,6,5,3,1,0,0],[0,0,0,0,2,4,7,4,2,1,0,0],[0,0,0,0,3,4,8,4,3,1,0,0],[0,0,0,0,3,5,8,5,3,1,0,0],[0,0,0,0,4,6,9,6,3,1,0,0],[0,0,0,0,5,8,9,7,4,1,0,0],[0,0,0,0,3,5,7,6,2,1,0,0]]}
 {"id":"b3","c":"Bars","title":"Weekend visits","unit":"visits","points":[{"label":"Sat","value":34},{"label":"Sun","value":24}]}

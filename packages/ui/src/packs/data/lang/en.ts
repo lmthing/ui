@@ -1,5 +1,7 @@
 import type { LDMLPluralRule } from "../../../catalog";
 
+const funnelOverall = "Overall conversion";
+
 export type DataWords = {
   activityLabel: (who: string, text: string, time: string) => string;
   boardCard: (id: string, fields: readonly (string | undefined)[]) => string;
@@ -17,9 +19,9 @@ export type DataWords = {
   chartSeriesPoints: (series: string) => string;
   chartUnit: (unit: string) => string;
   chartValue: (value: string, unit: string) => string;
-  funnelConversion: string;
-  funnelEmpty: string;
+  funnelConversion: (rate: string) => string;
   funnelFromPrevious: (rate: string) => string;
+  funnelOverall: string;
   funnelUnavailable: string;
   heatDay: (index: number, short?: boolean) => string;
   heatDetail: (style: "weeks" | "hours") => string;
@@ -51,9 +53,9 @@ export const en = {
   chartSeriesPoints: (series) => `${series} data points`,
   chartUnit: (unit) => `Unit: ${unit}`,
   chartValue: (value, unit) => `${value} ${unit}`,
-  funnelConversion: "Overall conversion",
-  funnelEmpty: "No stage activity yet",
-  funnelFromPrevious: (rate) => `${rate} from previous`,
+  funnelConversion: (rate) => `${funnelOverall}: ${rate}`,
+  funnelFromPrevious: (rate) => `From previous: ${rate}`,
+  funnelOverall,
   funnelUnavailable: "Not available",
   heatDay: (index, short) =>
     (short
