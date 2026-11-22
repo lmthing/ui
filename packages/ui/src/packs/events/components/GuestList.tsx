@@ -91,7 +91,7 @@ export const probes = [
   ),
   {
     ...write(
-      "In our invitation roster, Ruth Shah of the Shah family accepted with one extra guest and a vegetarian diet; link to ruth. Keep her dietary note in the data but leave it off the screen.",
+      "In our invitation roster, Ruth Shah of the Shah family accepted with one extra guest and a vegetarian diet; link to ruth. Keep her dietary note in the data but leave it off the screen. Leave spacing and card surface unset.",
     ),
     variant: { axis: "detail", value: "brief" },
   },
