@@ -6,3 +6,4 @@
 - `RequestResolution.test.ts` covers the wire contract, verification and host-gated resolution actions.
 - `WorkOrder.test.ts` covers the wire contract, fallback, read/act, and host-bound work gates.
 - `SlaPolicy.test.ts` covers the wire contract, SLA states, addresses and policy navigation.
+- `CannedReplies.test.ts` covers the wire contract, filtering, preview, and draft insertion gates.

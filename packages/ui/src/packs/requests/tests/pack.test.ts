@@ -18,7 +18,15 @@ import {
   type Definition,
 } from "@lmthing/ui/catalog";
 
-const ids = ["RequestQueue", "RequestTriage", "RequestThread", "WorkOrder", "RequestResolution", "SlaPolicy"];
+const ids = [
+  "RequestQueue",
+  "RequestTriage",
+  "RequestThread",
+  "WorkOrder",
+  "RequestResolution",
+  "SlaPolicy",
+  "CannedReplies",
+] as const;
 const scoped = createRegistry({ packs: ["requests"], includeDrafts: true });
 const recipes = {
   "report_issue/requests_intake": ["Header", "Field", "Field", "Choice", "Composer", "Button"],

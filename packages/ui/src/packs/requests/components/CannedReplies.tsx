@@ -1,74 +1,150 @@
 import { z } from "zod";
+import * as c from "../../../catalog";
+import * as kit from "../../../kit";
 import {
-  clip,
-  itemsOf,
-  placeholderTitle,
-  probesFor,
-  text,
-  thingOf,
-  titleOf,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
+  allReplyCategories,
+  cannedReplyPreview,
+  cannedReplySnippet,
+  projectCannedReplies,
+  readCannedReplies,
+  validReplyCategories,
+} from "../copy";
+import { requestsWordsFor, type RequestsWords } from "../lang";
 
 // Core first: Composer[reply] edits one draft but cannot browse, preview or insert a saved reply template.
+// prettier-ignore
 export const meta = {
-  id: "CannedReplies",
-  status: "draft",
-  group: "input",
-  tier: "phone",
-  pick: "selecting and inserting reusable support or maintenance reply templates into a draft. Not typing a blank reply (Composer), browsing generic rows (List), or displaying the request stream (RequestThread).",
+  id: "CannedReplies", status: "draft", group: "input", tier: "phone", region: "body", weight: 3, dense: true,
   purpose: "Find a saved reply and put it in a support draft without sending it.",
-  region: "body",
-  weight: 3,
-  realPath:
-    "reusable reply templates saved on the operator's device or shared team library; sending still runs through RequestThread.",
-  dense: true,
-  parts: ["root", "category"],
-  items: { key: "templates", parts: ["root", "insert"] },
-  actions: { parts: { category: ["select"] }, items: { insert: ["press"], root: ["press"] } },
+  pick: "Filter and preview reusable support or repair reply templates, then insert one into the active draft without sending. Not typing a blank reply (Composer), browsing generic rows (List), or showing the request stream (RequestThread).",
+  realPath: "Reply templates are saved on the operator's phone or shared library, and RequestThread sends only on a separate action.",
+  writeHints: [
+    "Every template category and activeCategory must match a declared category. Use null for an uncategorized template or to start on All. All is a built-in filter, not a category to write.",
+    'For title chips with no initial snippets set detail to "brief" and keep every template body. Use null on unrequested density and surface axes.',
+  ],
+  variants: { detail: ["full", "brief"], surface: ["card", "outlined"], density: ["comfortable", "compact"] },
+  variantParts: { "detail.brief": { hides: ["snippet"] } },
+  parts: ["root", "title", "category", "empty"],
+  items: { key: "templates", visibleWhen: { visible: true }, parts: ["root", "title", "snippet", "preview", "insert"] },
+  actions: { parts: { category: ["select"] }, items: { insert: ["press"], root: ["press"] }, when: { category: { hasCategories: true } } },
+  selections: { category: { prop: "activeCategory", choices: { prop: "categories" }, runtime: true, clear: allReplyCategories() } },
+  localState: cannedReplyPreview,
+  live: { derive: projectCannedReplies },
+  drives: { commands: [
+    { scope: "item", part: "insert", to: { component: "RequestThread", part: "field" }, action: "type", payload: { from: "body" } },
+  ] },
   states: ["filled", "empty", "loading"],
-} as const satisfies Meta;
-export const props = z.strictObject({
-  categories: z.array(text(16)).min(0).max(5),
-  templates: z
-    .array(z.strictObject({ title: text(28), category: text(16).optional(), body: text(240) }))
-    .min(1)
-    .max(12),
-  activeCategory: text(16).optional(),
-  style: z.enum(["list", "compact"]).default("list"),
+  read: readCannedReplies,
+} as const satisfies c.Meta;
+
+// prettier-ignore
+const template = z.strictObject({
+  title: c.text(28), category: c.text(16).meta({ kind: undefined }).optional(),
+  body: c.text(240).meta({ kind: undefined }),
 });
 
-export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
-  const thing = thingOf(cast);
-  const items = itemsOf(cast, 1);
-  function castTitle(max: number, index: number) {
-    const item = items[index];
-    return (item && titleOf(item, max, thing)) || clip(placeholderTitle(index, lang), max);
-  }
+// prettier-ignore
+export const props = z.strictObject({
+  categories: z.array(c.text(16).meta({ kind: undefined })).min(0).max(5),
+  templates: z.array(template).min(1).max(12), activeCategory: c.text(16).meta({ kind: undefined }).optional(),
+  ...c.variantProps(meta.variants),
+}).refine(validReplyCategories, { path: ["categories"], message: "Use unique category names and reference only declared categories" })
+  .overwrite((input) => ({ ...input, hasCategories: input.categories.length > 0 }));
+
+export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
+  const templates = c.itemsOf(cast, 3).map((item, i) => {
+    const thing = c.thingOf(cast, item.type);
+    return {
+      title: c.titleOf(item, 28, thing) || c.placeholderTitle(i, lang),
+      body: c.detailOf(item, 240, thing) || c.wordsFor(lang).placeholderDetail,
+    };
+  });
   return {
-    categories: Array.from({ length: 0 }, (_, index) => castTitle(16, index)),
-    templates: Array.from({ length: 1 }, (_, index) => ({
-      title: castTitle(28, index),
-      body: castTitle(240, index),
-    })),
+    categories: [],
+    templates: templates.length
+      ? templates
+      : [{ title: c.placeholderTitle(0, lang), body: c.wordsFor(lang).placeholderDetail }],
   };
 }
 
-// TODO: Replace the neutral seed with two real examples covering styles and optional fields.
-export const examples = [fallback({ cast: { things: [], items: [] } })] satisfies z.input<typeof props>[];
+// prettier-ignore
+export const examples = [
+  { categories: ["Diagnosis", "Update"], templates: [
+    { title: "Ask for a leaf photo", category: "Diagnosis", body: "Could you send a close photo of the underside of a spotted leaf? A photo in daylight helps me check for pests." },
+    { title: "Grow light ordered", category: "Update", body: "I’ve ordered the replacement grow light. I’ll confirm the installation time once it arrives." },
+  ] },
+  { categories: ["Pickup", "Follow-up"], activeCategory: "Pickup", detail: "brief", templates: [
+    { title: "Confirm key handover", category: "Pickup", body: "I can collect the spare key at 8:30 before the park walk. Please let me know if that works." },
+    { title: "Meet at the side gate", category: "Pickup", body: "I’ll meet you at the side gate for pickup. Please clip the lead on before opening the latch." },
+    { title: "Check on the new lead", category: "Follow-up", body: "Is the new lead working well on your walks? I can bring a shorter one if it’s easier to handle." },
+  ] },
+] satisfies z.input<typeof props>[];
 
-// TODO: Replace the probe prompts and verify the fixture address and any action gates.
-const { choose, write, read } = probesFor("CannedReplies");
+const { choose, write, read } = c.probesFor("CannedReplies");
+// prettier-ignore
 export const probes = [
-  choose("TODO: describe the need this component should win"),
-  choose("TODO: describe the nearest wrong choice", "Composer"),
-  write("TODO: describe realistic values and intent in the person’s words"),
-  read("TODO: ask for this action in the person’s words", { address: "c1/category", action: "select" }),
-] satisfies Probe[];
+  choose("Give the repair desk a categorized picker of reusable reply templates that staff can preview and put into a draft without sending."),
+  choose("Give me an empty multiline box where I can type a reply from scratch, not a library of saved phrases.", "Composer"),
+  write("Set up one saved template for the Diagnosis category. Title: Ask for a leaf photo. Body: Could you send a clear photo of the spotted leaf? Start with all categories visible."),
+  { ...write("Show saved reply templates as title-only insertion chips, not snippet rows: Diagnosis, Ask for a leaf photo, body Could you send a photo of the spotted leaf? Leave surface and density unchanged."), variant: { axis: "detail", value: "brief" } },
+  read("Switch the saved reply templates to the Update category", { address: "c1/category", action: "select" }),
+  read("Preview the full text of Ask for a leaf photo, without inserting it", { address: "c1/r1", action: "press" }),
+] satisfies c.Probe[];
 
-export function CannedReplies(_input: Props<typeof props, typeof meta>) {
-  return null;
+type ReplyProps = c.Props<typeof props, typeof meta>;
+type Reply = ReplyProps["templates"][number] & { visible: boolean; previewOpen: boolean };
+
+// prettier-ignore
+function ReplyCategories({ categories, value, words, loading }: {
+  categories: string[]; value: string | undefined; words: RequestsWords["cannedReplies"]; loading: boolean;
+}) {
+  if (!categories.length) return null;
+  return <kit.KitTrack part="category" role="radiogroup" label={words.category}>
+    <kit.KitChip item={null} label={words.all} value={allReplyCategories()} on={!value} role="radio" disabled={loading} />
+    {categories.map((label) => <kit.KitChip key={label} item={null} {...{ label }} on={value === label} role="radio" disabled={loading} />)}
+  </kit.KitTrack>;
+}
+
+// prettier-ignore
+function ReplyRow({ row, brief, density, words, lang, loading }: {
+  row: Reply; brief: boolean; density: c.ThemeDensity; words: RequestsWords["cannedReplies"]; lang: string; loading: boolean;
+}) {
+  const insert = <kit.KitAction part="insert" label={brief ? row.title : words.insert}
+    kind={brief ? "secondary" : "quiet"} a11y={words.insertReply(row.title)}
+    {...(brief ? { contentParts: { label: "title" } } : {})} />;
+  const title = <kit.KitLayoutText density={density} line={{ text: row.title, part: "title", strong: true }} />;
+  const text = row.previewOpen ? row.body : brief ? undefined : cannedReplySnippet(row.body, lang);
+  return <kit.KitRow item={row.id} part={null} inset="none" inline label={row.title} trailing={!brief ? insert : undefined} density={density}>
+    <kit.KitContent density={density}>
+      {brief && insert}
+      <kit.KitRow part={loading ? null : "root"} role={loading ? "text" : "button"} expanded={row.previewOpen}
+        inset="none" label={words.previewReply(row.title)} density={density}>
+        {brief ? <kit.KitLayoutText density={density} line={{ text: words.preview, role: "caption", tone: "muted" }} /> : title}
+      </kit.KitRow>
+      <kit.KitLayoutText density={density} line={{ text, part: row.previewOpen ? "preview" : "snippet", role: "meta", tone: "muted" }} />
+    </kit.KitContent>
+  </kit.KitRow>;
+}
+
+// prettier-ignore
+export function CannedReplies(input: ReplyProps) {
+  const state = kit.useComponentState(), loading = state === "loading";
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const { lang, words: { cannedReplies: words } } = kit.useWords(requestsWordsFor);
+  const { templates, activeCategory } = kit.useLiveControls(meta, input) as { templates: Reply[]; activeCategory?: string };
+  const rows = templates.filter(({ visible }) => visible);
+  const content = <>
+    <kit.KitHeader title={{ text: words.title, part: "title" }} {...{ density }} />
+    <ReplyCategories categories={input.categories} value={activeCategory} {...{ words, loading }} />
+    {rows.length ? <kit.KitRowGroup {...{ density }}>
+      {rows.map((row) => <ReplyRow key={row.id} {...{ row, density, words, lang, loading }} brief={detail === "brief"} />)}
+    </kit.KitRowGroup> : <kit.KitLayoutText density={density} line={{ text: words.noMatches, part: "empty", role: "meta", tone: "muted" }} />}
+  </>;
+  return <kit.KitCard padded {...{ density, surface }}>
+    <kit.KitState loading={content} message={words.empty} part="empty" icon="message" {...{ density }}>
+      {content}
+    </kit.KitState>
+  </kit.KitCard>;
 }

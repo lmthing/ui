@@ -6,3 +6,4 @@ Data-only formatting and reading helpers use the Requests language dictionary. I
 - `RequestThread.ts`: thread ordering, timeline, reading, and loading helpers.
 - `RequestTriage.ts`: triage reading helper.
 - `SlaPolicy.ts`: deadline validation, clock projection and SLA reading.
+- `CannedReplies.ts`: category validation, preview state, snippets, and reading.
