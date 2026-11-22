@@ -50,8 +50,8 @@ function plotBands(points: readonly Point[], band: LinePlotProps["band"]) {
   if (!band) return runs;
   let current: BandPoint[] = [];
   for (const [i, { x }] of points.entries()) {
-    const low = band.low[i],
-      high = band.high[i];
+    const low = band.low[i];
+    const high = band.high[i];
     if (low === undefined || high === undefined || ![low, high, x].every(Number.isFinite) || low > high) {
       current = [];
       continue;
