@@ -32,7 +32,7 @@ links evidence to allocations; `TaxYear` matches a period's records, not model-w
 
 ## Components (7)
 
-### `Documents` · planned · data · phone
+### `Documents` · planned · data · phone · body · weight 2
 
 A file register with title, owner, issuer, masked number, attachment and optional expiry. Warnings are
 computed; opening a record shows its local file, never an unmasked number in an agent read.
@@ -42,14 +42,25 @@ computed; opening a record shows its local file, never an unmasked number in an 
   `Warranties`) or rental terms and rent dates (inventory `Lease`).
 - Writes: `docs` of `title` text(32), `kind` (`id`, `insurance`, `certificate`, `tax`, `contract`, `form`,
   `other`), `owner` text(24), `issuer` text(24) optional, `number` secret(32) optional, `issued` date
-  optional, `expires` date optional, `file` (private attachment reference text(120)) optional, `tags` text(16) each
-  0–3, `goto` optional, 1–6; `style`. Expiry status and time left come from `expires` and the host's clock.
-- Styles: `rows` (default), `cards` (file-type tile, not a readable thumbnail of an ID).
-- Parts → actions: docs `root press` (opens `goto` or the local file), docs `remove press`
-  (`meta.confirmParts: ["remove"]`; removes the register entry, not the source file).
+  optional, `expires` date optional, `file` text(120) optional, `tags` text(16) each
+  0–3, `goto` optional, `folder` text(24) optional, `pages` int ≥ 1 optional, `share` boolean optional,
+  1–6; `style` (`cards`, `folders`) optional. `file` is a private `local:<id>` or synthetic `lib:<id>`.
+  Expiry status and time left come from `expires` and the host's clock.
+- Styles: density: `comfortable` (default), `compact`; surface: `card` (default), `plain`;
+  detail: `full` (default), `brief` (hides `issuer`, `number`, `issued`, `tags`). Omitting `style`
+  preserves rows; `cards` uses file-type tiles, not readable photos of IDs. `folders` groups in
+  first-appearance order with unfiled records last, without changing item addresses.
+- Parts → actions: `root`, `empty`, `error`; docs `root press` (opens `goto` or the local file), docs
+  `title`, docs `kind`, docs `owner`, docs `issuer`, docs `number`, docs `issued`, docs `expires`,
+  docs `file`, docs `tags`, docs `warning`, docs `folder` (row detail outside folders style), docs
+  `pages`, docs `share press` (only with explicit `share: true`, an attachment and an available
+  `shareDocument` host command), docs `remove press` (removes the entry, not the source file), docs
+  `remove_icon`. `meta.partTiers: { share: "service" }`, `meta.confirmParts: ["remove", "share"]`.
 - States: filled, empty, loading, error (file unavailable).
 - Real path: records and private attachments kept on the device; original files are opened by a local
-  host viewer, with identifiers masked and read as `(secret)`.
+  host viewer, with identifiers masked and read as `(secret)`. Share hands only the selected row's
+  address to the host. The host resolves the attachment and must obtain the person's approval and
+  recipient choice before releasing it.
 
 ### `Renewals` · planned · data · phone
 
@@ -89,26 +100,35 @@ percentage records the person's assigned share; code computes its amount without
 - Real path: receipts entered or photographed with core `Camera`, checked by the person and stored
   locally; amounts use the brief's currency through `moneyLine`, not a bank or tax service.
 
-### `Signature` · planned · input · phone
+### `Signature` · planned · input · phone · body · weight 3
 
 One personal form's drawing pad, labelled with document and signer, with clear and save controls. Saving
 binds the person's drawn mark to that version as a dated local copy, without claiming identity assurance.
 
 - Pick: drawing a signature on a personal administrative form. Not typed-name acceptance of a client's
   waiver (customers `Agreement`), a tick box (`Field[toggle]`) or merely viewing a document (`Documents`).
-- Writes: `title` text(32), `document` (private attachment reference text(120)), `signer` text(28), `hint` text(60)
-  optional; `style`. The mark, document version, timestamp and saved state are host-owned, not Writer
-  props. Showcase marks must be visibly synthetic fixtures, never copied real signatures.
-- Styles: `pad` (default; the original opens in the host viewer before drawing).
-- Parts → actions: `document press` (local preview), `review check` (confirms the opened version was
-  reviewed), `pad set` (device-created local mark reference text(120); human strokes produce it),
-  `clear press` (`meta.confirmParts: ["clear"]`), `save press`.
-  Save is disabled without a mark and a reviewed document version; changed documents invalidate the draft.
+- Writes: `title` text(32), `document` text(120), `signer` text(28), `hint` text(60) optional,
+  `style`, `datedStamp` boolean optional. `document` is a private `local:<id>` or synthetic `lib:<id>`.
+  Only `datedStamp: true` asks the host to stamp the signing date on the copy itself. The mark, document
+  version, timestamp and saved state are host-owned, not Writer props. Showcase marks must be visibly
+  synthetic fixtures, never copied real signatures.
+- Styles: `pad` (default; draw a full signature), `initials` (draw initials in the same private pad);
+  density: `comfortable` (default), `compact`; surface: `card` (default), `plain`; detail: `full`
+  (default), `brief` (hides `hint`).
+- Parts → actions: `root`, `title`, `signer`, `hint`, `document press` (local preview),
+  `document_label`, `document_icon`, `review check` (confirms the opened version was reviewed),
+  `review_label`, `pad set` (device-created local mark reference text(120); human strokes produce it),
+  `pad_frame`, `clear press`, `clear_label`, `save press`, `save_label`, `success`, `error`, `sub`,
+  `date_stamp` (when requested, before saving). `meta.confirmParts: ["clear"]`.
+  Save requires a mark for the reviewed document version and current signing options. The host must
+  acknowledge `initials` and `datedStamp: true` in the matching signature record; omit those fields for
+  the legacy pad. The optional host `draft.date` displays the signing date before saving; only a
+  saved host record for the current version confirms a stamped copy.
 - States: empty (no mark), filled (draft mark), loading, success (copy saved), error (file or save failed).
 - Real path: a new kit drawing base captures a person's touch or stylus input, and the host saves a local
   signed copy without overwriting the original; identity verification and remote signing are not included.
 
-### `TaxYear` · planned · data · phone
+### `TaxYear` · planned · data · phone · body · weight 3
 
 One filing period's evidence categories, with required and matched counts, missing files and receipt and
 allocation totals. Up to eight categories open their evidence; a task tick cannot substitute for a file.
@@ -116,13 +136,18 @@ allocation totals. Up to eight categories open their evidence; a task tick canno
 - Pick: completeness of tax evidence for a specified period, computed from linked records. Not a
   general task list (`Checklist`), money in and out (money `Transactions`), a client's invoice (customers
   `Invoice`) or a back-office table of arbitrary records (data `Table`).
-- Writes: `label` text(24), `from` and `to` dates (`from` ≤ `to`), `due` date optional, `requirements` of
+- Writes: `label` text(24), `from` date, `to` date, `due` date optional, `requirements` of
   `label` text(32), `source` (`documents`, `receipts`), `tag` text(16), `needed` int 1–12, `goto` optional,
-  1–8; `style`. Matches need a usable attachment and this period's link and tag; receipts also need
-  `reviewed: true` and dates within the inclusive period. Code computes counts, totals and warnings,
-  not tax owed; unreviewed or file-less records stay outstanding.
-- Styles: `categories` (default), `summary` (compact category rows with the same evidence links).
-- Parts → actions: requirements `root press` (opens the matching evidence or collection screen).
+  1–8. `from` must be on or before `to`. Matches need a usable attachment and this period's link and
+  tag; receipts also need `reviewed: true` and dates within the inclusive period. Code computes
+  counts, totals and warnings, not tax owed; unreviewed or file-less records stay outstanding.
+- Styles: density: `comfortable` (default), `compact` (summary rows with the same evidence links);
+  surface: `card` (default), `plain`; detail: `full` (default), `brief` (hides `due`, `receipt_total`,
+  `allocation_total`).
+- Parts → actions: `root`, `label`, `from`, `to`, `due`, `receipt_total`, `allocation_total`, `empty`,
+  `success`; requirements `root press` (opens the matching evidence or collection screen when `goto`
+  is present), requirements `label`, requirements `meta`, requirements `matched`, requirements
+  `needed`, requirements `missing`.
 - States: filled, empty (no linked evidence), loading, success (every requirement met, not a filed return).
 - Real path: the device matches explicitly linked `Documents` and `Receipts` records against requirements
   entered by the person or their accountant; official tax rules, filing and tax advice remain outside.

@@ -150,11 +150,12 @@ function TaxSummary({ input, evidence, data, density, loading, lang }: {
 }) {
   const { taxYear: words } = paperworkWordsFor(lang);
   const lines = taxYearLines(input, evidence, data, lang);
+  const heading = density === "compact" ? "title" : "heading";
   const dates = lines.filter(({ number }) => number === undefined), totals = lines.filter(({ number }) => number !== undefined);
-  return <kit.KitRow part={null} label="" lineRole="heading" {...{ density }}>
+  return <kit.KitRow part={null} label="" lineRole={heading} {...{ density }}>
     {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} emphasis="hero"
-      content={[["heading", input.label], ...dates.map(({ line }): ["caption", string] => ["caption", line])]} /> : <>
-      <kit.KitText part="label" role="heading" emphasis="hero" {...{ density }}>{input.label}</kit.KitText>
+      content={[[heading, input.label], ...dates.map(({ line }): ["caption", string] => ["caption", line])]} /> : <>
+      <kit.KitText part="label" role={heading} emphasis="hero" {...{ density }}>{input.label}</kit.KitText>
       {dates.map(({ part, line }) => <kit.KitText key={part} {...{ part }} role="caption" tone="muted">{line}</kit.KitText>)}
     </>}
     {totals.length > 0 && <kit.KitContent group="response" density={density}>

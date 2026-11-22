@@ -13,6 +13,8 @@ import {
   type ScannerBrightnessAdapter,
 } from "@lmthing/ui/kit";
 
+export { SignaturePreview } from "./signature-preview";
+
 const previewSeed = 123456789;
 export const previewComponent = "c1";
 export const drawPreviewEnvironment: Environment = {
