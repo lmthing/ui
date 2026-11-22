@@ -104,8 +104,15 @@ it.each([
 });
 
 it("keeps separate table and guest targets when owner-projected assignments change", () => {
-  const { meta, props, examples } = components.Seating;
-  const input = stampItemIds(meta, props.parse(examples[0])) as Parameters<typeof SeatingPlan>[0];
+  const { meta, props } = components.Seating;
+  const parsed = props.parse({
+    tables: [
+      { label: "Oak", shape: "round", seats: 8, guests: ["Ruth Shah", "Sam Gray"] },
+      { label: "Birch", shape: "long", seats: 10, guests: [] },
+    ],
+    unseated: ["Deepa Shah"],
+  });
+  const input = stampItemIds(meta, parsed) as Parameters<typeof SeatingPlan>[0];
   const first = render(<SeatingPlan {...input} />);
   expect(partText(first, "r1/seats")).toBe("2 / 8");
   expect(partText(first, "r2/seats")).toBe("0 / 10");

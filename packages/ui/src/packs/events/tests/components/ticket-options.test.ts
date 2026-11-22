@@ -1,7 +1,7 @@
 import { expect, it, vi } from "vitest";
 import { components, readComponent, type StateName } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { addressedElements, renderInstance } from "../../../../../test/render";
+import { addressedElements, renderInstance, styleAt } from "../../../../../test/render";
 
 const { Ticket } = components;
 const input = Ticket.examples[0]!;
@@ -29,6 +29,18 @@ it.each(["badge", "pass"] as const)("renders assigned seats independently in the
   expect(read(given)).toContain("Valid");
   expect(read(given)).not.toContain("t1/transfer");
 });
+
+it.each(["comfortable", "compact"] as const)(
+  "uses the date's text size for the bold ticket number in %s",
+  (density) => {
+    const html = renderInstance("Ticket", { ...input, density }, "filled", theme, { component: "t1" });
+    const date = styleAt(html, "home/t1/date").match(/font-size:[^;!]+/)?.[0];
+    const number = styleAt(html, "home/t1/number");
+    expect(date).toBeDefined();
+    expect(number).toContain(date);
+    expect(number).toContain("font-weight:700");
+  },
+);
 
 it.each([
   { section: "x".repeat(17) },

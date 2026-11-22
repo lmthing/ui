@@ -1,14 +1,13 @@
-import { numberLine, type Props } from "../../../catalog";
+import type { Props } from "../../../catalog";
 import { KitCard, KitState, useComponentState, useVariant, useWords } from "../../../kit";
 import { SeatPlan, type SeatPlanProps } from "../../../kit/renderers";
 import { Seating } from "../components";
-import { seatingCount } from "../copy";
 import { eventsWordsFor } from "../lang";
 
 type Input = Props<typeof Seating.props, typeof Seating.meta>;
 type Guest = Extract<Input["entries"][number], { kind: "guest" }>;
 type Tables = Extract<SeatPlanProps, { kind: "tables" }>;
-type Words = ReturnType<typeof eventsWordsFor>["seating"];
+type Words = ReturnType<typeof eventsWordsFor>["seatPlan"];
 type Moves = Readonly<Record<string, readonly string[]>>;
 
 function guestSeat(guest: Guest, words: Words, moves: Moves | undefined) {
@@ -24,7 +23,7 @@ function guestSeat(guest: Guest, words: Words, moves: Moves | undefined) {
       .map((word) => Array.from(word)[0])
       .join(""),
     target: { item: id, part: "root" },
-    move: { destinations: moves?.[id] ?? [], label: words.move },
+    move: { destinations: moves?.[id] ?? [], label: (table: string) => words.move(name, table) },
   };
 }
 
@@ -46,12 +45,12 @@ function tablePlan(
         shape: table.shape,
         target: { item: table.id, part: "root" },
         labelPart: "label",
-        count: { part: "seats", text: seatingCount(guests.length, table.seats, lang) },
+        count: { part: "seats", text: words.count(guests.length, table.seats, lang) },
         seats: [
           ...guests,
           ...Array.from({ length: Math.max(0, table.seats - guests.length) }, (_, at) => ({
             id: `vacancy-${at}`,
-            label: words.freeSeat,
+            label: words.available,
           })),
         ],
       },
@@ -68,7 +67,7 @@ export function SeatingPlan({
 }: Input & { moves?: Moves }) {
   const {
     lang,
-    words: { seating: words },
+    words: { seatPlan: words },
   } = useWords(eventsWordsFor);
   const density = useVariant("density", Seating.meta.variants.density, requestedDensity);
   const loading = useComponentState() === "loading";
@@ -81,7 +80,7 @@ export function SeatingPlan({
       part={null}
       loading={loading}
       tables={tablePlan(entries, words, lang, moves)}
-      tray={{ part: "tray", text: words.tray(numberLine(trayGuests.length, lang)), role: "meta" }}
+      tray={{ part: "tray", text: words.tray, role: "meta" }}
       trayGuests={trayGuests}
     />
   );
