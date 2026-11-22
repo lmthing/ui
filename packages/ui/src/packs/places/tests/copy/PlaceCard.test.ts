@@ -50,4 +50,15 @@ describe("PlaceCard copy", () => {
       opening: { text: "Closes 18:00", tone: "warn" },
     });
   });
+
+  it("formats star accessibility labels using the requested language", () => {
+    expect(placeCardCopy(place).ratingLabels).toEqual(["1 of 5", "2 of 5", "3 of 5", "4 of 5", "5 of 5"]);
+    expect(placeCardCopy(place, undefined, "ar-EG").ratingLabels).toEqual([
+      "١ of ٥",
+      "٢ of ٥",
+      "٣ of ٥",
+      "٤ of ٥",
+      "٥ of ٥",
+    ]);
+  });
 });
