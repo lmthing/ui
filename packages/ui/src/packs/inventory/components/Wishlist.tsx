@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { wishCopy, wishReading } from "../copy";
 import { inventoryWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Wishlist.generated";
 
 // Core first: Checklist/default cannot keep a target price and priority or add a purchase to owned stock.
 export const meta = {
   id: "Wishlist",
   status: "ready",
   group: "input",
-  purpose: "Prioritize things you want to buy and mark what you acquire.",
-  pick: "A personal list of desired purchases with target prices, priority or an acquisition action that adds an owned record. Not simple jobs to tick off (Checklist), gifts guests claim (Registry), or products for sale (ProductGrid).",
-  writeHints: [
-    "price and target are numeric amounts without a currency. Priority is a whole number from 1 to 3.",
-    "To hide the target price, set detail to brief and keep the supplied target. Otherwise leave detail null.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

@@ -12,18 +12,16 @@ import {
 } from "../copy";
 import { eventsWordsFor } from "../lang";
 import { seedDate, seedTitles } from "../seeds";
+import { prompt } from "../../../entry/prompt-FindDate.generated";
 
 // Core first: Calendar/week cannot compare each participant's availability across candidate dates.
 const maxDates = 6;
 // prettier-ignore
 export const meta = {
   id: "FindDate", status: "ready", group: "input",
-  purpose: "Compare people's availability and find the best date for a gathering.",
-  pick: "A date-finding matrix: dates as columns and people as rows with yes, maybe or no per date, and the best date computed. Not a calendar to pick a day (Calendar) or a general poll (Poll).",
-  writeHints: [
-    "Give each person exactly one answer per date in the same order. Use none for an unanswered date; do not write a winner.",
-    "Use detail \"brief\" only when asked to omit the reply instructions.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "people",
   realPath: "Availability is collected through a shared app or link.",
   variants: { detail: ["full", "brief"] },

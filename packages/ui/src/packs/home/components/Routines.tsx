@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { homeTimestamp, routineLastRun, routineOrder, routineReading, routineTriggerParts } from "../copy";
 import { homeWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Routines.generated";
 
 // Core first: Field/repeat stores a repeat value, not trigger rules that run connected device commands.
 // prettier-ignore
@@ -10,12 +11,9 @@ export const meta = {
   id: "Routines",
   status: "ready",
   group: "input",
-  purpose: "Manage smart-home rules that run connected devices when their triggers occur.",
-  pick: "Automatic smart-home rules with trigger conditions, device actions, enable switches and manual runs. Not manual scenes (Devices), household chores (Chores, CareSchedule), or a repeat value in a form (Field).",
-  writeHints: [
-    "If asked to hide device action summaries, set detail to \"brief\".",
-    'Optional lastRun is an observed ISO timestamp with an offset, e.g. "2026-11-20T07:00:00+00:00"; omit it when unknown.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "service",

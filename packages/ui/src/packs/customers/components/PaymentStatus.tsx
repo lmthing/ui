@@ -6,18 +6,15 @@ import { z } from "zod";
 import { compactMoneyLine, isoDate, probesFor, text, type CastLike, type Meta, type Probe, type Props, type ThemeDensity, variantProps } from "../../../catalog";
 // prettier-ignore
 import { installmentLine, installmentTotal, paymentDetails, paymentFallback, paymentPaid, paymentReading, paymentStatus } from "../copy";
+import { prompt } from "../../../entry/prompt-PaymentStatus.generated";
 
 export const meta = {
   id: "PaymentStatus",
   status: "ready",
   group: "data",
-  purpose: "Track whether one client payment arrived and mark it paid or remind them.",
-  pick: "One payment from a client, with paid amount, dates, method and mark or remind actions. Not a full bill (Invoice) or the person's own balance (Amount).",
-  writeHints: [
-    "Write amount and optional paid amount, not a status or balance. Code derives paid, due, overdue or part paid from paid, amount and due.",
-    'If asked only to hide the payment method, use {"detail":"brief"} and keep the method in the data. Otherwise detail is null.',
-    'Use style "link" only with a supplied HTTPS paymentLink; never invent a link. For received installments, write their date and amount in installments. If paid is supplied, it is the full amount received and already includes these rows; otherwise code sums the rows.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

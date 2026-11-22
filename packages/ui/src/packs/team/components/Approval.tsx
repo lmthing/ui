@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { approvalAmount, approvalPortrait, approvalReading } from "../copy";
 import { teamWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Approval.generated";
 
 // Core first: Checklist/check records completion, not a manager's approve or decline decision on a request.
 export const meta = {
   id: "Approval",
   status: "ready",
   group: "action",
-  purpose: "Review staff requests and decide whether to approve or decline them.",
-  pick: "A manager decides on submitted staff requests such as time off, swaps and expenses. Not jobs to tick off (Checklist) or a client accepting a quote (Invoice).",
-  writeHints: [
-    'Write amounts as numbers without a currency. Use lead "none" only when asked to hide requester portraits; keep the photo references.',
-    'Set unrequested axes to null: for requests without portraits use {"lead":"none"}.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",

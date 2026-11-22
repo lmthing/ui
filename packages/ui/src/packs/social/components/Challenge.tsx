@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { challengeCopy, challengeReading } from "../copy";
 import { socialWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Challenge.generated";
 
 // Core first: Progress/ring cannot show a group total, a personal contribution and top contributors together.
 export const meta = {
   id: "Challenge",
   status: "ready",
   group: "data",
-  purpose: "Join a shared goal and track the group’s and your own progress.",
-  pick: "A group challenge with a shared goal, deadline, group total, personal contribution and up to three leaders. Not a personal goal (Progress) or a full leaderboard (List).",
-  writeHints: [
-    "goal must be positive. total, mine and top values are measured in the same unit. top is ordered highest first; use [] when no leaders are given. Write the ending date, not days remaining.",
-    'To hide only top contributors, set detail to "brief". Keep any supplied leaders in top. Otherwise use detail: null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",

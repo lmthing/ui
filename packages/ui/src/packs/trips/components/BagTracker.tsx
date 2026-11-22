@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { activeBag, bagReading, bagStageOrder, bagView, scanPart } from "../copy";
 import { tripsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-BagTracker.generated";
 
 const refreshBags = {
   kind: "command",
@@ -20,12 +21,9 @@ export const meta = {
   status: "ready",
   group: "data",
   tier: "service",
-  pick: "Track several checked bags by tag across airline scan checkpoints. Not guided steps (Steps), trip packing (PackingList), parcels (DeliveryTracker) or retail orders (OrderStatus).",
-  purpose: "See where my checked bags were scanned and where to collect them.",
-  writeHints: [
-    "Use 1–4 distinct bag tags. Give each 1–6 unique scan stages in travel order: checked_in, security, loaded, in_transit, unloaded, carousel. Done means scanned; do not invent timestamps or locations.",
-    'Use detail "brief" only when asked to show each bag’s latest scan and carousel rather than its history. Leave unrequested axes null; never write explicit defaults such as "card" or "comfortable".',
-  ],
+  pick: prompt.pick,
+  purpose: prompt.purpose,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   realPath:

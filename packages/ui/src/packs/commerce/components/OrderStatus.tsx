@@ -3,19 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { nextOrderStage, orderStatusReading } from "../copy";
 import { commerceWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-OrderStatus.generated";
 
 // Core first: Steps/default guides the current person through a process, not order progress with stage times and a seller handoff.
 export const meta = {
   id: "OrderStatus",
   status: "ready",
   group: "data",
-  purpose: "Follow an order through fulfillment or move it along as the seller.",
-  pick: "Track fulfillment milestones on one goods order, with timestamps and a seller's next-stage action. Not a multi-step form (Steps), a map (DeliveryTracker), or an order receipt (OrderSummary).",
-  writeHints: [
-    "at is the zero-based current step index and must exist in the steps array. Use a real HH:MM time when known.",
-    "To hide an authored secondary status sentence, set detail to brief and keep the supplied line.",
-    'Use style "carrier" for parcel tracking: carrier, trackingNumber, optional proofPhoto; use steps with times for checkpoints. Use style "pickup" with pickupCode and bay (bay or locker label); write seller false for the buyer and the “I’m here” button.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

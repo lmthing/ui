@@ -5,6 +5,7 @@ import {
   type FallbackInput, type Meta, type Probe, type Props,
 } from "../catalog";
 import { KitCard, KitContent, KitGrid, KitMetaLine, KitRouteStop, KitRow, KitText, useWords } from "../kit";
+import { prompt } from "../entry/prompt-Route.generated";
 
 const modes = ["walk", "bike", "car", "transit", "flight"] as const;
 
@@ -13,11 +14,9 @@ export const meta = {
   status: "ready",
   signature: "route_draw",
   group: "data",
-  purpose: "Follow a path between places, from the first stop to the last.",
-  pick: "Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).",
-  writeHints: [
-    'Leave unrequested axes null. For stop names without their notes, use detail "brief" and keep the notes in each stop’s meta. Keep any total distance visible.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "service",

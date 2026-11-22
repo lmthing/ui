@@ -30,20 +30,16 @@ import {
 import { customersWordsFor } from "../lang";
 import { z } from "zod";
 import { agreementDateLine } from "../copy";
+import { prompt } from "../../../entry/prompt-Agreement.generated";
 
 // Core first: Checklist/default cannot capture one client's consent with terms, typed name and signed date.
 export const meta = {
   id: "Agreement",
   status: "ready",
   group: "input",
-  purpose: "Keep a client's acceptance of terms with their typed name and signing date.",
-  pick: "A waiver, consent or terms signed once by a client. Not jobs to tick (Checklist) or a long read without consent (Article).",
-  writeHints: [
-    "Keep the supplied client's name in name even when signed is false; an unsigned agreement may have a prefilled name.",
-    "Only write date when a signing date is supplied. Never invent a name or signing date.",
-
-    'If asked only to hide the signing date, use {"detail":"brief"} and keep the supplied date in the data. Otherwise detail is null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

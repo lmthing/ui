@@ -5,20 +5,18 @@ import * as kit from "../../../kit";
 import { projectSpeechCheck, readSpeechCheck, speechAttempts, speechFluencyScore, speechMatchedLine,
   speechReveal, speechScoreLine, speechWordLimit, speechWordLine, speechWordStatus } from "../copy";
 import { learningWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-SpeechCheck.generated";
 
 // Core first: Player (audio) plays the reference but cannot record a learner's attempt or show word-level feedback.
 const commandInput = ({ props }: { props: c.Values }) => ({ phrase: String(props.targetPhrase) });
 // prettier-ignore
 export const meta = {
   id: "SpeechCheck", status: "ready", group: "input", tier: "ok",
-  pick: "Practise saying an exact target phrase into a microphone and get per-word pronunciation feedback and a fluency score. Not passive playback (Player), tap-or-type tests (Quiz), or open-ended chat (AiThread).",
-  purpose: "Practise saying a phrase aloud and see which words need another try.",
+  pick: prompt.pick,
+  purpose: prompt.purpose,
   region: "body", weight: 2,
   realPath: "The host records speech with permission and can submit a completed recording to a speech evaluation service.",
-  writeHints: [
-    'Supply the target phrase and its spoken words in order. Leave word status and fluencyScore null until a real evaluation returns results. Use referenceAudio only for the supplied clip reference, not a URL.',
-    'Use style "listen" when the learner hears a reference before seeing the phrase; supply referenceAudio. If the user wants the target visible but optional phonetic and translation hints hidden, use detail "brief" and retain both hints in props.',
-  ],
+  writeHints: prompt.writeHints,
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["phonetic", "translation"] } },
   parts: ["root", "label", "phrase", "phonetic", "translation", "instruction", "listen", "mic", "evaluate",

@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { reservationReading, reservationStampParts } from "../copy";
 import { tripsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Reservation.generated";
 
 // Core first: KeyValue/default cannot draw a travel ticket with a copyable reference and scannable pass.
 export const meta = {
   id: "Reservation",
   status: "ready",
   group: "content",
-  purpose: "Keep a travel confirmation, reference and gate pass together.",
-  pick: "One travel or lodging confirmation, with a copyable reference, optional seat and optional scannable pass. Not simple label/value facts (KeyValue), booking a provider (Appointment), running an event (Ticket), or buying goods (OrderSummary).",
-  writeHints: [
-    'start and end are objects with date (YYYY-MM-DD) and time (HH:MM). Use null for an unknown end; do not guess arrival times. Use style "pass" and code true for a full-width scannable gate pass, otherwise omit style.',
-    'A pass still shows the seat. Set detail to JSON null unless the person explicitly asks to hide the seat or room; only then set detail to "brief" and keep the assignment in seat.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

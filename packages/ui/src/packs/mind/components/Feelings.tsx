@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { feelingCountLine, feelingPlaceholder, readFeelings } from "../copy";
 import { mindWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Feelings.generated";
 
 const wordParts = ["word_1", "word_2", "word_3", "word_4", "word_5", "word_6", "word_7", "word_8"] as const;
 const maxChosen = 3;
@@ -12,8 +13,8 @@ export const meta = {
   id: "Feelings",
   status: "ready",
   group: "input",
-  purpose: "Name up to three precise feelings by choosing words within a family.",
-  pick: "Choose a family such as calm or anxious, then toggle up to three precise feeling words. Not one five-point rating (Scale), things that happened (Factors), or physical symptoms (SymptomLog).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   dense: true,
@@ -41,10 +42,7 @@ export const meta = {
     word_5: ["toggle"], word_6: ["toggle"], word_7: ["toggle"], word_8: ["toggle"],
   } },
   select: { prop: "family", value: "index" },
-  writeHints: [
-    "Give three to six families, each with three to eight words. Chosen has up to three distinct words from the families; use [] when none are selected.",
-    'Use detail "brief" only when asked to hide the instructions, and keep every family and word.',
-  ],
+  writeHints: prompt.writeHints,
   read: (input, state, lang): string[] => {
     if (state !== "filled") return [];
     const { families, detail, family = 0 } = input as z.output<typeof props> & { family?: number };

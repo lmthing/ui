@@ -3,18 +3,15 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { accountCopy, accountReading } from "../copy";
 import { moneyWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-AccountCard.generated";
 // prettier-ignore
 export const meta = {
   id: "AccountCard",
   status: "ready",
   group: "content",
-  purpose: "See each of your accounts and its balance at a glance.",
-  pick: "Your separate accounts as cards, with kind, last digits and balance. Not one total (Amount), or a client's payment (PaymentStatus).",
-  writeHints: [
-    "Set every unrequested axis (detail, arrange) to null, never the default value.",
-    'Hide only ending digits with detail "brief"; keep last4 and leave arrange null. Stack vertically with arrange "rows" only; leave detail null unless asked to hide digits.',
-    "Write optional numeric creditLimit and rewardsValue only when given.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

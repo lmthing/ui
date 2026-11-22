@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import * as cabinView from "../cabin-seats";
 import { cabinControls, cabinReading, cabinSeatStatuses, cabinSelection, validCabin } from "../copy";
+import { prompt } from "../../../entry/prompt-CabinSeats.generated";
 
 const localSeat = c.defineLocalState({
   schema: z.strictObject({
@@ -31,12 +32,9 @@ export const meta = {
   status: "ready",
   group: "input",
   tier: "service",
-  pick: "Pick or change a numbered seat on a flight or train using an aisle map, with optional upgrade fees. Not fare tier options (Choice), banquet tables (Seating), or cinema seats (SeatPicker).",
-  purpose: "Choose or change a numbered seat on a flight or train.",
-  writeHints: [
-    'List unique lettered columns in display order; use "" only for aisle gaps. Use unique row numbers and distinct existing columns in each row. Only one seat can be selected. Do not invent fees; omit them if unknown.',
-    'Use detail "brief" only to zoom to the selected row and its neighbours. Leave unrequested variant axes null.',
-  ],
+  pick: prompt.pick,
+  purpose: prompt.purpose,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   realPath: "Fetch cabin availability and reserve a seat through the carrier's booking service.",

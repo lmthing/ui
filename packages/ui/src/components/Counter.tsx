@@ -15,15 +15,14 @@ import {
   variantProps,
 } from "../catalog";
 import { z } from "zod";
+import { prompt } from "../entry/prompt-Counter.generated";
 
 export const meta = {
   id: "Counter",
   group: "data",
-  purpose: "Increase or decrease one running count by a fixed step with each tap.",
-  pick: "One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).",
-  writeHints: [
-    'Write JSON null for unrequested axes, not the default values. An abbreviated count sets only figures "short"; preserve the exact value and step.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

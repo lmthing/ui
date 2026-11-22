@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { resolutionHeading, resolutionReading, reviewBlocker } from "../copy";
 import { requestsWordsFor, type RequestsWords } from "../lang";
+import { prompt } from "../../../entry/prompt-RequestResolution.generated";
 
 const outcomes = ["repaired", "workaround", "unable", "duplicate"] as const;
 const maxReason = 120,
@@ -12,13 +13,9 @@ const maxReason = 120,
 // prettier-ignore
 export const meta = {
   id: "RequestResolution", status: "ready", group: "action",
-  purpose: "Verify a repair outcome, accept it or reopen the original request.",
-  pick: "Save a proposed repair outcome with evidence and verification checks, then let the requester accept it or reopen the same service ticket. Not a conversation or status updates (RequestThread), a success message (Success), a star rating (Scale), or contract terms (Agreement).",
-  writeHints: [
-    "unable and duplicate require a reason; duplicateOf is required only for duplicate. Reopening also needs a reason at action time.",
-    "Use review for a proposed outcome and receipt for the saved outcome. The host gates actions on roles and linked work; never write completion or acceptance flags.",
-    "For hidden photos, keep all evidence references and set media to \"none\".",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   partTiers: { accept: "people", reopen: "people" }, confirmParts: ["resolve"],
   realPath: "A resolution is saved on the operator's device; acceptance and reopening need a shared app.",

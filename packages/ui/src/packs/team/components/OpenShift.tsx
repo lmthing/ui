@@ -3,17 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { openShiftLines, openShiftReading } from "../copy";
 import { teamWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-OpenShift.generated";
 
 // Core first: Checklist/check marks a job done, not a claim to cover an unassigned shift.
 export const meta = {
   id: "OpenShift",
   status: "ready",
   group: "action",
-  purpose: "Pick up an unassigned shift and see when it runs and what it pays.",
-  pick: "Claim one of several unassigned work shifts with a date, time range, role and optional pay. Not an assigned shift (Shift) or a list of jobs to tick off (Checklist).",
-  writeHints: [
-    'Keep pay as an optional numeric amount without a currency. Use detail "brief" only when asked to hide pay, and retain any supplied pay in the data.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",

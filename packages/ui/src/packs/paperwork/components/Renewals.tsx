@@ -4,19 +4,16 @@ import * as kit from "../../../kit";
 import { actionDate, renewalDetails } from "../copy";
 import { paperworkWordsFor } from "../lang";
 import { seedDate, seedRows } from "../seeds";
+import { prompt } from "../../../entry/prompt-Renewals.generated";
 
 // Core first: Calendar/week shows marked days, not distinct notice and end dates with a dated completion.
 export const meta = {
   id: "Renewals",
   status: "ready",
   group: "data",
-  purpose: "Act on obligations before their notice or expiry dates.",
-  pick: "Act on administrative renewals with separate notice and end dates, dated completion and local reminders. Not dates alone (Calendar), filing expiring documents (Documents), recurring payments (Bills), routine care (CareSchedule) or purchase warranties (Warranties).",
-  writeHints: [
-    "Use actual dates in YYYY-MM-DD. noticeBy cannot be later than due. Omit completedOn unless a real completion date was supplied. Never write derived warnings or completion flags.",
-    'Use style "cards" only for separate cards naming both dates; otherwise leave style null.',
-    'Exact defaults are detail:null. Only a request to hide the owner sets detail:"brief"; keep both dates and leave unrequested axes null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

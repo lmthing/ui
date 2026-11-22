@@ -5,17 +5,15 @@ import * as kit from "../../../kit";
 import { expenseDisplay, expenseEditPath, expenseNet, expenseRead, expenseReceipt, expenseRow, expenseRows, previewExpenses, type ExpenseRow, type ReceiptRow, type SplitRow } from "../copy";
 import { booksWordsFor } from "../lang";
 import { distinct, seedDate, seedTitle } from "../seeds";
+import { prompt } from "../../../entry/prompt-Expenses.generated";
 
 // Core first: Field/number cannot split receipt costs by category, VAT code and business-use fraction.
 // prettier-ignore
 export const meta = {
-  id: "Expenses", status: "ready", group: "input", purpose: "Record business receipts and split their costs for bookkeeping and VAT.",
-  pick: "Receipt-backed business costs split into lines with a category, VAT code and business-use fraction. Not one ordinary form value (Field), a photo for a warranty (Warranties), staff approval (Approval), or the entire cash ledger (Ledger).",
-  writeHints: [
-    'Use style "receipt" for exactly one receipt with editable draft lines; otherwise use "register". A receipt has one to eight splits; each has a positive net amount and businessUse from 0 to 1.',
-    "Use snake_case references. A posted receipt has an offset datetime in postedAt; only a posted receipt can be voided. Never write gross, deductible cost or recoverable VAT.",
-    "For a register with only the gross totals, use detail \"brief\". Keep all receipt data.",
-  ], region: "body", weight: 3, dense: true, tier: "phone",
+  id: "Expenses", status: "ready", group: "input", purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
+   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Receipts are local; the core Camera captures evidence with consent and OCR guesses never post automatically.",
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["deductible_cost", "recoverable_vat"] } },

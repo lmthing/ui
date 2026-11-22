@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { receiptCopy, receiptLine, receiptReading } from "../copy";
 import { commerceWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-OrderSummary.generated";
 
 // Core first: KeyValue/rows shows fixed facts, not receipt quantities, computed totals and reorder.
 export const meta = {
   id: "OrderSummary",
   status: "ready",
   group: "content",
-  purpose: "See what was ordered, what it cost and how it will arrive.",
-  pick: "A receipt for one placed goods order with quantities and fulfillment details. Not simple facts (KeyValue), the editable basket (Cart), fulfillment progress (OrderStatus), or a client bill (Invoice).",
-  writeHints: [
-    "Write unit prices and quantities only; the total is computed. Use a real placed date in YYYY-MM-DD.",
-    'Keep unit prices in the data. Only an explicit request to hide them sets detail to "brief".',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

@@ -5,22 +5,21 @@ import * as kit from "../../../kit";
 import { indexedParts, seedTitles } from "..";
 import { activeWorkoutRest, hasWorkoutSetFields, workoutReading, workoutSetLabel } from "../copy";
 import { healthWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Workout.generated";
 
 const setFields = { prop: "hasFields", equals: true } as const;
 export const meta = {
   id: "Workout",
   status: "ready",
   group: "input",
-  purpose: "Log each exercise's sets, weight and reps during one workout.",
-  pick: "Logging a workout set by set, editing weight and reps, ticking sets and resting between them. Not ordinary jobs to tick (Checklist), timing one activity (Timer), or a run on a route (Route).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Exercise sets stored on the device; this is a log, not medical advice.",
-  writeHints: [
-    "Use detail brief only when asked to hide the elapsed-time header. Keep set controls and rest.",
-  ],
+  writeHints: prompt.writeHints,
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["time"] } },
   // prettier-ignore

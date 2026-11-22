@@ -14,16 +14,15 @@ import {
   variantProps,
 } from "../catalog";
 import { KitCard, KitCheck, KitRow, KitSkeleton, KitText, useComponentState, KitEmpty, useKit } from "../kit";
+import { prompt } from "../entry/prompt-Checklist.generated";
 
 export const meta = {
   id: "Checklist",
   signature: "check_burst",
   group: "input",
-  purpose: "Things to do, with each job ticked off when done.",
-  pick: "Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).",
-  writeHints: [
-    'Set "detail":null for normal task lists, even when there are no notes. Only an explicit request to hide notes means "detail":"brief"; keep any supplied notes in meta. Without a request for mark, write "mark":null, not their named defaults.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

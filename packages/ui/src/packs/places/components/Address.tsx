@@ -3,15 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { addressReading } from "../copy";
 import { placesWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Address.generated";
 
 // Core first: KeyValue with arrange="grid" cannot pair an address with a map tile and copy, directions and call actions.
 export const meta = {
   id: "Address",
   status: "ready",
   group: "content",
-  purpose: "Find a venue, copy its address, or call it.",
-  pick: "One place’s postal address with a map tile and copy or directions; call if a phone is supplied. Not facts about a venue (KeyValue) or live delivery progress (DeliveryTracker).",
-  writeHints: ["To hide only the access note, set detail to brief and keep the supplied note text verbatim."],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

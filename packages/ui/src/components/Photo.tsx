@@ -13,16 +13,14 @@ import {
   variantProps,
 } from "../catalog";
 import { KitCard, KitPhoto, KitSkeleton, KitText, useComponentState } from "../kit";
+import { prompt } from "../entry/prompt-Photo.generated";
 
 export const meta = {
   id: "Photo",
   group: "content",
-  purpose: "Show one picture, with an optional caption.",
-  pick: "One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).",
-  writeHints: [
-    "Use aspect only when explicitly asked for a square, wide or tall crop. Otherwise leave aspect null.",
-    'When asked to keep a supplied caption but not show it, set only detail "brief" and fill caption. If there is no caption to keep, leave both null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

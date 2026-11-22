@@ -28,16 +28,15 @@ import { healthWordsFor } from "../lang";
 import { z } from "zod";
 import { seedTitles } from "..";
 import { exerciseReading } from "../copy";
+import { prompt } from "../../../entry/prompt-Exercise.generated";
 
 export const meta = {
   id: "Exercise",
   status: "ready",
   group: "content",
-  purpose: "Learn one exercise's form, muscles and equipment, and recall previous results.",
-  pick: "A reference for one movement with written form cues, muscles, equipment or past results. Never pick for video playback alone: if the person only asks to play or control an exercise video, choose Player. Not a course lesson (Lesson) or a whole session (Workout).",
-  writeHints: [
-    "A supplied photo normally shows in a wide frame. To hide it, set media to none and keep the photo reference.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   variants: { media: ["cover", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
   region: "body",

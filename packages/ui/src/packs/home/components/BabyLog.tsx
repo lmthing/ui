@@ -9,18 +9,16 @@ import { KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitRow, KitText, Kit
 } from "../../../kit";
 import { babyCopyFor, babyRead } from "../copy";
 import { homeWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-BabyLog.generated";
 // Core first: Timer/down times one task, not feed/nappy/sleep tiles and a baby's daily log.
 const itemParts = ["root", "kind", "time", "minutes", "amount", "label", "root_label", "trail"] as const;
 export const meta = {
   id: "BabyLog",
   status: "ready",
   group: "input",
-  purpose: "Quickly log a baby's feeds, nappies and sleeps and time an active feed or sleep.",
-  pick: "Baby feeds, nappies and sleeps with quick tiles, an active timer and today's log. Not timing one thing (Timer), adult habits (HabitGrid), or a general care history (Timeline).",
-  writeHints: [
-    "log has 0–12 entries. Write kind, HH:MM time and optional minutes/amount; never time-since-last. running is none or one kind, not a boolean.",
-    'Use detail "brief" only when asked to hide durations and amounts in history. Keep them in log.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

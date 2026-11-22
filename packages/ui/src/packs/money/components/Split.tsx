@@ -3,16 +3,15 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { splitBalances, splitCopy, splitReading } from "../copy";
 import { moneyWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Split.generated";
 
 export const meta = {
   id: "Split",
   status: "ready",
   group: "data",
-  purpose: "Work out who owes whom after sharing expenses.",
-  pick: "Shared costs, each person's balance and the payments to settle the group. Not one sum owed (Amount), personal bills (Bills), client payments (PaymentStatus), or fixed debt repayment (Loan, Payoff).",
-  writeHints: [
-    'For each expense write by (payer index) and split: "equal" or "shares". Both use one share per person. Never write derived totals. To hide avatars alone, use lead none and keep photos.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",

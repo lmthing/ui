@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { bandPath, plotGeometry, plotPaths, type Point } from "./linePlotGeometry";
+import {
+  bandPath,
+  nearestPlotTarget,
+  plotCoordinate,
+  plotGeometry,
+  plotPaths,
+  type Point,
+} from "./linePlotGeometry";
 
 const points: Point[] = [
   { id: "a", x: 10, value: -5, label: "First" },
@@ -102,4 +109,81 @@ it("does not scale to an isolated band sample that cannot draw an area", () => {
   const partial = plotGeometry(series, undefined, { low: [NaN, -1000], high: [NaN, 1000] });
   expect(partial.bands).toEqual([]);
   expect(partial.ticks).toEqual(plotGeometry(series).ticks);
+});
+
+describe("centred vertical scale", () => {
+  it.each([
+    [0, -1],
+    [50, 1],
+  ])("keeps baseline %i centred with six one-sided readings", (center, sign) => {
+    const samples = [5, 12, 10, 4, 18, 20].map((delta, x) => ({
+      id: `${x}`,
+      label: `${x}`,
+      x,
+      value: center + sign * delta,
+    }));
+    const series = [{ id: "line", label: "Line", points: samples }];
+    expect(plotGeometry(series, undefined, undefined, center).y(center)).toBe(sign < 0 ? 0 : 1);
+    const geometry = plotGeometry(series, undefined, undefined, center, center);
+    expect(geometry.ticks).toEqual([center + 20, center, center - 20]);
+    expect([geometry.y(center + 10), geometry.y(center), geometry.y(center - 10)]).toEqual([0.25, 0.5, 0.75]);
+  });
+
+  it("fits the goal, band, and distinct baseline without moving the centre", () => {
+    const series = [{ id: "one", label: "One", points }];
+    const goal = { value: 14, label: "Goal" };
+    const band = { low: [-4, -8, -6], high: [3, 6, 10] };
+    const geometry = plotGeometry(series, goal, band, 20, 5);
+    expect(geometry.ticks).toEqual([20, 5, -10]);
+    expect(geometry.y(5)).toBe(0.5);
+    expect(plotGeometry(series, goal, band, undefined, 5).ticks).toEqual([18, 5, -8]);
+    expect(plotGeometry(series, goal, band, 20, NaN).ticks).toEqual([20, 6, -8]);
+  });
+
+  it("has a single tick at the centre for empty data or readings equal to the centre", () => {
+    for (const samples of [[], [{ ...points[0]!, value: 50 }]]) {
+      const geometry = plotGeometry(
+        [{ id: "one", label: "One", points: samples }],
+        undefined,
+        undefined,
+        undefined,
+        50,
+      );
+      expect(geometry.ticks).toEqual([50]);
+      expect(geometry.y(50)).toBe(0.5);
+      expect(geometry.empty).toBe(!samples.length);
+    }
+  });
+});
+
+it.each([0, -1e308])("preserves the centre even with %s and unrepresentable upper extent", (low) => {
+  const center = 1e308;
+  const series = [
+    {
+      id: "one",
+      label: "One",
+      points: [
+        { ...points[0]!, value: low },
+        { ...points[1]!, value: 1.5e308 },
+      ],
+    },
+  ];
+  const geometry = plotGeometry(series, undefined, undefined, center, center);
+  expect(geometry.ticks).toEqual([center, low]);
+  expect(geometry.y(center)).toBe(0.5);
+  expect(geometry.y(low)).toBe(1);
+  expect(geometry.y(1.5e308)).toBeCloseTo(low ? 0.375 : 0.25);
+});
+
+it("shares marker coordinates with the drawing and resolves overlapping hit areas by distance", () => {
+  expect([0, 0.5, 1].map((fraction) => plotCoordinate(fraction, 100, 22))).toEqual([22, 50, 78]);
+  expect([0, 0.5, 1].map((fraction) => plotCoordinate(fraction, 20, 22))).toEqual([10, 10, 10]);
+  const markers = [
+    { x: 22, y: 55 },
+    { x: 40, y: 50 },
+    { x: 44, y: 74 },
+  ];
+  expect(nearestPlotTarget(markers, markers[1]!, -18, 5, 22)).toBe(markers[0]);
+  expect(nearestPlotTarget(markers, markers[1]!, 0, 0, 22)).toBe(markers[1]);
+  expect(nearestPlotTarget(markers, markers[1]!, 20, 0, 22)).toBe(markers[1]);
 });

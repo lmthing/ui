@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { weatherCopy } from "../copy";
 import { tripsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Weather.generated";
 
 // Core first: Stats/default cannot request a place's service-backed forecast with daily conditions.
 export const meta = {
   id: "Weather",
   status: "ready",
   group: "data",
-  purpose: "See the forecast or typical weather for the place and dates of a trip.",
-  pick: "A place's local weather or trip forecast, including conditions and rain chance. Not personal figures (Stats) or a series showing a trend (Sparkline).",
-  writeHints: [
-    "Write the place and optional trip dates. The service supplies all weather data, never the Writer.",
-    'When asked to hide only the main condition text, write detail "brief". Keep the icon, temperatures and next days.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "service",

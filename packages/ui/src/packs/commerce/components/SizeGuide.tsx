@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { fitLine, measurementLine, sizeGuideReading } from "../copy";
 import { commerceWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-SizeGuide.generated";
 
 const units = ["cm", "in"] as const;
 
@@ -11,13 +12,9 @@ export const meta = {
   id: "SizeGuide",
   status: "ready",
   group: "data",
-  purpose: "Compare product measurements and fit across sizes before choosing one.",
-  pick: "Compare garment or footwear measurements across sizes, switch centimetres and inches, and check how the product fits. Not facts about a single item (KeyValue), a generic data grid (Table), or choosing a purchasable option (VariantPicker).",
-  writeHints: [
-    'Use the unit of the supplied measurements. For columns ["Chest","Neck"], a row is {"size":"Small","values":[18,12]}. Do not include a Size column or unit suffixes in the column names. Every row must have exactly one number per measurement column, in order.',
-    'Use style "fit" only if fit and model information belong before the measurements. Fit scores: 1 runs small, 3 true to size, 5 runs large.',
-    'Use detail "brief" to hide the model note but keep modelNote in the data.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

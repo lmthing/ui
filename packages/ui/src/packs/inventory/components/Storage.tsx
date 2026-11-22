@@ -1,20 +1,18 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { ancestorDestination, storageCount, storageReading } from "../copy";
+import { ancestorDestination, storageBoxCopy, storageCount, storageReading } from "../copy";
 import { inventoryWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Storage.generated";
 
 // Core first: List with style "cards" cannot distinguish an ancestor path, child spots and contents here.
 export const meta = {
   id: "Storage",
   status: "ready",
   group: "content",
-  purpose: "Find things stored inside rooms, shelves and boxes.",
-  pick: "Browse nested physical storage with a breadcrumb, child locations and contents kept here. Not flat linked names (List), geographic pins (MapPins), or stock records (Things).",
-  writeHints: [
-    'Path is ancestor labels in outer-to-inner order. Ancestor screen ids must match their labels in lowercase snake_case (Potting bench → potting_bench). Prefix numeric or reserved ids with "spot_".',
-    'Spots are child locations; here lists what is kept in the current location. Never write counts. To hide counts use detail "brief". For the default view leave detail null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
@@ -22,7 +20,7 @@ export const meta = {
   realPath: "A tree of storage spots and their contents lives on the device.",
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["count"] } },
-  parts: ["root", "path", "spots", "here", "empty"],
+  parts: ["root", "path", "spots", "here", "empty", "code", "qr", "fragile", "status"],
   items: { key: "navigation", parts: ["root", "name", "icon", "count"] },
   states: ["filled", "empty"],
   actions: { items: { root: ["press"] }, when: { root: { linked: true } } },
@@ -41,6 +39,9 @@ export const props = z
       .min(0)
       .max(6),
     here: z.array(c.text(28)).min(0).max(6),
+    code: c.text(24).optional(),
+    fragile: z.boolean().optional(),
+    status: z.enum(["packing", "sealed", "in_transit", "unpacked"]).optional(),
   })
   // The catalog addresses one repeating collection. Keep both source groups on the wire.
   .overwrite((value) => ({
@@ -60,6 +61,7 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   return { path: [], spots: [], here: here.length ? here : [c.placeholderTitle(0, lang)] };
 }
 
+// prettier-ignore
 const previewDeviceData: c.DeviceData = {
   storage_spots: [
     { goto: "seeds", here: ["Basil seeds", "Sweet pea seeds", "Dill seeds"] },
@@ -68,6 +70,7 @@ const previewDeviceData: c.DeviceData = {
     { goto: "boot_bin", here: [] },
   ],
 };
+// prettier-ignore
 export const examples = [
   {
     path: ["Greenhouse", "Potting bench"],
@@ -85,9 +88,11 @@ export const examples = [
     ],
     here: [],
   },
+  { path: ["Van"], spots: [], here: ["Spare lead", "Water bowl"], code: "TROT-08", fragile: true, status: "sealed" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Storage");
+// prettier-ignore
 export const probes = [
   choose(
     "Browse my garage as rooms, shelves and boxes inside each other, with a breadcrumb and what is kept at the current spot",
@@ -105,10 +110,10 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
-  read("Open the child storage spot named Seed drawer. Do not go back up the breadcrumb.", {
-    address: "s1/r3",
-    action: "press",
-  }),
+  read("Open the child storage spot named Seed drawer. Do not go back up the breadcrumb.", { address: "s1/r3", action: "press" }),
+  { ...write("Show the water bowl stored in the moving box. Its box code is TROT-08."), expectProps: { code: "TROT-08" } },
+  { ...write("Show the water bowl stored in this moving box and mark the box fragile."), expectProps: { fragile: true } },
+  { ...write("Show the water bowl stored in this moving box and mark the box as sealed for the move."), expectProps: { status: "sealed" } },
 ] satisfies c.Probe[];
 
 type Navigation =
@@ -117,32 +122,18 @@ type Navigation =
 type StorageProps = c.Props<typeof props, typeof meta>;
 type Density = c.ThemeDensity;
 
+// prettier-ignore
 function Breadcrumbs({ rows, density }: { rows: (Navigation & { id: string })[]; density: Density }) {
   const { words } = kit.useWords(inventoryWordsFor);
   return (
     <kit.KitTrack part="path" label={words.storage.path}>
       {rows.map(({ id, name, goto }, index) => (
         <kit.KitRow
-          key={id}
-          item={id}
-          label={name}
-          goto={goto}
-          density={density}
-          inset="none"
-          lineRole="caption"
-          leading={
-            <kit.KitIcon
-              name={index === 0 ? "package" : "chevron_right"}
-              scale="md"
-              tone="muted"
-              decorative
-            />
-          }
+          key={id} item={id} label={name} goto={goto} density={density} inset="none" lineRole="caption"
+          leading={<kit.KitIcon name={index === 0 ? "package" : "chevron_right"} scale="md" tone="muted" decorative />}
         >
           <kit.KitText
-            part="name"
-            role="caption"
-            density={density}
+            part="name" role="caption" density={density}
             tone={index === rows.length - 1 ? "accent" : "muted"}
             emphasis={index === rows.length - 1 ? "strong" : "normal"}
           >
@@ -159,6 +150,7 @@ export function Storage(input: StorageProps) {
   const { here } = input;
   const state = kit.useComponentState();
   const { lang, words: { storage: words } } = kit.useWords(inventoryWordsFor);
+  const box = storageBoxCopy(input, lang);
   const data = kit.useDeviceData();
   const density = kit.useKit().density;
   const surface = "card";
@@ -167,9 +159,18 @@ export function Storage(input: StorageProps) {
   const path = rows.filter((row) => row.ancestor);
   const spots = rows.filter((row) => !row.ancestor);
   return <kit.KitCard part="root" padded {...{ density, surface }}>
-    {state === "empty" ? <kit.KitEmpty part="empty" icon="package" decorativeIcon /> :
-      !rows.length && !here.length ? <kit.KitEmpty part="empty" icon="package" decorativeIcon title={words.emptyHere} /> : <>
+    {state === "empty" ? <kit.KitState part="empty" icon="package" /> :
+      !rows.length && !here.length && !box.code && !box.status && !box.fragile ?
+        <kit.KitEmpty part="empty" icon="package" decorativeIcon title={words.emptyHere} /> : <>
         {path.length > 0 && <Breadcrumbs rows={path} density={density} />}
+        {(box.code || box.status || box.fragile) && <kit.KitContent density={density}>
+          {box.code && <kit.KitHeader title={{ text: box.code, part: "code" }} density={density} />}
+          {(box.status || box.fragile) && <kit.KitText part={null} role="caption" density={density}>
+            {box.status && <kit.KitText part="status" role="caption" tone="muted" density={density}>{box.status}</kit.KitText>}
+            {box.status && box.fragile && words.boxSeparator}
+            {box.fragile && <kit.KitText part="fragile" role="caption" tone="warn" density={density}>{box.fragile}</kit.KitText>}
+          </kit.KitText>}
+        </kit.KitContent>}
         {spots.length > 0 && <kit.KitContent density={density}>
           <kit.KitText part="spots" role="heading" density="comfortable">{words.spots}</kit.KitText>
           {spots.map(({ id, name, icon, goto }) => {
@@ -189,6 +190,8 @@ export function Storage(input: StorageProps) {
             <kit.KitText key={index} part={null} tone={here.length ? "text" : "muted"} density={density}>{name}</kit.KitText>,
           )}
         </kit.KitContent>
+        {input.code && box.qr && <kit.KitFigure density={density}
+          media={<kit.KitCode part="qr" value={input.code} label={box.qr} />} />}
       </>}
   </kit.KitCard>;
 }

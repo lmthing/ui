@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { formationLabel, lineupReading, pitchLines } from "../copy";
 import { sportsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Lineup.generated";
 
 // Core first: People/stack shows who is there, not the formation, shirt numbers and substitutes.
 export const meta = {
   id: "Lineup",
   status: "ready",
   group: "data",
-  purpose: "See where the starters play and who is on the bench.",
-  pick: "Starters arranged in their playing lines on a pitch or grouped by position, with a separate substitutes bench. Not an ordinary list of people (People), player availability (Squad) or a staff rota (Roster).",
-  writeHints: [
-    "Write lines from the back of the pitch to the front. Put only starters in lines; put substitutes in subs.",
-    'For the formation without the count beside the title, write "detail":"brief" and keep the lines and subs. Otherwise write "detail":null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

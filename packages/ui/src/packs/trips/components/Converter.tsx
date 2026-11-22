@@ -12,18 +12,16 @@ import {
 import * as kit from "../../../kit";
 import { converterDisplay, converterMax, converterReading, projectConverter } from "../copy";
 import { tripsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Converter.generated";
 
 // Core first: Amount/default cannot edit either side of a conversion or swap the currency pair.
 export const meta = {
   id: "Converter",
   status: "ready",
   group: "input",
-  purpose: "Convert between home and local currencies by entering either amount.",
-  pick: "Convert two editable amounts between home and destination currencies with a swap control. Not displaying one sum (Amount) or entering an expense (AmountPad).",
-  writeHints: [
-    "Use value for the optional starting amount. Do not write currencies, the rate, or a date; the host supplies them.",
-    "When asked to hide only the rate date, use detail brief. Do not fill in defaults for unrequested variants.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "service",

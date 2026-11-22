@@ -5,18 +5,15 @@ import { activityCount, activityCopy, activityReading, type ActivityRow } from "
 import { investWordsFor } from "../lang";
 import { activityLedger, portfolioKind, portfolioRecord, type Portfolio } from "../ledger";
 import { compareInstants, dateTime, distinct, recordId, seedPortfolio, seedTime } from "../seeds";
+import { prompt } from "../../../entry/prompt-InvestmentActivity.generated";
 
 // Core first: Timeline/history cannot reconcile trade quantities, cost and cash or retain corrections.
 // prettier-ignore
 export const meta = {
   id: "InvestmentActivity", status: "ready", group: "data",
-  purpose: "Reconcile investment trades, contributions, withdrawals and fees with my holdings and cash.",
-  pick: "An investment ledger reconciling buys, sells, deposits, withdrawals, fees and linked dividend receipts. Not everyday spending (Transactions), client payments (ClientHistory), an audit (ActivityLog), or a dated event log (Timeline).",
-  writeHints: [
-    "Use unique snake_case entry ids and ISO datetimes with offsets. Entries cannot predate since. Do not seed dividend receipts here: they come from Dividends.",
-    "For buy or sell, write assetId, units, unitPrice and optional fee, never amount. For deposit, withdrawal or fee, write amount and leave all four trade fields null. Write positive amounts; kind determines direction.",
-    "For event and cash movement only, write \"detail\":\"brief\" and retain the trade seeds. Do not write computed balances or proceeds.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Device records fold after the opening statement, with linked dividend receipts and corrections retained; an action never sends a broker order.",
   variants: { detail: ["full", "brief"] },

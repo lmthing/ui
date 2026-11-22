@@ -6,18 +6,15 @@ import { audioParts, cardsLeft, learningAudio, promptPlayback, promptPlaybackAct
   readFlashcard, roundAudioPart, roundAudioProps } from "../copy";
 import { learningWordsFor } from "../lang";
 import * as audioView from "../prompt-audio";
+import { prompt } from "../../../entry/prompt-Flashcard.generated";
 
 // Core first: SwipeStack/default cannot reveal a back face and rate recall for spaced review.
 // prettier-ignore
 export const meta = {
   id: "Flashcard", status: "ready", group: "input",
-  purpose: "Recall an answer, reveal it and rate how well you remembered it.",
-  pick: "Recall from a prompt, flip to reveal its answer, then rate recall to schedule the next review. Not checked answers (Quiz) or swiping to keep or skip things (SwipeStack).",
-  writeHints: [
-    "Write only seed cards. Do not write cards left, flipped state or review dates.",
-    "Use null for unrequested settings. A full-width photo sets only media to \"cover\".",
-    'Use style "binary" for just Know and Still learning; otherwise write style null for the four ratings (srs). Put a supplied recording in audio on that card only; audio does not request a photo or a media variant.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath: "Cards and their review dates are stored on the device.",
   variants: { media: ["thumb", "cover"] },

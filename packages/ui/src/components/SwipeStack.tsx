@@ -24,16 +24,15 @@ import {
   useComponentState,
   useKit,
 } from "../kit";
+import { prompt } from "../entry/prompt-SwipeStack.generated";
 
 export const meta = {
   id: "SwipeStack",
   signature: "card_swipe",
   group: "content",
-  purpose: "Choose between things one at a time, swiping the current one to keep or skip.",
-  pick: "Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).",
-  writeHints: [
-    'A request to hide only photos sets media to "none" and leaves detail. Descriptions remain visible. Set detail to "brief" only when asked to hide descriptions. When spacing is not requested must be null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   tier: "phone",

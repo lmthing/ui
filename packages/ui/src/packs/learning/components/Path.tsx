@@ -4,19 +4,16 @@ import * as kit from "../../../kit";
 import { pathUnitCopy, readPath } from "../copy";
 import { learningWordsFor } from "../lang";
 import * as moduleView from "../path-modules";
+import { prompt } from "../../../entry/prompt-Path.generated";
 
 // Core first: Steps/numbered cannot open course units or distinguish locked nodes and milestones.
 export const meta = {
   id: "Path",
   status: "ready",
   group: "data",
-  purpose: "See which course units are finished, open now or still locked.",
-  pick: "A course map with done, current and locked units, selectable unlocked units and occasional milestones. Not progress through a short flow (Steps) or a plain browsable list (List).",
-  writeHints: [
-    "Write 3–12 units in course order. Use at most one current unit. Milestones, if any, are unique zero-based indexes into units.",
-    'Set style to "modules" only if the brief explicitly asks for a straight vertical list or full-width module rows. For any course map, winding path or brief with no such layout request, set style to null (winding). A list of unit names in the brief is data, not a request for the modules layout.',
-    'To hide the unit-state text but keep the visual markers, set only detail to "brief".',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

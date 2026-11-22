@@ -4,18 +4,16 @@ import * as kit from "../../../kit";
 import { registryGift, registryReading } from "../copy";
 import { eventsWordsFor } from "../lang";
 import { seedTitles } from "../seeds";
+import { prompt } from "../../../entry/prompt-Registry.generated";
 
 // Core first: Checklist/default cannot reserve gifts across guests or show claim ownership only to hosts.
 export const meta = {
   id: "Registry",
   status: "ready",
   group: "input",
-  purpose: "Share a gift list and keep guests from choosing the same gift.",
-  pick: "A shared event gift list with gift prices, where to buy, and who claimed a gift for hosts. Not a checklist for personal tasks (Checklist), shopping (ProductGrid) or a personal wishlist (Wishlist).",
-  writeHints: [
-    "Only give by for an already claimed gift in the host view; omit it for guests. Prices are numbers.",
-    'If explicitly asked for rows without photos, set lead to "none" and retain any supplied photo references.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

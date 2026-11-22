@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { highlightQuote } from "../copy";
 import { mediaWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Highlights.generated";
 
 // Core first: List/default cannot show long quoted passages with source moments and separate notes.
 export const meta = {
   id: "Highlights",
   status: "ready",
   group: "content",
-  purpose: "Revisit saved passages and clips at their original source.",
-  pick: "Saved quotes or clip moments with a source, optional time and optional personal note, opening where they came from. Not original journal entries (Entries), whole saved titles (Library), or short tappable rows (List).",
-  writeHints: [
-    "Put the excerpt in text without surrounding quotation marks, the source title in from, and a clip time in at. Set goto to the screen for that source moment.",
-    'Write the exact note in note. Use "detail":null for normal excerpts with visible notes. Only when the person explicitly asks to hide notes, write "detail":"brief" unless another axis was requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

@@ -20,17 +20,16 @@ import {
 import * as kit from "../../../kit";
 import { activityLabel } from "../copy";
 import { dataWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-ActivityLog.generated";
 
 // Core first: Timeline/default lays out events or plans; it does not identify who changed a record with avatars.
 export const meta = {
   id: "ActivityLog",
   status: "ready",
   group: "data",
-  purpose: "See who changed a shared record, what changed, and when it happened.",
-  pick: "Audit changes by several people with actor portraits, times and links to changed records. Not scheduled events in time order (Timeline), one client's history (ClientHistory) or shift notes (Handover).",
-  writeHints: [
-    'Write the actor in who and the change in text, without repeating the actor in text. Keep the supplied timestamp and record link. Use lead "none" only when explicitly asked to hide portraits; still write photo for every entry.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",

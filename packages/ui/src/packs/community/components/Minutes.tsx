@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 import { minutesHeader, minutesProjection, minutesReading, minutesRowCopy, type MinutesRow } from "../copy";
 import { communityWordsFor } from "../lang";
 import { dateTime, distinct, ref, seedDate, seedTitle } from "../seeds";
+import { prompt } from "../../../entry/prompt-Minutes.generated";
 
 // Core first: Checklist/default tracks jobs, not approved decisions linked to motions and owned follow-up.
 // prettier-ignore
@@ -11,12 +12,9 @@ export const meta = {
   id: "Minutes",
   status: "ready" as "ready" | "draft",
   group: "content",
-  purpose: "Record agreed decisions and follow-up actions with owners and sign-off.",
-  pick: "Official meeting minutes with agreed decisions, linked motions, owned follow-up and approval. Not a draft note (Composer), personal jobs (Checklist), long prose (Article) or a change audit (ActivityLog).",
-  writeHints: [
-    "Use unique snake_case decision and action ids. Each action decisionId must match a decision in this record. Only link closed, uncancelled votes; do not write their outcomes again.",
-    'Set both approval fields together or neither; approvedAt is an offset ISO datetime. Use style "actions" only for follow-up with decision links, not the official record.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

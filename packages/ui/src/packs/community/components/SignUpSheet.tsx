@@ -5,18 +5,16 @@ import { previewSignUp, projectSignUp, signUpClaim, signUpReading, signUpRecordK
 import { signUpRowCopy, signUpStatus, validSignUpClaims, type SignUpRow } from "../copy";
 import { communityWordsFor } from "../lang";
 import { distinct, ref, seedTitle } from "../seeds";
+import { prompt } from "../../../entry/prompt-SignUpSheet.generated";
 
 // Core first: Checklist/default ticks jobs, not limited places with claim ownership and release.
 export const meta = {
   id: "SignUpSheet",
   status: "ready" as "ready" | "draft",
   group: "input",
-  purpose: "Let group members claim or release a limited contribution place.",
-  pick: "A shared contribution sheet with counted places, claimants and claim/release for an ongoing group. Not a private task list (Checklist), bookable times (Slots), gifts (Registry) or staff cover (OpenShift).",
-  writeHints: [
-    "Use unique snake_case slot ids. Claims must name an existing slot and be unique per member per slot; never exceed capacity. Do not write claimed or remaining counts.",
-    'For summaries that expand to reveal claimants, write detail "brief" and keep the claims.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

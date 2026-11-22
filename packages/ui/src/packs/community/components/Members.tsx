@@ -4,18 +4,16 @@ import * as kit from "../../../kit";
 import { memberFacts, memberReading, membersProjection, previewMemberDues } from "../copy";
 import { communityWordsFor } from "../lang";
 import { distinct, ref, seedDate, seedTitle } from "../seeds";
+import { prompt } from "../../../entry/prompt-Members.generated";
 
 // Core first: People/rows shows names and roles, not membership dates, voting rights or reconciled dues.
 export const meta = {
   id: "Members",
   status: "ready" as "ready" | "draft",
   group: "data",
-  purpose: "Keep membership records, voting rights and dues badges together.",
-  pick: "A group's official membership register with joining or leaving dates, voting rights and dues badges. Not a small directory (People), one person's identity (Profile), business clients (ClientCard) or event guests (GuestList).",
-  writeHints: [
-    "Use unique snake_case member ids. Leave ended unset for continuing members; when supplied it must not precede joined. Dues badges are computed by the host.",
-    'For names, primary roles and badges only, write detail "brief" and keep the dates, roles and photo in the data.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

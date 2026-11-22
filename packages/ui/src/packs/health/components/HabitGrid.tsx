@@ -26,20 +26,19 @@ import {
 } from "../../../catalog";
 import { z } from "zod";
 import { indexedActions, indexedParts, seedTitles } from "..";
+import { prompt } from "../../../entry/prompt-HabitGrid.generated";
 export const meta = {
   id: "HabitGrid",
   status: "ready",
   group: "input",
-  purpose: "Keep several healthy habits across the seven days of this week.",
-  pick: "Several habits by seven weekdays, an editable check per cell and streak per habit. Not one habit's run of days (Streak), today's jobs only (Checklist), or many weeks of activity (Heatmap).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Habit records stored on the device.",
-  writeHints: [
-    "When habit headings should show names but no icons, write lead none and keep each icon in the data. Otherwise write lead null.",
-  ],
+  writeHints: prompt.writeHints,
   variants: { lead: ["icon", "none"] },
   variantParts: { "lead.none": { hides: ["icon"] } },
   items: { key: "habits", parts: ["root", "name", "icon", "streak", ...indexedParts(7, ["day"])] },

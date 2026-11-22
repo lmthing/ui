@@ -3,17 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { chapterReading } from "../copy";
 import { mediaWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-ChapterList.generated";
 
 // Core first: Player/default can scrub one recording but cannot jump to named chapter marks.
 export const meta = {
   id: "ChapterList",
   status: "ready",
   group: "content",
-  purpose: "Jump to named chapters of the recording already on this screen.",
-  pick: "Named timestamps inside the recording already on this screen; choose one to jump to its start. Not playback controls for one recording (Player), separate recordings (Playlist), or recipe steps (CookSteps).",
-  writeHints: [
-    'Use only next to a Player on the same screen. Put 2–16 chapter times in strictly increasing order, whole seconds from the start. "current" is a zero-based index.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
@@ -95,25 +94,23 @@ export function ChapterList(input: ChapterListProps) {
   const showsHours = chapters.some(({ at }) => at >= hourInSeconds);
   return (
     <kit.KitCard part="root" padded density={density} surface={surface}>
-      <kit.KitGrid list arrange="rows" listRowGap={density === "comfortable" ? "group" : undefined}>
+      <kit.KitRowGroup density={density} separators={false} spacing="groups">
         {chapters.map(({ id, title, at }, index) => {
           const time = c.clockLine(at, lang);
           const selected = current === index;
           return (
-            <kit.KitRow key={id} item={id} part="root" role="button" selected={selected} density="comfortable"
+            <kit.KitRow key={id} item={id} part="root" role="button" selected={selected} surface="plain" density={density}
               label={words.chapterList.line(time, title, selected)}
               leadingWidth={showsHours ? undefined : "avatar"}
               leading={showsHours ? <kit.KitTime part="at" value={time} /> :
                 <kit.KitText part="at" role="number" numberScale="compact" tone="muted" density="comfortable" align="end" tabular lines={1}>{time}</kit.KitText>}
               trailing={<kit.KitIcon name="play" scale="sm" tone={selected ? "accent" : "muted"} decorative />}
             >
-              <kit.KitText part="title" role="body" emphasis={selected ? "strong" : "normal"} density="comfortable">
-                {title}
-              </kit.KitText>
+              <kit.KitMetaLine title={{ text: title, part: "title", strong: selected }} density="comfortable" />
             </kit.KitRow>
           );
         })}
-      </kit.KitGrid>
+      </kit.KitRowGroup>
     </kit.KitCard>
   );
 }

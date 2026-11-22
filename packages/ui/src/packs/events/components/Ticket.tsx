@@ -4,17 +4,16 @@ import * as kit from "../../../kit";
 import { ticketReading, ticketStamp } from "../copy";
 import { eventsWordsFor } from "../lang";
 import { seedDate, seedTime, seedTitles } from "../seeds";
+import { prompt } from "../../../entry/prompt-Ticket.generated";
 
 // Core first: KeyValue/default cannot present an issued admission pass with a scannable code.
 export const meta = {
   id: "Ticket",
   status: "ready",
   group: "content",
-  purpose: "Show the holder's admission pass and code for one event.",
-  pick: "One issued event admission pass with holder, ticket type, venue and scannable ticket number. Not ordinary label/value facts (KeyValue), a travel confirmation (Reservation), a discount code (Promo) or the door scanner (Door).",
-  writeHints: [
-    'For an ordinary admission pass use {"detail":null}. Only set detail to "brief" if the person explicitly says to omit the scan instruction.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

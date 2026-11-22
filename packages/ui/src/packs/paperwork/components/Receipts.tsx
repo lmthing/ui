@@ -4,20 +4,16 @@ import * as kit from "../../../kit";
 import { receiptCurrency, receiptDetails } from "../copy";
 import { paperworkWordsFor } from "../lang";
 import { attachment, seedDate, seedRows } from "../seeds";
+import { prompt } from "../../../entry/prompt-Receipts.generated";
 
 // Core first: Amount/default shows a number, not evidence files with reviewed status and allocated shares.
 export const meta = {
   id: "Receipts",
   status: "ready",
   group: "data",
-  purpose: "Keep purchase evidence and review the share assigned to each receipt.",
-  pick: "Receipt evidence with private scans, amounts, review ticks and optionally allocated shares. Not one standalone amount (Amount), purchase warranties (Warranties), bank movements (Transactions), store orders (OrderSummary) or client bills (Invoice).",
-  writeHints: [
-    "Write the amount as a number with no currency. allocation is the assigned percentage (0–100), not a deduction or an amount. Never write allocated amounts or totals.",
-    'File is an opaque local:<id> or supplied synthetic lib:<id>, never a URL. Write style "cards" for separate receipt tiles only; otherwise style:null.',
-
-    'Change detail to "brief" only for a request to hide the category and tags.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

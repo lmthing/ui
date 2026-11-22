@@ -3,19 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { handoverDetails, handoverReading } from "../copy";
 import { teamWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Handover.generated";
 
 // Core first: Composer/entry accepts personal writing, not a shift's authored notes with shared acknowledgements.
 export const meta = {
   id: "Handover",
   status: "ready",
   group: "content",
-  purpose: "Read what the last shift passed on and mark each note as seen.",
-  pick: "Read shift-to-shift notes with author, time, optional flag and a mark-as-seen control. Not writing your own note (Composer), chatting (Bubbles), or a record change log (ActivityLog).",
-  writeHints: [
-    "Put the newest note first. time is a short display label, such as 08:40.",
-    'Use detail "brief" when asked to hide timestamps, but keep time on every note.',
-    'Use item tone "warn" only when explicitly asked to emphasize a flag as a warning; otherwise use null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",

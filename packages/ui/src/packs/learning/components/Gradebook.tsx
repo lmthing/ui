@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { categoryGrade, courseGrade, gradeItemCopy, gradebookRead, projectGradebook } from "../copy";
 import { learningWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Gradebook.generated";
 
 const itemParts = Array.from({ length: 12 }, (_, index) => `item_${index + 1}` as const);
 const dates = itemParts.map((part) => `${part}_date` as const);
@@ -13,16 +14,13 @@ export const meta = {
   status: "ready",
   group: "data",
   tier: "phone",
-  pick: "A course gradebook with weighted categories, raw assignment points and GPA. Not homework due dates (Assignments), one quiz (Result), or independent counters (Stats).",
-  purpose: "See your weighted course grade and how each category contributes.",
+  pick: prompt.pick,
+  purpose: prompt.purpose,
   region: "body",
   weight: 3,
   realPath: "Coursework grades stored locally or synced from a school LMS host.",
   dense: true,
-  writeHints: [
-    "Category weights must sum to 100. Write earned and possible points per item, not calculated totals. Use null for an ungraded earned score.",
-    'Use detail "brief" to hide the term and dates without removing coursework or changing the style. Use style "summary" for totals without coursework.',
-  ],
+  writeHints: prompt.writeHints,
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["term", ...dates] } },
   parts: ["root", "course", "term", "grade", "status"],

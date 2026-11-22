@@ -13,16 +13,15 @@ import {
   variantProps,
 } from "../catalog";
 import { KitCard, KitContent, KitIcon, KitText, KitWeekStrip, useKit } from "../kit";
+import { prompt } from "../entry/prompt-Streak.generated";
 
 export const meta = {
   id: "Streak",
   signature: "streak_flame",
   group: "data",
-  purpose: "How many days in a row you kept a habit, with this week's completed days.",
-  pick: "Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).",
-  writeHints: [
-    'If the person wants to see which days are done, set detail null and keep the weekly strip visible. Set detail "brief" only if they explicitly ask to hide the strip; still store all seven days.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

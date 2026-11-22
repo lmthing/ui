@@ -11,3 +11,12 @@ it("reads progress only for tiles that have it, including zero", () => {
     "First · Progress: 0%",
   ]);
 });
+
+it("reads a status and due label independently", () => {
+  expect(
+    libraryReading([
+      { title: "First", status: "hold" },
+      { title: "Second", dueLabel: "Due Friday" },
+    ]),
+  ).toEqual(["First · On hold", "Second · Due Friday"]);
+});

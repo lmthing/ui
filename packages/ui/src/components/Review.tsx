@@ -3,19 +3,16 @@ import { z } from "zod";
 import { useWords, KitCard, KitContent, KitEmpty, KitGrid, KitMeter, KitPhoto, KitRow, KitScaleTrack, KitText, KitTrail, useComponentState, useLiveControls, useKit } from "../kit";
 // prettier-ignore
 import { wordsFor, balancedLine, detailOf, numberLine, photo, isoDate, itemsOf, placeholderTitle, probesFor, reviewCountLine, reviewFitLine, reviewRatingLine, reviewReading, reviewScale, reviewStarsLine, text, thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props, type ThemeDensity, variantProps } from "../catalog";
+import { prompt } from "../entry/prompt-Review.generated";
 // Core first: Scale/stars records one person's rating, not client reviews, replies or an aggregate breakdown.
 // prettier-ignore
 export const meta = {
   id: "Review",
   status: "ready",
   group: "content",
-  purpose: "See what people rated and wrote about a service, item, book, or film.",
-  pick: "Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).",
-  writeHints: [
-    'style: "summary" needs average, count and exactly five bars ordered from 1 to 5 stars. style: "list" needs one to five reviews. Omit unused fields.',
-    "Each review needs stars 1–5, name, date and text. Optional per review: business reply, up to three photo references, fitScale (1 runs very small, 3 true to size, 5 runs very large), spoiler (hide plot details until revealed), and verified.",
-    "For a hidden breakdown or replies, output exactly \"detail\":\"brief\". Keep all five bar counts, including zeros, even when hidden. Otherwise leave detail null unless requested.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",

@@ -15,22 +15,20 @@ import {
   variantProps,
 } from "../catalog";
 import { KitCard, KitOption, KitSkeleton, KitText, useComponentState } from "../kit";
+import { prompt } from "../entry/prompt-Choice.generated";
 
 export const meta = {
   id: "Choice",
   group: "input",
-  purpose: "Choose among two to five options that each need a sentence to explain.",
-  pick: "Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "The chosen option is stored on one record in the on-device database.",
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["sub"] } },
-  writeHints: [
-    'Use detail "brief" only to hide secondary option notes, while keeping them in the data.',
-    'To hide the option explanations, keep them in sub and set detail to "brief"; badges and values stay visible.',
-  ],
+  writeHints: prompt.writeHints,
   items: { key: "options", parts: ["root", "icon", "title", "badge", "sub", "value"] },
   select: { prop: "at", value: "index" },
   parts: ["root", "question"],

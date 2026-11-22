@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 // prettier-ignore
 import { canSaveReflection, emptyReflection, moodChange, moodChoices, readReflection, reflectionRecord, reflectionView } from "../copy";
 import { mindWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-ThoughtRecord.generated";
 
 // Core first: Composer/entry gives one free-form box, not a guided reframe with thinking traps and before/after mood.
 // prettier-ignore
@@ -15,8 +16,8 @@ export const meta = {
   id: "ThoughtRecord",
   status: "ready",
   group: "input",
-  purpose: "Reflect on a difficult thought and find a more balanced way to see it.",
-  pick: "A guided thought record: what happened, automatic thought, thinking traps, balanced reframe, and before and after mood. Not a free-form journal (Composer), browsing past entries (Entries), or naming feelings (Feelings).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 2,
   tier: "phone",
@@ -51,12 +52,7 @@ export const meta = {
   live: { text: reflectionFields, derive: reflectionView },
   recordRuntime: reflectionRecord(),
   read: (input, state, lang): string[] => readReflection(input as z.output<typeof props>, state, lang),
-  writeHints: [
-    'For the short exercise with just thought, thinking traps and reframe, set exactly these axis values: {"detail":"brief"}.',
-    'For a guided reflection with a situation, prompt or mood check, use {"detail":null}.',
-    "Only seed answers the person supplied; leave other fields null and keep traps off unless requested on.",
-    "Mood ratings are whole numbers 1–5. Never supply a mood difference; the app computes it.",
-  ],
+  writeHints: prompt.writeHints,
 } as const satisfies c.Meta;
 
 // prettier-ignore

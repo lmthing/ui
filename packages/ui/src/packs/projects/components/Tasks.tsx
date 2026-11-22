@@ -12,18 +12,16 @@ import {
 } from "../copy";
 import { projectsWordsFor } from "../lang";
 import { acyclic, seedFriday, seedLabels, unique } from "../seeds";
+import { prompt } from "../../../entry/prompt-Tasks.generated";
 
 // Core first: Checklist/default cannot show assigned project work with task dependencies or subtasks.
 export const meta = {
   id: "Tasks",
   status: "ready",
   group: "input",
-  purpose: "Track assigned project tasks, their subtasks, due dates and blockers.",
-  pick: "Assigned deliverable work with subtasks or dependencies. Not independent jobs (Checklist), operational columns (Board), or graded coursework (Assignments).",
-  writeHints: [
-    'Use only supplied record refs. Include state "todo", "doing" or "done" on leaves; omit it on parents with children. Each subtask is directly under a parent in the same project. Use after for prerequisite task refs, not parentRef.',
-    'Use group "sections" to group by project and indent children; leave group null otherwise. Do not write blocker, overdue or completion summaries.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

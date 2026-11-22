@@ -1,20 +1,18 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { loanDates, loanReading, loanToday } from "../copy";
+import { loanCondition, loanDates, loanReading, loanToday } from "../copy";
 import { inventoryWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Loans.generated";
 
 // Core first: List with style "cards" cannot record lending direction, due dates, returns and reminders.
 export const meta = {
   id: "Loans",
   status: "ready",
   group: "data",
-  purpose: "See who has borrowed your things and when to return theirs.",
-  pick: "Physical things lent to or borrowed from people, with due-back dates, returns or reminders. Not a plain directory (List), debts (Split), or booked time (Appointment).",
-  writeHints: [
-    "Use lent for my item with someone else and borrowed for someone else's item with me. YYYY-MM-DD dates only; never write overdue.",
-    'Use detail "brief" only when asked to hide the dates loans started; still write since. Otherwise leave all unrequested axes null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
@@ -33,6 +31,8 @@ export const meta = {
       "since",
       "due",
       "overdue",
+      "condition_out",
+      "condition_in",
       "returned",
       "returned_label",
       "remind",
@@ -55,6 +55,8 @@ const loan = z
     way: z.enum(["lent", "borrowed"]),
     since: c.isoDate,
     due: c.isoDate.optional(),
+    conditionOut: c.text(48).optional(),
+    conditionIn: c.text(48).optional(),
   })
   .refine(({ since, due }) => !due || since <= due, { path: ["due"] });
 export const props = z.strictObject({ ...c.variantProps(meta.variants), loans: z.array(loan).min(1).max(6) });
@@ -91,17 +93,25 @@ export const examples = [
   {
     loans: [{ thing: "Long training lead", person: "Sam", way: "borrowed", since: "2026-11-10" }],
   },
+  {
+    loans: [
+      {
+        thing: "Pruning shears",
+        person: "Ana",
+        way: "lent",
+        since: "2026-10-02",
+        conditionOut: "Clean, blades sharp",
+        conditionIn: "Check blade for nicks",
+      },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Loans");
+// prettier-ignore
 export const probes = [
-  choose(
-    "Keep track of tools I lent to neighbours and things I borrowed, when they are due back, and mark each returned",
-  ),
-  choose(
-    "Show several tappable names leading to their own pages, without lending or borrowing records",
-    "List",
-  ),
+  choose("Keep track of tools I lent to neighbours and things I borrowed, when they are due back, and mark each returned"),
+  choose("Show several tappable names leading to their own pages, without lending or borrowing records", "List"),
   write(
     "I lent Ana my pruning shears on 2026-10-02 and they were due back 2026-10-16. The photo is lib:plants.",
   ),
@@ -112,6 +122,10 @@ export const probes = [
     variant: { axis: "detail", value: "brief" },
   },
   read("Mark the pruning shears as returned", { address: "l1/r1/returned", action: "press" }),
+  { ...write('I lent Ana the pruning shears on 2026-10-02. At checkout, note "Clean, blades sharp".'),
+    expectProps: { loans: [{ conditionOut: "Clean, blades sharp" }] } },
+  { ...write('I lent Ana the pruning shears on 2026-10-02. On return, note "Small nick on the blade".'),
+    expectProps: { loans: [{ conditionIn: "Small nick on the blade" }] } },
 ] satisfies c.Probe[];
 
 type LoansProps = c.Props<typeof props, typeof meta>;
@@ -126,6 +140,7 @@ function LoanRow({ row, today, density, surface, detail }: LoanRowProps) {
   const scope = kit.usePartContext();
   const { lang, words: { loans: words } } = kit.useWords(inventoryWordsFor);
   const { since, due, overdue } = loanDates(row, detail, lang, today);
+  const [out, back] = loanCondition(row, lang);
   const thumbnail = row.photo && <kit.KitPhoto part="photo" photo={row.photo} label={row.thing} />;
   return (
     <kit.PartScope {...scope} item={row.id}>
@@ -148,6 +163,7 @@ function LoanRow({ row, today, density, surface, detail }: LoanRowProps) {
             {due}{overdue && <kit.KitText part="overdue" role="caption" tone="bad" density={density}>{words.dueGap}{overdue}</kit.KitText>}
           </kit.KitText>}
         </kit.KitContent>}
+        <kit.KitMetaLine title={{ ...out, role: "caption", tone: "muted" }} meta={{ ...back, role: "caption" }} density={density} />
         <kit.KitGrid density={density}>
           <kit.KitAction part="returned" label={words.returned} kind="secondary" full />
           <kit.KitAction part="remind" label={words.remind[row.way](row.person)} kind="quiet" full />
@@ -165,7 +181,7 @@ export function Loans(input: LoansProps) {
   if (state === "empty")
     return (
       <kit.KitCard part="root" {...{ density, surface }}>
-        <kit.KitEmpty part="empty" icon="package" decorativeIcon />
+        <kit.KitState part="empty" icon="package" />
       </kit.KitCard>
     );
   const today = loanToday();

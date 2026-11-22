@@ -12,12 +12,13 @@ import {
   type Props,
 } from "../catalog";
 import { KitChip, KitRow, KitTrack } from "../kit";
+import { prompt } from "../entry/prompt-Segmented.generated";
 
 export const meta = {
   id: "Segmented",
   group: "input",
-  purpose: "Switch between two to four views of the same screen.",
-  pick: "One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "top",
   weight: 1,
   tier: "phone",

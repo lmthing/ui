@@ -34,18 +34,16 @@ import {
   priceChartRanges,
 } from "../copy";
 import { moneyWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-PriceChart.generated";
 
 // Core first: Sparkline/default cannot show a holding's full price history with selectable time ranges.
 export const meta = {
   id: "PriceChart",
   status: "ready",
   group: "data",
-  purpose: "See how one holding's price moved over a chosen period.",
-  pick: "A holding's price history with selectable day, week, month, year and all ranges. Not a compact recent value trend (Sparkline), one sum (Amount), personal measurements (Measurements), or a business metric (LineChart).",
-  writeHints: [
-    "points are 8–60 numeric prices in time order. Code derives current price and change; never write them or currency.",
-    "To omit the change summary only: detail brief, emphasis null. Leave emphasis null unless explicitly requested.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "service",

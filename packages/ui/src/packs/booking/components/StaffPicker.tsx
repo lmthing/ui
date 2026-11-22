@@ -26,18 +26,16 @@ import {
   type Props,
   variantProps,
 } from "../../../catalog";
+import { prompt } from "../../../entry/prompt-StaffPicker.generated";
 
 // Core first: People/stack shows participants, not a booking provider choice with Anyone.
 export const meta = {
   id: "StaffPicker",
   status: "ready",
   group: "input",
-  purpose: "Choose who provides the booked service, or leave it to anyone.",
-  pick: "Select a service provider for a booking, including Anyone. Not participants or people shown without selecting a provider (People).",
-  writeHints: [
-    "at is 0 for Anyone (only when anyone is true), 1 for the first staff member, 2 for the second. Use compact photo references such as local:1.",
-    'Leave detail null unless requested. For avatars and names with no visible roles, use detail "brief" and keep the roles in the data.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",

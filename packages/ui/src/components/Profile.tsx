@@ -27,16 +27,14 @@ import {
   useWords,
   useKit,
 } from "../kit";
+import { prompt } from "../entry/prompt-Profile.generated";
 
 export const meta = {
   id: "Profile",
   group: "content",
-  purpose: "Identify the person, pet or plant whose screen this is.",
-  pick: "An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).",
-  writeHints: [
-    "Set detail and media only when explicitly requested. A profile at the top of the page does not change its media.",
-    'Supplying a portrait leaves media null, never "thumb". Use media "none" only to hide the portrait slot. If only the supporting text should be hidden, set just detail "brief" and keep the supplied meta.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "top",
   weight: 2,
   tier: "phone",

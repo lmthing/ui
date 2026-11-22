@@ -4,19 +4,16 @@ import * as kit from "../../../kit";
 import { taxEvidence, taxYearLines } from "../copy";
 import { paperworkWordsFor } from "../lang";
 import { seedDate, seedRows } from "../seeds";
+import { prompt } from "../../../entry/prompt-TaxYear.generated";
 
 // Core first: Checklist/default ticks jobs but cannot match required evidence against files and reviewed receipts.
 export const meta = {
   id: "TaxYear",
   status: "ready",
   group: "data",
-  purpose: "Find missing tax evidence by matching records to one filing period.",
-  pick: "Completeness of tax evidence for one specified period, computed from linked documents and reviewed receipts. Not manually ticking off jobs (Checklist), money movements (Transactions), client bills (Invoice) or arbitrary data rows (Table).",
-  writeHints: [
-    "Write from and to in YYYY-MM-DD, in ascending order. Omit due unless supplied; never infer statutory dates.",
-    'Each requirement asks for "documents" or "receipts" using a tag and a needed count. Do not write matches, totals, tax owed, or filed status.',
-    'Keep all category links. To hide the deadline and receipt totals, set only detail to "brief"; keep the requirements and date range.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   // prettier-ignore
   region: "body",
   weight: 3,

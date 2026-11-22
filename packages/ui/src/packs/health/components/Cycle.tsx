@@ -36,18 +36,16 @@ import {
   cycleWindowLine,
   type CycleSeed,
 } from "../copy";
+import { prompt } from "../../../entry/prompt-Cycle.generated";
 
 // Core first: Calendar/month cannot derive cycle phases, next period and a fertile window from period dates.
 export const meta = {
   id: "Cycle",
   status: "ready",
   group: "data",
-  purpose: "Follow logged menstrual periods and locally estimated cycle phases.",
-  pick: "A menstrual cycle with period days, today's phase and estimated next period and fertile window. Not progress toward a goal (Progress), or dates merely marked with activity (Calendar).",
-  writeHints: [
-    "Write the start, average length and period duration. Predictions are computed locally and are not a method of contraception.",
-    "Use detail brief only to omit the estimated next-period and fertile-window captions.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

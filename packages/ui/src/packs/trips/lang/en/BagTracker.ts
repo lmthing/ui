@@ -1,0 +1,27 @@
+export const words = {
+  bagTracker: {
+    heading: "Checked bags",
+    selector: "Choose a checked bag",
+    stages: {
+      checked_in: "Checked in",
+      security: "Security",
+      loaded: "Loaded",
+      in_transit: "In transit",
+      unloaded: "Unloaded",
+      carousel: "At baggage claim",
+    },
+    waiting: "Awaiting scan",
+    noScans: "No scans yet",
+    tag: (value: string) => `Tag ${value}`,
+    flight: (value: string) => `Flight ${value}`,
+    carousel: (value: string) => `Carousel ${value}`,
+    next: (stage: string) => `Next: ${stage}`,
+    status: (stage: string) => `Latest: ${stage}`,
+    scan: (stage: string, details: (string | undefined)[]) => [stage, ...details.filter(Boolean)].join(" · "),
+    refresh: "Refresh scans",
+    report: "Report missing bag",
+    empty: "No checked bags linked",
+    error: "Baggage scans are delayed",
+    success: "Delivered to baggage claim",
+  },
+};

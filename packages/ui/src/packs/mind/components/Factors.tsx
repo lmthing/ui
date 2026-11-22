@@ -1,15 +1,16 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
+import { prompt } from "../../../entry/prompt-Factors.generated";
 
 // Core first: Chips/filter cannot show a dense grid of icon tiles for what shaped the day.
 export const meta = {
   id: "Factors",
   status: "ready",
   group: "input",
-  purpose: "Mark several things that affected how the day felt.",
-  pick: "A grid of four to sixteen independently toggled icon tiles for things that happened or shaped a day. Not a few text filters (Chips), physical symptoms with severity (SymptomLog), or shortcuts (Actions).",
-  writeHints: ["Give every factor an icon and an explicit on flag. Several factors may be on together."],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { commentLikeCopy, commentReading } from "../copy";
 import { socialWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Comments.generated";
 
 // Core first: Bubbles/default cannot display public post replies nested under a parent comment.
 export const meta = {
   id: "Comments",
   status: "ready",
   group: "content",
-  purpose: "Read and respond to replies under a shared post.",
-  pick: "Public replies beneath a post, with author avatars, like and reply controls, and one level of indentation. Not a two-person private conversation (Bubbles) or a business review (Review).",
-  writeHints: [
-    'Use "reply":false for each top-level comment (including the first) and "reply":true for answers under it. Consecutive answers share that same parent. Use zero for unknown likes.',
-    'When the only presentation request is to hide timestamps, write "detail":"brief"; retain every comment’s time value.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

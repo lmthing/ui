@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { feedCountParts, feedReading } from "../copy";
 import { socialWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Feed.generated";
 
 // Core first: List/cards cannot show authored excerpts with avatars and an inline like control.
 export const meta = {
   id: "Feed",
   status: "ready",
   group: "content",
-  purpose: "Browse recent posts shared by several people.",
-  pick: "Several community posts to scroll, with authors, short excerpts and reactions. Not one full post (Post), ordinary tappable rows (List), a private journal (Entries), or chat messages (Bubbles).",
-  writeHints: [
-    'For "hide attached post pictures", set media to "none" and keep the author avatars.',
-    "Put the newest post first. Keep the full excerpt even if it clips on screen. Each post needs an avatar (use lib:people if unspecified), time, excerpt and destination. Use zero for unknown counts and false for unknown liked state.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

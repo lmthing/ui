@@ -5,18 +5,16 @@ import { matchFeedReading, matchMinute } from "../copy";
 import { sportsWordsFor } from "../lang";
 import { goalEvents } from "../match-record";
 import { matchFeedRecord } from "../match-runtime";
+import { prompt } from "../../../entry/prompt-MatchFeed.generated";
 
 // Core first: Timeline/history shows one stream of past events, not two sides' match incidents.
 export const meta = {
   id: "MatchFeed",
   status: "ready",
   group: "data",
-  purpose: "See each side's match incidents and record a new one.",
-  pick: "Home and away incidents within one match by minute: goals, cards, substitutions and notes. Not a one-sided history or daily plan (Timeline) or community posts (Feed).",
-  writeHints: [
-    "Write one event per incident, newest minute first. On a screen with Scoreboard, include exactly one goal event for each seeded goal and match the side.",
-    'For an ordinary feed, write "detail":null. Set "detail":"brief" only on an explicit request to hide the written event-type labels; keep the kind to draw its icon.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

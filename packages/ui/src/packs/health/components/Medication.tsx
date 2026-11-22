@@ -28,23 +28,22 @@ import {
   useWords,
   useKit,
 } from "../../../kit";
+import { prompt } from "../../../entry/prompt-Medication.generated";
 
 // Core first: Checklist/plain cannot log timed doses, skipped marks and remaining stock with refill thresholds.
 export const meta = {
   id: "Medication",
   status: "ready",
   group: "input",
-  purpose: "Log today's medicine doses by time, including taken, skipped and remaining pills.",
-  pick: "Medicines or supplements on schedule, with doses, taken/skipped marks and refill stock. Not ordinary jobs (Checklist) or nudging one count (Counter).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath:
     "Doses stored on the device; reminders need notification permission, and this log is not medical advice.",
-  writeHints: [
-    "Write dose mark null unless explicitly requested. For a request to hide stock alone, only detail is set. To hide individual pill counts, set detail brief but keep left and refillAt in the data. Mark only an explicitly highlighted dose.",
-  ],
+  writeHints: prompt.writeHints,
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["left"] } },
   items: {
