@@ -75,17 +75,18 @@ describe("Applications contract and fallback", () => {
   });
 });
 
+it("shows the outcome first and labels a closed record's stage as history", () => {
+  const closed = examples[1]!;
+  const drawn = parts(closed);
+  expect(drawn.get("home/a1/r1/outcome")?.text).toEqual(["Rejected"]);
+  expect(drawn.get("home/a1/r1/stage")?.text).toEqual(["Last stage: Screening"]);
+  const addresses = [...drawn.keys()];
+  expect(addresses.indexOf("home/a1/r1/outcome")).toBeLessThan(addresses.indexOf("home/a1/r1/stage"));
+  expect(reading(closed)).toContain("Last stage: Screening");
+  expect(parts().get("home/a1/r1/stage")?.text).toEqual(["Interview"]);
+});
+
 describe("Applications parts, states, read and act", () => {
-  it("shows the outcome first and labels a closed record's stage as history", () => {
-    const closed = examples[1]!;
-    const drawn = parts(closed);
-    expect(drawn.get("home/a1/r1/outcome")?.text).toEqual(["Rejected"]);
-    expect(drawn.get("home/a1/r1/stage")?.text).toEqual(["Last stage: Screening"]);
-    const addresses = [...drawn.keys()];
-    expect(addresses.indexOf("home/a1/r1/outcome")).toBeLessThan(addresses.indexOf("home/a1/r1/stage"));
-    expect(reading(closed)).toContain("Last stage: Screening");
-    expect(parts().get("home/a1/r1/stage")?.text).toEqual(["Interview"]);
-  });
   it("draws and reads urgent rows first without changing the original addresses", () => {
     const input = { applications: [second!, { ...first!, nextAt: "2001-01-01" }] };
     const drawn = [...parts(input).keys()];
