@@ -35,7 +35,11 @@ const Frame = styled(XStack, {
   variants: {
     kind: {
       primary: { backgroundColor: "$accent" },
-      secondary: { backgroundColor: "$accentSoft" },
+      secondary: {
+        backgroundColor: "$accentSoft",
+        borderColor: "$accent",
+        borderWidth: component.base.borderWidth,
+      },
       quiet: { backgroundColor: "transparent" },
       danger: {
         backgroundColor: "transparent",
@@ -63,6 +67,8 @@ type ActionProps = {
   label?: string | undefined;
   icon?: IconName | undefined;
   kind?: ActionKind;
+  /** Glyph tone for quiet actions. */
+  tone?: "accent" | "neutral";
   goto?: string | undefined;
   part?: string | null;
   /** When supplied, only these explicit parts are drawn for the label and icon. */
@@ -239,21 +245,24 @@ export function KitAction(props: ActionProps) {
   } = props;
   const ks = useKitStyle();
   const { address, loading, inactive, copy, copied, status, handlers } = useActionBehavior(props);
-  const tone = kind === "quiet" && icon === "close" ? "muted" : toneOf[kind];
+  const bare = kind === "quiet" || (kind === "danger" && !label);
+  const neutral = props.tone === "neutral" || (props.tone === undefined && (!label || icon === "close"));
+  const tone = kind === "quiet" && neutral ? "muted" : toneOf[kind];
   const inactiveTone = kind === "primary" ? "text" : kind === "danger" ? "bad" : "muted";
   const captionTone = loading ? "text" : inactive ? inactiveTone : copied ? "good" : tone;
-  const fill = loading ? (kind === "quiet" ? "transparent" : "$line") : inactiveSurface[kind];
+  const fill = loading ? (bare ? "transparent" : "$line") : inactiveSurface[kind];
   const statusId = useId();
   return (
     <>
       <Frame
         {...(part === null ? {} : address)}
         kind={kind}
+        borderColor={bare ? "transparent" : kind === "secondary" && inactive ? "$line" : undefined}
         backgroundColor={inactive ? fill : copied ? "$goodSoft" : undefined}
         loading={loading}
         iconOnly={!label}
         {...(isWeb && copy && !loading ? webCopyButton : {})}
-        borderRadius={label ? shifted("md", ks.radiusShift) : radius.pill}
+        borderRadius={label || full ? shifted("md", ks.radiusShift) : radius.pill}
         alignSelf={full ? "stretch" : "flex-start"}
         accessibilityRole={loading ? undefined : "button"}
         aria-busy={loading || undefined}
@@ -267,7 +276,7 @@ export function KitAction(props: ActionProps) {
         <ActionContent
           label={copied && label ? (copiedLabel ?? label) : label}
           icon={copied && icon ? "check" : icon}
-          {...{ part, tone: captionTone, loading, quiet: kind === "quiet" }}
+          {...{ part, tone: captionTone, loading, quiet: bare }}
           {...(contentParts ? { contentParts } : {})}
         />
       </Frame>

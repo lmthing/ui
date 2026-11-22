@@ -1,5 +1,5 @@
 export { KitContent } from "./KitContent";
-export { KitText, type TextTone } from "./KitText";
+export { KitText, TableFigures, type TextTone } from "./KitText";
 export { useTextStep, type TextFinish, type TextRole } from "./text-step";
 export { KitIcon, type IconTone } from "./KitIcon";
 export {

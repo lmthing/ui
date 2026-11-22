@@ -8,9 +8,12 @@ import {
   KitCard,
   KitChip,
   KitColumns,
+  KitEmpty,
   KitFigure,
   KitGrid,
   KitHeader,
+  KitHours,
+  KitInput,
   KitLayoutText,
   KitMetaLine,
   KitPhoto,
@@ -19,6 +22,7 @@ import {
   KitRowGroup,
   KitRouteStop,
   KitSeatGrid,
+  KitSkeleton,
   KitState,
   KitStepper,
   KitStrip,
@@ -252,6 +256,98 @@ function Drawings({ state }: { state: StateName }) {
   );
 }
 
+function EdgeTable({ state }: { state: StateName }) {
+  const columns = [
+    {
+      id: "value",
+      label: "Value",
+      header: <KitText part="column">Value</KitText>,
+    },
+  ];
+  const rows = [
+    { id: "r1", value: "9", label: "Detail" },
+    { id: "r2", value: "109", label: "Sum", total: true },
+  ].map(({ id, value, label, total }) => ({
+    id,
+    label,
+    total: Boolean(total),
+    heading: <KitText part="name">{label}</KitText>,
+    target: { item: id, part: "root" },
+    cells: [
+      {
+        id,
+        content: (
+          <KitText part="value" role="number" numberScale="compact">
+            {value}
+          </KitText>
+        ),
+        target: { item: id, part: "cell" },
+      },
+    ],
+  }));
+  return (
+    <PartScope screen="fixture" component="edge" state={state} rev={1}>
+      <KitCard look="outlined">
+        <KitTable
+          columns={columns}
+          rows={rows}
+          corner={null}
+          loading={state === "loading"}
+          part="table"
+          fitColumns
+          edge="frame"
+        />
+      </KitCard>
+    </PartScope>
+  );
+}
+
+function BaseControls({ state }: { state: StateName }) {
+  return (
+    <PartScope screen="fixture" component="base" state={state} thing="entry" rev={1}>
+      <KitCard padded>
+        <KitInput kind="search" inset="avatar" part="search" hint="Find" caption="Search caption" />
+        <KitRow
+          inset="none"
+          leadingWidth="avatar"
+          leading={<KitPhoto shape="round" initials="S" part={null} />}
+          label="Sample"
+        >
+          <KitText part="name">Sample</KitText>
+        </KitRow>
+        <KitInput kind="number" part="amount" action="set" value="12" hint="Amount" />
+        <div data-testid="control-skeleton">
+          <KitSkeleton shape="control" kind="secondary" full />
+        </div>
+        <KitAction part="delete" icon="trash" a11y="Delete entry" kind="danger" />
+        <KitAction part="close" icon="close" a11y="Close editor" kind="quiet" tone="neutral" />
+        <KitAction part="keep" label="Keep entry" kind="secondary" />
+        <KitCard part="swatch" swatch="navy" children={null} />
+        <KitEmpty part="message" noun="record" decorativeIcon />
+        <KitEmpty part="explicit" noun="record" title="No saved entries" decorativeIcon />
+        <KitEmpty part="cast" decorativeIcon />
+        <KitText part="prose">This prose keeps its words and punctuation in place.</KitText>
+      </KitCard>
+    </PartScope>
+  );
+}
+
+function Hours({ density }: { density: "comfortable" | "compact" }) {
+  return (
+    <PartScope screen="fixture" component={density} state="filled" rev={1}>
+      <KitCard padded>
+        <KitHours
+          density={density}
+          blocks={[
+            { id: "r1", start: "09:00", end: "10:00", title: "Planning", goto: "plan" },
+            { id: "r2", start: "10:00", end: "11:00", title: "Writing" },
+          ]}
+        />
+      </KitCard>
+    </PartScope>
+  );
+}
+
 function Fixture() {
   const [state, setState] = useState<StateName>("filled");
   const [fit, setFit] = useState(true);
@@ -278,6 +374,10 @@ function Fixture() {
         <Controls state={state} />
         <Week state={state} />
         <Drawings state={state} />
+        <EdgeTable state={state} />
+        <BaseControls state={state} />
+        <Hours density="comfortable" />
+        <Hours density="compact" />
       </KitProvider>
     </TamaguiProvider>
   );

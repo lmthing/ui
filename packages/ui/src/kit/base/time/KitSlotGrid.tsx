@@ -49,6 +49,36 @@ function useSlotTarget(slot: Slot, selected: boolean, loading: boolean) {
       };
 }
 
+function SlotLine({
+  children,
+  loading,
+  value = false,
+}: {
+  children: React.ReactNode;
+  loading: boolean;
+  value?: boolean;
+}) {
+  const height = value ? space.sm : space.xs;
+  return (
+    <YStack minWidth={component.base.none} flexShrink={component.base.bodyFlex} alignItems="center">
+      <YStack opacity={loading ? component.base.none : undefined} aria-hidden={loading || undefined}>
+        {children}
+      </YStack>
+      {loading && (
+        <YStack
+          position="absolute"
+          top="50%"
+          marginTop={-height / 2}
+          width="100%"
+          height={height}
+          backgroundColor="$line"
+          borderRadius={radius.pill}
+        />
+      )}
+    </YStack>
+  );
+}
+
 function SlotItem({
   slot,
   selected,
@@ -77,14 +107,13 @@ function SlotItem({
       justifyContent={list ? "space-between" : "center"}
       borderRadius={list ? shifted("md", ks.radiusShift) : radius.pill}
       borderWidth={component.base.strongBorder}
-      borderColor={loading ? "$line" : selected ? "$accent" : slot.taken ? "$line" : "$muted"}
-      backgroundColor={loading ? "$line" : selected ? "$accentSoft" : slot.taken ? "$raised" : "$surface"}
+      borderColor={loading ? "transparent" : selected ? "$accent" : "$line"}
+      backgroundColor={
+        loading ? "transparent" : selected ? "$accentSoft" : slot.taken ? "$raised" : "$surface"
+      }
       width={list ? "100%" : width ? (width - space.sm * 2) / 3 : "30%"}
     >
-      <YStack
-        opacity={loading ? component.base.none : 1}
-        {...(loading ? { visibility: "hidden" as const } : {})}
-      >
+      <SlotLine loading={loading} value>
         <KitText
           role="number"
           numberScale="compact"
@@ -94,16 +123,13 @@ function SlotItem({
         >
           {slot.label}
         </KitText>
-      </YStack>
+      </SlotLine>
       {slot.sub && (
-        <YStack
-          opacity={loading ? component.base.none : 1}
-          {...(loading ? { visibility: "hidden" as const } : {})}
-        >
-          <KitText role="label" tone="muted" tabular part={null}>
+        <SlotLine loading={loading}>
+          <KitText role="caption" tone="muted" part={null}>
             {slot.sub}
           </KitText>
-        </YStack>
+        </SlotLine>
       )}
     </XStack>
   );

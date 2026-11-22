@@ -18,6 +18,8 @@ type EmptyProps = {
   part?: string | null;
   /** Standalone use: the text to show instead of the shared "No <things> yet" line. */
   title?: string;
+  /** Override the cast noun without writing a full sentence. */
+  noun?: string;
   sub?: string;
   /** Fill the screen's height and centre vertically (the `Empty` component), instead of sitting in a card. */
   fill?: boolean;
@@ -36,6 +38,7 @@ export function KitEmpty({
   icon = "sparkles",
   part = "title",
   title,
+  noun,
   sub,
   fill = false,
   tone = "neutral",
@@ -45,13 +48,10 @@ export function KitEmpty({
   announce,
 }: EmptyProps) {
   const { lang } = useWords();
-  const { thing } = usePartContext();
+  const { thing, state } = usePartContext();
+  const treatment = prominence ?? (title && (fill || state !== "empty") ? "heading" : "body");
   const textTone =
-    tone === "bad" || (tone === "good" && prominence)
-      ? tone
-      : prominence === "body" || !title
-        ? "muted"
-        : "text";
+    tone === "bad" || (tone === "good" && prominence) ? tone : treatment === "body" ? "muted" : "text";
   return (
     <YStack
       alignItems="center"
@@ -70,13 +70,8 @@ export function KitEmpty({
         />
       </Badge>
       <YStack gap={space.xs} alignItems="center" accessibilityRole={announce}>
-        <KitText
-          role={prominence ?? (title ? "heading" : "body")}
-          tone={textTone}
-          align="center"
-          {...{ part, density }}
-        >
-          {title ?? emptyLine(thing, lang)}
+        <KitText role={treatment} tone={textTone} align="center" {...{ part, density }}>
+          {title ?? emptyLine(noun ?? thing, lang)}
         </KitText>
         {sub && (
           <KitText role="body" tone="muted" align="center" part="sub">

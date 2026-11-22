@@ -91,6 +91,111 @@ it("uses neutral empty copy and retains the same rows on error and success", asy
   expect(errors).toEqual([]);
 });
 
+const base = (part: string) => page.getByTestId(`fixture/base/${part}`);
+const edge = (part: string) => page.getByTestId(`fixture/edge/${part}`);
+
+it("aligns an input with its caption and a neighbouring avatar row", async () => {
+  const search = page.getByRole("searchbox", { name: "Search caption" });
+  const [field, caption, name] = await Promise.all([
+    box(search),
+    box(page.getByText("Search caption", { exact: true })),
+    box(base("name")),
+  ]);
+  expect(field.x).toBeCloseTo(caption.x);
+  expect(field.x).toBeCloseTo(name.x);
+  await search.fill("Query");
+  expect(await search.inputValue()).toBe("Query");
+  const amount = page.getByRole("spinbutton", { name: "Amount" });
+  expect(await amount.evaluate((el) => getComputedStyle(el).textAlign)).toBe("right");
+  expect(await amount.evaluate((el) => getComputedStyle(el).fontVariantNumeric)).toBe("tabular-nums");
+  const skeleton = page.getByTestId("control-skeleton").locator(":scope > *");
+  expect(await skeleton.evaluate((el) => getComputedStyle(el).borderRadius)).toBe(
+    await amount.evaluate((el) => getComputedStyle(el.parentElement!).borderRadius),
+  );
+});
+
+it("keeps negative glyphs distinct from neutral actions and gives secondary actions a boundary", async () => {
+  const tone = (el: Element) => getComputedStyle(el.querySelector("svg")!).color;
+  const border = (el: Element) => getComputedStyle(el).borderTopColor;
+  expect(await base("delete").evaluate(border)).toBe("rgba(0, 0, 0, 0)");
+  expect(await base("delete").evaluate(tone)).not.toBe(await base("close").evaluate(tone));
+  expect(await base("keep").evaluate(border)).not.toBe("rgba(0, 0, 0, 0)");
+  for (const part of ["delete", "close", "keep"]) {
+    const target = await box(base(part));
+    expect(target.height).toBeGreaterThanOrEqual(size.control.md);
+    expect(target.width).toBeGreaterThanOrEqual(size.control.md);
+  }
+});
+
+it("uses the explicit empty title, then the caller noun, then the cast", async () => {
+  await state("empty");
+  expect(await base("explicit").textContent()).toBe("No saved entries");
+  expect(await base("message").textContent()).toBe("No records yet");
+  expect(await base("cast").textContent()).toBe("No entries yet");
+  expect(await base("explicit").evaluate((el) => getComputedStyle(el).color)).toBe(
+    await base("cast").evaluate((el) => getComputedStyle(el).color),
+  );
+  expect(await base("prose").textContent()).toBe("This prose keeps its words and punctuation in place.");
+  expect(await base("prose").evaluate((el) => getComputedStyle(el).textWrapMode)).toBe("wrap");
+  expect(await base("prose").evaluate((el) => getComputedStyle(el).getPropertyValue("text-wrap-style"))).toBe(
+    "pretty",
+  );
+});
+
+it("fits one numeric column beside its pinned rail and draws only one rule before the total", async () => {
+  const [card, table, rail, detail, total] = await Promise.all(
+    ["root", "table", "r1/root", "r1/cell", "r2/cell"].map((part) => box(edge(part))),
+  );
+  const stroke = await edge("root").evaluate((el) => {
+    const css = getComputedStyle(el);
+    return { left: parseFloat(css.borderLeftWidth), bottom: parseFloat(css.borderBottomWidth) };
+  });
+  expect(table!.x - card!.x).toBe(stroke.left);
+  expect(card!.y + card!.height - table!.y - table!.height).toBeCloseTo(stroke.bottom);
+  expect(detail!.width).toBeCloseTo(rail!.width);
+  expect(total!.y).toBeCloseTo(detail!.y + detail!.height);
+  expect(await edge("r1/cell").evaluate((el) => getComputedStyle(el).borderBottomWidth)).toBe("0px");
+  expect(await edge("r2/cell").evaluate((el) => getComputedStyle(el).borderTopWidth)).toBe("2px");
+  for (const row of ["r1", "r2"]) {
+    expect(await edge(`${row}/value`).evaluate((el) => getComputedStyle(el).textAlign)).toBe("right");
+    expect(await edge(`${row}/value`).evaluate((el) => getComputedStyle(el).fontVariantNumeric)).toBe(
+      "tabular-nums",
+    );
+  }
+  expect((await box(edge("r1/root"))).y - table!.y).toBeLessThanOrEqual(size.control.md);
+  await state("loading");
+  expect(await edge("table").getByRole("button").count()).toBe(0);
+});
+
+it("draws a non-interactive outline inside the swatch without changing its footprint", async () => {
+  const swatch = base("swatch");
+  const outline = swatch.locator(":scope > [aria-hidden=true]");
+  const before = await box(swatch);
+  expect(await box(outline)).toEqual(before);
+  expect(await outline.evaluate((el) => getComputedStyle(el).pointerEvents)).toBe("none");
+  expect(await outline.evaluate((el) => getComputedStyle(el).borderTopColor)).not.toBe(
+    await swatch.evaluate((el) => getComputedStyle(el).backgroundColor),
+  );
+  await state("loading");
+  const after = await box(swatch);
+  expect(after.width).toBe(before.width);
+  expect(after.height).toBe(before.height);
+});
+
+it("scales the hour grid with density and keeps a linked block reachable by keyboard", async () => {
+  const block = (density: string, row: string) => page.getByTestId(`fixture/${density}/${row}/root`);
+  for (const density of ["comfortable", "compact"]) {
+    const first = block(density, "r1");
+    const [a, b] = await Promise.all([box(first), box(block(density, "r2"))]);
+    const hour = density === "compact" ? 48 : 56;
+    expect(b.y - a.y).toBe(hour);
+    expect(a.height).toBe(hour);
+    expect(await first.locator("svg").count()).toBe(1);
+    await first.press("Enter");
+    expect(await page.getByTestId("pressed").textContent()).toBe(`plan:fixture/${density}/r1/root`);
+  }
+});
+
 it("reaches the last wide-table column by keyboard, keeping the leading rail pinned", async () => {
   const table = page.getByTestId("fixture/matrix/table");
   const heading = page.getByTestId("fixture/matrix/r1/heading");

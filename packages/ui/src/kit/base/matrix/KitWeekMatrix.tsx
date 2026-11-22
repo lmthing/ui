@@ -55,6 +55,7 @@ function weekRows(days: readonly Column[], rows: readonly MatrixRow[]) {
 function totalsRow(rows: readonly MatrixRow[], trailing: NonNullable<WeekMatrixProps["trailing"]>) {
   return {
     id: "trailing",
+    total: true,
     label: "",
     heading: null,
     cells: rows.map((row) => ({
@@ -103,6 +104,7 @@ export function KitWeekMatrix({
       <KitTable
         {...props}
         fitColumns={fitColumns}
+        edge="frame"
         columns={transposed.columns}
         headerTargets={props.rows.flatMap((row) =>
           row.target ? [{ column: row.id, target: row.target }] : [],
