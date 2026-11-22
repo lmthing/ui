@@ -9,6 +9,7 @@ const workspaceConfig =
 const runnerFile = /^scripts\/build\/(?:index|check(?:-options)?|(?:changed|cache)\/[^/.]+)\.ts$/;
 const componentSource =
   /^src\/(?:components|surfaces|packs\/[^/]+\/(?:components|copy))\/([A-Z]\w*)\.[jt]sx?$/;
+const componentPrompt = /^src\/(?:components|surfaces|packs\/[^/]+\/components)\/([A-Z]\w*)\.prompt\.md$/;
 const componentTest = /\/([A-Z]\w*)(?:\.[^/]+)?\.test\.tsx?$/;
 const packPath = /^src\/packs\/([^/]+)\//;
 const packData = /^src\/packs\/([^/]+)\/(?:example\.jsonl|pack\.ts|index\.ts|archetypes\/.*)$/;
@@ -61,7 +62,11 @@ function componentScope(
     const pack = file.match(packPath)?.[1];
     const recording = file.match(recordings);
     const id =
-      file.match(componentSource)?.[1] ?? recording?.[1] ?? recording?.[2] ?? file.match(componentTest)?.[1];
+      file.match(componentPrompt)?.[1] ??
+      file.match(componentSource)?.[1] ??
+      recording?.[1] ??
+      recording?.[2] ??
+      file.match(componentTest)?.[1];
     const definition = componentSource.test(file) && !file.includes("/copy/");
     if (pack && (!id || (!owners.has(id) && !definition))) packs.add(pack);
     if (id && (owners.has(id) || definition || id === "variants")) ids.add(id);
@@ -93,8 +98,13 @@ const caseSuites = [
 
 function extraRelated(files: readonly string[], tests: readonly string[]) {
   const related = new Set(files);
-  // Recordings and worked examples are read as files or inlined by entry generation, not imported.
+  // These inputs are read as files or inlined by entry generation, not imported.
   for (const file of files) {
+    if (componentPrompt.test(file)) {
+      related.add(file.replace(/\.prompt\.md$/, ".tsx"));
+      related.add("scripts/build/entries/prompt-parity.test.ts");
+      related.add("test/probes.test.ts");
+    }
     if (file.startsWith("test/recordings/Archetypes/")) related.add("test/archetypes.test.ts");
     else if (recordings.test(file)) related.add("test/probes.test.ts");
     if (file.startsWith("test/known/")) related.add("test/reading.test.tsx");
@@ -122,7 +132,9 @@ export function relatedSelection(root: string, files: readonly string[]) {
     ? new RegExp(`(?:\\.\\s*(?:${names})\\b|["'\x60](?:${names})["'\x60])`)
     : undefined;
   const narrowRegistries = ids.length && files.every((file) => file.startsWith("src/"));
+  const related = extraRelated(files, []);
   const tests = globSync(nodeTests, { cwd: root, exclude: ["**/*.browser.test.{ts,tsx}"] }).filter((test) => {
+    if (related.includes(test)) return true;
     const pack = test.match(packPath)?.[1];
     const componentFolder = pack || test.startsWith("src/components/");
     const id = componentFolder ? test.match(componentTest)?.[1] : undefined;

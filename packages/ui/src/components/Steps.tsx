@@ -3,27 +3,26 @@ import {
   probesFor,
   stepLine,
   text,
-  variantProps,
   type CastLike,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
-import { KitBlock, KitContent, KitStepsTrack, KitText, useVariant, useWords } from "../kit";
+import { KitBlock, KitContent, KitStepsTrack, KitText, useWords, useKit } from "../kit";
+import { prompt } from "../entry/prompt-Steps.generated";
 
 export const meta = {
   id: "Steps",
   group: "structure",
-  purpose: "Know your current place in a short ordered flow.",
-  pick: "Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).",
-  writeHints: [
-    'If asked to show only the step position without the task name, set detail to "brief". Otherwise leave detail null. Density must be null unless the person specifically asks for compact spacing; do not write "comfortable" as a default.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "top",
   weight: 1,
   tier: "phone",
   realPath: "The current position in a flow stored in the on-device app.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   parts: ["root", "track", "label"],
   states: ["filled"],
   read: (input, state, lang?: string): string[] => {
@@ -55,7 +54,7 @@ export const examples = [
   { style: "numbered", count: 4, at: 3, label: "Confirm Clover's walk" },
   { style: "bar", count: 5, at: 1 },
   reminderStep,
-  { ...reminderStep, density: "compact" },
+  { ...reminderStep },
   { ...reminderStep, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 
@@ -77,15 +76,9 @@ export const probes = [
   },
 ] satisfies Probe[];
 
-export function Steps({
-  style,
-  count,
-  at,
-  label,
-  density: requestedDensity,
-}: Props<typeof props, typeof meta>) {
+export function Steps({ style, count, at, label }: Props<typeof props, typeof meta>) {
   const { lang } = useWords();
-  const density = useVariant("density", meta.variants.density, requestedDensity);
+  const density = useKit().density;
 
   const position = stepLine(at, count, lang);
   return (

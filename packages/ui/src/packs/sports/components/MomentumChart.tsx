@@ -1,24 +1,22 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import { momentumReading } from "../copy";
+import { prompt } from "../../../entry/prompt-MomentumChart.generated";
 
 // Core first: Sparkline/default shows a quick personal trend, not an even-split axis or selectable match events.
 export const meta = {
   id: "MomentumChart",
   status: "draft",
   group: "data",
-  purpose: "See which team held the advantage and when the match turned.",
-  pick: "How momentum or win probability shifted during one match, with match-clock events. Not team totals (MatchStats), a tiny personal trend (Sparkline), or a business trend (LineChart).",
-  writeHints: [
-    "Use chronological match order and unique point ids. Win probability is 0–100 with 50 even; momentum is -100–100 with 0 even and positive values favoring home.",
-    'Use detail "brief" only to hide event callouts; keep the supplied events. Leave other axes null unless requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "service",
   realPath:
     "Sports analytics services stream win probability and momentum observations over the match clock.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["root", "event"] } },
   parts: ["root", "plot", "event"],
   items: { key: "samples", parts: ["root"], visibleWhen: { inspectable: true } },
@@ -100,7 +98,6 @@ export const examples = [
     home: "Trot Town",
     away: "Canal Club",
     mode: "momentum",
-    density: "compact",
     detail: "brief",
     points: [
       { id: "kickoff", clock: "0′", value: 0 },

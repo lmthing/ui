@@ -1,23 +1,21 @@
 import { z } from "zod";
 import * as c from "../catalog";
 import * as kit from "../kit";
+import { prompt } from "../entry/prompt-FileList.generated";
 
 export const meta = {
   id: "FileList",
   status: "ready",
   group: "content",
-  purpose: "Show attached files and let people preview, download, or remove them.",
-  pick: "One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).",
-  writeHints: [
-    'Use only the supplied opaque fileRef, never a download URL or device path. Give sizeBytes in bytes. Use status "ready" for available demo or attached files; use "downloading" or "missing" only when stated. Keep goto null unless a preview screen id is supplied.',
-    'Use detail "brief" only if asked to hide the page count; keep pages in the data. Use style "cards" for stacked preview tiles, otherwise null for rows. Leave other axes null unless requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "ok",
   realPath:
     "The host document picker supplies opaque references, the viewer previews them, and a host adapter downloads them.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["metadata", "pages"] } },
   parts: ["root", "message"],
   items: {
@@ -176,7 +174,7 @@ function FileMetadata({ size, pages, status, density, cards, missing }: {
 export function FileList(input: FileListProps) {
   const state = kit.useComponentState();
   const { words: { fileList: words } } = kit.useWords();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const cards = input.style === "cards";
   return <kit.KitCard part="root" style={cards && (state === "filled" || state === "loading") ? "cards" : "inset"} density={density}>
     {state === "empty" || state === "error" ? <kit.KitEmpty icon={state === "empty" ? "paperclip" : "alert"} part="message"

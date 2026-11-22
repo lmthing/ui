@@ -19,7 +19,6 @@ describe("List schema", () => {
   );
   it("applies defaults and trims text", () => {
     expect(props.parse({ rows: [{ title: "  Fern  " }] })).toMatchObject({
-      surface: "card",
       overflow: "all",
       lead: "icon",
       rows: [{ title: "Fern", trail: "chevron", tone: "neutral", mark: "none" }],

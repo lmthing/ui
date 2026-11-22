@@ -3,20 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { basketSummary, cartBarLines, cartBarReading } from "../copy";
 import { commerceWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-CartBar.generated";
 
 // Core first: Button/secondary cannot read the live basket count and total or hide itself when the basket is empty.
 export const meta = {
   id: "CartBar",
   status: "ready",
   group: "action",
-  purpose: "Return to a nonempty basket from a shopping screen.",
-  pick: "A persistent bottom shortcut to the basket with its live count and total, hidden when empty. Not a lone action without live basket data (Button) or the editable basket itself (Cart).",
-  writeHints: ["Supply the basket screen id in goto. The host supplies the basket count and total."],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "bottom",
   weight: 2,
   tier: "phone",
   realPath: "The count and total come from the basket on the device.",
-  variants: { density: ["comfortable", "compact"], emphasis: ["normal", "quiet"] },
+  variants: { emphasis: ["normal", "quiet"] },
   parts: ["root", "count", "total", "label"],
   states: ["filled", "empty"],
   actions: { parts: { root: ["press"] } },
@@ -38,7 +39,7 @@ export function fallback({ cast }: c.FallbackInput): z.input<typeof props> {
 
 export const examples = [
   { goto: "plant_supplies" },
-  { goto: "walking_gear", density: "compact" },
+  { goto: "walking_gear" },
   { goto: "dog_treats", emphasis: "quiet" },
 ] satisfies z.input<typeof props>[];
 
@@ -57,7 +58,7 @@ export const probes = [
 export function CartBar(input: c.Props<typeof props, typeof meta>) {
   const { goto } = input;
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const emphasis = kit.useVariant("emphasis", meta.variants.emphasis, input.emphasis);
   const { basket } = kit.useDeviceData();
   const { lang, words } = kit.useWords(commerceWordsFor);

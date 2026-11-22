@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { boxScoreReading, boxScoreTotals } from "../copy";
 import { sportsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-BoxScore.generated";
 
 // Core first: Stats/default gives independent figures, not a period line score and switchable player tables.
 const sides = ["home", "away"] as const;
@@ -10,25 +11,16 @@ export const meta = {
   id: "BoxScore",
   status: "ready",
   group: "data",
-  purpose: "Compare period scores and inspect the players' match statistics for either team.",
-  pick: "Per-player match statistics together with a period-by-period team line score. Not independent headline numbers (Stats), league standings (Standings), one player's profile (Profile), or a live scorekeeper (Scoreboard).",
-  writeHints: [
-    "Each player's stats follow the shared columns in order, with exactly one short text value per column. Never write team totals; the periods supply them.",
-    "Copy each supplied team name verbatim, keeping the home and away sides in the requested order.",
-    'Set style to "players" if the person wants the player table or team switch. Use "linescore" only when they want period scores without either control. In style "players", detail "brief" hides positions only.',
-    "Leave density and surface null unless explicitly requested, including when detail is brief.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath:
     "Player stat sheets are entered on the scorekeeper's phone or fetched from a league stats service.",
-  variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
-    detail: ["full", "brief"],
-  },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["position"] } },
   parts: ["root", "title", "total", "line_score", "team", "players", "empty"],
   items: {
@@ -195,7 +187,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type BoxScoreProps = c.Props<typeof props, typeof meta>;
-type BoxScoreView = { input: BoxScoreProps; density: c.AxisValue<"density">; loading: boolean };
+type BoxScoreView = { input: BoxScoreProps; density: c.ThemeDensity; loading: boolean };
 
 function TableHeader(text: string, index: number, density: BoxScoreView["density"]) {
   return {
@@ -312,8 +304,7 @@ export function BoxScore(input: BoxScoreProps) {
     words: { boxScore: words },
   } = kit.useWords(sportsWordsFor);
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
   const loading = state === "loading";
   const view = { input, density, loading };
   const body = (
@@ -342,7 +333,7 @@ export function BoxScore(input: BoxScoreProps) {
     </>
   );
   return (
-    <kit.KitCard part="root" padded clip density={density} surface={surface}>
+    <kit.KitCard part="root" padded clip density={density}>
       <kit.KitState part="empty" message={words.empty} density={density} loading={body}>
         {body}
       </kit.KitState>

@@ -10,11 +10,10 @@ it("accepts the planned Entries styles through the line migration without changi
   const migrated = migrateLine({ ...line, style: "compact", prompt: "Quiet moments" });
   const { id, c, state, ...input } = migrated;
   expect({ id, c, state }).toEqual({ id: "e1", c: "Entries", state: "filled" });
-  expect(input).toEqual({ entries, density: "compact", media: "none", prompt: "Quiet moments" });
+  expect(input).toEqual({ entries, media: "none", prompt: "Quiet moments" });
   expect(components.Entries.props.safeParse(input).success).toBe(true);
   expect(readComponent(components.Entries, input, "e1").join("\n")).toContain("[e1/r1 press→morning]");
   expect(migrateLine({ ...line, style: "compact", media: "thumb", density: "comfortable" })).toMatchObject({
     media: "thumb",
-    density: "comfortable",
   });
 });

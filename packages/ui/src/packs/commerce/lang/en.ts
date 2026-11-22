@@ -1,3 +1,15 @@
+import { words as ProductGridWords } from "./en/ProductGrid";
+import { words as OrderStatusWords } from "./en/OrderStatus";
+import { words as packWords } from "./en/pack";
+import { words as PromoWords } from "./en/Promo";
+import { words as CartBarWords } from "./en/CartBar";
+import { words as ProductWords } from "./en/Product";
+import { words as CartWords } from "./en/Cart";
+import { words as CheckoutWords } from "./en/Checkout";
+import { words as OrderSummaryWords } from "./en/OrderSummary";
+import { words as VariantPickerWords } from "./en/VariantPicker";
+import { words as SizeGuideWords } from "./en/SizeGuide";
+import { words as SavedListWords } from "./en/SavedList";
 export type CommerceWords = {
   addProduct: (name: string) => string;
   advanceOrder: (stage: string) => string;
@@ -87,95 +99,16 @@ export type CommerceWords = {
 };
 
 export const en = {
-  addProduct: (name) => `Add ${name} to basket`,
-  advanceOrder: (stage) => `Mark as ${stage}`,
-  currentOrderStage: (stage) => `Current stage: ${stage}`,
-  emptyProducts: "No products to show",
-  orderComplete: "Order complete",
-  tracking: {
-    copy: (id) => `Copy tracking number ${id}`,
-    proof: "Delivery proof",
-    pickup: (code) => `Pickup code: ${code}`,
-    here: "I’m here",
-  },
-  claimed: "Claimed",
-  deals: "Deals",
-  offerExpired: "Offer ended",
-  priceChange: (was, price) => `${was} → ${price}`,
-  cartBar: {
-    view: "View basket",
-    count: (formatted, singular) => `${formatted} ${singular ? "item" : "items"}`,
-  },
-  product: {
-    stock: (count) => `Only ${count} left`,
-    stockField: "stock",
-    soldOut: "Sold out",
-    quantity: (count) => `Quantity: ${count}`,
-    save: "Save for later",
-    unsave: "Remove from saved items",
-    add: "Add to basket",
-    added: "Added to basket",
-    aisle: (aisle) => `Aisle ${aisle}`,
-    storeStock: (count) => `${count} in store`,
-    scan: "Scan barcode",
-  },
-  cart: {
-    empty: "Your basket is empty",
-    promo: "Promo code",
-    subtotal: "Subtotal",
-    delivery: "Delivery",
-    deliveryReading: "delivery",
-    total: "Total",
-    quantity: "Quantity",
-    unitPrice: (price) => `${price} each`,
-    remove: (name) => `Remove ${name}`,
-  },
-  checkout: {
-    fulfillment: "Fulfillment",
-    payment: "Payment",
-    modes: { pickup: "Pickup", delivery: "Delivery", table: "Table" },
-    methods: { card: "Card", cash: "Cash", wallet: "Wallet" },
-    time: "Time",
-    address: "Delivery address",
-    addAddress: "Add delivery address",
-    total: "Order total",
-    unavailable: "Unavailable",
-    place: "Place order",
-    success: "Order placed",
-  },
-  orderNumber: (number) => `Order #${number}`,
-  orderMode: { pickup: "Pickup", delivery: "Delivery", table: "At table" },
-  orderTotal: "Total",
-  reorder: "Reorder",
-  receiptSeparator: " · ",
-  promoEnds: "ends",
-  copyPromoCode: (code) => `Copy ${code}`,
-  variantUnavailable: "Sold out",
-  shadeDepth: { fair: "Fair", light: "Light", medium: "Medium", deep: "Deep" },
-  shadeUndertone: { cool: "Cool", neutral: "Neutral", warm: "Warm" },
-  variantReading: (label, details) => [label, ...details].join(" · "),
-  sizeGuide: {
-    size: "Size",
-    unit: "Measurement units",
-    units: { cm: "cm", in: "in" },
-    fit: "Fit",
-    fitWords: ["Runs small", "True to size", "Runs large"],
-    reference: (size) => `Reference size: ${size}`,
-  },
-  savedList: {
-    move: "To basket",
-    readActions:
-      "To move a product into the basket, press its /move action. A press on the row itself opens the product page.",
-    remove: (name) => `Remove ${name} from saved items`,
-    claim: "Claimed",
-    claimItem: (name) => `Claim ${name}`,
-    target: "Target price",
-    alert: (name) => `Target price for ${name}`,
-    previous: (price) => `Was ${price}`,
-    priceDrop: (amount) => `${amount} less`,
-    blank: "\u00a0",
-    priceGap: "\u00a0\u00a0",
-    success: "Saved list updated",
-    error: "Could not update saved items",
-  },
+  ...ProductGridWords,
+  ...OrderStatusWords,
+  ...packWords,
+  ...PromoWords,
+  ...CartBarWords,
+  ...ProductWords,
+  ...CartWords,
+  ...CheckoutWords,
+  ...OrderSummaryWords,
+  ...VariantPickerWords,
+  ...SizeGuideWords,
+  ...SavedListWords,
 } satisfies CommerceWords;

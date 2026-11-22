@@ -29,7 +29,7 @@ describe("Factors schema and boundaries", () => {
   it.each([4, 16])("accepts %i tiles with up to 14 trimmed characters", (count) => {
     const label = "x".repeat(14);
     const parsed = props.parse({ items: Array(count).fill({ ...tile, label: ` ${label} ` }) });
-    expect(parsed).toMatchObject({ surface: "card" });
+    expect(parsed).not.toHaveProperty("surface");
     expect(parsed.items).toEqual(Array(count).fill({ ...tile, label }));
   });
 

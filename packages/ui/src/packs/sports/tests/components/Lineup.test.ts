@@ -42,7 +42,6 @@ describe("Lineup schema and contract", () => {
     ]);
     expect(props.parse({ lines: [one] })).toMatchObject({
       style: "pitch",
-      surface: "card",
       detail: "full",
       subs: [],
     });
@@ -114,9 +113,7 @@ describe("Lineup drawing, reading and actions", () => {
 
   it("keeps the same addresses except the hidden summary and omits an absent bench", () => {
     const keys = render(sample);
-    expect([...render({ ...sample, density: "compact", surface: "outlined" }).keys()]).toEqual([
-      ...keys.keys(),
-    ]);
+    expect([...render({ ...sample }).keys()]).toEqual([...keys.keys()]);
     expect([...render({ ...sample, detail: "brief" }).keys()]).toEqual(
       [...keys.keys()].filter((key) => key !== address("shape")),
     );

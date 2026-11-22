@@ -1,6 +1,13 @@
 import { useContext, useId, type ReactNode } from "react";
 import { XStack, YStack, isWeb, styled, useThemeName } from "tamagui";
-import { component, size, space, type as typography, type AxisValue } from "../../../catalog";
+import {
+  component,
+  size,
+  space,
+  type as typography,
+  type AxisValue,
+  type SurfaceFinish,
+} from "../../../catalog";
 import { useKit, useKitStyle, useVariantDensity } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { RowLabelContext } from "../../a11y";
@@ -36,7 +43,7 @@ type RowProps = {
   selected?: boolean;
   tone?: SurfaceTone | undefined;
   rowTone?: TextTone | "neutral" | undefined;
-  surface?: AxisValue<"surface"> | undefined;
+  surface?: SurfaceFinish | undefined;
   mark?: AxisValue<"mark"> | undefined;
   /** `line`: centre the leading item on the first line (icons). `row`: centre it on the whole text (a thumbnail taller than a line). */
   leadingAlign?: "line" | "row";

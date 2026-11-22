@@ -56,7 +56,6 @@ describe("Path schema", () => {
     const units = Array(12).fill({ ...done, title: ` ${"a".repeat(24)} `, goto: "a".repeat(64) });
     const milestones = units.map((_, index) => index);
     expect(props.parse({ units, milestones })).toMatchObject({
-      surface: "card",
       detail: "full",
       style: "winding",
       milestones,

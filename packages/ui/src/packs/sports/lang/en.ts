@@ -1,133 +1,24 @@
+import { words as BoxScoreWords } from "./en/BoxScore";
+import { words as MatchStatsWords } from "./en/MatchStats";
+import { words as MomentumChartWords } from "./en/MomentumChart";
+import { words as BracketWords } from "./en/Bracket";
+import { words as ScoreboardWords } from "./en/Scoreboard";
+import { words as FixturesWords } from "./en/Fixtures";
+import { words as LineupWords } from "./en/Lineup";
+import { words as MatchFeedWords } from "./en/MatchFeed";
+import { words as SquadWords } from "./en/Squad";
+import { words as StandingsWords } from "./en/Standings";
 export const en = {
-  boxScore: {
-    title: "Box score",
-    team: "Team",
-    players: "Player",
-    total: "Total",
-    period: "Period",
-    columns: ["A", "B", "C"],
-    switchTeam: "Choose team",
-    empty: "The box score has not been recorded yet.",
-    scorePair: (home: string, away: string) => `${home}–${away}`,
-    teams: (home: string, away: string) => `${home} · ${away}`,
-    score: (period: string, home: string, h: string, away: string, a: string) =>
-      `${period}: ${home} ${h}, ${away} ${a}`,
-    selected: (team: string) => `Player statistics: ${team}`,
-    stat: (column: string, value: string) => `${column} ${value}`,
-    player: (id: string, name: string, pos: string | undefined, stats: string[]) =>
-      `${id}: ${name}${pos ? ` (${pos})` : ""} · ${stats.join(", ")}`,
-  },
-  matchStats: {
-    title: "Match stats",
-    period: "Match period",
-    empty: "Match stats are unavailable.",
-  },
-  momentumChart: {
-    title: { win_prob: "Win probability", momentum: "Match momentum" },
-    empty: "The match momentum feed is unavailable.",
-    even: "Even",
-    advantage: (name: string, delta: string, mode: "win_prob" | "momentum") =>
-      `${name} +${delta}${mode === "win_prob" ? " pp" : ""}`,
-    current: (clock: string, value: string, advantage: string) => `${clock} · ${value} · ${advantage}`,
-    event: (id: string, clock: string, value: string, name?: string) =>
-      `${id}: ${clock} · ${value}${name ? ` · ${name}` : ""}`,
-  },
-  bracket: {
-    title: "Knockout bracket",
-    winner: (team: string) => `${team} wins`,
-    side: (team: string, score: string) => `${team} ${score}`,
-    tie: (id: string, round: string, a: string, b: string) => `${id}: ${round}, ${a} · ${b}`,
-    outcome: (tie: string, winner: string) => `${tie} · ${winner}`,
-  },
-  matchGoal: "Goal",
-  scoreboard: {
-    status: { upcoming: "Not started", live: "Live", break: "Half time", final: "Full time" },
-    score: (home: string, homeScore: string, awayScore: string, away: string) =>
-      `${home} ${homeScore}–${awayScore} ${away}`,
-    add: (team: string) => `Add a goal for ${team}`,
-    undo: (team: string) => `Undo a goal for ${team}`,
-    start: "Start clock",
-    stop: "Stop clock",
-    sports: {
-      football: "Football",
-      basketball: "Basketball",
-      baseball: "Baseball / softball",
-      tennis: "Tennis",
-      hockey: "Hockey",
-      generic: "Match",
-    },
-    periods: "Score by period",
-    periodScore: (home: string, away: string) => `${home}–${away}`,
-    periodLine: (label: string, score: string) => `${label}: ${score}`,
-    possession: (team: string) => `Possession: ${team}`,
-    count: (kind: "outs" | "balls" | "strikes", value: string) =>
-      `${{ outs: "Outs", balls: "Balls", strikes: "Strikes" }[kind]}: ${value}`,
-    baseNames: { first: "first", second: "second", third: "third" },
-    bases: (occupied: string[]) => (occupied.length ? `Runners on ${occupied.join(", ")}` : "Bases empty"),
-  },
-  fixtureHome: "Home",
-  fixtureAway: "Away",
-  fixtureLive: "Live",
-  fixtureMeet: (time: string) => `Meet at ${time}`,
-  fixtureKit: (kit: string) => `Kit: ${kit}`,
-  fixtureResults: { win: "Win", draw: "Draw", loss: "Loss" },
-  fixtureScore: (us: string, them: string) => `${us}–${them}`,
-  fixtureSeparator: " · ",
-  lineup: {
-    title: "Starting lineup",
-    bench: "Substitutes",
-    separator: "–",
-    player: (name: string, number: string) => `${name}, shirt ${number}`,
-    read: (id: string, name: string, number: string) => `${id}: ${name} #${number}`,
-    rating: (value: string) => `Rating ${value}`,
-    cards: { yellow: "Yellow card", red: "Red card" },
-    goals: (value: string, singular: boolean) => `${value} ${singular ? "goal" : "goals"}`,
-    badgeSeparator: " · ",
-  },
-  matchFeed: {
-    title: "Match events",
-    add: "Add event",
-    sides: { home: "Home", away: "Away" },
-    kinds: { goal: "Goal", card_yellow: "Yellow card", card_red: "Red card", sub: "Sub", note: "Note" },
-    minute: (value: string) => `${value}′`,
-    event: (minute: string, side: string, kind: string, text: string) =>
-      `${minute} ${side} · ${kind}: ${text}`,
-  },
-  squad: {
-    available: "Available to play",
-    reply: "Your availability",
-    answers: { yes: "yes", maybe: "maybe", no: "no", none: "No reply" },
-    selection: (name: string) => `Pick ${name}`,
-    picked: "Picked",
-    separator: " · ",
-    row: (name: string, answer: string) => `${name}: ${answer}`,
-  },
-  standings: {
-    title: "League table",
-    records: "Team records",
-    scroll: "Scroll for more stats",
-    position: "#",
-    team: "Team",
-    summary: "Played, goal difference",
-    results: "Won, drawn, lost",
-    pointsSuffix: "pts",
-    played: "P",
-    difference: "GD",
-    won: "W",
-    drawn: "D",
-    lost: "L",
-    tied: "T",
-    games_behind: "GB",
-    percentage: "Win %",
-    percentageSummary: "Played, games behind",
-    percentageResults: "Won, tied, lost",
-    form: "Form",
-    noForm: "–",
-    outcomes: { w: "W", d: "D", l: "L" },
-    separator: " · ",
-    formSeparator: " ",
-    reading: (id: string, team: string) => `${id}: ${team}`,
-  },
+  ...BracketWords,
+  ...ScoreboardWords,
+  ...FixturesWords,
+  ...LineupWords,
+  ...MatchFeedWords,
+  ...SquadWords,
+  ...StandingsWords,
+  ...BoxScoreWords,
+  ...MatchStatsWords,
+  ...MomentumChartWords,
 };
 
 export type SportsWords = typeof en;

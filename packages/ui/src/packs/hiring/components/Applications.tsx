@@ -4,20 +4,20 @@ import * as kit from "../../../kit";
 import { applicationCopy, applicationsReading, projectApplications } from "../copy";
 import { hiringWordsFor } from "../lang";
 import { activeStages, outcomes, seedDate, seedGoto, seedRows } from "../seeds";
+import { prompt } from "../../../entry/prompt-Applications.generated";
 
 // Core first: List/badge shows status but cannot track and log a dated follow-up on a job application.
 export const meta = {
   id: "Applications",
   status: "ready",
   group: "data",
-  purpose: "Track my job applications and log the follow-ups I owe.",
-  pick: "A job seeker's own applications to multiple employers with dated next actions, follow-up logging and application history. Not employers reviewing people (ApplicantPipeline), one flat list with a static badge and link per row (List), or a simple checklist (Checklist).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath:
     "Applications and contact events live on the seeker's phone, and checking a follow-up logs and clears it without sending or changing stage.",
-  variants: { surface: ["plain", "card"], density: ["comfortable", "compact"] },
   parts: ["root", "empty", "success", "error"],
   items: {
     key: "applications",
@@ -39,10 +39,7 @@ export const meta = {
   },
   read: (input, state, lang): string[] =>
     state === "filled" ? applicationsReading((input as z.output<typeof props>).applications, lang) : [],
-  writeHints: [
-    "Leave applied absent for saved roles. Supply next when nextAt is present. Do not write calculated due notices, day counts, urgency or totals.",
-    'For a request to show application cards, write surface "card" and density null. Only set density to "compact" when the user separately asks for tighter spacing; never write "comfortable" as a default.',
-  ],
+  writeHints: prompt.writeHints,
 } as const satisfies c.Meta;
 
 // prettier-ignore
@@ -63,7 +60,6 @@ const application = z
   );
 
 export const props = z.strictObject({
-  ...c.variantProps(meta.variants),
   applications: z
     .array(application)
     .min(1)
@@ -107,8 +103,6 @@ export const examples = [
     ],
   },
   {
-    surface: "card",
-    density: "compact",
     applications: [
       {
         applicationId: "press", role: "Copy editor", employer: "Harbour Press", stage: "screening",
@@ -130,12 +124,6 @@ export const probes: c.Probe[] = [
   write(
     "Track my active Trot Summer dog walker application, submitted 2027-04-06, in interview, last contact 2027-04-12, with a thank-you note due 2027-04-13. Also show the saved Assistant trainer opening at Coast Dogs, not applied. Link each role to its details.",
   ),
-  {
-    ...write(
-      "Show my active Trot Summer dog walker application in its own card, not a plain row. I applied 2027-04-06, reached interview, and need to send a thank-you note by 2027-04-13. Link to my application.",
-    ),
-    variant: { axis: "surface", value: "card" },
-  },
   read("Mark the thank-you follow-up for Trot done without sending anything.", {
     address: "a1/r1/followup",
     action: "check",
@@ -146,7 +134,7 @@ type Tracker = c.Props<typeof props, typeof meta>;
 type Row = ReturnType<typeof projectApplications<Tracker["applications"][number]>>[number];
 
 // prettier-ignore
-function ApplicationRow({ row, density, surface, loading }: { row: Row; density: c.ThemeDensity; surface: Tracker["surface"]; loading: boolean }) {
+function ApplicationRow({ row, density, surface, loading }: { row: Row; density: c.ThemeDensity; surface: c.SurfaceFinish; loading: boolean }) {
   const { lang, words: { applications: words } } = kit.useWords(hiringWordsFor);
   const copy = applicationCopy(row, lang);
   const line = (part: string, value: string | undefined, role: kit.TextRole = "label", tone: kit.TextTone = "muted") =>
@@ -183,8 +171,8 @@ function ApplicationRow({ row, density, surface, loading }: { row: Row; density:
 // prettier-ignore
 export function Applications(input: Tracker) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "plain";
   const { words: { applications: words } } = kit.useWords(hiringWordsFor);
   const { applications } = kit.useLiveControls(meta, input) as { applications: Row[] };
   return <kit.KitCard part="root" style={surface === "plain" ? "inset" : "plain"} padded={surface === "plain"} {...{ density }}>

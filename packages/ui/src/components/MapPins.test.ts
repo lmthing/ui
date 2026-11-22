@@ -64,7 +64,7 @@ describe("MapPins actions", () => {
   });
   it("can hide decorative arrows without changing linked pin addresses", () => {
     const input = { pins: [{ label: "First place", goto: "first" }, { label: "Second place" }] };
-    const noArrows = { ...input, trail: "none", density: "compact" };
+    const noArrows = { ...input, trail: "none" };
     const addresses = (raw: unknown) => affordancesOf(meta, stampItemIds(meta, props.parse(raw)), "m1");
     const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
     expect(renderInstance("MapPins", input, "filled", theme)).toContain("<svg");

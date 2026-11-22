@@ -2,6 +2,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { basename, join, relative } from "node:path";
 import ts from "typescript";
 import { packIds, type PackId } from "../../../src/catalog/meta";
+import { parsePrompt, promptModule } from "./prompt-source";
 
 export const dataExports = ["meta", "props", "fallback", "examples", "probes"] as const;
 const overrideName = "archetypeOverrides";
@@ -54,6 +55,16 @@ function valueExports(file: string, source: string, includeNamed = false): Value
 
 const exportedNames = (file: string, source: string) => valueExports(file, source).map(({ name }) => name);
 
+async function scanPrompt(file: string, name: string, source: string) {
+  const path = file.replace(/\.tsx$/, ".prompt.md");
+  const markdown = await readFile(path, "utf8").catch((error: NodeJS.ErrnoException) => {
+    if (error.code !== "ENOENT") throw error;
+    if (source.includes(`/entry/${promptModule(name)}`)) throw new Error(`Missing component prompt: ${path}`);
+    return undefined;
+  });
+  return markdown === undefined ? undefined : parsePrompt(path, markdown);
+}
+
 async function scanOverride(
   door: string,
   files: string[],
@@ -77,7 +88,8 @@ async function definition(file: string, entryDir: string, pack: PackId | undefin
   const missing: string[] = dataExports.filter((key) => !names.includes(key));
   if (!draft && !names.includes(name)) missing.push(name);
   if (missing.length) throw new Error(`${file} is missing exports: ${missing.join(", ")}`);
-  return { name, draft, path: `./${relative(entryDir, file).replace(/\.tsx$/, "")}`, pack };
+  const prompt = await scanPrompt(file, name, source);
+  return { name, draft, path: `./${relative(entryDir, file).replace(/\.tsx$/, "")}`, pack, prompt };
 }
 
 async function packEntry(folder: string, id: PackId) {

@@ -120,7 +120,7 @@ describe("Standings parts, states and reading", () => {
     expect([...before.keys()].filter((key) => !after.has(key))).toEqual(
       ["r1", "r2", "r3"].map((id) => address(`${id}/form`)),
     );
-    const compact = addressedElements(render({ ...full, density: "compact" }));
+    const compact = addressedElements(render({ ...full }));
     expect([...compact.keys()]).toEqual([...before.keys()]);
     const reading = readComponent(def, brief, "s1").join("\n");
     expect(reading).not.toContain("Form");

@@ -1,4 +1,4 @@
-import { useVariant, useWords, KitAction, KitIcon, KitRow, KitSheet, KitText, KitTrail } from "../kit";
+import { useWords, KitAction, KitIcon, KitRow, KitSheet, KitText, KitTrail, useKit } from "../kit";
 import { z } from "zod";
 import {
   probesFor,
@@ -10,30 +10,26 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   wordsFor,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
+import { prompt } from "../entry/prompt-Sheet.generated";
 
 export const meta = {
   id: "Sheet",
   group: "action",
-  purpose: "A panel over the screen for more detail, a longer pick or a few extra actions.",
-  pick: "More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).",
-  writeHints: [
-    'Extra actions use style "menu", with 2 to 6 items. A dangerous action has item tone "bad". Do not use style "detail" for a menu.',
-    "Detail requires a value on every fact and is the only style with action. Picker needs 6 to 12 options; only picker may use at.",
-    'For ordinary facts, choices and actions, write density:null, detail:null, lead:null, and item tone:null. Do not invent row icons. Hiding notes is not a request for tighter spacing or accessories: use detail "brief" with density:null and lead:null.',
-    'With detail "brief", keep the supplied subtitle in sub and each supplied fact note verbatim in that item’s meta. Never replace these strings with null; the renderer hides them.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "overlay",
   weight: 0,
   tier: "phone",
   realPath: "A local overlay on the current screen, opened by a link whose target is sheet.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"], lead: ["icon", "none"] },
+  variants: { detail: ["full", "brief"], lead: ["icon", "none"] },
   variantParts: { "detail.brief": { hides: ["sub", "meta"] }, "lead.none": { hides: ["icon"] } },
   items: {
     key: "items",
@@ -139,7 +135,7 @@ export const examples = [
   },
   fernMenu,
   { ...walkDetails, detail: "brief" },
-  { ...walkDetails, density: "compact" },
+  { ...walkDetails },
   { ...fernMenu, lead: "none" },
   { ...fernMenu, items: fernMenu.items.map(({ tone: _tone, ...row }) => row) },
 ] satisfies z.input<typeof props>[];
@@ -165,7 +161,7 @@ export const probes = [
 // prettier-ignore
 export function Sheet(input: Props<typeof props, typeof meta>) {
   const { style, title, sub, items, at, action } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const { closeLabel } = useWords().words;
   return (
     <KitSheet title={title} sub={sub} closeLabel={closeLabel}>

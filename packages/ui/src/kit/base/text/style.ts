@@ -1,5 +1,13 @@
 import { createContext } from "react";
-import { component, elevation, radius, variants, type AxisValue, type KitStyle } from "../../../catalog";
+import {
+  component,
+  elevation,
+  radius,
+  variants,
+  type AxisValue,
+  type KitStyle,
+  type SurfaceFinish,
+} from "../../../catalog";
 
 export type CardStyle = "plain" | "inset" | "cards";
 export type SurfaceTone = AxisValue<"tone">;
@@ -46,11 +54,7 @@ export function surfaceOf(treatment: KitStyle["surface"]) {
   } as const;
 }
 
-export function variantSurfaceOf(
-  surface: AxisValue<"surface">,
-  preset: KitStyle["surface"],
-  tone: SurfaceTone,
-) {
+export function variantSurfaceOf(surface: SurfaceFinish, preset: KitStyle["surface"], tone: SurfaceTone) {
   switch (surface) {
     case "plain":
       return {};

@@ -96,9 +96,7 @@ describe("FindDate states and parts", () => {
     expect(parts.get(address("count"))?.text).toEqual(["1 yes · 1 maybe"]);
     expect(parts.get(address("r1/root"))?.attributes).toContain('role="button"');
     expect(parts.get(address("r3/root"))?.text).toEqual(["Maybe"]);
-    expect([...render({ ...first, density: "compact", surface: "outlined" }).keys()]).toEqual([
-      ...parts.keys(),
-    ]);
+    expect([...render({ ...first }).keys()]).toEqual([...parts.keys()]);
     expect([...render({ ...first, detail: "brief" }).keys()]).toEqual(
       [...parts.keys()].filter((key) => key !== address("guide")),
     );

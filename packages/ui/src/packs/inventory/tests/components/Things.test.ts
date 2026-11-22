@@ -35,7 +35,6 @@ describe("Things schema", () => {
     const max = { ...row, name: "a".repeat(28), where: "b".repeat(24), qty: Number.MAX_SAFE_INTEGER };
     expect(props.parse({ items: Array.from({ length: 12 }, () => max) })).toMatchObject({
       arrange: "grid",
-      surface: "card",
       filter: "all",
       items: Array.from({ length: 12 }, () => max),
     });

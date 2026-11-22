@@ -36,7 +36,7 @@ time and kit.
   `goto`, `live` boolean optional, `clock` text(12) optional, 1–6; `style`. Results pills are computed
   from the scores and not shown for live fixtures. The clock is game time, not kickoff time.
 - Styles: `list` (default), `next` (the first match as a large card), `scoreboard` (all matches in a score ticker).
-  Axes: density `comfortable`, `compact`; detail `full`, `brief` (hides venue, meet and kit).
+  Axis: detail `full`, `brief` (hides venue, meet and kit).
 - Parts → actions: `root`, `message`; items `root press`, `date`, `time`, `opponent`, `badge`, `side`,
   `venue`, `score`, `result`, `meet`, `kit`, `live`, `clock`. · States: filled, empty, loading.
 - Real path: fixtures entered on the captain's phone; teammates following them is `people` (`partTiers`).
@@ -53,7 +53,7 @@ time, full time); in `keeper` style each side has plus and minus buttons for the
   set `sport` to `baseball`; optional `outs` integer 0–2, `balls` integer 0–3, `strikes` integer 0–2,
   and `bases` of `first`, `second`, `third`, 0–3 unique values. An empty bases array means no runners.
   Baseball and softball omit the elapsed clock in display style.
-- Styles: `display` (default), `keeper`. Axes: density `comfortable`, `compact`; emphasis `normal`, `quiet`;
+- Styles: `display` (default), `keeper`. Axes: emphasis `normal`, `quiet`;
   detail `full`, `brief` (hides period). · Parts → actions: `root`, `scores`, `home increment`,
   `home decrement`, `away increment`, `away decrement`, `home_score`, `away_score`, `clock start`,
   `clock stop`, `clock_icon`, `clock_value`, `period`, `status`, `sport`, `periods`, `possession`,
@@ -73,7 +73,7 @@ pills; the person's team tinted; promotion and relegation places marked by a lin
   and 1); `group` text(16) optional, `format` (`football_pts`, `pct_gb`) optional. The default points
   table computes played, points, difference and order. `pct_gb` ranks by win percentage (a tie is
   half a win) and shows games behind the leader instead of goal difference and points. · Dense.
-- Axes: density `comfortable`, `compact`; detail `full`, `brief` (hides form).
+- Axis: detail `full`, `brief` (hides form).
 - Parts → actions: `root`, `title`, `group`, `hint`, `table`; rows `root press`, `position`, `team`,
   `played`, `won`, `drawn`, `lost`, `difference`, `points`, `form`, `percentage`, `games_behind`.
   · States: filled, loading. · Kit: `KitTable`.
@@ -86,7 +86,7 @@ circle with a surname, and the substitutes in a row below; or as a plain list by
 - Writes: `lines` of `players` of `number` integer 0–99, `name` text(16), 1–6, 1–5 (from the back);
   `subs` of the same player fields, 0–7 (default empty); `style`. In `list`, each player can also have
   `rating` number 0–10, `cards` of `yellow` or `red`, 1–3, and `goals` integer 0–99, all optional.
-- Styles: `pitch` (default), `list`. Axes: density `comfortable`, `compact`; surface `card`, `outlined`;
+- Styles: `pitch` (default), `list`. Axis:
   detail `full`, `brief` (hides shape). · Parts → actions: `root`, `title`, `shape`, `formation`, `bench`,
   `bench_list`; players `root press`, `number`, `name`, `rating`, `cards`, `goals`. · States: filled, empty.
 - Real path: the coach's selection in a shared app.

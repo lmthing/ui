@@ -11,7 +11,7 @@ describe("KeyValue schema", () => {
   // prettier-ignore
   it("applies defaults and trims text", () => {
     expect(props.parse({ pairs: [{ label: "  Room  ", value: "  Bathroom  " }] })).toEqual({
-      arrange: "rows", surface: "card", lead: "icon",
+      arrange: "rows", lead: "icon",
       pairs: [{ label: "Room", value: "Bathroom", tone: "neutral", mark: "none" }],
     });
   });

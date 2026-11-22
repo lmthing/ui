@@ -37,7 +37,6 @@ describe("Promo schema and boundaries", () => {
       title: "Offer",
       code: "CODE",
       has_code: true,
-      surface: "tinted",
       emphasis: "normal",
       media: "thumb",
     });

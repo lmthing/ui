@@ -11,21 +11,18 @@ import {
 import { investWordsFor } from "../lang";
 import { performanceLedger, portfolioKind, type Portfolio } from "../ledger";
 import { compareInstants, dateTime, distinct, recordId, seedAssets, seedPortfolio, seedTime } from "../seeds";
+import { prompt } from "../../../entry/prompt-Performance.generated";
 
 // Core first: Sparkline/full shows a single trend, not portfolio value and net money invested together.
 // prettier-ignore
 export const meta = {
   id: "Performance", status: "ready", group: "data",
-  purpose: "Separate changes in portfolio value from the money I put in or took out.",
-  pick: "Compare portfolio value with net external contributions as two labelled lines over time, with latest money gain or loss. Not one market price (PriceChart), one small trend (Sparkline), or a generic series (LineChart).",
-  writeHints: [
-    "Write 2–60 dated quote observations in increasing time order, with at most one quote per asset in each sample. Missing quotes are omitted, never written as zero; do not write portfolio values, contributions, gains or rates.",
-    "Use ISO datetimes with offsets. Range filters the displayed points, not the contribution baseline.",
-    'Use detail "brief" only when asked to omit the heading above the valuation figures. Unless explicitly requested, leave density null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath: "The device replays the opening statement, trades, cash flows and receipts for each observation, valuing positions from stored quotes without a market service.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["summary"] } },
   parts: ["root", "title", "range", "legend", "summary", "value", "contributed", "gain", "observations", "dates", "notice"],
   items: { key: "samples", parts: ["root", "at", "value", "contributed", "gain"] },
@@ -84,7 +81,7 @@ export const examples = [
     ],
   },
   {
-    portfolioId: "pension", title: "Pension performance", range: "year", density: "compact",
+    portfolioId: "pension", title: "Pension performance", range: "year",
     samples: [
       { at: "2026-02-01T00:00:00+01:00", quotes: [{ assetId: "bond_fund", price: 22 }] },
       { at: "2026-02-12T16:00:00+01:00", quotes: [{ assetId: "bond_fund", price: 23 }] },
@@ -119,7 +116,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type PerformanceProps = c.Props<typeof props, typeof meta>;
-type Density = NonNullable<PerformanceProps["density"]>;
+type Density = c.ThemeDensity;
 // prettier-ignore
 function PerformanceFigures({ point, item, density, full, loading }: { point: PerformancePoint; item?: string; density: Density; full: boolean; loading: boolean }) {
   const { words: { performance: words }, lang } = kit.useWords(investWordsFor);
@@ -173,7 +170,7 @@ function PerformancePlot({ samples, selected, loading, density }: { samples: Per
 // prettier-ignore
 export function Performance(input: PerformanceProps) {
   const { words: { performance: words } } = kit.useWords(investWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const source = kit.useComponentState(), live = kit.useLiveControls(meta, input);
   const state = source === "filled" ? (live.state as c.StateName | undefined) ?? source : source;

@@ -13,6 +13,7 @@ import {
   type Probe,
   type Props,
 } from "../../../catalog";
+import { prompt } from "../../../entry/prompt-MatchStats.generated";
 
 // Core first: Bars (single series) cannot show both teams' values on each metric's mirrored axis.
 export const meta = {
@@ -20,14 +21,14 @@ export const meta = {
   status: "draft",
   group: "data",
   tier: "phone",
-  pick: "Compare two teams' statistical totals side by side in one match. Not match events (MatchFeed), player statistics (BoxScore), or a single series (Bars).",
-  purpose: "Compare how two teams performed on the same measurable aspects of one match.",
+  pick: prompt.pick,
+  purpose: prompt.purpose,
   region: "body",
   weight: 3,
   realPath:
     "match stat totals aggregated from recorded match events on the device or fetched from a sports data service.",
   dense: true,
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   parts: ["root", "period"],
   select: { prop: "periodAt", choices: { period: { prop: "periodOptions" } } },
   actions: { parts: { period: ["select"] }, when: { period: { hasPeriods: true } } },
@@ -96,7 +97,6 @@ export const examples = [
     away: "Fern House",
     periods: [],
     detail: "brief",
-    density: "compact",
     metrics: [
       { label: "Shots on target", homeValue: 4, awayValue: 6 },
       { label: "Fouls", homeValue: 8, awayValue: 8 },
