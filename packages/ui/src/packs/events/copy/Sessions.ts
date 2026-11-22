@@ -42,12 +42,17 @@ const overlaps = (a: Row, b: Row) => a.start < b.end && b.start < a.end;
 
 export function projectSessions(input: Readonly<Record<string, unknown>>) {
   const { tracks, sessions, selectedTrack, activeTrack, style, detail } = input as Schedule;
-  const filter = activeTrack ?? (selectedTrack === undefined ? allTracks : trackValue(selectedTrack));
+  const trackChoices = sessionTrackChoices(tracks);
+  const filter = trackChoices.some(({ value }) => value === activeTrack)
+    ? activeTrack
+    : selectedTrack === undefined
+      ? allTracks
+      : trackValue(selectedTrack);
   const mine = style === "mine";
   const saved = mine ? sessions.filter((row) => row.saved) : [];
   return {
     activeTrack: filter,
-    trackChoices: sessionTrackChoices(tracks),
+    trackChoices,
     sessions: sessions.map((row) => ({
       ...row,
       speaker: detail === "brief" ? undefined : row.speaker,
@@ -57,6 +62,23 @@ export function projectSessions(input: Readonly<Record<string, unknown>>) {
       conflict: mine && row.saved && saved.some((other) => other !== row && overlaps(row, other)),
     })),
   };
+}
+
+export function chronologicalSessions<T extends Pick<Row, "start">>(rows: readonly T[]): T[] {
+  return [...rows].sort((a, b) => a.start.localeCompare(b.start));
+}
+
+export function sessionRange(row: Pick<Row, "start" | "end">, lang?: string) {
+  return eventsWordsFor(lang).sessions.range(timeOfDayLine(row.start, lang), timeOfDayLine(row.end, lang));
+}
+
+export function sessionLocation(row: Pick<Row, "track" | "room">, lang?: string) {
+  return eventsWordsFor(lang).sessions.line([row.track, row.room]);
+}
+
+export function sessionEmpty(mine: boolean, lang?: string) {
+  const words = eventsWordsFor(lang).sessions;
+  return mine ? words.noBookmarks : words.noSessions;
 }
 
 export function sessionCapacity(row: Pick<Row, "booked" | "capacity">, lang?: string) {
@@ -73,25 +95,23 @@ export function sessionsReading(input: unknown, state: StateName, lang?: string)
     sessions: (Row & { visible: boolean; conflict: boolean })[];
   };
   const words = eventsWordsFor(lang).sessions;
+  const rows = chronologicalSessions(sessions.filter(({ visible }) => visible));
   return [
     ...(state === "success" ? [words.updated] : []),
     ...(style === "mine"
       ? [words.agenda]
       : [words.track, ...sessionTrackChoices(tracks, lang).map(({ label }) => label)]),
-    ...sessions
-      .filter(({ visible }) => visible)
-      .sort((a, b) => a.start.localeCompare(b.start))
-      .map((row) =>
-        words.line([
-          row.id,
-          words.range(timeOfDayLine(row.start, lang), timeOfDayLine(row.end, lang)),
-          row.title,
-          row.track,
-          row.room,
-          row.speaker,
-          sessionCapacity(row, lang),
-          row.conflict ? words.conflict : undefined,
-        ]),
-      ),
+    ...(rows.length ? [] : [sessionEmpty(style === "mine", lang)]),
+    ...rows.map((row) =>
+      words.line([
+        row.id,
+        sessionRange(row, lang),
+        row.title,
+        sessionLocation(row, lang),
+        row.speaker,
+        sessionCapacity(row, lang),
+        row.conflict ? words.conflict : undefined,
+      ]),
+    ),
   ];
 }

@@ -101,6 +101,8 @@ export const en = {
     namedTrack: (label: string) => `Track: ${label}`,
     agenda: "My agenda",
     updated: "Agenda updated",
+    noBookmarks: "No bookmarked sessions yet",
+    noSessions: "No sessions in this view",
     conflict: "Time conflict",
     full: "Full",
     remaining: (count: string) => `${count} left`,

@@ -1,12 +1,23 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
-import { projectSessions, sessionsReading } from "../copy";
+import * as kit from "../../../kit";
+import {
+  chronologicalSessions,
+  projectSessions,
+  sessionCapacity,
+  sessionEmpty,
+  sessionLocation,
+  sessionRange,
+  sessionTrackChoices,
+  sessionsReading,
+} from "../copy";
+import { eventsWordsFor } from "../lang";
 import { seedTitles } from "../seeds";
 
 // Core first: Timeline/hours shows duration blocks but cannot filter event tracks, show capacity or bookmark talks.
 export const meta = {
   id: "Sessions",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "Find sessions across an event's tracks and bookmark a personal agenda.",
   pick: "Multi-room or multi-stage sessions at one event, with track filters, capacity and personal bookmarks. Not a single-track day (Timeline), a holiday itinerary (Itinerary) or weekly classes (Timetable).",
@@ -27,6 +38,7 @@ export const meta = {
     key: "sessions",
     parts: ["root", "time", "title", "room", "speaker", "capacity", "conflict", "save"],
     visibleWhen: { visible: true },
+    toggles: { save: "saved" },
   },
   states: ["filled", "empty", "loading", "success"],
   actions: {
@@ -120,7 +132,6 @@ export const examples = [
     sessions: [
       { id: "lighting", title: "Lighting on location", track: "Talks", start: "13:00", end: "13:45", room: "Elm Room", speaker: "Hugo Wells", saved: true },
       { id: "editing", title: "Editing live", track: "Demos", start: "13:30", end: "14:00", room: "Studio 2", saved: true },
-      { id: "meet", title: "Meet the crew", track: "Talks", start: "14:00", end: "14:30", room: "Elm Room", saved: false },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -147,3 +158,149 @@ export const probes = [
   read("Bookmark Opening keynote without opening it.", { address: "s1/r1/save", action: "toggle" }),
   read("Open the Opening keynote details.", { address: "s1/r1", action: "press" }),
 ] satisfies c.Probe[];
+
+type SessionsProps = c.Props<typeof props, typeof meta>;
+type SessionRow = ReturnType<typeof projectSessions>["sessions"][number];
+type Density = SessionsProps["density"];
+
+function TrackFilter({
+  tracks,
+  active,
+  loading,
+}: Pick<SessionsProps, "tracks"> & { active: unknown; loading: boolean }) {
+  const { lang, words } = kit.useWords(eventsWordsFor);
+  return (
+    <kit.KitTrack part="track" role="radiogroup" {...(loading ? {} : { label: words.sessions.track })}>
+      {sessionTrackChoices(tracks, lang).map(({ value, label }) => (
+        <kit.KitChip
+          key={value}
+          item={null}
+          role="radio"
+          value={value}
+          label={label}
+          on={active === value}
+          {...(loading ? { disabled: true, part: null } : {})}
+        />
+      ))}
+    </kit.KitTrack>
+  );
+}
+
+function SessionDetails({ row, density }: { row: SessionRow; density: Density }) {
+  const { lang, words } = kit.useWords(eventsWordsFor);
+  const capacity = sessionCapacity(row, lang);
+  return (
+    <kit.KitContent density={density}>
+      <kit.KitLayoutText
+        density={density}
+        line={{
+          part: "time",
+          role: "meta",
+          tone: "muted",
+          tabular: true,
+          text: sessionRange(row, lang),
+        }}
+      />
+      <kit.KitMetaLine
+        density={density}
+        title={{ part: "title", text: row.title, strong: true }}
+        meta={[
+          { part: "room", text: sessionLocation(row, lang) },
+          { part: "speaker", text: row.speaker },
+          { part: "conflict", text: row.conflict ? words.sessions.conflict : undefined, tone: "warn" },
+        ]}
+      />
+      {capacity && (
+        <kit.KitContent align="start" density={density}>
+          <kit.KitTrail
+            kind="badge"
+            value={capacity}
+            part="capacity"
+            tone={capacity === words.sessions.full ? "warn" : "muted"}
+            density={density}
+          />
+        </kit.KitContent>
+      )}
+    </kit.KitContent>
+  );
+}
+
+function ScheduleRow({ row, density }: { row: SessionRow; density: Density }) {
+  const { words } = kit.useWords(eventsWordsFor);
+  const loading = kit.useComponentState() === "loading";
+  const save = row.saved ? words.sessions.unsave(row.title) : words.sessions.save(row.title);
+  const control = (
+    <kit.KitAction
+      part="save"
+      action="toggle"
+      contentParts={{}}
+      icon={row.saved ? "check" : "bookmark"}
+      kind={row.saved ? "secondary" : "quiet"}
+      a11y={save}
+    />
+  );
+  return (
+    <kit.KitRow item={row.id} part={null} inset="none" density={density} label={row.title} trailing={control}>
+      <kit.KitRow
+        part={loading ? null : "root"}
+        inset="none"
+        inline
+        fitContent
+        density={density}
+        label={row.title}
+        goto={loading ? undefined : row.goto}
+      >
+        <SessionDetails row={row} density={density} />
+      </kit.KitRow>
+    </kit.KitRow>
+  );
+}
+
+export function Sessions(input: SessionsProps) {
+  const state = kit.useComponentState();
+  const live = kit.useLiveControls(meta, input);
+  const { lang, words } = kit.useWords(eventsWordsFor);
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const rows = chronologicalSessions(c.visibleItems<SessionRow>(meta, live));
+  const mine = input.style === "mine";
+  const empty = sessionEmpty(mine, lang);
+  const agenda = (
+    <>
+      {mine && <kit.KitHeader title={{ text: words.sessions.agenda }} density={density} />}
+      {rows.length ? (
+        <kit.KitRowGroup density={density}>
+          {rows.map((row) => (
+            <ScheduleRow key={row.id} {...{ row, density }} />
+          ))}
+        </kit.KitRowGroup>
+      ) : (
+        state !== "loading" && (
+          <kit.KitEmpty
+            part="empty"
+            title={empty}
+            icon={mine ? "bookmark" : "clock"}
+            prominence="body"
+            density={density}
+            decorativeIcon
+          />
+        )
+      )}
+    </>
+  );
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      {!mine && <TrackFilter tracks={input.tracks} active={live.activeTrack} loading={state === "loading"} />}
+      <kit.KitState
+        loading={rows.length ? agenda : undefined}
+        retain
+        density={density}
+        part={state === "empty" ? "empty" : "feedback"}
+        message={state === "success" ? words.sessions.updated : undefined}
+        icon={state === "empty" ? (mine ? "bookmark" : "clock") : undefined}
+      >
+        {agenda}
+      </kit.KitState>
+    </kit.KitCard>
+  );
+}
