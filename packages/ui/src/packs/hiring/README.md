@@ -6,7 +6,7 @@ Built in step U7 (drafts in U3), wave to be decided of the catalog plan. Read `d
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
-- `components/`: `JobPost.tsx` `ApplicantPipeline.tsx` `Candidate.tsx` `Interview.tsx` `Offer.tsx` `Applications.tsx` `JobFeed.tsx`
+- `components/`: `JobPost.tsx` `ApplicantPipeline.tsx` `Candidate.tsx` `Interview.tsx` `Offer.tsx` `Applications.tsx` `JobFeed.tsx` `ResumeProfile.tsx`
 - `archetypes/`: `hiring_openings.ts` `hiring_pipeline.ts` `hiring_candidate.ts` `hiring_job_hunt.ts`
 
 Rules:
