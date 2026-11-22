@@ -197,6 +197,9 @@ describe("Slots selectable item parts", () => {
     expect(elementAt(html, "home/c1/minutes")).toBeDefined();
     expect(elementAt(html, "home/c1/times")).toBeDefined();
   });
+});
+
+describe("Slots time and status hierarchy", () => {
   it("keeps the end time inside the figure and the taken status in its own slot", () => {
     const html = renderInstance("Slots", examples[3], "filled", theme);
     const parts = addressedElements(html);

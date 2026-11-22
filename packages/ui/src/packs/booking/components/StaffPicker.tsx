@@ -21,6 +21,7 @@ import {
   text,
   thingOf,
   titleOf,
+  type ThemeDensity,
   variantProps,
   type FallbackInput,
   type Meta,
@@ -110,6 +111,29 @@ export const probes = [
   read("Let any available person do this booking", { address: "s1/anyone", action: "select" }),
 ] satisfies Probe[];
 
+function StaffCaption({
+  person,
+  density,
+}: {
+  person: { id?: string | undefined; name: string; role?: string | undefined };
+  density: ThemeDensity;
+}) {
+  return (
+    <KitContent align="center" rhythm="flush" density={density}>
+      <KitLayoutText
+        align="center"
+        density={density}
+        line={{ text: person.name, part: person.id ? "name" : "anyone_name", lines: 1 }}
+      />
+      <KitLayoutText
+        align="center"
+        density={density}
+        line={{ text: person.role, part: "role", role: "caption", tone: "muted" }}
+      />
+    </KitContent>
+  );
+}
+
 export function StaffPicker({
   staff,
   anyone,
@@ -148,20 +172,7 @@ export function StaffPicker({
                 loading={loading}
               />
             }
-            caption={
-              <KitContent align="center" rhythm="flush" density={density}>
-                <KitLayoutText
-                  align="center"
-                  density={density}
-                  line={{ text: person.name, part: person.id ? "name" : "anyone_name", lines: 1 }}
-                />
-                <KitLayoutText
-                  align="center"
-                  density={density}
-                  line={{ text: person.role, part: "role", role: "caption", tone: "muted" }}
-                />
-              </KitContent>
-            }
+            caption={<StaffCaption {...{ person, density }} />}
           />
         </KitRow>
       ))}
