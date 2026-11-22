@@ -14,4 +14,5 @@ export const example = `{"id":"h1","c":"Header","title":"Kanji Drop"}
 {"id":"a1","c":"Achievements","badges":[{"title":"First kanji","icon":"star","earned":"2026-10-04"},{"title":"Radical reader","icon":"drop","how":"Master 20 characters with the water radical."}]}
 {"id":"t1","c":"Timetable","days":[{"day":"mon","periods":[{"time":"09:00","subject":"Japanese","room":"B12","teacher":"Ms Tanaka"}]},{"day":"wed","periods":[{"time":"10:30","subject":"Calligraphy","room":"Studio 2"}]}]}
 {"id":"a2","c":"Assignments","items":[{"title":"Water radical worksheet","subject":"Japanese","due":"2026-11-25","status":"todo","goto":"worksheet"}]}
+{"id":"g1","c":"Gradebook","course":"Japanese 101","term":"Autumn term","categories":[{"label":"Kanji practice","weight":40,"items":[{"title":"Water radical worksheet","earned":18,"possible":20}]},{"label":"Reading checks","weight":60,"items":[{"title":"Basic kanji","earned":45,"possible":50}]}]}
 `;

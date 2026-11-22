@@ -27,6 +27,7 @@ const ids = [
   "Achievements",
   "Timetable",
   "Assignments",
+  "Gradebook",
 ] as const;
 const layouts = {
   course: { path: ["Header", "Streak", "Path", "Button"], list: ["Header", "Streak", "List", "Button"] },
