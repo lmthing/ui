@@ -1,4 +1,20 @@
 export const en = {
+  scanBatch: {
+    title: "Scanned pages",
+    count: (count: string, form: Intl.LDMLPluralRule) => `${count} ${form === "one" ? "page" : "pages"}`,
+    page: (number: string) => `Page ${number}`,
+    pageLabel: (page: string, label: string) => `${page}: ${label}`,
+    add: "Add page",
+    retake: (page: string) => `Retake ${page}`,
+    remove: (page: string) => `Remove ${page}`,
+    move: (page: string, target: string) => `Move ${page} to ${target}`,
+    save: "Save PDF",
+    empty: "No pages scanned yet",
+    saved: "PDF saved on this device",
+    scanFailed: "Couldn’t scan the page. Check camera access.",
+    saveFailed: "Couldn’t save the PDF. Your pages are still here.",
+    privateFile: "(private file)",
+  },
   signature: {
     signer: (name: string) => `Signer: ${name}`,
     open: "Open original",

@@ -49,6 +49,16 @@ export const vault = {
         { id: "b1", c: "Button" },
       ],
     },
+    vault_batch: {
+      recipe: [
+        { allow: ["Header"], required: true, variant: "back" },
+        { allow: ["ScanBatch"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header", style: "back" },
+        { id: "s1", c: "ScanBatch" },
+      ],
+    },
   },
 } as const satisfies ArchetypeMeta;
 
@@ -73,5 +83,12 @@ export const probes = [
     layout: "vault_capture",
     brief:
       "Title Scan a document. Use the camera in scan mode with hint Keep the page in frame. Show a note saying Check the edges before saving. Add a File scan button opening vault_all.",
+  },
+  {
+    kind: "compose",
+    archetype: "vault",
+    layout: "vault_batch",
+    brief:
+      "Show a back header titled Assemble scans. Stage the Trot permit packet with these two synthetic page scans in order: Permit lib:trot_permit, Cover sheet lib:trot_cover. Let me reorder or retake either page and save them as one local PDF. Add page opens vault_capture.",
   },
 ] satisfies ComposeProbe[];

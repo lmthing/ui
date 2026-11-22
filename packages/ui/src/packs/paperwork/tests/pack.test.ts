@@ -20,13 +20,13 @@ import {
 } from "@lmthing/ui/catalog";
 import { describe, expect, it } from "vitest";
 
-const ids = ["Documents", "Renewals", "Receipts", "Signature", "TaxYear"] as const;
+const ids = ["Documents", "Renewals", "Receipts", "Signature", "TaxYear", "ScanBatch"] as const;
 const core = createRegistry();
 const draft = createRegistry({ packs: ["paperwork"], includeDrafts: true });
 const definitions: Record<string, Definition> = components;
 const cast = { things: [], items: [] };
 const layouts = {
-  vault: ["vault_all", "vault_record", "vault_capture"],
+  vault: ["vault_all", "vault_record", "vault_capture", "vault_batch"],
   due_soon: ["paperwork_due", "paperwork_renewal"],
   sign: ["paperwork_sign", "paperwork_signed"],
   tax_prep: ["tax_evidence", "tax_receipts", "tax_tasks"],
@@ -42,6 +42,7 @@ const exampleLayouts = [
   ["vault", "vault_record"],
   ["vault", "vault_capture"],
   ["due_soon", "paperwork_renewal"],
+  ["vault", "vault_batch"],
 ] as const;
 
 describe("paperwork scaffold", () => {
@@ -77,7 +78,7 @@ describe("paperwork scaffold", () => {
 });
 
 describe("paperwork archetypes and worked example", () => {
-  it("validates all ten neutral default screens and has a matching compose probe for each", () => {
+  it("validates all neutral default screens and has a matching compose probe for each", () => {
     expect(checkPacks({ components, packs, packOf, packExamples, packArchetypes })).toEqual([]);
     expect(checkArchetypes({ components, packOf, packArchetypes, archetypes })).toEqual([]);
     const metas: readonly ArchetypeMeta[] = packArchetypes.paperwork;
