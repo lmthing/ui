@@ -91,6 +91,18 @@ export const en = {
     },
     reading: (parts: readonly (string | undefined)[]) => parts.filter(Boolean).join(" · "),
   },
+  workedSolution: {
+    problem: "Problem",
+    next: "Next step",
+    all: "Show all steps",
+    answer: "Final answer",
+    copy: "Copy answer",
+    tutor: "Ask a tutor",
+    solve: "Request another solution",
+    empty: "No problem to solve yet",
+    error: "This problem could not be read.",
+    success: "All steps revealed",
+  },
 };
 
 export type LearningWords = typeof en;

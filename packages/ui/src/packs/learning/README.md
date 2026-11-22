@@ -6,7 +6,7 @@ Built in step U7 (drafts in U3), wave 3 of the catalog plan. Read `docs/catalog/
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
-- `components/`: `Lesson.tsx` `Quiz.tsx` `Flashcard.tsx` `Path.tsx` `Result.tsx` `Achievements.tsx` `Timetable.tsx` `Assignments.tsx` `Gradebook.tsx`
+- `components/`: `Lesson.tsx` `Quiz.tsx` `Flashcard.tsx` `Path.tsx` `Result.tsx` `Achievements.tsx` `Timetable.tsx` `Assignments.tsx` `Gradebook.tsx` `WorkedSolution.tsx`
 - `archetypes/`: `course.ts` `lesson.ts` `results.ts` `planner.ts`
 
 Rules:
