@@ -1,7 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { resultStats, standingsCopy, standingsReading, summaryStats } from "../copy";
+import { percentageStats, resultStats, standingsCopy, standingsReading, summaryStats } from "../copy";
 import { sportsWordsFor } from "../lang";
 import { prompt } from "../../../entry/prompt-Standings.generated";
 
@@ -21,10 +21,23 @@ export const meta = {
   realPath: "The organiser enters results on one phone; sharing the league across clubs needs a shared app.",
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["form"] } },
-  parts: ["root", "title", "hint", "table"],
+  parts: ["root", "title", "group", "hint", "table"],
   items: {
     key: "rows",
-    parts: ["root", "position", "team", "played", "won", "drawn", "lost", "difference", "points", "form"],
+    parts: [
+      "root",
+      "position",
+      "team",
+      "played",
+      "won",
+      "drawn",
+      "lost",
+      "difference",
+      "points",
+      "form",
+      "percentage",
+      "games_behind",
+    ],
   },
   states: ["filled", "loading"],
   emptyActions: [],
@@ -49,6 +62,8 @@ export const props = z
   .strictObject({
     ...c.variantProps(meta.variants),
     rows: z.array(record).min(2).max(20),
+    group: c.text(16).optional(),
+    format: z.enum(["football_pts", "pct_gb"]).optional(),
     mine: z.int().min(0).max(19).optional(),
     lines: z.array(z.int().min(1).max(19)).min(0).max(2).default([]),
     scoring: z
@@ -72,6 +87,7 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
 
 export const examples = [
   {
+    format: "football_pts",
     mine: 1,
     lines: [1, 2],
     rows: [
@@ -89,6 +105,17 @@ export const examples = [
     ],
   },
   {
+    group: "East Division",
+    format: "pct_gb",
+    mine: 1,
+    rows: [
+      { team: "River Rovers", won: 7, drawn: 0, lost: 4, for: 0, against: 0, form: ["w", "w", "l"] },
+      { team: "Trot Town", won: 8, drawn: 0, lost: 2, for: 0, against: 0, form: ["w", "w", "w"] },
+      { team: "North Rovers", won: 5, drawn: 1, lost: 4, for: 0, against: 0, form: ["d", "l", "w"] },
+    ],
+  },
+  {
+    group: "Two-point league",
     scoring: { win: 2, draw: 1 },
     rows: [
       { team: "Trot Town", won: 3, drawn: 2, lost: 0, for: 9, against: 5, form: ["w", "w", "d", "d", "w"] },
@@ -123,63 +150,123 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
+  {
+    ...write(
+      "Make a league standings table for East Division: Trot Town has 3 wins, a draw and a loss with 7 goals for, 4 against; River Rovers has 2 wins, a draw and 2 losses with 6 goals for, 6 against.",
+    ),
+    expectProps: { group: "East Division" },
+  },
+  {
+    ...write(
+      "Rank these basketball teams by winning percentage and games behind, not points: Trot Town is 8–2, River Rovers is 7–4. Neither team has ties, and I don't have their points for or against or recent form.",
+    ),
+    expectProps: { format: "pct_gb" },
+  },
   read("Open the league table row for Ledge Rovers", { address: "s1/r2", action: "press" }),
 ] satisfies c.Probe[];
 
 type StandingsProps = c.Props<typeof props, typeof meta>;
+type TableRow = ReturnType<typeof standingsCopy>["rows"][number];
+type Stats = typeof summaryStats | typeof resultStats | typeof percentageStats;
 
 // prettier-ignore
-export function Standings(input: StandingsProps) {
+function RankHeading({ row, density, percentage }: {
+  row: TableRow; density: c.ThemeDensity; percentage: boolean;
+}) {
+  const { words: { standings: words } } = kit.useWords(sportsWordsFor);
+  const value = percentage ? row.percentage : row.points;
+  return <kit.KitContent density={density} rhythm="flush">
+    <kit.KitLayoutText line={{ text: row.team, role: "meta", part: "team", lines: 1 }} density={density} />
+    <kit.KitGrid density={density} fitLast>
+      <RankNumber position={row.position} mark={words.position} density={density} />
+      <kit.KitFigure density={density} align="end"
+        value={{ text: value, part: percentage ? "percentage" : "points", compact: true }}
+        {...(!percentage ? { unit: { text: words.pointsSuffix, role: "meta" as const } } : {})} />
+    </kit.KitGrid>
+  </kit.KitContent>;
+}
+
+function RankNumber({
+  position,
+  mark,
+  density,
+}: {
+  position: string;
+  mark: string;
+  density: c.ThemeDensity;
+}) {
+  const loading = kit.useComponentState() === "loading";
+  if (loading)
+    return <kit.KitLayoutText density={density} line={{ text: `${mark}${position}`, role: "meta" }} />;
+  return (
+    <kit.KitText role="label" part={null} tone="muted" density={density}>
+      {mark}
+      <kit.KitText part="position" role="label" tone="muted" density={density} tabular>
+        {position}
+      </kit.KitText>
+    </kit.KitText>
+  );
+}
+
+// prettier-ignore
+function StandingsTable({ input, density, showForm, loading, fitted }: {
+  input: StandingsProps; density: c.ThemeDensity; showForm: boolean; loading: boolean; fitted: boolean;
+}) {
   const { lang, words: { standings: words } } = kit.useWords(sportsWordsFor);
+  const percentage = input.format === "pct_gb";
+  const { rows, cuts } = standingsCopy(input, lang);
+  const head = (text: string) => <kit.KitLayoutText line={{ text, role: "meta", tone: "muted" }} density={density} />;
+  const labels = percentage ? { ...words, drawn: words.tied } : words;
+  const statColumns: { id: string; label: string; stats: Stats }[] = [
+    percentage ? { id: "summary", label: words.percentageSummary, stats: percentageStats } :
+      { id: "summary", label: words.summary, stats: summaryStats },
+    { id: "results", label: percentage ? words.percentageResults : words.results, stats: resultStats },
+  ];
+  const grid = (stats: Stats, row?: TableRow) =>
+    <kit.KitGrid columns={stats.length} density={density}>{stats.map((stat) =>
+      <kit.KitLayoutText key={stat} line={{ text: row?.[stat] ?? labels[stat], role: "meta",
+        tone: "muted", part: row ? stat : null, tabular: !!row }} align="end" density={density} />,
+    )}</kit.KitGrid>;
+  const columns = statColumns.map(({ id, label, stats }) => ({ id, label, header: grid(stats) }));
+  if (showForm) columns.splice(percentage ? 1 : 0, 0, { id: "form", label: words.form, header: head(words.form) });
+  const tableRows = rows.map((row) => {
+    const cells = statColumns.map(({ id, stats }) => ({ id, content: grid(stats, row) }));
+    if (showForm) cells.splice(percentage ? 1 : 0, 0, { id: "form", content:
+      <kit.KitTrail kind="badge" part="form" value={row.form} tone="text" density={density} /> });
+    return { id: row.id, label: row.team, ...(!loading ? { target: { item: row.id, part: "root" }, selected: row.mine } : {}),
+      heading: <RankHeading {...{ row, density, percentage }} />, cells };
+  });
+  return <kit.KitTable part="table" columns={columns} rows={tableRows} separators={loading ? [] : cuts} fitColumns={fitted}
+    corner={fitted ? head(words.team) :
+      <kit.KitLayoutText line={{ text: words.team, role: "meta", tone: "muted" }} align="center" density={density} />} />;
+}
+
+export function Standings(input: StandingsProps) {
+  const {
+    words: { standings: words },
+  } = kit.useWords(sportsWordsFor);
   const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const loading = kit.useComponentState() === "loading";
-  const { rows, cuts } = standingsCopy(input, lang);
-  const head = (text: string) => <kit.KitText role="label" tone="muted" align="center" part={null}
-    density={density}>{text}</kit.KitText>;
-  const column = (id: string, label: string, stats: typeof summaryStats | typeof resultStats) => ({
-    id, label, header: loading ? head(stats.map((stat) => words[stat]).join(words.formSeparator)) :
-      <kit.KitGrid columns={stats.length} density={density}>{stats.map((stat) =>
-        <kit.KitText key={stat} role="label" tone="muted" part={null} density={density}>{words[stat]}</kit.KitText>,
-      )}</kit.KitGrid>,
-  });
-  const columns = [column("summary", words.summary, summaryStats), column("results", words.results, resultStats)];
-  if (detail === "full") columns.unshift({ id: "form", label: words.form, header: head(words.form) });
-  const tableRows = rows.map((row) => {
-    const cells = [summaryStats, resultStats].map((stats) => ({ id: String(stats[0]), content: loading
-      ? head(stats.map((stat) => row[stat]).join(words.formSeparator))
-      : <kit.KitGrid columns={stats.length} density={density}>{stats.map((stat) =>
-        <kit.KitText key={stat} part={stat} role="label" tone="muted" tabular density={density}>{row[stat]}</kit.KitText>,
-      )}</kit.KitGrid>,
-    }));
-    if (detail === "full") cells.unshift({ id: "form", content: loading ? head(row.form) :
-      <kit.KitTrail kind="badge" part="form" value={row.form} tone="text" density={density} /> });
-    return {
-      id: row.id, label: row.team, target: { item: row.id, part: "root" }, selected: row.mine,
-      heading: <>
-        <kit.KitText role="label" part={loading ? null : "team"} lines={1} density={density}>{row.team}</kit.KitText>
-        {loading ? <kit.KitText part={null} role="label" density={density}>{words.rowSummary(row.position, row.points)}</kit.KitText> :
-          <kit.KitContent density={density} lineRole="body" lead={
-            <kit.KitText role="label" part={null} tone="muted" density={density}>
-              {words.position}<kit.KitText part="position" role="label" tone="muted" density={density} tabular>{row.position}</kit.KitText>
-            </kit.KitText>
-          }>
-            <kit.KitText role="label" part={null} tone="muted" density={density} lines={1}>
-              <kit.KitText part="points" role="number" numberScale="compact" tabular
-                density={density}>{row.points}</kit.KitText> {words.pointsSuffix}
-            </kit.KitText>
-          </kit.KitContent>}
-      </>, cells,
-    };
-  });
-  return <kit.KitCard part="root" padded clip density={density}>
-    {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
-      content={[["heading", words.title], ["label", words.scroll]]} /> :
-      <kit.KitContent density={density}>
-        <kit.KitText part="title" role="heading" density={density}>{words.title}</kit.KitText>
-        <kit.KitText part="hint" role="label" tone="muted" density={density}>{words.scroll}</kit.KitText>
-      </kit.KitContent>}
-    <kit.KitTable part="table" columns={columns} rows={tableRows} separators={loading ? [] : cuts} loading={loading}
-      corner={<kit.KitText role="label" tone="muted" part={null} density={density}>{words.team}</kit.KitText>} />
-  </kit.KitCard>;
+  const fitted = input.format !== undefined || input.group !== undefined;
+  const content = (
+    <>
+      <kit.KitHeader
+        density={density}
+        title={{ text: words.title, part: "title", ...(fitted ? {} : { role: "body", strong: true }) }}
+        meta={[
+          { text: input.group, part: "group" },
+          { text: fitted ? words.records : words.scroll, part: "hint" },
+        ]}
+      />
+      <StandingsTable {...{ input, density, loading, fitted }} showForm={detail === "full"} />
+    </>
+  );
+  return (
+    <kit.KitCard part="root" padded clip density={density}>
+      <kit.KitState loading={content} density={density}>
+        {content}
+      </kit.KitState>
+    </kit.KitCard>
+  );
 }

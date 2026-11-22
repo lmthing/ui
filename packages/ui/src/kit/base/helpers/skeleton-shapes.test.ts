@@ -120,7 +120,10 @@ describe("neutral control skeletons and themed disabled actions", () => {
           expect(css).not.toContain("opacity:0.5");
           if (html !== disabled) {
             if (html === skeleton) expectControlBar(html, node, kind);
-            else expect(css).toContain(kind === "quiet" ? "transparent" : "var(--line)");
+            else
+              expect(css).toContain(
+                kind === "quiet" || (kind === "danger" && !label) ? "transparent" : "var(--line)",
+              );
             if (kind === "quiet" && label)
               expect(descendants(node).some((child) => styleAt(html, child).includes("var(--line)"))).toBe(
                 true,

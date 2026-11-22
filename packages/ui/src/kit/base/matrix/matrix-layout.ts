@@ -1,6 +1,7 @@
 import { Children, cloneElement, createContext, isValidElement, useState, type ReactNode } from "react";
 import { component, radius, size, space, type KitStyle } from "../../../catalog";
 import { KitText, shifted } from "../text";
+import { inputRadius } from "../input";
 import { isWeb, type YStackProps } from "tamagui";
 
 export type Drawing = { part?: string; loading?: boolean };
@@ -22,6 +23,8 @@ export type MatrixRow = {
   heading: ReactNode;
   cells: readonly Cell[];
   selected?: boolean;
+  /** Separate a summary from the detail rows with a rule above it. */
+  total?: boolean;
   target?: Target;
 };
 export const scrollColumnWidth = size.control.md * 3;
@@ -30,7 +33,12 @@ export const MatrixSelectionContext = createContext<readonly string[]>([]);
 
 export const fittedTableWidth = (columns: number) => columns * fittedColumnMin;
 
-export function matrixColumnLayout(fit: boolean, heading: boolean, contentWidth = false): YStackProps {
+export function matrixColumnLayout(
+  fit: boolean,
+  heading: boolean,
+  contentWidth = false,
+  single = false,
+): YStackProps {
   if (contentWidth)
     return {
       flexShrink: component.base.none,
@@ -39,7 +47,10 @@ export function matrixColumnLayout(fit: boolean, heading: boolean, contentWidth 
       ...(isWeb ? { width: "max-content" as never } : {}),
     };
   if (!fit) return { width: scrollColumnWidth, flexShrink: component.base.none };
-  if (heading) return { flexShrink: component.base.none, maxWidth: scrollColumnWidth };
+  if (heading)
+    return single
+      ? { flexShrink: component.base.none, width: "50%" }
+      : { flexShrink: component.base.none, maxWidth: scrollColumnWidth };
   // Start at the intrinsic width so a column with more content gets more room than a short one.
   return {
     flexGrow: component.base.bodyFlex,
@@ -102,7 +113,8 @@ export function loadingRadius(props: Parameters<typeof loadingGeometry>[0], shif
     if (!props.photo || props.shape === "round" || props.shape === "avatar") return radius.pill;
     return shifted(!props.shape || props.shape === "thumb" ? "sm" : "lg", shift);
   }
-  return props.hint || props.label ? shifted("md", shift) : radius.pill;
+  if (props.hint !== undefined) return inputRadius(props.kind, shift);
+  return props.label ? shifted("md", shift) : radius.pill;
 }
 export function disabledContent(content: ReactNode): ReactNode {
   return Children.map(content, (node) => {
@@ -139,6 +151,7 @@ export function loadingGeometry(props: {
   initials?: string;
   shape?: string;
   hint?: string;
+  kind?: "text" | "search" | "number" | "date" | "time";
   label?: string;
   icon?: string;
   name?: string;
@@ -178,13 +191,15 @@ export function loadingGeometry(props: {
 }
 
 /** Measure unconstrained content on both sides, so pinned labels and scrolling cells share heights. */
-export function useMatrixHeights(padding: number) {
+export function useMatrixHeights(padding: number, headerPadding = padding) {
   const [heights, setHeights] = useState<Record<string, Record<string, number>>>({});
   return {
     height: (row: string) =>
       Math.max(
         size.control.md,
-        ...Object.values(heights[row] ?? {}).map((value) => value + padding * 2 + component.base.borderWidth),
+        ...Object.values(heights[row] ?? {}).map(
+          (value) => value + (row === "header" ? headerPadding : padding) * 2 + component.base.borderWidth,
+        ),
       ),
     measure: (row: string, column: string) => (event: { nativeEvent: { layout: { height: number } } }) => {
       const height = event.nativeEvent.layout.height;

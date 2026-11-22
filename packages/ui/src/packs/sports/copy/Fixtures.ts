@@ -11,6 +11,8 @@ type Fixture = {
   them?: number | undefined;
   meet?: string | undefined;
   kit?: string | undefined;
+  live?: boolean | undefined;
+  clock?: string | undefined;
 };
 
 export function fixtureCopy(row: Fixture, lang?: string) {
@@ -30,10 +32,13 @@ export function fixtureCopy(row: Fixture, lang?: string) {
     side: row.home ? words.fixtureHome : words.fixtureAway,
     meet: row.meet && words.fixtureMeet(timeOfDayLine(row.meet, lang)),
     clothing: row.kit && words.fixtureKit(row.kit),
+    score:
+      us === undefined || them === undefined
+        ? undefined
+        : words.fixtureScore(numberLine(us, lang), numberLine(them, lang)),
     result:
-      outcome && us !== undefined && them !== undefined
+      outcome && !row.live
         ? {
-            score: words.fixtureScore(numberLine(us, lang), numberLine(them, lang)),
             label: words.fixtureResults[outcome],
             tone:
               outcome === "win"
@@ -58,8 +63,10 @@ export function fixtureReading(rows: readonly (Fixture & { id?: string })[], lan
       copy.time,
       copy.side,
       row.venue,
-      copy.result?.score,
+      copy.score,
       copy.result?.label,
+      row.live && words.fixtureLive,
+      row.clock,
       copy.meet,
       copy.clothing,
     ]

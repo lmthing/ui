@@ -23,7 +23,21 @@ export const meta = {
   parts: ["root", "message"],
   items: {
     key: "matches",
-    parts: ["root", "date", "time", "opponent", "badge", "side", "venue", "score", "result", "meet", "kit"],
+    parts: [
+      "root",
+      "date",
+      "time",
+      "opponent",
+      "badge",
+      "side",
+      "venue",
+      "score",
+      "result",
+      "meet",
+      "kit",
+      "live",
+      "clock",
+    ],
     visibleWhen: { visible: true },
   },
   states: ["filled", "empty", "loading"],
@@ -37,12 +51,13 @@ const match = z.strictObject({
   date: c.isoDate, time: c.clock, opponent: c.text(24), home: z.boolean(), venue: c.text(28).optional(),
   us: z.int().nonnegative().optional(), them: z.int().nonnegative().optional(),
   meet: c.clock.optional(), kit: c.text(16).optional(), goto: c.screenId,
+  live: z.boolean().optional(), clock: c.text(12).optional(),
 });
 export const props = z
   .strictObject({
     ...c.variantProps(meta.variants),
     matches: z.array(match).min(1).max(6),
-    style: z.enum(["list", "next"]).default("list"),
+    style: z.enum(["list", "next", "scoreboard"]).default("list"),
   })
   .refine(({ matches }) => matches.every(({ us, them }) => (us === undefined) === (them === undefined)), {
     path: ["matches"],
@@ -51,9 +66,9 @@ export const props = z
     ...input,
     matches: input.matches.map((row, index) => ({
       ...row,
-      ...(input.detail === "brief" || input.style === "list" ? { meet: undefined, kit: undefined } : {}),
+      ...(input.detail === "brief" || input.style !== "next" ? { meet: undefined, kit: undefined } : {}),
       ...(input.detail === "brief" ? { venue: undefined } : {}),
-      visible: input.style === "list" || index === 0,
+      visible: input.style !== "next" || index === 0,
     })),
   }));
 
@@ -88,12 +103,16 @@ export const examples = [
   {
     matches: [
       { date: "2026-11-15", time: "10:00", opponent: "Fern House", home: false, us: 3, them: 1, goto: "fern_match" },
-      { date: "2026-11-22", time: "10:00", opponent: "Garden Crew", home: true, venue: "Ledge Park", goto: "garden_match" },
+      { date: "2026-11-22", time: "10:00", opponent: "Garden Crew", home: true, venue: "Ledge Park", live: false, goto: "garden_match" },
     ],
   },
   { style: "next", matches: [nextMatch] },
   { style: "next", matches: [nextMatch] },
   { style: "next", detail: "brief", matches: [nextMatch] },
+  { style: "scoreboard", matches: [
+    { ...nextMatch, us: 2, them: 1, live: true, clock: "67′" },
+    { ...nextMatch, opponent: "North Rovers", home: false, goto: "north_match" },
+  ] },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Fixtures");
@@ -114,6 +133,24 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
+  {
+    ...write(
+      "Make a multi-match score ticker: home River Rovers 2–1 and away North Rovers 0–0. Both kickoffs are 10:00 on 2026-11-22; link them to river_match and north_match.",
+    ),
+    expectProps: { style: "scoreboard" },
+  },
+  {
+    ...write(
+      "List one home fixture against River Rovers on 2026-11-22, kickoff 10:00, linked to river_match. It's in progress at 2–1. Mark it live.",
+    ),
+    expectProps: { matches: [{ live: true }] },
+  },
+  {
+    ...write(
+      "Show the home fixture against River Rovers on 2026-11-22, kickoff 10:00 and link river_match. Game is live and the game clock reads exactly Q3 04:12.",
+    ),
+    expectProps: { matches: [{ clock: "Q3 04:12" }] },
+  },
   read("Open the away match against Fern House", { address: "f1/r1", action: "press" }),
 ] satisfies c.Probe[];
 
@@ -121,10 +158,57 @@ type FixturesProps = c.Props<typeof props, typeof meta>;
 type Match = FixturesProps["matches"][number];
 type Density = c.ThemeDensity;
 
+function FixtureLive({ density }: { density: Density }) {
+  const { words } = kit.useWords(sportsWordsFor);
+  return <kit.KitTrail kind="badge" part="live" tone="good" value={words.fixtureLive} density={density} />;
+}
+
 // prettier-ignore
-function MatchRow({ row, next, density, loading }: { row: Match; next: boolean; density: Density; loading: boolean }) {
+function TickerRow({ row, density, loading }: { row: Match; density: Density; loading: boolean }) {
   const { lang, words } = kit.useWords(sportsWordsFor);
-  const { date, time, side, meet, clothing, result, initials } = fixtureCopy(row, lang);
+  const { date, time, side, score, result, initials } = fixtureCopy(row, lang);
+  return <kit.KitRow item={row.id} label={row.opponent} goto={loading ? undefined : row.goto}
+    part={loading ? null : "root"} density={density} inset="none">
+    <kit.KitGrid fitLast density={density}>
+      <kit.KitContent density={density} leadingAlign="row" lineRole="body"
+        lead={loading ? <kit.KitSkeleton shape="control" /> :
+          <kit.KitPhoto shape="round" initials={initials} label={row.opponent} part="badge" />}>
+        <kit.KitMetaLine density={density}
+          title={{ text: row.opponent, part: "opponent", role: "body", strong: true }}
+          meta={{ text: date, part: "date", tabular: true }} />
+        <FixtureKickoff {...{ time, side, density, loading }} separator={words.fixtureSeparator} />
+        <kit.KitLayoutText line={{ text: row.venue, part: "venue", role: "meta", tone: "muted" }} density={density} />
+      </kit.KitContent>
+      {(score || row.live || row.clock) && <kit.KitContent density={density}>
+        <kit.KitFigure value={{ text: score, part: "score", compact: true }} density={density} align="end" />
+        <kit.KitLayoutText align="end" density={density} line={{ text: row.clock, part: "clock", role: "meta", tabular: true }} />
+        {result && <kit.KitTrail kind="badge" part="result" tone={result.tone} value={result.label} density={density} />}
+        {row.live && <FixtureLive density={density} />}
+      </kit.KitContent>}
+    </kit.KitGrid>
+  </kit.KitRow>;
+}
+
+// prettier-ignore
+function FixtureKickoff({ venue, time, side, density, loading, separator }: {
+  venue?: string | undefined; time: string; side: string; density: Density; loading: boolean; separator: string;
+}) {
+  if (loading) return <kit.KitLayoutText density={density} line={{
+    text: [time, side, venue].filter(Boolean).join(separator), role: "meta",
+  }} />;
+  return <kit.KitText part={null} role="label" tone="muted" density={density}>
+    <kit.KitText part="time" role="label" tone="muted" density={density} tabular>{time}</kit.KitText>
+    {separator}<kit.KitText part="side" role="label" tone="muted" density={density}>{side}</kit.KitText>
+    {venue && <>{separator}<kit.KitText part="venue" role="label" tone="muted" density={density}>{venue}</kit.KitText></>}
+  </kit.KitText>;
+}
+
+// prettier-ignore
+function MatchRow({ row, next, compactList, density, loading }: {
+  row: Match; next: boolean; compactList: boolean; density: Density; loading: boolean;
+}) {
+  const { lang, words } = kit.useWords(sportsWordsFor);
+  const { date, time, side, meet, clothing, score, result, initials } = fixtureCopy(row, lang);
   const role = next ? "title" : "heading";
   const badge = loading ? <kit.KitSkeleton shape="control" />
     : <kit.KitPhoto shape="round" initials={initials} label={row.opponent} part="badge" />;
@@ -136,24 +220,21 @@ function MatchRow({ row, next, density, loading }: { row: Match; next: boolean; 
         : <>
           <kit.KitText part="opponent" role={role} density={density}>{row.opponent}</kit.KitText>
           <kit.KitText part="date" role="label" tone="muted" density={density} tabular>{date}</kit.KitText>
-          <kit.KitText part={null} role="label" tone="muted" density={density}>
-            <kit.KitText part="time" role="label" tone="muted" density={density} tabular>{time}</kit.KitText>
-            {words.fixtureSeparator}<kit.KitText part="side" role="label" tone="muted" density={density}>{side}</kit.KitText>
-            {row.venue && <>{words.fixtureSeparator}<kit.KitText part="venue" role="label" tone="muted" density={density}>{row.venue}</kit.KitText></>}
-          </kit.KitText>
+          <FixtureKickoff {...{ time, side, density, loading }} venue={row.venue} separator={words.fixtureSeparator} />
         </>}
     </kit.KitContent>
   );
   return (
     <kit.KitRow item={row.id} label={loading ? "" : row.opponent} goto={loading ? undefined : row.goto}
-      part={loading ? null : "root"} inline={next} density={density} lineRole={role}>
-      {result ? <kit.KitGrid fitLast density={density}>
+      part={loading ? null : "root"} inline={next || compactList} density={density} lineRole={role}>
+      {score || row.live || row.clock ? <kit.KitGrid fitLast density={density}>
         {details}
         <kit.KitContent align="center" density={density}>
-          {loading ? <kit.KitSkeleton shape="figure" density={density} inset="none"
-            content={[["number", result.score, "center", "compact"]]} />
-            : <kit.KitText part="score" role="number" numberScale="compact" density={density} tabular>{result.score}</kit.KitText>}
-          <kit.KitTrail kind="badge" part="result" tone={result.tone} value={result.label} density={density} />
+          {score && <kit.KitLayoutText line={{ text: score, part: "score", role: "figure", compact: true, tabular: true }}
+            align="center" density={density} />}
+          {result && <kit.KitTrail kind="badge" part="result" tone={result.tone} value={result.label} density={density} />}
+          <kit.KitLayoutText align="center" density={density} line={{ text: row.clock, part: "clock", role: "meta", tabular: true }} />
+          {row.live && <FixtureLive density={density} />}
         </kit.KitContent>
       </kit.KitGrid> : details}
       {(meet || clothing) && <kit.KitContent group="response" density={density}>
@@ -172,11 +253,21 @@ export function Fixtures(input: FixturesProps) {
   const state = kit.useComponentState();
   const density = kit.useKit().density;
   const next = input.style === "next";
+  const ticker = input.style === "scoreboard";
   const rows = next ? input.matches.slice(0, 1) : input.matches;
+  const enhanced = ticker || rows.some(({ live, clock }) => live !== undefined || clock !== undefined);
+  const compactList = enhanced && !next;
+  const loading = state === "loading";
+  const matches = rows.map((row) => <MatchRow key={row.id} {...{ row, next, compactList, density, loading }} />);
+  const content = ticker ? <kit.KitRowGroup density={density}>
+    {rows.map((row) => <TickerRow key={row.id} {...{ row, density, loading }} />)}
+  </kit.KitRowGroup> : compactList ? <kit.KitRowGroup density={density} spacing="groups" separators={false}>
+    {matches}
+  </kit.KitRowGroup> : matches;
   return (
-    <kit.KitCard part="root" padded={next && state !== "empty"} density={density}>
-      {state === "empty" ? <kit.KitEmpty icon="calendar" part="message" decorativeIcon />
-        : rows.map((row) => <MatchRow key={row.id} {...{ row, next, density }} loading={state === "loading"} />)}
+    <kit.KitCard part="root" padded={(enhanced || next) && state !== "empty"} density={density}>
+      {enhanced ? <kit.KitState icon="calendar" part="message" density={density} loading={content}>{content}</kit.KitState>
+        : state === "empty" ? <kit.KitEmpty icon="calendar" part="message" decorativeIcon /> : content}
     </kit.KitCard>
   );
 }

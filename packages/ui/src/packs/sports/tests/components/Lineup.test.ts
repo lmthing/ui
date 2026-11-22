@@ -149,3 +149,43 @@ describe("Lineup drawing, reading and actions", () => {
     }
   });
 });
+
+describe("Lineup player badges", () => {
+  const input = {
+    style: "list",
+    lines: [
+      {
+        players: [
+          { ...player, rating: 0 },
+          { name: "Banks", number: 5, cards: ["yellow", "red"] },
+        ],
+      },
+    ],
+    subs: [{ name: "Moss", number: 14, goals: 0 }],
+  };
+
+  it("keeps addressed starters and substitutes, including zero values and repeated cards", () => {
+    const parts = render(input);
+    expect(JSON.stringify(parts.get(address("r1/rating")))).toContain("Rating 0");
+    expect(JSON.stringify(parts.get(address("r2/cards")))).toContain("Yellow card · Red card");
+    expect(JSON.stringify(parts.get(address("r3/goals")))).toContain("0 goals");
+    expect(parts.has(address("r3/rating"))).toBe(false);
+    expect(parts.has(address("bench_list"))).toBe(true);
+    expect(parts.get(address("r3/root"))?.attributes).toContain('role="button"');
+    expect(readComponent(def, input, "l1").join("\n")).toContain("r3: Moss #14 · 0 goals");
+    const screen = { id: "home", components: [{ ...input, c: "Lineup", id: "l1" }] };
+    expect(planAct(screen, components, {}, [{ address: address("r3"), action: "press" }]).ok).toBe(true);
+    expect(planAct(screen, components, {}, [{ address: address("r3/goals"), action: "press" }]).ok).toBe(
+      false,
+    );
+    expect(render(input, "empty").has(address("r1/rating"))).toBe(false);
+  });
+
+  it("rejects out-of-range details and does not silently drop badges in pitch mode", () => {
+    expect(props.safeParse({ ...input, style: "pitch" }).success).toBe(false);
+    for (const patch of [{ rating: 10.1 }, { cards: ["blue"] }, { cards: [] }, { goals: -1 }, { goals: 1.5 }])
+      expect(props.safeParse({ ...input, lines: [{ players: [{ ...player, ...patch }] }] }).success).toBe(
+        false,
+      );
+  });
+});

@@ -10,7 +10,7 @@ describe("fixture copy", () => {
     [0, 0, "0–0", "Draw", "muted"],
     [1, 3, "1–3", "Loss", "bad"],
   ])("derives the result from %s–%s", (us, them, score, label, tone) => {
-    expect(fixtureCopy({ ...row, us, them }).result).toEqual({ score, label, tone });
+    expect(fixtureCopy({ ...row, us, them })).toMatchObject({ score, result: { label, tone } });
   });
   it("leaves an unplayed fixture without a result and derives round-badge initials", () => {
     expect(fixtureCopy(row)).toMatchObject({ initials: "RR", side: "Home", result: undefined });
@@ -26,7 +26,7 @@ describe("fixture copy", () => {
       const localized = fixtureCopy({ ...row, home: false, us: 3, them: 1, meet: "09:40" }, "ar-EG");
       expect(localized).toMatchObject({ time: "١٠:٠٠", side: "خارج الأرض", meet: "التجمع ٠٩:٤٠" });
       expect(localized.date).toContain("٢٠٢٦");
-      expect(localized.result?.score).toBe("٣–١");
+      expect(localized.score).toBe("٣–١");
     } finally {
       unregister();
     }

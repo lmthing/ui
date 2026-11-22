@@ -5,14 +5,16 @@ import { shifted, tintOf } from "../text";
 
 export function RowDecoration({ fade = false, fresh = false }: { fade?: boolean; fresh?: boolean }) {
   const ks = useKitStyle();
+  const edge = fade ? component.base.none : component.base.borderWidth;
+  const corner = shifted("md", ks.radiusShift);
   return (
     <YStack
       position="absolute"
-      top={component.base.none}
-      right={component.base.none}
-      bottom={component.base.none}
-      left={component.base.none}
-      borderRadius={shifted("md", ks.radiusShift)}
+      top={edge}
+      right={edge}
+      bottom={edge}
+      left={edge}
+      borderRadius={corner - edge}
       {...(fade
         ? { backgroundColor: "$raised", opacity: component.base.stackFade }
         : {
