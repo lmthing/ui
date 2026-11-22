@@ -249,31 +249,26 @@ function Criterion({
     lang,
     words: { candidate: words },
   } = kit.useWords(hiringWordsFor);
-  const { screen, component } = kit.usePartContext();
-  const finding = kit.useControlValue(`${screen}/${component}/${row.id}/finding`, row.finding);
+  const loading = kit.useComponentState() === "loading";
+  const comparison = panel && row.panelFindings;
   return (
-    <kit.KitRow item={row.id} label={row.label} inset="none" {...{ density }}>
-      <kit.KitText part="label" role="heading" {...{ density }}>
-        {row.label}
-      </kit.KitText>
-      {panel && row.panelFindings && <PanelFindings {...{ row, detail, density, lang }} />}
-      <kit.KitTrack part="finding" role="radiogroup" label={row.label}>
-        <kit.KitGrid {...{ density }}>
-          {findings.map((value) => (
-            <kit.KitChip
-              key={value}
-              item={null}
-              role="radio"
-              look="box"
-              label={words.findings[value]}
-              on={value === finding}
-              {...{ value }}
-            />
-          ))}
-        </kit.KitGrid>
-      </kit.KitTrack>
+    <kit.KitRow
+      item={row.id}
+      label={row.label}
+      inset="none"
+      density={density}
+      {...(loading && { part: null })}
+    >
+      <kit.KitLayoutText
+        line={{ part: "label", text: row.label, role: "body", strong: true }}
+        density={density}
+      />
+      {comparison && <PanelFindings {...{ row, detail, density, lang }} />}
+      <kit.KitContent group={comparison ? "response" : "content"} density={density}>
+        <FindingChoices {...{ row, density, loading }} />
+      </kit.KitContent>
       {detail === "full" && (
-        <kit.KitContent group="response" {...{ density }}>
+        <kit.KitContent group="response" density={density}>
           <kit.KitInput
             part="evidence"
             label={words.evidenceFor(row.label)}
@@ -283,6 +278,44 @@ function Criterion({
         </kit.KitContent>
       )}
     </kit.KitRow>
+  );
+}
+
+function FindingChoices({
+  row,
+  density,
+  loading,
+}: {
+  row: CriterionRow;
+  density: c.ThemeDensity;
+  loading: boolean;
+}) {
+  const {
+    words: { candidate: words },
+  } = kit.useWords(hiringWordsFor);
+  const { screen, component } = kit.usePartContext();
+  const finding = kit.useControlValue(`${screen}/${component}/${row.id}/finding`, row.finding);
+  const choices = (
+    <kit.KitGrid density={density}>
+      {findings.map((value) => (
+        <kit.KitChip
+          key={value}
+          item={null}
+          role="radio"
+          look="box"
+          label={words.findings[value]}
+          on={value === finding}
+          value={value}
+        />
+      ))}
+    </kit.KitGrid>
+  );
+  return loading ? (
+    choices
+  ) : (
+    <kit.KitTrack part="finding" role="radiogroup" label={row.label}>
+      {choices}
+    </kit.KitTrack>
   );
 }
 
@@ -304,20 +337,16 @@ function ReviewActions({
     return loading ? (
       <kit.KitSkeleton shape="control" {...{ label, kind }} full />
     ) : (
-      <kit.KitAction {...{ part, label, kind, goto }} full />
+      <kit.KitAction {...{ part, label, kind, goto }} tone={kind === "quiet" ? "neutral" : "accent"} full />
     );
   };
   return (
     <kit.KitContent group="response" {...{ density }}>
-      {input.resumeGoto && (
-        <kit.KitActionFooter density={density}>
-          {action("resume", "secondary", input.resumeGoto)}
-        </kit.KitActionFooter>
-      )}
       <kit.KitGrid arrange="rows" list listRowGap="cards" {...{ density }}>
+        {input.resumeGoto && action("resume", "quiet", input.resumeGoto)}
         <kit.KitGrid {...{ density }}>
-          {action("interview", "secondary", input.interviewGoto)}
-          {action("offer", "secondary", input.offerGoto)}
+          {action("interview", "quiet", input.interviewGoto)}
+          {action("offer", "quiet", input.offerGoto)}
         </kit.KitGrid>
         {active && action("hire", "primary")}
         {active && (
@@ -332,74 +361,33 @@ function ReviewActions({
 }
 
 type CandidateCopy = ReturnType<typeof candidateCopy>;
-type CandidateWords = ReturnType<typeof hiringWordsFor>["candidate"];
-
-function CandidateLoading(
-  input: Review,
-  { applied, stage, outcome }: CandidateCopy,
-  detail: Review["detail"],
-  density: c.ThemeDensity,
-  words: CandidateWords,
-  lang: string,
-) {
-  return (
-    <>
-      <kit.KitContent
-        leadingAlign="row"
-        {...{ density }}
-        lead={input.photo && <kit.KitPhoto shape="round" part="photo" />}
-      >
-        <kit.KitSkeleton
-          shape="figure"
-          inset="none"
-          content={[
-            ["title", input.name],
-            ["body", input.role],
-          ]}
-        />
-      </kit.KitContent>
-      <kit.KitSkeleton
-        shape="figure"
-        inset="none"
-        content={[
-          ["label", applied],
-          ["label", stage],
-          ["label", outcome],
-        ]}
-        {...{ density }}
-      />
-      {input.criteria.map((row) => (
-        <kit.KitContent key={row.id} group="response" {...{ density }}>
-          <kit.KitSkeleton shape="figure" inset="none" content={[["heading", row.label]]} {...{ density }} />
-          {input.style === "panel" && row.panelFindings && (
-            <PanelFindings {...{ row, detail, density, lang }} />
-          )}
-          <kit.KitGrid {...{ density }}>
-            {findings.map((value) => (
-              <kit.KitSkeleton key={value} shape="control" label={words.findings[value]} full />
-            ))}
-          </kit.KitGrid>
-          {detail === "full" && <kit.KitSkeleton shape="control" label={words.evidence} full />}
-        </kit.KitContent>
-      ))}
-      <ReviewActions {...{ input, density }} loading />
-    </>
-  );
-}
-
-function CandidateDetails(
-  input: Review,
-  { applied, stage, outcome }: CandidateCopy,
-  detail: Review["detail"],
-  density: c.ThemeDensity,
-) {
+function CandidateDetails({
+  input,
+  copy: { applied, stage, outcome },
+  detail,
+  density,
+}: {
+  input: Review;
+  copy: CandidateCopy;
+  detail: Review["detail"];
+  density: c.ThemeDensity;
+}) {
+  const loading = kit.useComponentState() === "loading";
   return (
     <>
       <kit.KitContent
         leadingAlign="row"
         {...{ density }}
         lead={
-          input.photo && <kit.KitPhoto photo={input.photo} shape="round" part="photo" label={input.name} />
+          input.photo && (
+            <kit.KitPhoto
+              photo={input.photo}
+              shape="round"
+              part="photo"
+              label={input.name}
+              loading={loading}
+            />
+          )
         }
       >
         <kit.KitHeader
@@ -409,20 +397,17 @@ function CandidateDetails(
         />
       </kit.KitContent>
       <kit.KitContent group="response" {...{ density }}>
-        <kit.KitText part="applied" role="label" tone="muted" {...{ density }}>
-          {applied}
-        </kit.KitText>
-        <kit.KitText part="stage" role="label" {...{ density }}>
-          {stage}
-        </kit.KitText>
-        <kit.KitText part="outcome" role="label" {...{ density }}>
-          {outcome}
-        </kit.KitText>
+        <kit.KitLayoutText
+          line={{ part: "applied", text: applied, role: "meta", tone: "muted" }}
+          density={density}
+        />
+        <kit.KitLayoutText line={{ part: "stage", text: stage, role: "meta" }} density={density} />
+        <kit.KitLayoutText line={{ part: "outcome", text: outcome, role: "meta" }} density={density} />
       </kit.KitContent>
       {input.criteria.map((row) => (
         <Criterion key={row.id} {...{ row, detail, density }} panel={input.style === "panel"} />
       ))}
-      <ReviewActions {...{ input, density }} />
+      <ReviewActions {...{ input, density, loading }} />
     </>
   );
 }
@@ -436,17 +421,16 @@ export function Candidate(input: Review) {
   const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const copy = candidateCopy(input, lang);
+  const details = <CandidateDetails {...{ input, copy, detail, density }} />;
   return (
     <kit.KitCard part="root" padded {...{ density }}>
       <kit.KitState
         density={density}
-        loading={
-          state === "loading" ? CandidateLoading(input, copy, detail, density, words, lang) : undefined
-        }
+        loading={details}
         part={state === "success" || state === "error" ? state : null}
         message={state === "success" || state === "error" ? words[state] : undefined}
       >
-        {state !== "loading" && CandidateDetails(input, copy, detail, density)}
+        {details}
       </kit.KitState>
     </kit.KitCard>
   );

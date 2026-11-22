@@ -183,33 +183,27 @@ function JobActions({ input, open, loading, density }: { input: Job; open: boole
   </kit.KitContent>;
 }
 
-function JobExtras({ copy, density }: { copy: ReturnType<typeof jobPostCopy>; density: Density }) {
-  if (!copy.easyApply && !copy.benefits.length) return null;
+function JobBenefits({ copy, density }: { copy: ReturnType<typeof jobPostCopy>; density: Density }) {
+  if (!copy.benefits.length) return null;
   return (
     <kit.KitContent group="response" density={density}>
-      {copy.easyApply && (
-        <kit.KitTrail kind="badge" part="easy_apply" tone="muted" value={copy.easyApply} density={density} />
-      )}
-      {copy.benefits.length > 0 && (
-        <kit.KitContent density={density}>
-          <kit.KitLayoutText
-            line={{ part: "benefits", text: copy.benefitsLabel, role: "meta" }}
+      <kit.KitLayoutText
+        line={{ part: "benefits", text: copy.benefitsLabel, role: "meta", strong: true }}
+        density={density}
+      />
+      <kit.KitTrack part="benefit_chips" label={copy.benefitsLabel}>
+        {copy.benefits.map((label, index) => (
+          <kit.KitCard
+            key={benefitParts[index]}
+            part={benefitParts[index]!}
+            surface="outlined"
             density={density}
-          />
-          <kit.KitTrack part="benefit_chips" label={copy.benefitsLabel}>
-            {copy.benefits.map((label, index) => (
-              <kit.KitTrail
-                key={index}
-                kind="badge"
-                part={benefitParts[index]!}
-                value={label}
-                tone="muted"
-                density={density}
-              />
-            ))}
-          </kit.KitTrack>
-        </kit.KitContent>
-      )}
+            padded
+          >
+            <kit.KitLayoutText line={{ text: label, role: "meta", tone: "muted" }} density={density} />
+          </kit.KitCard>
+        ))}
+      </kit.KitTrack>
     </kit.KitContent>
   );
 }
@@ -224,18 +218,22 @@ function JobBody({ input, density }: { input: Job; density: Density }) {
     value === undefined ? null : loading ?
       <kit.KitSkeleton shape="figure" inset="none" content={[[role, value, "start", "compact"]]} {...{ density }} /> :
       <kit.KitText {...{ part, role, tone, density }} numberScale="compact" tabular={role === "number"}>{value}</kit.KitText>;
+  const terms = loading ? line(null, [copy.workplace, copy.contract].join(words.termSeparator), "label") :
+    <kit.KitText part="workplace" role="label" tone="muted" {...{ density }}>
+      {copy.workplace}{words.termSeparator}{line("contract", copy.contract, "label", "muted")}
+    </kit.KitText>;
   return <>
       <kit.KitHeader title={{ part: "title", text: input.title }} density={density}
         meta={[{ part: "employer", text: input.employer, role: "body", tone: "text" },
           { part: "place", text: input.place }]} />
-      <kit.KitContent group="response" {...{ density }}>
-        {loading ? line(null, [copy.workplace, copy.contract].join(words.termSeparator), "label") :
-          <kit.KitText part="workplace" role="label" tone="muted" {...{ density }}>
-            {copy.workplace}{words.termSeparator}{line("contract", copy.contract, "label", "muted")}
-          </kit.KitText>}
+      <kit.KitContent group="response" density={density}>
+        {copy.easyApply ? <kit.KitGrid fitLast density={density}>
+          {terms}
+          <kit.KitTrail kind="badge" part="easy_apply" tone="muted" value={copy.easyApply} density={density} />
+        </kit.KitGrid> : terms}
         {line("pay", copy.pay, "number")}
       </kit.KitContent>
-      <JobExtras {...{ copy, density }} />
+      <JobBenefits {...{ copy, density }} />
       {detail === "full" && <kit.KitContent group="response" {...{ density }}>
         {line("about", input.about, "body")}
       </kit.KitContent>}

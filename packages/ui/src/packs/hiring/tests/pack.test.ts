@@ -60,6 +60,24 @@ describe("hiring scaffold", () => {
 });
 
 describe("hiring recipes and worked example", () => {
+  it("keeps JobFeed as the openings default and accepts a legacy flat status List", () => {
+    const hiring = createRegistry({ packs: ["hiring"], includeDrafts: true });
+    const screen = hiring.defaultLines("hiring_openings", "hiring_roles", cast);
+    expect(screen.components.some(({ c }) => c === "JobFeed")).toBe(true);
+    const rows = [
+      { title: "Summer dog walker", value: "Open", goto: "summer" },
+      { title: "Weekend walker", value: "Draft", goto: "weekend" },
+    ];
+    const layout = hiring.packComposeArchetypes.find(({ id }) => id === "hiring_openings")!;
+    const flat = {
+      ...screen,
+      components: screen.components.map((component) =>
+        component.c === "JobFeed" ? { id: component.id, c: "List", trail: "badge", rows } : component,
+      ),
+    };
+    expect(scoreComposition(JSON.stringify(flat), layout, "hiring_roles", components).issues).toEqual([]);
+  });
+
   it("checks all ten recipes, neutral defaults and compose probes", () => {
     expect(checkPacks({ components, packs, packOf, packExamples, packArchetypes })).toEqual([]);
     expect(checkArchetypes({ components, packOf, packArchetypes, archetypes })).toEqual([]);

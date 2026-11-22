@@ -201,15 +201,18 @@ function MeetingActions({
         full
       />
     );
+  const main = joinable ? action("join", "primary") : action("edit", "primary", input.goto);
   return (
     <kit.KitContent group="response" {...{ density }}>
-      {input.rescheduleGoto && (
-        <kit.KitActionFooter density={density}>
-          {action("reschedule", "secondary", input.rescheduleGoto)}
-        </kit.KitActionFooter>
-      )}
       <kit.KitGrid arrange="rows" list listRowGap="cards" {...{ density }}>
-        {joinable ? action("join", "primary") : action("edit", "primary", input.goto)}
+        {input.rescheduleGoto ? (
+          <kit.KitGrid density={density}>
+            {main}
+            {action("reschedule", "secondary", input.rescheduleGoto)}
+          </kit.KitGrid>
+        ) : (
+          main
+        )}
         <kit.KitGrid {...{ density }}>
           {action("invite", "secondary")}
           {joinable ? action("edit", "secondary", input.goto) : action("cancel", "danger")}
@@ -236,7 +239,7 @@ function PrepGuide({ input, density }: { input: Meeting; density: c.ThemeDensity
   const steps = interviewPrep(input);
   if (!steps) return null;
   return (
-    <kit.KitContent group="response" density={density}>
+    <kit.KitContent group="response" rhythm="flush" density={density}>
       <kit.KitLayoutText line={{ part: "prep", text: words.prep, role: "meta" }} density={density} />
       <kit.KitRowGroup density={density}>
         {steps.map((step, index) => (

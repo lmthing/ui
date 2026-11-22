@@ -143,7 +143,7 @@ function OfferActions({ input, expired, density, loading }: { input: Terms; expi
       {button("edit", "quiet", input.goto)}
     </> : <>
       {!expired && <kit.KitGrid {...{ density }}>
-        {button("accept", "primary")}{button("decline", "secondary")}
+        {button("accept", "primary")}{button("decline", "danger")}
       </kit.KitGrid>}
       <kit.KitContent group={expired ? "content" : "response"} {...{ density }}>
         {loading ? button("withdraw", "quiet") :
@@ -169,7 +169,7 @@ export function Offer(input: Terms) {
       <kit.KitText {...{ part, role, tone, density }} numberScale="compact" tabular={role === "number"}>{value}</kit.KitText>;
   return <kit.KitCard part="root" padded density={density}>
     {state === "success" || state === "error" ? <kit.KitEmpty part={state} title={words[state]}
-      icon={state === "success" ? "check" : "info"} decorativeIcon /> : <>
+      icon={state === "success" ? "check" : "alert"} tone={state === "success" ? "good" : "bad"} decorativeIcon /> : <>
       <kit.KitContent {...{ density }}>
         {line("candidate", input.candidate, "title")}
         {line("role", input.role, "body")}

@@ -48,7 +48,7 @@ export function pipelineCopy<T extends Applicant>(
       return {
         id,
         label: words.stages[id],
-        moveLabel: words.pipeline.moveStages[id],
+        moveLabel: words.stages[id],
         count: numberLine(count, lang),
         empty: count === 0,
       };

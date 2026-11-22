@@ -6,11 +6,14 @@ export const hiring_openings = {
   defaultLayout: "hiring_roles",
   layouts: {
     hiring_roles: {
+      writeHints: [
+        'Use JobFeed for structured openings with employer, workplace, posting date or pay. For a flat list with only title, status and destination, use List with "style":null and "trail":"badge" at the component level. Put each status in its row value, not in the shelf-only badge field; leave row trail and badge null.',
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Search"], required: true },
         { allow: ["Chips"], required: true },
-        { allow: ["JobFeed"], required: true },
+        { allow: ["JobFeed", "List"], required: true },
         { allow: ["Button"], required: true },
       ],
       defaults: [

@@ -32,17 +32,17 @@ it("clicks and keyboards display labels to move a card using stable enum values"
       const sam = page.getByTestId("home/p1/r1/root");
       const count = (stage: string) => page.getByTestId(`home/p1/${stage}`).textContent();
       const button = (stage: string) => sam.getByRole("button", { name: `Move Sam Patel to ${stage}` });
-      await button("interview").waitFor({ timeout: 15000 });
+      await button("Interview").waitFor({ timeout: 15000 });
       expect(await count("screening")).toBe("1");
       expect(await count("interview")).toBe("0");
-      expect(await button("interview").textContent()).toBe("interview");
-      await button("interview").click();
-      await button("screening").waitFor();
+      expect(await button("Interview").textContent()).toBe("Interview");
+      await button("Interview").click();
+      await button("Screening").waitFor();
       expect(await count("screening")).toBe("0");
       expect(await count("interview")).toBe("1");
-      expect(await button("interview").count()).toBe(0);
-      await button("screening").press("Enter");
-      await button("interview").waitFor();
+      expect(await button("Interview").count()).toBe(0);
+      await button("Screening").press("Enter");
+      await button("Interview").waitFor();
       expect(await count("screening")).toBe("1");
       expect(await count("interview")).toBe("0");
     } finally {

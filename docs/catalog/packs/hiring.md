@@ -175,7 +175,7 @@ A job seeker's structured CV card presenting their headline, an open-to-work tog
 
 | Archetype | Job | Layouts | Recipe |
 | --- | --- | --- | --- |
-| `hiring_openings` | Open roles and one role's terms | `hiring_roles`, `hiring_post` | `hiring_roles`: Header, Search, Chips, JobFeed, Button · `hiring_post`: Header[back], JobPost, Note |
+| `hiring_openings` | Open roles and one role's terms | `hiring_roles`, `hiring_post` | `hiring_roles`: Header, Search, Chips, JobFeed (or List for plain linked rows), Button · `hiring_post`: Header[back], JobPost, Note |
 | `hiring_pipeline` | Recruiting for one opening | `hiring_stages`, `hiring_interview_day` | `hiring_stages`: Header, Chips, ApplicantPipeline, Button · `hiring_interview_day`: Header, Calendar[week], Timeline[hours], Note |
 | `hiring_candidate` | Review, meet and make an offer | `hiring_review`, `hiring_meeting`, `hiring_terms` | `hiring_review`: Header[back], Candidate, KeyValue, Checklist, Button · `hiring_meeting`: Header[back], Interview, KeyValue, Composer[entry], Button · `hiring_terms`: Header[back], Offer, Amount, Note |
 | `hiring_job_hunt` | My applications and follow-ups | `hiring_tracker`, `hiring_application`, `hiring_resume` | `hiring_tracker`: Header, Search, Chips, Applications, Button · `hiring_application`: Header[back], Applications[cards], Timeline[history], Offer · `hiring_resume`: Header, ResumeProfile, Button |
