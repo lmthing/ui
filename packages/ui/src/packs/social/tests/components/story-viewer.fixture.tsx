@@ -8,7 +8,9 @@ import { config } from "../../../../../test/render";
 const { slides } = components.StoryViewer.examples[0]!;
 const screen: ScreenLike = {
   id: "home",
-  components: [{ id: "story", c: "StoryViewer", author: "Maya", slides, paused: true }],
+  components: [
+    { id: "story", c: "StoryViewer", author: "Maya", slides, paused: !location.search.includes("autoplay") },
+  ],
 };
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 

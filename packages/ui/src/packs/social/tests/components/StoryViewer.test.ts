@@ -98,6 +98,9 @@ it("draws the current slide and hides only the reply dock for brief detail", () 
   expect(full.get(key("author"))?.text).toEqual(["Maya"]);
   expect(full.get(key("position"))?.text).toEqual(["Slide 1 of 2"]);
   expect(full.get(key("time"))?.text).toEqual(["4 min ago"]);
+  expect(full.has(key("story"))).toBe(true);
+  expect(full.get(key("next"))?.attributes).toContain('aria-label="Next slide"');
+  expect(full.get(key("progress"))?.attributes).toContain('aria-hidden="true"');
   expect(full.get(key("sticker"))?.attributes).toContain('aria-label="Which cutting next?"');
   expect(full.get(key("reply"))?.attributes).toContain('role="textbox"');
   expect(full.get(key("send"))?.attributes).toContain('role="button"');

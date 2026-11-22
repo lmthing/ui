@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { storyViewerReading } from "../copy";
 import { socialWordsFor } from "../lang";
+import { StoryProgress } from "./story-progress";
 
 const maxSlides = 8,
   maxReply = 120,
@@ -128,19 +129,19 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type StoryProps = c.Props<typeof props, typeof meta>;
-type StoryLive = StoryProps & { sequencePlaying?: boolean; state?: "empty" };
+type StoryLive = StoryProps & { state?: "empty" };
 type StoryWords = ReturnType<typeof socialWordsFor>["storyViewer"];
 
 // prettier-ignore
-function StoryNavigation({ current, count, playing, position, words }: {
-  current: number; count: number; playing: boolean; position: string; words: StoryWords;
+function StoryNavigation({ current, count, position, words }: {
+  current: number; count: number; position: string; words: StoryWords;
 }) {
-  return <kit.KitRow part={null} label={position} inline trailing={<>
+  return <kit.KitRow part="story" label={position} inline trailing={<>
       <kit.KitAction part="prev" icon="chevron_left" kind="quiet" action="press" a11y={words.previous} disabled={current === 0} contentParts={{}} />
-      <kit.KitAction part="story" icon={playing ? "pause" : "play"} kind="quiet" action={playing ? "pause" : "play"} a11y={playing ? words.pause : words.play} contentParts={{}} />
-      <kit.KitAction part="next" icon="chevron_right" kind="quiet" action="press" a11y={words.next} disabled={current === count - 1} contentParts={{}} />
+      <kit.KitAction part="next" icon="chevron_right" kind="quiet" action="press" contentParts={{}} a11y={current === count - 1 ? words.playback : words.next}
+        holdToPause={{ part: "story", playingLabel: words.playing, pausedLabel: words.paused, pauseLabel: words.pause, resumeLabel: words.play }} />
     </>}>
-    <kit.KitLayoutText line={{ role: "figure", compact: true, text: position, part: "position" }} />
+    <kit.KitLayoutText line={{ role: "meta", tone: "muted", text: position, part: "position" }} />
   </kit.KitRow>;
 }
 
@@ -163,23 +164,23 @@ function StoryReply({ words, draft }: { words: StoryWords; draft: string | undef
 // prettier-ignore
 export function StoryViewer(input: StoryProps) {
   const scope = kit.usePartContext(), live = kit.useLiveControls(meta, input) as StoryLive;
-  const state = live.state ?? scope.state, { interactive } = kit.useKit();
+  const state = live.state ?? scope.state;
   const { lang, words: { storyViewer: words } } = kit.useWords(socialWordsFor);
-  const { current, slides, replyDraft, sequencePlaying } = live;
+  const { current, slides, replyDraft } = live;
   const aspect = kit.useVariant("aspect", meta.variants.aspect, input.aspect), bleed = kit.useVariant("bleed", meta.variants.bleed, input.bleed);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const slide = slides[current], loading = state === "loading";
   const position = words.position(c.numberLine(current + 1, lang), c.numberLine(slides.length, lang));
   const close = <kit.KitAction part="close" icon="close" a11y={words.close} action="dismiss" kind="quiet" contentParts={{}} />;
   const controls = <kit.KitContent inset="md">
-    <StoryNavigation {...{ current, position, words }} count={slides.length} playing={interactive ? (sequencePlaying ?? !input.paused) : !input.paused} />
+    <StoryNavigation {...{ current, position, words }} count={slides.length} />
     <kit.KitLayoutText line={{ text: slide?.caption, part: "caption" }} />
     {slide?.sticker && <kit.KitAction part="sticker" kind="secondary" action="press" label={slide.sticker.label}
       icon={slide.sticker.kind === "link" ? "link" : "bar_chart"} contentParts={{}} />}
     {detail === "full" && <StoryReply words={words} draft={replyDraft} />}
   </kit.KitContent>;
   const header = slide && <kit.KitContent inset="md">
-      <kit.KitStepsTrack style={loading ? "bar" : "numbered"} part="progress" count={slides.length} at={loading ? 0 : current + 1} />
+      <StoryProgress count={slides.length} at={current + 1} interval={slideIntervalMs} loading={loading} />
       <kit.KitGrid fitLast>
         <kit.KitContent leadingAlign="row" lead={<kit.KitPhoto part="avatar" photo={input.avatar} shape="round" label={input.author}
           initials={input.author.slice(0, 1)} loading={loading} />}>

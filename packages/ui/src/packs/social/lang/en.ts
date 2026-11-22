@@ -53,8 +53,11 @@ export type SocialWords = {
     photo: (position: string) => string;
     previous: string;
     next: string;
+    playback: string;
     play: string;
     pause: string;
+    playing: string;
+    paused: string;
     reply: string;
     send: string;
     react: string;
@@ -152,8 +155,11 @@ export const en = {
     photo: (position) => `Story photo, ${position}`,
     previous: "Previous slide",
     next: "Next slide",
+    playback: "Story playback",
     play: "Play story",
     pause: "Pause story",
+    playing: "Story playing",
+    paused: "Story paused",
     reply: "Reply to this slide",
     send: "Send reply",
     react: "React",

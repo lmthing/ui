@@ -46,12 +46,14 @@ it("plays, pauses and sends from the active slide on a 390px phone", async () =>
   expect(await button("Send reply").isDisabled()).toBe(true);
   await button("Which cutting next?").click();
   expect(await request.textContent()).toBe('{"slide":0,"kind":"poll"}');
-  await button("Play story").press("Enter");
+  const next = page.getByTestId("home/story/next");
+  await next.press("p");
   await page.clock.runFor(5100);
   expect(await position.textContent()).toBe("Slide 2 of 2");
-  expect(await button("Next slide").isDisabled()).toBe(true);
+  await next.press("Enter");
+  expect(await position.textContent()).toBe("Slide 2 of 2");
   expect(await button("Which cutting next?").count()).toBe(0);
-  await button("Pause story").click();
+  await next.press("p");
   await page.getByRole("textbox", { name: "Reply to this slide" }).fill("Love the fern!");
   await button("Send reply").click();
   await page.getByText("Reply sent.").waitFor();
@@ -63,6 +65,66 @@ it("plays, pauses and sends from the active slide on a 390px phone", async () =>
   expect(await position.textContent()).toBe("Slide 1 of 2");
   await button("Close story").click();
   await position.waitFor({ state: "detached" });
+});
+
+function barWidths() {
+  return page.getByTestId("home/story/progress").evaluate((track) =>
+    Array.from(track.children, (bar) => {
+      const width = bar.getBoundingClientRect().width;
+      const fill = bar.firstElementChild?.getBoundingClientRect().width ?? 0;
+      return { width, fraction: fill / width };
+    }),
+  );
+}
+
+it("holds the active slide and its fill, resumes elapsed time, and advances on a short tap", async () => {
+  await page.clock.install();
+  await page.goto(new URL(`${route}?autoplay`, server.resolvedUrls!.local[0]).href);
+  const next = page.getByTestId("home/story/next");
+  const position = page.getByTestId("home/story/position");
+  await expect.poll(() => next.getAttribute("aria-keyshortcuts")).toBe("P");
+  expect(await page.getByRole("button", { name: /^(Play|Pause) story$/ }).count()).toBe(0);
+  await page.clock.runFor(2000);
+  const bars = await barWidths();
+  expect(bars).toHaveLength(2);
+  const [first, second] = bars;
+  expect(first!.width).toBeCloseTo(second!.width, 1);
+  expect(first!.fraction).toBeGreaterThan(0.35);
+  expect(first!.fraction).toBeLessThan(0.7);
+  expect(second!.fraction).toBe(0);
+  await next.hover();
+  await page.mouse.down();
+  const statusId = await next.getAttribute("aria-describedby");
+  const status = page.locator(`[id="${statusId}"]`);
+  await expect.poll(() => status.textContent()).toBe("Story paused");
+  const frozen = await barWidths();
+  await page.clock.runFor(6000);
+  expect(await barWidths()).toEqual(frozen);
+  expect(await position.textContent()).toBe("Slide 1 of 2");
+  await page.waitForTimeout(260);
+  await page.mouse.up();
+  await expect.poll(() => status.textContent()).toBe("Story playing");
+  await page.clock.runFor(1000);
+  expect(await position.textContent()).toBe("Slide 1 of 2");
+  expect((await barWidths())[0]!.fraction).toBeGreaterThan(frozen[0]!.fraction);
+  await page.clock.runFor(2100);
+  await expect.poll(() => position.textContent()).toBe("Slide 2 of 2");
+  expect((await barWidths())[0]!.fraction).toBe(1);
+  await next.hover();
+  await page.mouse.down();
+  await expect.poll(() => status.textContent()).toBe("Story paused");
+  await next.dispatchEvent("pointercancel", { pointerId: 1, pointerType: "mouse" });
+  await page.mouse.up();
+  await expect.poll(() => status.textContent()).toBe("Story playing");
+  await page.clock.runFor(5100);
+  await expect.poll(() => status.textContent()).toBe("Story paused");
+  expect((await barWidths())[1]!.fraction).toBe(1);
+  await page.getByRole("button", { name: "Previous slide" }).click();
+  expect(await position.textContent()).toBe("Slide 1 of 2");
+  await next.click();
+  expect(await position.textContent()).toBe("Slide 2 of 2");
+  await expect.poll(() => status.textContent()).toBe("Story paused");
+  expect((await barWidths())[1]!.fraction).toBe(0);
 });
 
 it("replaces an open story with expiry copy and keeps dismissal available", async () => {
