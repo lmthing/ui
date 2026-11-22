@@ -6,13 +6,13 @@ import {
   streakLine,
   text,
   thingOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
-import { KitCard, KitContent, KitIcon, KitText, KitWeekStrip, useVariant } from "../kit";
+import { KitCard, KitContent, KitIcon, KitText, KitWeekStrip, useKit } from "../kit";
 import { prompt } from "../entry/prompt-Streak.generated";
 
 export const meta = {
@@ -26,7 +26,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Consecutive completed days and this week's completion derived from on-device habit records.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["days"] } },
   parts: ["root", "count", "label", "days"],
   states: ["filled"],
@@ -73,7 +73,6 @@ export const examples = [
     count: 6,
     label: "days training recall",
     days: [true, true, true, true, true, true, false],
-    density: "compact",
   },
   {
     count: 6,
@@ -100,7 +99,7 @@ export const probes = [
 
 export function Streak(input: Props<typeof props, typeof meta>) {
   const { count, label, days, detail } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   return (
     <KitCard style="inset" part="root" padded density={density}>
       <KitContent

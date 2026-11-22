@@ -19,8 +19,6 @@ export const meta = {
   tier: "people",
   realPath: "Clocked hours are collected in a shared app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["hours"] } },
@@ -176,8 +174,8 @@ function SheetColumns(people: SheetRow[], context: ReturnType<typeof kit.usePart
 
 export function Timesheet(input: ViewProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   return (
     <kit.KitCard padded {...{ density, surface }}>

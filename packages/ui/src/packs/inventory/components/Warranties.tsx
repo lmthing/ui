@@ -17,7 +17,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Photographed receipts and purchase records are stored on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["bought", "price"] } },
   parts: ["root", "empty"],
   items: {
@@ -104,7 +104,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type WarrantiesProps = c.Props<typeof props, typeof meta>;
-type WarrantyRowProps = Pick<WarrantiesProps, "detail" | "surface"> & {
+type WarrantyRowProps = Pick<WarrantiesProps, "detail"> & { surface: c.SurfaceFinish } & {
   row: WarrantiesProps["items"][number];
   density: c.ThemeDensity;
   today: Date;
@@ -143,8 +143,8 @@ function WarrantyRow({ row, density, surface, detail, today }: WarrantyRowProps)
 
 export function Warranties(input: WarrantiesProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   if (state === "empty")
     return (

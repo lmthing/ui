@@ -17,7 +17,7 @@ export const meta = {
   region: "body", weight: 2, tier: "phone",
   realPath:
     "Device records freeze ledger entitlement at the entitlement time; actual receipt credits cash once per distribution, and void reverses that receipt without deleting the distribution.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["entitled_at", "per_unit", "units", "gross", "withheld"] } },
   parts: ["root", "notice"],
   items: {
@@ -85,7 +85,7 @@ export const examples = [
     ],
   },
   {
-    portfolioId: "pension", style: "received", density: "compact",
+    portfolioId: "pension", style: "received",
     distributions: [
       {
         id: "feb_distribution", assetId: "bond_fund", entitledAt: "2026-02-01T00:00:00Z",
@@ -132,7 +132,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type DividendProps = c.Props<typeof props, typeof meta>;
-type Density = NonNullable<DividendProps["density"]>;
+type Density = c.ThemeDensity;
 // prettier-ignore
 function DividendItem({ row, density, full, loading }: { row: DividendRow; density: Density; full: boolean; loading: boolean }) {
   const { words: { dividends: words }, lang } = kit.useWords(investWordsFor);
@@ -175,7 +175,7 @@ function DividendItem({ row, density, full, loading }: { row: DividendRow; densi
 // prettier-ignore
 export function Dividends(input: DividendProps) {
   const { words: { dividends: words } } = kit.useWords(investWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const source = kit.useComponentState(), live = kit.useLiveControls(meta, input);
   const state = source === "filled" ? (live.state as c.StateName | undefined) ?? source : source;

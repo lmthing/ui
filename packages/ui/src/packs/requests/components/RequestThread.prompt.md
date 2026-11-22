@@ -9,4 +9,4 @@ One service ticket's replies interleaved with typed status, assignment and work-
 ## Writer
 
 - Each entry has by, date, time and audience. Set only fields for its kind: message = text and optional photo; status = from/to; assignment = who; work = order/goto. Other fields must be null.
-- For shorter event details but the same reply text, use detail "brief". Set density to null unless the person asks for tighter spacing. The host filters internal entries for requesters and authors new operational events.
+- For shorter event details but the same reply text, use detail "brief". The host filters internal entries for requesters and authors new operational events.

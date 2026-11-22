@@ -17,7 +17,7 @@ export const meta = {
   region: "body", weight: 3, dense: true,
   realPath: "Pre-authored derivations run on the device or an external solver generates them on request.",
   writeHints: prompt.writeHints,
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["cover", "none"], overflow: ["page", "all"] },
+  variants: { media: ["cover", "none"], overflow: ["page", "all"] },
   variantParts: {
     "media.none": { hides: ["photo"] },
     "overflow.page": {
@@ -82,13 +82,13 @@ const fern = {
 // prettier-ignore
 export const examples = [
   fern,
-  { overflow: "all", surface: "outlined", subject: "Time", problem: "Clover’s walk starts at 10:45 and lasts 35 minutes. When does it end?",
+  { overflow: "all", subject: "Time", problem: "Clover’s walk starts at 10:45 and lasts 35 minutes. When does it end?",
     steps: [
       { title: "Reach the next hour", explanation: "Use 15 minutes to get to 11:00." },
       { title: "Add the time left", explanation: "There are 20 minutes left after the hour.", formula: "11:00 + 20 min = 11:20" },
     ], answer: "11:20" },
-  { ...fern, problemPhoto: "lib:plants", density: "compact" },
-  { ...fern, problemPhoto: "lib:plants", density: "compact", media: "none" },
+  { ...fern, problemPhoto: "lib:plants" },
+  { ...fern, problemPhoto: "lib:plants", media: "none" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("WorkedSolution");
@@ -182,8 +182,8 @@ function SolutionBody({ input, density, shown, photo }: { input: View; density: 
 export function WorkedSolution(input: View) {
   const scope = kit.usePartContext(), state = kit.useComponentState();
   const { lang, words: { workedSolution: words } } = kit.useWords(learningWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density),
-    surface = kit.useVariant("surface", meta.variants.surface, input.surface),
+  const density = kit.useKit().density,
+    surface = "card",
     media = kit.useVariant("media", meta.variants.media, input.media),
     overflow = kit.useVariant("overflow", meta.variants.overflow, input.overflow);
   const live = kit.useLiveControls(meta, input);

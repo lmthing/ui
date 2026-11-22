@@ -1,12 +1,13 @@
 import { z } from "zod";
 import {
   probesFor,
-  variantProps,
   type DeviceData,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
+  variantProps,
 } from "../../../catalog";
 import * as kit from "../../../kit";
 import { converterDisplay, converterMax, converterReading, projectConverter } from "../copy";
@@ -25,7 +26,7 @@ export const meta = {
   weight: 2,
   tier: "service",
   realPath: "A rates service supplies exchange rates, cached on the device for offline use.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["rate_date"] } },
   parts: ["root", "from", "to", "swap", "rate_date"],
   states: ["filled", "loading"],
@@ -87,7 +88,7 @@ function ConverterSwap({
   label,
   loading,
 }: {
-  density: (typeof meta.variants.density)[number];
+  density: ThemeDensity;
   label: string;
   loading: boolean;
 }) {
@@ -111,7 +112,7 @@ function ConverterSwap({
 // prettier-ignore
 function ConverterField({ part, label, text, result, loading, density, hint }: {
   part: "from" | "to"; label: string; text: string; result: boolean | undefined; loading: boolean;
-  density: NonNullable<ConverterProps["density"]>; hint: string;
+  density: ThemeDensity; hint: string;
 }) {
   return (
     <kit.KitContent {...{ density }} group={part === "to" ? "response" : "content"} rhythm="flush">
@@ -136,8 +137,8 @@ function ConverterField({ part, label, text, result, loading, density, hint }: {
 
 // prettier-ignore
 export function Converter(input: ConverterProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const loading = kit.useComponentState() === "loading";
   const { lang, words } = kit.useWords(tripsWordsFor);
   const live = kit.useLiveControls(meta, input);

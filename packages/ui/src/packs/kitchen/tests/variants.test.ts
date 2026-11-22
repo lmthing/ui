@@ -52,16 +52,16 @@ describe.each(variants)("%s %s", (id, axis, defaultValue, alternative, part, lab
   });
 });
 
-it("FoodLog leaves density unset for the app to resolve and accepts only the declared values", () => {
+it("FoodLog takes density from the theme, not the wire", () => {
   const { props, examples } = components.FoodLog;
-  expect(props.parse(examples[0]).density).toBeUndefined();
-  expect(props.parse(examples[1]).density).toBe("compact");
+  expect(props.parse(examples[0])).not.toHaveProperty("density");
+  expect(props.safeParse({ ...examples[1], density: "compact" }).success).toBe(false);
   expect(props.safeParse({ ...examples[0], density: "tight" }).success).toBe(false);
 });
 
 it("keeps the compact FoodLog total above row values and below the comfortable total", () => {
   const { examples } = components.FoodLog;
-  const compact = renderInstance("FoodLog", examples[1], "filled", theme);
+  const compact = renderInstance("FoodLog", examples[1], "filled", { ...theme, density: "compact" });
   const comfortable = renderInstance("FoodLog", examples[2], "filled", theme);
   expect(styleAt(compact, "home/c1/total")).toContain(`font-size:${typography.title.size}px`);
   expect(styleAt(compact, "home/c1/r2/kcal")).toContain(`font-size:${typography.label.size}px`);

@@ -19,7 +19,7 @@ export const meta = {
   dense: true,
   tier: "people",
   realPath: "A shared app reserves each gift so two guests cannot claim the same one.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], lead: ["thumb", "none"] },
+  variants: { lead: ["thumb", "none"] },
   variantParts: { "lead.none": { hides: ["photo"] } },
   parts: ["root", "empty", "success"],
   items: {
@@ -125,7 +125,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type RegistryProps = c.Props<typeof props, typeof meta>;
-type Finish = Pick<RegistryProps, "density" | "lead">;
+type Finish = Pick<RegistryProps, "lead"> & { density: c.ThemeDensity };
 type GiftRow = RegistryProps["gifts"][number];
 
 // prettier-ignore
@@ -158,8 +158,8 @@ function RegistryGiftRow({ row, host, density, lead }: Finish & { row: GiftRow; 
 export function Registry(input: RegistryProps) {
   const state = kit.useComponentState();
   const { words: { registry } } = kit.useWords(eventsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const lead = kit.useVariant("lead", meta.variants.lead, input.lead);
   return <kit.KitCard part="root" style="plain" {...{ density, surface }}>
     {state === "empty" ? <kit.KitEmpty part="empty" icon="gift" decorativeIcon />

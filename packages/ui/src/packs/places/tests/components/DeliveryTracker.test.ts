@@ -39,7 +39,6 @@ describe("DeliveryTracker contract and boundaries", () => {
       courier,
       photo: "local:2",
       media: "thumb",
-      surface: "card",
       callable: true,
     });
     expectTypeOf<Props<typeof props, typeof meta>["courier"]>().toEqualTypeOf<string | undefined>();
@@ -109,7 +108,7 @@ describe("DeliveryTracker states and parts", () => {
 
   it("keeps finish addresses and hides only the photo in the no-media variant", () => {
     const addresses = [...draw().keys()];
-    expect([...draw({ ...seed, density: "compact", surface: "outlined" }).keys()]).toEqual(addresses);
+    expect([...draw({ ...seed }).keys()]).toEqual(addresses);
     expect([...draw({ ...seed, media: "none" }).keys()]).toEqual(
       addresses.filter((address) => address !== `${root}/photo`),
     );

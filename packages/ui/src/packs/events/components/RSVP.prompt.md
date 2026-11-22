@@ -1,3 +1,5 @@
+<!-- replay-literals: d d ins -->
+
 ## Purpose
 
 Reply to an event invitation with attendance, companions and a meal choice.
@@ -8,4 +10,4 @@ A guest answers one invitation: yes or no, plus-ones, meal, note and send. Not a
 
 ## Writer
 
-- Set detail to "brief" only for an invitation reply without a note field. Set density and surface to JSON null unless explicitly requested; do not fill in their defaults.
+- Set detail to "brief" only for an invitation reply without a note field.

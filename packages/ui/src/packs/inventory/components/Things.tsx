@@ -20,7 +20,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "Stock and ownership records live on the device.",
-  variants: { arrange: ["grid", "rows"], density: ["comfortable", "compact"], surface: ["card", "outlined"] },
+  variants: { arrange: ["grid", "rows"] },
   parts: ["root", "empty", "scan", "scan_label", "scan_icon"],
   partTiers: { scan: "ok" },
   items: {
@@ -150,8 +150,8 @@ type Item = ThingsProps["items"][number];
 export function Things(input: ThingsProps) {
   const context = kit.usePartContext();
   const { lang, words } = kit.useWords(inventoryWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   const visible = c.visibleItems<Item>(meta, input);
   const items = visible.length === 0 && context.state === "loading" ? input.items : visible;

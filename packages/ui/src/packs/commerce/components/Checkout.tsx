@@ -25,7 +25,7 @@ export const meta = {
   },
   partTiersBy: { place: { prop: "method", tiers: { card: "service", wallet: "service" } } },
   realPath: "Cash on pickup works on the device; card and wallet payments need a payment service.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["time"] } },
   parts: ["root", "mode", "method", "time", "address", "total", "place", "place_label", "success"],
   states: ["filled", "success"],
@@ -156,8 +156,8 @@ function CheckoutDetails({ mode, time, address, density, success }: Pick<Checkou
 
 // prettier-ignore
 export function Checkout(input: CheckoutProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const success = kit.useComponentState() === "success";
   const { basket } = kit.useDeviceData();
   const { lang, words: { checkout: words } } = kit.useWords(commerceWordsFor);

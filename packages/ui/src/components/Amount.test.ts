@@ -40,7 +40,6 @@ describe("Amount schema", () => {
   it("applies defaults, trims text and derives the link flag", () => {
     expect(props.parse({ value: 5, label: " Total " })).toEqual({
       emphasis: "normal",
-      surface: "card",
       detail: "full",
       label: "Total",
       value: 5,
@@ -159,8 +158,8 @@ describe("Amount rendering", () => {
     expect(html).toContain('aria-busy="true"');
   });
   it("draws the compact rate as secondary copy without adding an address", () => {
-    const input = { value: 18, per: "each", density: "compact" };
-    const html = renderInstance("Amount", input, "filled", theme);
+    const input = { value: 18, per: "each" };
+    const html = renderInstance("Amount", input, "filled", { ...theme, density: "compact" });
     expect(html).toMatch(/\$18<span[^>]+> \/ each<\/span>/);
     expect(html.match(/data-testid="home\/c1\/value"/g)).toHaveLength(1);
     expect(readComponent(components.Amount, input, "a1")).toEqual(["a1 Amount $18 / each"]);

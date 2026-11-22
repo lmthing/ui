@@ -21,11 +21,11 @@ import {
   probesFor,
   thingOf,
   titleOf,
-  variantProps,
   type CastLike,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import {
   cycleDayLine,
@@ -51,7 +51,7 @@ export const meta = {
   tier: "phone",
   realPath:
     "Period dates stored only on the device, never shared; local predictions are not medical advice or a method of contraception.",
-  variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["next", "window"] } },
   parts: ["root", "day", "phase", "next", "window", "disclaimer", "log"],
   states: ["filled", "empty"],
@@ -74,7 +74,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
 }
 export const examples = [
   { start: "2026-11-01", length: 28, period: 5 },
-  { start: "2026-10-26", length: 32, period: 6, surface: "outlined" },
+  { start: "2026-10-26", length: 32, period: 6 },
   { start: "2026-11-01", length: 28, period: 5, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Cycle");
@@ -101,7 +101,7 @@ export function Cycle(input: Props<typeof props, typeof meta>) {
   const full = useVariant("detail", meta.variants.detail, input.detail) === "full";
   if (state === "empty") {
     return (
-      <KitCard style="inset" part="root" surface={input.surface}>
+      <KitCard style="inset" part="root" surface={"card"}>
         <KitEmpty
           icon="calendar"
           part="phase"
@@ -120,7 +120,7 @@ export function Cycle(input: Props<typeof props, typeof meta>) {
     return { id: String(day), tone, current: day === cycle.day };
   });
   return (
-    <KitCard style="inset" padded part="root" surface={input.surface}>
+    <KitCard style="inset" padded part="root" surface={"card"}>
       <KitRadialTrack style="days" segments={segments} part="day">
         <KitText role="number" align="center" part={null} tabular>
           {cycleDayLine(cycle.day, lang)}

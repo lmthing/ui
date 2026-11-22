@@ -19,7 +19,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "Progress per unit is stored on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["state"] } },
   parts: ["root"],
   items: { key: "units", parts: ["root", "title", "icon", "state", "milestone"] },
@@ -162,8 +162,9 @@ function PathUnit({ unit, milestone, density, brief }: {
 }
 
 // prettier-ignore
-export function Path({ units, milestones = [], detail, density: requested, surface, style }: PathProps) {
-  const density = kit.useVariant("density", meta.variants.density, requested);
+export function Path({ units, milestones = [], detail, style  }: PathProps) {
+  const surface = "card";
+  const density = kit.useKit().density;
   const loading = kit.useComponentState() === "loading";
   const { lang, words } = kit.useWords();
   if (style === "modules") {

@@ -18,7 +18,7 @@ export const meta = {
   tier: "phone",
   partTiers: { root: "people" },
   realPath: "The captain enters fixtures on one phone; teammates following them need a shared app.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["venue", "meet", "kit"] } },
   parts: ["root", "message"],
   items: {
@@ -92,7 +92,7 @@ export const examples = [
     ],
   },
   { style: "next", matches: [nextMatch] },
-  { style: "next", density: "compact", matches: [nextMatch] },
+  { style: "next", matches: [nextMatch] },
   { style: "next", detail: "brief", matches: [nextMatch] },
 ] satisfies z.input<typeof props>[];
 
@@ -119,7 +119,7 @@ export const probes = [
 
 type FixturesProps = c.Props<typeof props, typeof meta>;
 type Match = FixturesProps["matches"][number];
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 
 // prettier-ignore
 function MatchRow({ row, next, density, loading }: { row: Match; next: boolean; density: Density; loading: boolean }) {
@@ -170,7 +170,7 @@ function MatchRow({ row, next, density, loading }: { row: Match; next: boolean; 
 // prettier-ignore
 export function Fixtures(input: FixturesProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const next = input.style === "next";
   const rows = next ? input.matches.slice(0, 1) : input.matches;
   return (

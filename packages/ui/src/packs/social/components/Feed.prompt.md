@@ -8,5 +8,5 @@ Several community posts to scroll, with authors, short excerpts and reactions. N
 
 ## Writer
 
-- For "hide attached post pictures", set media to "none" and keep the author avatars. Do not change the finish: write density null and surface null unless the person explicitly asks for compact spacing or outlined cards.
+- For "hide attached post pictures", set media to "none" and keep the author avatars.
 - Put the newest post first. Keep the full excerpt even if it clips on screen. Each post needs an avatar (use lib:people if unspecified), time, excerpt and destination. Use zero for unknown counts and false for unknown liked state.

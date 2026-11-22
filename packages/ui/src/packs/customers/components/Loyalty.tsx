@@ -7,7 +7,7 @@ import {
   KitGrid,
   KitText,
   useComponentState,
-  useVariant,
+  useKit,
 } from "../../../kit";
 import {
   wordsFor,
@@ -20,11 +20,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import { z } from "zod";
 import { prompt } from "../../../entry/prompt-Loyalty.generated";
@@ -41,7 +41,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "A count per client on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["name"] } },
   parts: ["root", "stamps", "of", "reward", "name", "earned", "stamp", "redeem"],
   states: ["filled", "success"],
@@ -97,8 +97,8 @@ export const examples = [
   { stamps: 3, of: 6, reward: "Your sixth plant care visit is free", name: "Anna Patel" },
   { stamps: 10, of: 10, reward: "Your tenth walk is free", name: "Ben Carter" },
   variantExample,
-  { ...variantExample, density: "compact" },
-  { ...variantExample, surface: "outlined" },
+  { ...variantExample },
+  { ...variantExample },
   { ...variantExample, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Loyalty");
@@ -140,8 +140,9 @@ function LoyaltyMarks({ stamps, of, density }: { stamps: number; of: number; den
 }
 
 export function Loyalty(input: Props<typeof props, typeof meta>) {
-  const { stamps, of, reward, name, surface } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const { stamps, of, reward, name } = input;
+  const surface = "card";
+  const density = useKit().density;
   const { lang, words } = useWords();
   const { loyaltyLabels } = words;
   const success = useComponentState() === "success";

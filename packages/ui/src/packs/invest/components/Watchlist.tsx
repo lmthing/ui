@@ -19,7 +19,7 @@ export const meta = {
   tier: "phone",
   realPath:
     "On-device watch records and dated quotes are independent of owned positions and shared quote history, and a live feed is optional.",
-  variants: { density: ["comfortable", "compact"], detail: ["brief", "full"] },
+  variants: { detail: ["brief", "full"] },
   variantParts: { "detail.full": { adds: ["target", "gap"] } },
   parts: ["root", "refresh", "refresh_label", "notice"],
   items: {
@@ -84,7 +84,6 @@ export const examples = [
   },
   {
     detail: "full",
-    density: "compact",
     items: [
       { assetId: "short_bonds", name: "Short Bond Fund", symbol: "SBF",
         price: 55, quotedAt: "2026-03-01T16:00:00Z", target: 50 },
@@ -120,10 +119,10 @@ export function bindWatchlist(hasQuoteService: (instance: string) => boolean): c
 }
 type WatchProps = c.Props<typeof props, typeof meta>;
 type WatchRow = WatchProps["items"][number];
-type Density = NonNullable<WatchProps["density"]>;
+type Density = c.ThemeDensity;
 // prettier-ignore
 function ThresholdLine({ threshold, density }: { threshold: NonNullable<ReturnType<typeof watchlistQuote>["threshold"]>; density: Density }) {
-  const figure = { role: "number", numberScale: "compact", emphasis: "quiet", density: "compact", tabular: true } as const;
+  const figure = { role: "number", numberScale: "compact", emphasis: "quiet", tabular: true } as const;
   const tone = threshold.met ? "good" : "muted";
   return <kit.KitGrid density={density}>
     <kit.KitText part="target" role="caption" tone="muted">{threshold.lead}
@@ -178,7 +177,7 @@ function QuoteRow({ row, detail, density, state }: { row: WatchRow; detail: Watc
 // prettier-ignore
 export function Watchlist(input: WatchProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { quote_service } = kit.useLiveControls(meta, input);
   const { words: { watchlist } } = kit.useWords(investWordsFor);

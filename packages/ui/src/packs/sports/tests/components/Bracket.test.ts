@@ -102,9 +102,7 @@ describe("Bracket rendering and actions", () => {
       ["r1/a_score", "r1/b_score", "r2/a_score", "r2/b_score"].map(address),
     );
     expect(brief.get(address("r1/root"))?.attributes).toContain("Ledge Rovers wins");
-    expect([...render({ ...sample, surface: "outlined", density: "compact" }).keys()]).toEqual([
-      ...keys.keys(),
-    ]);
+    expect([...render({ ...sample }).keys()]).toEqual([...keys.keys()]);
     expect([...render(sample, "loading").keys()].sort()).toEqual(["bracket", "root"].map(address));
     const loading = renderInstance("Bracket", sample, "loading", theme);
     expect(loading).toContain(`aria-label="${loadingLabel}"`);

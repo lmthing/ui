@@ -8,4 +8,4 @@ Logging a workout set by set, editing weight and reps, ticking sets and resting 
 
 ## Writer
 
-- Write surface null unless asked for an outline; never write the default surface card. Use detail brief only when asked to hide the elapsed-time header. Keep set controls and rest.
+- Use detail brief only when asked to hide the elapsed-time header. Keep set controls and rest.

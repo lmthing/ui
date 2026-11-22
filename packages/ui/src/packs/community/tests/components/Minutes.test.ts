@@ -60,9 +60,7 @@ describe("Minutes states and parts", () => {
     expect(parts.get(addr("r1/motion"))?.text).toEqual(["Open motion"]);
     expect(parts.get(addr("r2/done"))?.attributes).toContain('role="img"');
     expect(parts.get(addr("approval"))?.text.join("")).toContain("Approved by Ana");
-    expect([
-      ...addressedElements(draw({ ...record, density: "compact", surface: "outlined" })).keys(),
-    ]).toEqual([...parts.keys()]);
+    expect([...addressedElements(draw({ ...record })).keys()]).toEqual([...parts.keys()]);
     const reading = readComponent(def, record, "m1").join("\n");
     for (const line of [
       "Buy a shared tool shed",

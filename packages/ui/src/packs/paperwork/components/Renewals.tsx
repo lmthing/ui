@@ -19,7 +19,7 @@ export const meta = {
   tier: "phone",
   realPath:
     "Deadline and completion dates stay on device and local reminders need permission; the renewal itself happens outside the tracker.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["for"] } },
   parts: ["root", "empty", "success"],
   items: {
@@ -107,8 +107,6 @@ export const examples = [
   },
   {
     style: "cards",
-    density: "compact",
-    surface: "plain",
     items: [
       { title: "Trot liability cover", for: "Alex", noticeBy: "2027-01-12", due: "2027-02-01", completedOn: "2027-01-09" },
     ],
@@ -124,12 +122,6 @@ export const probes = [
   write(
     "Track Mina's greenhouse permit renewal. Decide by 2027-03-10, it ends on 2027-04-10, and she hasn't completed it.",
   ),
-  {
-    ...write(
-      "Show the greenhouse permit renewal, notice on 2027-03-10 and end date 2027-04-10. Use shorter rows with less vertical spacing so more deadlines fit on screen.",
-    ),
-    variant: { axis: "density", value: "compact" },
-  },
   {
     ...write(
       "Track the greenhouse permit renewal. Notice is 2027-03-10 and it ends 2027-04-10. Hide the owner and still show both dates.",
@@ -173,8 +165,9 @@ function RenewalItem({ row, density, surface, now, success }: {
 }
 
 // prettier-ignore
-export function Renewals({ items, style, surface, density: requested }: RenewalsProps) {
-  const density = kit.useVariant("density", meta.variants.density, requested);
+export function Renewals({ items, style }: RenewalsProps) {
+  const surface = "card";
+  const density = kit.useKit().density;
   const state = kit.useComponentState(), { words } = kit.useWords(paperworkWordsFor);
   const success = state === "success", cards = style === "cards", now = new Date();
   const loading = state === "loading";

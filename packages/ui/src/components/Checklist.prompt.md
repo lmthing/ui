@@ -8,4 +8,4 @@ Tick off independent jobs. Not browsing and opening things (List) or following a
 
 ## Writer
 
-- Set "detail":null for normal task lists, even when there are no notes. Only an explicit request to hide notes means "detail":"brief"; keep any supplied notes in meta. Without a request for density or mark, write "density":null and "mark":null, not their named defaults.
+- Set "detail":null for normal task lists, even when there are no notes. Only an explicit request to hide notes means "detail":"brief"; keep any supplied notes in meta. Without a request for mark, write "mark":null, not their named defaults.

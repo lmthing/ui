@@ -9,4 +9,4 @@ A holding's price history with selectable day, week, month, year and all ranges.
 ## Writer
 
 - points are 8–60 numeric prices in time order. Code derives current price and change; never write them or currency.
-- To omit the change summary only: detail brief, emphasis null, surface null. Never write default normal or card for unrequested finish.
+- To omit the change summary only: detail brief, emphasis null. Leave emphasis null unless explicitly requested.

@@ -1,4 +1,4 @@
-import { useVariant, useWords, KitAction, KitCard, KitGrid, KitText } from "../kit";
+import { useWords, KitAction, KitCard, KitGrid, KitText, useKit } from "../kit";
 import {
   wordsFor,
   probesFor,
@@ -8,11 +8,11 @@ import {
   placeholderTitle,
   text,
   thingOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
 import { z } from "zod";
 import { prompt } from "../entry/prompt-Counter.generated";
@@ -27,7 +27,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "A count stored on the device, changed by a fixed step with each tap.",
-  variants: { density: ["comfortable", "compact"], figures: ["exact", "short"] },
+  variants: { figures: ["exact", "short"] },
   parts: ["root", "value", "label", "minus", "plus"],
   states: ["filled"],
   actions: { parts: { minus: ["decrement"], plus: ["increment"] } },
@@ -74,7 +74,7 @@ export const examples = [
   { label: "Water glasses for fern", value: 2 },
   { label: "Dogs walked today", value: 3, unit: "dogs" },
   { label: "Walks logged", value: 1200, figures: "short" },
-  { label: "Dogs walked today", value: 3, unit: "dogs", density: "compact" },
+  { label: "Dogs walked today", value: 3, unit: "dogs" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Counter");
@@ -87,7 +87,7 @@ export const probes = [
   write("Show three dogs walked today, with dogs as the unit and one more or less per tap"),
   {
     ...write(
-      "Show a count of 1,200 walks that I can add to or subtract from one at a time. Display 1.2K, but keep the exact count and the default spacing, with no density override.",
+      "Show a count of 1,200 walks that I can add to or subtract from one at a time. Display 1.2K, but keep the exact count.",
     ),
     variant: { axis: "figures", value: "short" },
   },
@@ -96,7 +96,7 @@ export const probes = [
 
 export function Counter(input: Props<typeof props, typeof meta>) {
   const { label, value, unit, figures } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const { lang, words } = useWords();
   const { stepLabels } = words;
   return (

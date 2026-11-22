@@ -7,16 +7,18 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
+  variantProps,
 } from "../../../catalog";
 // prettier-ignore
 import {
   KitCard, KitCheck, KitContent, KitFigure, KitGrid, KitInput, KitMeter, KitRow, KitRowGroup, KitState,
   KitText, useComponentState, useLiveControls, useVariant, useWords,
+  useKit,
 } from "../../../kit";
 import { packingProgress, packingQuantity, packingRead, packingRows } from "../copy";
 import { tripsWordsFor } from "../lang";
@@ -41,7 +43,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "The list lives on the device; sharing across a family needs a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: quantityParts } },
   parts: ["root", "progress", "add", "add_label"],
   items: { key: "groups", parts: ["root", "label", ...packedParts, ...quantityParts] },
@@ -131,7 +133,7 @@ export const probes = [
 
 type PackingProps = Props<typeof props, typeof meta>;
 type PackingGroup = PackingProps["groups"][number];
-type PackingFinish = Pick<PackingProps, "detail" | "density">;
+type PackingFinish = Pick<PackingProps, "detail"> & { density: ThemeDensity };
 
 // prettier-ignore
 function PackingSection({ group, detail, density, lang, disabled }: PackingFinish & {
@@ -159,8 +161,8 @@ function PackingSection({ group, detail, density, lang, disabled }: PackingFinis
 export function PackingList(input: PackingProps) {
   const { words: { packing }, lang } = useWords(tripsWordsFor);
   const state = useComponentState();
-  const density = useVariant("density", meta.variants.density, input.density);
-  const surface = useVariant("surface", meta.variants.surface, input.surface);
+  const density = useKit().density;
+  const surface = "card";
   const detail = useVariant("detail", meta.variants.detail, input.detail);
   const live = useLiveControls(meta, input) as PackingProps;
   const groups = packingRows(live.groups);

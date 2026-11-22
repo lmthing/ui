@@ -1,3 +1,5 @@
+<!-- replay-literals: d d mcdd -->
+
 ## Purpose
 
 Track saved shop products, compare prices, and move items to the basket.
@@ -9,4 +11,4 @@ A shop wishlist for saved buy-later products with saved versus current prices, d
 ## Writer
 
 - Use a distinct short product id per item, including items without a link. Use numeric prices without a currency sign. Only write stock when known and never write computed badges.
-- Set shared true only for a shared gift list. For two columns set arrange "grid"; use null for unrequested density and surface, never explicit defaults.
+- Set shared true only for a shared gift list. For two columns set arrange "grid"; otherwise leave arrange null unless requested.

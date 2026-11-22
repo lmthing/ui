@@ -17,7 +17,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Variants are stored with their product on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   parts: ["root", "label", "options"],
   items: {
     key: "options",
@@ -166,8 +166,8 @@ function VariantOption({ option, selected, style, detail, density }: {
 
 // prettier-ignore
 export function VariantPicker(input: PickerProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { words } = kit.useWords(commerceWordsFor), scope = kit.usePartContext();
   const optionAt = (option: PickerProps["options"][number], index: number) =>

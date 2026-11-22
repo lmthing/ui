@@ -1,13 +1,6 @@
 import { expect, it, vi } from "vitest";
 import { z } from "zod";
-import {
-  type Definition,
-  type ScreenLike,
-  privateMarkKey,
-  readScreen,
-  text,
-  variantProps,
-} from "@lmthing/ui/catalog";
+import { type Definition, type ScreenLike, privateMarkKey, readScreen, text } from "@lmthing/ui/catalog";
 import { selectionFixture } from "../../../catalog/probes/fixtures";
 import { readControls } from "./read-controls";
 
@@ -120,7 +113,7 @@ it("migrates saved variant lines when a keypad draft is present", () => {
   const screen: ScreenLike = {
     id: "home",
     components: [
-      { id: "card", c: "c-a_r d", title: "Details", style: "outlined" },
+      { id: "card", c: "c-a_r d", title: "Details", style: "outlined", surface: "outlined" },
       { id: "entry", c: "Fixture", rows: [{ value: 3 }] },
     ],
   };
@@ -128,7 +121,7 @@ it("migrates saved variant lines when a keypad draft is present", () => {
     Card: {
       ...def,
       meta: { ...def.meta, id: "Card", read: () => [] },
-      props: z.strictObject({ title: text(40), ...variantProps({ surface: ["plain", "outlined"] }) }),
+      props: z.strictObject({ title: text(40) }),
     },
     Fixture: def,
   };

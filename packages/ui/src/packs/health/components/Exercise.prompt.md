@@ -8,4 +8,4 @@ A reference for one movement with written form cues, muscles, equipment or past 
 
 ## Writer
 
-- Write surface null unless asked for an outline. Do not write the default surface card; a supplied photo normally shows as a wide frame. Only when asked to hide it, use media none and keep the photo reference in the data.
+- A supplied photo normally shows in a wide frame. To hide it, set media to none and keep the photo reference.
