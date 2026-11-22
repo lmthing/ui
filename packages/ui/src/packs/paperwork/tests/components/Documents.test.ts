@@ -122,8 +122,9 @@ describe("Documents folder and page options", () => {
   });
 });
 
+const share = { address: "home/d1/r1/share", action: "press" };
+
 describe("Documents service share", () => {
-  const share = { address: "home/d1/r1/share", action: "press" };
   const confirm = "home/confirm/confirm";
   const run = vi.fn(() => ({ status: "accepted" as const }));
   const onLink = vi.fn();
@@ -172,7 +173,9 @@ describe("Documents service share", () => {
       controller.dispose();
     }
   });
+});
 
+describe("Documents mounted share availability", () => {
   it.each([undefined, false, true])("mounts a Share button only when the host allows it (%s)", (allowed) => {
     const screen = {
       id: "home",
@@ -182,7 +185,9 @@ describe("Documents service share", () => {
       allowed === undefined
         ? undefined
         : {
-            commands: { shareDocument: { allows: () => allowed, run } },
+            commands: {
+              shareDocument: { allows: () => allowed, run: () => ({ status: "accepted" as const }) },
+            },
           };
     const html = renderToStaticMarkup(
       createElement(

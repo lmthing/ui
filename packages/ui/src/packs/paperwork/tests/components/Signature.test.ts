@@ -113,7 +113,9 @@ describe("Signature view", () => {
     expect(parts({ surface: "plain", density: "compact" })).toEqual(parts({}));
     expect(parts({ detail: "brief" })).toEqual(parts({}).filter((key) => !key.endsWith("/hint")));
   });
+});
 
+describe("Signature view options", () => {
   it("uses the same private pad for initials and adds stamp copy only when requested", () => {
     const legacy = renderExample("Signature", input, "filled", theme).html;
     const explicit = renderExample(

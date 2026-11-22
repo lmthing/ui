@@ -41,7 +41,9 @@ describe("Signature host projection", () => {
       expect(resolve(...forms)).toMatchObject({ opened: false, reviewed: false, draft: undefined });
     expect(resolve({ ...reviewed, openedVersion: undefined, draft }).draft).toBeUndefined();
   });
+});
 
+describe("Signature state copy", () => {
   it("keeps saved copy and failure copy grounded in the authoritative snapshot", () => {
     const data = previewSignature({ input, state: "success" });
     const display = signatureDisplay(input.signer, "success", signatureHost(input, "c1", data), "en-GB");

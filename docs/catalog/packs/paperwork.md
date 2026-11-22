@@ -58,7 +58,9 @@ computed; opening a record shows its local file, never an unmasked number in an 
   `remove_icon`. `meta.partTiers: { share: "service" }`, `meta.confirmParts: ["remove", "share"]`.
 - States: filled, empty, loading, error (file unavailable).
 - Real path: records and private attachments kept on the device; original files are opened by a local
-  host viewer, with identifiers masked and read as `(secret)`.
+  host viewer, with identifiers masked and read as `(secret)`. Share hands only the selected row's
+  address to the host. The host resolves the attachment and must obtain the person's approval and
+  recipient choice before releasing it.
 
 ### `Renewals` · planned · data · phone
 
