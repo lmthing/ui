@@ -6,16 +6,19 @@ says what each component is; this guide says how its file is written.
 
 ## What one component is
 
-Exactly two files, plus recordings:
+A definition, a prompt, a test, and English words if the component owns any:
 
 | File                                | Holds                                                                  |
 | ----------------------------------- | ---------------------------------------------------------------------- |
 | `src/components/<Id>.tsx`           | `meta`, `props`, `fallback`, `examples`, `probes`, and the view `<Id>` |
+| `src/components/<Id>.prompt.md`     | Model-facing purpose, pick (including near misses), and Writer guidance |
 | `src/components/<Id>.test.ts`       | schema, fallback and probe-shape tests                                 |
+| `src/catalog/lang/en/<Id>.ts`       | English words owned by a core component                                |
 | `test/recordings/<Id>/<model>.json` | recorded model replies from `pnpm llm:check --component <Id>`          |
 
-Nothing else is registered by hand. Entries, the renderer map, conformance tests and the gallery pick
-the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs/catalog/` (plan 4.4).
+Entries, the renderer map, conformance tests and the gallery pick the definition up from the folder.
+Pack prompts sit beside pack definitions too. `<Id>` is the PascalCase id from the lists in
+`docs/catalog/` (plan 4.4).
 
 ## The file, in order
 
@@ -26,21 +29,25 @@ creates component-specific copy and English label keys. It leaves existing compo
 including their probes, alone. For a pack, it also wires the component through the pack door.
 Use explicit types (`text(n)`, `number`, `integer`, `boolean`, dates and references),
 backticked enum choices, and explicit array bounds (`items` of fields, `1–6`). Name
-shared axes in `Styles`, for example `density: comfortable, compact` with the values
+shared axes in `Styles`, for example `detail: full, brief` with the values
 in backticks. Ambiguous shorthand, nested repeated collections, conditional schemas
 and custom runtime state names may need to be scaffolded by hand.
 
 Check the draft against the full entry before building the view: supply real examples,
 replace the probe prompts and check the read address, implement conditional actions and
-variant part changes, and move the label keys into the owning `lang/en.ts` dictionary.
+variant part changes, and put any English labels in the owning `lang/en/<Id>.ts` fragment.
 The generated view is only a placeholder, not evidence for the model or visual gates.
+From `packages/ui`, run `pnpm codemod:split` after scaffolding or after merging a branch that
+still edits inline `meta` text or the old `lang/en.ts` dictionary. The codemod keeps branch edits
+when it finds a matching prompt or word fragment. Run `pnpm build:entries` to regenerate imports.
 
-1. **Imports.** Only `zod`, `../catalog` and `../kit`. Never `tamagui`, `react-native` or lucide
+1. **Imports.** Use `zod`, the catalog and kit doors, and the generated prompt module. Never `tamagui`, `react-native` or lucide
    directly: those live behind kit bases.
 2. **`meta`**: a plain object, `as const satisfies Meta`.
-   - `purpose` ≤ 16 words, about the person's need, not the widget.
-   - `pick`: when to choose it, then "Not …" naming the nearest wrong component(s) by id.
-   - Optional `writeHints` explain cross-field rules that the compact schema signature omits, using valid examples.
+   - Use `prompt.purpose`, `prompt.pick`, and, when present, `prompt.writeHints` from the generated `entry/prompt-<Id>.generated` module. Edit `<Id>.prompt.md`, never the generated module. Keep migrated fields in place and leave any `replay-literals` comment alone; they preserve the existing replay identity.
+   - `## Purpose`: one line, ≤ 16 words, about the person's need, not the widget.
+   - `## Pick`: one line on when to choose it, then "Not …" naming the nearest wrong component(s) by id.
+   - Optional `## Writer`: one `- ` bullet per hint, with valid examples for cross-field rules the compact schema omits.
    - `region`, `weight`, `tier`, `realPath` (one sentence) from `docs/catalog/` and the component's current schema/metadata.
    - `items` (only if it repeats): `{ key, parts }`. `parts`, `states`, `actions` list exactly what
      the view draws and what a person can do. `partTiers` and `confirmParts` name declared parts;
@@ -95,6 +102,26 @@ The generated view is only a placeholder, not evidence for the model or visual g
    - No literal user-facing text anywhere. Text comes from props, the cast or `catalog/copy.ts`.
    - No raw numbers for layout. Use `space`, `size`, `radius`, `type` tokens through the bases.
 
+## Choose a runtime primitive
+
+Use the existing declaration for the action's owner. Do not add an action path named for your
+component. The [catalog contracts](implementation-plan.md#412-reading-and-acting-the-catalog-side)
+and [kit contracts](implementation-plan.md#59-reading-and-acting-the-kit-side) describe how the
+reader, planner and mounted controller share them.
+
+- **Host command with result:** use `hostCommands` for authoritative effects and replies. An ordinary
+  `goto` still describes navigation, not a remote mutation.
+- **Local state and projection:** use `live` for direct controls and derived props, or `defineLocalState`
+  for a validated reducer. Put component rules in the definition and keep wire props unchanged.
+- **Collections and nested items:** use `items`, `collections` and `items.nested` to share identity,
+  visibility, selection, movement and limits between the view and dispatcher.
+- **Media:** use addressed `media` or `items.media` with the host's adapters; use `sequence` for a
+  cursor. The view mounts playback but does not acquire a second session.
+- **Secrets and private input:** declare the secret and use the corresponding reveal or private input
+  control. Never put a credential, a verification answer or a capture reference in an agent action.
+- **Clocks and journals:** declare the clock source or record mutation; project the public result.
+  Use a journal for validated history, not an array the view mutates.
+
 ## Host-owned actions
 
 Catalog metadata declares intent; the `PhoneScreen` host owns permission, transport and final settlement.
@@ -134,15 +161,16 @@ Choose only axes and values that visibly change this component. These are candid
 
 | Component kind | Typical axes to consider |
 | --- | --- |
-| Rows and lists | `density`, `surface`, `detail`, `arrange`, `group`, `overflow`, `lead`, `trail`; item `tone`, `mark`, `trail` |
-| Cards and content | `density`, `emphasis`, `surface`, `align`, `detail`, `media`, `tone` |
-| Numbers and charts | `density`, `emphasis`, `figures`, `labels`, `detail`; item `tone`, `mark` |
-| Media | `media`, `aspect`, `bleed`, `detail` |
-| Inputs and actions | `density`, `emphasis`, `align`, `detail`, `tone`; item `mark` |
+| Rows and lists | `detail`, `arrange`, `group`, `overflow`, `lead`, `trail`; item `tone`, `mark`, `trail` |
+| Cards and content | `emphasis`, `detail`, `media`, `tone` |
+| Numbers and charts | `emphasis`, `figures`, `labels`, `detail`; item `tone`, `mark` |
+| Media | `media`, `aspect`, `detail` |
+| Inputs and actions | `emphasis`, `detail`, `tone`; item `mark` |
 
 1. Declare ordered subsets in `meta.variants` and row choices in `meta.items.variants`. Put the
-   component's existing treatment first so missing props render as before. Omitted `density` inherits
-   a supported app setting. Spread `variantProps(meta.variants)` into the strict component schema and
+   component's existing treatment first so missing props render as before. The theme supplies density
+   and surface treatment; renderers choose alignment and bleed by role. None of these four options
+   belongs in component props or Writer prompts. Spread `variantProps(meta.variants)` into the strict component schema and
    `itemVariantProps(meta.items.variants)` into the strict row schema. When both declare `trail`, use
    `{ inheritTrail: true }` so a missing row override uses the collection trail; gate actions on
    that same effective value.
@@ -152,7 +180,7 @@ Choose only axes and values that visibly change this component. These are candid
    including hidden items. Pass axis values to kit bases and use `useVariant()` to resolve supported
    settings; bases translate values into theme tokens. Never add raw layout values in a view.
 3. To move a legacy style, add a fixture-tested entry in `src/catalog/migrations/variant-line.ts`,
-   for example `{ from: "style", values: { compact: { density: "compact" } } }`. Activate it in
+   for example `{ from: "style", values: { compact: { detail: "brief" } } }`. Activate it in
    `adoptedVariants` in the same change as the strict schema. Test an old line through `migrateLine`
    and parse the output; preserve ids, actions, and any explicit destination value. Keep a style only
    if the structure still differs independently of the axis.
@@ -211,12 +239,16 @@ them in `contentParts`; these recipes do not derive additional address names.
 ## Words and language
 
 `KitProvider` and `PhoneScreen` take the app's BCP-47 `lang`; the default is English.
-Keep built-in labels, units and grammar in `src/catalog/lang/en.ts`, not in views or copy helpers.
+Keep built-in labels, units and grammar in `src/catalog/lang/en/<Id>.ts` or in `en/pack.ts` for
+shared words, not in views or copy helpers. `lang/en.ts` assembles the fragments.
 Read them with `const { lang, words } = useWords()`; pass `lang` to number, date, time and copy
 helpers. Pass the same tag to data-only `meta.read`, `readPrompt`, and `fallback({ cast, lang })`.
 Leave authored text, action identifiers, and stored numeric and date values unchanged.
 
-A pack keeps its words in `src/packs/<pack>/lang/en.ts` and exposes its lookup through `lang/index.ts`.
+A pack keeps its words in `src/packs/<pack>/lang/en/<Id>.ts` and shared words in `lang/en/pack.ts`.
+Its `lang/en.ts` assembles the fragments and `lang/index.ts` exposes the lookup.
+Existing locale keys stay in their original lookup to preserve registered translations; for example,
+Loyalty's copy has a named fragment in the core dictionary.
 Use `useWords(<pack>WordsFor)` for pack words and `<pack>WordsFor(lang)` outside React.
 Use `Intl.PluralRules` via `pluralForm` for counted nouns; thing-type inflection belongs in the
 language file. To add a language, write a complete dictionary that `satisfies Words` (or
@@ -277,7 +309,7 @@ Folder names below are under `src/kit/base/`; each has an `index.ts` door.
 | `game` | `KitOrbit` | Supplied circular order and direction, or a current-first queue; node content, current outline, empty and loading drawings | `part?`, `loading?`, `nodes` ({id,label,content}), `at`, `reverse?`, `style?` ring/queue. Nodes are addressed item roots; loading omits caller controls. |
 | `game` | `KitScore` | Two equal score columns with caller status/clock between them; keeper style shows caller controls beneath each side, with inert loading placeholders. Empty copy belongs to the caller. | `part?`, `loading?`, `sides` (exactly two {label,value,valuePart?,controls?: ReactNode}), `center: ReactNode`, `style?` display/keeper (default display). `valuePart` names a nonblank score; omit it or pass `null` to leave the text unaddressed. Loading placeholders have no value part. |
 | `data`        | `KitRank`          | A decorative place number beside a ranked row                                                                                                                         | `place`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| `data`        | `KitMeter`         | A labelled horizontal progress track                                                                                                                                  | `label`, `amount`, `ratio`, `tone` accent/good/warn/bad, `slim`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `data`        | `KitMeter`         | A labelled horizontal progress track                                                                                                                                  | `label`, `amount`, `ratio`, `tone` accent/good/warn/bad, `slim`, `fillFrom?` start/end (default start; end mirrors in RTL)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | `input`       | `KitOption`        | One single- or multi-select choice, as a card or row                                                                                                                  | `item`, `title`, `sub`, `icon`, `value`, `badge`, `on`, `multi`, `look` cards/list, `reserveIcon` (consistent leading column within a Choice)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | `input` | `KitOption` (inline picker) | One addressed disclosure trigger. Inline choices do not stamp parts; selecting one sends its label to the same item root. | `item`, `title`, `choices` (unique labels), `selected?` (live label). Declare `items.pickers.root: { prop, choices: { prop: <row options key> } }` and `actions.items.root: ["press", "select"]`. A clear button declares `actions.parts.clear: ["press"]` and `clear: { clear: { text: ["field"], pickers: ["root"] } }`; independent sort is not reset. |
 | `input`       | `KitTextArea`      | A multiline text control using the shared dispatcher                                                                                                                  | `hint`, `value`, `lines`, `part`, `label`, `maxLength`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
@@ -299,7 +331,7 @@ Folder names below are under `src/kit/base/`; each has an `index.ts` door.
 | `time`        | `KitTime`          | A time or short date in a fixed-width muted column with tabular digits (a `KitRow` leading item)                                                                      | `value`, `part` (default `time`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | `time`        | `KitSlotGrid`      | Three equal columns of wrapping time chips or end-time rows; selected outline, readable disabled taken slots; empty and geometry-preserving loading states            | `times` ({id,label,sub?,taken}), `at`, `style` grid/list (default grid), `part` (drawing root), `loading`; each slot is an item root dispatching select                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | `data`        | `KitRing`          | Progress ring: `$line` track and `$accent` arc to value/of from twelve o'clock; children centred inside; drawing hidden from assistive tech; centres itself           | `value`, `of`, `scale` md/lg, `part` (default `ring`), children                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| `plot` | `KitLinePlot` | One to three labelled numeric lines, null-reading gaps, dashed goal, optional reference band and baseline, and selected cursor; explicit targets draw roomy controls below; full/compact, empty and geometry-preserving loading | `part`, `loading`, `series` ({id,label,tone?,points: readonly {id,x,value: number \| null,label}[]}), `unit?`, `goal?` ({value,label}), `band?: { low: readonly number[]; high: readonly number[] }` (paired by index against the first series' x values; invalid pairs break the band), `baseline?: number`, `selected?` (point id), `targets?` ({point,target:{item?,part}}), `style?` full/compact (default full) |
+| `plot` | `KitLinePlot` | One to three labelled numeric lines, null-reading gaps, dashed goal, optional reference band and baseline, and selected cursor; explicit targets draw roomy controls below or on the markers; full/compact, empty and geometry-preserving loading | `part`, `loading`, `series` ({id,label,tone?,points: readonly {id,x,value: number \| null,label}[]}), `unit?`, `goal?` ({value,label}), `band?: { low: readonly number[]; high: readonly number[] }` (paired by index against the first series' x values; invalid pairs break the band), `baseline?: number` draws a reference line; `center?: number` scales symmetrically around that value to fit the data and overlays (pass the same value to `baseline` to draw the centre line), `selected?` (point id), `targets?` ({point,target:{item?,part}}), `targetPlacement?` below/marker (default below; marker places the address and touch target on each plotted point and dispatches `select` with its point id), `style?` full/compact (default full) |
 | `plot` | `KitRangeBand` | Decorative low/normal/high track and visually clamped reading marker; caller label, equal bounds, empty marker and geometry-preserving loading | `part`, `loading`, `label`, `min`, `max`, `low`, `high`, `value`, `tone?` text/warn (default text) |
 | `plot` | `KitRangeBand` | Optional caller-owned reading replaces the value/label row, retains its loading footprint and hides inactive content; existing callers remain unchanged. | `reading?: ReactNode`; `value` still drives the marker. |
 | `plot` | `KitRangeBand` | Ordered zones share the scale and marker. Separators distinguish adjacent bands, and the legend names each interval with its bounds. Loading retains geometry without readable labels or zone colours. | `zones?: readonly { label: string; from: number; to: number; tone: "muted" \| "accent" \| "good" \| "warn" \| "bad" }[]`; supply ordered, nonoverlapping intervals. Drawing clamps to the scale; invalid or zero-width zones are skipped. Without drawable zones, supplied `low`/`high` keep the original drawing. |

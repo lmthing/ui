@@ -133,9 +133,7 @@ function RangeTrack({
   );
 }
 
-/** One shared track with an independently addressed, non-crossing control for each endpoint. */
-// prettier-ignore
-export function RangeSlider({ range, min, max, step = 1, disabled = false }: RangeSliderProps) {
+function useRangeEndpoints({ range, min, max, step = 1, disabled = false }: RangeSliderProps) {
   const loading = useComponentState() === "loading";
   const lower = useEndpoint(range[0], loading);
   const upper = useEndpoint(range[1], loading);
@@ -149,12 +147,23 @@ export function RangeSlider({ range, min, max, step = 1, disabled = false }: Ran
   const first = { min: clampMin(lower.numeric?.min), max: Math.min(hi, clampMax(lower.numeric?.max)) };
   const second = { min: Math.max(lo, clampMin(upper.numeric?.min)), max: clampMax(upper.numeric?.max) };
   const { width, handlers } = useRangeGesture({
-    min, max, step: tick, disabled: disabled || loading,
+    min,
+    max,
+    step: tick,
+    disabled: disabled || loading,
     ends: [
       { ...first, address: lower.address.testID, value: lo, disabled: lower.disabled },
       { ...second, address: upper.address.testID, value: hi, disabled: upper.disabled },
     ],
   });
+  return { loading, lower, upper, tick, lo, hi, share, first, second, width, handlers };
+}
+
+/** One shared track with an independently addressed, non-crossing control for each endpoint. */
+export function RangeSlider(props: RangeSliderProps) {
+  const { disabled = false } = props;
+  const { loading, lower, upper, tick, lo, hi, share, first, second, width, handlers } =
+    useRangeEndpoints(props);
   return (
     <YStack
       height={size.control.md}
@@ -171,8 +180,22 @@ export function RangeSlider({ range, min, max, step = 1, disabled = false }: Ran
           <>
             <ThumbMark share={share(lo)} inactive={disabled || lower.disabled} />
             <ThumbMark share={share(hi)} inactive={disabled || upper.disabled} />
-            <ThumbRegion endpoint={lower} {...first} step={tick} inactive={disabled} value={lo} share={share(lo)} />
-            <ThumbRegion endpoint={upper} {...second} step={tick} inactive={disabled} value={hi} share={share(hi)} />
+            <ThumbRegion
+              endpoint={lower}
+              {...first}
+              step={tick}
+              inactive={disabled}
+              value={lo}
+              share={share(lo)}
+            />
+            <ThumbRegion
+              endpoint={upper}
+              {...second}
+              step={tick}
+              inactive={disabled}
+              value={hi}
+              share={share(hi)}
+            />
           </>
         )}
       </YStack>

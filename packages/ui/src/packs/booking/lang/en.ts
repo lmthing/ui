@@ -1,73 +1,21 @@
-import type { LDMLPluralRule } from "../../../catalog";
+import { words as WaitlistWords } from "./en/Waitlist";
+import { words as SlotsWords } from "./en/Slots";
+import { words as StaffPickerWords } from "./en/StaffPicker";
+import { words as AppointmentWords } from "./en/Appointment";
+import { words as AvailabilityWords } from "./en/Availability";
+import { words as ServiceMenuWords } from "./en/ServiceMenu";
+import { words as SessionPackWords } from "./en/SessionPack";
+import { words as ClassRosterWords } from "./en/ClassRoster";
 
 export const en = {
-  queuePeople: (count: string, form: LDMLPluralRule) =>
-    `${count} ${form === "one" ? "person" : "people"} ahead`,
-  queueCompact: (count: string) => `${count} ahead`,
-  queuePosition: (label: string, position: string) => `${label}: ${position}`,
-  quadrillion: (count: string) => `${count}Q`,
-  slotTomorrow: " next day",
-  anyoneLabel: "Anyone",
-  appointmentLabels: {
-    reschedule: "Reschedule",
-    edit: "Edit details",
-    booked: "Booked",
-    confirmed: "Confirmed",
-    pending: "Pending",
-    cancelled: "Cancelled",
-    done: "Done",
-  },
-  appointmentLocation: { in_person: "In person", video: "Video call", phone: "Phone call" },
-  appointmentJoin: "Join meeting",
-  availabilityLabels: { from: "From", to: "To", break: "Break" },
-  availabilityBuffer: (duration: string) => `${duration} between bookings`,
-  availabilityOverrides: "Date exceptions",
-  availabilityOverride: { blocked: "Blocked", holiday: "Holiday" },
-  bookLabel: "Book",
-  serviceCapacity: (count: string) => `Up to ${count} people`,
-  serviceDeposit: (price: string) => `${price} deposit`,
-  servicePortfolio: "View portfolio",
-  queueLabels: {
-    waiting: "Waiting for a place",
-    joined: "You're on the waitlist",
-    position: "Your place in line",
-    join: "Join waitlist",
-    leave: "Leave waitlist",
-  },
-  slotLabels: { free: "free", taken: "taken", empty: "No free times" },
-  sessionPack: {
-    balance: "Credits remaining",
-    remaining: (count: string) => `${count} left`,
-    expiry: (date: string) => `Expires ${date}`,
-    expiring: (date: string) => `Expires soon · ${date}`,
-    expired: (date: string) => `Expired ${date}`,
-    redeem: "Redeem session",
-    renew: "Renew pack",
-    success: "Session redeemed",
-    expiredError: "This pack has expired",
-    exhausted: "No credits left",
-    error: "Couldn’t redeem session",
-  },
-  roster: {
-    status: { booked: "Booked", checked_in: "Checked in", no_show: "No-show" },
-    paid: "Paid",
-    unpaid: "Unpaid",
-    walkin: "Add walk-in",
-    promote: "Promote next",
-    here: "Here",
-    noshow: "No-show",
-    checkin: (name: string) => `Check-in for ${name}`,
-    noShowFor: (name: string) => `Mark ${name} as a no-show`,
-    attendance: "checked in",
-    spaces: (form: LDMLPluralRule) => `${form === "one" ? "spot" : "spots"} left`,
-    waiting: "waiting",
-    metric: (count: string, label: string) => `${count} ${label}`,
-    dateTime: (date: string, time: string) => `${date} · ${time}`,
-    empty: "No attendees yet",
-    success: "Attendance updated",
-    full: "Class is full",
-    error: "Couldn’t save attendance",
-  },
+  ...WaitlistWords,
+  ...SlotsWords,
+  ...StaffPickerWords,
+  ...AppointmentWords,
+  ...AvailabilityWords,
+  ...ServiceMenuWords,
+  ...SessionPackWords,
+  ...ClassRosterWords,
 };
 
 export type BookingWords = typeof en;

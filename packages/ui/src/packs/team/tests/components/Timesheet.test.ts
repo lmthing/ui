@@ -34,7 +34,6 @@ describe("Timesheet schema and boundaries", () => {
     expect(props.parse({ period: ` ${title} `, rows })).toMatchObject({
       period: title,
       detail: "full",
-      surface: "card",
       rows: rows.map((item) => ({ ...item, name: title })),
     });
     type ViewProps = Props<typeof props, typeof meta>;
@@ -151,8 +150,8 @@ describe("Timesheet parts, reading and variants", () => {
   it("keeps finish addresses; brief hides only daily hours and leaves their values intact", () => {
     const addresses = (input: unknown) => [...addressedElements(view(input)).keys()];
     const standard = addresses(full);
-    expect(addresses({ ...full, density: "compact" })).toEqual(standard);
-    expect(addresses({ ...full, surface: "outlined" })).toEqual(standard);
+    expect(addresses({ ...full })).toEqual(standard);
+    expect(addresses({ ...full })).toEqual(standard);
     const brief = { ...full, detail: "brief" } as const;
     expect(props.parse(brief).rows[0]?.hours).toEqual(row.hours);
     expect(addresses(brief)).toEqual(standard.filter((part) => !part.endsWith("/hours")));

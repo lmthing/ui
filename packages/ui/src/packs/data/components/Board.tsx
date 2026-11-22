@@ -4,27 +4,22 @@ import * as kit from "../../../kit";
 import { StageBoard, type StageCard } from "../../../kit/renderers";
 import { boardReading, boardStages, boardSwimlanes } from "../copy";
 import { dataWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Board.generated";
 
 // Core first: Checklist/default can tick off jobs but cannot move cards between named stages.
 export const meta = {
   id: "Board",
   status: "ready",
   group: "data",
-  purpose: "See records by stage and move them between stages.",
-  pick: "Move cards between two to five named stage columns with counts and optional totals. Not ticking off jobs in one list (Checklist), working a service request queue (RequestQueue), or a week of shifts (Roster).",
-  writeHints: [
-    "card.column is a zero-based index into columns. Use unique stage labels because the move action takes the destination label. Counts and totals are computed; never write them.",
-    'Use arrange "rows" for stages stacked vertically, otherwise null. Leave density and surface null unless requested.',
-    "Set cards[].swimlane to a short group label only when cards should be separated into named horizontal groups across the same stages.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Records with a stage field on the device.",
   variants: {
-    density: ["compact", "comfortable"],
-    surface: ["plain", "outlined"],
     arrange: ["strip", "rows"],
   },
   parts: ["root", "columns", "empty", "swimlane_1", "swimlane_2", "swimlane_3", "swimlane_4"],
@@ -146,13 +141,13 @@ export const probes = [
 type ViewProps = c.Props<typeof props, typeof meta>;
 // prettier-ignore
 export function Board(input: ViewProps) {
-  const { columns, cards, surface, arrange } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const { columns, cards, arrange } = input;
+  const density = kit.useKit().density;
   const layout = kit.useVariant("arrange", meta.variants.arrange, arrange);
   const state = kit.useComponentState();
   const { words, lang } = kit.useWords(dataWordsFor);
   const currency = kit.useAppCurrency();
-  const background = state === "empty" && surface === "plain" ? "card" : surface;
+  const background = state === "empty" ? "card" : "plain";
   const cardSlots = (card: ViewProps["cards"][number]): StageCard => {
     const { id, column, goto, title, tag, who, value } = card;
     const lines: StageCard["lines"][number][] = [{ part: "title", role: "body", text: title, density }];
@@ -178,7 +173,7 @@ export function Board(input: ViewProps) {
     move={{ caption: words.boardMove, label: words.boardDestination }}
   />;
   const grouped = cards.some(({ swimlane }) => swimlane);
-  return <kit.KitCard density={density} padded={surface === "outlined"} surface={background}>
+  return <kit.KitCard density={density} surface={background}>
     <kit.KitState part="empty" density={density}>
       {grouped ? <kit.KitRow part="columns" inline inset="none" label={words.boardStages} density={density}>
         <kit.KitRowGroup spacing="groups" separators={false} density={density}>

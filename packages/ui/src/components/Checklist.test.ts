@@ -61,7 +61,7 @@ describe("Checklist schema", () => {
   it("hides notes without changing item addresses or actions", () => {
     const input = { items: [{ text: "First job", meta: "Later", mark: "highlight" }] };
     const full = stampItemIds(meta, props.parse(input));
-    const brief = stampItemIds(meta, props.parse({ ...input, detail: "brief", density: "compact" }));
+    const brief = stampItemIds(meta, props.parse({ ...input, detail: "brief" }));
     expect(brief.items[0]).toMatchObject({ id: "r1", meta: undefined, mark: "highlight" });
     expect(affordancesOf(meta, brief, "k1")).toEqual(affordancesOf(meta, full, "k1"));
     expect(meta.variantParts["detail.brief"]).toEqual({ hides: ["meta"] });

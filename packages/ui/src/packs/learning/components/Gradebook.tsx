@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { categoryGrade, courseGrade, gradeItemCopy, gradebookRead, projectGradebook } from "../copy";
 import { learningWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Gradebook.generated";
 
 const itemParts = Array.from({ length: 12 }, (_, index) => `item_${index + 1}` as const);
 const dates = itemParts.map((part) => `${part}_date` as const);
@@ -13,17 +14,14 @@ export const meta = {
   status: "ready",
   group: "data",
   tier: "phone",
-  pick: "A course gradebook with weighted categories, raw assignment points and GPA. Not homework due dates (Assignments), one quiz (Result), or independent counters (Stats).",
-  purpose: "See your weighted course grade and how each category contributes.",
+  pick: prompt.pick,
+  purpose: prompt.purpose,
   region: "body",
   weight: 3,
   realPath: "Coursework grades stored locally or synced from a school LMS host.",
   dense: true,
-  writeHints: [
-    "Category weights must sum to 100. Write earned and possible points per item, not calculated totals. Use null for an ungraded earned score.",
-    'Use detail "brief" to hide the term and dates without removing coursework or changing the style. Use style "summary" for totals without coursework.',
-  ],
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  writeHints: prompt.writeHints,
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["term", ...dates] } },
   parts: ["root", "course", "term", "grade", "status"],
   items: {
@@ -94,7 +92,7 @@ export const examples = [
     ] },
     { label: "Knowledge checks", weight: 40, items: [{ title: "Light and humidity", earned: 17, possible: 20 }] },
   ] },
-  { course: "Dog Walking Basics", term: "Winter term", scale: "gpa", style: "summary", surface: "outlined",
+  { course: "Dog Walking Basics", term: "Winter term", scale: "gpa", style: "summary",
     categories: [{ label: "Field assessment", weight: 100,
       items: [{ title: "Practice walk", earned: 19, possible: 20 }, { title: "Final walk", possible: 20 }] }] },
 ] satisfies z.input<typeof props>[];
@@ -155,8 +153,8 @@ export function Gradebook(input: View) {
   const state = kit.useComponentState();
   const thing = kit.useEmptyThing();
   const { lang, words: { gradebook: words } } = kit.useWords(learningWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const grade = courseGrade(input, lang);
   const body = <><kit.KitHeader density={density} title={{ text: input.course, part: "course" }}

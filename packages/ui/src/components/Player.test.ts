@@ -171,7 +171,7 @@ describe("Player rendering", () => {
     );
   });
   it("does not hide artwork merely because density is compact", () => {
-    const standard = { ...examples[0], density: "compact" };
+    const standard = { ...examples[0] };
     const brief = { ...standard, detail: "brief" };
     expect(renderInstance("Player", standard, "filled", theme)).toContain('data-testid="home/c1/artwork"');
     expect(renderInstance("Player", brief, "filled", theme)).not.toContain('data-testid="home/c1/artwork"');

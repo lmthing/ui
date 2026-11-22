@@ -22,8 +22,8 @@ export function KitSpark({
   const [width, setWidth] = useState(0);
   const height = component.base.sparkHeight;
   const pad = component.base.strongBorder * 2;
-  const lo = Math.min(...points),
-    hi = Math.max(...points);
+  const lo = Math.min(...points);
+  const hi = Math.max(...points);
   const xy = points.map((value, index) => {
     const x = pad + (index / Math.max(points.length - 1, 1)) * (width - pad * 2);
     const y = pad + (hi === lo ? 0.5 : 1 - (value - lo) / (hi - lo)) * (height - pad * 2);

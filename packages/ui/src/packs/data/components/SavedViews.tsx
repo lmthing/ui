@@ -13,6 +13,7 @@ import {
   type SavedViewRow,
 } from "../copy";
 import { dataWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-SavedViews.generated";
 
 // Core first: FilterBar/default changes individual filters but cannot save, switch, or remove named query and layout presets.
 // prettier-ignore
@@ -21,16 +22,13 @@ export const meta = {
   status: "ready",
   group: "input",
   tier: "phone",
-  pick: "switching, saving or managing named query presets across records. Not ephemeral query controls (FilterBar), single-axis tags (Chips), or fixed screen tabs (Segmented).",
-  purpose: "Switch among named filter, sort and layout presets, and manage them.",
-  writeHints: [
-    'Use distinct preset IDs, and set activeId only to an existing preset ID. Never write matching counts; code counts dataset matches. Use style "list" for readable descriptions and remove controls.',
-    'Use detail "brief" for list rows without filter summaries or layout captions; keep the summaries and layout in the data. Leave unrequested axes null.',
-  ],
+  pick: prompt.pick,
+  purpose: prompt.purpose,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   realPath: "The app applies selected presets to the local query and saves the current query on request.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["summary", "layout"] } },
   parts: ["root", "title", "track", "save", "save_label", "status"],
   items: { key: "views", parts: ["root", "label", "summary", "layout", "count", "remove"] },
@@ -147,8 +145,7 @@ function PresetRow({ row, copy, selected, loading, full, density }: {
 // prettier-ignore
 export function SavedViews(input: ViewProps) {
   const scope = kit.usePartContext(), state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const { words: { savedViews: words }, lang } = kit.useWords(dataWordsFor);
   const { views, canSave, removed } = kit.useLiveControls(meta, input) as LiveView;
@@ -166,7 +163,7 @@ export function SavedViews(input: ViewProps) {
     </kit.KitTrack>
   </kit.KitContent>;
   const feedback = status === "success";
-  return <kit.KitCard padded align={empty ? "center" : "start"} {...{ density, surface }}>
+  return <kit.KitCard padded align={empty ? "center" : "start"} density={density} surface="card">
     {!empty && <kit.KitContent inset="md" density={density}>
       <kit.KitHeader title={{ text: words.title, part: "title" }}
         {...(feedback && { meta: { text: removed ? words.removed : words.success, part: "status", tone: "good" } })}

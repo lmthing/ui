@@ -60,7 +60,6 @@ describe("ActivityLog schema and boundaries", () => {
       goto: "a".repeat(64),
     };
     expect(props.parse({ entries: Array(6).fill(entry) })).toMatchObject({
-      surface: "card",
       lead: "avatar",
       entries: Array(6).fill(entry),
     });
@@ -134,7 +133,7 @@ describe("ActivityLog states and parts", () => {
       expect(parts.get(`${base}/text`)?.text).toEqual([text]);
       expect(parts.get(`${base}/time`)?.text).toEqual([time]);
     });
-    const variant = { ...input, lead: "none", surface: "outlined", density: "compact" };
+    const variant = { ...input, lead: "none" };
     const alternates = addressedElements(renderInstance("ActivityLog", variant, "filled", theme));
     expect([...alternates.keys()]).toEqual([...parts.keys()].filter((part) => !part.endsWith("/photo")));
   });

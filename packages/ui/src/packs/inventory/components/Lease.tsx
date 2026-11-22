@@ -3,24 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { leaseCopy, leaseReading } from "../copy";
 import { inventoryWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Lease.generated";
 
 // Core first: KeyValue/default cannot compute time left, next rent date or a renewal warning.
 export const meta = {
   id: "Lease",
   status: "ready",
   group: "data",
-  purpose: "See one rental agreement, when rent is next due and when to renew.",
-  pick: "One existing rental agreement with tenant, term, rent cadence, due day, deposit and calculated time left or renewal warning. Not static facts (KeyValue), terms to sign (Agreement), a bill (Bills), or a list of rental units (Units).",
-  writeHints: [
-    "End must be after start. For monthly rent write the due day of the month (1–31); for weekly rent write the weekday (Monday 1, Sunday 7). Never write the computed next due date, progress or renewal status.",
-    'Keep the start date and deposit in the record even when hidden. To hide them without any other presentation change, use {"density":null,"surface":null,"detail":"brief"}. With no presentation request, use {"density":null,"surface":null,"detail":null}.',
-    "Set density only for an explicit request for tighter or roomier spacing; null inherits app spacing. Set surface only for an explicit change to the container treatment; a reference to the existing card is not a change. Write null for any unrequested variant.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Lease records and terms live on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["start", "deposit"] } },
   // prettier-ignore
   parts: ["root", "tenant", "place", "start", "end", "time_left", "rent", "next_due", "deposit", "renewal", "terms_icon"],
@@ -103,8 +100,8 @@ export const probes = [
 
 // prettier-ignore
 export function Lease(input: c.Props<typeof props, typeof meta>) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang, words: { lease: words } } = kit.useWords(inventoryWordsFor);
   const copy = leaseCopy({ ...input, detail }, lang);

@@ -31,7 +31,7 @@ describe("Feed schema and bounds", () => {
         { ...post, name: "   Second  " },
       ],
     });
-    expect(next).toMatchObject({ surface: "card", media: "thumb", posts: [{ text }, { name: "Second" }] });
+    expect(next).toMatchObject({ media: "thumb", posts: [{ text }, { name: "Second" }] });
     type View = Props<typeof props, typeof meta>;
     expectTypeOf<View["posts"][number]["id"]>().toEqualTypeOf<string>();
     expectTypeOf<View>().not.toBeAny();
@@ -142,7 +142,7 @@ describe("Feed states, parts and read", () => {
     ];
     expect(parts(input)).toContain("home/c1/r1/image");
     expect(parts(hidden)).toEqual(parts(input).filter((part) => !part.endsWith("/image")));
-    expect(parts({ ...input, surface: "outlined", density: "compact" })).toEqual(parts(input));
+    expect(parts({ ...input })).toEqual(parts(input));
     const read = readComponent(def, hidden, "f1").join("\n");
     expect(read).not.toContain("photo:fern");
     expect(read).toContain("photo:people");

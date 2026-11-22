@@ -1,3 +1,11 @@
+import { words as FunnelWords } from "./en/Funnel";
+import { words as SavedViewsWords } from "./en/SavedViews";
+import { words as ActivityLogWords } from "./en/ActivityLog";
+import { words as BoardWords } from "./en/Board";
+import { words as BulkActionsWords } from "./en/BulkActions";
+import { words as LineChartWords } from "./en/LineChart";
+import { words as HeatmapWords } from "./en/Heatmap";
+import { words as TableWords } from "./en/Table";
 import type { LDMLPluralRule } from "../../../catalog";
 
 const funnelOverall = "Overall conversion";
@@ -59,65 +67,12 @@ export type DataWords = {
 };
 
 export const en = {
-  activityLabel: (who, text, time, diff) => `${who}: ${text} (${time})${diff ? ` · ${diff}` : ""}`,
-  activityDiff: (old, next) => `${old} → ${next}`,
-  activityKind: "Filter changes by kind",
-  activityKinds: { all: "All changes", created: "Created", updated: "Updated", deleted: "Deleted" },
-  boardCard: (id, fields) => `${id}: ${fields.filter(Boolean).join(" · ")}`,
-  boardDestination: (destination, card) => `Move ${card} to ${destination}`,
-  boardMove: "Move to",
-  boardStage: (label, count, total) => `${label} (${count}${total ? `, Total ${total}` : ""})`,
-  boardTotal: "Total",
-  boardStages: "Stages",
-  boardUnassigned: "Unassigned",
-  bulkSelectAll: "Select all",
-  bulkSelected: (count) => `${count} selected`,
-  chartLatest: "Latest values",
-  chartGoal: (value) => `Goal: ${value}`,
-  chartRange: { "7d": "Last 7 days", "30d": "Last 30 days", "90d": "Last 90 days", "1y": "Last year" },
-  chartPlaceholder: (index) => ["One", "Two", "Three", "Four"][index]!,
-  chartPoints: (title) => `${title} data points`,
-  chartReading: (id, series, label, value) => `${id} ${series} · ${label} · ${value}`,
-  chartSelected: (series, label, value) => `${series} · ${label}: ${value}`,
-  chartSeriesPoints: (series) => `${series} data points`,
-  chartUnit: (unit) => `Unit: ${unit}`,
-  chartValue: (value, unit) => `${value} ${unit}`,
-  funnelConversion: (rate) => `${funnelOverall}: ${rate}`,
-  funnelFromPrevious: (rate) => `From previous: ${rate}`,
-  funnelOverall,
-  funnelUnavailable: "Not available",
-  heatDay: (index, short) =>
-    (short
-      ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-      : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])[index]!,
-  heatDetail: (style) =>
-    style === "weeks" ? "Weeks start on Monday" : "Two-hour blocks · Scroll for later hours",
-  heatHour: (hour, short) => (short ? `${hour}h` : `${hour}:00`),
-  heatLegend: (unit) => `Intensity scale · ${unit}`,
-  heatReading: (label, values) => `${label}: ${values.join(" · ")}`,
-  heatValue: (day, slot, value, unit) => `${day}, ${slot}: ${value} ${unit}`,
-  heatWeek: (week, short) => (short ? `W${week}` : `Week ${week}`),
-  savedViews: {
-    title: "Saved views",
-    save: "Save current view",
-    remove: (label) => `Remove ${label}`,
-    success: "Saved views updated",
-    removed: "View removed",
-    chip: (label, count) => `${label} · ${count}`,
-    matches: (count, form) => (form === "one" ? `${count} match` : `${count} matches`),
-    layouts: { table: "Table layout", cards: "Cards layout", board: "Board layout" },
-  },
-  tableColumn: (label, position) => `${position}. ${label}`,
-  tableCount: (count, form) => (form === "one" ? `${count} row` : `${count} rows`),
-  tablePick: (label) => `Select ${label}`,
-  tableSort: "Sort by column",
-  tableExport: "Export table",
-  tableExportPending: "Exporting table…",
-  tableExportResult: {
-    accepted: "Table exported",
-    rejected: "Could not export the table",
-    cancelled: "Table export cancelled",
-  },
-  tableSummary: { sum: "Total", avg: "Average", count: "Record count" },
-  tableUnavailable: "Not available",
+  ...ActivityLogWords,
+  ...BoardWords,
+  ...BulkActionsWords,
+  ...LineChartWords,
+  ...HeatmapWords,
+  ...TableWords,
+  ...FunnelWords,
+  ...SavedViewsWords,
 } satisfies DataWords;

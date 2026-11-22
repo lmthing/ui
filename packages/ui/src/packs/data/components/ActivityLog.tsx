@@ -9,38 +9,33 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
-  visibleItems,
   wordsFor,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
+  visibleItems,
 } from "../../../catalog";
 import * as kit from "../../../kit";
 import { activityOptions, activityFilters, activityKinds, activityLive, activityReading } from "../copy";
 import { dataWordsFor } from "../lang";
 import * as optionView from "../option-views";
+import { prompt } from "../../../entry/prompt-ActivityLog.generated";
 
 // Core first: Timeline/default lays out events or plans; it does not identify who changed a record with avatars.
 export const meta = {
   id: "ActivityLog",
   status: "ready",
   group: "data",
-  purpose: "See who changed a shared record, what changed, and when it happened.",
-  pick: "Audit changes by several people with actor portraits, times and links to changed records. Not scheduled events in time order (Timeline), one client's history (ClientHistory) or shift notes (Handover).",
-  writeHints: [
-    'Write the actor in who and the change in text, without repeating the actor in text. Keep the supplied timestamp and record link. Use lead "none" only when explicitly asked to hide portraits; still write photo for every entry.',
-    'When only portrait visibility changes, set lead and leave density and surface null. Do not write "card" just because portraits are hidden.',
-    'Store each event category in entries[].kind. Set top-level kind to a category only to start with that filter selected; retain all entries. Write before and after text as diff: {"old":"Shade","new":"Sun"} only when both are supplied.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "A change log kept by a shared app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     lead: ["avatar", "none"],
   },
   variantParts: { "lead.none": { hides: ["photo"] } },
@@ -174,8 +169,8 @@ type LogProps = Props<typeof props, typeof meta>;
 type Entry = LogProps["entries"][number];
 // prettier-ignore
 export function ActivityLog(input: LogProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const avatar = kit.useVariant("lead", meta.variants.lead, input.lead) === "avatar";
   const live = kit.useLiveControls(meta, input);
   const entries = visibleItems(meta, live) as Entry[];

@@ -35,17 +35,13 @@ function render(children: ReactNode, choice: ThemeChoice = theme, options: Provi
 
 function Preferences() {
   const { density, motion, environment } = useKit();
-  const inherited = useVariant("density", ["comfortable", "compact"]);
-  const override = useVariant("density", ["comfortable", "compact"], "comfortable");
   const local = useVariant("emphasis", ["normal", "hero"]);
-  return <output>{[density, inherited, override, local, motion, environment.reduceMotion].join("/")}</output>;
+  return <output>{[density, local, motion, environment.reduceMotion].join("/")}</output>;
 }
 
-it("resolves the theme, component value, and declared default through the public hook", () => {
-  expect(render(<Preferences />)).toContain("comfortable/comfortable/comfortable/normal/calm/false");
-  expect(render(<Preferences />, { ...compact, motion: "lively" })).toContain(
-    "compact/compact/comfortable/normal/lively/false",
-  );
+it("resolves the theme preference and declared component default through the public hook", () => {
+  expect(render(<Preferences />)).toContain("comfortable/normal/calm/false");
+  expect(render(<Preferences />, { ...compact, motion: "lively" })).toContain("compact/normal/lively/false");
 });
 
 it("suppresses lively motion with native reduced motion and with a reduced-motion environment", () => {
@@ -54,9 +50,7 @@ it("suppresses lively motion with native reduced motion and with a reduced-motio
   const reduced = { reduceMotion: true, insets, keyboardHeight: 0 };
   const nativeHost = { snapshot: () => reduced, subscribe: () => () => {} };
   for (const options of [{ nativeHost }, { environment: { ...reduced, agentMode: false } }]) {
-    expect(render(<Preferences />, choice, options)).toContain(
-      "compact/compact/comfortable/normal/calm/true",
-    );
+    expect(render(<Preferences />, choice, options)).toContain("compact/normal/calm/true");
   }
 });
 

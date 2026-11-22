@@ -6542,6 +6542,382 @@
       "{\"c\":\"Bars\",\"figures\":null,\"labels\":\"all\",\"title\":\"Walks\",\"points\":[{\"label\":\"Mon\",\"value\":7},{\"label\":\"Tue\",\"value\":8}]}"
     ]
   },
+  "Bars%2Fwrite%2FChart%201%2C240%20steps%20Monday%20and%202%2C300%20Tuesday.%20Abbreviate%20thousands%20as%20k%2C%20but%20keep%20the%20exact%20source%20values./6387d5753bf89e29/dc9f66b521021309": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nBars: Compare amounts across days or categories.\nprops: { figures?: exact|short=\"exact\", labels?: key|none|all=\"key\", title: text≤32, points: [2..7 { label: text≤4, value: num 0.. }] }\nRule: Leave both figures and labels null for plain data. Asking for values above the bars changes only labels; asking to abbreviate values changes only figures and does not request bar labels.\nexample: {\"c\":\"Bars\",\"figures\":null,\"labels\":null,\"title\":\"Steps\",\"points\":[{\"label\":\"Mon\",\"value\":1240},{\"label\":\"Tue\",\"value\":2300}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Chart 1,240 steps Monday and 2,300 Tuesday. Abbreviate thousands as k, but keep the exact source values.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Bars",
+              "enum": [
+                "Bars"
+              ]
+            },
+            "figures": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "exact",
+                    "short"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "labels": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "key",
+                    "none",
+                    "all"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "points": {
+              "minItems": 2,
+              "maxItems": 7,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4
+                  },
+                  "value": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "label",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "figures",
+            "labels",
+            "title",
+            "points"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Bars\",\"figures\":\"short\",\"labels\":null,\"title\":\"Steps\",\"points\":[{\"label\":\"Mon\",\"value\":1240},{\"label\":\"Tue\",\"value\":2300}]}",
+    "replies": [
+      "{\"c\":\"Bars\",\"figures\":\"short\",\"labels\":null,\"title\":\"Steps\",\"points\":[{\"label\":\"Mon\",\"value\":1240},{\"label\":\"Tue\",\"value\":2300}]}",
+      "{\"c\":\"Bars\",\"figures\":\"short\",\"labels\":null,\"title\":\"Steps\",\"points\":[{\"label\":\"Mon\",\"value\":1240},{\"label\":\"Tue\",\"value\":2300}]}",
+      "{\"c\":\"Bars\",\"figures\":\"short\",\"labels\":null,\"title\":\"Steps\",\"points\":[{\"label\":\"Mon\",\"value\":1240},{\"label\":\"Tue\",\"value\":2300}]}"
+    ]
+  },
+  "Bars%2Fwrite%2FChart%207%20walks%20on%20Monday%20and%208%20on%20Tuesday./45844b1cc6f44475/8abc886faa119213": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nBars: Compare amounts across days or categories.\nprops: { figures?: exact|short=\"exact\", labels?: key|none|all=\"key\", title: text≤32, points: [2..7 { label: text≤4, value: num 0.. }] }\nRule: Leave both figures and labels null for plain data. Asking for values above the bars changes only labels; asking to abbreviate values changes only figures and does not request bar labels.\nexample: {\"c\":\"Bars\",\"figures\":null,\"labels\":null,\"title\":\"Steps\",\"points\":[{\"label\":\"Mon\",\"value\":1240},{\"label\":\"Tue\",\"value\":2300}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Chart 7 walks on Monday and 8 on Tuesday.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Bars",
+              "enum": [
+                "Bars"
+              ]
+            },
+            "figures": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "exact",
+                    "short"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "labels": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "key",
+                    "none",
+                    "all"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "points": {
+              "minItems": 2,
+              "maxItems": 7,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4
+                  },
+                  "value": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "label",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "figures",
+            "labels",
+            "title",
+            "points"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Bars\",\"figures\":\"short\",\"labels\":\"key\",\"title\":\"Walks\",\"points\":[{\"label\":\"Mon\",\"value\":7},{\"label\":\"Tue\",\"value\":8}]}",
+    "replies": [
+      "{\"c\":\"Bars\",\"figures\":\"short\",\"labels\":\"key\",\"title\":\"Walks\",\"points\":[{\"label\":\"Mon\",\"value\":7},{\"label\":\"Tue\",\"value\":8}]}",
+      "{\"c\":\"Bars\",\"figures\":null,\"labels\":null,\"title\":\"Walks\",\"points\":[{\"label\":\"Mon\",\"value\":7},{\"label\":\"Tue\",\"value\":8}]}",
+      "{\"c\":\"Bars\",\"figures\":null,\"labels\":null,\"title\":\"Walks\",\"points\":[{\"label\":\"Mon\",\"value\":7},{\"label\":\"Tue\",\"value\":8}]}"
+    ]
+  },
+  "Bars%2Fwrite%2FMake%20a%20bar%20chart%20of%20cups%20of%20tea%3A%20Monday%20four%2C%20Tuesday%20three./372545ee9747a3fd/2d93fb4a8d87c4f2": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nBars: Compare amounts across days or categories.\nprops: { figures?: exact|short=\"exact\", labels?: key|none|all=\"key\", title: text≤32, points: [2..7 { label: text≤4, value: num 0.. }] }\nRule: Leave both figures and labels null for plain data. Asking for values above the bars changes only labels; asking to abbreviate values changes only figures and does not request bar labels.\nexample: {\"c\":\"Bars\",\"figures\":null,\"labels\":null,\"title\":\"Steps\",\"points\":[{\"label\":\"Mon\",\"value\":1240},{\"label\":\"Tue\",\"value\":2300}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Make a bar chart of cups of tea: Monday four, Tuesday three.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Bars",
+              "enum": [
+                "Bars"
+              ]
+            },
+            "figures": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "exact",
+                    "short"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "labels": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "key",
+                    "none",
+                    "all"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "points": {
+              "minItems": 2,
+              "maxItems": 7,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4
+                  },
+                  "value": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "label",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "figures",
+            "labels",
+            "title",
+            "points"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Bars\",\"figures\":null,\"labels\":null,\"title\":\"Cups of tea\",\"points\":[{\"label\":\"Mon\",\"value\":4},{\"label\":\"Tue\",\"value\":3}]}",
+    "replies": [
+      "{\"c\":\"Bars\",\"figures\":null,\"labels\":null,\"title\":\"Cups of tea\",\"points\":[{\"label\":\"Mon\",\"value\":4},{\"label\":\"Tue\",\"value\":3}]}",
+      "{\"c\":\"Bars\",\"figures\":null,\"labels\":null,\"title\":\"Cups of Tea\",\"points\":[{\"label\":\"Mon\",\"value\":4},{\"label\":\"Tue\",\"value\":3}]}",
+      "{\"c\":\"Bars\",\"figures\":null,\"labels\":null,\"title\":\"Cups of Tea\",\"points\":[{\"label\":\"Mon\",\"value\":4},{\"label\":\"Tue\",\"value\":3}]}"
+    ]
+  },
+  "Bars%2Fwrite%2FShow%20a%20value%20label%20above%20each%20bar.%20The%20walks%20were%20seven%20on%20Monday%20and%20eight%20on%20Tuesday./d6d679c77f9a14b5/db6c1b16773d81e5": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nBars: Compare amounts across days or categories.\nprops: { figures?: exact|short=\"exact\", labels?: key|none|all=\"key\", title: text≤32, points: [2..7 { label: text≤4, value: num 0.. }] }\nRule: Leave both figures and labels null for plain data. Asking for values above the bars changes only labels; asking to abbreviate values changes only figures and does not request bar labels.\nexample: {\"c\":\"Bars\",\"figures\":null,\"labels\":null,\"title\":\"Steps\",\"points\":[{\"label\":\"Mon\",\"value\":1240},{\"label\":\"Tue\",\"value\":2300}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show a value label above each bar. The walks were seven on Monday and eight on Tuesday.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Bars",
+              "enum": [
+                "Bars"
+              ]
+            },
+            "figures": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "exact",
+                    "short"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "labels": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "key",
+                    "none",
+                    "all"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "points": {
+              "minItems": 2,
+              "maxItems": 7,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4
+                  },
+                  "value": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "label",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "figures",
+            "labels",
+            "title",
+            "points"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Bars\",\"figures\":null,\"labels\":\"all\",\"title\":\"Walks per day\",\"points\":[{\"label\":\"Mon\",\"value\":7},{\"label\":\"Tue\",\"value\":8}]}",
+    "replies": [
+      "{\"c\":\"Bars\",\"figures\":null,\"labels\":\"all\",\"title\":\"Walks per day\",\"points\":[{\"label\":\"Mon\",\"value\":7},{\"label\":\"Tue\",\"value\":8}]}",
+      "{\"c\":\"Bars\",\"figures\":null,\"labels\":\"all\",\"title\":\"Walks\",\"points\":[{\"label\":\"Mon\",\"value\":7},{\"label\":\"Tue\",\"value\":8}]}",
+      "{\"c\":\"Bars\",\"figures\":null,\"labels\":\"all\",\"title\":\"Walks\",\"points\":[{\"label\":\"Mon\",\"value\":7},{\"label\":\"Tue\",\"value\":8}]}"
+    ]
+  },
   "bbe743e0c9cb2cce": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nList: Show several things of the same kind.\nprops: { density?: comfortable|compact, arrange?: rows|grid|strip=\"rows\", group?: none|sections|dates=\"none\", overflow?: all|peek|page=\"all\", lead?: none|icon|avatar|number=\"none\", trail?: none|chevron|value|toggle=\"none\", rows: [1..6 { title: text≤28, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use group dates only for date headings. A day mentioned in item content is not a heading request.\nRule: Tighter spacing changes density only. A See all link for the whole list changes overflow, not the row trail.\nexample: {\"c\":\"List\",\"density\":null,\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"tone\":null,\"mark\":null,\"title\":\"Fern\"},{\"tone\":null,\"mark\":null,\"title\":\"Basil\"},{\"tone\":null,\"mark\":null,\"title\":\"Aloe\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Keep all four items in the list: Watering, Pruning, Feeding and Repotting. On screen, show only the first few, with one See all link for the whole list.",
     "format": {
@@ -7455,6 +7831,672 @@
       "{\"c\":\"List\",\"density\":null,\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
       "{\"c\":\"List\",\"density\":null,\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
       "{\"c\":\"List\",\"density\":null,\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}"
+    ]
+  },
+  "Card%2Fwrite%2FMake%20a%20card%20titled%20Fern%20Care.%20Body%3A%20Water%20Friday./7f02cc1a12f5aaef/35ff728249ca6d7f": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCard: Show one thing with a title and a little detail.\nprops: { emphasis?: normal|quiet|hero=\"normal\", detail?: full|brief=\"full\", media?: thumb|none|icon|cover=\"thumb\", title: text≤40, body?: text≤120, photo?: photo lib:<tag>|local:<n> }\nRule: Set detail to brief only when asked to hide secondary text. Keep the body text in the data; supplying body copy by itself does not request a detail setting.\nRule: Keep media null for a photo reference alone. Only change media when asked how to display the image, such as a large cover.\nRule: A request for a focal point changes emphasis only. Supplying a title or body does not request emphasis. Do not add a photo or set media unless asked.\nexample: {\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":null,\"title\":\"Fern\",\"body\":\"Water on Fridays\",\"photo\":\"lib:plants\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Make a card titled Fern Care. Body: Water Friday.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Card",
+              "enum": [
+                "Card"
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "quiet",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none",
+                    "icon",
+                    "cover"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "body": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "emphasis",
+            "detail",
+            "media",
+            "title",
+            "body",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":null,\"title\":\"Fern Care\",\"body\":\"Water Friday\",\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":null,\"title\":\"Fern Care\",\"body\":\"Water Friday\",\"photo\":null}",
+      "{\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":null,\"title\":\"Fern Care\",\"body\":\"Water Friday\",\"photo\":null}",
+      "{\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":null,\"title\":\"Fern Care\",\"body\":\"Water Friday\",\"photo\":null}"
+    ]
+  },
+  "Card%2Fwrite%2FMake%20a%20card%20titled%20Fern%20Care%2C%20using%20lib%3Aplants%20as%20its%20photo%20reference./168fb7bf0017ac2e/7a4e5ec18e782792": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCard: Show one thing with a title and a little detail.\nprops: { emphasis?: normal|quiet|hero=\"normal\", detail?: full|brief=\"full\", media?: thumb|none|icon|cover=\"thumb\", title: text≤40, body?: text≤120, photo?: photo lib:<tag>|local:<n> }\nRule: Set detail to brief only when asked to hide secondary text. Keep the body text in the data; supplying body copy by itself does not request a detail setting.\nRule: Keep media null for a photo reference alone. Only change media when asked how to display the image, such as a large cover.\nRule: A request for a focal point changes emphasis only. Supplying a title or body does not request emphasis. Do not add a photo or set media unless asked.\nexample: {\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":null,\"title\":\"Fern\",\"body\":\"Water on Fridays\",\"photo\":\"lib:plants\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Make a card titled Fern Care, using lib:plants as its photo reference.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Card",
+              "enum": [
+                "Card"
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "quiet",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none",
+                    "icon",
+                    "cover"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "body": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "emphasis",
+            "detail",
+            "media",
+            "title",
+            "body",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":null,\"title\":\"Fern Care\",\"body\":null,\"photo\":\"lib:plants\"}",
+    "replies": [
+      "{\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":null,\"title\":\"Fern Care\",\"body\":null,\"photo\":\"lib:plants\"}",
+      "{\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":null,\"title\":\"Fern Care\",\"body\":null,\"photo\":\"lib:plants\"}",
+      "{\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":null,\"title\":\"Fern Care\",\"body\":null,\"photo\":\"lib:plants\"}"
+    ]
+  },
+  "Card%2Fwrite%2FMake%20a%20card%20titled%20Morning%20Walk./14bedb5f1c4e4ed6/cc476c15fb44ac4e": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCard: Show one thing with a title and a little detail.\nprops: { emphasis?: normal|quiet|hero=\"normal\", detail?: full|brief=\"full\", media?: thumb|none|icon|cover=\"thumb\", title: text≤40, body?: text≤120, photo?: photo lib:<tag>|local:<n> }\nRule: Set detail to brief only when asked to hide secondary text. Keep the body text in the data; supplying body copy by itself does not request a detail setting.\nRule: Keep media null for a photo reference alone. Only change media when asked how to display the image, such as a large cover.\nRule: A request for a focal point changes emphasis only. Supplying a title or body does not request emphasis. Do not add a photo or set media unless asked.\nexample: {\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":null,\"title\":\"Fern\",\"body\":\"Water on Fridays\",\"photo\":\"lib:plants\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Make a card titled Morning Walk.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Card",
+              "enum": [
+                "Card"
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "quiet",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none",
+                    "icon",
+                    "cover"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "body": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "emphasis",
+            "detail",
+            "media",
+            "title",
+            "body",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":null,\"title\":\"Morning Walk\",\"body\":null,\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":null,\"title\":\"Morning Walk\",\"body\":null,\"photo\":null}",
+      "{\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":null,\"title\":\"Morning Walk\",\"body\":null,\"photo\":null}",
+      "{\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":null,\"title\":\"Morning Walk\",\"body\":null,\"photo\":null}"
+    ]
+  },
+  "Card%2Fwrite%2FMake%20a%20Fern%20care%20card%20with%20Water%20Friday%20as%20its%20detail%2C%20but%20use%20a%20title-only%20view%20that%20hides%20secondary%20text./f03e6091ffd59021/64df3decc9eb3598": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCard: Show one thing with a title and a little detail.\nprops: { emphasis?: normal|quiet|hero=\"normal\", detail?: full|brief=\"full\", media?: thumb|none|icon|cover=\"thumb\", title: text≤40, body?: text≤120, photo?: photo lib:<tag>|local:<n> }\nRule: Set detail to brief only when asked to hide secondary text. Keep the body text in the data; supplying body copy by itself does not request a detail setting.\nRule: Keep media null for a photo reference alone. Only change media when asked how to display the image, such as a large cover.\nRule: A request for a focal point changes emphasis only. Supplying a title or body does not request emphasis. Do not add a photo or set media unless asked.\nexample: {\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":null,\"title\":\"Fern\",\"body\":\"Water on Fridays\",\"photo\":\"lib:plants\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Make a Fern care card with Water Friday as its detail, but use a title-only view that hides secondary text.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Card",
+              "enum": [
+                "Card"
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "quiet",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none",
+                    "icon",
+                    "cover"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "body": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "emphasis",
+            "detail",
+            "media",
+            "title",
+            "body",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Card\",\"emphasis\":null,\"detail\":\"brief\",\"media\":null,\"title\":\"Fern\",\"body\":\"Water on Fridays\",\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Card\",\"emphasis\":null,\"detail\":\"brief\",\"media\":null,\"title\":\"Fern\",\"body\":\"Water on Fridays\",\"photo\":null}",
+      "{\"c\":\"Card\",\"emphasis\":null,\"detail\":\"brief\",\"media\":null,\"title\":\"Fern\",\"body\":\"Water on Fridays\",\"photo\":null}",
+      "{\"c\":\"Card\",\"emphasis\":null,\"detail\":\"brief\",\"media\":null,\"title\":\"Fern\",\"body\":\"Water on Fridays\",\"photo\":null}"
+    ]
+  },
+  "Card%2Fwrite%2FMake%20the%20Morning%20Walk%20card%20the%20big%20focal%20point%20of%20the%20screen./21e0964894450fb8/5d6eb2ec65808a1d": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCard: Show one thing with a title and a little detail.\nprops: { emphasis?: normal|quiet|hero=\"normal\", detail?: full|brief=\"full\", media?: thumb|none|icon|cover=\"thumb\", title: text≤40, body?: text≤120, photo?: photo lib:<tag>|local:<n> }\nRule: Set detail to brief only when asked to hide secondary text. Keep the body text in the data; supplying body copy by itself does not request a detail setting.\nRule: Keep media null for a photo reference alone. Only change media when asked how to display the image, such as a large cover.\nRule: A request for a focal point changes emphasis only. Supplying a title or body does not request emphasis. Do not add a photo or set media unless asked.\nexample: {\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":null,\"title\":\"Fern\",\"body\":\"Water on Fridays\",\"photo\":\"lib:plants\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Make the Morning Walk card the big focal point of the screen.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Card",
+              "enum": [
+                "Card"
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "quiet",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none",
+                    "icon",
+                    "cover"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "body": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "emphasis",
+            "detail",
+            "media",
+            "title",
+            "body",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Card\",\"emphasis\":\"hero\",\"detail\":null,\"media\":null,\"title\":\"Morning Walk\",\"body\":null,\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Card\",\"emphasis\":\"hero\",\"detail\":null,\"media\":null,\"title\":\"Morning Walk\",\"body\":null,\"photo\":null}",
+      "{\"c\":\"Card\",\"emphasis\":\"hero\",\"detail\":null,\"media\":null,\"title\":\"Morning Walk\",\"body\":null,\"photo\":null}",
+      "{\"c\":\"Card\",\"emphasis\":\"hero\",\"detail\":null,\"media\":null,\"title\":\"Morning Walk\",\"body\":null,\"photo\":null}"
+    ]
+  },
+  "Card%2Fwrite%2FShow%20Fern%20with%20the%20photo%20lib%3Aplants%20as%20a%20large%20cover%20image%20across%20the%20top./d9089efcd7d94928/fd4ca8f7b1b3dbc4": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCard: Show one thing with a title and a little detail.\nprops: { emphasis?: normal|quiet|hero=\"normal\", detail?: full|brief=\"full\", media?: thumb|none|icon|cover=\"thumb\", title: text≤40, body?: text≤120, photo?: photo lib:<tag>|local:<n> }\nRule: Set detail to brief only when asked to hide secondary text. Keep the body text in the data; supplying body copy by itself does not request a detail setting.\nRule: Keep media null for a photo reference alone. Only change media when asked how to display the image, such as a large cover.\nRule: A request for a focal point changes emphasis only. Supplying a title or body does not request emphasis. Do not add a photo or set media unless asked.\nexample: {\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":null,\"title\":\"Fern\",\"body\":\"Water on Fridays\",\"photo\":\"lib:plants\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show Fern with the photo lib:plants as a large cover image across the top.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Card",
+              "enum": [
+                "Card"
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "quiet",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none",
+                    "icon",
+                    "cover"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "body": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "emphasis",
+            "detail",
+            "media",
+            "title",
+            "body",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":\"cover\",\"title\":\"Fern\",\"body\":null,\"photo\":\"lib:plants\"}",
+    "replies": [
+      "{\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":\"cover\",\"title\":\"Fern\",\"body\":null,\"photo\":\"lib:plants\"}",
+      "{\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":\"cover\",\"title\":\"Fern\",\"body\":null,\"photo\":\"lib:plants\"}",
+      "{\"c\":\"Card\",\"emphasis\":null,\"detail\":null,\"media\":\"cover\",\"title\":\"Fern\",\"body\":null,\"photo\":\"lib:plants\"}"
     ]
   },
   "cf6023a60502974b": {
@@ -10113,6 +11155,2490 @@
       "{\"c\":\"List\",\"density\":null,\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
       "{\"c\":\"List\",\"density\":null,\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
       "{\"c\":\"List\",\"density\":null,\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}"
+    ]
+  },
+  "List%2Fwrite%2FGroup%20Monday%20fern%20care%20and%20Tuesday%20basil%20care%20under%20date%20headings./351e6dbdc3ea0256/70850335a3734ef4": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nList: Show several things of the same kind.\nprops: { arrange?: rows|grid|strip=\"rows\", group?: none|sections|dates=\"none\", overflow?: all|peek|page=\"all\", lead?: none|icon|avatar|number=\"none\", trail?: none|chevron|value|toggle=\"none\", rows: [1..6 { title: text≤28, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use group dates only for date headings. A day mentioned in item content is not a heading request.\nRule: A See all link for the whole list changes overflow, not the row trail.\nexample: {\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"tone\":null,\"mark\":null,\"title\":\"Fern\"},{\"tone\":null,\"mark\":null,\"title\":\"Basil\"},{\"tone\":null,\"mark\":null,\"title\":\"Aloe\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Group Monday fern care and Tuesday basil care under date headings.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "List",
+              "enum": [
+                "List"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid",
+                    "strip"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "sections",
+                    "dates"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "overflow": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "peek",
+                    "page"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lead": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "icon",
+                    "avatar",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "trail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "chevron",
+                    "value",
+                    "toggle"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "tone": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "neutral",
+                          "good",
+                          "warn",
+                          "bad"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "mark": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "highlight",
+                          "muted",
+                          "new"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "tone",
+                  "mark"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "group",
+            "overflow",
+            "lead",
+            "trail",
+            "rows"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"List\",\"arrange\":null,\"group\":\"dates\",\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern care\",\"tone\":null,\"mark\":null},{\"title\":\"Basil care\",\"tone\":null,\"mark\":null}]}",
+    "replies": [
+      "{\"c\":\"List\",\"arrange\":null,\"group\":\"dates\",\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern care\",\"tone\":null,\"mark\":null},{\"title\":\"Basil care\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":\"dates\",\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Monday fern care\",\"tone\":null,\"mark\":null},{\"title\":\"Tuesday basil care\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":\"dates\",\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Monday fern care\",\"tone\":null,\"mark\":null},{\"title\":\"Tuesday basil care\",\"tone\":null,\"mark\":null}]}"
+    ]
+  },
+  "List%2Fwrite%2FKeep%20all%20four%20items%20in%20the%20list%3A%20Watering%2C%20Pruning%2C%20Feeding%20and%20Repotting.%20On%20screen%2C%20show%20only%20the%20first%20few%2C%20with%20one%20See%20all%20link%20for%20the%20whole%20list./e07247c2f26c7296/067b3336c150f4f4": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nList: Show several things of the same kind.\nprops: { arrange?: rows|grid|strip=\"rows\", group?: none|sections|dates=\"none\", overflow?: all|peek|page=\"all\", lead?: none|icon|avatar|number=\"none\", trail?: none|chevron|value|toggle=\"none\", rows: [1..6 { title: text≤28, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use group dates only for date headings. A day mentioned in item content is not a heading request.\nRule: A See all link for the whole list changes overflow, not the row trail.\nexample: {\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"tone\":null,\"mark\":null,\"title\":\"Fern\"},{\"tone\":null,\"mark\":null,\"title\":\"Basil\"},{\"tone\":null,\"mark\":null,\"title\":\"Aloe\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Keep all four items in the list: Watering, Pruning, Feeding and Repotting. On screen, show only the first few, with one See all link for the whole list.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "List",
+              "enum": [
+                "List"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid",
+                    "strip"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "sections",
+                    "dates"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "overflow": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "peek",
+                    "page"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lead": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "icon",
+                    "avatar",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "trail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "chevron",
+                    "value",
+                    "toggle"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "tone": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "neutral",
+                          "good",
+                          "warn",
+                          "bad"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "mark": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "highlight",
+                          "muted",
+                          "new"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "tone",
+                  "mark"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "group",
+            "overflow",
+            "lead",
+            "trail",
+            "rows"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":\"peek\",\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Watering\",\"tone\":null,\"mark\":null},{\"title\":\"Pruning\",\"tone\":null,\"mark\":null},{\"title\":\"Feeding\",\"tone\":null,\"mark\":null},{\"title\":\"Repotting\",\"tone\":null,\"mark\":null}]}",
+    "replies": [
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":\"peek\",\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Watering\",\"tone\":null,\"mark\":null},{\"title\":\"Pruning\",\"tone\":null,\"mark\":null},{\"title\":\"Feeding\",\"tone\":null,\"mark\":null},{\"title\":\"Repotting\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":\"peek\",\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Watering\",\"tone\":null,\"mark\":null},{\"title\":\"Pruning\",\"tone\":null,\"mark\":null},{\"title\":\"Feeding\",\"tone\":null,\"mark\":null},{\"title\":\"Repotting\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":\"peek\",\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Watering\",\"tone\":null,\"mark\":null},{\"title\":\"Pruning\",\"tone\":null,\"mark\":null},{\"title\":\"Feeding\",\"tone\":null,\"mark\":null},{\"title\":\"Repotting\",\"tone\":null,\"mark\":null}]}"
+    ]
+  },
+  "List%2Fwrite%2FLay%20out%20Fern%2C%20Basil%20and%20Aloe%20in%20a%20grid%20instead%20of%20a%20single%20column./fda47a345e58ae8f/a6ebb00b5602b0db": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nList: Show several things of the same kind.\nprops: { arrange?: rows|grid|strip=\"rows\", group?: none|sections|dates=\"none\", overflow?: all|peek|page=\"all\", lead?: none|icon|avatar|number=\"none\", trail?: none|chevron|value|toggle=\"none\", rows: [1..6 { title: text≤28, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use group dates only for date headings. A day mentioned in item content is not a heading request.\nRule: A See all link for the whole list changes overflow, not the row trail.\nexample: {\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"tone\":null,\"mark\":null,\"title\":\"Fern\"},{\"tone\":null,\"mark\":null,\"title\":\"Basil\"},{\"tone\":null,\"mark\":null,\"title\":\"Aloe\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Lay out Fern, Basil and Aloe in a grid instead of a single column.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "List",
+              "enum": [
+                "List"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid",
+                    "strip"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "sections",
+                    "dates"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "overflow": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "peek",
+                    "page"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lead": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "icon",
+                    "avatar",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "trail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "chevron",
+                    "value",
+                    "toggle"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "tone": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "neutral",
+                          "good",
+                          "warn",
+                          "bad"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "mark": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "highlight",
+                          "muted",
+                          "new"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "tone",
+                  "mark"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "group",
+            "overflow",
+            "lead",
+            "trail",
+            "rows"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"List\",\"arrange\":\"grid\",\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+    "replies": [
+      "{\"c\":\"List\",\"arrange\":\"grid\",\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":\"grid\",\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":\"grid\",\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}"
+    ]
+  },
+  "List%2Fwrite%2FList%20Fern%2C%20Basil%20and%20Aloe./d73fc7e3b874769a/c8c03216deff745d": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nList: Show several things of the same kind.\nprops: { arrange?: rows|grid|strip=\"rows\", group?: none|sections|dates=\"none\", overflow?: all|peek|page=\"all\", lead?: none|icon|avatar|number=\"none\", trail?: none|chevron|value|toggle=\"none\", rows: [1..6 { title: text≤28, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use group dates only for date headings. A day mentioned in item content is not a heading request.\nRule: A See all link for the whole list changes overflow, not the row trail.\nexample: {\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"tone\":null,\"mark\":null,\"title\":\"Fern\"},{\"tone\":null,\"mark\":null,\"title\":\"Basil\"},{\"tone\":null,\"mark\":null,\"title\":\"Aloe\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: List Fern, Basil and Aloe.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "List",
+              "enum": [
+                "List"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid",
+                    "strip"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "sections",
+                    "dates"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "overflow": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "peek",
+                    "page"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lead": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "icon",
+                    "avatar",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "trail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "chevron",
+                    "value",
+                    "toggle"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "tone": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "neutral",
+                          "good",
+                          "warn",
+                          "bad"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "mark": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "highlight",
+                          "muted",
+                          "new"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "tone",
+                  "mark"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "group",
+            "overflow",
+            "lead",
+            "trail",
+            "rows"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+    "replies": [
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}"
+    ]
+  },
+  "List%2Fwrite%2FList%20Fern%2C%20Basil%20and%20Aloe%20in%20that%20order./68635a7da0cd6540/a524336032633409": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nList: Show several things of the same kind.\nprops: { arrange?: rows|grid|strip=\"rows\", group?: none|sections|dates=\"none\", overflow?: all|peek|page=\"all\", lead?: none|icon|avatar|number=\"none\", trail?: none|chevron|value|toggle=\"none\", rows: [1..6 { title: text≤28, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use group dates only for date headings. A day mentioned in item content is not a heading request.\nRule: A See all link for the whole list changes overflow, not the row trail.\nexample: {\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"tone\":null,\"mark\":null,\"title\":\"Fern\"},{\"tone\":null,\"mark\":null,\"title\":\"Basil\"},{\"tone\":null,\"mark\":null,\"title\":\"Aloe\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: List Fern, Basil and Aloe in that order.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "List",
+              "enum": [
+                "List"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid",
+                    "strip"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "sections",
+                    "dates"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "overflow": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "peek",
+                    "page"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lead": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "icon",
+                    "avatar",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "trail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "chevron",
+                    "value",
+                    "toggle"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "tone": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "neutral",
+                          "good",
+                          "warn",
+                          "bad"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "mark": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "highlight",
+                          "muted",
+                          "new"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "tone",
+                  "mark"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "group",
+            "overflow",
+            "lead",
+            "trail",
+            "rows"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+    "replies": [
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}"
+    ]
+  },
+  "List%2Fwrite%2FList%20Fern%2C%20Basil%20and%20Aloe%20with%20a%20number%20at%20the%20start%20of%20each%20row./901df31ef212acad/183b0f817bd9c16d": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nList: Show several things of the same kind.\nprops: { arrange?: rows|grid|strip=\"rows\", group?: none|sections|dates=\"none\", overflow?: all|peek|page=\"all\", lead?: none|icon|avatar|number=\"none\", trail?: none|chevron|value|toggle=\"none\", rows: [1..6 { title: text≤28, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use group dates only for date headings. A day mentioned in item content is not a heading request.\nRule: A See all link for the whole list changes overflow, not the row trail.\nexample: {\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"tone\":null,\"mark\":null,\"title\":\"Fern\"},{\"tone\":null,\"mark\":null,\"title\":\"Basil\"},{\"tone\":null,\"mark\":null,\"title\":\"Aloe\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: List Fern, Basil and Aloe with a number at the start of each row.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "List",
+              "enum": [
+                "List"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid",
+                    "strip"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "sections",
+                    "dates"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "overflow": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "peek",
+                    "page"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lead": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "icon",
+                    "avatar",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "trail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "chevron",
+                    "value",
+                    "toggle"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "tone": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "neutral",
+                          "good",
+                          "warn",
+                          "bad"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "mark": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "highlight",
+                          "muted",
+                          "new"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "tone",
+                  "mark"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "group",
+            "overflow",
+            "lead",
+            "trail",
+            "rows"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":\"number\",\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+    "replies": [
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":\"number\",\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":\"number\",\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":\"number\",\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}"
+    ]
+  },
+  "List%2Fwrite%2FList%20Fern%2C%20Basil%20and%20Aloe%2C%20in%20that%20order.%20Give%20only%20Fern%20a%20warning%20status./062ec0dc386dcffa/d0d072ebaf96752f": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nList: Show several things of the same kind.\nprops: { arrange?: rows|grid|strip=\"rows\", group?: none|sections|dates=\"none\", overflow?: all|peek|page=\"all\", lead?: none|icon|avatar|number=\"none\", trail?: none|chevron|value|toggle=\"none\", rows: [1..6 { title: text≤28, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use group dates only for date headings. A day mentioned in item content is not a heading request.\nRule: A See all link for the whole list changes overflow, not the row trail.\nexample: {\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"tone\":null,\"mark\":null,\"title\":\"Fern\"},{\"tone\":null,\"mark\":null,\"title\":\"Basil\"},{\"tone\":null,\"mark\":null,\"title\":\"Aloe\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: List Fern, Basil and Aloe, in that order. Give only Fern a warning status.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "List",
+              "enum": [
+                "List"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid",
+                    "strip"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "sections",
+                    "dates"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "overflow": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "peek",
+                    "page"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lead": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "icon",
+                    "avatar",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "trail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "chevron",
+                    "value",
+                    "toggle"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "tone": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "neutral",
+                          "good",
+                          "warn",
+                          "bad"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "mark": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "highlight",
+                          "muted",
+                          "new"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "tone",
+                  "mark"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "group",
+            "overflow",
+            "lead",
+            "trail",
+            "rows"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":\"warn\",\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+    "replies": [
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":\"warn\",\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":\"warn\",\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":\"warn\",\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}"
+    ]
+  },
+  "List%2Fwrite%2FList%20Fern%2C%20Basil%20and%20Aloe%2C%20in%20that%20order.%20Visually%20highlight%20only%20the%20first%20row%20for%20Fern./3cdba0df89912b5a/e9ebc871e1f45f58": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nList: Show several things of the same kind.\nprops: { arrange?: rows|grid|strip=\"rows\", group?: none|sections|dates=\"none\", overflow?: all|peek|page=\"all\", lead?: none|icon|avatar|number=\"none\", trail?: none|chevron|value|toggle=\"none\", rows: [1..6 { title: text≤28, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use group dates only for date headings. A day mentioned in item content is not a heading request.\nRule: A See all link for the whole list changes overflow, not the row trail.\nexample: {\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"tone\":null,\"mark\":null,\"title\":\"Fern\"},{\"tone\":null,\"mark\":null,\"title\":\"Basil\"},{\"tone\":null,\"mark\":null,\"title\":\"Aloe\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: List Fern, Basil and Aloe, in that order. Visually highlight only the first row for Fern.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "List",
+              "enum": [
+                "List"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid",
+                    "strip"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "sections",
+                    "dates"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "overflow": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "peek",
+                    "page"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lead": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "icon",
+                    "avatar",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "trail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "chevron",
+                    "value",
+                    "toggle"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "tone": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "neutral",
+                          "good",
+                          "warn",
+                          "bad"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "mark": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "highlight",
+                          "muted",
+                          "new"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "tone",
+                  "mark"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "group",
+            "overflow",
+            "lead",
+            "trail",
+            "rows"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":\"highlight\"},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+    "replies": [
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":\"highlight\"},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":\"highlight\"},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":\"highlight\"},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}"
+    ]
+  },
+  "List%2Fwrite%2FList%20reminders%20for%20Fern%20and%20Basil./af3f6bad0638d870/fe894516faa49151": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nList: Show several things of the same kind.\nprops: { arrange?: rows|grid|strip=\"rows\", group?: none|sections|dates=\"none\", overflow?: all|peek|page=\"all\", lead?: none|icon|avatar|number=\"none\", trail?: none|chevron|value|toggle=\"none\", rows: [1..6 { title: text≤28, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use group dates only for date headings. A day mentioned in item content is not a heading request.\nRule: A See all link for the whole list changes overflow, not the row trail.\nexample: {\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"tone\":null,\"mark\":null,\"title\":\"Fern\"},{\"tone\":null,\"mark\":null,\"title\":\"Basil\"},{\"tone\":null,\"mark\":null,\"title\":\"Aloe\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: List reminders for Fern and Basil.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "List",
+              "enum": [
+                "List"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid",
+                    "strip"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "sections",
+                    "dates"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "overflow": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "peek",
+                    "page"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lead": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "icon",
+                    "avatar",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "trail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "chevron",
+                    "value",
+                    "toggle"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "tone": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "neutral",
+                          "good",
+                          "warn",
+                          "bad"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "mark": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "highlight",
+                          "muted",
+                          "new"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "tone",
+                  "mark"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "group",
+            "overflow",
+            "lead",
+            "trail",
+            "rows"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null}]}",
+    "replies": [
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null}]}"
+    ]
+  },
+  "List%2Fwrite%2FList%20reminders%20for%20Fern%20and%20Basil%2C%20with%20an%20on%2Foff%20switch%20at%20the%20end%20of%20each%20row./08fe9c577c79d07d/ab27991484d52e41": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nList: Show several things of the same kind.\nprops: { arrange?: rows|grid|strip=\"rows\", group?: none|sections|dates=\"none\", overflow?: all|peek|page=\"all\", lead?: none|icon|avatar|number=\"none\", trail?: none|chevron|value|toggle=\"none\", rows: [1..6 { title: text≤28, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use group dates only for date headings. A day mentioned in item content is not a heading request.\nRule: A See all link for the whole list changes overflow, not the row trail.\nexample: {\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"tone\":null,\"mark\":null,\"title\":\"Fern\"},{\"tone\":null,\"mark\":null,\"title\":\"Basil\"},{\"tone\":null,\"mark\":null,\"title\":\"Aloe\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: List reminders for Fern and Basil, with an on/off switch at the end of each row.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "List",
+              "enum": [
+                "List"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid",
+                    "strip"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "sections",
+                    "dates"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "overflow": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "peek",
+                    "page"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lead": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "icon",
+                    "avatar",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "trail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "chevron",
+                    "value",
+                    "toggle"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "tone": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "neutral",
+                          "good",
+                          "warn",
+                          "bad"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "mark": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "highlight",
+                          "muted",
+                          "new"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "tone",
+                  "mark"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "group",
+            "overflow",
+            "lead",
+            "trail",
+            "rows"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":\"toggle\",\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null}]}",
+    "replies": [
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":\"toggle\",\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":\"toggle\",\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":\"toggle\",\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null}]}"
+    ]
+  },
+  "List%2Fwrite%2FList%20the%20plants%20in%20order%3A%20Fern%20first%2C%20Basil%20second%2C%20Aloe%20third./39f8b0b691143da6/885a28b7dd23a3df": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nList: Show several things of the same kind.\nprops: { arrange?: rows|grid|strip=\"rows\", group?: none|sections|dates=\"none\", overflow?: all|peek|page=\"all\", lead?: none|icon|avatar|number=\"none\", trail?: none|chevron|value|toggle=\"none\", rows: [1..6 { title: text≤28, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use group dates only for date headings. A day mentioned in item content is not a heading request.\nRule: A See all link for the whole list changes overflow, not the row trail.\nexample: {\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"tone\":null,\"mark\":null,\"title\":\"Fern\"},{\"tone\":null,\"mark\":null,\"title\":\"Basil\"},{\"tone\":null,\"mark\":null,\"title\":\"Aloe\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: List the plants in order: Fern first, Basil second, Aloe third.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "List",
+              "enum": [
+                "List"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid",
+                    "strip"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "sections",
+                    "dates"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "overflow": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "peek",
+                    "page"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lead": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "icon",
+                    "avatar",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "trail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "chevron",
+                    "value",
+                    "toggle"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "tone": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "neutral",
+                          "good",
+                          "warn",
+                          "bad"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "mark": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "highlight",
+                          "muted",
+                          "new"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "tone",
+                  "mark"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "group",
+            "overflow",
+            "lead",
+            "trail",
+            "rows"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+    "replies": [
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}"
+    ]
+  },
+  "List%2Fwrite%2FList%20three%20plants%2C%20in%20this%20order%3A%20Fern%2C%20Basil%20and%20Aloe./033a1d2c26ee86cb/5a715a64d671aa7a": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nList: Show several things of the same kind.\nprops: { arrange?: rows|grid|strip=\"rows\", group?: none|sections|dates=\"none\", overflow?: all|peek|page=\"all\", lead?: none|icon|avatar|number=\"none\", trail?: none|chevron|value|toggle=\"none\", rows: [1..6 { title: text≤28, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use group dates only for date headings. A day mentioned in item content is not a heading request.\nRule: A See all link for the whole list changes overflow, not the row trail.\nexample: {\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"tone\":null,\"mark\":null,\"title\":\"Fern\"},{\"tone\":null,\"mark\":null,\"title\":\"Basil\"},{\"tone\":null,\"mark\":null,\"title\":\"Aloe\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: List three plants, in this order: Fern, Basil and Aloe.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "List",
+              "enum": [
+                "List"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid",
+                    "strip"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "sections",
+                    "dates"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "overflow": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "peek",
+                    "page"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lead": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "icon",
+                    "avatar",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "trail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "chevron",
+                    "value",
+                    "toggle"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "tone": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "neutral",
+                          "good",
+                          "warn",
+                          "bad"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "mark": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "highlight",
+                          "muted",
+                          "new"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "tone",
+                  "mark"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "group",
+            "overflow",
+            "lead",
+            "trail",
+            "rows"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+    "replies": [
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Basil\",\"tone\":null,\"mark\":null},{\"title\":\"Aloe\",\"tone\":null,\"mark\":null}]}"
+    ]
+  },
+  "List%2Fwrite%2FList%20Water%20Fern%20and%20Prune%20Basil./1a8be42fe6556239/99cc6202254e5091": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nList: Show several things of the same kind.\nprops: { arrange?: rows|grid|strip=\"rows\", group?: none|sections|dates=\"none\", overflow?: all|peek|page=\"all\", lead?: none|icon|avatar|number=\"none\", trail?: none|chevron|value|toggle=\"none\", rows: [1..6 { title: text≤28, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use group dates only for date headings. A day mentioned in item content is not a heading request.\nRule: A See all link for the whole list changes overflow, not the row trail.\nexample: {\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"tone\":null,\"mark\":null,\"title\":\"Fern\"},{\"tone\":null,\"mark\":null,\"title\":\"Basil\"},{\"tone\":null,\"mark\":null,\"title\":\"Aloe\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: List Water Fern and Prune Basil.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "List",
+              "enum": [
+                "List"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid",
+                    "strip"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "sections",
+                    "dates"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "overflow": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "peek",
+                    "page"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lead": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "icon",
+                    "avatar",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "trail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "chevron",
+                    "value",
+                    "toggle"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "tone": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "neutral",
+                          "good",
+                          "warn",
+                          "bad"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "mark": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "highlight",
+                          "muted",
+                          "new"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "tone",
+                  "mark"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "group",
+            "overflow",
+            "lead",
+            "trail",
+            "rows"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Water Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Prune Basil\",\"tone\":null,\"mark\":null}]}",
+    "replies": [
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Water Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Prune Basil\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Water Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Prune Basil\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Water Fern\",\"tone\":null,\"mark\":null},{\"title\":\"Prune Basil\",\"tone\":null,\"mark\":null}]}"
+    ]
+  },
+  "List%2Fwrite%2FList%20watering%2C%20pruning%2C%20feeding%20and%20repotting./09cc7d8a718580a8/4dc90002e27a42a3": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nList: Show several things of the same kind.\nprops: { arrange?: rows|grid|strip=\"rows\", group?: none|sections|dates=\"none\", overflow?: all|peek|page=\"all\", lead?: none|icon|avatar|number=\"none\", trail?: none|chevron|value|toggle=\"none\", rows: [1..6 { title: text≤28, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use group dates only for date headings. A day mentioned in item content is not a heading request.\nRule: A See all link for the whole list changes overflow, not the row trail.\nexample: {\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"tone\":null,\"mark\":null,\"title\":\"Fern\"},{\"tone\":null,\"mark\":null,\"title\":\"Basil\"},{\"tone\":null,\"mark\":null,\"title\":\"Aloe\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: List watering, pruning, feeding and repotting.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "List",
+              "enum": [
+                "List"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid",
+                    "strip"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "sections",
+                    "dates"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "overflow": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "peek",
+                    "page"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lead": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "icon",
+                    "avatar",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "trail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "chevron",
+                    "value",
+                    "toggle"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "tone": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "neutral",
+                          "good",
+                          "warn",
+                          "bad"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "mark": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "highlight",
+                          "muted",
+                          "new"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "tone",
+                  "mark"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "group",
+            "overflow",
+            "lead",
+            "trail",
+            "rows"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Watering\",\"tone\":null,\"mark\":null},{\"title\":\"Pruning\",\"tone\":null,\"mark\":null},{\"title\":\"Feeding\",\"tone\":null,\"mark\":null},{\"title\":\"Repotting\",\"tone\":null,\"mark\":null}]}",
+    "replies": [
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Watering\",\"tone\":null,\"mark\":null},{\"title\":\"Pruning\",\"tone\":null,\"mark\":null},{\"title\":\"Feeding\",\"tone\":null,\"mark\":null},{\"title\":\"Repotting\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Watering\",\"tone\":null,\"mark\":null},{\"title\":\"Pruning\",\"tone\":null,\"mark\":null},{\"title\":\"Feeding\",\"tone\":null,\"mark\":null},{\"title\":\"Repotting\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Watering\",\"tone\":null,\"mark\":null},{\"title\":\"Pruning\",\"tone\":null,\"mark\":null},{\"title\":\"Feeding\",\"tone\":null,\"mark\":null},{\"title\":\"Repotting\",\"tone\":null,\"mark\":null}]}"
+    ]
+  },
+  "Photo%2Fwrite%2FShow%20the%20photo%20lib%3Adogs./53907de357c9292e/9741bbc5794017cf": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPhoto: Show one picture with an optional caption.\nprops: { aspect?: wide|square|tall=\"wide\", photo: photo lib:<tag>|local:<n>, caption?: text≤80 }\nexample: {\"c\":\"Photo\",\"aspect\":null,\"photo\":\"lib:plants\",\"caption\":\"Morning light\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show the photo lib:dogs.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Photo",
+              "enum": [
+                "Photo"
+              ]
+            },
+            "aspect": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "wide",
+                    "square",
+                    "tall"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "type": "string",
+              "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+            },
+            "caption": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "aspect",
+            "photo",
+            "caption"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Photo\",\"aspect\":null,\"photo\":\"lib:dogs\",\"caption\":null}",
+    "replies": [
+      "{\"c\":\"Photo\",\"aspect\":null,\"photo\":\"lib:dogs\",\"caption\":null}",
+      "{\"c\":\"Photo\",\"aspect\":null,\"photo\":\"lib:dogs\",\"caption\":null}",
+      "{\"c\":\"Photo\",\"aspect\":null,\"photo\":\"lib:dogs\",\"caption\":null}"
+    ]
+  },
+  "Photo%2Fwrite%2FShow%20the%20photo%20lib%3Adogs%20cropped%20to%20a%20square./9cfc98c3da5f6912/890a4a26d592e3ee": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPhoto: Show one picture with an optional caption.\nprops: { aspect?: wide|square|tall=\"wide\", photo: photo lib:<tag>|local:<n>, caption?: text≤80 }\nexample: {\"c\":\"Photo\",\"aspect\":null,\"photo\":\"lib:plants\",\"caption\":\"Morning light\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show the photo lib:dogs cropped to a square.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Photo",
+              "enum": [
+                "Photo"
+              ]
+            },
+            "aspect": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "wide",
+                    "square",
+                    "tall"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "type": "string",
+              "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+            },
+            "caption": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "aspect",
+            "photo",
+            "caption"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Photo\",\"aspect\":\"square\",\"photo\":\"lib:dogs\",\"caption\":null}",
+    "replies": [
+      "{\"c\":\"Photo\",\"aspect\":\"square\",\"photo\":\"lib:dogs\",\"caption\":null}",
+      "{\"c\":\"Photo\",\"aspect\":\"square\",\"photo\":\"lib:dogs\",\"caption\":null}",
+      "{\"c\":\"Photo\",\"aspect\":\"square\",\"photo\":\"lib:dogs\",\"caption\":null}"
     ]
   }
 }

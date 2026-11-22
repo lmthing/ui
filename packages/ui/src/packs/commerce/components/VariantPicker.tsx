@@ -3,25 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { shadeDepths, shadeGroups, shadeUndertones, variantExtra, variantReading } from "../copy";
 import { commerceWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-VariantPicker.generated";
 
 // Core first: Choice/cards chooses plans, not one product's unavailable sizes or fixed colour swatches.
 export const meta = {
   id: "VariantPicker",
   status: "ready",
   group: "input",
-  purpose: "Choose an available size, colour or other option for one product.",
-  pick: "Select the variant of one product, with optional price differences and disabled unavailable options. Not choosing a plan (Choice) or filtering a product list (Chips).",
-  writeHints: [
-    'For hide-price-only requests the shared fields must be {"detail":"brief","density":null,"surface":null}. Swatches and stock status never imply outlined or compact; only an explicit finish request sets a finish field.',
-    "Use zero-based at pointing to an available option, or omit it if unselected. Only swatch style takes a swatch on every option.",
-    "Keep supplied price differences in extra even when hidden. Use null for unrequested variant fields, never explicit defaults.",
-    'For complexion shades set style "shade": each option has depth (fair, light, medium, deep), undertone (cool, neutral, warm), and "swatch":null. For colour swatches set style "swatch" and write "depth":null,"undertone":null on every option.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Variants are stored with their product on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   parts: ["root", "label", "options"],
   items: {
     key: "options",
@@ -170,8 +166,8 @@ function VariantOption({ option, selected, style, detail, density }: {
 
 // prettier-ignore
 export function VariantPicker(input: PickerProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { words } = kit.useWords(commerceWordsFor), scope = kit.usePartContext();
   const optionAt = (option: PickerProps["options"][number], index: number) =>

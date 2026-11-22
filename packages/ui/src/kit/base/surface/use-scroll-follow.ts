@@ -90,8 +90,8 @@ function useFollowRequest(request: FollowRequest) {
     let active = true;
     let stop: (() => void) | undefined;
     const frame = requestAnimationFrame(() => {
-      const handle = scroll.current,
-        target = refs.current.get(address)?.current;
+      const handle = scroll.current;
+      const target = refs.current.get(address)?.current;
       const canReveal = () =>
         active &&
         refs.current.get(address)?.current === target &&

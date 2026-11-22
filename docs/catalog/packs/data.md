@@ -38,8 +38,8 @@ sideways when wider than the phone.
   of `cells` (text(24) for text and status, numbers for number and money, dates for date; one per column),
   `goto` optional, 1–20; `sort` column index optional; `selectable` boolean; `summaryRow` (`sum`, `avg`,
   `count`) optional; `exportable` boolean optional.
-- Styles: density: `compact` (default), `comfortable`; group: `none` (default), `sections`;
-  detail: `full` (default), `brief`. Migrate `style: "compact"` to compact density, and `style: "grouped"`
+- Styles: group: `none` (default), `sections`; detail: `full` (default), `brief`.
+  Density comes from the theme. Saved lines drop `style: "compact"` and migrate `style: "grouped"`
   to group sections. Group by the first status column (first column if none); sort within groups.
 - Parts → actions: `matrix`, `header select`, `summary`, `count` (full detail), `empty`,
   `export press` (with `exportable` and an available host command), `export_label`, `export_status`;
@@ -60,8 +60,7 @@ and an optional value, a count and value total per column, cards movable between
   optional, `who` text(16) optional, `swimlane` text(16) optional, `value` number optional, `goto`, 1–16.
   Column totals are computed within each swimlane when there are swimlanes. Up to four swimlanes,
   including the optional group for unassigned cards.
-- Styles: density: `compact` (default), `comfortable`; surface: `plain` (default), `outlined`;
-  arrange: `strip` (default), `rows`.
+- Styles: arrange: `strip` (default), `rows`.
 - Parts → actions: `columns`, `empty`, `swimlane_1` through `swimlane_4` (one per visible group);
   cards `root press`, cards `root move` (to a column label), cards `title`, `tag`, `who`, `value`.
   · States: filled, empty.
@@ -88,8 +87,7 @@ One to three series over time as lines with labelled axes and the latest values;
 - Writes: `title` text(32), `unit` text(8) optional, `labels` text(6) each, 4–31; `series` of `label`
   text(16), `values` numbers matching `labels`, 1–3; `goal` number optional;
   `range` (`7d`, `30d`, `90d`, `1y`) optional.
-- Styles: density: `comfortable` (default), `compact`; detail: `full` (default), `brief`;
-  surface: `card` (default), `outlined`.
+- Styles: detail: `full` (default), `brief`.
 - Parts → actions: `title`, `axes`, `unit`, `goal` (when supplied), `latest` (full detail), `range` (when supplied),
   `reading` (selected point), `points`, `series_1`, `series_2`, `series_3`; points `root select`
   (reads the value). · States: filled, empty, loading.
@@ -124,8 +122,7 @@ a link to the record.
 - Writes: `kind` (`all`, `created`, `updated`, `deleted`) optional; `entries` of `who` text(20),
   `photo`, `text` text(80), `time` text(12), `goto`, entry `kind` (`created`, `updated`, `deleted`)
   optional, `diff` optional (`old` text(28), `new` text(28)), 1–6.
-- Styles: density: `comfortable` (default), `compact`; surface: `card` (default), `outlined`;
-  lead: `avatar` (default), `none`.
+- Styles: lead: `avatar` (default), `none`.
 - Parts → actions: `title` (empty), `kind select` (with categorized entries); items `root press`,
   `who`, `photo` (with avatar), `text`, `time`, `diff` (when supplied). · States: filled, empty, loading.
 - Real path: a change log kept by a shared app.
@@ -177,7 +174,7 @@ Signature: `bars_grow`.
 - **Wave 6 additions & options:**
   - Added `Funnel` (`data`, `phone`) for 2–6 stage conversion drop-off breakdowns and `SavedViews` (`input`, `phone`) for up to six named query/layout presets.
   - Proposed Core promotion: `FilterBar` moves to Core so multi-field search and filter bars are shared across packs.
-  - Option/style upgrades: `Table` gains section grouping alongside compact density, `summaryRow` and
+  - Option/style upgrades: `Table` gains section grouping, `summaryRow` and
     `export press`; `Board` gains optional `swimlane`; `LineChart` gains `goal` and `range`;
     `ActivityLog` gains `kind` and `diff`. Board folding and WIP tones and LineChart area fills await shared kit support.
 

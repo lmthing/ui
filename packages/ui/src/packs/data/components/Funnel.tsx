@@ -13,10 +13,12 @@ import {
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
 } from "../../../catalog";
 import * as kit from "../../../kit";
 import { funnelLines } from "../copy";
 import { dataWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Funnel.generated";
 
 // Core first: Bars/default compares independent amounts and Bars/share divides a whole; neither computes conversion between ordered stages.
 export const meta = {
@@ -24,18 +26,13 @@ export const meta = {
   status: "ready",
   group: "data",
   tier: "phone",
-  pick: "stage-by-stage drop-off and conversion rates across a sequential pipeline. Not independent categories (Bars), 100% part-to-whole shares (Bars[share]), or movable stage cards (Board).",
-  purpose: "Show where records drop off between ordered stages of a conversion pipeline.",
-  writeHints: [
-    "List two to six stages in pipeline order with raw counts and optional monetary values; code computes all rates. The unit describes the count. Use goto only for an explicitly linked stage.",
-    'Use style "summary" for rows without bars and detail "brief" if monetary amounts should be hidden. Keep the monetary values in the input when merely hiding them.',
-  ],
+  pick: prompt.pick,
+  purpose: prompt.purpose,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   realPath: "stage counts and totals aggregated from stored records on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["value"] } },
@@ -137,7 +134,7 @@ type StageLine = ReturnType<typeof funnelLines>["stages"][number];
 // prettier-ignore
 function FunnelStage({ stage, line, compact, first, density, loading }: {
   stage: FunnelProps["stages"][number]; line: StageLine; compact: boolean;
-  first: boolean; density: FunnelProps["density"]; loading: boolean;
+  first: boolean; density: ThemeDensity; loading: boolean;
 }) {
   const count = { text: line.count, part: "count", role: "figure", compact: true, tabular: true } as const;
   const value = { text: line.value, part: "value", role: compact ? "meta" : "caption", tabular: true } as const;
@@ -167,8 +164,7 @@ function FunnelStage({ stage, line, compact, first, density, loading }: {
 
 // prettier-ignore
 export function Funnel(input: FunnelProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const loading = kit.useComponentState() === "loading";
   const { lang, words } = kit.useWords(dataWordsFor);
@@ -186,7 +182,7 @@ export function Funnel(input: FunnelProps) {
         <FunnelStage key={stage.id} stage={stage} line={stages[index]!} first={index === 0} {...{ compact, loading, density }} />)}
     </kit.KitRowGroup>
   </>;
-  return <kit.KitCard padded {...{ surface, density }}>
+  return <kit.KitCard padded surface="card" density={density}>
     <kit.KitState part="empty" loading={content} density={density}>{content}</kit.KitState>
   </kit.KitCard>;
 }

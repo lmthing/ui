@@ -1,7 +1,7 @@
 import type { Meta } from "../../meta";
 import type { Definition } from "../../probes";
 import type { StateName } from "../../types";
-import { hostOnlyAddresses } from "../action-input";
+import { hostOnlyAddresses } from "../private-controls";
 import { driveAffordances, type driveTarget } from "../drives";
 import { liveInputKey, pickerAt } from "../live-inputs";
 import { linkedInput } from "../linked-edits";
@@ -21,7 +21,7 @@ import {
 } from "../index";
 import { isRuntimeSet, recordClockOffer, setAt } from "../clocks";
 import { itemEditAt, reportEditWire } from "../report-edits";
-import { credentialToggleOn } from "../credential-toggle";
+import { credentialToggleOn } from "../private-controls";
 import type { HostActionPolicy } from "../host-commands";
 import type { ChoiceOption } from "../validate-value";
 

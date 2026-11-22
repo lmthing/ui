@@ -14,27 +14,22 @@ import {
 } from "../copy";
 import { dataWordsFor } from "../lang";
 import * as optionView from "../option-views";
+import { prompt } from "../../../entry/prompt-LineChart.generated";
 
 // Core first: Sparkline/default shows one compact trend, not labelled, selectable points from several series.
 export const meta = {
   id: "LineChart",
   status: "ready",
   group: "data",
-  purpose: "Compare trends over time and inspect individual values.",
-  pick: "Compare one to three time series over four or more labelled points, with labelled axes and readable points. Not a tiny trend under one headline number (Sparkline), category amounts (Bars) or a holding's price (PriceChart).",
-  writeHints: [
-    "Series values are numbers, one per label in the same order. Labels are at most six characters. Do not write axes, latest values, ticks or colours.",
-    'If asked to omit the latest-value summary but keep the chart and point controls, use detail "brief"; otherwise leave detail null. Leave density and surface null unless requested.',
-    'Set goal to the requested numeric threshold. Set range only when a reporting period is specified; it describes all supplied points ("7d", "30d", "90d", or "1y").',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Values aggregated from records on the device.",
   variants: {
-    density: ["comfortable", "compact"],
     detail: ["full", "brief"],
-    surface: ["card", "outlined"],
   },
   variantParts: { "detail.brief": { hides: ["latest"] } },
   parts: [
@@ -161,8 +156,8 @@ type ChartProps = Props<typeof props, typeof meta>;
 // prettier-ignore
 export function LineChart(input: ChartProps) {
   const { title, unit, goal, range } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const { words, lang } = kit.useWords(dataWordsFor);
   const unitLabel = unit ? words.chartUnit(unit) : undefined, goalLabel = goal === undefined ? undefined : chartGoal(goal, unit, lang).label;

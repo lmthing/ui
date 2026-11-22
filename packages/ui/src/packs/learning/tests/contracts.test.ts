@@ -168,8 +168,6 @@ it("keeps each question a strict Writer object and decodes its unused nullable f
   }));
   const reply = {
     c: "Quiz",
-    density: null,
-    surface: null,
     selected_option: null,
     selected_left: null,
     selected_right: null,

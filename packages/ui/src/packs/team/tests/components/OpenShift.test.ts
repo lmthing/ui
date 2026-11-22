@@ -34,7 +34,7 @@ describe("OpenShift schema and boundaries", () => {
       pay: 0,
     };
     const parsed = props.parse({ shifts: Array.from({ length: 6 }, () => shift) });
-    expect(parsed).toMatchObject({ detail: "full", surface: "card" });
+    expect(parsed).toMatchObject({ detail: "full" });
     expect(parsed.shifts).toEqual(Array.from({ length: 6 }, () => ({ ...shift, role: "x".repeat(16) })));
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["shifts"][number]["id"]>().toEqualTypeOf<string>();
@@ -144,8 +144,8 @@ describe("OpenShift parts and reading", () => {
       ...addressedElements(renderInstance("OpenShift", input, "filled", theme)).keys(),
     ];
     const standard = addresses(full);
-    expect(addresses({ ...full, density: "compact" })).toEqual(standard);
-    expect(addresses({ ...full, surface: "outlined" })).toEqual(standard);
+    expect(addresses({ ...full })).toEqual(standard);
+    expect(addresses({ ...full })).toEqual(standard);
     const brief = { ...full, detail: "brief" };
     expect(props.parse(brief).shifts[0]?.pay).toBe(64);
     expect(addresses(brief)).toEqual(standard.filter((part) => !part.endsWith("/pay")));

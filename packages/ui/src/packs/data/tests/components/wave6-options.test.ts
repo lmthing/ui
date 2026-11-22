@@ -99,16 +99,15 @@ it("draws the LineChart goal within the scale and names the reporting period wit
 
 const tableInput = Table.examples[2]!;
 
-it("migrates compact and grouped options without overriding explicit axes", () => {
-  const { density: _density, ...legacy } = Table.examples[0]!;
-  for (const [style, props, expected] of [
-    ["compact", {}, { density: "compact" }],
-    ["compact", { density: "comfortable" }, { density: "comfortable" }],
-    ["grouped", {}, { group: "sections" }],
-    ["grouped", { group: "none" }, { group: "none" }],
+it("drops legacy Table spacing and keeps the migrated or explicit group", () => {
+  for (const [style, props, group] of [
+    ["compact", {}, "none"],
+    ["compact", { density: "comfortable" }, "none"],
+    ["grouped", {}, "sections"],
+    ["grouped", { group: "none" }, "none"],
   ] as const) {
     const { c, id, ...wire } = migrateLine({
-      ...legacy,
+      ...Table.examples[0]!,
       ...props,
       c: "Table",
       id: "t1",
@@ -116,7 +115,8 @@ it("migrates compact and grouped options without overriding explicit axes", () =
     });
     expect([c, id]).toEqual(["Table", "t1"]);
     expect(wire).not.toHaveProperty("style");
-    expect(Table.props.parse(wire)).toMatchObject(expected);
+    expect(wire).not.toHaveProperty("density");
+    expect(Table.props.parse(wire).group).toBe(group);
   }
 });
 

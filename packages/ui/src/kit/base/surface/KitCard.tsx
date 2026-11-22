@@ -5,9 +5,11 @@ import {
   presets,
   space,
   variants,
-  type AxisValue,
   type Swatch,
   type ThemeDensity,
+  type SurfaceFinish,
+  type ContentAlign,
+  type ContentBleed,
 } from "../../../catalog";
 import { useKit, useKitStyle, useVariantDensity } from "../../provider";
 import { useComponentState, usePart } from "../../part";
@@ -29,11 +31,11 @@ type CardProps = {
   /** `inset` cards only: the preset surface (default), a `tinted` fill in the tone, or an `outlined` rule. */
   look?: "surface" | "tinted" | "outlined";
   /** Finish of the enclosing card. `style="cards"` stays a transparent wrapper for individual rows. */
-  surface?: AxisValue<"surface">;
+  surface?: SurfaceFinish;
   density?: ThemeDensity;
-  align?: AxisValue<"align">;
+  align?: ContentAlign;
   /** `edge` cancels the phone gutter when this card is the screen-level frame. */
-  bleed?: AxisValue<"bleed">;
+  bleed?: ContentBleed;
   tone?: SurfaceTone;
   /** Clip children to the rounded corners (a photo at the top of a card). */
   clip?: boolean;
@@ -48,6 +50,8 @@ type CardProps = {
   orientation?: "opposing";
 };
 
+const swatchRoles = ["text", "muted", "accent", "good", "warn", "bad", "onAccent"];
+
 function swatchTheme(parent: string, swatch?: Swatch) {
   if (!swatch) return parent;
   const name = `${parent}_swatch_${swatch}`;
@@ -61,7 +65,7 @@ function swatchTheme(parent: string, swatch?: Swatch) {
     const bold = presets.find((preset) => preset.id === "bold")!;
     const foreground = luminance > 0.179 ? bold.roles.dark.bg : bold.roles.light.surface;
     const theme = { ...getThemes()[parent] };
-    for (const role of ["text", "muted", "accent", "good", "warn", "bad", "onAccent"]) {
+    for (const role of swatchRoles) {
       theme[role] = createVariable({
         key: role,
         name: role,
@@ -71,6 +75,11 @@ function swatchTheme(parent: string, swatch?: Swatch) {
     getThemes()[name] = theme;
   }
   return name;
+}
+
+function swatchCss(swatch: Swatch, theme: string) {
+  const properties = swatchRoles.map((role) => `--${role}:${getThemes()[theme]![role]!.val}`);
+  return `.kit-swatch-${swatch}{${properties.join(";")}}`;
 }
 
 function CardChildren({ loading, children }: { loading: boolean; children: ReactNode }) {
@@ -135,9 +144,7 @@ export function KitCard(props: CardProps) {
           accessibilityLabel={loading ? undefined : label}
           {...action}
         >
-          {swatch && isWeb && (
-            <style>{`.kit-swatch-${swatch}{${["text", "muted", "accent", "good", "warn", "bad", "onAccent"].map((role) => `--${role}:${getThemes()[theme]![role]!.val}`).join(";")}}`}</style>
-          )}
+          {swatch && isWeb && <style>{swatchCss(swatch, theme)}</style>}
           <CardChildren loading={loading}>{children}</CardChildren>
         </Frame>
       </Theme>

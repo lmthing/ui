@@ -60,7 +60,7 @@ describe("Progress schema", () => {
   it("adds item ids only to view props", () => {
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["bars"][number]["id"]>().toEqualTypeOf<string>();
-    expectTypeOf<ViewProps["density"]>().toEqualTypeOf<"comfortable" | "compact" | undefined>();
+    expectTypeOf<ViewProps>().not.toHaveProperty("density");
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
   });
 });
@@ -194,9 +194,9 @@ describe("Progress rendering", () => {
     expect(html).toContain('data-testid="home/c1/r1/amount"');
     expect(props.parse(raw).bars[0]).toMatchObject({ value: 4200, of: 6000 });
   });
-  it.each(meta.variants.density)("draws one addressable item per bar in %s", (density) => {
-    const input = { density, bars: [bar, { ...bar, label: "Carbs", value: 300, of: 200, tone: "bad" }] };
-    const html = renderInstance("Progress", input, "filled", theme);
+  it.each(["comfortable", "compact"] as const)("draws one addressable item per bar in %s", (density) => {
+    const input = { bars: [bar, { ...bar, label: "Carbs", value: 300, of: 200, tone: "bad" }] };
+    const html = renderInstance("Progress", input, "filled", { ...theme, density });
     expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
     for (const index of [1, 2])
       for (const part of ["root", "label", "amount"])

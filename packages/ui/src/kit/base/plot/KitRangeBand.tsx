@@ -21,15 +21,15 @@ type RangeBandProps = {
 );
 
 function scale(min: number, max: number) {
-  const start = Math.min(min, max),
-    end = Math.max(min, max);
+  const start = Math.min(min, max);
+  const end = Math.max(min, max);
   return (n: number) =>
     !Number.isFinite(n) || end === start ? 0.5 : Math.min(1, Math.max(0, (n - start) / (end - start)));
 }
 
 function NormalBand({ low, high, loading }: { low: number; high: number; loading: boolean }) {
-  const lower = Math.min(low, high),
-    upper = Math.max(low, high);
+  const lower = Math.min(low, high);
+  const upper = Math.max(low, high);
   const collapsed = lower === upper;
   return (
     <YStack

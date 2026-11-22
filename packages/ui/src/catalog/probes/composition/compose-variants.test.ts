@@ -7,8 +7,8 @@ import {
   itemVariantProps,
   scoreComposition,
   text,
-  variantProps,
   type ScreenLike,
+  variantProps,
 } from "@lmthing/ui/catalog";
 
 vi.mock("../../migrations", async (load) => {
@@ -24,7 +24,7 @@ vi.mock("../../migrations", async (load) => {
 });
 
 it("checks a legacy List toggle recipe against the migrated wire props", () => {
-  const variants = { surface: ["card", "plain"], trail: ["chevron", "toggle"] } as const;
+  const variants = { trail: ["chevron", "toggle"] } as const;
   const itemAxes = { trail: ["chevron", "toggle"] } as const;
   const defs = {
     ...components,
@@ -61,6 +61,6 @@ it("checks a legacy List toggle recipe against the migrated wire props", () => {
   const result = scoreComposition(JSON.stringify(legacy), archetypes.settings.meta, "simple", defs);
   expect(result.issues).toEqual([]);
   const line = result.screen?.components.find((entry) => entry.c === "List");
-  expect(line?.surface).toBe("card");
+  expect(line).not.toHaveProperty("surface");
   expect(line).not.toHaveProperty("style");
 });
