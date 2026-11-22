@@ -94,9 +94,10 @@ type Thread = {
 export function threadRead(input: unknown, state: StateName, lang?: string): string[] {
   const { number, entries, detail, draft, audience_choices, canBrowseReplies } = input as Thread;
   const { thread: words } = requestsWordsFor(lang);
+  const visible = state === "empty" ? [] : threadOrder(entries);
   return [
     words.heading(number),
-    ...threadOrder(entries).map((entry) => {
+    ...visible.map((entry) => {
       const { event, fact, date, time, audience, fileLabel } = threadEntryCopy(entry, detail, lang);
       return [entry.id, event, fact, entry.by, time, date, audience, entry.photo && words.photo, fileLabel]
         .filter(Boolean)

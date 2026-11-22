@@ -125,7 +125,7 @@ export const examples = [
   ...standardExamples,
   {
     style: "mine",
-    rows: [{ ...standardExamples[0]!.rows[0]!, sla: sampleSla }, standardExamples[0]!.rows[1]!],
+    rows: [{ ...standardExamples[0]!.rows[0]!, sla: sampleSla }],
   },
 ] satisfies z.input<typeof props>[];
 
@@ -186,7 +186,7 @@ export function RequestQueue(input: QueueProps) {
         </kit.KitTrack>
         {state === "filled" && <kit.KitText part="count" role="caption" tone="muted">{counts.count}</kit.KitText>}
       </kit.KitContent>
-      {state === "empty" || !rows.length ? <kit.KitEmpty part="empty" icon="clipboard_list" decorativeIcon {...(state === "filled" || !thing || personal ? { title: empty } : {})} /> : <rowsView.QueueRows {...{ rows, now, density, grouped, personal }} />}
+      {state === "empty" || !rows.length ? <kit.KitEmpty part="empty" icon="clipboard_list" decorativeIcon {...(state === "filled" || !thing ? { title: empty } : {})} /> : <rowsView.QueueRows {...{ rows, now, density, grouped, personal }} />}
       {state === "filled" && counts.more && <kit.KitContent inset="md"><kit.KitText part="more" role="caption" tone="muted">{counts.more}</kit.KitText></kit.KitContent>}
     </>}
   </kit.KitCard>;
