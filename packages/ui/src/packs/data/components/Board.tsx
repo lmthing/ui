@@ -124,26 +124,6 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type ViewProps = c.Props<typeof props, typeof meta>;
-function boardCard(
-  { id, column, goto, title, tag, who, value }: ViewProps["cards"][number],
-  density: c.ThemeDensity,
-  lang: string,
-  currency?: c.AppCurrency,
-): StageCard {
-  const lines: StageCard["lines"][number][] = [{ part: "title", role: "body", text: title, density }];
-  if (tag) lines.push({ part: "tag", role: "caption", tone: "muted", text: tag });
-  if (who) lines.push({ part: "who", role: "caption", tone: "muted", text: who });
-  if (value !== undefined)
-    lines.push({
-      part: "value",
-      role: "number",
-      numberScale: "compact",
-      tabular: true,
-      text: c.moneyLine(value, currency, undefined, lang),
-    });
-  return { id, column, goto, label: title, lines };
-}
-
 export function Board({ columns, cards, density: requestedDensity, surface, arrange }: ViewProps) {
   const density = kit.useVariant("density", meta.variants.density, requestedDensity);
   const layout = kit.useVariant("arrange", meta.variants.arrange, arrange);
@@ -152,6 +132,24 @@ export function Board({ columns, cards, density: requestedDensity, surface, arra
   const currency = kit.useAppCurrency();
   const stages = boardStages(columns, cards, lang, currency);
   const background = state === "empty" && surface === "plain" ? "card" : surface;
+  const cardSlots = (card: ViewProps["cards"][number]): StageCard => {
+    const { id, column, goto, title, tag, who, value } = card;
+    const lines: StageCard["lines"][number][] = [{ part: "title", role: "body", text: title, density }];
+    if (tag) lines.push({ part: "tag", role: "caption", tone: "muted", text: tag });
+    if (who) lines.push({ part: "who", role: "caption", tone: "muted", text: who });
+    if (value !== undefined)
+      lines.push({
+        part: "value",
+        role: "number",
+        numberScale: "compact",
+        tabular: true,
+        text: c.moneyLine(value, currency, undefined, lang),
+      });
+    const destinations = c
+      .itemMoveOffer(meta, { cards, columns }, card)
+      ?.choices.map((label) => ({ label, value: label }));
+    return { id, column, goto, label: title, lines, destinations };
+  };
   return (
     <kit.KitCard density={density} padded={surface === "outlined"} surface={background}>
       {state === "empty" ? (
@@ -167,12 +165,7 @@ export function Board({ columns, cards, density: requestedDensity, surface, arra
             count,
             total: total ? { label: words.boardTotal, value: total } : undefined,
           }))}
-          cards={cards.map((card) => ({
-            ...boardCard(card, density, lang, currency),
-            destinations: c
-              .itemMoveOffer(meta, { cards, columns }, card)
-              ?.choices.map((label) => ({ label, value: label })),
-          }))}
+          cards={cards.map(cardSlots)}
           move={{ caption: words.boardMove, label: words.boardDestination }}
         />
       )}
