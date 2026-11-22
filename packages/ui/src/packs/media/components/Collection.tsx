@@ -56,7 +56,7 @@ export const props = z
     followed: z.boolean(),
     rating: z.number().min(0).max(5).optional(),
     ratingCount: z.int().nonnegative().optional(),
-    tags: z.array(c.text(20)).max(3).optional(),
+    tags: z.array(c.text(20)).min(0).max(3).optional(),
     shelfStatus: c.text(24).optional(),
   })
   .overwrite((value) => (value.detail === "brief" ? { ...value, about: undefined } : value));
