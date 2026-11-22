@@ -147,25 +147,26 @@ describe("Viewings parts and states", () => {
       }
     },
   );
-  it("sends retry to the host in place only when the viewing update is in error", () => {
-    const onAction = vi.fn();
-    const onLink = vi.fn();
-    const input = { viewings: [upcoming] };
-    for (const state of ["error", "filled", "success"] as const) {
-      const screen = { id: "home", components: [{ id: "v1", c: "Viewings", ...input, state }] };
-      const controller = createScreenController({
-        screen,
-        defs: { Viewings },
-        requireMounted: false,
-        onAction,
-        onLink,
-      });
-      expect(controller.press("v1/retry").ok).toBe(state === "error");
-      controller.dispose();
-    }
-    expect(onAction).toHaveBeenCalledExactlyOnceWith({ address: "home/v1/retry", action: "press" });
-    expect(onLink).not.toHaveBeenCalled();
-  });
+});
+
+it("sends retry to the host in place only when the viewing update is in error", () => {
+  const onAction = vi.fn();
+  const onLink = vi.fn();
+  const input = { viewings: [upcoming] };
+  for (const state of ["error", "filled", "success"] as const) {
+    const screen = { id: "home", components: [{ id: "v1", c: "Viewings", ...input, state }] };
+    const controller = createScreenController({
+      screen,
+      defs: { Viewings },
+      requireMounted: false,
+      onAction,
+      onLink,
+    });
+    expect(controller.press("v1/retry").ok).toBe(state === "error");
+    controller.dispose();
+  }
+  expect(onAction).toHaveBeenCalledExactlyOnceWith({ address: "home/v1/retry", action: "press" });
+  expect(onLink).not.toHaveBeenCalled();
 });
 
 describe("Viewings read and act", () => {
