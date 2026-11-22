@@ -52,10 +52,12 @@ export const vault = {
     vault_batch: {
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
+        { allow: ["Note"], required: true },
         { allow: ["ScanBatch"], required: true },
       ],
       defaults: [
         { id: "h1", c: "Header", style: "back" },
+        { id: "n1", c: "Note" },
         { id: "s1", c: "ScanBatch" },
       ],
     },
@@ -89,6 +91,6 @@ export const probes = [
     archetype: "vault",
     layout: "vault_batch",
     brief:
-      "Show a back header titled Assemble scans. Stage the Trot permit packet with these two synthetic page scans in order: Permit lib:trot_permit, Cover sheet lib:trot_cover. Let me reorder or retake either page and save them as one local PDF. Add page opens vault_capture.",
+      "Show a back header titled Assemble scans. Add a note: Check the page order before saving. Stage the Trot permit packet with these two synthetic page scans in order: Permit lib:trot_permit, Cover sheet lib:trot_cover. Let me reorder or retake either page and save them as one local PDF. Add page opens vault_capture.",
   },
 ] satisfies ComposeProbe[];

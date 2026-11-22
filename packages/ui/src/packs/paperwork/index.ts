@@ -45,5 +45,6 @@ export const example = `{"id":"h1","c":"Header","title":"Trot paperwork"}
 {"id":"n5","c":"Note","text":"Renew with your insurer."}
 {"id":"b8","c":"Button","label":"Save date","goto":"paperwork_due"}
 {"id":"h11","c":"Header","style":"back","title":"Assemble scans"}
+{"id":"n6","c":"Note","text":"Check the page order before saving."}
 {"id":"s7","c":"ScanBatch","title":"Trot permit packet","pages":[{"file":"lib:trot_permit","label":"Permit"},{"file":"lib:trot_cover","label":"Cover sheet"}],"captureGoto":"vault_capture"}
 `;
