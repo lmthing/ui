@@ -14,7 +14,7 @@ export const meta = {
     'Rankings use style null (never expand), lead "number", trail "value", and each score in value. Only the person’s row gets me.',
     'For grouped headings use group "sections" and a section label on every row; keep rows in section order.',
     'For See all: overflow "peek"; style and all other axes null unless requested. Output every row, including hidden ones. If asked for names only, write title and leave all other row fields null.',
-    'Use arrange "grid" for two-column quick cards, with style null. A portrait shelf uses style "shelf" and aspect "tall"; set density, surface, detail, arrange, group, overflow, lead, and trail to null unless separately requested. Progress is a fraction (0 to 1) and badge is a short label. Only set unread or pinned on rows explicitly described that way.',
+    'For a photo shelf with a tall crop or portrait covers, output "style":"shelf" and top-level "aspect":"tall". Leave density, surface, detail, arrange, group, overflow, lead, and trail null unless individually requested; never fill in defaults. Use arrange "grid" for two-column quick cards with style null. Progress is a fraction (0 to 1) and badge is a short label. Only set unread or pinned on rows explicitly described that way.',
   ],
   region: "body", weight: 2, tier: "phone",
   realPath: "A query over one thing in the on-device database.",

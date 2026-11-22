@@ -422,6 +422,26 @@ also accept optional `speed` and `loop`; when neither is set, their playback set
 | Non-Player playback | Declare `media.playback` on the component or its items, keyed by the playback part, and declare `play`, `pause`, and optional `stop` at that address. The host's pure `resolvePlayback(address)` returns an opaque token for the media adapter. Use `KitPlayback part="…"`, with the item's `PartScope` for row playback. Stop releases the clip; starting another addressed clip releases the old one. Omit `part` for the existing Player mount. |
 | Discrete playback | Declare `sequence` with `cursor`, ordered `meta.items` (or `count`, a literal or parsed field), and optional `first: 1` for one-based pages. Configure `seek` for an explicit integer target, with `seekAction: "set"` for a `KitSlider` that emits `set`. A declared `item` seek part takes no value or its exact index. `steps.previous`/`steps.next` work with `press` or `decrement`/`increment`; `KitAction` supports pointer and keyboard. `controls: { part, intervalMs, start? }` use `play`, `pause`, and optional `stop` (back to the first index). `start: true` or `{ prop, equals }` starts on mount only. The clock pauses at the end; `useLiveControls` projects the cursor and `sequencePlaying`, and snapshots retain the bounded schema-owned cursor. |
 
+For story gestures, pass `holdToPause={{ part, playingLabel, pausedLabel, pauseLabel, resumeLabel }}` to
+the advancing `KitAction`. `part` names the mounted component-level `sequence.controls.part` with
+`pause` and `play`; the button's own part and action still handle advance. A primary press pauses
+immediately if playing, and release or cancellation resumes only that pause. A release inside the
+button before 250 ms also advances. The hold works on the last step even when advance is unavailable.
+Enter and Space advance, P toggles playback while the web button is focused, and native assistive
+technology can invoke the localized Pause/Resume accessibility action. The supplied localized status
+labels announce playback without replacing the button's name.
+
+For the step bars, use `KitStepsTrack style="segmented"` with `count`, one-based `at` (add one to a
+zero-based sequence cursor), and `progress` (the current step's fraction, default zero). Past bars are
+full and future bars empty. The track is decorative; provide a separate readable slide label.
+For playhead-driven rows, pass `KitScroll follow={{ address, enabled }}`. Use the mounted child's full
+part address (for example, `home/c1/r4/root` for an addressed `KitRow`). The kit reveals the active
+child at the nearest edge along the scroll axis without moving keyboard or accessibility focus.
+It moves immediately in calm or reduced motion, and on Android where smooth scroll cannot be
+interrupted reliably. With follow off, no active address, or during
+manual scrolling, updates do not move the viewport. Updates skipped during scrolling are not
+replayed; a later address change can follow again after scrolling settles.
+
 Media tokens are 1–128 ASCII letters, digits, underscores or hyphens. Hosts keep bytes, file paths, provider errors and scan details out of Writer props, read output and snapshots. Use a Core Camera or FileList link instead when the component only needs navigation.
 
 Core Composer still requires a text draft. Its accepted send consumes the picked file once and
