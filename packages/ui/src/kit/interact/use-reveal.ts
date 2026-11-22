@@ -32,7 +32,7 @@ export function useActionPress(
     action
       ? controller.act({ address, action, ...(value === undefined || action === "copy" ? {} : { value }) })
       : controller.press(address);
-  if (!isWeb || !reveal) return { onPress };
+  if (!isWeb || (!reveal && !controller.mediaKeyTarget(address))) return { onPress };
   return {
     onPress,
     tabIndex: 0,

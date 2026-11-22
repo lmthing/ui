@@ -7,7 +7,10 @@ import {
 } from "../interact";
 import type { PhoneScreenProps } from "./PhoneScreen";
 
-type HostSnapshot = Pick<PhoneScreenProps, "deviceData" | "hostCommands" | "authenticateReveal">;
+type HostSnapshot = Pick<
+  PhoneScreenProps,
+  "deviceData" | "hostCommands" | "authenticateReveal" | "attachments" | "resolvePlayback"
+>;
 function useCommittedHost(
   source: { controller: ScreenController; committed: { snapshot: HostSnapshot } },
   snapshot: HostSnapshot,
@@ -27,15 +30,13 @@ function useCommittedHost(
 export function usePhoneController(props: PhoneScreenProps) {
   const { screen, defs, interaction, interactive = true, media } = props;
   const { requestPhoto, deviceData, hostCommands, parentGate, authenticateReveal } = props;
+  const { attachments, resolvePlayback } = props;
   const callbacks = useRef(props);
   callbacks.current = props;
   const localStore = useMemo(() => createInteractionStore(), [screen.id]);
   const store = interaction ?? localStore;
   const hasMediaResolver = Boolean(props.resolveMedia);
-  const snapshot = useMemo(
-    () => ({ deviceData, hostCommands, authenticateReveal }),
-    [deviceData, hostCommands, authenticateReveal],
-  );
+  const snapshot = useHostSnapshot(props);
   const source = useMemo(() => {
     const committed = { snapshot };
     const controller = createScreenController({
@@ -57,16 +58,13 @@ export function usePhoneController(props: PhoneScreenProps) {
       parentGate,
       interactive,
       requireMounted: true,
-      onChange: (changed, values) => callbacks.current.onChange?.(changed, values),
-      onSend: (text, address) => callbacks.current.onSend?.(text, address),
-      ...(requestPhoto
-        ? {
-            requestPhoto: (address: string) =>
-              callbacks.current.requestPhoto?.(address) ?? Promise.resolve(undefined),
-          }
-        : {}),
-      onLink: (goto, address) => callbacks.current.onLink?.(goto, address),
-      onAction: (step) => callbacks.current.onAction?.(step),
+      ...phoneCallbacks(callbacks),
+      get attachments() {
+        return committed.snapshot.attachments;
+      },
+      get resolvePlayback() {
+        return committed.snapshot.resolvePlayback;
+      },
       media:
         media ??
         (hasMediaResolver
@@ -74,7 +72,54 @@ export function usePhoneController(props: PhoneScreenProps) {
           : undefined),
     });
     return { controller, committed };
-  }, [screen, defs, media, hasMediaResolver, store, interactive, Boolean(requestPhoto), parentGate]);
+  }, [
+    screen,
+    defs,
+    media,
+    Boolean(attachments),
+    Boolean(resolvePlayback),
+    hasMediaResolver,
+    store,
+    interactive,
+    Boolean(requestPhoto),
+    parentGate,
+  ]);
   useCommittedHost(source, snapshot);
   return source.controller;
+}
+
+function phoneCallbacks(callbacks: {
+  current: Pick<
+    PhoneScreenProps,
+    "onLink" | "onAction" | "resolveMedia" | "onChange" | "onSend" | "requestPhoto"
+  >;
+}): Pick<PhoneScreenProps, "onChange" | "onSend" | "requestPhoto" | "onLink" | "onAction"> {
+  return {
+    onChange: (changed, values) => callbacks.current.onChange?.(changed, values),
+    onSend: (text, address, audience, attachments) =>
+      attachments?.length
+        ? callbacks.current.onSend?.(text, address, audience, attachments)
+        : callbacks.current.onSend?.(text, address),
+    ...(callbacks.current.requestPhoto
+      ? {
+          requestPhoto: (address: string) =>
+            callbacks.current.requestPhoto?.(address) ?? Promise.resolve(undefined),
+        }
+      : {}),
+    onLink: (goto, address) => callbacks.current.onLink?.(goto, address),
+    onAction: (step) => callbacks.current.onAction?.(step),
+  };
+}
+
+function useHostSnapshot({
+  deviceData,
+  hostCommands,
+  authenticateReveal,
+  attachments,
+  resolvePlayback,
+}: PhoneScreenProps) {
+  return useMemo(
+    () => ({ deviceData, hostCommands, authenticateReveal, attachments, resolvePlayback }),
+    [deviceData, hostCommands, authenticateReveal, attachments, resolvePlayback],
+  );
 }

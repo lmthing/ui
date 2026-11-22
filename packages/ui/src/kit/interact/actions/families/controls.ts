@@ -37,7 +37,16 @@ export function controlsAction(state: ActionState, action: ActStep, ctx: ActionC
   const message = ctx.send ?? control.send;
   if (message) {
     if (control.send) appendMessage(values, message, ctx);
-    effects.push(() => deliverSend(message, ctx.options.onSend));
+    const references = ctx.send?.attachments?.map(ctx.attachmentReference);
+    if (references?.some((reference) => reference === undefined))
+      return rejected(state, ctx.at, "not_actionable", "An attachment is unavailable");
+    effects.push(() =>
+      deliverSend(
+        message,
+        ctx.options.onSend,
+        references?.filter((reference) => reference !== undefined),
+      ),
+    );
   }
   if (control.requestPhoto && ctx.options.requestPhoto) {
     const target = control.requestPhoto;

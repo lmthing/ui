@@ -1,5 +1,6 @@
 import {
   migrateScreen,
+  mediaHostKey,
   resolveDefinition,
   type ActStep,
   type Definition,
@@ -10,7 +11,14 @@ import {
   type Values,
 } from "../../../catalog";
 import { clipboardRuntime, createInteractionStore, projectScreen, valueKey } from "../index";
-import type { ClipboardText, ClipboardWriter, InteractionStore, MediaAdapter } from "../index";
+import type {
+  AttachmentHost,
+  ClipboardText,
+  ClipboardWriter,
+  InteractionStore,
+  MediaAdapter,
+  PlaybackResolver,
+} from "../index";
 import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
 import { visibleConfirmation } from "./read-controls";
@@ -18,6 +26,7 @@ import { createPrivateMarks } from "./private-mark";
 import { createHostProjection, type HostCommandAdapter, type ParentGate } from "./host";
 import type { AuthenticateReveal } from "./reveal";
 import { expiredProgress } from "./expired-progress";
+import { mediaHostGate, type AttachmentEntries } from "./media";
 export type Confirmation = {
   message: string;
   kind: "primary" | "secondary" | "quiet" | "danger";
@@ -26,12 +35,15 @@ export type Confirmation = {
   step?: ActStep;
   removal?: ReportRemoval;
   host?: true;
+  mediaBound?: true;
 };
 export type ControllerOptions = {
   screen: ScreenLike;
   defs: Record<string, Definition>;
   lang?: string | undefined;
   media?: MediaAdapter | undefined;
+  resolvePlayback?: PlaybackResolver | undefined;
+  attachments?: AttachmentHost | undefined;
   store?: InteractionStore | undefined;
   deviceData?: DeviceData | undefined;
   now?: (() => number) | undefined;
@@ -95,10 +107,12 @@ function createValues(
   store: InteractionStore,
   now: () => number,
   standalone: boolean,
+  attachmentEntries: AttachmentEntries,
 ) {
   const { defs } = options;
+  const host = mediaHostGate(options, screen.id, attachmentEntries);
   let initial = standalone ? {} : initialValues(screen, defs, now);
-  const localOnly = standalone && !screen.components.some(({ c }) => defs[c]?.meta.recordRuntime);
+  const localOnly = standalone && !host && !screen.components.some(({ c }) => defs[c]?.meta.recordRuntime);
   const valuesOf = (at = now()) =>
     localOnly
       ? store.snapshot(screen.id)
@@ -106,6 +120,7 @@ function createValues(
           ...initial,
           ...store.snapshot(),
           ...Object.fromEntries(screen.components.map(({ id }) => [valueKey(screen.id, id, "$now"), at])),
+          ...(host ? { [mediaHostKey]: host } : {}),
         };
   return {
     valuesOf,
@@ -119,21 +134,17 @@ export function createControllerContext(options: RuntimeOptions, standalone = fa
   const { defs, now = Date.now, store = createInteractionStore() } = options;
   const screen = controllerScreen(options, standalone);
   const disabledParts = new Map<string, symbol>();
+  const attachmentEntries: AttachmentEntries = new Map();
   const status = {
     disposed: false,
     openSheet: standalone ? undefined : (store.get(`${screen.id}/$sheet`) as string | undefined),
     confirmation: store.get(`${screen.id}/$confirmation`) as Confirmation | undefined,
   };
-  const { valuesOf, resetValues } = createValues(options, screen, store, now, standalone);
-  const { withPolicy, ...host } = createHostProjection(
-    options,
-    screen,
-    standalone,
-    now,
-    valuesOf,
-    disabledParts,
-    () => store.setMany({}),
+  const { valuesOf, resetValues } = createValues(options, screen, store, now, standalone, attachmentEntries);
+  const host = createHostProjection(options, screen, standalone, now, valuesOf, disabledParts, () =>
+    store.setMany({}),
   );
+  const { withPolicy, ...projection } = host;
   return {
     standalone,
     options,
@@ -144,36 +155,43 @@ export function createControllerContext(options: RuntimeOptions, standalone = fa
     clipboard: createClipboard(options, store, status),
     status,
     valuesOf,
-    ...host,
+    ...projection,
     confirmationFor: (data = options.deviceData, at = now()) =>
-      host.admitted()
-        ? visibleConfirmation(
-            withPolicy(status.confirmation ? valuesOf(at) : {}),
-            defs,
-            status.confirmation,
-            data,
-            at,
-            valuesOf,
-          )
+      status.confirmation && host.admitted()
+        ? visibleConfirmation(withPolicy(valuesOf(at)), defs, status.confirmation, data, at, valuesOf)
         : undefined,
     expiredProgress: (values: Values, at = now()) => expiredProgress(screen, defs, values, at),
     resetValues,
     mounted: new Map<string, symbol>(),
     anchors: new Map<string, (action: "focus" | "jump") => void>(),
     disabledParts,
+    attachmentEntries,
     privateMarks: createPrivateMarks(),
     key: (id: string, part: string) => valueKey(screen.id, id, part),
     relative: (address: string) => relativeAddress(screen.id, address),
     sourceOf: (id: string) => screen.components.find((entry) => entry.id === id),
-    inputOf: (entry: ScreenComponent) => {
-      const { id: _id, c: _c, state: _state, ...input } = entry;
-      return defs[entry.c]!.props.parse(input) as Values;
-    },
+    inputOf: (entry: ScreenComponent) => entryInput(defs, entry),
     notifyChange() {
       if (!options.onChange || !host.admitted()) return;
-      const updated = projectScreen(screen, defs, valuesOf(), now(), status.openSheet, true);
+      const updated = projectScreen(
+        screen,
+        defs,
+        valuesOf(),
+        now(),
+        status.openSheet,
+        true,
+        true,
+        options.deviceData,
+      );
       options.onChange(updated, store.snapshot());
     },
   };
 }
 export type ControllerContext = ReturnType<typeof createControllerContext>;
+
+function entryInput(
+  defs: ControllerOptions["defs"],
+  { id: _id, c, state: _state, ...input }: ScreenComponent,
+) {
+  return defs[c]!.props.parse(input) as Values;
+}

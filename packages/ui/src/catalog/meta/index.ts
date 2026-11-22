@@ -5,6 +5,15 @@ export type { NamedCollection, SlotMoves } from "./collections";
 export type { DriveBindings, DriveCommand, NumericLimits, NumericRange, SiblingPart } from "./runtime";
 export type { ClockCommit, ClockJournal, ClockMeta, ClockSession, ClockTrigger, ClockState } from "./clocks";
 export type { RecordEdit, RecordEdits, RecordSnapshot } from "./record-edits";
-export type { LocalStateEvent, LocalStateRuntime, RecordContext, RecordRuntime } from "./live";
+export type {
+  LocalStateEvent,
+  LocalStateRuntime,
+  RecordContext,
+  RecordRuntime,
+  AttachmentIntent,
+  AttachmentTarget,
+  MediaTargets,
+  SequenceMeta,
+} from "./live";
 export { packIds, type PackId } from "./pack-ids";
 export { packIndex, type PackIndexEntry } from "./pack-index";

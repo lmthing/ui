@@ -1,7 +1,15 @@
 export { createScreenController, type ScreenController } from "./controller";
 export { type AuthenticateReveal } from "./runtime";
-export { browserMediaAdapter, type MediaAdapter, type MediaSession } from "./media";
 export { clipboardRuntime, useCopyFeedback, type ClipboardText, type ClipboardWriter } from "./clipboard";
+export {
+  browserMediaAdapter,
+  type MediaAdapter,
+  type MediaSession,
+  type AttachmentCommand,
+  type AttachmentHost,
+  type PlaybackResolver,
+} from "./media";
+export type { SendHandler } from "./actions";
 export { createInteractionStore, type InteractionStore } from "./store";
 export { createAgentAccess, type ActOptions, type ActReply, type ActLogEntry } from "./agent";
 export {

@@ -118,3 +118,25 @@ export type RecordRuntime = {
     >
   >;
 };
+
+export type AttachmentIntent = "pick" | "scan" | "preview" | "export";
+export type AttachmentTarget = { intent: AttachmentIntent; source?: string };
+
+export type MediaTargets = {
+  /** Scan uses `scan`; the other intents use `press`. Source names a part on the same owner. */
+  attachments?: Readonly<Partial<Record<string, AttachmentTarget>>>;
+  /** `play`, `pause` and `stop` live at the same address. The host resolves the reference. */
+  playback?: Readonly<Partial<Record<string, { video?: true }>>>;
+};
+
+/** A bounded cursor over addressed, visible items or a declared frame/page count. */
+export type SequenceMeta = {
+  seek?: string;
+  seekAction?: "seek" | "set";
+  item?: string;
+  cursor: string;
+  first?: 0 | 1;
+  count?: number | string;
+  steps?: { previous?: string; next?: string };
+  controls?: { part: string; intervalMs: number; start?: true | { prop: string; equals: boolean } };
+};

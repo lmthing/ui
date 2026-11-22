@@ -1,6 +1,6 @@
 import type { LocalStateEvent, Meta } from "../meta";
 import type { Definition } from "../probes";
-import type { StateName, Tier } from "../types";
+import type { StateName } from "../types";
 import { choiceValues, type ChoiceOption } from "./validate-value";
 import { clockActionValid, clockControlDeclared, type numericSetAt } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
@@ -11,10 +11,19 @@ import type { SendDraft } from "./act";
 import { boundActionAvailable, isItemOffer } from "./selection-binding";
 import { itemActionOffer, partsOf } from "./action-input";
 import { collectionOffers } from "./collections";
-import { hostOffer, type HostActionPolicy, type HostIntent } from "./host-commands";
+import type { HostActionPolicy, HostIntent } from "./host-commands";
 import { deviceTimeOf, type DeviceData } from "./device-data";
 import { isLocalAnchorAction } from "./drives";
+import {
+  mediaAffordance,
+  mediaOffer,
+  sequenceAffordance,
+  type MediaOffer,
+  type stageSequence,
+} from "./media";
 
+import { hostOffers, partTierAt } from "./offer-policies";
+export { partTierAt } from "./offer-policies";
 import { numericOffer, type Adjustment } from "./numeric-offer";
 export { isAdjustOnlyItem } from "./numeric-offer";
 
@@ -40,6 +49,8 @@ export type Affordance = {
   replaceToggles?: readonly string[];
   numeric?: NonNullable<ReturnType<typeof numericSetAt>>;
   adjustment?: Adjustment;
+  media?: MediaOffer;
+  sequence?: Parameters<typeof stageSequence>[0];
 };
 type Props = Record<string, unknown>;
 type OfferContext = {
@@ -72,11 +83,11 @@ function actionsForItem(
     .flatMap((offer) => itemActionOffer(meta, props, item, offer, schema));
 }
 
-function actionsForComponent(meta: Meta, props: Props, instance: string) {
+function actionsForComponent(meta: Meta, props: Props, instance: string, values: Props) {
   const { parts, when } = meta.actions ?? {};
   return partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
     if (a.action === "move" && meta.items?.move) return [];
-    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
+    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance, values) : undefined;
     if (send !== undefined) return send ? [{ ...a, send }] : [];
     const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
     return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
@@ -126,7 +137,7 @@ export function affordancesOf(
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   const rows = meta.hostCommands ? new Map(items.map((item) => [String(item.id), item])) : undefined;
   const available = [
-    ...actionsForComponent(meta, props, instance),
+    ...actionsForComponent(meta, props, instance, values),
     ...nested,
     ...collectionOffers(meta, props, instance),
   ].filter((offer) => {
@@ -151,44 +162,15 @@ export function affordancesOf(
       return false;
     return true;
   });
-  const offered = available.flatMap((offer) =>
-    numericOffer(meta, props, instance, offer, get, now, runtime, context.data),
-  );
-  return hostOffers(meta, props, instance, offered, context.host, rows);
-}
-
-function hostOffers(
-  meta: Meta,
-  props: Props,
-  instance: string,
-  offered: Affordance[],
-  policy: HostActionPolicy | undefined,
-  rows: ReadonlyMap<string, Props> | undefined,
-) {
-  if (!meta.hostCommands && !policy) return offered;
-  return offered.flatMap((offer) => {
-    const allowed = hostOffer(
-      meta,
-      props,
-      instance,
-      offer,
-      partTierAt(meta, props, offer.part),
-      policy,
-      rows,
+  const offered = available.flatMap((offer) => {
+    const media = mediaOffer(meta, instance, offer);
+    if (media) return mediaAffordance(meta, props, offer, media, instance, values);
+    const sequence = sequenceAffordance(meta, props, instance, offer, get);
+    return sequence.flatMap((item) =>
+      item.sequence ? [item] : numericOffer(meta, props, instance, item, get, now, runtime, context.data),
     );
-    return allowed ? [allowed] : [];
   });
-}
-
-/** Resolve a part against live props, without changing the component's tier. */
-export function partTierAt(meta: Meta, props: Props, part: string): Tier {
-  const rule = Object.hasOwn(meta.partTiersBy ?? {}, part) ? meta.partTiersBy![part] : undefined;
-  const value = rule && props[rule.prop];
-  if (rule && ["string", "number", "boolean"].includes(typeof value)) {
-    const key = String(value);
-    if (Object.hasOwn(rule.tiers, key) && rule.tiers[key]) return rule.tiers[key];
-  }
-  return meta.partTiers?.[part] ?? meta.tier;
+  return hostOffers(meta, props, instance, offered, context.host, rows);
 }
 
 /** Every action names its own address, so a model copies it and never assembles one: `[l1/r1/trail toggle:on]`. */

@@ -6,7 +6,9 @@ export {
   type ScreenComponent,
 } from "./context";
 export { createClock } from "./clock";
+export { createSequenceClock } from "./sequence";
 export { createMediaRuntime, type MediaRuntime } from "./media";
+export { bindMediaConfirmation } from "./media";
 export { createAct, discardHiddenConfirmation } from "./dispatch";
 export { createAccess, createStandaloneAccess } from "./access";
 export { readControls } from "./read-controls";
@@ -26,3 +28,4 @@ export {
   type PrivateMarkAdapter,
   type PrivateMarkSurfaceProps,
 } from "./private-mark";
+export { controllerLifecycle } from "./lifecycle";

@@ -16,7 +16,7 @@ import {
   type Values,
 } from "../../../../catalog";
 import { planHostAct } from "../../../../catalog/agent/action-input";
-import type { ControllerContext, ScreenComponent } from "../index";
+import type { ControllerContext, ScreenComponent, MediaRuntime } from "../index";
 import {
   actionFailure,
   deliverSend,
@@ -186,4 +186,14 @@ export function introducedPart(
   const source = ctx.liveScreen(initial, sheet, Boolean(sheet));
   const plan = dispatchPlan(ctx, source, initial, action, null);
   return !plan.ok && (Boolean(session) || plan.code === "not_actionable");
+}
+
+export function mediaContext(media: MediaRuntime) {
+  return {
+    playMedia: media.playMedia,
+    seekMedia: media.seekMedia,
+    requestPhoto: media.requestPhoto,
+    mediaEffect: media.effect,
+    attachmentReference: media.attachmentReference,
+  };
 }

@@ -25,6 +25,7 @@ import {
 import type { Confirmation, ControllerContext } from "./context";
 import type { PrivateMarks } from "../../../catalog/agent/action-input";
 import { commandForConfirmation } from "./host";
+import { matchesMediaConfirmation } from "./media";
 
 export function isKeypad(ctx: ControllerContext, full: string) {
   const address = parseAddress(full);
@@ -50,11 +51,15 @@ export function visibleConfirmation(
     : confirmation.source;
   const entry = screen.components.find(({ id }) => id === source.split("/")[0]);
   const meta = entry && defs[entry.c]?.meta;
-  if (!meta) return confirmation;
+  if (!meta) return confirmation.mediaBound ? undefined : confirmation;
   const values = valuesOf(at);
   if (!isDeviceDataVisible(meta, projectDeviceData(data, values))) return;
   const bound = meta.selectionBinding || meta.drives;
-  if (entry && (bound || meta.deviceDataFlags) && confirmation.step) {
+  if (
+    entry &&
+    (bound || meta.deviceDataFlags || meta.media || meta.items?.media || meta.sequence) &&
+    confirmation.step
+  ) {
     const sourceScreen = bound ? screen : { ...screen, components: [entry] };
     const plan = planAct(
       sourceScreen,
@@ -66,14 +71,14 @@ export function visibleConfirmation(
       atDeviceTime(data, at),
       at,
     );
-    if (!plan.ok) return;
+    if (!plan.ok || !matchesMediaConfirmation(confirmation, plan.media?.[0])) return;
   }
   return confirmation;
 }
 
 // Match quoted content as one token so a label cannot be mistaken for an affordance.
 const controlTokens =
-  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (type|set|increment|decrement|focus|jump)(?: = (?:"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?))?(?:; (?:min|max|step) [-+\de.]+(?:, (?:min|max|step) [-+\de.]+)*)?(?: !needs-[a-z]+)?\]/g;
+  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (?:(type|set|increment|decrement|focus|jump)(?: = (?:"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?))?(?:; (?:min|max|step) [-+\de.]+(?:, (?:min|max|step) [-+\de.]+)*)?(?:; range [01]\.\.\d+)?|(?:press|scan):(?:(?:pick|scan|preview|export)(?::(?:pending|ready|error))?|next|previous)|(?:play|pause|stop):(?:playing|paused|stopped|error)|seek(?::\d+| = \d+; range [01]\.\.\d+))(?: !needs-[a-z]+)?\]/g;
 
 function projectValue(input: Values, address: string, parts: readonly string[], values: Values): Values {
   for (const part of parts) {

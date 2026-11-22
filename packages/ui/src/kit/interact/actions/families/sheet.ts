@@ -1,6 +1,6 @@
 import { confirmLabel, type ActStep } from "../../../../catalog";
 import { rejected, type ActionContext, type ActionResult, type ActionState } from "../index";
-import { allowsDestination } from "../../runtime";
+import { allowsDestination, bindMediaConfirmation } from "../../runtime";
 type Confirmation = NonNullable<ActionState["confirmation"]>;
 export function showConfirmation(
   state: ActionState,
@@ -16,14 +16,17 @@ export function showConfirmation(
   return {
     state: {
       ...state,
-      confirmation: {
-        message: String(input.confirm ?? confirmLabel),
-        kind,
-        source,
-        ...(input.goto ? { goto: String(input.goto) } : {}),
-        ...(removal ? { removal } : {}),
-        step: { ...action, address: source },
-      },
+      confirmation: bindMediaConfirmation(
+        {
+          message: String(input.confirm ?? confirmLabel),
+          kind,
+          source,
+          ...(input.goto ? { goto: String(input.goto) } : {}),
+          ...(removal ? { removal } : {}),
+          step: { ...action, address: source },
+        },
+        ctx.media,
+      ),
     },
     effects: [],
   };

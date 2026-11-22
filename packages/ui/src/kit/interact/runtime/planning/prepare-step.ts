@@ -2,7 +2,8 @@ import type { ActResult, ActStep, HostIntent, ScreenLike, Values } from "../../.
 import { selectedStep, stageConfirmedClear, type ActReply } from "../../index";
 import { actionFailure, type ActionContext, type ActionState } from "../../actions";
 import type { ControllerContext, MediaRuntime, ScreenComponent } from "../index";
-import { confirmReport, dispatchPlan, inactive, introducedPart } from "./introduced-part";
+import { confirmReport, dispatchPlan, inactive, introducedPart, mediaContext } from "./introduced-part";
+import { matchesMediaConfirmation } from "../media";
 import { actionInput, disabledHint } from "./action-input";
 
 export type PreparedAction = {
@@ -25,6 +26,8 @@ function confirmedValues(
   confirmed: NonNullable<ActionState["confirmation"]>,
   at: number,
 ) {
+  if (!matchesMediaConfirmation(confirmed, plan.media?.[0]))
+    return { error: actionFailure(at, "not_actionable", "The attachment changed") };
   if (confirmed.host && !plan.hostCommands?.length)
     return { error: actionFailure(at, "not_actionable", "The host command changed") };
   if (plan.hostCommands?.length) return { values: plan.values };
@@ -86,13 +89,13 @@ export function prepareStep(
       links: plan.links,
       anchors: plan.anchors,
       send: plan.sends?.[0],
+      media: plan.media?.[0],
+      sequence: plan.sequence,
       at,
       now: ctx.now,
       key: ctx.key,
       options: ctx.options,
-      playMedia: media.playMedia,
-      seekMedia: media.seekMedia,
-      requestPhoto: media.requestPhoto,
+      ...mediaContext(media),
     },
   };
 }

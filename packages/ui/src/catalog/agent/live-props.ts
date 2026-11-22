@@ -11,6 +11,7 @@ import { projectLegacySelection, projectNested, projectSelection } from "./selec
 import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
 import { projectCollections, projectDerivedMoves, projectMoves } from "./action-input";
 import { hasWireNestedControls, nestedChoiceSeed } from "./nested";
+import { projectSequence } from "./media";
 import { projectLocalState, projectRecordRuntime } from "./record-runtime";
 import {
   hasLiveAdjustments,
@@ -176,7 +177,7 @@ export function liveProps(
   props = projectCollections(meta, props, get);
   // Reapply to rows that a live or host projection may have replaced.
   if (meta.select?.runtime) props = projectLegacySelection(meta, props, get);
-  props = projectDeviceFlags(meta, props, data);
+  props = projectSequence(meta, projectDeviceFlags(meta, props, data), get);
   if (runtime && meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
     props = { ...props, minus: undefined };
   if (meta.id === "Field" || meta.id === "Search") {

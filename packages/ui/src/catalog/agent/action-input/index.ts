@@ -45,6 +45,11 @@ export function validateStep(
   key: string,
 ) {
   const edit = setStep(screen, defs, found, step.action, values);
+  if (found.sequence?.action === "seek") {
+    const { implicit, min, max } = found.sequence;
+    const result = validateActionValue(step.action, step.value, undefined, { max, min, implicit });
+    return { result: result ?? { value: implicit ?? step.value }, edit, limits: undefined };
+  }
   const limits = found.move
     ? { type: "choice" as const, choices: found.move.choices }
     : (edit?.set?.spec ?? nestedSpec(screen, defs, found.address));
@@ -121,7 +126,6 @@ export function controlsAreValid(
   return projected === repaired || def.props.safeParse(projected).success;
 }
 
-/** An opted-in part's owner supplies the initial value and optional bounds. */
 export function keypadInput(
   screen: ScreenLike,
   defs: Record<string, Definition>,

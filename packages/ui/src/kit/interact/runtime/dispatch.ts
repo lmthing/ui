@@ -5,6 +5,7 @@ import {
   projectDeviceRows,
   hasPlaybackClock,
   hasRecordClock,
+  mediaHostKey,
   withDisabledSelectionChecks,
   wordsFor,
   type ActStep,
@@ -70,6 +71,7 @@ function commitSteps(
   }
   if (!ctx.standalone || state.confirmation || hadConfirmation)
     state.values[`${ctx.screen.id}/$confirmation`] = state.confirmation;
+  delete state.values[mediaHostKey];
   ctx.hosts.commit(state.values);
   ctx.store.setMany({ ...media, ...state.values });
   ctx.hosts.prune();
@@ -112,6 +114,7 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
       return result.error;
     }
     commitSteps(ctx, result, Boolean(planning.status.confirmation), Boolean(opts.agent), settleMedia(true));
+    media.reconcile();
     scheduleClock();
     ctx.notifyChange();
     return { ok: true, screen: ctx.screen.id, changed: result.state.changes.join("\n"), dryRun: false };

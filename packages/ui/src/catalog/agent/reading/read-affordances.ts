@@ -126,7 +126,7 @@ export function readAffordances(
   const answers = session?.kind === "rounds" ? session.assessment?.answers : undefined;
   return affordances.map((a) => {
     if (a.hostReveal) return { ...a, detail: risks.ok! };
-    if (a.rowSelection || a.flagKey)
+    if (a.rowSelection || a.flagKey || a.sequence)
       return { ...a, detail: `${a.detail}${risks[partTierAt(meta, props, a.part)] ?? ""}` };
     const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
     const choice = a.nestedChoice

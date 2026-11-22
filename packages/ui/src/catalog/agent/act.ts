@@ -25,11 +25,12 @@ import { stageReportEdit } from "./report-edits";
 import { stageInlinePress } from "./live-inputs";
 import { isLocalAnchorAction } from "./drives";
 import type { Affordance } from "./affordances";
+import { sequenceKey, stageSequence, type MediaOffer } from "./media";
 import type { HostIntent } from "./host-commands";
 import { stageLocalEvent, stageRecordAction, withRecordScreen } from "./record-runtime";
 export type ActStep = { address: string; action: string; value?: unknown; recordTarget?: string };
 export type Values = Record<string, unknown>;
-export type SendDraft = { address: string; text: string; audience?: string };
+export type SendDraft = { address: string; text: string; audience?: string; attachments?: readonly string[] };
 type ActCode = "not_actionable" | "invalid_value" | "random_unavailable" | "max_active";
 export type ActResult =
   | {
@@ -41,17 +42,25 @@ export type ActResult =
       driven?: ActStep[];
       hostCommands?: HostIntent[];
       localEvent?: true;
+      media?: MediaOffer[];
+      sequence?: true;
       anchors?: { address: string; action: "focus" | "jump" }[];
     }
   | { ok: false; code: ActCode; at: number; hint?: string };
 function stageEffect(
   plan: Extract<ActResult, { ok: true }>,
   screen: ScreenLike,
-  address: string,
-  action: string,
+  resolved: ActStep,
   found: Affordance,
+  now: number,
 ) {
-  if (found.hostIntent) (plan.hostCommands ??= []).push(found.hostIntent);
+  const { address, action, value } = resolved;
+  if (found.media) (plan.media ??= []).push(found.media);
+  else if (found.sequence) {
+    const id = address.split("/")[0];
+    plan.values[`${screen.id}/${id}/${sequenceKey}`] = stageSequence(found.sequence, value, now);
+    plan.sequence = true;
+  } else if (found.hostIntent) (plan.hostCommands ??= []).push(found.hostIntent);
   else if (isLocalAnchorAction(action))
     (plan.anchors ??= []).push({ address: `${screen.id}/${address}`, action });
   // Clipboard text is a host effect, not a value to persist or echo back.
@@ -67,7 +76,14 @@ function recordControlResult(
   resolved: ActStep,
   key: string,
 ) {
-  if (found.send) (plan.sends ??= []).push({ ...found.send, address: `${screen.id}/${found.send.address}` });
+  if (found.send)
+    (plan.sends ??= []).push({
+      ...found.send,
+      address: `${screen.id}/${found.send.address}`,
+      ...(found.send.attachments
+        ? { attachments: found.send.attachments.map((part) => `${screen.id}/${part}`) }
+        : {}),
+    });
   const { address, action } = resolved;
   plan.changed.push(
     `${address} ${action}${key in plan.values ? ` = ${JSON.stringify(plan.values[key])}` : ""}`,
@@ -133,33 +149,32 @@ export function planAct(
   }
   const migrated = migrateScreen(input, { variantOnly: true });
   const plan: Extract<ActResult, { ok: true }> = { ok: true, values: { ...values }, changed: [], links: [] };
-  const { values: next } = plan;
   for (const [at, original] of steps.entries()) {
-    const snapshot = withRecordScreen(projectDeviceData(data, next), migrated);
+    const snapshot = withRecordScreen(projectDeviceData(data, plan.values), migrated);
     const screen = filterDeviceDataScreen(migrated, defs, snapshot);
-    const action = findAction(screen, defs, next, original, at, snapshot, now);
+    const action = findAction(screen, defs, plan.values, original, at, snapshot, now);
     if (action.error) return action.error;
     const { address, selected, found, drive, step } = action;
     if (drive) (plan.driven ??= []).push(drive);
     const key = `${screen.id}/${actionValueAddress(address, found)}`;
-    const validated = { key, ...selected, ...validateStep(screen, defs, found, step, next, key) };
+    const validated = { key, ...selected, ...validateStep(screen, defs, found, step, plan.values, key) };
     const { result } = validated;
     if ("code" in result) return { ok: false, at, ...result };
-    if (stageEffect(plan, screen, address, step.action, found)) continue;
     const resolved = { ...step, address, value: result.value };
+    if (stageEffect(plan, screen, resolved, found, now)) continue;
     if (found.localEvent) {
-      const failure = stageLocalEvent(screen, defs, next, resolved, found.localEvent);
+      const failure = stageLocalEvent(screen, defs, plan.values, resolved, found.localEvent);
       if (failure) return { ok: false, code: "invalid_value", at, hint: failure.error };
       plan.localEvent = true;
       plan.changed.push(`${address} ${step.action}`);
       continue;
     }
-    const record = stageRecordAction(screen, defs, next, resolved, now, snapshot);
+    const record = stageRecordAction(screen, defs, plan.values, resolved, now, snapshot);
     if (record && "error" in record) return { ok: false, code: "invalid_value", at, hint: record.error };
     try {
       const progress = record
         ? ""
-        : stageStepProgress(screen, defs, next, resolved, found, random, snapshot, now);
+        : stageStepProgress(screen, defs, plan.values, resolved, found, random, snapshot, now);
       if (progress === false)
         return { ok: false, code: "invalid_value", at, hint: "Invalid record mutation" };
       if (progress !== undefined) {
@@ -170,9 +185,9 @@ export function planAct(
       return { ok: false, code: "random_unavailable", at, hint: "Cannot generate a random result" };
     }
     const timing = { owner: clockOwner, snapshot, now };
-    const failure = stageControl(screen, defs, next, resolved, found, plan.links, timing, validated);
+    const failure = stageControl(screen, defs, plan.values, resolved, found, plan.links, timing, validated);
     if (failure) return { ...failure, at };
-    expireProgress(screen, defs, next, snapshot);
+    expireProgress(screen, defs, plan.values, snapshot);
     recordControlResult(plan, found, screen, resolved, key);
   }
   return plan;

@@ -37,6 +37,7 @@ function readingProps(
   const useLive =
     meta.live ||
     meta.localState ||
+    meta.sequence ||
     meta.collections ||
     hasNestedCollectionControls(meta) ||
     meta.select?.runtime ||

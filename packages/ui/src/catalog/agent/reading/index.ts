@@ -149,7 +149,7 @@ export function readItems(
     meta.items?.move?.derived ||
     meta.items?.visibleWhen ||
     (meta.deviceData?.length && meta.live?.derive);
-  const ids = exactIds && new Set(all.map(({ id }) => String(id)));
+  const ids = (exactIds || meta.sequence || meta.items?.media) && new Set(all.map(({ id }) => String(id)));
   const ownAff = affordances.filter(({ address }) => {
     const target = address.slice(instance.length);
     if (meta.collections && isCollectionItem(target.split("/")[1])) return false;

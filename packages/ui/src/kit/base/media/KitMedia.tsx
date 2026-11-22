@@ -1,9 +1,9 @@
 import { useWords, useKit } from "../../provider";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { usePartContext } from "../../part";
 import { XStack, YStack, type TamaguiElement } from "tamagui";
-import { component as layout, radius, space, variants } from "../../../catalog";
-import { useControlValue } from "../../interact";
+import { component as layout, formatAddress, radius, space, variants } from "../../../catalog";
+import { useControlValue, type MediaSession, type ScreenController } from "../../interact";
 import { KitAction } from "../input";
 import { KitText } from "../text";
 
@@ -37,47 +37,33 @@ type PlaybackProps = {
   speed?: number | undefined;
   loop?: boolean | undefined;
   loading?: boolean;
+  part?: string;
 };
 
-function usePlayback({ style, speed, loop, overlay, loading }: Omit<PlaybackProps, "children">) {
+function usePlayback({ style, speed, loop, loading, part }: Omit<PlaybackProps, "children" | "overlay">) {
   const { controller } = useKit();
-  const { component } = usePartContext();
+  const { component, item, screen } = usePartContext();
+  const address =
+    part === undefined ? undefined : formatAddress({ screen, component, ...(item ? { item } : {}), part });
   const mount = useRef<TamaguiElement>(null);
-  const [content, setContent] = useState<ReactNode>(null);
-  const {
-    words: { mediaUnavailable },
-  } = useWords();
-  const [video, setVideo] = useState(false);
-  const elementRef = useRef<HTMLMediaElement | null>(null);
-  const framed = overlay !== undefined;
+  const legacy = useLegacyMedia(controller, component, part === undefined && !loading);
+  const addressed = useSyncExternalStore(
+    address && controller ? controller.store.subscribe : noSubscription,
+    () => (address ? controller?.activeMedia(address) : undefined),
+    () => undefined,
+  );
+  const session = loading ? undefined : address === undefined ? legacy : addressed;
+  const video = style === "video" && Boolean(session?.element || session?.content);
   useEffect(() => {
-    if (!controller || loading) {
-      setVideo(false);
-      return;
-    }
-    try {
-      const session = controller.mountMedia(component);
-      setContent(session?.content ?? null);
-      const element = session?.element;
-      setVideo(style === "video" && Boolean(element || session?.content));
-      if (!element) return;
-      element.style.width = "100%";
-      if (style === "video") element.style.aspectRatio = String(variants.aspect.wide);
-      elementRef.current = element;
-      (mount.current as HTMLElement | null)?.appendChild(element);
-      return () => {
-        elementRef.current = null;
-        element.remove();
-      };
-    } catch (error) {
-      controller.store.set(
-        `${controller.snapshotScreen().id}/${component}/error`,
-        error instanceof Error ? error.message : mediaUnavailable,
-      );
-    }
-  }, [controller, component, style, mediaUnavailable, framed, loading]);
+    const element = session?.element;
+    if (!element) return;
+    element.style.width = "100%";
+    if (style === "video") element.style.aspectRatio = String(variants.aspect.wide);
+    (mount.current as HTMLElement | null)?.appendChild(element);
+    return () => element.remove();
+  }, [session, style]);
   useEffect(() => {
-    const element = elementRef.current;
+    const element = session?.element;
     if (!element) return;
     const previousRate = element.playbackRate;
     const previousLoop = element.loop;
@@ -87,13 +73,13 @@ function usePlayback({ style, speed, loop, overlay, loading }: Omit<PlaybackProp
       if (speed !== undefined) element.playbackRate = previousRate;
       if (loop !== undefined) element.loop = previousLoop;
     };
-  }, [controller, component, style, mediaUnavailable, framed, loading, speed, loop]);
-  return { controller, mount, video, content };
+  }, [session, speed, loop]);
+  return { controller, mount, video, content: session?.content };
 }
 
 /** An optional toolbar stays in the frame even when real playback replaces its fallback children. */
 export function KitPlayback({ children, overlay, ...options }: PlaybackProps) {
-  const { controller, mount, video, content } = usePlayback({ ...options, overlay });
+  const { controller, mount, video, content } = usePlayback(options);
   const playback = (
     <>
       {controller && (
@@ -144,6 +130,24 @@ function KitPlayAction({ labels }: { labels: { play: string; pause: string } }) 
       part="play"
     />
   );
+}
+
+const noSubscription = () => () => {};
+function useLegacyMedia(controller: ScreenController | undefined, component: string, enabled: boolean) {
+  const { mediaUnavailable } = useWords().words;
+  const [session, setSession] = useState<MediaSession>();
+  useEffect(() => {
+    if (!controller || !enabled) return;
+    try {
+      setSession(controller.mountMedia(component));
+    } catch (error) {
+      controller.store.set(
+        `${controller.snapshotScreen().id}/${component}/error`,
+        error instanceof Error ? error.message : mediaUnavailable,
+      );
+    }
+  }, [controller, component, enabled, mediaUnavailable]);
+  return session;
 }
 
 export function KitMediaControls({

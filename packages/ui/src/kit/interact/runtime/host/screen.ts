@@ -154,7 +154,16 @@ export function projectLive(
       projectDeviceData(options.deviceData, values),
     );
     if (standalone) return visible;
-    const projected = projectScreen(visible, options.defs, values, at, sheet, false, false);
+    const projected = projectScreen(
+      visible,
+      options.defs,
+      values,
+      at,
+      sheet,
+      false,
+      false,
+      options.deviceData,
+    );
     return covered && !hostHidesSheet(source, visible, sheet)
       ? { ...projected, components: projected.components.filter((entry) => entry.id === sheet) }
       : projected;

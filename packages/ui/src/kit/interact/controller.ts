@@ -1,6 +1,8 @@
 import {
   createControllerContext,
   createClock,
+  createSequenceClock,
+  controllerLifecycle,
   createMediaRuntime,
   createAct,
   createAccess,
@@ -82,51 +84,6 @@ function hostCommandsAt(ctx: ControllerContext, component: string, part: string,
   );
 }
 
-function lifecycle(
-  ctx: ControllerContext,
-  clock: ReturnType<typeof createClock>,
-  media: ReturnType<typeof createMediaRuntime>,
-  reveal: ReturnType<typeof createReveal>,
-) {
-  let unwatchAdmission: (() => void) | undefined;
-  return {
-    mount() {
-      unwatchAdmission ??= ctx.options.parentGate?.subscribe(() => {
-        ctx.hosts.prune();
-        reveal.reconcile();
-        discardHiddenConfirmation(ctx);
-        ctx.store.setMany({});
-        clock.scheduleClock();
-      });
-      if (!ctx.admitted()) return;
-      const expired = ctx.expiredProgress(ctx.valuesOf());
-      // A boundary may have passed between the initial render and the mount effect.
-      const timeGated = ctx.screen.components.some(({ c }) => ctx.defs[c]?.meta.deviceDataWake);
-      if (timeGated || Object.keys(expired).length) ctx.store.setMany(expired);
-      clock.scheduleClock();
-    },
-    reset() {
-      ctx.status.openSheet = undefined;
-      ctx.status.confirmation = undefined;
-      ctx.hosts.reset();
-      reveal.clear();
-      media.reset();
-      ctx.store.reset(ctx.screen.id);
-      ctx.resetValues();
-      clock.scheduleClock();
-      ctx.notifyChange();
-    },
-    dispose() {
-      ctx.status.disposed = true;
-      unwatchAdmission?.();
-      ctx.hosts.reset();
-      reveal.clear();
-      clock.dispose();
-      media.dispose();
-    },
-  };
-}
-
 /** One dispatcher for human taps and agent steps. Hidden sheets and covered controls are not actionable. */
 export function createScreenController(options: ControllerOptions & { currency?: AppCurrency | undefined }) {
   const currency = parseAppCurrency(options.currency);
@@ -134,8 +91,11 @@ export function createScreenController(options: ControllerOptions & { currency?:
   const clock = createClock(ctx, () => discardHiddenConfirmation(ctx));
   const media = createMediaRuntime(ctx);
   const reveal = createReveal(ctx);
-  const dispatch = createAct(ctx, media, clock.scheduleClock);
+  const sequence = createSequenceClock(ctx);
+  const lifecycle = controllerLifecycle(ctx, clock, media, reveal, sequence);
+  const dispatch = createAct(ctx, media, lifecycle.schedule);
   const act = reveal.dispatch(dispatch);
+  const access = createAccess(ctx, act, currency, reveal.revoke);
   return {
     defs: ctx.defs,
     store: ctx.store,
@@ -156,8 +116,10 @@ export function createScreenController(options: ControllerOptions & { currency?:
       return ctx.subjects(id).flatMap((subject) => operation?.(subject) ?? []);
     },
     mountMedia: media.mountMedia,
-    tick: clock.tick,
-    ...createAccess(ctx, act, currency, reveal.revoke),
+    activeMedia: media.activeMedia,
+    attachmentReference: media.attachmentReference,
+    ...access,
+    registerPart: lifecycle.registerPart(access.registerPart),
     registerPrivateMarkPart: privateMarkRegistration(ctx, dispatch),
     ...reveal.view,
     deviceDataFor: (component: string, data = options.deviceData) => deviceDataFor(ctx, component, data),
@@ -165,7 +127,7 @@ export function createScreenController(options: ControllerOptions & { currency?:
       return options.deviceData;
     },
     liveControls: (meta: Meta, props: Values, component: string) => liveControls(ctx, meta, props, component),
-    ...lifecycle(ctx, clock, media, reveal),
+    ...lifecycle.view,
     get openSheet() {
       return ctx.status.openSheet;
     },
@@ -173,17 +135,6 @@ export function createScreenController(options: ControllerOptions & { currency?:
       return ctx.confirmationFor();
     },
     confirmationFor: ctx.confirmationFor,
-    discardHiddenConfirmation: () => {
-      ctx.hosts.prune();
-      discardHiddenConfirmation(ctx);
-      reveal.reconcile();
-      clock.scheduleClock();
-    },
-    snapshotScreen: () => {
-      if (!ctx.admitted()) return { id: ctx.screen.id, components: [] };
-      const values = ctx.valuesOf();
-      return projectScreen(ctx.screen, ctx.defs, values, ctx.now(), ctx.status.openSheet);
-    },
   };
 }
 export type ScreenController = ReturnType<typeof createScreenController>;
