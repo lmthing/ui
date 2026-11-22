@@ -17,7 +17,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Lease records and terms live on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["start", "deposit"] } },
   // prettier-ignore
   parts: ["root", "tenant", "place", "start", "end", "time_left", "rent", "next_due", "deposit", "renewal", "terms_icon"],
@@ -100,8 +100,8 @@ export const probes = [
 
 // prettier-ignore
 export function Lease(input: c.Props<typeof props, typeof meta>) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang, words: { lease: words } } = kit.useWords(inventoryWordsFor);
   const copy = leaseCopy({ ...input, detail }, lang);

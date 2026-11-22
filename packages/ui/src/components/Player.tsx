@@ -11,7 +11,7 @@ import {
   KitText,
   KitTimes,
   useComponentState,
-  useVariant,
+  useKit,
 } from "../kit";
 import { z } from "zod";
 import {
@@ -25,12 +25,13 @@ import {
   remainingLine,
   text,
   thingOf,
-  variantProps,
   wordsFor,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
+  variantProps,
 } from "../catalog";
 import { prompt } from "../entry/prompt-Player.generated";
 
@@ -45,7 +46,7 @@ export const meta = {
   weight: 3,
   tier: "phone",
   realPath: "A file stored on or bundled with the app, played by the device's media player.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["artwork"] } },
   parts: ["root", "artwork", "title", "sub", "scrubber", "elapsed", "remaining", "back", "play", "forward", "options"],
   states: ["filled", "loading"],
@@ -130,7 +131,7 @@ export const examples = [
   fernGuide,
   { ...voiceNote, detail: "brief" },
   voiceNote,
-  { ...fernGuide, density: "compact" },
+  { ...fernGuide },
   { ...voiceNote, title: "Park walk recap", style: "compact", mode: "podcast", speed: 1.5, liked: true },
   {
     style: "audio",
@@ -180,7 +181,8 @@ function playerLines(title: PlayerProps["title"], sub: PlayerProps["sub"], info:
   ];
 }
 
-type PlayerTitles = Pick<PlayerProps, "title" | "sub" | "density"> & {
+type PlayerTitles = Pick<PlayerProps, "title" | "sub"> & {
+  density: ThemeDensity;
   info: string;
   loading: boolean;
   compact: boolean;
@@ -269,7 +271,7 @@ function PlayerCover(
 }
 
 function PlayerAudioSkeleton(
-  density: NonNullable<PlayerProps["density"]>,
+  density: ThemeDensity,
   artwork: PlayerProps["photo"],
   lines: PlayerTitles["lines"],
 ) {
@@ -288,7 +290,7 @@ function PlayerAudioSkeleton(
 
 export function Player(input: PlayerProps) {
   const { style, title, sub, detail, photo: art, seconds, at, speed, loop, repeat } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const artwork = detail === "full" ? art : undefined;
   const aspect = style === "video" ? "wide" : "square";
   const {

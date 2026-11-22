@@ -1,8 +1,10 @@
 // prettier-ignore
 import { KitCard, KitContent, KitGrid, KitInput, KitRow, KitText, KitTrail,
-  useControlValue, usePart, useVariant, useWords } from "../../../kit";
+  useControlValue, usePart, useWords,
+  useKit,
+} from "../../../kit";
 // prettier-ignore
-import { clock, isoDate, probesFor, variantProps, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
+import { clock, isoDate, probesFor, type CastLike, type Meta, type Probe, type Props, variantProps } from "../../../catalog";
 import { z } from "zod";
 import { bookingWordsFor } from "../lang";
 import {
@@ -27,7 +29,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "Working hours stored on the device.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["break"] } },
   items: { key: "days", parts: ["root", "day", "toggle", "from", "to", "break"] },
   parts: ["root", "buffer", "overrides"],
@@ -106,7 +108,7 @@ export const examples = [
       ...(day === "mon" ? { breakFrom: "12:00", breakTo: "13:00" } : {}),
     })),
   },
-  { ...plantCareWeek, density: "compact" },
+  { ...plantCareWeek },
   { ...plantCareWeek, detail: "brief" },
   { ...plantCareWeek, bufferMinutes: 15, dateOverrides: [
     { date: "2026-12-24", kind: "blocked" }, { date: "2026-12-25", kind: "holiday" },
@@ -167,7 +169,7 @@ function DayFields({ day, enhanced }: { day: Props<typeof props, typeof meta>["d
 // prettier-ignore
 export function Availability(input: Props<typeof props, typeof meta>) {
   const { days, bufferMinutes, dateOverrides } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const { lang, words } = useWords(bookingWordsFor);
   return (
     <KitCard style="inset" part="root">

@@ -1,5 +1,5 @@
 // prettier-ignore
-import { useWords, KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitIcon, KitMeter, KitRow, KitText, useComponentState, useVariant } from "../../../kit";
+import { useWords, KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitIcon, KitMeter, KitRow, KitText, useComponentState, useVariant, useKit } from "../../../kit";
 import { kitchenWordsFor } from "../lang";
 import { z } from "zod";
 import {
@@ -10,12 +10,12 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
   percentLine,
+  variantProps,
 } from "../../../catalog";
 import { foodLogGroups, foodLogRead, foodLogTotal, kcalLine, targetLine } from "../copy";
 import { prompt } from "../../../entry/prompt-FoodLog.generated";
@@ -33,7 +33,7 @@ export const meta = {
   partTiers: { add: "service" },
   realPath: "Food entries stored on the device; database lookup for adding food requires a service.",
   items: { key: "rows", parts: ["root", "meal", "name", "kcal", "amount", "add"] },
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["amount"] } },
   parts: ["root", "target", "total", "label", "amount", "empty"],
   states: ["filled", "empty"],
@@ -99,7 +99,7 @@ export const examples = (() => {
   return [
     { meals: [{ meal: "dinner", items: [{ name: "Lasagne", kcal: 520, amount: "1 slice" }] }, { meal: "snack", items: [] }],
       target: 2000, goto: "food_add" },
-    { ...breakfast, density: "compact" }, breakfast, { ...breakfast, detail: "brief" },
+    { ...breakfast }, breakfast, { ...breakfast, detail: "brief" },
   ] satisfies z.input<typeof props>[];
 })();
 const { choose, write, read } = probesFor("FoodLog");
@@ -155,7 +155,7 @@ function FoodLogRow(row: FoodLogProps["rows"][number], lang: string, detail: Foo
 // prettier-ignore
 export function FoodLog(input: FoodLogProps) {
   const { meals, rows, target } = input;
-  const finish = { density: useVariant("density", meta.variants.density, input.density) };
+  const finish = { density: useKit().density };
   const detail = useVariant("detail", meta.variants.detail, input.detail);
   const compact = finish.density === "compact";
   const { lang, words } = useWords(kitchenWordsFor);

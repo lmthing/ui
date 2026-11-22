@@ -18,7 +18,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "A tree of storage spots and their contents lives on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["count"] } },
   parts: ["root", "path", "spots", "here", "empty", "code", "qr", "fragile", "status"],
   items: { key: "navigation", parts: ["root", "name", "icon", "count"] },
@@ -152,8 +152,8 @@ export function Storage(input: StorageProps) {
   const { lang, words: { storage: words } } = kit.useWords(inventoryWordsFor);
   const box = storageBoxCopy(input, lang);
   const data = kit.useDeviceData();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const rows = c.visibleItems<Navigation & { id: string }>(meta, input);
   const path = rows.filter((row) => row.ancestor);

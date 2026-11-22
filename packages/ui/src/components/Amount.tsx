@@ -14,9 +14,7 @@ export const meta = {
   tier: "phone",
   realPath: "A sum computed on the device from stored records. No money moves.",
   variants: {
-    density: ["comfortable", "compact"],
     emphasis: ["normal", "hero"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["sub"] } },
@@ -57,11 +55,11 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
 
 export const examples = [
   { emphasis: "hero", label: "Spent on plants", value: 42.5, change: -6.5, sub: "this month" },
-  { label: "Morning walk", value: 18, per: "each", was: 20, goto: "walks", density: "compact" },
+  { label: "Morning walk", value: 18, per: "each", was: 20, goto: "walks" },
   { label: "Spent on plants", value: 42.5, change: -6.5, sub: "this month" },
   { label: "Morning walk", value: 18, per: "each", was: 20, goto: "walks" },
-  { style: "total", surface: "card", value: 54, currency: "GBP" },
-  { style: "total", surface: "outlined", value: 54, currency: "GBP" },
+  { style: "total", value: 54, currency: "GBP" },
+  { style: "total", value: 54, currency: "GBP" },
   { label: "Weekly walks", value: 72, sub: "Four walks" },
   { label: "Weekly walks", value: 72, detail: "brief", sub: "Four walks" },
 ] satisfies z.input<typeof props>[];
@@ -99,11 +97,11 @@ function amountCopy(
 function AmountLoading(input: AmountProps & { density: "comfortable" | "compact" }) {
   const { lang } = kit.useWords();
   const { shown, sum, was, change } = amountCopy(input, lang);
-  const { density, surface, sub } = input;
+  const { density, sub } = input;
   const large = input.emphasis === "hero",
     centered = large && !input.style;
   return (
-    <kit.KitCard style="inset" padded {...{ density, surface }}>
+    <kit.KitCard style="inset" padded density={density}>
       <kit.KitSkeleton
         shape="figure"
         inset="none"
@@ -123,7 +121,8 @@ function AmountLoading(input: AmountProps & { density: "comfortable" | "compact"
 }
 
 function AmountFigure({ input, copy }: { input: AmountProps; copy: ReturnType<typeof amountCopy> }) {
-  const { emphasis, density, sub } = input;
+  const { emphasis, sub } = input;
+  const density = kit.useKit().density;
   const large = emphasis === "hero",
     align = large && !input.style ? "center" : "end";
   const delta = input.change ?? 0;
@@ -181,14 +180,14 @@ function AmountFigure({ input, copy }: { input: AmountProps; copy: ReturnType<ty
 export function Amount(input: AmountProps) {
   const { lang } = kit.useWords();
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const emphasis = kit.useVariant("emphasis", meta.variants.emphasis, input.emphasis);
   if (state === "loading") return <AmountLoading {...input} {...{ density, emphasis }} />;
   const copy = amountCopy(input, lang),
     { shown } = copy,
-    { surface, goto } = input;
+    { goto } = input;
   const centered = emphasis === "hero" && !input.style;
-  const figure = <AmountFigure input={{ ...input, density, emphasis }} copy={copy} />;
+  const figure = <AmountFigure input={{ ...input, emphasis }} copy={copy} />;
   const name = shown && (
     <kit.KitText
       role={centered ? "label" : "body"}
@@ -201,7 +200,7 @@ export function Amount(input: AmountProps) {
     </kit.KitText>
   );
   return (
-    <kit.KitCard style="inset" part="root" padded {...{ density, surface, goto }} label={shown ?? copy.sum}>
+    <kit.KitCard style="inset" part="root" padded {...{ density, goto }} label={shown ?? copy.sum}>
       {centered || !shown ? (
         <kit.KitContent {...{ density }}>
           {name}

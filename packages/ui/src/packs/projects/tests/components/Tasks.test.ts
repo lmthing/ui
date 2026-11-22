@@ -64,7 +64,7 @@ describe("Tasks contract and fallback", () => {
 describe("Tasks rendering and action gates", () => {
   it("keeps all item addresses under density, and adds the section without renumbering children", () => {
     const base = render();
-    expect([...render({ ...first, density: "compact" }).keys()]).toEqual([...base.keys()]);
+    expect([...render({ ...first }).keys()]).toEqual([...base.keys()]);
     expect(base.get(part("r1/root"))?.attributes).toContain('role="link"');
     expect(base.get(part("r1/done"))?.attributes).toContain('role="checkbox"');
     expect(base.has(part("r2/blockers"))).toBe(true);

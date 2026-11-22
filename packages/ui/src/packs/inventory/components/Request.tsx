@@ -20,7 +20,7 @@ export const meta = {
   weight: 2,
   tier: "people",
   realPath: "A shared repair record connects the tenant and landlord; the landlord changes status.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], media: ["thumb", "none"] },
+  variants: { media: ["thumb", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
   parts: ["root", "title", "where", "photo", "priority", "status", "who", "updates", "update"],
   items: { key: "updates", parts: ["root", "time", "text"] },
@@ -157,8 +157,8 @@ function Updates({ rows, density, label }: { rows: RequestProps["updates"]; dens
 export function Request(input: RequestProps) {
   const { words: { request: words } } = kit.useWords(inventoryWordsFor);
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const live = kit.useLiveControls(meta, input);
   const success = state === "success";

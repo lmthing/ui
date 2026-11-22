@@ -17,7 +17,7 @@ export const meta = {
   writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath: "Versioned scope and acceptance dates live on the device; client acceptance requires a shared host.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["due", "accepted_at"] } },
   parts: ["root", "revision", "accepted", "excluded", "empty", "complete"],
   items: {
@@ -121,7 +121,7 @@ type Words = ReturnType<typeof projectsWordsFor>["scope"];
 
 // prettier-ignore
 function Deliverable({ copy, density, w, loading, editable, removable }: {
-  copy: Row; density: View["density"]; w: Words; loading: boolean; editable: boolean; removable: boolean;
+  copy: Row; density: c.ThemeDensity; w: Words; loading: boolean; editable: boolean; removable: boolean;
 }) {
   const { row, due, acceptedAt, overdue } = copy, scope = kit.usePartContext();
   const check = loading ? <kit.KitSkeleton shape="control" kind="quiet" /> :
@@ -152,7 +152,7 @@ function Deliverable({ copy, density, w, loading, editable, removable }: {
 export function Scope(seed: View) {
   const input = kit.useLiveControls(meta, seed) as View;
   const state = kit.useComponentState(), { lang, words: { scope: w } } = kit.useWords(projectsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail), data = kit.useDeviceData();
   const copy = scopeCopy({ ...input, detail }, lang, data), loading = state === "loading";
   return <kit.KitCard part="root" style="inset" padded density={density}>

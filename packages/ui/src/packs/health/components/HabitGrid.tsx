@@ -18,11 +18,11 @@ import {
   probesFor,
   streakLine,
   text,
-  variantProps,
   type CastLike,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import { z } from "zod";
 import { indexedActions, indexedParts, seedTitles } from "..";
@@ -39,7 +39,7 @@ export const meta = {
   tier: "phone",
   realPath: "Habit records stored on the device.",
   writeHints: prompt.writeHints,
-  variants: { surface: ["card", "outlined"], lead: ["icon", "none"] },
+  variants: { lead: ["icon", "none"] },
   variantParts: { "lead.none": { hides: ["icon"] } },
   items: { key: "habits", parts: ["root", "name", "icon", "streak", ...indexedParts(7, ["day"])] },
   parts: ["root", "grid"],
@@ -156,7 +156,8 @@ function WeekDays() {
   }));
 }
 // prettier-ignore
-export function HabitGrid({ habits, lead, surface }: Props<typeof props, typeof meta>) {
+export function HabitGrid({ habits, lead }: Props<typeof props, typeof meta>) {
+  const surface = "card";
   const state = useComponentState();
   const showIcon = useVariant("lead", meta.variants.lead, lead) === "icon";
   const today = (new Date().getDay() + 6) % 7;
@@ -179,9 +180,8 @@ export function HabitGrid({ habits, lead, surface }: Props<typeof props, typeof 
       ),
     })),
   }));
-  const outlined = surface === "outlined";
   return (
-    <KitCard part="root" surface={surface} style={outlined ? "plain" : "inset"} clip={outlined}>
+    <KitCard part="root" surface={surface}>
       <KitWeekMatrix
         part="grid" {...{ days, rows }} corner={null} today={days[today]!.id}
         trailing={habits.map((habit) => ({

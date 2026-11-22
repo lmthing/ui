@@ -1,4 +1,4 @@
-import { useVariant, useWords, KitAction, KitIcon, KitRow, KitSheet, KitText, KitTrail } from "../kit";
+import { useWords, KitAction, KitIcon, KitRow, KitSheet, KitText, KitTrail, useKit } from "../kit";
 import { z } from "zod";
 import {
   probesFor,
@@ -10,12 +10,12 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   wordsFor,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
 import { prompt } from "../entry/prompt-Sheet.generated";
 
@@ -29,7 +29,7 @@ export const meta = {
   weight: 0,
   tier: "phone",
   realPath: "A local overlay on the current screen, opened by a link whose target is sheet.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"], lead: ["icon", "none"] },
+  variants: { detail: ["full", "brief"], lead: ["icon", "none"] },
   variantParts: { "detail.brief": { hides: ["sub", "meta"] }, "lead.none": { hides: ["icon"] } },
   items: {
     key: "items",
@@ -135,7 +135,7 @@ export const examples = [
   },
   fernMenu,
   { ...walkDetails, detail: "brief" },
-  { ...walkDetails, density: "compact" },
+  { ...walkDetails },
   { ...fernMenu, lead: "none" },
   { ...fernMenu, items: fernMenu.items.map(({ tone: _tone, ...row }) => row) },
 ] satisfies z.input<typeof props>[];
@@ -160,7 +160,7 @@ export const probes = [
 
 export function Sheet(input: Props<typeof props, typeof meta>) {
   const { style, title, sub, items, at, action } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const { closeLabel } = useWords().words;
   return (
     <KitSheet title={title} sub={sub} closeLabel={closeLabel}>

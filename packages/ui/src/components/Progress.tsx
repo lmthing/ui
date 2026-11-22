@@ -9,7 +9,7 @@ import {
   KitRow,
   KitSkeleton,
   KitState,
-  useVariant,
+  useKit,
   useWords,
 } from "../kit";
 import {
@@ -45,7 +45,7 @@ export const meta = {
   realPath: "Amounts summed from records on the device, each compared with a stored target.",
   signatureByStyle: { ring: "ring_fill" },
   // prettier-ignore
-  variants: { density: ["comfortable", "compact"], figures: ["exact", "short"], emphasis: ["normal", "hero"], detail: ["full", "brief"] },
+  variants: { figures: ["exact", "short"], emphasis: ["normal", "hero"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["sub"] } },
   items: {
     key: "bars",
@@ -146,7 +146,7 @@ export const examples = [
       { label: "Fed this month", value: 1, of: 4, unit: "plants" },
     ],
   },
-  { density: "compact", bars: walkMeters },
+  { bars: walkMeters },
   { bars: walkMeters },
   { bars: [steps] },
   { figures: "short", bars: [steps] },
@@ -188,7 +188,8 @@ export const probes = [
 
 type ViewProps = Props<typeof props, typeof meta>;
 
-function ProgressRing({ bars, emphasis, density, detail, sub }: ViewProps) {
+function ProgressRing({ bars, emphasis, detail, sub }: ViewProps) {
+  const density = useKit().density;
   const goal = bars[0]!;
   const scale = emphasis === "hero" ? "lg" : "md";
   const { lang } = useWords();
@@ -231,12 +232,12 @@ function ProgressRing({ bars, emphasis, density, detail, sub }: ViewProps) {
 
 export function Progress(input: ViewProps) {
   const { bars, figures, style } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const { lang } = useWords();
   return (
     <KitCard style="inset" part="root" padded density={density}>
       {style === "ring" ? (
-        <ProgressRing {...input} density={density} />
+        <ProgressRing {...input} />
       ) : (
         <KitState
           density={density}

@@ -20,7 +20,7 @@ export const meta = {
   writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath: "Questions are stored with the app and answers are checked on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["thumb", "none"] },
+  variants: { media: ["thumb", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
   parts: ["root", "panel", "progress", "question", "photo", "field", "left", "right", "check", "next", "answer", "explain", "feedback", "score",
     "order_hint", "order_draft", ...audioParts, "audio_status"],
@@ -167,8 +167,8 @@ function Feedback({ item, round }: { item: QuizItem; round: QuizRound }) {
 export function Quiz(input: QuizProps) {
   const { screen, component, state } = kit.usePartContext(), { controller } = kit.useKit();
   const { lang, words: { quiz } } = kit.useWords(learningWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const saved = kit.useControlValue<unknown>(`${screen}/${component}/${c.sessionKey}`, undefined);
   const round = c.sessionState(meta, input, () => !controller && !saved && (state === "success" || state === "error")

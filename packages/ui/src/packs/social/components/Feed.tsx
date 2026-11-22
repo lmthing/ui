@@ -18,7 +18,7 @@ export const meta = {
   dense: true,
   tier: "people",
   realPath: "Posts in a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["thumb", "none"] },
+  variants: { media: ["thumb", "none"] },
   variantParts: { "media.none": { hides: ["image"] } },
   parts: ["root", "empty"],
   // prettier-ignore
@@ -173,8 +173,8 @@ function FeedLoading({ post, density }: { post: FeedPost; density: c.ThemeDensit
 // prettier-ignore
 export function Feed(input: FeedProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
   if (state === "empty") return <kit.KitCard part="root" {...{ density, surface }}>
     <kit.KitEmpty part="empty" icon="message" decorativeIcon />

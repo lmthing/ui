@@ -7,12 +7,12 @@ import {
   placeholderValue,
   text,
   thingOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
   type ThemeDensity,
+  variantProps,
 } from "../catalog";
 import {
   KitCard,
@@ -24,7 +24,7 @@ import {
   KitSkeleton,
   KitText,
   useComponentState,
-  useVariant,
+  useKit,
 } from "../kit";
 import { prompt } from "../entry/prompt-Stats.generated";
 
@@ -41,7 +41,7 @@ export const meta = {
   realPath: "Aggregates over records in the on-device database.",
   items: { key: "tiles", parts: ["root", "value", "unit", "label", "trend"] },
   parts: ["root"],
-  variants: { density: ["comfortable", "compact"], arrange: ["grid", "rows"] },
+  variants: { arrange: ["grid", "rows"] },
   states: ["filled", "empty", "loading"],
 } as const satisfies Meta;
 
@@ -106,7 +106,7 @@ export const examples = [
   },
   { tiles: walkTiles },
   { arrange: "rows", tiles: walkTiles },
-  { density: "compact", tiles: walkTiles },
+  { tiles: walkTiles },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Stats");
@@ -212,9 +212,9 @@ function TileRow({
   );
 }
 
-export function Stats({ arrange, tiles, density: requested }: Props<typeof props, typeof meta>) {
+export function Stats({ arrange, tiles }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
-  const density = useVariant("density", meta.variants.density, requested);
+  const density = useKit().density;
   const grid = arrange === "grid";
   const reserveUnit = tiles.some((tile) => tile.unit);
   const columns = tiles.length === 3 ? 3 : 2;

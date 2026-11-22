@@ -9,4 +9,4 @@ Items to put in luggage, grouped by category or traveller, with optional quantit
 ## Writer
 
 - Use 1–6 groups, each with 1–10 items. Write each packed flag; never write the packed share.
-- When only asked to hide quantities, write "density":null,"surface":null,"detail":"brief". Keep supplied qty values. Never write "comfortable", "card", or "full" for an unrequested axis; write null instead.
+- When only asked to hide quantities, write "detail":"brief". Keep supplied qty values. Never write "full" for an unrequested axis; write null instead.

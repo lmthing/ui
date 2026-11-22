@@ -16,7 +16,6 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "The seating plan is stored on the organiser's device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"] },
   parts: ["root", "tray"],
   items: { key: "entries", parts: ["root", "label", "seats", "name"] },
   states: ["filled", "empty"],
@@ -53,7 +52,6 @@ const table = z
 
 const schema = z
   .strictObject({
-    ...c.variantProps(meta.variants),
     tables: z.array(table).min(1).max(20),
     unseated: z.array(c.text(24)).min(0).max(20),
   })
@@ -94,8 +92,6 @@ export const examples = [
     unseated: ["Deepa Shah"],
   },
   {
-    density: "compact",
-    surface: "outlined",
     tables: [{ label: "Long table", shape: "long", seats: 12, guests: ["Imani Cole", "Hugo Wells"] }],
     unseated: [],
   },

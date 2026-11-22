@@ -1,13 +1,16 @@
 // prettier-ignore
 import { KitAction, KitCard, KitContent, KitGrid, KitSkeleton, KitText, KitTrail,
-  useComponentState, useVariant, useWords } from "../../../kit";
+  useComponentState, useWords,
+  useKit,
+} from "../../../kit";
 import { bookingWordsFor } from "../lang";
 import { z } from "zod";
 // prettier-ignore
 import {
   appointmentDate, balancedLine, clock, isoDate, placeholderTitle, probesFor, screenId, text,
-  timeOfDayLine, thingOf, titleOf, variantProps, type ThemeDensity, type FallbackInput, type Meta,
+  timeOfDayLine, thingOf, titleOf, type ThemeDensity, type FallbackInput, type Meta,
   type Probe, type Props,
+  variantProps,
 } from "../../../catalog";
 import { appointmentCanJoin, appointmentDetails, appointmentReading } from "../copy";
 import { prompt } from "../../../entry/prompt-Appointment.generated";
@@ -23,7 +26,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "A booking record stored on the provider's device.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["with", "place"] } },
   // prettier-ignore
   parts: [
@@ -93,7 +96,7 @@ export const examples = [
     style: "summary", service: "Morning park walk", with: "Sam", date: "2026-11-21", time: "10:00",
     minutes: 60, price: 25, status: "pending", policy: "Move or cancel up to two hours before.", goto: "time",
   },
-  { ...plantBooking, density: "compact" },
+  { ...plantBooking },
   { ...plantBooking, detail: "brief" },
   { ...plantBooking, style: "compact", locationKind: "in_person" },
   { ...plantBooking, service: "Plant care video visit", locationKind: "video",
@@ -153,7 +156,7 @@ export function Appointment(input: Props<typeof props, typeof meta>) {
   const badge = state === "success" ? appointmentLabels.booked : appointmentLabels[input.status];
   const compact = input.style === "compact";
   const change = card ? "reschedule" : "edit";
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const finish = { loading, density };
   const date = <AppointmentLine value={appointmentDate(input.date, lang)} part="date" {...finish} />;
   const line = ({ part, text }: { part: string; text: string }) => (

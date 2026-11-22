@@ -8,5 +8,5 @@ The focal message of the whole screen: its main headline, photo-led introduction
 
 ## Writer
 
-- Use style "number" when the title is a headline number. For a requested wide photo, set media to "cover" and give its photo reference; density, emphasis, align and tone stay null unless explicitly requested.
+- Use style number when the title is a headline number. For a requested wide photo, set media to cover and give its photo reference. Leave emphasis and tone null unless explicitly requested.
 - Put visible subtitles in sub and keep detail null. Only an explicit request to hide the subtitle sets detail to "brief"; keep the subtitle in sub.

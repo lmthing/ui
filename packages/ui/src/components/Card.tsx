@@ -16,9 +16,7 @@ export const meta = {
   tier: "phone",
   realPath: "A preview of one record and optional navigation link in the on-device app.",
   variants: {
-    density: ["comfortable", "compact"],
     emphasis: ["normal", "quiet", "hero"],
-    surface: ["card", "plain", "tinted", "outlined"],
     media: ["thumb", "none", "icon", "cover"],
     detail: ["full", "brief"],
     tone: ["neutral", "good", "warn", "bad"],
@@ -77,15 +75,13 @@ export const examples = [
     goto: "fern",
   },
   {
-    surface: "tinted",
     title: "Park walk itinerary",
     body: "Clover and Pip · 09:00",
     meta: "South gate",
     icon: "dog",
   },
-  { title: "Monstera", body: "Living room · due Friday", photo: "lib:plants", density: "compact" },
+  { title: "Monstera", body: "Living room · due Friday", photo: "lib:plants" },
   {
-    surface: "outlined",
     title: "Basil",
     body: "Kitchen · freshly watered",
     icon: "leaf",
@@ -100,9 +96,9 @@ export const examples = [
     duration: "15 min",
   },
   { title: "Fern care", body: "Water on Friday", media: "icon", icon: "leaf" },
-  { title: "Walk confirmed", body: "Clover · Sunday", surface: "tinted", tone: "good" },
-  { title: "Booking pending", body: "Pip · awaiting confirmation", surface: "tinted", tone: "warn" },
-  { title: "Walk cancelled", body: "Clover · Friday morning", surface: "tinted", tone: "bad" },
+  { title: "Walk confirmed", body: "Clover · Sunday", tone: "good" },
+  { title: "Booking pending", body: "Pip · awaiting confirmation", tone: "warn" },
+  { title: "Walk cancelled", body: "Clover · Friday morning", tone: "bad" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = catalog.probesFor("Card");
@@ -128,7 +124,8 @@ export const probes = [
 ] satisfies Probe[];
 
 type CardProps = Props<typeof props, typeof meta>;
-function CardText({ title, density, emphasis, body, meta, goto, reward, duration }: CardProps) {
+function CardText({ title, emphasis, body, meta, goto, reward, duration }: CardProps) {
+  const density = kit.useKit().density;
   const heading = (
     <kit.KitText role="heading" part="title" {...{ density, emphasis }}>
       {title}
@@ -173,14 +170,14 @@ function CardText({ title, density, emphasis, body, meta, goto, reward, duration
 }
 
 export function Card(input: CardProps) {
-  const { media, title, icon, photo, surface, tone, emphasis, goto, badge } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const { media, title, icon, photo, tone, emphasis, goto, badge } = input;
+  const density = kit.useKit().density;
   const loading = kit.useComponentState() === "loading";
   const { resolvePhoto } = kit.useKit();
   const cover = media === "cover";
   const coverPhoto = cover && photo && resolvePhoto?.(photo) ? photo : undefined;
   const finish = { density, emphasis };
-  const frame = { surface, tone, density, clip: cover, padded: !loading, goto: loading ? undefined : goto };
+  const frame = { tone, density, clip: cover, padded: !loading, goto: loading ? undefined : goto };
   const thumbnail = !cover && photo;
   const lead = icon ? (
     <kit.KitIcon name={icon} part="icon" scale={media === "icon" ? "lg" : "md"} />
@@ -219,12 +216,12 @@ export function Card(input: CardProps) {
               }
             >
               <kit.KitContent {...finish}>
-                <CardText {...input} density={density} />
+                <CardText {...input} />
               </kit.KitContent>
             </kit.KitRow>
           ) : (
             <kit.KitContent {...{ lead }} leadingAlign={thumbnail ? "row" : "line"} {...finish}>
-              <CardText {...input} density={density} />
+              <CardText {...input} />
             </kit.KitContent>
           )}
         </>

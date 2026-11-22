@@ -9,4 +9,4 @@ One shopping basket before ordering, with editable quantities, removal, a promo 
 ## Writer
 
 - Write each line's unit price and quantity. The optional delivery charge is separate; do not write subtotals, line totals or a grand total.
-- Keep supplied variant names in the line data. If asked to hide only those notes, write exactly {"density":null,"surface":null,"detail":"brief"} for the axes. Keeping photos or quantities visible does not request a surface. Never emit "card" for the default surface.
+- Keep supplied variant names in the line data. If asked to hide only those notes, write exactly {"detail":"brief"} for the axes.

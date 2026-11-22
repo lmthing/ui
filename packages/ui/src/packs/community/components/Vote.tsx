@@ -21,7 +21,7 @@ export const meta = {
   tier: "people",
   realPath:
     "A shared app snapshots eligible voters at opening, accepts one replaceable ballot per member and freezes the decision at closing.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], arrange: ["grid", "rows"] },
+  variants: { arrange: ["grid", "rows"] },
   parts: [
     "root", "motion", "detail", "opens", "closes", "quorum", "rule", "participation", "status",
     "decision", "own", "for", "for_label", "against", "against_label", "abstain", "abstain_label",
@@ -156,8 +156,8 @@ function Quorum({ copy, facts, density, loading, label }: {
 // prettier-ignore
 export function Vote(input: c.Props<typeof props, typeof meta>) {
   const state = kit.useComponentState(), loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   const { lang, words: { vote: w } } = kit.useWords(communityWordsFor);
   const live = kit.useLiveControls(meta, input);

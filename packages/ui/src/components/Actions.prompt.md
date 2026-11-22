@@ -8,4 +8,4 @@ Two to four separate navigation shortcuts together, such as logging, adding and 
 
 ## Writer
 
-- Vertically stacked shortcuts set arrange to "rows" only. The surface field must be null unless a specific surface treatment was requested; never write "card" as a default. If no arrangement is requested, use null for arrange.
+- Vertically stacked shortcuts set arrange to "rows" only. If no arrangement is requested, use null for arrange.

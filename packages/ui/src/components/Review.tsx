@@ -13,7 +13,7 @@ import {
   KitTrail,
   useComponentState,
   useLiveControls,
-  useVariant,
+  useKit,
 } from "../kit";
 import {
   wordsFor,
@@ -39,6 +39,7 @@ import {
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
 } from "../catalog";
 import { prompt } from "../entry/prompt-Review.generated";
 // Core first: Scale/stars records one person's rating, not client reviews, replies or an aggregate breakdown.
@@ -54,7 +55,7 @@ export const meta = {
   weight: 2,
   tier: "people",
   realPath: "Reviews left by clients in a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["bars", "response"] } },
   items: { key: "reviews", parts: [
     "root", "stars", "name", "date", "text", "response", "reply", "reply_label",
@@ -128,7 +129,7 @@ export const examples = [
       { stars: 4, name: "Mia Jones", date: "2026-11-17", text: "Reliable pickups and clear updates." },
     ],
   },
-  { ...breakdown, density: "compact", surface: "outlined", detail: "brief" },
+  { ...breakdown, detail: "brief" },
   {
     style: "list",
     reviews: [
@@ -166,11 +167,12 @@ export const probes = [
   read("Reveal the plot detail hidden in Ana's review", { address: "r1/r2", action: "toggle" }, 3),
 ] satisfies Probe[];
 type ReviewProps = Props<typeof props, typeof meta>;
-type ReviewView = ReviewProps & { density: NonNullable<ReviewProps["density"]> };
+type ReviewView = ReviewProps & { density: ThemeDensity };
 type ReviewItem = NonNullable<ReviewProps["reviews"]>[number] & { expanded?: boolean };
 function ReviewSummary(input: ReviewView) {
   const { lang } = useWords();
-  const { density, surface, detail } = input;
+  const { density, detail } = input;
+  const surface = "card";
   return (
     <KitCard part="root" padded {...{ density, surface }}>
       <KitText
@@ -204,7 +206,7 @@ function ReviewBars({
 }: {
   bars: number[];
   count: number;
-  density: ReviewView["density"];
+  density: ThemeDensity;
   lang: string;
 }) {
   const compact = density === "compact";
@@ -226,7 +228,7 @@ function ReviewBars({
     .reverse();
   return compact ? <KitContent {...{ density }} children={meters} /> : meters;
 }
-function ReviewEntry({ review, density }: { review: ReviewItem; density: ReviewView["density"] }) {
+function ReviewEntry({ review, density }: { review: ReviewItem; density: ThemeDensity }) {
   const {
     lang,
     words: { reviewLabels: words },
@@ -284,7 +286,7 @@ function ReviewEntry({ review, density }: { review: ReviewItem; density: ReviewV
   );
 }
 
-function ReviewAuthor(review: ReviewItem, density: ReviewView["density"], verified: string) {
+function ReviewAuthor(review: ReviewItem, density: ThemeDensity, verified: string) {
   return (
     <KitRow
       inline
@@ -302,7 +304,7 @@ function ReviewAuthor(review: ReviewItem, density: ReviewView["density"], verifi
   );
 }
 
-function ReviewDetails({ review, density }: { review: ReviewItem; density: ReviewView["density"] }) {
+function ReviewDetails({ review, density }: { review: ReviewItem; density: ThemeDensity }) {
   const {
     lang,
     words: { reviewLabels: words },
@@ -345,17 +347,17 @@ function ReviewDetails({ review, density }: { review: ReviewItem; density: Revie
 }
 export function Review(input: ReviewProps) {
   const state = useComponentState();
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const live = useLiveControls(meta, input) as ReviewView & { reviews?: ReviewItem[] };
   if (state === "empty")
     return (
-      <KitCard part="root" {...{ density }} surface={input.surface}>
+      <KitCard part="root" {...{ density }} surface="card">
         <KitEmpty part="text" />
       </KitCard>
     );
   if (input.style === "summary") return <ReviewSummary {...input} density={density} />;
   return (
-    <KitCard part="root" padded {...{ density }} surface={input.surface}>
+    <KitCard part="root" padded {...{ density }} surface="card">
       {live.reviews?.map((review, index) => (
         <KitContent key={review.id} group={index ? "response" : "content"} {...{ density }}>
           <ReviewEntry {...{ review, density }} />

@@ -37,8 +37,6 @@ export const meta = {
   tier: "phone",
   realPath: "The device's clock and time zone data provide the current times and offsets.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "plain"],
     arrange: ["grid", "rows"],
   },
   parts: ["root"],
@@ -84,7 +82,7 @@ const comparisonPlaces = [
 
 export const examples = [
   { places: comparisonPlaces },
-  { density: "compact", places: comparisonPlaces },
+  { places: comparisonPlaces },
   { arrange: "rows", places: comparisonPlaces },
 ] satisfies z.input<typeof props>[];
 
@@ -134,8 +132,8 @@ function ClockPlace({ reading, density, inRows, home }: ClockPlaceProps) {
 
 export function Clocks(input: c.Props<typeof props, typeof meta>) {
   const { words, lang } = kit.useWords(tripsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   const inRows = arrange === "rows";
   const readings = clockReadings(input.places, new Date(), lang);

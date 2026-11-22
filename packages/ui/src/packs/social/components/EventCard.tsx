@@ -17,7 +17,7 @@ export const meta = {
   weight: 2,
   tier: "people",
   realPath: "An event in a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["cover", "none"] },
+  variants: { media: ["cover", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
   // prettier-ignore
   parts: ["root", "frame", "title", "date", "month", "time", "place", "photo", "attendees", "count",
@@ -180,8 +180,8 @@ function EventActions({ status, density, loading }: EventFinish & Pick<EventProp
 // prettier-ignore
 export function EventCard(input: EventProps) {
   const loading = kit.useComponentState() === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const { words: { event }, lang } = kit.useWords(socialWordsFor);
   const { attendance, ...date } = eventCopy(input, lang);

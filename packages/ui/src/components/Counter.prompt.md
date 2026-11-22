@@ -8,4 +8,4 @@ One count whose plus button increments and minus button decrements the number by
 
 ## Writer
 
-- Write JSON null for unrequested axes, not the default values. An abbreviated count sets only figures "short", never density; preserve the exact value and step.
+- Write JSON null for unrequested axes, not the default values. An abbreviated count sets only figures "short"; preserve the exact value and step.

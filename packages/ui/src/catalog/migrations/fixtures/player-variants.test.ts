@@ -17,7 +17,7 @@ const { props, meta } = components.Player;
 
 it("migrates saved compact playback without losing its source, artwork, id or actions", () => {
   const migrated = migrateLine(legacy);
-  expect(migrated).toMatchObject({ id: "p1", state: "filled", density: "compact", detail: "brief" });
+  expect(migrated).toMatchObject({ id: "p1", state: "filled", detail: "brief" });
   expect(migrated).not.toHaveProperty("style");
   const { c: _c, id, state: _state, ...saved } = migrated;
   const parsed = props.parse(saved);
@@ -29,15 +29,14 @@ it("migrates saved compact playback without losing its source, artwork, id or ac
     at: legacy.at,
   });
   expect(affordancesOf(meta, parsed, String(id))).toEqual(
-    affordancesOf(meta, props.parse({ ...saved, detail: "full", density: "comfortable" }), "p1"),
+    affordancesOf(meta, props.parse({ ...saved, detail: "full" }), "p1"),
   );
 });
 
 it("keeps explicit destinations and structural video", () => {
-  expect(migrateLine({ ...legacy, density: "comfortable", detail: "full" })).toMatchObject({
-    density: "comfortable",
-    detail: "full",
-  });
+  const migrated = migrateLine({ ...legacy, density: "comfortable", detail: "full" });
+  expect(migrated).toMatchObject({ detail: "full" });
+  expect(migrated).not.toHaveProperty("density");
   const video = { ...legacy, style: "video" };
   expect(migrateLine(video)).toBe(video);
 });

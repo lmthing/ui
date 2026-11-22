@@ -18,8 +18,6 @@ export const meta = {
   tier: "phone",
   realPath: "The recordings are media files on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "plain", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["sub"] } },
@@ -167,8 +165,9 @@ function PlaylistRow(row: RowProps) {
 
 // prettier-ignore
 export function Playlist(input: PlaylistProps) {
-  const { items, playing, style, surface } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const { items, playing, style } = input;
+  const surface = "card";
+  const density = kit.useKit().density;
   const context = kit.usePartContext();
   const episodes = style === "episodes";
   const loading = context.state === "loading";

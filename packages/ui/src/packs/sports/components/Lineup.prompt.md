@@ -9,4 +9,4 @@ Starters arranged in their playing lines on a pitch or grouped by position, with
 ## Writer
 
 - Write lines from the back of the pitch to the front. Put only starters in lines; put substitutes in subs.
-- For the formation without the count beside the title, write "detail":"brief" and keep the lines and subs. Otherwise write "detail":null. The ordinary layout, including a request to keep it unchanged, is "density":null and "surface":null, never "surface":"card".
+- For the formation without the count beside the title, write "detail":"brief" and keep the lines and subs. Otherwise write "detail":null.

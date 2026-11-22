@@ -20,8 +20,6 @@ export const meta = {
   partTiers: { root: "people" },
   realPath: "The organiser records results on one phone; others follow the cup in a shared app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["a_score", "b_score"] } },
@@ -80,8 +78,6 @@ export const examples = [
     ],
   },
   {
-    density: "compact",
-    surface: "outlined",
     rounds: [{ label: "Final", ties: [{ a: "Trot Town", b: "River Rovers", aScore: 2, bScore: 4 }] }],
   },
 ] satisfies z.input<typeof props>[];
@@ -112,8 +108,8 @@ type BracketProps = c.Props<typeof props, typeof meta>;
 export function Bracket(input: BracketProps) {
   const { lang, words } = kit.useWords(sportsWordsFor);
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   return (
     <kit.KitCard part="root" padded {...{ density, surface }}>

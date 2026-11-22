@@ -17,7 +17,6 @@ export const meta = {
   tier: "phone",
   realPath: "The text is stored on or bundled with the app.",
   variants: {
-    density: ["comfortable", "compact"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["title", "by", "date", "reading_time", "photo"] } },
@@ -214,7 +213,7 @@ function ArticleBody({ input, density, loading, full }: Layout & { full: boolean
   );
 }
 export function Article(input: ArticleProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const loading = kit.useComponentState() === "loading";
   const { photo, paper, style } = input;

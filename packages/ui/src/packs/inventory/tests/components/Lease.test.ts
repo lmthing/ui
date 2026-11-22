@@ -45,7 +45,7 @@ describe("Lease schema", () => {
 
   it("accepts exact limits and derives defaults without adding model-owned IDs", () => {
     const boundary = { ...terms, tenant: "t".repeat(24), place: "p".repeat(32), due: 1 };
-    expect(props.parse(boundary)).toMatchObject({ ...boundary, detail: "full", surface: "card" });
+    expect(props.parse(boundary)).toMatchObject({ ...boundary, detail: "full" });
     expect(props.parse({ ...terms, tenant: "  Ana  " }).tenant).toBe("Ana");
     expectTypeOf<Props<typeof props, typeof meta>["rent"]>().toEqualTypeOf<number>();
     expectTypeOf<Props<typeof props, typeof meta>>().not.toHaveProperty("color");
@@ -141,7 +141,7 @@ describe("Lease state and parts", () => {
 
   it("brief hides the start date and deposit without changing the stored terms or the other parts", () => {
     setDay(2, 29);
-    const input = { ...terms, detail: "brief", surface: "plain", density: "compact" };
+    const input = { ...terms, detail: "brief" };
     expect(props.parse(input)).toMatchObject(terms);
     const hidden = meta.variantParts["detail.brief"].hides.map(at);
     expect([...render(input).keys()]).toEqual(

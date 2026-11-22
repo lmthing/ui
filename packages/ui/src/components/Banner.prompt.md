@@ -8,4 +8,4 @@ A separate warning or status strip above the main content, such as a closure or 
 
 ## Writer
 
-- Warnings use the default surface and tone: set both fields to null unless a different finish is explicitly requested. To hide the icon, set only media to "none"; otherwise use null for media and put a custom icon in icon.
+- The default banner is already a warning. A request to warn someone does not set tone; leave it null unless the brief requests a different status treatment. To hide the icon, set only media to "none"; otherwise use null for media and put a custom icon in icon.

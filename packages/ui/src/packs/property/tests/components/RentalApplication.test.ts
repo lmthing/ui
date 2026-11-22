@@ -86,7 +86,7 @@ describe("RentalApplication drawn states and addresses", () => {
   it("retains finish addresses and omits the notes and decision controls in brief", () => {
     const addresses = (input: unknown) => [...addressedElements(render(input)).keys()];
     const full = addresses(application);
-    expect(addresses({ ...application, density: "compact", surface: "outlined" })).toEqual(full);
+    expect(addresses({ ...application })).toEqual(full);
     expect(full).toEqual(
       expect.arrayContaining([
         "home/r1/root",

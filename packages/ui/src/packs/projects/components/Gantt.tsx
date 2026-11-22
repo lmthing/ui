@@ -21,7 +21,7 @@ export const meta = {
   tier: "phone",
   realPath:
     "Scheduled tasks and milestone dates are stored on the device, with dependency links checked for cycles.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["dates", "after", "conflict"] } },
   parts: ["root", "range", "chart", "empty"],
   items: { key: "targets", parts: ["root", "title", "dates", "after", "conflict", "outside"] },
@@ -109,7 +109,7 @@ export const examples = [
     ],
     gates: [{ title: "Plan ready", due: "2026-11-18", goto: "garden_scope" }] },
   routeGuide,
-  { ...routeGuide, density: "compact" },
+  { ...routeGuide },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Gantt");
@@ -138,7 +138,7 @@ type ScheduleCopy = ReturnType<typeof ganttCopy<View["targets"][number]>>;
 type GanttWords = ReturnType<typeof projectsWordsFor>["gantt"];
 
 // prettier-ignore
-function ScheduleDetails({ copy, words, density, loading }: { copy: ScheduleCopy; words: GanttWords; density: View["density"]; loading: boolean }) {
+function ScheduleDetails({ copy, words, density, loading }: { copy: ScheduleCopy; words: GanttWords; density: c.ThemeDensity; loading: boolean }) {
   return <kit.KitContent group="response" density={density}>
     {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", copy.details]]} /> :
       <kit.KitText role="label" tone="muted" part={null}>{copy.details}</kit.KitText>}
@@ -174,7 +174,7 @@ export function Gantt(input: View) {
   const state = kit.useComponentState();
   const { lang, words: { gantt: words } } = kit.useWords(projectsWordsFor);
   const loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const chart = state === "empty" ? undefined : ganttChart(input, lang);
   const copy = state === "empty" ? undefined : ganttCopy({ ...input, detail }, lang);

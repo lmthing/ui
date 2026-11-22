@@ -15,7 +15,7 @@ export const meta = {
   writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "A query over records on the device.",
-  variants: { density: ["compact", "comfortable"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["count"] } },
   parts: ["root", "header", "matrix", "count", "empty"],
   items: { key: "rows", parts: ["root", "pick", "status_1", "status_2", "status_3", "status_4", "status_5", "status_6"] },
@@ -83,10 +83,10 @@ export const examples = [
   {
     columns: [{ label: "Plant", kind: "text" }, { label: "Tag", kind: "status" }, { label: "Pots", kind: "number" }],
     rows: [{ cells: ["Boston fern", "Good", 3], goto: "fern" }, { cells: ["Rubber fig", "Check", 2], goto: "rubber" }],
-    sort: 1, selectable: true, density: "compact",
+    sort: 1, selectable: true,
   },
   {
-    selectable: false, density: "compact",
+    selectable: false,
     columns: [{ label: "Route", kind: "text" }, { label: "Walks", kind: "number" }, { label: "Takings", kind: "money" }],
     rows: [{ cells: ["Canal loop", 8, 96] }, { cells: ["Hill circuit", 5, 75] }],
   },
@@ -179,7 +179,7 @@ function fitTable({ columns, rows }: ViewProps, lang: string) {
 export function Table(input: ViewProps) {
   const state = kit.useComponentState();
   const { lang, words } = kit.useWords(dataWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const loading = state === "loading", count = tableCount(input.rows.length, lang);
   if (state === "empty")

@@ -21,8 +21,6 @@ export const meta = {
   tier: "phone",
   realPath: "Measurement specifications are stored with the product record on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["model_note"] } },
@@ -85,7 +83,6 @@ export const examples = [
   {
     unit: "in",
     style: "fit",
-    surface: "outlined",
     columns: ["Chest", "Neck"],
     rows: [
       { size: "Small", values: [18, 12] },
@@ -171,8 +168,8 @@ export function SizeGuide(input: GuideProps) {
   const { words } = kit.useWords(commerceWordsFor);
   const state = kit.useComponentState();
   const loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const live = kit.useLiveControls(meta, input) as GuideProps;
   const unit = live.displayUnit ?? live.unit;
   const copy = words.sizeGuide;

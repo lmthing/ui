@@ -21,7 +21,7 @@ afterEach(() => vi.useRealTimers());
 
 it("keeps grid defaults and preserves task addresses in full-width rows", () => {
   const input = examples[0]!;
-  expect(props.parse(input)).toMatchObject({ arrange: "grid", surface: "card" });
+  expect(props.parse(input)).toMatchObject({ arrange: "grid" });
   expect(props.safeParse({ ...input, arrange: "strip" }).success).toBe(false);
   const rows = { ...input, arrange: "rows" };
   const html = renderInstance("CareSchedule", rows, "filled", theme);

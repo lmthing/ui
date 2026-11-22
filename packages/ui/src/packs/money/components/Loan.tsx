@@ -16,7 +16,7 @@ export const meta = {
   tier: "phone",
   realPath:
     "Opening terms and payment records saved on the device; code estimates monthly interest and repayments, never transfers money.",
-  variants: { detail: ["brief", "full"], density: ["comfortable", "compact"] },
+  variants: { detail: ["brief", "full"] },
   variantParts: { "detail.full": { adds: ["schedule"] } },
   parts: ["root", "name", "principal", "rate", "payment", "balance", "next", "finish", "schedule", "edit"],
   states: ["filled", "loading", "success", "error"],
@@ -79,7 +79,7 @@ export const examples = [
     name: "Ana's friend loan", principal: 480, rate: 0, payment: 40, firstDue: "2026-11-01",
     payments: [{ due: "2026-11-01", amount: 40 }], goto: "friend_terms", detail: "full",
   },
-  { ...carLoan, detail: "full", density: "compact" },
+  { ...carLoan, detail: "full" },
   { name: "Trot rain gear", principal: 120, rate: 0, payment: 30, firstDue: "2026-12-14",
     payments: [], cadence: "biweekly", style: "installments" },
   { ...carLoan, name: "Trot van loan", cadence: "weekly", payment: 70 },
@@ -166,7 +166,7 @@ export function Loan(input: c.Props<typeof props, typeof meta>) {
   const copy = loanCopy(input, state, lang);
   const { goto } = input;
   const loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   // prettier-ignore
   return (
     <kit.KitCard part="root" padded density={density}>

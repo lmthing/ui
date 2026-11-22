@@ -11,7 +11,7 @@ import {
   type Definition,
 } from "@lmthing/ui/catalog";
 
-const variants = { density: ["comfortable", "compact"], trail: ["chevron", "toggle"] } as const;
+const variants = { detail: ["full", "brief"], trail: ["chevron", "toggle"] } as const;
 const itemAxes = { trail: ["chevron", "toggle"], mark: ["none", "highlight"] } as const;
 const list = {
   ...components.List,
@@ -34,7 +34,7 @@ const list = {
 
 it("defaults invalid declared values and removes inapplicable flat axes without mutation", () => {
   const input = {
-    density: 2,
+    detail: 2,
     emphasis: "hero",
     trail: "toggle",
     rows: [{ title: "Fern", trail: "badge", mark: "glow", tone: "good" }, { title: "Basil" }],
@@ -43,7 +43,7 @@ it("defaults invalid declared values and removes inapplicable flat axes without 
   const result = repairVariants(list, input);
   expect(result).toEqual({
     props: {
-      density: "comfortable",
+      detail: "full",
       trail: "toggle",
       rows: [{ title: "Fern", trail: "chevron", mark: "none" }, { title: "Basil" }],
     },
@@ -57,9 +57,9 @@ it("defaults invalid declared values and removes inapplicable flat axes without 
 it("preserves valid values, omissions, and fields with established non-variant meanings", () => {
   const input = { rows: [{ title: "Fern", mark: "highlight" }] };
   expect(repairVariants(list, input).props).toBe(input);
-  expect(list.props.parse(repairVariants(list, input).props)).not.toHaveProperty("density");
-  expect(repairVariants(list, { ...input, density: undefined, emphasis: undefined })).toEqual({
-    props: { ...input, density: undefined },
+  expect(list.props.parse(repairVariants(list, input).props)).toHaveProperty("detail", "full");
+  expect(repairVariants(list, { ...input, detail: undefined, emphasis: undefined })).toEqual({
+    props: { ...input, detail: undefined },
     codes: ["R2.variant"],
   });
   const legacy = { rows: [{ title: "Fern", trail: "toggle" }] };

@@ -20,8 +20,6 @@ export const meta = {
   tier: "phone",
   realPath: "Records with a stage field on the device.",
   variants: {
-    density: ["compact", "comfortable"],
-    surface: ["plain", "outlined"],
     arrange: ["strip", "rows"],
   },
   parts: ["root", "columns", "empty"],
@@ -122,14 +120,14 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type ViewProps = c.Props<typeof props, typeof meta>;
-export function Board({ columns, cards, density: requestedDensity, surface, arrange }: ViewProps) {
-  const density = kit.useVariant("density", meta.variants.density, requestedDensity);
+export function Board({ columns, cards, arrange }: ViewProps) {
+  const density = kit.useKit().density;
   const layout = kit.useVariant("arrange", meta.variants.arrange, arrange);
   const state = kit.useComponentState();
   const { words, lang } = kit.useWords(dataWordsFor);
   const currency = kit.useAppCurrency();
   const stages = boardStages(columns, cards, lang, currency);
-  const background = state === "empty" && surface === "plain" ? "card" : surface;
+  const background = state === "empty" ? "card" : "plain";
   const cardSlots = (card: ViewProps["cards"][number]): StageCard => {
     const { id, column, goto, title, tag, who, value } = card;
     const lines: StageCard["lines"][number][] = [{ part: "title", role: "body", text: title, density }];
@@ -149,7 +147,7 @@ export function Board({ columns, cards, density: requestedDensity, surface, arra
     return { id, column, goto, label: title, lines, destinations };
   };
   return (
-    <kit.KitCard density={density} padded={surface === "outlined"} surface={background}>
+    <kit.KitCard density={density} surface={background}>
       {state === "empty" ? (
         <kit.KitEmpty part="empty" decorativeIcon />
       ) : (

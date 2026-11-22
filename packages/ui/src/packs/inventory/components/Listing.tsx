@@ -17,7 +17,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Listings live on the device; contacting the advertiser requires a service.",
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "plain"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["about"] } },
   // prettier-ignore
   parts: ["root", "title", "price", "per", "beds", "baths", "area", "area_unit",
@@ -158,8 +158,8 @@ function ListingLoading({ input, copy, density }: { input: ListingProps; copy: L
 // prettier-ignore
 export function Listing(input: ListingProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { screen, component } = kit.usePartContext();
   const saved = kit.useControlValue(`${screen}/${component}/save`, false);

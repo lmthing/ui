@@ -5,11 +5,11 @@ import {
   placeholderValue,
   probesFor,
   text,
-  variantProps,
   type CastLike,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import {
   KitCard,
@@ -39,7 +39,7 @@ export const meta = {
   signature: "ring_fill",
   realPath: "Totals stored on the device; phone health-store or watch imports need read permission.",
   writeHints: prompt.writeHints,
-  variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["of"] } },
   items: { key: "rings", parts: ["root", "label", "value", "of", "unit"] },
   parts: ["root", "rings"],
@@ -125,7 +125,8 @@ const ringNumber = (value: number, count: number) =>
   ({ role: "number", align: "center", tabular: true, numberScale: numberScaleOf(value, count) }) as const;
 
 // prettier-ignore
-export function ActivityRings({ rings, detail, surface }: Props<typeof props, typeof meta>) {
+export function ActivityRings({ rings, detail }: Props<typeof props, typeof meta>) {
+  const surface = "card";
   const full = useVariant("detail", meta.variants.detail, detail) === "full";
   const { lang } = useWords();
   const loading = useComponentState() === "loading";

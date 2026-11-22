@@ -21,7 +21,7 @@ export const meta = {
   realPath: "Coursework grades stored locally or synced from a school LMS host.",
   dense: true,
   writeHints: prompt.writeHints,
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["term", ...dates] } },
   parts: ["root", "course", "term", "grade", "status"],
   items: {
@@ -92,7 +92,7 @@ export const examples = [
     ] },
     { label: "Knowledge checks", weight: 40, items: [{ title: "Light and humidity", earned: 17, possible: 20 }] },
   ] },
-  { course: "Dog Walking Basics", term: "Winter term", scale: "gpa", style: "summary", surface: "outlined",
+  { course: "Dog Walking Basics", term: "Winter term", scale: "gpa", style: "summary",
     categories: [{ label: "Field assessment", weight: 100,
       items: [{ title: "Practice walk", earned: 19, possible: 20 }, { title: "Final walk", possible: 20 }] }] },
 ] satisfies z.input<typeof props>[];
@@ -153,8 +153,8 @@ export function Gradebook(input: View) {
   const state = kit.useComponentState();
   const thing = kit.useEmptyThing();
   const { lang, words: { gradebook: words } } = kit.useWords(learningWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const grade = courseGrade(input, lang);
   const body = <><kit.KitHeader density={density} title={{ text: input.course, part: "course" }}

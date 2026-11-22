@@ -1,7 +1,9 @@
 import { z } from "zod";
 // prettier-ignore
 import { clock, isoDate, itemsOf, placeholderTitle, probesFor, screenId, text, timeOfDayLine,
-  thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+  thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props,
+  variantProps,
+} from "../../../catalog";
 import { KitAction, KitCard, KitContent, KitEmpty, useComponentState, useWords } from "../../../kit";
 import { TimelineFlow, type TimelineFlowGroup } from "../../../kit/timeline";
 import {
@@ -28,7 +30,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "Events stay on the device; sharing a family calendar needs people and syncing needs a service.",
-  variants: { group: ["dates", "none"], surface: ["card", "outlined"] },
+  variants: { group: ["dates", "none"] },
   items: {
     key: "entries",
     parts: ["root", "date", "time", "title", "who", "conflict"],
@@ -149,7 +151,8 @@ function AgendaEvents({ entries, headings, lang }: { entries: Entry[]; headings:
   return <TimelineFlow groups={[...groups.values()]} />;
 }
 
-export function Agenda({ entries, goto, group, surface }: AgendaProps) {
+export function Agenda({ entries, goto, group }: AgendaProps) {
+  const surface = "card";
   const state = useComponentState();
   const {
     lang,

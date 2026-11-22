@@ -7,11 +7,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import {
   KitCard,
@@ -23,7 +23,6 @@ import {
   useControlValue,
   usePartContext,
   useWords,
-  useVariant,
 } from "../../../kit";
 import { amountPadDisplay, amountPadKeys, amountPadReading, amountPadText } from "../copy";
 import { moneyWordsFor } from "../lang";
@@ -41,7 +40,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "An amount saved to a new entry on the device.",
-  variants: { detail: ["full", "brief"], surface: ["card", "outlined"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["note"] } },
   parts: ["root", "label", "value", "pad", "note"],
   items: { key: "keys", parts: ["root"] },
@@ -82,7 +81,7 @@ export const examples = [
   ledgePad,
   { label: "Trot walking income", note: false },
   { ...ledgePad, detail: "brief" },
-  { ...ledgePad, surface: "outlined" },
+  { ...ledgePad },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("AmountPad");
@@ -112,7 +111,7 @@ export function AmountPad(input: Props<typeof props, typeof meta>) {
   const { lang, words } = useWords(moneyWordsFor);
   const initialText = amountPadText(input.value);
   const draft = useControlValue(formatAddress({ screen, component, part: "pad" }), initialText);
-  const surface = useVariant("surface", meta.variants.surface, input.surface);
+  const surface = "card";
   const keys = amountPadKeys(words.amountPad, Boolean(draft));
   return (
     <KitCard surface={surface} part="root" padded={state !== "empty"}>

@@ -17,6 +17,7 @@ import {
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
 } from "../catalog";
 import { prompt } from "../entry/prompt-People.generated";
 
@@ -34,8 +35,6 @@ export const meta = {
   items: { key: "members", parts: ["root", "photo", "name", "role", "online", "status_text"] },
   parts: ["root", "more"],
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["role"] } },
@@ -116,8 +115,8 @@ export const examples = [
     members: [{ name: "Anna", photo: "lib:anna" }, { name: "Ben" }, { name: "Carla", photo: "lib:carla" }],
   },
   { detail: "brief", members: walkMembers },
-  { density: "compact", members: walkMembers },
-  { surface: "outlined", members: walkMembers },
+  { members: walkMembers },
+  { members: walkMembers },
   {
     style: "rail",
     members: [
@@ -156,7 +155,7 @@ export const probes = [
 
 type PeopleProps = Props<typeof props, typeof meta>;
 
-function MemberRows({ members, density }: Pick<PeopleProps, "members" | "density">) {
+function MemberRows({ members, density }: Pick<PeopleProps, "members"> & { density: ThemeDensity }) {
   const reserve = members.some((person) => person.photo);
   return members.map((member) => (
     <kit.KitRow
@@ -188,7 +187,7 @@ function MemberRows({ members, density }: Pick<PeopleProps, "members" | "density
   ));
 }
 
-function MemberRail({ members, density }: Pick<PeopleProps, "members" | "density">) {
+function MemberRail({ members, density }: Pick<PeopleProps, "members"> & { density: ThemeDensity }) {
   const { words } = kit.useWords();
   const cards = members.map((member) => (
     <kit.KitRow
@@ -243,10 +242,11 @@ function MemberRail({ members, density }: Pick<PeopleProps, "members" | "density
   );
 }
 
-export function People({ style, members, more, surface, density: inputDensity }: PeopleProps) {
+export function People({ style, members, more }: PeopleProps) {
+  const surface = "card";
   const { lang } = kit.useWords();
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, inputDensity);
+  const density = kit.useKit().density;
   const railCards = style === "rail" && surface === "card";
   return (
     <kit.KitCard

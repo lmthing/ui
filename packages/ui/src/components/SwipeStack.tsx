@@ -8,11 +8,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
 import {
   KitCard,
@@ -22,7 +22,7 @@ import {
   KitSwipeStack,
   KitText,
   useComponentState,
-  useVariant,
+  useKit,
 } from "../kit";
 import { prompt } from "../entry/prompt-SwipeStack.generated";
 
@@ -38,7 +38,6 @@ export const meta = {
   tier: "phone",
   realPath: "An ordered set of on-device records with a keep or skip decision stored for each.",
   variants: {
-    density: ["comfortable", "compact"],
     detail: ["full", "brief"],
     media: ["cover", "none"],
   },
@@ -104,7 +103,7 @@ export const examples = [
   { cards: [{ title: "Aloe" }, { title: "Pothos" }] },
   { detail: "brief", cards: [...dogChoices] },
   { media: "none", cards: [...dogChoices] },
-  { density: "compact", cards: [...dogChoices] },
+  { cards: [...dogChoices] },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("SwipeStack");
@@ -158,9 +157,9 @@ function SwipeCard({ card, compact }: { card: StackProps["cards"][number]; compa
   );
 }
 
-export function SwipeStack({ cards, density: requestedDensity }: StackProps) {
+export function SwipeStack({ cards }: StackProps) {
   const state = useComponentState();
-  const density = useVariant("density", meta.variants.density, requestedDensity);
+  const density = useKit().density;
   if (state === "empty") {
     return (
       <KitCard style="inset" part="root">

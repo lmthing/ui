@@ -1,4 +1,4 @@
-import { useVariant, useWords, KitAction, KitCard, KitContent, KitGrid, KitRow, KitText } from "../kit";
+import { useWords, KitAction, KitCard, KitContent, KitGrid, KitRow, KitText, useKit } from "../kit";
 import {
   wordsFor,
   probesFor,
@@ -16,6 +16,7 @@ import {
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
 } from "../catalog";
 import { z } from "zod";
 import { prompt } from "../entry/prompt-Timer.generated";
@@ -32,7 +33,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "A countdown or stopwatch based on timestamps stored on the phone.",
-  variants: { density: ["comfortable", "compact"], figures: ["exact", "short"] },
+  variants: { figures: ["exact", "short"] },
   parts: ["root", "time", "label", "start", "stop", "goal"],
   states: ["filled"],
   clocks: [
@@ -130,7 +131,7 @@ export const examples = [
   { style: "down", label: "Soak the orchid", seconds: 600 },
   { style: "up", label: "Walk timer", seconds: 1260 },
   { style: "until", label: "Our wedding day", until: "2030-06-14", at: "14:00" },
-  { style: "up", label: "Walk timer", seconds: 1260, density: "compact" },
+  { style: "up", label: "Walk timer", seconds: 1260 },
   { style: "up", label: "Walk timer", seconds: 1260, figures: "short" },
   { style: "up", label: "Walk timer", seconds: 1260, goal: 1800 },
 ] satisfies z.input<typeof props>[];
@@ -143,7 +144,7 @@ export const probes = [
   write("Count down the days left until our wedding on 14 June 2030 at 2pm, labelled Our wedding day"),
   {
     ...write(
-      "Time the orchid soak with start and stop. Keep 650 seconds as the starting value but show only whole minutes, like 10 min instead of 10:50. Leave the spacing unchanged, with no density override.",
+      "Time the orchid soak with start and stop. Keep 650 seconds as the starting value but show only whole minutes, like 10 min instead of 10:50.",
     ),
     variant: { axis: "figures", value: "short" },
   },
@@ -156,7 +157,7 @@ export const probes = [
 
 type TimerProps = Props<typeof props, typeof meta>;
 
-function TimerReadout(input: TimerProps, density: TimerProps["density"], lang?: string) {
+function TimerReadout(input: TimerProps, density: ThemeDensity, lang?: string) {
   const { style, label, figures, goal } = input;
   const controls = style !== "until";
   const value = controls ? timerLine(input, lang) : leftLine(untilMs(input), lang);
@@ -187,7 +188,7 @@ function TimerReadout(input: TimerProps, density: TimerProps["density"], lang?: 
 
 export function Timer(input: TimerProps) {
   const { style, label, goal } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const { lang, words } = useWords();
   const { timerLabels } = words;
   const controls = style !== "until";

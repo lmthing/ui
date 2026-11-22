@@ -8,4 +8,4 @@ An event's invitation roster with party groups, RSVP statuses, plus-ones and die
 
 ## Writer
 
-- Set detail to "brief" only when dietary notes should not be displayed. Keep supplied diet in the data. Set density and surface to JSON null unless explicitly requested.
+- Set detail to "brief" only when dietary notes should not be displayed. Keep supplied diet in the data.
