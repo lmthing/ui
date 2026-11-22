@@ -4,7 +4,6 @@ import { createScreenController } from "@lmthing/ui/kit";
 import { elementAt, renderInstance } from "../../../../../test/render";
 
 const { meta, props, examples, fallback, probes } = components.TrainingPlan;
-const ready = String(meta.status) === "ready";
 const week = examples[0]!,
   list = examples[1]!;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -62,6 +61,7 @@ it("accepts both structures and validates exact schedule, text, and numeric boun
   ])
     expect(props.safeParse({ ...week, ...patch }).success).toBe(false);
   expect(props.safeParse({}).success).toBe(false);
+  expect(props.safeParse({ ...week, color: "#fff" }).success).toBe(false);
 });
 
 it("seeds cast titles or neutral placeholders, and preserves the near miss and pack gate", () => {
@@ -80,11 +80,16 @@ it("seeds cast titles or neutral placeholders, and preserves the near miss and p
   ).toBe(true);
   expect(meta).toMatchObject({ tier: "phone", weight: 3, dense: true });
   expect(meta).not.toHaveProperty("confirmParts");
+  expect(probes.filter(({ kind }) => kind === "choose").length).toBeGreaterThanOrEqual(2);
   expect(probes).toContainEqual(expect.objectContaining({ kind: "choose", expect: "Checklist" }));
+  expect(probes).toContainEqual(expect.objectContaining({ kind: "write", expect: meta.id }));
+  expect(probes).toContainEqual(
+    expect.objectContaining({ kind: "read", expect: { address: "p1/r3/done", action: "check" } }),
+  );
   expect(createRegistry({ packs: ["health"] }).ids.includes(meta.id)).toBe(packReady("health"));
 });
 
-it.runIf(ready)("keeps addressed rows stable across structure and detail, and never links a rest day", () => {
+it("keeps addressed rows stable across structure and detail, and never links a rest day", () => {
   const filled = html();
   const parts = [...filled.matchAll(/data-testid="(home\/p1\/[^"]+)"/g)].map((m) => m[1]);
   expect(new Set(parts).size).toBe(parts.length);
@@ -116,14 +121,12 @@ it.runIf(ready)("keeps addressed rows stable across structure and detail, and ne
 });
 
 it.each(["empty", "loading", "error"] as const)("has no actions in %s", (state) => {
-  if (ready) {
-    const output = html(week, state);
-    expect(output).toContain(at("root"));
-    expect(output).not.toMatch(/role="(?:radio|checkbox|link)"/);
-    expect(output).toContain(
-      { empty: "Nothing here yet", loading: 'aria-busy="true"', error: "Progress not saved" }[state],
-    );
-  }
+  const output = html(week, state);
+  expect(output).toContain(at("root"));
+  expect(output).not.toMatch(/role="(?:radio|checkbox|link)"/);
+  expect(output).toContain(
+    { empty: "Nothing here yet", loading: 'aria-busy="true"', error: "Progress not saved" }[state],
+  );
   const { runtime } = host(week, state);
   try {
     for (const part of ["week", "r1", "r1/done", "r3/done"])
@@ -165,7 +168,7 @@ it("switches weeks with the chip value and updates completion and links at the s
 });
 
 it("retains the schedule on success and leaves the list free of the week-select action", () => {
-  if (ready) expect(html(week, "success")).toContain("Workout marked complete");
+  expect(html(week, "success")).toContain("Workout marked complete");
   const done = host(week, "success"),
     sequential = host(list);
   try {

@@ -23,6 +23,7 @@ it("counts only workouts in each week and program, without changing row order or
     { count: 0, done: 0 },
   ]);
   expect(view.days.map(({ visible }) => visible)).toEqual([false, true, true]);
+  expect(view.hasVisibleDays).toBe(true);
   expect(planOrder(view.days).map(({ label }) => label)).toEqual(["Easy walk", "Recovery", "Long walk"]);
   expect(view.days[0]?.label).toBe("Long walk");
 });
@@ -49,4 +50,18 @@ it("reads only the chosen week or all list weeks, and hides only duration in bri
     "Mon · Long walk · Not complete",
   ]);
   expect(planDay(seed.days[0]!, "full", "ar-u-nu-arab").minutes).toBe("٣٥ min");
+});
+
+it("reads the empty week without exposing other weeks' workouts", () => {
+  const emptyWeek = { ...seed, currentWeek: 3 };
+  const view = planView(emptyWeek);
+  expect(view.hasVisibleDays).toBe(false);
+  expect(planReading({ ...emptyWeek, ...view }, "filled")).toEqual([
+    "Plan progress · 1 of 2 completed",
+    "Week 1",
+    "Week 2",
+    "Week 3",
+    "Week 3 · No scheduled workouts",
+    "No workouts planned for this week.",
+  ]);
 });

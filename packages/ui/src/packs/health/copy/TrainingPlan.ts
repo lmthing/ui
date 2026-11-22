@@ -22,12 +22,14 @@ function countWorkouts(days: readonly Day[]): Count {
 
 export function planView<D extends Day>(p: Omit<Plan, "days" | "title"> & { days: D[] }) {
   const allWeeks = Array.from({ length: p.weeks }, (_, index) => index + 1);
+  const days = p.days.map((day) => ({ ...day, visible: p.style === "list" || day.week === p.currentWeek }));
   return {
     canSelectWeek: p.style === "week" && p.weeks > 1,
     weekChoices: allWeeks.map((value) => ({ value, label: String(value) })),
     programProgress: countWorkouts(p.days),
     weeklyProgress: allWeeks.map((week) => countWorkouts(p.days.filter((day) => day.week === week))),
-    days: p.days.map((day) => ({ ...day, visible: p.style === "list" || day.week === p.currentWeek })),
+    hasVisibleDays: days.some((day) => day.visible),
+    days,
   };
 }
 
@@ -77,5 +79,6 @@ export function planReading(
           return w.line([weekday, day.label, ...(minutes ? [minutes] : []), status]);
         }),
     ]),
+    ...(visible.length ? [] : [w.emptyWeek]),
   ];
 }
