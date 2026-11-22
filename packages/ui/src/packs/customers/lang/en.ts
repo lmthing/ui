@@ -6,7 +6,20 @@ export const en = {
   paymentDate: (date: string) => `Date ${date}`,
   paymentDue: (date: string) => `Due ${date}`,
   agreementLabels: { agree: "I agree", accepted: "Accepted", name: "Full name" },
-  contactLabels: { call: "Call", message: "Message", directions: "Directions" },
+  contactLabels: { call: "Call", message: "Message", directions: "Directions", email: "Email" },
+  clientBalance: {
+    due: (amount: string) => `Owes ${amount}`,
+    credit: (amount: string) => `${amount} credit`,
+    settled: "No balance due",
+  },
+  invoiceLabels: {
+    estimate: "Estimate",
+    discount: "Discount",
+    deposit: "Deposit received",
+    balance: "Balance due",
+    download: "Download",
+    recurring: { weekly: "Repeats weekly", monthly: "Repeats monthly", quarterly: "Repeats quarterly" },
+  },
   paymentLabels: {
     paid: "Paid",
     due: "Due",
@@ -15,6 +28,10 @@ export const en = {
     mark: "Mark as paid",
     remind: "Remind",
     updated: "Update complete",
+    link: "Scan to pay",
+    copy: "Copy link",
+    share: "Share link",
+    installments: "Installment history",
   },
   followUpLabels: {
     quote: "Quote",
