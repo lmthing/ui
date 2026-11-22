@@ -795,6 +795,43 @@ The pipeline stops at R2. Region sorting, primary demotion, extras, flows/waves,
 rewrite id carry-over stay in host R3–R6. Once built, `assembleScreen` serves worked examples,
 composition and gallery fixtures; compose must still count issues before any R3 repair.
 
+#### Retirement manifests
+
+Before retiring a catalog id, record its replacement, saved-input migration, address and action
+mapping, compatibility fixtures, canonical recipe changes, and choose/write/read/compose deltas.
+Update live recipes and probes at the cutover; do not advertise a legacy alias to the Writer.
+
+##### Progress family (approved 2026-11-21; pending)
+
+| Legacy id                | Saved line migration                                                                                                                                                                                   | Addresses and actions                                                                                                                                            |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Ring`                   | `Progress`, `style: "ring"`, `bars: [{ label, value, of }]`; retain `sub`, `density`, `emphasis` and `detail`. Normalize old `md`/`lg` before changing the id.                                         | Keep `root`, `ring`, `value`, `label` and `sub` at component level; `detail: "brief"` hides but does not discard `sub`. No row `press` or synthetic row address. |
+| Health `ActivityRings`   | `Progress`, `style: "rings"`, retaining two or three ordered `rings` rows with `label`, `value`, `of` and `unit`, plus `surface` and `detail`. Keep daily-target intent, row limits and number bounds. | Keep `root`, `rings`, and `rN` with `label`, `value`, `of` and `unit`; brief hides only the target caption (`of`). No new actions.                               |
+| `Progress` (not retired) | Missing `style` means `"bars"`. Keep the existing `stack`/`compact` and row `over` migrations.                                                                                                         | Keep bar labels, amounts, units, over-target tone and linked row `press` at the original addresses.                                                              |
+
+- **Migration scope:** Add a versioned, idempotent step to stored line/screen/JSONL and applicable
+  replay loading paths, not live Writer validation. Preserve component ids and order, stamped row
+  prefixes, states, tiers and link destinations. Normalize optional nulls; an explicitly supplied
+  destination axis wins over a legacy style. No control-store key changes are needed when the
+  original addresses and verbs still resolve. Leave health `Cycle` separate.
+- **Compatibility fixtures:** Round-trip legacy `md`/`lg` and explicit finish axes, a hidden saved
+  caption, and two- and three-row health specs with distinct units and over-target values. Compare
+  filled/loading parts, brief reads, snapshot reloads and layout weight/adjacency, including
+  formerly distinct ids that become adjacent `Progress` instances. Verify `read()` and `act()` at
+  the old addresses, including a linked bar at `p1/r2` and no ring action.
+- **Canonical data:** Update core `detail`, `dashboard` and `checklist` recipes where they allow
+  `Ring`. Set `Progress[ring]` in money `wallet/goal` and invest `goals/invest_goal`, including
+  defaults, hints and the invest worked example. Set `Progress[rings]` in health `today/rings`,
+  including its defaults and worked example. Keep existing instance ids and check embedded
+  component ids and property patch paths for old shapes.
+- **Prompts and probes:** Remove both retired choices and target Progress with explicit style where
+  the brief calls for bars, a single ring or concentric rings. Keep paired gates for a bare ratio,
+  a single bar, a single ring, two to three rings, independent `Stats` and ordinal `Steps`. Assert
+  exact goal values, units and caption storage even in brief mode, not just the class or style.
+  Retarget health and the cross-pack `Rewards`, `Challenge` and `CreditScore` near misses and
+  affected compose gates. Remove retired ids from other components' pick text, compare prompt
+  sizes, and record one live run of the affected probes after the cutover.
+
 ## 5. The kit entry (`@lmthing/ui/kit`)
 
 ### 5.1 Peer dependencies
