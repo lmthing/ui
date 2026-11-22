@@ -28,10 +28,9 @@ describe("EventCard schema", () => {
     expect(props.parse({ ...input, title: "  Swap  " })).toMatchObject({
       title: "Swap",
       media: "cover",
-      surface: "card",
       status: "none",
     });
-    expect(props.parse(input).density).toBeUndefined();
+    expect(props.parse(input)).not.toHaveProperty("density");
     expect(
       props.safeParse({
         ...input,
@@ -162,7 +161,7 @@ describe("EventCard states, parts, and read", () => {
   });
   it("retains finish addresses and hides only the cover in media.none", () => {
     const defaults = [...parts(example).keys()];
-    expect([...parts({ ...example, density: "compact", surface: "outlined" }).keys()]).toEqual(defaults);
+    expect([...parts({ ...example }).keys()]).toEqual(defaults);
     const hidden = { ...example, media: "none" };
     expect([...parts(hidden).keys()]).toEqual(defaults.filter((key) => key !== address("photo")));
   });

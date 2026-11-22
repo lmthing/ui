@@ -64,7 +64,7 @@ describe("Entries options", () => {
   it("keeps link addresses and stored photos while compact hides the thumbnail", () => {
     const render = (input: unknown) => addressedElements(renderInstance("Entries", input, "filled", theme));
     expect([...render({ ...base, media: "thumb" }).keys()]).toEqual([...render(base).keys()]);
-    const compact = { ...base, density: "compact", media: "none", prompt };
+    const compact = { ...base, media: "none", prompt };
     const parts = render(compact);
     expect(parts.has(instance + "r1/photo")).toBe(false);
     expect(parts.get(instance + "r1/root")?.attributes).toContain('role="link"');

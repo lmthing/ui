@@ -17,7 +17,7 @@ export const meta = {
   weight: 2,
   tier: "people",
   realPath: "Shift notes and their acknowledgements are stored in a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["time"] } },
   parts: ["root", "message"],
   items: {
@@ -90,8 +90,8 @@ export const examples = [
       },
     ],
   },
-  { ...plantNotes, density: "compact" },
-  { ...plantNotes, surface: "outlined" },
+  { ...plantNotes },
+  { ...plantNotes },
   { ...plantNotes, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 
@@ -161,8 +161,8 @@ function HandoverNote({ note, detail, density }: NoteProps) {
 
 export function Handover(input: HandoverProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { notes } = kit.useLiveControls(meta, input) as HandoverProps;
   return (

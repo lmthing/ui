@@ -20,7 +20,7 @@ export const meta = {
   tier: "phone",
   realPath:
     "An on-device opening statement and later trades use stored dated quotes; live refresh needs a market data service, and missing quotes stay unknown.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["unit_cost", "price", "quoted_at", "gain"] } },
   parts: ["root", "refresh", "refresh_label", "notice", "count"],
   items: {
@@ -86,7 +86,7 @@ export const examples = [
   },
   {
     portfolioId: "pension", asOf: "2026-02-01T00:00:00+01:00",
-    assetId: "bond_fund", density: "comfortable",
+    assetId: "bond_fund",
     positions: [
       { assetId: "bond_fund", name: "Short Bond Fund", symbol: "SBF", class: "bond",
         units: 4.5, unitCost: 22, price: 23, quotedAt: "2026-02-12T16:00:00+01:00" },
@@ -129,7 +129,7 @@ type Position = Omit<HoldingProps["positions"][number], "price" | "quotedAt"> & 
   value?: number | null;
   gain?: number | null;
 };
-type Density = NonNullable<HoldingProps["density"]>;
+type Density = c.ThemeDensity;
 // prettier-ignore
 type Line = [part: string, text: string, role?: "caption" | "label" | "number", tone?: "muted" | "text" | "good" | "bad"];
 
@@ -173,7 +173,7 @@ function HoldingRow({ row, density, detail, state }: { row: Position; density: D
 // prettier-ignore
 export function Holdings(input: HoldingProps) {
   const sourceState = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const live = kit.useLiveControls(meta, input);
   const { lang, words: { holdings: words } } = kit.useWords(investWordsFor);

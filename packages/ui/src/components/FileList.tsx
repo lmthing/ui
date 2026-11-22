@@ -15,7 +15,7 @@ export const meta = {
   tier: "ok",
   realPath:
     "The host document picker supplies opaque references, the viewer previews them, and a host adapter downloads them.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["metadata", "pages"] } },
   parts: ["root", "message"],
   items: {
@@ -83,17 +83,49 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   return { files: files.length ? files : [unavailable(c.placeholderTitle(0, lang))] };
 }
 
-// prettier-ignore
 export const examples = [
-  { files: [
-    { fileRef: "demo_care", name: "Fern care guide.pdf", ext: "pdf", sizeBytes: 240000, pages: 4, status: "ready" },
-    { fileRef: "demo_light", name: "Light log.xlsx", ext: "sheet", sizeBytes: 18000, status: "ready" },
-    { fileRef: "demo_mixes", name: "Potting recipes.zip", ext: "zip", sizeBytes: 4200000, status: "downloading" },
-  ], removable: true },
-  { files: [
-    { fileRef: "demo_route", name: "River route notes.pdf", ext: "pdf", sizeBytes: 1400000, pages: 2, status: "ready", goto: "river_route" },
-    { fileRef: "demo_brief", name: "Walk briefing.m4a", ext: "audio", sizeBytes: 5200000, status: "missing" },
-  ], style: "cards" },
+  {
+    files: [
+      {
+        fileRef: "demo_care",
+        name: "Fern care guide.pdf",
+        ext: "pdf",
+        sizeBytes: 240000,
+        pages: 4,
+        status: "ready",
+      },
+      { fileRef: "demo_light", name: "Light log.xlsx", ext: "sheet", sizeBytes: 18000, status: "ready" },
+      {
+        fileRef: "demo_mixes",
+        name: "Potting recipes.zip",
+        ext: "zip",
+        sizeBytes: 4200000,
+        status: "downloading",
+      },
+    ],
+    removable: true,
+  },
+  {
+    files: [
+      {
+        fileRef: "demo_route",
+        name: "River route notes.pdf",
+        ext: "pdf",
+        sizeBytes: 1400000,
+        pages: 2,
+        status: "ready",
+        goto: "river_route",
+      },
+      {
+        fileRef: "demo_brief",
+        name: "Walk briefing.m4a",
+        ext: "audio",
+        sizeBytes: 5200000,
+        status: "missing",
+      },
+    ],
+    style: "cards",
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("FileList");
@@ -123,65 +155,180 @@ function fileCopy(row: z.output<typeof file>, showPages: boolean, lang?: string)
   return { size, pages, status, format: words.format[row.ext] };
 }
 
-// prettier-ignore
-function FileRow({ row, density, cards, removable, showPages }: {
-  row: File; density: c.ThemeDensity; cards: boolean; removable: boolean; showPages: boolean;
-}) {
-  const { lang, words: { fileList: words } } = kit.useWords();
+type FileRowProps = {
+  row: File;
+  density: c.ThemeDensity;
+  cards: boolean;
+  removable: boolean;
+  showPages: boolean;
+};
+
+function FileRow({ row, density, cards, removable, showPages }: FileRowProps) {
+  const {
+    lang,
+    words: { fileList: words },
+  } = kit.useWords();
   const loading = kit.useComponentState() === "loading";
   const { format, size, pages, status } = fileCopy(row, showPages, lang);
   const ready = row.status === "ready";
-  const controls = (ready || removable) && <>
-    {ready && (loading ? <kit.KitSkeleton shape="control" kind="quiet" />
-      : <kit.KitAction part="download" icon="download" kind="quiet" a11y={words.download(row.name)} />)}
-    {removable && (loading ? <kit.KitSkeleton shape="control" kind="quiet" />
-      : <kit.KitAction part="remove" icon="close" kind="quiet" a11y={words.remove(row.name)} />)}
-  </>;
-  const preview = <kit.KitRow part={loading ? null : "root"} label={row.name} inline density={density} surface="plain"
-    {...(!loading && ready && (row.goto ? { goto: row.goto } : { role: "button" as const }))}
-    leading={<kit.KitTrail kind="badge" tone="muted" part="format" value={format} density={density} />}>
-    {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
-      content={[["body", row.name], ["caption", size]]} /> : <>
-      <kit.KitText part="name" density={density} lines={2}>{row.name}</kit.KitText>
-      <FileMetadata {...{ size, pages, status, density, cards }} missing={row.status === "missing"} />
-    </>}
-  </kit.KitRow>;
-  return <kit.KitRow item={row.id} part={null} label={row.name} density={density} lineRole="heading"
-    trailing={controls}>
-    {preview}
-  </kit.KitRow>;
+  const controls = FileControls(row.name, ready, removable, loading, words);
+  const preview = (
+    <kit.KitRow
+      part={loading ? null : "root"}
+      label={row.name}
+      inline
+      density={density}
+      surface="plain"
+      {...(!loading && ready && (row.goto ? { goto: row.goto } : { role: "button" as const }))}
+      leading={<kit.KitTrail kind="badge" tone="muted" part="format" value={format} density={density} />}
+    >
+      {loading ? (
+        <kit.KitSkeleton
+          shape="figure"
+          inset="none"
+          density={density}
+          content={[
+            ["body", row.name],
+            ["caption", size],
+          ]}
+        />
+      ) : (
+        <>
+          <kit.KitText part="name" density={density} lines={2}>
+            {row.name}
+          </kit.KitText>
+          <FileMetadata {...{ size, pages, status, density, cards }} missing={row.status === "missing"} />
+        </>
+      )}
+    </kit.KitRow>
+  );
+  return (
+    <kit.KitRow
+      item={row.id}
+      part={null}
+      label={row.name}
+      density={density}
+      lineRole="heading"
+      trailing={controls}
+    >
+      {preview}
+    </kit.KitRow>
+  );
 }
 
-// prettier-ignore
-function FileMetadata({ size, pages, status, density, cards, missing }: {
-  size: string; pages: string | undefined; status: string; density: c.ThemeDensity; cards: boolean; missing: boolean;
+function FileControls(
+  name: string,
+  ready: boolean,
+  removable: boolean,
+  loading: boolean,
+  words: c.Words["fileList"],
+) {
+  return (
+    (ready || removable) && (
+      <>
+        {ready &&
+          (loading ? (
+            <kit.KitSkeleton shape="control" kind="quiet" />
+          ) : (
+            <kit.KitAction part="download" icon="download" kind="quiet" a11y={words.download(name)} />
+          ))}
+        {removable &&
+          (loading ? (
+            <kit.KitSkeleton shape="control" kind="quiet" />
+          ) : (
+            <kit.KitAction part="remove" icon="close" kind="quiet" a11y={words.remove(name)} />
+          ))}
+      </>
+    )
+  );
+}
+
+function FileMetadata({
+  size,
+  pages,
+  status,
+  density,
+  cards,
+  missing,
+}: {
+  size: string;
+  pages: string | undefined;
+  status: string;
+  density: c.ThemeDensity;
+  cards: boolean;
+  missing: boolean;
 }) {
-  const { words: { fileList: words } } = kit.useWords();
+  const {
+    words: { fileList: words },
+  } = kit.useWords();
   const tone = missing ? "bad" : "muted";
-  if (cards && pages) return <kit.KitTrack part="metadata">
-    <kit.KitTrail kind="value" tone="muted" part="size" value={size} density={density} />
-    <kit.KitTrail kind="badge" tone="muted" part="pages" value={pages} density={density} />
-    {status && <kit.KitTrail kind="value" tone={tone} part="status" value={status} density={density} />}
-  </kit.KitTrack>;
-  return <kit.KitText part={null} role="caption" tone="muted" density={density}>
-    <kit.KitText part="size" role="caption" tone="muted" density={density}>{size}</kit.KitText>
-    {pages && <>{words.separator}<kit.KitText part="pages" role="caption" tone="muted" density={density}>{pages}</kit.KitText></>}
-    {status && <>{words.separator}<kit.KitText part="status" role="caption" tone={tone} density={density}>{status}</kit.KitText></>}
-  </kit.KitText>;
+  if (cards && pages)
+    return (
+      <kit.KitTrack part="metadata">
+        <kit.KitTrail kind="value" tone="muted" part="size" value={size} density={density} />
+        <kit.KitTrail kind="badge" tone="muted" part="pages" value={pages} density={density} />
+        {status && <kit.KitTrail kind="value" tone={tone} part="status" value={status} density={density} />}
+      </kit.KitTrack>
+    );
+  return (
+    <kit.KitText part={null} role="caption" tone="muted" density={density}>
+      <kit.KitText part="size" role="caption" tone="muted" density={density}>
+        {size}
+      </kit.KitText>
+      {pages && (
+        <>
+          {words.separator}
+          <kit.KitText part="pages" role="caption" tone="muted" density={density}>
+            {pages}
+          </kit.KitText>
+        </>
+      )}
+      {status && (
+        <>
+          {words.separator}
+          <kit.KitText part="status" role="caption" tone={tone} density={density}>
+            {status}
+          </kit.KitText>
+        </>
+      )}
+    </kit.KitText>
+  );
 }
 
-// prettier-ignore
 export function FileList(input: FileListProps) {
   const state = kit.useComponentState();
-  const { words: { fileList: words } } = kit.useWords();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const {
+    words: { fileList: words },
+  } = kit.useWords();
+  const density = kit.useKit().density;
   const cards = input.style === "cards";
-  return <kit.KitCard part="root" style={cards && (state === "filled" || state === "loading") ? "cards" : "inset"} density={density}>
-    {state === "empty" || state === "error" ? <kit.KitEmpty icon={state === "empty" ? "paperclip" : "alert"} part="message"
-        {...(state === "error" && { title: words.error })} decorativeIcon /> :
+  return (
+    <kit.KitCard
+      part="root"
+      style={cards && (state === "filled" || state === "loading") ? "cards" : "inset"}
+      density={density}
+    >
+      {state === "empty" || state === "error" ? (
+        <kit.KitEmpty
+          icon={state === "empty" ? "paperclip" : "alert"}
+          part="message"
+          {...(state === "error" && { title: words.error })}
+          decorativeIcon
+        />
+      ) : (
         <kit.KitGrid arrange="rows" list listRowGap={cards ? "cards" : "group"} density={density}>
-          {input.files.map((row) => <FileRow key={row.id} row={row} density={density} cards={cards}
-            removable={input.removable} showPages={input.detail === "full"} />)}
-        </kit.KitGrid>}
-  </kit.KitCard>;
+          {input.files.map((row) => (
+            <FileRow
+              key={row.id}
+              row={row}
+              density={density}
+              cards={cards}
+              removable={input.removable}
+              showPages={input.detail === "full"}
+            />
+          ))}
+        </kit.KitGrid>
+      )}
+    </kit.KitCard>
+  );
 }

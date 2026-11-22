@@ -18,8 +18,6 @@ export const meta = {
   tier: "phone",
   realPath: "Journal entries are stored only on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
     media: ["thumb", "none"],
   },
@@ -100,7 +98,7 @@ export const examples = [
     { date: "2026-11-04", mood: 3, text: "I put my phone away early to write.",
       tags: ["Evening"], goto: "nov_04" },
   ] },
-  { density: "compact", media: "none", prompt: "Small joys", entries: [
+  { media: "none", prompt: "Small joys", entries: [
     { date: "2026-10-02", text: "I took my time over breakfast.",
       tags: [], photo: "lib:parks", goto: "oct_02" },
     { date: "2026-09-29", mood: 5, text: "I laughed on the way home.",
@@ -129,9 +127,9 @@ export const probes = [
   read("Open the reflection about putting my phone away early.", { address: "e1/r2", action: "press" }),
   {
     ...write(
-      "One entry only: ‘I felt calmer after walking’ on 2026-11-19, opens nov_19. Keep its attached library photo lib:parks. Use compact density and the text-only media setting (none) so the digest shows one line and hides the thumbnail without deleting the photo.",
+      "One entry only: ‘I felt calmer after walking’ on 2026-11-19, opens nov_19. Keep its attached library photo lib:parks. Use compact the text-only media setting (none) so the digest shows one line and hides the thumbnail without deleting the photo.",
     ),
-    expectProps: { density: "compact", media: "none", entries: [{ photo: "lib:parks" }] },
+    expectProps: { media: "none", entries: [{ photo: "lib:parks" }] },
   },
   {
     ...write(
@@ -169,8 +167,9 @@ function EntryRow({ entry, density, compact }: { entry: EntriesProps["entries"][
 
 // prettier-ignore
 export function Entries(input: EntriesProps) {
-  const { entries, surface, density: askedDensity } = input;
-  const density = kit.useVariant("density", meta.variants.density, askedDensity);
+  const { entries } = input;
+  const surface = "card";
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const state = kit.useComponentState();
   const { lang, words } = kit.useWords(mindWordsFor);

@@ -18,8 +18,6 @@ export const meta = {
   tier: "phone",
   realPath: "The offer is stored on the device, and its code is checked at checkout.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["tinted", "card"],
     emphasis: ["normal", "quiet"],
     media: ["thumb", "none"],
   },
@@ -149,8 +147,8 @@ function OfferLink({
 
 export function Promo(input: PromoProps) {
   const { title, code, ends, endsAt, photo, goto } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "tinted";
   const emphasis = kit.useVariant("emphasis", meta.variants.emphasis, input.emphasis);
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const { words, lang } = kit.useWords(commerceWordsFor);

@@ -19,7 +19,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "A local ledger uses stored receipts and cash records; file export uses the phone's share sheet.",
-  variants: { density: ["comfortable", "compact"], group: ["none", "sections"] },
+  variants: { group: ["none", "sections"] },
   variantParts: { "group.sections": { adds: ["account_heading"] } },
   parts: ["root", "title", "sub", "from", "to", "total_in", "total_out", "export", "export_label"],
   items: {
@@ -172,7 +172,7 @@ function LedgerHeader({ from, to, totalIn, totalOut, density, loading }: Pick<Re
 
 // prettier-ignore
 export function Ledger(input: LedgerProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const group = kit.useVariant("group", meta.variants.group, input.group);
   const state = kit.useComponentState(), data = kit.useDeviceData();
   const { lang, words: { ledger: words } } = kit.useWords(booksWordsFor);

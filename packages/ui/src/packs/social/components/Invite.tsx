@@ -18,9 +18,6 @@ export const meta = {
   tier: "people",
   realPath: "An invite code from a shared app; sharing uses the phone’s share sheet.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
-    align: ["start", "center"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["joined"] } },
@@ -80,9 +77,9 @@ type InviteProps = c.Props<typeof props, typeof meta>;
 export function Invite(input: InviteProps) {
   const { title, code, qr, joined } = input;
   const { lang, words } = kit.useWords(socialWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
-  const align = kit.useVariant("align", meta.variants.align, input.align);
+  const density = kit.useKit().density;
+  const surface = "card";
+  const align = "start";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const joinedLine = inviteJoinedLine({ joined, detail }, lang);
   const group = density === "compact" ? "content" : "response";

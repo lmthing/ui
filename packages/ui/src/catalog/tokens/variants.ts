@@ -7,7 +7,7 @@ import type { roles } from "./roles";
 import type { type as typography } from "./type";
 
 type TextStep = keyof typeof typography;
-type Surface = AxisValue<"surface">;
+export type SurfaceFinish = "plain" | "card" | "tinted" | "outlined";
 type Tone = AxisValue<"tone">;
 type Role = (typeof roles)[number];
 type Border = keyof Pick<typeof component.base, "none" | "borderWidth" | "strongBorder">;
@@ -37,7 +37,7 @@ const strong = {
 
 const card = { fill: "surface", rule: null, border: "none", elevation: "flat" } as const;
 
-/** Preset kinds supply the same six finish axes without naming presets in the kit. */
+/** Preset kinds supply finish tokens without naming presets in the kit. */
 export const variants = {
   density: {
     comfortable: {
@@ -77,7 +77,7 @@ export const variants = {
       border: "borderWidth",
     } satisfies { fill: Record<Tone, Role>; rule: Record<Tone, Role>; border: Border },
     outlined: { rule: "line", border: "strongBorder" } as const,
-  } satisfies Record<Surface, unknown>,
+  } satisfies Record<SurfaceFinish, unknown>,
   align: {
     start: { text: "left", content: "stretch" },
     center: { text: "center", content: "center" },
@@ -89,3 +89,6 @@ export const variants = {
     lively: { pulseScale: 0.24 },
   },
 } as const;
+
+export type ContentAlign = keyof typeof variants.align;
+export type ContentBleed = keyof typeof variants.bleed;

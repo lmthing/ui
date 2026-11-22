@@ -9,4 +9,4 @@ A travel document wallet with owners, masked numbers and expiry warnings. Not fa
 ## Writer
 
 - Never copy or invent real document numbers. Use an empty number when a person has not entered it on the device. Warnings are computed from dates.
-- Write null for every unrequested axis, not its default. When asked to hide masked number lines, write detail "brief" and leave density and surface null unless explicitly requested. Keep owners, dates and warnings visible in brief.
+- Write null for every unrequested axis, not its default. When asked to hide masked number lines, write detail "brief". Keep owners, dates and warnings visible in brief.

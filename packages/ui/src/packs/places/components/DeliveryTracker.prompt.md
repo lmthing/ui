@@ -9,4 +9,4 @@ Live courier and destination together on a map with delivery ETA and current ste
 ## Writer
 
 - Write the current step only. Never write an ETA or map positions; the delivery service supplies them.
-- Hiding the courier photo only changes media: use "media":"none","density":null. Keep the photo reference. Leave density and surface null unless specifically requested.
+- Hiding the courier photo only changes media: use "media":"none". Keep the photo reference.

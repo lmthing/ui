@@ -16,7 +16,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Bills saved on the device; reminders before due dates need notification permission.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["repeat"] } },
   parts: ["root", "total", "empty"],
   items: {
@@ -83,7 +83,7 @@ export const examples = [
     ],
   },
   { ...ledgeBills, detail: "brief" },
-  { ...ledgeBills, density: "compact" },
+  { ...ledgeBills },
   ...(["good", "warn", "bad"] as const).map((tone) => withItemFinish({ tone })),
   withItemFinish({ mark: "muted" }),
   {
@@ -110,7 +110,7 @@ type BillsProps = c.Props<typeof props, typeof meta>;
 // prettier-ignore
 function BillRow({
   bill, today, detail, density, style,
-}: Pick<BillsProps, "detail" | "density" | "style"> & { bill: BillsProps["bills"][number]; today: string }) {
+}: Pick<BillsProps, "detail" | "style"> & { density: c.ThemeDensity } & { bill: BillsProps["bills"][number]; today: string }) {
   const scope = kit.usePartContext();
   const { lang, words } = kit.useWords(moneyWordsFor);
   const paid = kit.useControlValue(c.formatAddress({ ...scope, item: bill.id, part: "paid" }), bill.paid);
@@ -167,8 +167,8 @@ function BillRow({
   );
 }
 // prettier-ignore
-export function Bills({ bills, style, detail, density: requested }: BillsProps) {
-  const density = kit.useVariant("density", meta.variants.density, requested);
+export function Bills({ bills, style, detail }: BillsProps) {
+  const density = kit.useKit().density;
   const state = kit.useComponentState();
   const { lang } = kit.useWords(moneyWordsFor);
   const today = localBillDate();

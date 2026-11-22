@@ -16,7 +16,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "A local projection from recorded terms and payments, never a transfer or lender statement.",
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["line"] } },
   parts: ["root", "total", "budget", "finish", "line", "strategy", "extra", "edit", "empty", "sub"],
   items: { key: "debts", parts: ["root", "name", "balance", "clearance", "order"] },
@@ -55,7 +55,7 @@ const ledgePlan = { debts: [card, mortgage!], extra: 50, strategy: "high_rate", 
 export const examples = [
   { ...ledgePlan, debts: [...ledgePlan.debts] },
   { debts: [trot!, friend!], extra: 30, strategy: "small_balance", detail: "brief" },
-  { ...ledgePlan, debts: [...ledgePlan.debts], density: "compact" },
+  { ...ledgePlan, debts: [...ledgePlan.debts] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = c.probesFor("Payoff");
 // prettier-ignore
@@ -78,7 +78,7 @@ export const probes = [
 ] satisfies c.Probe[];
 type PayoffProps = c.Props<typeof props, typeof meta>;
 type Summary = ReturnType<typeof payoffCopy>;
-type ControlProps = Pick<PayoffProps, "strategyChoice" | "extra" | "goto" | "density">;
+type ControlProps = Pick<PayoffProps, "strategyChoice" | "extra" | "goto"> & { density: c.ThemeDensity };
 function PayoffControls({ strategyChoice, extra, goto, density }: ControlProps) {
   const labels = kit.useWords(moneyWordsFor).words.payoff;
   const state = kit.useComponentState();
@@ -111,7 +111,7 @@ type TextProps = {
   part?: string | null;
   tone?: "muted" | "text" | "bad";
   numberScale?: "compact";
-  density: PayoffProps["density"];
+  density: c.ThemeDensity;
 };
 function PayoffText({ text, role = "label", part = null, tone = "muted", numberScale, density }: TextProps) {
   if (kit.useComponentState() === "loading") {
@@ -129,7 +129,7 @@ function PayoffText({ text, role = "label", part = null, tone = "muted", numberS
   return <kit.KitText {...draw} lines={1} tabular children={text} />;
 }
 // prettier-ignore
-function PayoffRows({ debts, rows, density }: Pick<PayoffProps, "debts" | "density"> & { rows: Summary["rows"] }) {
+function PayoffRows({ debts, rows, density }: Pick<PayoffProps, "debts"> & { density: c.ThemeDensity } & { rows: Summary["rows"] }) {
   const loading = kit.useComponentState() === "loading";
   return rows.map(({ index, order, balance, clearance }) => {
     const { id, name } = debts[index]!;
@@ -149,7 +149,7 @@ export function Payoff(input: PayoffProps) {
   const state = kit.useComponentState();
   const { lang, words } = kit.useWords(moneyWordsFor);
   const labels = words.payoff;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   if (state === "empty" || state === "success") {
     const cleared = { part: "finish", title: labels.cleared };
     const empty = { part: "empty", sub: labels.emptyHelp };

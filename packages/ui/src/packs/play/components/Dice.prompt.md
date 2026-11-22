@@ -9,4 +9,4 @@ Random numbered dice with optional holds and a computed sum. Not manual counting
 ## Writer
 
 - sides is the number 4, 6, 8, 10, 12 or 20. Use style: "numbers" unless sides is 6; pips is six-sided only. Never write faces, held flags or sum.
-- For hiding the setup caption alone use {"detail":"brief","density":null}. Always write density null, not comfortable, unless spacing is separately requested.
+- For hiding the setup caption alone use {"detail":"brief"}.

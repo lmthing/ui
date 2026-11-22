@@ -9,4 +9,4 @@ Saved quotes or clip moments with a source, optional time and optional personal 
 ## Writer
 
 - Put the excerpt in text without surrounding quotation marks, the source title in from, and a clip time in at. Set goto to the screen for that source moment.
-- Write the exact note in note. Use "detail":null for normal excerpts with visible notes. Only when the person explicitly asks to hide notes, write "detail":"brief","density":null,"surface":null unless another axis was requested.
+- Write the exact note in note. Use "detail":null for normal excerpts with visible notes. Only when the person explicitly asks to hide notes, write "detail":"brief" unless another axis was requested.

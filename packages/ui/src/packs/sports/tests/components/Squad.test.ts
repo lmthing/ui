@@ -97,7 +97,7 @@ describe("Squad parts, states and reading", () => {
   it("hides reasons only in brief detail, preserves their data and keeps addresses in compact", () => {
     const brief = { ...full, detail: "brief" };
     const base = addressedElements(render(full));
-    expect([...addressedElements(render({ ...full, density: "compact" })).keys()]).toEqual([...base.keys()]);
+    expect([...addressedElements(render({ ...full })).keys()]).toEqual([...base.keys()]);
     expect([...base.keys()].filter((key) => !addressedElements(render(brief)).has(key))).toEqual([
       address("r3/reason"),
     ]);

@@ -18,7 +18,7 @@ export const meta = {
   writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath: "A routing decision saved with the request on the operator's device.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["number", "title", "reported_urgency", "impact"] } },
   parts: ["root", "number", "title", "reported_urgency", "impact", "priority", "queues", "reason", "apply", "apply_label"],
   items: { key: "choices", parts: ["root", "label", "number", "title", "link", "link_label"] },
@@ -82,7 +82,7 @@ const duplicateExample = { number: "TR-08", title: "Loose gate by the dog run", 
 // prettier-ignore
 export const examples = [
   { number: "LG-41", title: "Grow light keeps flickering", reportedUrgency: "urgent", impact: "one", priority: "normal", queues: [{ label: "Equipment" }, { label: "Plant care" }], at: 0, duplicates: [] },
-  { ...duplicateExample, detail: "brief" }, { ...duplicateExample, density: "compact" },
+  { ...duplicateExample, detail: "brief" }, { ...duplicateExample },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("RequestTriage");
@@ -127,7 +127,7 @@ function triageGates(input: c.Values): c.Values {
   return deriveTriage(input, { canTriage: true, canLink: () => true });
 }
 
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 type Words = ReturnType<typeof requestsWordsFor>["triage"];
 
 // prettier-ignore
@@ -162,7 +162,7 @@ function Duplicates({ p, w, density }: { p: View; w: Words; density: Density }) 
 // prettier-ignore
 export function RequestTriage(input: c.Props<typeof props, typeof meta>) {
   const { words: { triage: w } } = kit.useWords(requestsWordsFor), state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density), loading = state === "loading";
+  const density = kit.useKit().density, loading = state === "loading";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail), p = kit.useLiveControls(meta, input) as View;
   const group = density === "compact" ? "content" : "response", priority = detail === "brief" ? w.decision : w.priority;
   const label = (text: string) => loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", text]]} />

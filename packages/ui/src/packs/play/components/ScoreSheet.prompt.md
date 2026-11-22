@@ -9,4 +9,4 @@ An editable scorecard: enter each player's points for each game round, hand or h
 ## Writer
 
 - Each round's points has exactly one entry per player, in roster order: integer -999–999 or null for unplayed. Never write totals, ranks, winners or selected round.
-- When asked only for one round at a time write {"overflow":"page","density":null}. Keep every round in the data. Never write comfortable as a default.
+- When asked only for one round at a time write {"overflow":"page"}. Keep every round in the data. Never write comfortable as a default.

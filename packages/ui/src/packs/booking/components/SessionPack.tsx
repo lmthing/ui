@@ -14,7 +14,7 @@ export const meta = {
   region: "body", weight: 2, tier: "phone",
   realPath: "Prepaid session balances live on the provider's device; online top-up uses a payment service.",
   writeHints: prompt.writeHints,
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": {
     hides: ["service", "label", "amount", "redeem", "redeem_label", "renew", "renew_label",
       "retry", "retry_label", "renew_error", "renew_error_label"], adds: ["remaining"],
@@ -166,8 +166,8 @@ function PackBody({ title, state, ...presentation }: Presentation & { title: str
 
 export function SessionPack(input: c.Props<typeof props, typeof meta>) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const { lang, words } = kit.useWords(bookingWordsFor);
   const live = kit.useLiveControls(meta, input);
   const facts = copy.sessionPackFacts(live);

@@ -1,9 +1,53 @@
+import type { Variants } from "../../types";
+import type { Definition, WriteProbe } from "../types";
 import { z } from "zod";
-import { itemVariantProps, photo, text } from "../../props";
-import { variantFixture } from "./variant-fixture";
+import { itemVariantProps, photo, text, variantProps } from "../../props";
+
+type Pair = [variant: NonNullable<WriteProbe["variant"]>, requested: string, plain: string];
+
+const nulls = (axes: Variants) => Object.fromEntries(Object.keys(axes).map((axis) => [axis, null]));
+
+// Probe-only schemas model the eventual wire shape without adopting axes in the real components.
+function variantFixture(
+  id: string,
+  purpose: string,
+  variants: Variants,
+  shape: z.ZodRawShape,
+  example: Record<string, unknown>,
+  pairs: Pair[],
+  options: Pick<Definition["meta"], "items" | "writeHints"> = {},
+): Definition {
+  const { items } = options;
+  const wireExample = { ...nulls(variants), ...example };
+  const rows = items && example[items.key];
+  if (items?.variants && Array.isArray(rows)) {
+    const defaults = nulls(items.variants);
+    wireExample[items.key] = rows.map((row: object) => ({ ...defaults, ...row }));
+  }
+  return {
+    meta: {
+      id,
+      purpose,
+      variants,
+      group: "content",
+      region: "body",
+      weight: 2,
+      tier: "phone",
+      pick: purpose,
+      realPath: "Show records held on the device.",
+      ...options,
+    },
+    props: z.strictObject({ ...variantProps(variants), ...shape }),
+    examples: [wireExample],
+    fallback: () => example,
+    probes: pairs.flatMap(([variant, requested, plain]): WriteProbe[] => [
+      { kind: "write", expect: id, brief: requested, variant },
+      { kind: "write", expect: id, brief: plain, variant: { ...variant, value: null } },
+    ]),
+  };
+}
 
 const listAxes = {
-  density: ["comfortable", "compact"],
   arrange: ["rows", "grid", "strip"],
   group: ["none", "sections", "dates"],
   overflow: ["all", "peek", "page"],
@@ -26,11 +70,6 @@ const list = variantFixture(
   },
   { rows: [{ title: "Fern" }, { title: "Basil" }, { title: "Aloe" }] },
   [
-    [
-      { axis: "density", value: "compact" },
-      "Use tighter vertical spacing between walks: Clover, Pip and Scout.",
-      "List today's walks: Clover, Pip and Scout.",
-    ],
     [
       { axis: "arrange", value: "grid" },
       "Lay out Fern, Basil and Aloe in a grid instead of a single column.",
@@ -71,7 +110,7 @@ const list = variantFixture(
     items: { key: "rows", parts: ["root", "title"], variants: itemAxes },
     writeHints: [
       "Use group dates only for date headings. A day mentioned in item content is not a heading request.",
-      "Tighter spacing changes density only. A See all link for the whole list changes overflow, not the row trail.",
+      "A See all link for the whole list changes overflow, not the row trail.",
     ],
   },
 );
@@ -80,8 +119,6 @@ const card = variantFixture(
   "Show one thing with a title and a little detail.",
   {
     emphasis: ["normal", "quiet", "hero"],
-    surface: ["card", "plain", "tinted", "outlined"],
-    align: ["start", "center"],
     detail: ["full", "brief"],
     media: ["thumb", "none", "icon", "cover"],
   },
@@ -92,16 +129,6 @@ const card = variantFixture(
       { axis: "emphasis", value: "hero" },
       "Make the Morning Walk card the big focal point of the screen.",
       "Make a card titled Morning Walk.",
-    ],
-    [
-      { axis: "surface", value: "outlined" },
-      "Show Fern care in a card with just an outline and no filled background.",
-      "Make a plant care card titled Fern Schedule with the body Water on Friday.",
-    ],
-    [
-      { axis: "align", value: "center" },
-      "On the Fern card, center all the text horizontally.",
-      "Create a card titled Fern. Body: Remember to water on Friday.",
     ],
     [
       { axis: "detail", value: "brief" },
@@ -125,15 +152,10 @@ const card = variantFixture(
 const picture = variantFixture(
   "Photo",
   "Show one picture with an optional caption.",
-  { bleed: ["inset", "edge"], aspect: ["wide", "square", "tall"] },
+  { aspect: ["wide", "square", "tall"] },
   { photo, caption: text(80).optional() },
   { photo: "lib:plants", caption: "Morning light" },
   [
-    [
-      { axis: "bleed", value: "edge" },
-      "Show lib:plants edge to edge without side margins.",
-      "Show lib:plants with the caption Morning light.",
-    ],
     [
       { axis: "aspect", value: "square" },
       "Show the photo lib:dogs cropped to a square.",

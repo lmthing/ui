@@ -6,11 +6,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import {
   KitCard,
@@ -48,7 +48,7 @@ export const meta = {
   weight: 2,
   tier: "service",
   realPath: "Prices fetched from a market data service.",
-  variants: { detail: ["full", "brief"], emphasis: ["normal", "quiet"], surface: ["card", "outlined"] },
+  variants: { detail: ["full", "brief"], emphasis: ["normal", "quiet"] },
   variantParts: { "detail.brief": { hides: ["change"] } },
   parts: ["root", "name", "price", "change", "line", "range"],
   states: ["filled", "loading"],
@@ -86,7 +86,7 @@ export const examples = [
   { name: "Trot rainy-day holding", points: [24, 23, 24.5, 25, 24, 26, 25.5, 27], range: "year" },
   { ...ledgeHolding, detail: "brief" },
   { ...ledgeHolding, emphasis: "quiet" },
-  { ...ledgeHolding, surface: "outlined" },
+  { ...ledgeHolding },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("PriceChart");
@@ -147,7 +147,8 @@ function PriceSummary({ name, points, detail, emphasis }: ChartProps) {
 }
 
 export function PriceChart(input: ChartProps) {
-  const { points, range, surface } = input;
+  const { points, range } = input;
+  const surface = "card";
   const emphasis = useVariant("emphasis", meta.variants.emphasis, input.emphasis);
   const { lang, words } = useWords(moneyWordsFor);
   const { priceChart: labels } = words;

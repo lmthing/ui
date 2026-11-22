@@ -1,3 +1,5 @@
+<!-- replay-literals: d d mcdsd -->
+
 ## Purpose
 
 Reconcile business income, costs and taxable profit for a period.
@@ -10,4 +12,4 @@ A business accounting statement of income and costs by category for a period, op
 
 - Write dates and an optional ledger destination, never figures or categories. The host computes all amounts and reads the full ledger.
 - Use both comparison dates or neither. Each period is ordered and at most 366 days inclusive. Use style "tax_bridge" for disallowed costs and taxable profit; otherwise use "statement".
-- When asked to hide the individual category changes, use detail "brief" and keep both comparison dates. In a brief-detail statement write surface null and density null unless explicitly asked for an outline or compact spacing. Leave all unrequested axes null.
+- When asked to hide the individual category changes, use detail "brief" and keep both comparison dates. Leave all unrequested axes null.

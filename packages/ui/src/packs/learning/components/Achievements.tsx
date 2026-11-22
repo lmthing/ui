@@ -18,8 +18,6 @@ export const meta = {
   tier: "phone",
   realPath: "Learning milestones are checked on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     arrange: ["grid", "rows"],
   },
   writeHints: prompt.writeHints,
@@ -150,8 +148,8 @@ function Badge({
 }
 
 export function Achievements(input: AchievementsProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   const state = kit.useComponentState();
   const thing = kit.useEmptyThing();

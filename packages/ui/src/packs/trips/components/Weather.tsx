@@ -17,7 +17,7 @@ export const meta = {
   weight: 2,
   tier: "service",
   realPath: "A weather service provides forecasts and typical monthly weather.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["condition"] } },
   parts: ["root", "place", "today", "forecast", "condition", "message", "sub"],
   // The host's offline case uses the error state with the Empty offline treatment.
@@ -101,7 +101,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type WeatherProps = c.Props<typeof props, typeof meta>;
-type Density = NonNullable<WeatherProps["density"]>;
+type Density = c.ThemeDensity;
 type WeatherDisplay = ReturnType<typeof weatherDisplay>;
 const stripColumns = 3;
 
@@ -172,8 +172,8 @@ function WeatherHeading({ place, heading, density }: { place: string; heading: s
 // prettier-ignore
 export function Weather(input: WeatherProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang } = kit.useWords();
   const copy = weatherDisplay(input, kit.useDeviceData(), lang, state === "error");

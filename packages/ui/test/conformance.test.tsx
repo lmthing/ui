@@ -84,10 +84,7 @@ it("supplies parsed props and state to fixtures, without leaking undeclared reco
   };
   const parsed = def.props.parse({ rows: [{ title: " Fern " }] }) as Record<string, unknown>;
   expect(exampleDeviceData(def, parsed, "empty")).toEqual({
-    allowed: [
-      expect.objectContaining({ surface: "card", rows: [expect.objectContaining({ title: "Fern" })] }),
-      "empty",
-    ],
+    allowed: [expect.objectContaining({ rows: [expect.objectContaining({ title: "Fern" })] }), "empty"],
   });
   expect(exampleDeviceData(components.List, parsed, "empty")).toBeUndefined();
 });

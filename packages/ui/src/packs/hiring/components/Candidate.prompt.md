@@ -9,4 +9,4 @@ One application with criterion-by-criterion findings and evidence, interview and
 ## Writer
 
 - Findings are explicitly recorded by a human. Default to unreviewed when no finding is supplied; never infer qualifications, assign a score or rank candidates.
-- For a findings-only view, keep authored evidence in the data and set detail to "brief". Write density null unless the person separately asks for tighter spacing.
+- For a findings-only view, keep authored evidence in the data and set detail to "brief".

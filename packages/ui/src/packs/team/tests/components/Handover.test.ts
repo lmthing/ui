@@ -41,7 +41,6 @@ describe("Handover schema and boundaries", () => {
     const notes = Array.from({ length: 6 }, () => ({ ...row, by: ` ${row.by} ` }));
     const parsed = props.parse({ notes });
     expect(parsed).toMatchObject({
-      surface: "card",
       detail: "full",
       notes: Array.from({ length: 6 }, () => row),
     });
@@ -147,8 +146,8 @@ describe("Handover parts, states and variants", () => {
   });
   it("keeps addresses for finish axes, and omits only timestamps in brief view and read", () => {
     const addresses = [...view(full).keys()];
-    expect([...view({ ...full, density: "compact" }).keys()]).toEqual(addresses);
-    expect([...view({ ...full, surface: "outlined" }).keys()]).toEqual(addresses);
+    expect([...view({ ...full }).keys()]).toEqual(addresses);
+    expect([...view({ ...full }).keys()]).toEqual(addresses);
     expect([...view({ notes: [{ ...note, tone: "neutral" }, full.notes[1]] }).keys()]).toEqual(addresses);
     const brief = { ...full, detail: "brief" };
     expect([...view(brief).keys()]).toEqual(addresses.filter((part) => !part.endsWith("/time")));

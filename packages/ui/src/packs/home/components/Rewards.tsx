@@ -1,7 +1,9 @@
 import { z } from "zod";
 // prettier-ignore
-import { icon, itemsOf, photo, screenId, text, variantProps, placeholderTitle, probesFor,
-  thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+import { icon, itemsOf, photo, screenId, text, placeholderTitle, probesFor,
+  thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props,
+  variantProps,
+} from "../../../catalog";
 // prettier-ignore
 import { KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitIcon, KitJar, KitPhoto,
   KitText, PartScope, useComponentState, usePartContext, useWords } from "../../../kit";
@@ -20,7 +22,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "A parent keeps points and prize claims on the device.",
-  variants: { detail: ["full", "brief"], surface: ["card", "outlined"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["reason"] } },
   items: {
     key: "entries",
@@ -164,7 +166,8 @@ function RewardPrize({ prize, money, best, brief }: { prize: Entry<"prize">; mon
   );
 }
 
-export function Rewards({ entries, money, detail, surface }: RewardsProps) {
+export function Rewards({ entries, money, detail }: RewardsProps) {
+  const surface = "card";
   const state = useComponentState();
   const { lang, words } = useWords(homeWordsFor);
   if (state === "success")

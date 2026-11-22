@@ -21,7 +21,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "Calculate from recipe data on the device, or look up the food in an external barcode database.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["nutrients", "allergens", ...allergenParts] } },
   items: { key: "points", parts: ["root", "label"] },
   // prettier-ignore
@@ -140,8 +140,8 @@ function Extras({ nutrients, allergens, display, density }: ExtrasProps) {
 export function NutritionFacts(input: ViewProps) {
   const { lang, words: { nutritionFacts: words } } = kit.useWords(kitchenWordsFor);
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { screen, component } = kit.usePartContext();
   const servings = kit.useControlValue(`${screen}/${component}/$adjust/servings`, input.servings);

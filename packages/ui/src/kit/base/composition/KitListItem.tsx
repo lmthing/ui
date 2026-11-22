@@ -1,7 +1,7 @@
 import { useKit } from "../../provider";
 import { usePartContext } from "../../part";
 import { useControlValue } from "../../interact";
-import type { AxisValue, IconName, ThemeDensity } from "../../../catalog";
+import type { AxisValue, IconName, ThemeDensity, SurfaceFinish } from "../../../catalog";
 import { KitContent, KitIcon, KitText, type TextTone } from "../text";
 import { KitPhoto } from "../media";
 import { KitRank } from "../data";
@@ -32,7 +32,7 @@ type ItemProps = {
   trail?: TrailKind | undefined;
   tone?: AxisValue<"tone"> | undefined;
   mark?: AxisValue<"mark"> | undefined;
-  surface?: AxisValue<"surface"> | undefined;
+  surface?: SurfaceFinish | undefined;
 };
 function titleTone({ row, tone, mark }: ItemProps): TextTone {
   if (row.me || mark === "new") return "accent";

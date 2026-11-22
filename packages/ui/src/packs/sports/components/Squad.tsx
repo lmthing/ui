@@ -19,7 +19,7 @@ export const meta = {
   dense: true,
   tier: "people",
   realPath: "Players send their availability and the coach picks the side in a shared app.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["reason"] } },
   parts: ["root", "available", "empty"],
   items: { key: "players", parts: ["root", "name", "photo", "answer", "reason", "picked"] },
@@ -130,7 +130,7 @@ const answerTones = { yes: "good", maybe: "warn", no: "bad", none: "muted" } as 
 export function Squad(input: SquadProps) {
   const { lang, words: { squad: words } } = kit.useWords(sportsWordsFor);
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const squad = kit.useLiveControls(meta, input) as SquadProps;
   const amount = squadSummary(squad, lang);

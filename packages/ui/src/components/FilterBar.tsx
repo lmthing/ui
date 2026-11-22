@@ -10,11 +10,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
 import * as kit from "../kit";
 import { prompt } from "../entry/prompt-FilterBar.generated";
@@ -32,8 +32,6 @@ export const meta = {
   tier: "phone",
   realPath: "A query built on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["plain", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["count"] } },
@@ -98,7 +96,6 @@ export const examples = [
     sort: "Recently watered",
   },
   {
-    density: "compact",
     hint: "Find a walk",
     filters: [
       { label: "Walker", options: ["Sam", "Ana"], value: "Ana" },
@@ -144,8 +141,9 @@ function FilterPickers({ filters }: Pick<ViewProps, "filters">) {
 }
 
 export function FilterBar(input: ViewProps) {
-  const { density: requestedDensity, detail, surface } = input;
-  const density = kit.useVariant("density", meta.variants.density, requestedDensity);
+  const { detail } = input;
+  const surface = "plain";
+  const density = kit.useKit().density;
   const { hint, filters, query, sort } = kit.useLiveControls(meta, input) as ViewProps;
   const { lang, words } = kit.useWords();
   return (

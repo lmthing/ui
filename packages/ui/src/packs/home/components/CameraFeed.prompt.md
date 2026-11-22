@@ -1,3 +1,5 @@
+<!-- replay-literals: d d mcds -->
+
 ## Purpose
 
 Check a connected home camera, change its arming mode and review recent events.
@@ -8,5 +10,5 @@ Connected home security cameras or baby monitors with arming modes and motion ev
 
 ## Writer
 
-- For text-only event history, set detail to "brief" even when no clip is supplied. Use JSON null for density and surface unless explicitly requested; do not fill in defaults.
+- For text-only event history, set detail to "brief" even when no clip is supplied.
 - Use an ISO timestamp with an offset for each event at, for example "2026-11-20T09:42:00+00:00".

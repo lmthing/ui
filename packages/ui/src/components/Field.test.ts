@@ -73,11 +73,11 @@ describe("Field schema", () => {
 
 it("hides the hint in both the view data and the read without hiding the control", () => {
   const field = { label: "Plant name", hint: "Use a short name" };
-  const brief = { ...field, detail: "brief", density: "compact" };
+  const brief = { ...field, detail: "brief" };
   expect(meta.variantParts["detail.brief"].hides).toEqual(["hint"]);
   expect(props.parse(field)).toMatchObject({ detail: "full", hint: field.hint });
-  expect(props.parse(field).density).toBeUndefined();
-  expect(props.parse(brief)).toMatchObject({ density: "compact", hint: undefined });
+  expect(props.parse(field)).not.toHaveProperty("density");
+  expect(props.parse(brief)).toMatchObject({ hint: undefined });
   expect(readComponent(components.Field, field, "f1").join("\n")).toContain(field.hint);
   expect(readComponent(components.Field, brief, "f1").join("\n")).not.toContain(field.hint);
   expect(affordancesOf(meta, props.parse(brief), "f1")).toEqual(

@@ -1,3 +1,5 @@
+<!-- replay-literals: d d mcds -->
+
 ## Purpose
 
 Listen to or watch one recording, with play, skip and a scrubber.
@@ -8,5 +10,5 @@ One recording to listen to or watch now, such as a meditation, a lesson, an epis
 
 ## Writer
 
-- Hiding only the cover artwork sets detail "brief" and density null. Keep the photo reference and playback controls. Never output default axis values; density is compact only when tighter spacing was specifically requested.
+- Hiding only the cover artwork sets detail "brief". Keep the photo reference and playback controls.
 - The media field is the recording reference. Use style "video" for the original video layout or "compact" for one audio row. Mode is the recording type; write it only when requested. Speed is a multiplier (1.5 for 1.5×).

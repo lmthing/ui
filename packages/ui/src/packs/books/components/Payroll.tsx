@@ -16,7 +16,7 @@ export const meta = {
   writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Payroll uses local pay records and rules; sending payslips needs messaging, not a bank.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["basis", "rate", "hours"] } },
   parts: ["root", "title", "status", "from", "to", "pay_date", "gross", "deductions", "net_pay", "employer_cost", "notice", "finalize", "finalize_label", "void", "void_label"],
   items: {
@@ -72,7 +72,7 @@ export const examples = [
       adjustments: [], ruleRef: "sample_pay" },
   ] },
   { runRef: "nov_walks", from: "2026-11-01", to: "2026-11-30", payDate: "2026-12-01", style: "payslip",
-    density: "compact", finalizedAt: "2026-12-01T09:00:00Z", voided: false, payees: [
+    finalizedAt: "2026-12-01T09:00:00Z", voided: false, payees: [
       { employeeRef: "sam", name: "Sam Moss", basis: "salary", rate: 850,
         adjustments: [{ label: "Weekend cover", amount: 45 }], ruleRef: "sample_pay", paidAt: "2026-12-01T12:00:00Z" },
     ] },
@@ -168,7 +168,7 @@ function PayButtons({ actions, loading, density }: Finish & { actions: PayButton
 export function Payroll(input: PayrollProps) {
   const state = kit.useComponentState(), data = kit.useDeviceData(), loading = state === "loading";
   const { lang, words: { payroll: words } } = kit.useWords(booksWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density), surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density, surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail), live = kit.useLiveControls(meta, input) as LivePayroll;
   const payees = c.visibleItems<PayrollRow>(meta, live);
   const { heading, status, from, to, payDate, totals, rows, notice } = payrollDisplay({ ...input, ...payrollLifecycle(input, data), payees, detail }, data, lang);

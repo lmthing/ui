@@ -17,7 +17,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "The action applied to the selected records on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], arrange: ["grid", "rows"] },
+  variants: { arrange: ["grid", "rows"] },
   selectionBinding: { component: "Table", check: "pick", all: "all", requireSelection: true },
   parts: ["root", "count", "all", "all_label"],
   items: { key: "items", parts: ["root", "label", "icon", "confirm"] },
@@ -61,9 +61,7 @@ export const examples = [
     ],
   },
   {
-    density: "comfortable",
     arrange: "grid",
-    surface: "card",
     items: [
       { icon: "check", label: "Mark reviewed", danger: false },
       { icon: "share", label: "Export walks", danger: false },
@@ -129,7 +127,7 @@ function BulkCommand({
 }
 
 export function BulkActions(input: ViewProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   const state = kit.useComponentState();
   const { words, lang } = kit.useWords(dataWordsFor);
@@ -137,7 +135,7 @@ export function BulkActions(input: ViewProps) {
   if (state !== "filled" || !selection?.selected.length) return null;
   const count = bulkSelected(selection.selected.length, lang);
   return (
-    <kit.KitCard padded density={density} surface={input.surface}>
+    <kit.KitCard padded density={density} surface={"card"}>
       <kit.KitRow
         inset="none"
         label={count}

@@ -18,7 +18,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Milestone requirements and deliverable acceptance records are stored on the device.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["requires"] } },
   parts: ["root", "empty"],
   items: { key: "gates", parts: ["root", "title", "due", "requires", "reached", "missing"] },
@@ -84,12 +84,9 @@ function exampleAcceptance(project: unknown, state: c.StateName): c.DeviceData {
   };
 }
 
-export const examples = [
-  garden,
-  route,
-  { ...route, density: "compact" },
-  { ...route, detail: "brief" },
-] satisfies z.input<typeof props>[];
+export const examples = [garden, route, { ...route }, { ...route, detail: "brief" }] satisfies z.input<
+  typeof props
+>[];
 
 const { choose, write, read } = c.probesFor("Milestones");
 export const probes = [
@@ -114,7 +111,7 @@ type View = c.Props<typeof props, typeof meta>;
 type GateCopy = ReturnType<typeof milestoneCopies<View["gates"][number]>>[number];
 
 // prettier-ignore
-function GateLines({ copy, density }: { copy: GateCopy; density: View["density"] }) {
+function GateLines({ copy, density }: { copy: GateCopy; density: c.ThemeDensity }) {
   return <>
     <kit.KitText part="title" role="body" density={density}>{copy.gate.title}</kit.KitText>
     <kit.KitContent density={density}>
@@ -130,7 +127,7 @@ function GateLines({ copy, density }: { copy: GateCopy; density: View["density"]
 export function Milestones(input: View) {
   const { lang } = kit.useWords(projectsWordsFor), state = kit.useComponentState();
   const { loadingLabel } = kit.useWords().words;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const copies = milestoneCopies({ ...input, detail }, kit.useDeviceData(), lang);
   const cards = input.style === "cards" && state !== "empty";

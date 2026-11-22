@@ -18,8 +18,6 @@ export const meta = {
   tier: "service",
   realPath: "Live departure times come from a transit data service.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["delay"] } },
@@ -125,8 +123,8 @@ function DepartureRows({ rows, density, loading }: { rows: DepartureCopy["rows"]
 // prettier-ignore
 export function Departures(input: DeparturesProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang, words } = kit.useWords(placesWordsFor);
   const thing = kit.useEmptyThing();

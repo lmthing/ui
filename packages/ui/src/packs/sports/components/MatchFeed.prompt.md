@@ -9,4 +9,4 @@ Home and away incidents within one match by minute: goals, cards, substitutions 
 ## Writer
 
 - Write one event per incident, newest minute first. On a screen with Scoreboard, include exactly one goal event for each seeded goal and match the side.
-- For an ordinary feed, write "density":null, "surface":null, and "detail":null. Set "detail":"brief" only on an explicit request to hide the written event-type labels; keep the kind to draw its icon. Leave density and surface null unless separately requested.
+- For an ordinary feed, write "detail":null. Set "detail":"brief" only on an explicit request to hide the written event-type labels; keep the kind to draw its icon.

@@ -5,13 +5,13 @@ import {
   icon,
   screenId,
   text,
-  variantProps,
   type CastLike,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
-import { KitAction, useVariant } from "../kit";
+import { KitAction } from "../kit";
 import { prompt } from "../entry/prompt-Button.generated";
 
 export const meta = {
@@ -24,7 +24,6 @@ export const meta = {
   tier: "phone",
   realPath: "A press runs an on-device action or opens the linked screen.",
   variants: {
-    surface: ["card", "tinted", "plain"],
     media: ["icon", "none"],
   },
   variantParts: { "media.none": { hides: ["root_icon"] } },
@@ -58,8 +57,8 @@ export const examples = [
   { label: "Log watering", icon: "drop" },
   { label: "Log watering", icon: "drop", media: "none" },
   { label: "Remove plant", kind: "danger", confirm: "Remove this plant and its history?" },
-  { label: "Log watering", icon: "drop", surface: "tinted" },
-  { label: "Log watering", icon: "drop", surface: "plain" },
+  { label: "Log watering", icon: "drop" },
+  { label: "Log watering", icon: "drop" },
   { label: "Book a walk", goto: "book_walk" },
   { label: "Back to walks", goto: "back" },
 ] satisfies z.input<typeof props>[];
@@ -77,11 +76,8 @@ export const probes = [
   read("Press the main button", { address: "b1/root", action: "press" }),
 ] satisfies Probe[];
 
-const actionLook = { card: "primary", tinted: "secondary", plain: "quiet" } as const;
-
-export function Button({ label, surface, kind, media, icon, goto }: Props<typeof props, typeof meta>) {
-  const look = useVariant("surface", meta.variants.surface, surface);
-  const action = kind ?? actionLook[look];
+export function Button({ label, kind, media, icon, goto }: Props<typeof props, typeof meta>) {
+  const action = kind ?? "primary";
   return (
     <KitAction
       label={label}

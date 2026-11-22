@@ -8,11 +8,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import * as kit from "../../../kit";
 import { heatCells, heatGrid, heatReading } from "../copy";
@@ -32,7 +32,6 @@ export const meta = {
   tier: "phone",
   realPath: "Counts per day or block aggregated from records on the device.",
   variants: {
-    density: ["comfortable", "compact"],
     detail: ["full", "brief"],
     emphasis: ["normal", "hero"],
   },
@@ -130,7 +129,7 @@ export function Heatmap(input: Props<typeof props, typeof meta>) {
   const { title, style, unit } = input;
   const { words, lang } = kit.useWords(dataWordsFor);
   const loading = kit.useComponentState() === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const emphasis = kit.useVariant("emphasis", meta.variants.emphasis, input.emphasis);
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const detail = words.heatDetail(style);

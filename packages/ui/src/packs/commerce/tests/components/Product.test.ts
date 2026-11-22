@@ -39,7 +39,7 @@ describe("Product schema boundaries", () => {
         badge: "x".repeat(12),
         description: "x".repeat(240),
       }),
-    ).toMatchObject({ name: "x".repeat(32), surface: "card", detail: "full", qty: 1 });
+    ).toMatchObject({ name: "x".repeat(32), detail: "full", qty: 1 });
     expectTypeOf<Props<typeof props, typeof meta>["qty"]>().toEqualTypeOf<number>();
   });
   it.each([
