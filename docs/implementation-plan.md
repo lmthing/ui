@@ -728,10 +728,11 @@ Write probes use the same strict `writerFormat(registry)` as production Writers 
 design. Current transport is being updated in parallel; prose is not the output constraint.
 
 `runComposeProbes` runs every layout with three independent samples. A mechanical majority must pass.
-With `rubric: true`, a model rates the first valid sample for clarity, focus, flow, content and
-structure (1–5); all ratings must be ≥3.5 and average ≥4.0. `llm:check --compose` enables it and records
-under `test/recordings/Archetypes/<model>.json`. All 35 current layout/rubric gates pass and
-`test/archetypes.test.ts` replays them in `pnpm test`. Layout `writeHints` and shared
+With `rubric: true`, a model rates each mechanically valid sample once for clarity, focus, flow,
+content and structure (1–5). A majority of the rated samples must have all ratings ≥3.5 and an
+average ≥4.0, in addition to the mechanical majority. `llm:check --compose` enables it and records
+under `test/recordings/Archetypes/<model>.json`; `test/archetypes.test.ts` replays it in `pnpm test`.
+Layout `writeHints` and shared
 `scripts/compose-casts.ts` supply writing guidance and archetype/layout-specific content to live and
 replay runs. `--compose --layout archetype/layout,...` filters named layouts. Rich
 include/exclude/expected-primary checks, per-rule
