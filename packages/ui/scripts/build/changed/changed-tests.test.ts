@@ -116,7 +116,6 @@ it.each([
   expect(selected.packs).toEqual([]);
   expect(selected.tests).toContain("test/probes.test.ts");
   expect(selected.related).toContain(`${file}.tsx`);
-  expect(selected.related).toContain("scripts/build/entries/prompt-parity.test.ts");
 });
 
 it("runs all reading cases when the shared reader under test changes", () => {

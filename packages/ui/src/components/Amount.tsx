@@ -120,43 +120,98 @@ function AmountLoading(input: AmountProps & { density: "comfortable" | "compact"
   );
 }
 
-// prettier-ignore
 function AmountFigure({ input, copy }: { input: AmountProps; copy: ReturnType<typeof amountCopy> }) {
   const { emphasis, sub } = input;
   const density = kit.useKit().density;
-  const large = emphasis === "hero", align = large && !input.style ? "center" : "end";
+  const large = emphasis === "hero",
+    align = large && !input.style ? "center" : "end";
   const delta = input.change ?? 0;
   const rateAt = density === "compact" && input.per !== "none" ? copy.sum.indexOf(copy.price) : -1;
-  const rate = (word: string) => word && <kit.KitText role="caption" tone="muted" part={null}>{word}</kit.KitText>;
-  return <>
-    <kit.KitText role="number" numberScale={large ? "display" : "compact"} {...{ align, density }} tabular part="value">
-      {rateAt < 0 ? copy.sum : <>
-        {rate(copy.sum.slice(0, rateAt))}{copy.price}{rate(copy.sum.slice(rateAt + copy.price.length))}
-      </>}
-    </kit.KitText>
-    {copy.was !== undefined && <kit.KitText role="caption" tone="muted" strike {...{ align, density }} tabular part="was">
-      {copy.was}
-    </kit.KitText>}
-    {copy.change !== undefined && <kit.KitText role="caption" tone={delta > 0 ? "good" : delta < 0 ? "bad" : "muted"}
-      {...{ align, density }} tabular part="change">{copy.change}</kit.KitText>}
-    {sub && <kit.KitText role="caption" tone="muted" {...{ align, density }} part="sub">{sub}</kit.KitText>}
-  </>;
+  const rate = (word: string) =>
+    word && (
+      <kit.KitText role="caption" tone="muted" part={null}>
+        {word}
+      </kit.KitText>
+    );
+  return (
+    <>
+      <kit.KitText
+        role="number"
+        numberScale={large ? "display" : "compact"}
+        {...{ align, density }}
+        tabular
+        part="value"
+      >
+        {rateAt < 0 ? (
+          copy.sum
+        ) : (
+          <>
+            {rate(copy.sum.slice(0, rateAt))}
+            {copy.price}
+            {rate(copy.sum.slice(rateAt + copy.price.length))}
+          </>
+        )}
+      </kit.KitText>
+      {copy.was !== undefined && (
+        <kit.KitText role="caption" tone="muted" strike {...{ align, density }} tabular part="was">
+          {copy.was}
+        </kit.KitText>
+      )}
+      {copy.change !== undefined && (
+        <kit.KitText
+          role="caption"
+          tone={delta > 0 ? "good" : delta < 0 ? "bad" : "muted"}
+          {...{ align, density }}
+          tabular
+          part="change"
+        >
+          {copy.change}
+        </kit.KitText>
+      )}
+      {sub && (
+        <kit.KitText role="caption" tone="muted" {...{ align, density }} part="sub">
+          {sub}
+        </kit.KitText>
+      )}
+    </>
+  );
 }
 
-// prettier-ignore
 export function Amount(input: AmountProps) {
   const { lang } = kit.useWords();
   const state = kit.useComponentState();
   const density = kit.useKit().density;
   const emphasis = kit.useVariant("emphasis", meta.variants.emphasis, input.emphasis);
   if (state === "loading") return <AmountLoading {...input} {...{ density, emphasis }} />;
-  const copy = amountCopy(input, lang), { shown } = copy, { goto } = input;
+  const copy = amountCopy(input, lang),
+    { shown } = copy,
+    { goto } = input;
   const centered = emphasis === "hero" && !input.style;
   const figure = <AmountFigure input={{ ...input, emphasis }} copy={copy} />;
-  const name = shown && <kit.KitText role={centered ? "label" : "body"} tone={centered ? "muted" : "text"}
-    align={centered ? "center" : "start"} part="label" {...{ density }}>{shown}</kit.KitText>;
-  return <kit.KitCard style="inset" part="root" padded {...{ density, goto }} label={shown ?? copy.sum}>
-    {centered || !shown ? <kit.KitContent {...{ density }}>{name}{figure}</kit.KitContent> :
-      <kit.KitGrid columns={2} {...{ density }}>{name}<kit.KitContent {...{ density }}>{figure}</kit.KitContent></kit.KitGrid>}
-  </kit.KitCard>;
+  const name = shown && (
+    <kit.KitText
+      role={centered ? "label" : "body"}
+      tone={centered ? "muted" : "text"}
+      align={centered ? "center" : "start"}
+      part="label"
+      {...{ density }}
+    >
+      {shown}
+    </kit.KitText>
+  );
+  return (
+    <kit.KitCard style="inset" part="root" padded {...{ density, goto }} label={shown ?? copy.sum}>
+      {centered || !shown ? (
+        <kit.KitContent {...{ density }}>
+          {name}
+          {figure}
+        </kit.KitContent>
+      ) : (
+        <kit.KitGrid columns={2} {...{ density }}>
+          {name}
+          <kit.KitContent {...{ density }}>{figure}</kit.KitContent>
+        </kit.KitGrid>
+      )}
+    </kit.KitCard>
+  );
 }
