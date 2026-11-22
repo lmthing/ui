@@ -43,13 +43,14 @@ export const meta = {
     items: { finding: ["select"], evidence: ["type"] },
     // prettier-ignore
     when: { hire: { outcome: "active" }, reject: { outcome: "active" }, withdraw: { outcome: "active" },
-      evidence: { detail: "full" } },
+      evidence: { detail: "full" }, resume: { hasResume: true } },
   },
   live: {
     // prettier-ignore
     derive: (input): c.Values => ({
       interview: { goto: input.interviewGoto },
       offer: { goto: input.offerGoto },
+      hasResume: typeof input.resumeGoto === "string",
       resume: input.resumeGoto ? { goto: input.resumeGoto } : undefined,
       ...(input.detail === "brief" ? { criteria: (input.criteria as z.output<typeof props>["criteria"])
         .map((row) => ({ ...row, evidence: undefined })) } : {}),
@@ -270,7 +271,7 @@ function Criterion({
       {detail === "full" && (
         <kit.KitContent group="response" density={density}>
           <kit.KitInput
-            part="evidence"
+            part={loading ? null : "evidence"}
             label={words.evidenceFor(row.label)}
             hint={words.evidence}
             value={row.evidence}
