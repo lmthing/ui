@@ -134,7 +134,7 @@ function RegistryGiftRow({ row, host, density, lead }: Finish & { row: GiftRow; 
   const { price, owner, status, action: label } = registryGift(row, host, lang);
   const photo = lead === "thumb" && row.photo
     ? <kit.KitPhoto part="photo" shape="thumb" photo={row.photo} label={row.title} /> : undefined;
-  const action = label && <kit.KitAction part={host ? "unclaim" : "claim"} kind={host ? "quiet" : "primary"} label={label} />;
+  const action = label && <kit.KitAction part={host ? "unclaim" : "claim"} kind={host ? "danger" : "primary"} label={label} />;
   const title = <kit.KitText part="title" role="heading" tone={row.claimed ? "muted" : "text"}
     density="compact" emphasis="quiet">{row.title}</kit.KitText>;
   const detail = <kit.KitContent lineRole="body" density={density}>
