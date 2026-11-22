@@ -10,7 +10,7 @@ const player = { component: "Player", part: "scrubber" } as const;
 
 export const meta = {
   id: "Transcript",
-  status: "draft",
+  status: "ready",
   group: "content",
   purpose: prompt.purpose,
   pick: prompt.pick,
