@@ -9,8 +9,9 @@ export const meta = createMeta(
   },
   {
     me: [
-      "Identify the current subject from the supplied records; never invent an owner, name or status. If only collection records are supplied, name the collection in Header.title and feature one record in Profile, using its real name and one known detail. Name what the viewer can explore in the Header subtitle.",
-      "Use Stats for two distinct known counts or measurements; label them so their scope is clear. List related records with links to their own details; do not repeat the record already featured in Profile. Leave unrequested axes null.",
+      "Identify the current subject from the supplied records; never invent an owner, name or status. If only collection records are supplied, name the collection in Header.title (e.g. My plants), tell the viewer what they can browse in Header.sub, and feature one record in Profile. Keep Header.detail null so the subtitle shows.",
+      "Use one useful collection action only if it has a specific destination. For plant care use Add plant with goto add_plant. Never emit an Add action without a destination. The other links go to the individual records, not another copy of the collection.",
+      "Use Stats for two independently grounded quantities. With plant records and rooms, show Plants and the count of distinct Rooms, not a guessed care status. Carry the supplied room and care interval into both the featured Profile and the other List rows (e.g. Bathroom · Water every seven days, within 36 characters for a List row). Link each List row to its own details, never duplicate the featured row, and keep unrequested axes null.",
     ],
     person: [
       "Choose one supplied record as the subject when no subject is named. Header and Profile identify that same subject, not the entire collection. Use Stats for supported measurements, not guesses. In the List, show related records or supporting details that are not already in Profile; leave overflow, detail and mark null.",

@@ -26,10 +26,19 @@ describe("customers contact actions", () => {
           ...(address ? ["directions"] : []),
         ]);
       }
-    expect(def.meta.partTiers).toEqual({ call: "service", message: "service", directions: "service" });
+    expect(def.meta.partTiers).toEqual({
+      call: "service",
+      message: "service",
+      directions: "service",
+      email: "service",
+    });
     expect(components.Invoice.meta.confirmParts).toEqual(["decline"]);
-    expect(components.Invoice.meta.partTiers).toEqual({ send: "service" });
-    expect(components.PaymentStatus.meta.partTiers).toEqual({ remind: "service" });
+    expect(components.Invoice.meta.partTiers).toEqual({ send: "service", download: "service" });
+    expect(components.PaymentStatus.meta.partTiers).toEqual({
+      remind: "service",
+      copy: "service",
+      share: "service",
+    });
   });
 });
 

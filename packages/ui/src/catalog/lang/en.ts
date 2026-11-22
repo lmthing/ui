@@ -1,12 +1,11 @@
 import type { LDMLPluralRule } from "./plural";
+import { coreOptions } from "./core-options";
 
 function pluralThing(word: string) {
   if (/(s|x|z|ch|sh)$/.test(word)) return `${word}es`;
   if (/[^aeiou]y$/.test(word)) return `${word.slice(0, -1)}ies`;
   return `${word}s`;
 }
-
-const moneyLabels = { total: "Total" };
 
 export const en = {
   tag: "en",
@@ -122,7 +121,8 @@ export const en = {
     person: "person",
   },
   perAmount: (amount: string, per: string) => `${amount} / ${per}`,
-  moneyLabels,
+  moneyLabels: { total: "Total" },
+  ...coreOptions,
   debtControlLabels: {
     edit: "Open terms editor",
     strategy: "Repayment priority",
@@ -138,7 +138,7 @@ export const en = {
     due: "Due",
     subtotal: "Subtotal",
     tax: "Tax",
-    total: moneyLabels.total,
+    total: "Total",
     draft: "Draft",
     sent: "Sent",
     paid: "Paid",

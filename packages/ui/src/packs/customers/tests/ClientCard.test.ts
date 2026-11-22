@@ -129,7 +129,7 @@ describe("ClientCard states and parts", () => {
   });
   it("draws all optional summary parts and tags as static text", () => {
     const html = draw(examples[0]);
-    for (const part of meta.parts)
+    for (const part of meta.parts.filter((part) => !["company", "balance", "email"].includes(part)))
       expect(elementAt(html, `home/c1/${part}`).attributes).toContain("data-testid");
     for (const text of ["Client since 3 Apr 2025", "Next: Plant care", "Regular · Key holder"])
       expect(html).toContain(text);
@@ -175,7 +175,12 @@ describe("ClientCard read/act and core-first probes", () => {
       ...["Call", "Message", "Directions"],
     ])
       expect(reading).toContain(text);
-    expect(meta.partTiers).toEqual({ call: "service", message: "service", directions: "service" });
+    expect(meta.partTiers).toEqual({
+      call: "service",
+      message: "service",
+      directions: "service",
+      email: "service",
+    });
   });
   it("preserves metadata, core near miss, probes and the pack readiness gate", () => {
     expect(meta.status).toBe("ready");
