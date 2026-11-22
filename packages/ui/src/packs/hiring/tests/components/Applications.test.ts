@@ -80,7 +80,7 @@ describe("Applications parts, states, read and act", () => {
     const input = { applications: [second!, { ...first!, nextAt: "2001-01-01" }] };
     const drawn = [...parts(input).keys()];
     expect(drawn.indexOf("home/a1/r2/root")).toBeLessThan(drawn.indexOf("home/a1/r1/root"));
-    expect([...parts({ ...input, surface: "card", density: "compact" }).keys()]).toEqual(drawn);
+    expect([...parts({ ...input }).keys()]).toEqual(drawn);
     expect(reading(input).indexOf('r2 "Summer dog walker"')).toBeLessThan(
       reading(input).indexOf('r1 "Assistant trainer"'),
     );

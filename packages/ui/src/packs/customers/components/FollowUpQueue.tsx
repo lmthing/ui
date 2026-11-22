@@ -13,16 +13,14 @@ export const meta = {
   pick: "A prioritized queue of client follow-ups across quotes, invoices, renewals and check-ins. Not plain jobs to tick off (Checklist), a client header (ClientCard), or repair tickets (RequestQueue).",
   writeHints: [
     "Each entry needs a short unique id, clientName, kind, due date and done flag. Use done:false unless it is completed. Do not write urgency, groups per row or sort positions.",
-    'Use group "none" for an unsectioned queue when asked. Leave group null for the default due-date sections. Set density "compact" only for tighter spacing, not for removing sections. Otherwise leave density and surface null.',
-    'If the only appearance request is one list without sections, the exact axis values are {"density":null,"surface":null,"group":"none"}. Do not write surface:"card" for the default.',
+    'Use group "none" for an unsectioned queue when asked. Leave group null for the default due-date sections.',
+    'If the only appearance request is one list without sections, the exact axis values are {"group":"none"}.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Follow-ups are stored on the business phone; sending a nudge uses SMS or email.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     group: ["sections", "none"],
   },
   variantParts: { "group.none": { hides: ["overdue", "today", "upcoming", "completed"] } },
@@ -105,8 +103,8 @@ export const examples = [
     { id: "walks", clientName: "Mia Jones", kind: "renewal", due: "2027-12-03", done: true },
   ] },
   { ...ledge, group: "none" },
-  { ...ledge, density: "compact" },
-  { ...ledge, surface: "outlined" },
+  { ...ledge },
+  { ...ledge },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("FollowUpQueue");
@@ -163,8 +161,9 @@ function FollowUpRow({ row, density, today, grouped }: {
 
 // prettier-ignore
 export function FollowUpQueue(input: QueueProps) {
-  const { items, group, surface, density: requested } = kit.useLiveControls(meta, input) as QueueProps;
-  const density = kit.useVariant("density", meta.variants.density, requested);
+  const { items, group } = kit.useLiveControls(meta, input) as QueueProps;
+  const surface = "card";
+  const density = kit.useKit().density;
   const state = kit.useComponentState();
   const loading = state === "loading";
   const { words: { followUpLabels: copy } } = kit.useWords(customersWordsFor);

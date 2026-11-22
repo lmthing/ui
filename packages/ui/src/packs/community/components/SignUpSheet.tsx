@@ -15,7 +15,7 @@ export const meta = {
   pick: "A shared contribution sheet with counted places, claimants and claim/release for an ongoing group. Not a private task list (Checklist), bookable times (Slots), gifts (Registry) or staff cover (OpenShift).",
   writeHints: [
     "Use unique snake_case slot ids. Claims must name an existing slot and be unique per member per slot; never exceed capacity. Do not write claimed or remaining counts.",
-    'For compact summaries that expand to reveal claimants, write detail "brief" and keep the claims. That is a disclosure request, not a spacing or surface request: write density null and surface null unless those are expressly requested.',
+    'For summaries that expand to reveal claimants, write detail "brief" and keep the claims.',
   ],
   region: "body",
   weight: 3,
@@ -23,7 +23,7 @@ export const meta = {
   tier: "people",
   realPath:
     "A shared app atomically reserves the remaining places and lets each member release only their own claim.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["claimants"] } },
   parts: ["root", "title", "status"],
   items: {
@@ -167,8 +167,8 @@ function SlotRow({ row, density, detail, state }: Finish & { row: Row }) {
 // prettier-ignore
 export function SignUpSheet(input: SheetProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang } = kit.useWords(communityWordsFor);
   const { slots } = kit.useLiveControls(meta, input) as { slots: Row[] };

@@ -22,10 +22,10 @@ export const meta = {
   realPath: "A payment service executes transfers; scanning needs camera permission and requests reach another person.",
   writeHints: [
     'Use style "qr" only for the personal code tab; copy only an explicitly supplied demo QR payload.',
-    'To hide the memo, set detail "brief" and leave density and surface null. Never write surface "card" or a density unless explicitly requested.',
+    "To hide the memo, set detail \"brief\".",
     "Write amounts as positive numbers to two decimal places, without a currency. Total and confirmation wording are computed.",
   ],
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "outlined"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["memo"] } },
   parts: ["root", "mode", "tab", "recipient", "photo", "handle", "source", "balance", "label", "value", "pad",
     "memo", "speed", "fee", "total", "submit", "submit_label", "code", "scan", "scan_label", "status", "sub"],
@@ -179,8 +179,8 @@ function TransferForm({ input, copy, density }: { input: View; copy: ReturnType<
 export function MoneyTransfer(input: View) {
   const state = kit.useComponentState(), { screen, component } = kit.usePartContext(), loading = state === "loading";
   const { lang } = kit.useWords(moneyWordsFor), currency = kit.useAppCurrency(), canScan = kit.useDeviceData().transferScanner?.includes(component) ?? false;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const draft = kit.useControlValue(`${screen}/${component}/pad`, state === "empty" ? "" : amountPadText(input.amount));
   const copy = transferCopy({ ...input, draft }, state, lang, currency), { words } = copy;
   return <kit.KitCard part="root" padded {...{ density, surface }}>

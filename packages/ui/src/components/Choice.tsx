@@ -8,13 +8,13 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
-import { KitCard, KitOption, KitSkeleton, KitText, useComponentState, useVariant } from "../kit";
+import { KitCard, KitOption, KitSkeleton, KitText, useComponentState } from "../kit";
 
 export const meta = {
   id: "Choice",
@@ -25,12 +25,11 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "The chosen option is stored on one record in the on-device database.",
-  variants: { surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["sub"] } },
   writeHints: [
-    'Leave axes null unless asked. For unboxed rows with radio buttons or checkboxes use surface "plain".',
+    'Use detail "brief" only to hide secondary option notes, while keeping them in the data.',
     'To hide the option explanations, keep them in sub and set detail to "brief"; badges and values stay visible.',
-    "Set surface to null unless the person explicitly asks for unboxed rows. A request to hide explanations changes only detail, not surface.",
   ],
   items: { key: "options", parts: ["root", "icon", "title", "badge", "sub", "value"] },
   select: { prop: "at", value: "index" },
@@ -113,7 +112,6 @@ export const examples = [
     at: 0,
   },
   {
-    surface: "plain",
     question: "Pick a walk plan",
     options: [
       { title: "Single walk", sub: "One 30 minute walk.", value: "£15" },
@@ -144,9 +142,9 @@ export const probes = [
   read("Choose every two weeks", { address: "c1/r2", action: "select" }),
 ] satisfies Probe[];
 
-export function Choice({ surface, detail, question, options, multi }: Props<typeof props, typeof meta>) {
+export function Choice({ detail, question, options, multi }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
-  const look = useVariant("surface", meta.variants.surface, surface) === "plain" ? "list" : "cards";
+  const look = "cards";
   const shown = detail === "brief" ? options.map((option) => ({ ...option, sub: undefined })) : options;
   if (state === "loading") {
     return (

@@ -4,12 +4,13 @@ import {
   timeOfDayLine,
   probesFor,
   text,
-  variantProps,
   itemVariantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
+  variantProps,
 } from "../../../catalog";
 import { z } from "zod";
 import { seedTitles } from "..";
@@ -25,7 +26,7 @@ import {
   KitText,
   useComponentState,
   useWords,
-  useVariant,
+  useKit,
 } from "../../../kit";
 
 // Core first: Checklist/plain cannot log timed doses, skipped marks and remaining stock with refill thresholds.
@@ -42,9 +43,9 @@ export const meta = {
   realPath:
     "Doses stored on the device; reminders need notification permission, and this log is not medical advice.",
   writeHints: [
-    "Write density and dose mark null unless explicitly requested. For a request to hide stock alone, only detail is set. To hide individual pill counts, set detail brief but keep left and refillAt in the data. Mark only an explicitly highlighted dose.",
+    "Write dose mark null unless explicitly requested. For a request to hide stock alone, only detail is set. To hide individual pill counts, set detail brief but keep left and refillAt in the data. Mark only an explicitly highlighted dose.",
   ],
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["left"] } },
   items: {
     key: "doses",
@@ -126,7 +127,7 @@ export const probes = [
 ] satisfies Probe[];
 
 type Dose = Props<typeof props, typeof meta>["doses"][number];
-type DoseFinish = Pick<Props<typeof props, typeof meta>, "density" | "detail">;
+type DoseFinish = Pick<Props<typeof props, typeof meta>, "detail"> & { density: ThemeDensity };
 // prettier-ignore
 function MedicationStatus({ dose, detail }: { dose: Dose; detail: DoseFinish["detail"] }) {
   const { lang, words } = useWords(healthWordsFor);
@@ -169,7 +170,7 @@ function MedicationDose({ dose, density, detail }: { dose: Dose } & DoseFinish) 
 // prettier-ignore
 export function Medication(input: Props<typeof props, typeof meta>) {
   const { doses, refillAt, detail } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const { lang, words } = useWords(healthWordsFor);
   const state = useComponentState();
   if (state === "empty")

@@ -9,12 +9,13 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   wordsFor,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
+  variantProps,
 } from "../../../catalog";
 import * as kit from "../../../kit";
 import { activityLabel } from "../copy";
@@ -35,8 +36,6 @@ export const meta = {
   tier: "people",
   realPath: "A change log kept by a shared app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     lead: ["avatar", "none"],
   },
   variantParts: { "lead.none": { hides: ["photo"] } },
@@ -98,7 +97,6 @@ export const examples = [
     ],
   },
   {
-    density: "compact",
     entries: [
       {
         who: "Sam",
@@ -135,7 +133,7 @@ export const probes = [
 
 type LogProps = Props<typeof props, typeof meta>;
 type Entry = LogProps["entries"][number];
-type RowProps = { entry: Entry; density: LogProps["density"]; avatar: boolean };
+type RowProps = { entry: Entry; density: ThemeDensity; avatar: boolean };
 
 function ActivityRow({ entry, density, avatar }: RowProps) {
   const { lang } = kit.useWords(dataWordsFor);
@@ -169,8 +167,8 @@ function ActivityRow({ entry, density, avatar }: RowProps) {
 
 export function ActivityLog(input: LogProps) {
   const { entries } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const avatar = kit.useVariant("lead", meta.variants.lead, input.lead) === "avatar";
   const state = kit.useComponentState();
   return (

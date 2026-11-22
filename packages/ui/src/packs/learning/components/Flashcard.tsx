@@ -15,12 +15,12 @@ export const meta = {
   pick: "Recall from a prompt, flip to reveal its answer, then rate recall to schedule the next review. Not checked answers (Quiz) or swiping to keep or skip things (SwipeStack).",
   writeHints: [
     "Write only seed cards. Do not write cards left, flipped state or review dates.",
-    'In Writer JSON, use null for every unrequested appearance field. Do not write default values such as surface "card", align "center", density "comfortable" or media "thumb". A full-width photo sets media "cover" only; it never requests a surface, alignment or density.',
+    "Use null for unrequested settings. A full-width photo sets only media to \"cover\".",
     'Use style "binary" for just Know and Still learning; otherwise write style null for the four ratings (srs). Put a supplied recording in audio on that card only; audio does not request a photo or a media variant.',
   ],
   region: "body", weight: 2, tier: "phone",
   realPath: "Cards and their review dates are stored on the device.",
-  variants: { surface: ["card", "outlined"], align: ["center", "start"], density: ["comfortable", "compact"], media: ["thumb", "cover"] },
+  variants: { media: ["thumb", "cover"] },
   parts: ["root", "card", "front", "back", "hint", "photo", "left", "again", "hard", "good", "easy", "message", ...audioParts, "audio_status"],
   states: ["filled", "empty", "success", "loading"],
   emptyActions: [],
@@ -105,7 +105,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type FlashcardProps = c.Props<typeof props, typeof meta>;
-type Finish = Pick<FlashcardProps, "align" | "density" | "media">;
+type Finish = Pick<FlashcardProps, "media"> & { align: c.ContentAlign } & { density: c.ThemeDensity };
 type Face = Partial<FlashcardProps["cards"][number]>;
 
 // prettier-ignore
@@ -170,13 +170,13 @@ export function Flashcard(input: FlashcardProps) {
   const { screen, component } = kit.usePartContext();
   const state = kit.useComponentState();
   const { words: { flashcard: words } } = kit.useWords(learningWordsFor);
-  const { align, density, media, surface } = meta.variants;
-  const finish = {
-    align: kit.useVariant("align", align, input.align),
-    density: kit.useVariant("density", density, input.density),
+  const { media } = meta.variants;
+  const finish: Finish = {
+    align: "center",
+    density: kit.useKit().density,
     media: kit.useVariant("media", media, input.media),
   };
-  const frame = kit.useVariant("surface", surface, input.surface);
+  const frame = "card";
   const stored = kit.useControlValue<unknown>(`${screen}/${component}/${c.sessionKey}`, undefined);
   const session = c.sessionState(meta, input, () => stored);
   const current = session?.kind === "rounds" ? session : undefined;
@@ -190,7 +190,7 @@ export function Flashcard(input: FlashcardProps) {
   </KitContent>;
   const review = <ReviewCard card={current.item as Face} {...{ finish, loading }} flipped={current.revealed}
     index={current.index} remaining={current.recall.remaining} binary={input.style === "binary"} />;
-  return <KitCard part="root" surface={frame === "card" ? "plain" : frame} padded density={finish.density}>
+  return <KitCard part="root" surface={"plain"} padded density={finish.density}>
     <KitState density={finish.density} loading={review}>{review}</KitState>
   </KitCard>;
 }

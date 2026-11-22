@@ -22,7 +22,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Breathing is paced by an on-device animation with optional gentle haptics.",
-  variants: { surface: ["card", "plain"], emphasis: ["normal", "quiet"], detail: ["full", "brief"] },
+  variants: { emphasis: ["normal", "quiet"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["rounds"] } },
   parts: ["root", "circle", "phase", "rounds", "grounding", "step", "next"],
   states: ["filled", "success"],
@@ -46,10 +46,10 @@ export const meta = {
     },
   ],
   writeHints: [
-    "Leave surface, emphasis and detail null unless individually requested. Never write their default values just because they are listed.",
+    "Leave emphasis and detail null unless individually requested. Never write their default values just because they are listed.",
     'For "custom", write all four whole seconds: inhale, hold, exhale and rest (each 0–10, at least one positive). A skipped phase is the number 0, never null. Example: {"pattern":"custom","rounds":5,"inhale":4,"hold":0,"exhale":6,"rest":0}.',
     'Presets already include the timing: "box" (4-4-4-4), "calm" (4-7-8) and "even" (5-5). Set inhale, hold, exhale and rest to null for any preset, even if the brief mentions the preset seconds.',
-    'If asked only to hide the remaining-round count, use {"surface":null,"emphasis":null,"detail":"brief"}. Keep the requested rounds.',
+    'If asked only to hide the remaining-round count, use {"emphasis":null,"detail":"brief"}. Keep the requested rounds.',
     'For the 5-4-3-2-1 senses (see, feel, hear, smell, taste), write style "grounding", pattern "box" and rounds 1. This exercise steps through prompts rather than timing breaths. Otherwise leave style null unless the circle is explicitly requested.',
   ],
   // prettier-ignore
@@ -100,7 +100,7 @@ export function fallback(_input: c.FallbackInput): z.input<typeof props> {
 // prettier-ignore
 export const examples = [
   { pattern: "box", rounds: 4 },
-  { surface: "plain", pattern: "custom", rounds: 6, inhale: 4, hold: 2, exhale: 6, rest: 0 },
+  { pattern: "custom", rounds: 6, inhale: 4, hold: 2, exhale: 6, rest: 0 },
   { pattern: "calm", rounds: 4, emphasis: "quiet" },
   { pattern: "even", rounds: 4, detail: "brief" },
   { style: "grounding", pattern: "box", rounds: 1 },
@@ -163,7 +163,7 @@ function Grounding({ index }: { index: number }) {
 // prettier-ignore
 export function Breathe(input: BreathProps) {
   const live = kit.useLiveControls(meta, input);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const surface = "card";
   return <kit.KitCard part="root" surface={surface} padded>
     {input.style === "grounding"
       ? <Grounding index={Number(live.groundingAt ?? 0)} />

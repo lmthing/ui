@@ -9,11 +9,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
 import * as kit from "../kit";
 
@@ -32,7 +32,7 @@ export const meta = {
   tier: "service",
   partTiersBy: { map: { prop: "userLocation", tiers: { true: "ok" } } },
   realPath: "A map service locates the chosen places and supplies their map positions.",
-  variants: { density: ["comfortable", "compact"], trail: ["chevron", "none"] },
+  variants: { trail: ["chevron", "none"] },
   items: {
     key: "pins",
     parts: ["root", "label"],
@@ -94,7 +94,7 @@ export const examples = [
   { pins: shops },
   { pins: [gate, ...stops] },
   { trail: "none", pins: [gate, ...stops] },
-  { density: "compact", pins: shops },
+  { pins: shops },
   { pins: [gate, ...stops], userLocation: true, selected: 2 },
   ...(["good", "warn", "bad"] as const).map((tone) => ({ pins: [{ ...gate, tone }, ...stops] })),
   ...(["highlight", "muted", "new"] as const).map((mark) => ({ pins: [{ ...gate, mark }, ...stops] })),
@@ -145,7 +145,7 @@ function PinMap({ pins, userLocation, selected }: Pick<MapProps, "pins" | "userL
 // prettier-ignore
 export function MapPins(input: Props<typeof props, typeof meta>) {
   const { pins, trail, selected } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const state = kit.useComponentState();
   const inset = selected !== undefined || pins.some((pin) => pin.mark !== "none") ? "md" : "none";
   return (

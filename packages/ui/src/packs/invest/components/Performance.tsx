@@ -21,11 +21,11 @@ export const meta = {
   writeHints: [
     "Write 2–60 dated quote observations in increasing time order, with at most one quote per asset in each sample. Missing quotes are omitted, never written as zero; do not write portfolio values, contributions, gains or rates.",
     "Use ISO datetimes with offsets. Range filters the displayed points, not the contribution baseline.",
-    'Use detail "brief" only when asked to omit the heading above the valuation figures. Unless explicitly requested, leave density null.',
+    "Use detail \"brief\" only when asked to omit the heading above the valuation figures.",
   ],
   region: "body", weight: 2, tier: "phone",
   realPath: "The device replays the opening statement, trades, cash flows and receipts for each observation, valuing positions from stored quotes without a market service.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["summary"] } },
   parts: ["root", "title", "range", "legend", "summary", "value", "contributed", "gain", "observations", "dates", "notice"],
   items: { key: "samples", parts: ["root", "at", "value", "contributed", "gain"] },
@@ -84,7 +84,7 @@ export const examples = [
     ],
   },
   {
-    portfolioId: "pension", title: "Pension performance", range: "year", density: "compact",
+    portfolioId: "pension", title: "Pension performance", range: "year",
     samples: [
       { at: "2026-02-01T00:00:00+01:00", quotes: [{ assetId: "bond_fund", price: 22 }] },
       { at: "2026-02-12T16:00:00+01:00", quotes: [{ assetId: "bond_fund", price: 23 }] },
@@ -119,7 +119,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type PerformanceProps = c.Props<typeof props, typeof meta>;
-type Density = NonNullable<PerformanceProps["density"]>;
+type Density = c.ThemeDensity;
 // prettier-ignore
 function PerformanceFigures({ point, item, density, full, loading }: { point: PerformancePoint; item?: string; density: Density; full: boolean; loading: boolean }) {
   const { words: { performance: words }, lang } = kit.useWords(investWordsFor);
@@ -173,7 +173,7 @@ function PerformancePlot({ samples, selected, loading, density }: { samples: Per
 // prettier-ignore
 export function Performance(input: PerformanceProps) {
   const { words: { performance: words } } = kit.useWords(investWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const source = kit.useComponentState(), live = kit.useLiveControls(meta, input);
   const state = source === "filled" ? (live.state as c.StateName | undefined) ?? source : source;

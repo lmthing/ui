@@ -15,7 +15,7 @@ export const meta = {
   pick: "Home and away incidents within one match by minute: goals, cards, substitutions and notes. Not a one-sided history or daily plan (Timeline) or community posts (Feed).",
   writeHints: [
     "Write one event per incident, newest minute first. On a screen with Scoreboard, include exactly one goal event for each seeded goal and match the side.",
-    'For an ordinary feed, write "density":null, "surface":null, and "detail":null. Set "detail":"brief" only on an explicit request to hide the written event-type labels; keep the kind to draw its icon. Leave density and surface null unless separately requested.',
+    'For an ordinary feed, write "detail":null. Set "detail":"brief" only on an explicit request to hide the written event-type labels; keep the kind to draw its icon.',
   ],
   region: "body",
   weight: 3,
@@ -23,7 +23,7 @@ export const meta = {
   tier: "phone",
   partTiers: { root: "people" },
   realPath: "Incidents are added on the scorekeeper's phone; following them live needs a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["kind_label"] } },
   parts: ["root", "title", "empty", "add", "add_icon", "add_label"],
   items: { key: "events", parts: ["root", "minute", "side", "kind", "kind_label", "text"] },
@@ -76,7 +76,6 @@ export const examples = [
     ],
   },
   {
-    density: "compact",
     events: [
       { minute: 57, side: "away", kind: "card_red", text: "Banks sent off" },
       { minute: 30, side: "away", kind: "goal", text: "Rivers heads in" },
@@ -85,7 +84,6 @@ export const examples = [
     ],
   },
   {
-    surface: "plain",
     events: [
       { minute: 61, side: "away", kind: "sub", text: "Pike is on, Banks off" },
       { minute: 44, side: "home", kind: "goal", text: "Green finishes a low cross" },
@@ -165,8 +163,8 @@ export function MatchFeed(seed: MatchFeedProps) {
   } = kit.useWords(sportsWordsFor);
   const state = kit.useComponentState();
   const empty = (input.state ?? state) === "empty";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   return (
     <kit.KitCard part="root" padded {...{ density, surface }}>

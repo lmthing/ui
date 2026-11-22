@@ -13,14 +13,14 @@ export const meta = {
   pick: "Public replies beneath a post, with author avatars, like and reply controls, and one level of indentation. Not a two-person private conversation (Bubbles) or a business review (Review).",
   writeHints: [
     'Use "reply":false for each top-level comment (including the first) and "reply":true for answers under it. Consecutive answers share that same parent. Use zero for unknown likes.',
-    'Use JSON null for each unrequested variant, never an explicit default such as "surface":"card". When the only presentation request is to hide timestamps, write "density":null, "surface":null, "detail":"brief"; retain every comment’s time value.',
+    'When the only presentation request is to hide timestamps, write "detail":"brief"; retain every comment’s time value.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "people",
   realPath: "Replies in a shared app; new replies come from a reply Composer below.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["time"] } },
   parts: ["root", "empty"],
   items: {
@@ -178,8 +178,8 @@ function Comment({ row, density, parent, detail }: Finish & {
 // prettier-ignore
 export function Comments(input: CommentsProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   let parent: string | undefined;
   return <kit.KitCard part="root" padded {...{ density, surface }}>

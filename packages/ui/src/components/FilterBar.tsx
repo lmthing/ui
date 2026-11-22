@@ -10,11 +10,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
 import * as kit from "../kit";
 
@@ -27,15 +27,13 @@ export const meta = {
   pick: "Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).",
   writeHints: [
     "Write 1 to 4 separate filters, each with 2 to 8 distinct options. If a filter has a selected value, it must exactly match one of its options. sort is the current order's label, not an options list.",
-    'Use detail "brief" only if asked to hide the active filter count; keep the filter values and sort label. Write null for density and surface unless their appearance is explicitly requested, including when detail is "brief". Leave detail null when the count is not mentioned.',
+    'Use detail "brief" only if asked to hide the active filter count; keep the filter values and sort label. Leave detail null when the count is not mentioned.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "A query built on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["plain", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["count"] } },
@@ -100,7 +98,6 @@ export const examples = [
     sort: "Recently watered",
   },
   {
-    density: "compact",
     hint: "Find a walk",
     filters: [
       { label: "Walker", options: ["Sam", "Ana"], value: "Ana" },
@@ -146,8 +143,9 @@ function FilterPickers({ filters }: Pick<ViewProps, "filters">) {
 }
 
 export function FilterBar(input: ViewProps) {
-  const { density: requestedDensity, detail, surface } = input;
-  const density = kit.useVariant("density", meta.variants.density, requestedDensity);
+  const { detail } = input;
+  const surface = "plain";
+  const density = kit.useKit().density;
   const { hint, filters, query, sort } = kit.useLiveControls(meta, input) as ViewProps;
   const { lang, words } = kit.useWords();
   return (

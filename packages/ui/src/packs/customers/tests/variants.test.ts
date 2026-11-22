@@ -42,7 +42,7 @@ for (const id of selectedIds(ids)) {
     );
     expect(addresses(id, { ...input, ...explicit })).toEqual(addresses(id, input));
     for (const [axis, values] of Object.entries(def.meta.variants!)) {
-      expect(parsed[axis]).toBe(axis === "density" ? undefined : values[0]);
+      expect(parsed[axis]).toBe(values[0]);
       expect(def.props.safeParse({ ...input, [axis]: "unsupported" }).success).toBe(false);
       for (const value of values) expect(def.props.safeParse({ ...input, [axis]: value }).success).toBe(true);
     }

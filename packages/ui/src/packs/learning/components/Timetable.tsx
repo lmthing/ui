@@ -13,14 +13,14 @@ export const meta = {
   pick: "A student's repeating week of class periods with subject, room and teacher. Not a one-day schedule (Timeline), staff shifts (Roster), bookable slots (Slots) or family events (Agenda).",
   writeHints: [
     "Write each scheduled weekday once. For each period, write a 24-hour start time and subject, with room, teacher and semantic tone if supplied. Leave selected_day null; it is for the locally selected view. Never write the current period.",
-    'Leave density, surface and detail null unless requested. For start times and subjects only, use detail "brief" and retain any rooms and teachers in the data.',
+    'Leave detail null unless requested. For start times and subjects only, use detail "brief" and retain any rooms and teachers in the data.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "The timetable is stored on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["room", "teacher"] } },
   parts: ["root", "day"],
   items: { key: "periods", parts: ["root", "time", "subject", "room", "teacher"] },
@@ -159,8 +159,8 @@ function PeriodRow({ row, density, detail, active }: {
 // prettier-ignore
 export function Timetable(input: TimetableProps) {
   const { periods, selected_day, detail } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const state = kit.useComponentState();
   const { screen, component } = kit.usePartContext();
   const selected = kit.useControlValue(`${screen}/${component}/$selected_day`, selected_day);

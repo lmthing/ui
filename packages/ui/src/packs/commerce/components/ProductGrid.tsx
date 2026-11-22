@@ -13,7 +13,7 @@ export const meta = {
   pick: "Browse several priced goods with a quick add per product, as photo cards or food menu rows. Not photos without prices (Gallery), timed services (ServiceMenu), or owned things (Things).",
   writeHints: [
     'Use arrange "grid" for two-column product cards. Use "rows" for menu rows with a right-hand photo and optional sub line; omit sub for grid.',
-    "Leave density null when only the arrangement is requested; menu rows do not imply a change of spacing.",
+
     'Use style "deals" for flash-sale cards, claimed per item as a percentage from 0 to 100, and ends plus optional endsAt for the shared deadline. Use was for the previous price to compute a discount, or supply badge text.',
   ],
   region: "body",
@@ -21,7 +21,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "A product query runs on the device.",
-  variants: { density: ["comfortable", "compact"], arrange: ["grid", "rows"] },
+  variants: { arrange: ["grid", "rows"] },
   variantParts: { "arrange.rows": { adds: ["sub"] } },
   parts: ["root", "empty", "deals_header", "deals", "countdown"],
   // prettier-ignore
@@ -175,8 +175,8 @@ function ProductSkeleton({ item, menu, density, deals, offerSlot }: TileProps) {
 
 // prettier-ignore
 export function ProductGrid(input: GridProps) {
-  const { items, arrange: requested, density: spacing, style } = input, deals = style === "deals";
-  const density = kit.useVariant("density", meta.variants.density, spacing), arrange = kit.useVariant("arrange", meta.variants.arrange, requested);
+  const { items, arrange: requested, style } = input, deals = style === "deals";
+  const density = kit.useKit().density, arrange = kit.useVariant("arrange", meta.variants.arrange, requested);
   const context = kit.usePartContext(), menu = arrange === "rows";
   const { words, lang } = kit.useWords(commerceWordsFor);
   kit.useControlValue(`${context.screen}/${context.component}/$offer`, 0);

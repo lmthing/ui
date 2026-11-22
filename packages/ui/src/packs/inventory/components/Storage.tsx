@@ -13,14 +13,14 @@ export const meta = {
   pick: "Browse nested physical storage with a breadcrumb, child locations and contents kept here. Not flat linked names (List), geographic pins (MapPins), or stock records (Things).",
   writeHints: [
     'Path is ancestor labels in outer-to-inner order. Ancestor screen ids must match their labels in lowercase snake_case (Potting bench → potting_bench). Prefix numeric or reserved ids with "spot_".',
-    'Spots are child locations; here lists what is kept in the current location. Never write counts. To hide counts use detail "brief", density null and surface null. For the default view leave all three axes null.',
+    'Spots are child locations; here lists what is kept in the current location. Never write counts. To hide counts use detail "brief". For the default view leave detail null.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "A tree of storage spots and their contents lives on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["count"] } },
   parts: ["root", "path", "spots", "here", "empty"],
   items: { key: "navigation", parts: ["root", "name", "icon", "count"] },
@@ -160,8 +160,8 @@ export function Storage(input: StorageProps) {
   const state = kit.useComponentState();
   const { lang, words: { storage: words } } = kit.useWords(inventoryWordsFor);
   const data = kit.useDeviceData();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const rows = c.visibleItems<Navigation & { id: string }>(meta, input);
   const path = rows.filter((row) => row.ancestor);

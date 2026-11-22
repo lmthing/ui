@@ -102,7 +102,7 @@ it("keeps food search in one card and recipe browsing in separate cards", () => 
   const registry = createRegistry({ packs: ["kitchen"], includeDrafts: true });
   const food = registry.defaultLines("food", "add", cast).components.find(({ c }) => c === "List");
   const recipes = registry.defaultLines("recipes", "browse", cast).components.find(({ c }) => c === "List");
-  expect(food).toMatchObject({ surface: "card" });
+  expect(food).not.toHaveProperty("surface");
   expect(food).not.toHaveProperty("style");
   expect(recipes).toMatchObject({ style: "cards" });
 });

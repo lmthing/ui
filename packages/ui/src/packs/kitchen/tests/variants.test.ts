@@ -54,8 +54,8 @@ describe.each(variants)("%s %s", (id, axis, defaultValue, alternative, part, lab
 
 it("FoodLog leaves density unset for the app to resolve and accepts only the declared values", () => {
   const { props, examples } = components.FoodLog;
-  expect(props.parse(examples[0]).density).toBeUndefined();
-  expect(props.parse(examples[1]).density).toBe("compact");
+  expect(props.parse(examples[0])).not.toHaveProperty("density");
+  expect(props.safeParse({ ...examples[1], density: "compact" }).success).toBe(false);
   expect(props.safeParse({ ...examples[0], density: "tight" }).success).toBe(false);
 });
 

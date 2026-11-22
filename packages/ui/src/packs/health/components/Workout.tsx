@@ -19,9 +19,9 @@ export const meta = {
   tier: "phone",
   realPath: "Exercise sets stored on the device; this is a log, not medical advice.",
   writeHints: [
-    "Write surface null unless asked for an outline; never write the default surface card. Use detail brief only when asked to hide the elapsed-time header. Keep set controls and rest.",
+    "Use detail brief only when asked to hide the elapsed-time header. Keep set controls and rest.",
   ],
-  variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["time"] } },
   // prettier-ignore
   clocks: [{
@@ -162,7 +162,8 @@ function WorkoutSet({ item, set, pos, unit, stop }: SetProps) {
 }
 
 // prettier-ignore
-export function Workout({ exercises, unit, rest, elapsed, surface, detail }: WorkoutProps) {
+export function Workout({ exercises, unit, rest, elapsed, detail  }: WorkoutProps) {
+  const surface = "card";
   const full = kit.useVariant("detail", meta.variants.detail, detail) === "full";
   const state = kit.useComponentState();
   const { controller } = kit.useKit(), { screen, component } = kit.usePartContext();

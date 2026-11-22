@@ -25,7 +25,6 @@ describe("MiniPlayer schema and boundaries", () => {
     const title = "t".repeat(40);
     expect(props.parse({ ...playing, title: ` ${title} `, at: 36000, seconds: 36000 })).toMatchObject({
       title,
-      surface: "card",
       at: 36000,
       seconds: 36000,
     });
@@ -97,7 +96,7 @@ describe("MiniPlayer fallback and metadata", () => {
 describe("MiniPlayer states and parts", () => {
   it("draws the filled state and retains all addresses across finish variants", () => {
     expect(meta.states).toEqual(["filled"]);
-    for (const input of [playing, paused, { ...playing, density: "compact" }]) {
+    for (const input of [playing, paused, { ...playing }]) {
       const html = renderInstance("MiniPlayer", input, "filled", theme);
       expect([...addressedElements(html).keys()].sort()).toEqual(
         meta.parts.map((part) => `${prefix}${part}`).sort(),

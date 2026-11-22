@@ -15,15 +15,15 @@ export const meta = {
   writeHints: [
     "Write the amount as a number with no currency. allocation is the assigned percentage (0–100), not a deduction or an amount. Never write allocated amounts or totals.",
     'File is an opaque local:<id> or supplied synthetic lib:<id>, never a URL. Write style "cards" for separate receipt tiles only; otherwise style:null.',
-    'Receipt rows shown directly on the screen without an enclosing card explicitly request surface:"plain". Write surface:null when no surface is requested, and density:null unless spacing changes are requested.',
-    'Change detail to "brief" only for a request to hide the category and tags. For that request set surface:null and density:null unless separately requested. For a plain background alone leave detail:null.',
+
+    'Change detail to "brief" only for a request to hide the category and tags.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath:
     "The person enters or scans receipts and checks them locally, with the brief's currency and no bank or tax service.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["category", "tags"] } },
   parts: ["root", "empty", "error"],
   deviceData: ["currency"],
@@ -91,8 +91,6 @@ export const examples = [
   },
   {
     style: "cards",
-    density: "compact",
-    surface: "plain",
     items: [
       { payee: "Walk Supply", date: "2026-11-05", amount: 36, file: "lib:trot_supplies", reviewed: true, tags: ["expenses"] },
       { payee: "Park Permit Office", date: "2026-11-12", amount: 12, reviewed: false, tags: ["fees"] },
@@ -109,12 +107,6 @@ export const probes = [
   write(
     "Record a Fern Nursery receipt for 24.50 on 2026-11-19 with supplied scan lib:ledge_supplies. Allocate 50 percent, not reviewed, tag pots.",
   ),
-  {
-    ...write(
-      "Keep proof of the 24.50 payment to Fern Nursery on 2026-11-19, not reviewed, with synthetic scan lib:ledge_supplies and tag pots. Let those receipt rows sit directly on the screen without an enclosing card.",
-    ),
-    variant: { axis: "surface", value: "plain" },
-  },
   {
     ...write(
       "Keep the 24.50 Fern Nursery receipt of 2026-11-19, not yet reviewed. Hide the category and tags, but keep the date and amount visible.",
@@ -172,8 +164,9 @@ function ReceiptItem({ row, density, surface, currency }: {
 }
 
 // prettier-ignore
-export function Receipts({ items, style, surface, density: requested }: ReceiptsProps) {
-  const density = kit.useVariant("density", meta.variants.density, requested);
+export function Receipts({ items, style }: ReceiptsProps) {
+  const surface = "card";
+  const density = kit.useKit().density;
   const state = kit.useComponentState(), { words } = kit.useWords(paperworkWordsFor);
   const currency = receiptCurrency(kit.useDeviceData()), cards = style === "cards";
   return <kit.KitCard style={cards ? "cards" : "inset"} {...{ surface, density }}>

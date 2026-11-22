@@ -13,15 +13,13 @@ export const meta = {
   pick: "Teach one idea with a titled explanation, an optional illustrated example and a continue action. Not a short supporting sentence (Note), long-form reading (Article) or an assessed question (Quiz).",
   writeHints: [
     "Put the explanation in text and the scenario in example. For any unrequested axis use null, not its default enum value.",
-    'To hide a saved example, fill example and emit "detail":"brief". Unless explicitly requested, emit "density":null, "surface":null, "emphasis":null. Keeping the usual spacing, card or heading is not a request for those axes.',
+    'To hide a saved example, fill example and emit "detail":"brief". Unless explicitly requested, emit "emphasis":null.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Lesson content is stored with the app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     emphasis: ["normal", "hero"],
     detail: ["full", "brief"],
   },
@@ -87,8 +85,9 @@ export const probes = [
 ] satisfies c.Probe[];
 
 export function Lesson(input: c.Props<typeof props, typeof meta>) {
-  const { title, text, example, photo, surface, emphasis } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const { title, text, example, photo, emphasis } = input;
+  const surface = "card";
+  const density = kit.useKit().density;
   const { words } = kit.useWords(learningWordsFor);
   return (
     <kit.KitCard part="root" padded density="comfortable" surface={surface}>

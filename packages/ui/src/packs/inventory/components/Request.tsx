@@ -16,13 +16,13 @@ export const meta = {
   pick: "One rental-repair summary with location, priority, status, assignee and short updates. Not a history-only view (Timeline), any queue, triage, conversation, work order or request workflow (requests pack), staff leave (Approval), or a general board (Board).",
   writeHints: [
     "Use new, booked or fixed. Include up to four short updates, each with a time label. Never write a second request, thread, workflow or separate work order.",
-    'Visibility is separate from whether the record has a photo. "Without the photo", "hide the photo" or "text only" must output "media":"none", even if you also output "photo":"local:1". Ordinary requests use "media":null. Set density and surface only when requested.',
+    'Visibility is separate from whether the record has a photo. "Without the photo", "hide the photo" or "text only" must output "media":"none", even if you also output "photo":"local:1". Ordinary requests use "media":null.',
   ],
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "A shared repair record connects the tenant and landlord; the landlord changes status.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], media: ["thumb", "none"] },
+  variants: { media: ["thumb", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
   parts: ["root", "title", "where", "photo", "priority", "status", "who", "updates", "update"],
   items: { key: "updates", parts: ["root", "time", "text"] },
@@ -159,8 +159,8 @@ function Updates({ rows, density, label }: { rows: RequestProps["updates"]; dens
 export function Request(input: RequestProps) {
   const { words: { request: words } } = kit.useWords(inventoryWordsFor);
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const live = kit.useLiveControls(meta, input);
   const success = state === "success";

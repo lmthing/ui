@@ -6,13 +6,13 @@ import {
   streakLine,
   text,
   thingOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
-import { KitCard, KitContent, KitIcon, KitText, KitWeekStrip, useVariant } from "../kit";
+import { KitCard, KitContent, KitIcon, KitText, KitWeekStrip, useKit } from "../kit";
 
 export const meta = {
   id: "Streak",
@@ -21,13 +21,13 @@ export const meta = {
   purpose: "How many days in a row you kept a habit, with this week's completed days.",
   pick: "Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).",
   writeHints: [
-    'If the person wants to see which days are done, set detail null and keep the weekly strip visible. Set detail "brief" only if they explicitly ask to hide the strip; still store all seven days. For either request, density is null unless tighter spacing is separately requested.',
+    'If the person wants to see which days are done, set detail null and keep the weekly strip visible. Set detail "brief" only if they explicitly ask to hide the strip; still store all seven days.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Consecutive completed days and this week's completion derived from on-device habit records.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["days"] } },
   parts: ["root", "count", "label", "days"],
   states: ["filled"],
@@ -74,7 +74,6 @@ export const examples = [
     count: 6,
     label: "days training recall",
     days: [true, true, true, true, true, true, false],
-    density: "compact",
   },
   {
     count: 6,
@@ -101,7 +100,7 @@ export const probes = [
 
 export function Streak(input: Props<typeof props, typeof meta>) {
   const { count, label, days, detail } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   return (
     <KitCard style="inset" part="root" padded density={density}>
       <KitContent

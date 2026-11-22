@@ -20,13 +20,13 @@ export const meta = {
   pick: "Live operational status, gate updates and progress for one specific flight. Not static facts (KeyValue), a boarding pass (Reservation) or airport-wide boards (Departures).",
   purpose: "Track one booked flight's live status, airport details and progress.",
   writeHints: [
-    'Use local HH:MM for each airport; progress is a fraction, not a percent. Only write an estimate if known. For a single strip with status, gate and departure, set detail to "brief". Leave density and surface null unless explicitly requested; do not write "card" for the default surface.',
+    "Use local HH:MM for each airport; progress is a fraction, not a percent. Only write an estimate if known. For a single strip with status, gate and departure, set detail to \"brief\".",
   ],
   region: "body",
   weight: 2,
   realPath:
     "live flight status, gate changes, and airborne progress fetched from an aviation status service.",
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "plain"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": {
     hides: ["route", "origin_city", "destination_city", "arrival", "estimated_arrival", "terminal", "baggage"],
   } },
@@ -122,7 +122,7 @@ type FlightProps = c.Props<typeof props, typeof meta>;
 type FlightView = ReturnType<typeof flightView>;
 
 // prettier-ignore
-function FlightTimes({ view, density }: { view: FlightView; density: FlightProps["density"] }) {
+function FlightTimes({ view, density }: { view: FlightView; density: c.ThemeDensity }) {
   return <kit.KitRowGroup density={density}>
     {view.times.map(({ part, title, scheduled, estimatePart, estimateTime, scheduledNote }) =>
       <kit.KitGrid key={part} density={density}>
@@ -136,7 +136,7 @@ function FlightTimes({ view, density }: { view: FlightView; density: FlightProps
 }
 
 // prettier-ignore
-function FlightRoute({ input, view, density }: { input: FlightProps; view: FlightView; density: FlightProps["density"] }) {
+function FlightRoute({ input, view, density }: { input: FlightProps; view: FlightView; density: c.ThemeDensity }) {
   const loading = kit.useComponentState() === "loading";
   const { words: { flightStatus } } = kit.useWords(tripsWordsFor);
   return <kit.KitFigure density={density} media={<kit.KitContent density={density} align="center">
@@ -157,8 +157,8 @@ function FlightRoute({ input, view, density }: { input: FlightProps; view: Fligh
 export function FlightStatus(input: FlightProps) {
   const { lang, words: { flightStatus } } = kit.useWords(tripsWordsFor);
   const state = kit.useComponentState(), loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const view = flightView(input, lang);
   const heading = <kit.KitGrid fitLast density={density}>
     <kit.KitHeader title={{ text: input.flight, part: "flight" }} meta={{ text: input.airline, part: "airline" }} density={density} />

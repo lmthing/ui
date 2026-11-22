@@ -27,7 +27,7 @@ describe("SleepLog schema and boundaries", () => {
     expect(props.safeParse(example).success).toBe(true);
   });
   it("defaults finish and detail and keeps week data when the average is hidden", () => {
-    expect(props.parse(night)).toMatchObject({ surface: "card", detail: "full" });
+    expect(props.parse(night)).toMatchObject({ detail: "full" });
     expect(props.parse({ ...night, detail: "brief" }).week).toEqual(night.week);
   });
   it.each([

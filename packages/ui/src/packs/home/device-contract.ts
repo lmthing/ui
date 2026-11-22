@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { screenId, text, variantProps } from "../../catalog";
 
-const variants = { group: ["sections", "none"], surface: ["card", "outlined"] } as const;
+const variants = { group: ["sections", "none"] } as const;
 
 const switchKinds = ["light", "heat", "plug", "lock", "fan"];
 const levelKinds = ["light", "fan", "blind"];

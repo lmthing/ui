@@ -14,7 +14,7 @@ export const meta = {
   region: "body", weight: 2, tier: "phone",
   partTiers: { import: "ok" },
   realPath: "Sleep times are typed in or read from the phone's sleep data with permission.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["average"] } },
   parts: ["root", "bed", "wake", "duration", "night", "quality", "average", "edit", "import", "empty", "stages", "hr_avg", "hrv"],
   items: { key: "stageRows", parts: ["root", "label"] },
@@ -23,7 +23,7 @@ export const meta = {
   emptyActions: ["edit.press"],
   writeHints: [
     "Use 24-hour HH:MM for bed and wake. Awake minutes cannot exceed the interval from bed to wake across midnight. If supplied, week contains exactly seven hours values from 0 to 24; never write duration or average.",
-    'For a night with the weekly average hidden, use {"density":null,"surface":null,"detail":"brief"}. Keep the seven nights in week. Set unrequested finish axes to null, never "card" or "comfortable".',
+    "For a night with the weekly average hidden, use {\"detail\":\"brief\"}. Keep the seven nights in week.",
     'Only select style "stages" if a breakdown is requested. Never infer stages from bedtime, wake or awake time. Leave stages null unless all four actual durations are given; their total must match the night, and the two awake values must agree if both given. Leave unrequested style, hrAvg (bpm) and hrv (ms) null.',
   ],
   read: (input, state, lang): string[] => {
@@ -105,7 +105,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type SleepLogProps = c.Props<typeof props, typeof meta>;
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 
 // prettier-ignore
 function SleepValue({ part, label, value, density }: { part: string; label: string; value: string; density: Density }) {
@@ -173,8 +173,8 @@ function NightSummary({ input, density, full }: { input: SleepLogProps; density:
 // prettier-ignore
 export function SleepLog(input: SleepLogProps) {
   const empty = kit.useComponentState() === "empty";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const { lang, words } = kit.useWords(mindWordsFor), wearable = wearableLines(input, lang);
   return (

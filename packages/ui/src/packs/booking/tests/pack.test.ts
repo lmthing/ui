@@ -29,7 +29,7 @@ describe("booking scaffold", () => {
     );
     const classLines = draft.defaultLines("schedule", "class", { things: [], items: [] }).components;
     const capacity = classLines.find(({ c }) => c === "Progress");
-    expect(capacity).toMatchObject({ density: "compact" });
+    expect(capacity).not.toHaveProperty("density");
     expect(capacity).not.toHaveProperty("style");
     expect(classLines[3]?.c).toBe("ClassRoster");
     const booking = Object.keys(packOf).filter((id) => packOf[id as keyof typeof packOf] === "booking");
@@ -53,7 +53,7 @@ describe("booking scaffold", () => {
       const { c: _c, id: _id, ...input } = workedBooking.find((line) => line.c === id);
       expect(input).not.toHaveProperty("style");
       expect(components[id].props.parse(input)).toMatchObject(
-        id === "ServiceMenu" ? { surface: "card" } : { arrange: "grid" },
+        id === "ServiceMenu" ? { style: undefined } : { arrange: "grid" },
       );
     }
     const slots = readComponent(components.Slots, components.Slots.examples[0], "s1").join("\n");

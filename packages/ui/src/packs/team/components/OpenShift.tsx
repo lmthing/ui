@@ -12,15 +12,13 @@ export const meta = {
   purpose: "Pick up an unassigned shift and see when it runs and what it pays.",
   pick: "Claim one of several unassigned work shifts with a date, time range, role and optional pay. Not an assigned shift (Shift) or a list of jobs to tick off (Checklist).",
   writeHints: [
-    'Keep pay as an optional numeric amount without a currency. Use detail "brief" only when asked to hide pay, and retain any supplied pay in the data. Leave density and surface null unless requested.',
+    'Keep pay as an optional numeric amount without a currency. Use detail "brief" only when asked to hide pay, and retain any supplied pay in the data.',
   ],
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "A manager approves claims for open shifts in a shared rota.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["pay"] } },
@@ -163,8 +161,8 @@ export function OpenShift(input: OpenShiftProps) {
   const state = kit.useComponentState();
   const thing = kit.useEmptyThing();
   const { words } = kit.useWords(teamWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   return (
     <kit.KitCard part="root" density={density} surface={surface}>

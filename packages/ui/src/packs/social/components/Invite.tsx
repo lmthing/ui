@@ -13,16 +13,13 @@ export const meta = {
   pick: "Invite people to join an app or group using a copyable, shareable code and optional QR. Not sharing a post (Post) or listing existing members (People).",
   writeHints: [
     'If the brief says to keep the number who joined without displaying it, write both fields: "joined":3,"detail":"brief" (use the supplied number, not necessarily 3). A null detail shows the count, so use null only when hiding the count was not requested.',
-    "The joined field is null only if the count is unknown. Set qr to true for a scannable version of code. Leave density, surface and align null unless requested.",
+    "The joined field is null only if the count is unknown. Set qr to true for a scannable version of code.",
   ],
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "An invite code from a shared app; sharing uses the phone’s share sheet.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
-    align: ["start", "center"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["joined"] } },
@@ -82,9 +79,9 @@ type InviteProps = c.Props<typeof props, typeof meta>;
 export function Invite(input: InviteProps) {
   const { title, code, qr, joined } = input;
   const { lang, words } = kit.useWords(socialWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
-  const align = kit.useVariant("align", meta.variants.align, input.align);
+  const density = kit.useKit().density;
+  const surface = "card";
+  const align = "start";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const joinedLine = inviteJoinedLine({ joined, detail }, lang);
   const group = density === "compact" ? "content" : "response";

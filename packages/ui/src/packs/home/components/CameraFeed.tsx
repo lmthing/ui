@@ -16,7 +16,7 @@ export const meta = {
   purpose: "Check a connected home camera, change its arming mode and review recent events.",
   pick: "Connected home security cameras or baby monitors with arming modes and motion events. Not taking a device photo (Camera), playing local media (Player), or controlling switches and thermostats (Devices).",
   writeHints: [
-    'For text-only event history, set detail to "brief" even when no clip is supplied. Use JSON null for density and surface unless explicitly requested; do not fill in defaults.',
+    "For text-only event history, set detail to \"brief\" even when no clip is supplied.",
     'Use an ISO timestamp with an offset for each event at, for example "2026-11-20T09:42:00+00:00".',
   ],
   region: "body",
@@ -25,7 +25,7 @@ export const meta = {
   realPath:
     "A connected camera service supplies preview frames and motion clips; two-way talk also needs microphone permission.",
   items: { key: "events", parts: ["root", "kind", "time", "clip", "trail"] },
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["clip"] } },
   parts: ["root", "room", "status", "preview", "mode", "audio", "audio_label",
     "talk", "talk_label", "siren", "siren_label", "feedback", "events", "empty"],
@@ -165,8 +165,8 @@ function EventList({ input, density }: Display) {
 export function CameraFeed(input: View) {
   const { lang, words: { cameraFeed: w } } = kit.useWords(homeWordsFor);
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const liveLayout = input.style === "live";
   const photo = cameraFrame(input);
   const loading = state === "loading";

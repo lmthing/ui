@@ -11,7 +11,7 @@ import {
   KitText,
   KitTimes,
   useComponentState,
-  useVariant,
+  useKit,
 } from "../kit";
 import { z } from "zod";
 import {
@@ -25,12 +25,12 @@ import {
   remainingLine,
   text,
   thingOf,
-  variantProps,
   wordsFor,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
 
 // prettier-ignore
@@ -40,14 +40,14 @@ export const meta = {
   purpose: "Listen to or watch one recording, with play, skip and a scrubber.",
   pick: "One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).",
   writeHints: [
-    'Hiding only the cover artwork sets detail "brief" and density null. Keep the photo reference and playback controls. Never output default axis values; density is compact only when tighter spacing was specifically requested.',
+    "Hiding only the cover artwork sets detail \"brief\". Keep the photo reference and playback controls.",
     'The media field is the recording reference. Use style "video" for the original video layout or "compact" for one audio row. Mode is the recording type; write it only when requested. Speed is a multiplier (1.5 for 1.5×).',
   ],
   region: "body",
   weight: 3,
   tier: "phone",
   realPath: "A file stored on or bundled with the app, played by the device's media player.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["artwork"] } },
   parts: ["root", "artwork", "title", "sub", "scrubber", "elapsed", "remaining", "back", "play", "forward", "options"],
   states: ["filled", "loading"],
@@ -116,7 +116,7 @@ export const examples = [
   fernGuide,
   { ...voiceNote, detail: "brief" },
   voiceNote,
-  { ...fernGuide, density: "compact" },
+  { ...fernGuide },
   { ...voiceNote, title: "Park walk recap", style: "compact", mode: "podcast", speed: 1.5, liked: true },
   { style: "audio", mode: "music", media: "lib:park_walk", title: "Morning walk playlist", seconds: 182, shuffle: true, repeat: true, loop: true },
 ] satisfies z.input<typeof props>[];
@@ -152,7 +152,7 @@ function optionLines({ mode, speed, liked, shuffle, repeat, loop }: PlayerProps,
 // prettier-ignore
 export function Player(input: PlayerProps) {
   const { style, title, sub, detail, photo: art, seconds, at, speed, loop, repeat } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const artwork = detail === "full" ? art : undefined;
   const aspect = style === "video" ? "wide" : "square";
   const { lang, words: { mediaLabels } } = useWords();

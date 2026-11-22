@@ -1,7 +1,8 @@
 // prettier-ignore
 import {
-  useLiveControls, useVariant, useWords, KitCard, KitFieldControl, KitMicCapture,
+  useLiveControls, useWords, KitCard, KitFieldControl, KitMicCapture,
   KitSlider, KitText,
+  useKit,
 } from "../kit";
 // prettier-ignore
 import {
@@ -30,13 +31,13 @@ export const meta = {
     'For a recurring schedule use kind: "repeat" and repeat: "weekly" (or another repeat enum). Omit value; never use kind: "text" with repeat.',
     "Date values use YYYY-MM-DD, time values HH:MM and photo values lib:<tag> or local:<n>. Fields are one line.",
     'For a two-ended numeric field use kind "range" with integers min, max, lower and upper, in that order (min <= lower <= upper <= max, min < max). For a microphone input use kind "voice"; omit value for either kind.',
-    'To hide an authored helper hint, keep its text in hint and set detail to "brief". Leave density null unless the person asks for tighter spacing or smaller type.',
+    'To hide an authored helper hint, keep its text in hint and set detail to "brief".',
   ],
   region: "body",
   weight: 1,
   tier: "phone",
   realPath: "A field value stored on one record in the on-device database.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["hint"] } },
   parts: ["root", "label", "field", "hint", "photo", "lower", "upper", "voice", "range_reading"],
   partTiers: { voice: "ok" },
@@ -141,7 +142,7 @@ export const examples = [
   { kind: "repeat", label: "Water it", repeat: "weekly" },
   { ...interval, detail: "brief" },
   walkRange,
-  { ...walkRange, density: "compact" },
+  { ...walkRange },
   { kind: "voice", label: "Voice note" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Field");
@@ -165,7 +166,7 @@ function RangeField(input: Props<typeof props, typeof meta>) {
   const { min, max, lower, upper } = useLiveControls(meta, input) as z.output<typeof props>;
   const { fieldRange } = words;
   return <>
-      <KitText part="range_reading" role="number" numberScale="compact" density={input.density} tabular>{fieldRange.reading(numberLine(lower!, lang), numberLine(upper!, lang))}</KitText>
+      <KitText part="range_reading" role="number" numberScale="compact" tabular>{fieldRange.reading(numberLine(lower!, lang), numberLine(upper!, lang))}</KitText>
       <KitSlider min={min!} max={max!} range={[
           { part: "lower", value: lower!, label: fieldRange.lower(input.label) },
           { part: "upper", value: upper!, label: fieldRange.upper(input.label) },
@@ -176,7 +177,7 @@ function RangeField(input: Props<typeof props, typeof meta>) {
 // prettier-ignore
 export function Field(input: Props<typeof props, typeof meta>) {
   const { repeatLabels, composer } = useWords().words;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   return (
     <KitCard style="plain" part="root" padded inset="none" density={density}>
       <KitText role="label" part="label" density={density}>{input.label}</KitText>

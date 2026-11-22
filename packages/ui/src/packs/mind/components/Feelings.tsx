@@ -20,8 +20,6 @@ export const meta = {
   tier: "phone",
   realPath: "The selected words are saved with the day's entry on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["hint"] } },
@@ -45,7 +43,7 @@ export const meta = {
   select: { prop: "family", value: "index" },
   writeHints: [
     "Give three to six families, each with three to eight words. Chosen has up to three distinct words from the families; use [] when none are selected.",
-    'Use null for each unrequested axis, including density and surface even if detail is requested. Use detail "brief" only when asked to hide the instructions, and keep every family and word.',
+    'Use detail "brief" only when asked to hide the instructions, and keep every family and word.',
   ],
   read: (input, state, lang): string[] => {
     if (state !== "filled") return [];
@@ -166,8 +164,8 @@ function FeelingWords({ parent, controls, label }: ReturnType<typeof kit.useNest
 
 // prettier-ignore
 export function Feelings(input: FeelingsProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const { words, lang } = kit.useWords(mindWordsFor);
   const nested = kit.useNestedControls(meta, input);

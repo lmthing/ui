@@ -15,11 +15,11 @@ export const meta = {
   writeHints: [
     "Use unique snake_case entry ids and ISO datetimes with offsets. Entries cannot predate since. Do not seed dividend receipts here: they come from Dividends.",
     "For buy or sell, write assetId, units, unitPrice and optional fee, never amount. For deposit, withdrawal or fee, write amount and leave all four trade fields null. Write positive amounts; kind determines direction.",
-    'For event and cash movement only, write "detail":"brief","density":null and retain the trade seeds. Only an explicit spacing request sets density; never fill in "comfortable". Do not write computed balances or proceeds.',
+    "For event and cash movement only, write \"detail\":\"brief\" and retain the trade seeds. Do not write computed balances or proceeds.",
   ],
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Device records fold after the opening statement, with linked dividend receipts and corrections retained; an action never sends a broker order.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["units", "unit_price", "fee"] } },
   parts: ["root", "add", "add_label", "notice", "count"],
   items: { key: "entries", parts: ["root", "at", "event", "units", "unit_price", "fee", "cash", "status", "void", "void_label"] },
@@ -82,7 +82,7 @@ export const examples = [
     ],
   },
   {
-    portfolioId: "pension", since: "2026-02-01T00:00:00Z", openingCash: 40, openingContributed: 550, density: "compact",
+    portfolioId: "pension", since: "2026-02-01T00:00:00Z", openingCash: 40, openingContributed: 550,
     entries: [
       { id: "cancelled_sale", at: "2026-02-10T12:00:00Z", kind: "sell", assetId: "bond_fund",
         units: 0.5, unitPrice: 23, fee: 1, voided: true },
@@ -134,7 +134,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type ActivityProps = c.Props<typeof props, typeof meta>;
-type Density = NonNullable<ActivityProps["density"]>;
+type Density = c.ThemeDensity;
 // prettier-ignore
 function LedgerRow({ row, density, full, loading }: { row: ActivityRow; density: Density; full: boolean; loading: boolean }) {
   const context = kit.usePartContext();
@@ -172,7 +172,7 @@ function LedgerRow({ row, density, full, loading }: { row: ActivityRow; density:
 // prettier-ignore
 export function InvestmentActivity(input: ActivityProps) {
   const { words: { activity: words }, lang } = kit.useWords(investWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const source = kit.useComponentState(), live = kit.useLiveControls(meta, input), thing = kit.useEmptyThing();
   const state = source === "filled" ? (live.state as c.StateName | undefined) ?? source : source;

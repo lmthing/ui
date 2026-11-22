@@ -39,7 +39,6 @@ describe.each(Object.entries<Definition>(defs))("%s contract", (id, def) => {
     expect(def.meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(def.meta.realPath).not.toBe("");
     expect(def.meta.tier).toBe("phone");
-    expect(def.meta.variants).toBeDefined();
     const core = createRegistry();
     expect(def.probes.some((probe) => probe.kind === "choose" && probe.expect === id)).toBe(true);
     expect(

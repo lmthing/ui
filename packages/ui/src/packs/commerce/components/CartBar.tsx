@@ -16,7 +16,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "The count and total come from the basket on the device.",
-  variants: { density: ["comfortable", "compact"], emphasis: ["normal", "quiet"] },
+  variants: { emphasis: ["normal", "quiet"] },
   parts: ["root", "count", "total", "label"],
   states: ["filled", "empty"],
   actions: { parts: { root: ["press"] } },
@@ -38,7 +38,7 @@ export function fallback({ cast }: c.FallbackInput): z.input<typeof props> {
 
 export const examples = [
   { goto: "plant_supplies" },
-  { goto: "walking_gear", density: "compact" },
+  { goto: "walking_gear" },
   { goto: "dog_treats", emphasis: "quiet" },
 ] satisfies z.input<typeof props>[];
 
@@ -57,7 +57,7 @@ export const probes = [
 export function CartBar(input: c.Props<typeof props, typeof meta>) {
   const { goto } = input;
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const emphasis = kit.useVariant("emphasis", meta.variants.emphasis, input.emphasis);
   const { basket } = kit.useDeviceData();
   const { lang, words } = kit.useWords(commerceWordsFor);

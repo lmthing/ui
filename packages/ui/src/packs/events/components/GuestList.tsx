@@ -25,9 +25,9 @@ export const meta = {
   tier: "people",
   realPath: "The organiser keeps the list on the device; reminders are sent by message or email.",
   writeHints: [
-    'Set detail to "brief" only when dietary notes should not be displayed. Keep supplied diet in the data. Set density and surface to JSON null unless explicitly requested.',
+    'Set detail to "brief" only when dietary notes should not be displayed. Keep supplied diet in the data.',
   ],
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["diet"] } },
   parts: ["root", "counts", "remind", "remind_label", "empty"],
   items: { key: "guests", parts: ["root", "name", "party", "status", "plus", "diet"] },
@@ -101,7 +101,7 @@ export const probes = [
 
 type View = c.Props<typeof props, typeof meta>;
 type Row = View["guests"][number];
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 
 // prettier-ignore
 function GuestRow({ row, density, detail }: { row: Row; density: Density; detail: View["detail"] }) {
@@ -143,8 +143,8 @@ export function GuestList(input: View) {
   const state = kit.useComponentState(), loading = state === "loading";
   const { thing } = kit.usePartContext();
   const { lang, words: { guestList } } = kit.useWords(eventsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const stats = guestStats(input.guests, lang);
   return <kit.KitCard part="root" padded {...{ density, surface }}>

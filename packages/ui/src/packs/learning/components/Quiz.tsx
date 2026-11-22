@@ -21,11 +21,11 @@ export const meta = {
     'For kind "order", put 3–8 scrambled word tiles in words, and write answer as the complete list of their zero-based indexes in correct sentence order. For example, words ["fern", "the", "Water"] have answer [2, 1, 0]. Set options and pairs to null.',
     'Use media inside a question only for its supplied audio clip reference. Component-level media controls question photos, not audio.',
     "Leave selected_option, selected_left and selected_right null; selections are made by the learner.",
-    'When asked to hide the question photo, write media "none" and retain its photo reference. Always write density and surface as null unless requested; do not fill in defaults such as "comfortable" or "card". Use media null for unrequested media.',
+    "When asked to hide the question photo, write media \"none\" and retain its photo reference. Use media null for unrequested media.",
   ],
   region: "body", weight: 2, tier: "phone",
   realPath: "Questions are stored with the app and answers are checked on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["thumb", "none"] },
+  variants: { media: ["thumb", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
   parts: ["root", "panel", "progress", "question", "photo", "field", "left", "right", "check", "next", "answer", "explain", "feedback", "score",
     "order_hint", "order_draft", ...audioParts, "audio_status"],
@@ -172,8 +172,8 @@ function Feedback({ item, round }: { item: QuizItem; round: QuizRound }) {
 export function Quiz(input: QuizProps) {
   const { screen, component, state } = kit.usePartContext(), { controller } = kit.useKit();
   const { lang, words: { quiz } } = kit.useWords(learningWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const saved = kit.useControlValue<unknown>(`${screen}/${component}/${c.sessionKey}`, undefined);
   const round = c.sessionState(meta, input, () => !controller && !saved && (state === "success" || state === "error")

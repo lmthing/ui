@@ -22,11 +22,11 @@ export const meta = {
   pick: "A date-finding matrix: dates as columns and people as rows with yes, maybe or no per date, and the best date computed. Not a calendar to pick a day (Calendar) or a general poll (Poll).",
   writeHints: [
     "Give each person exactly one answer per date in the same order. Use none for an unanswered date; do not write a winner.",
-    'Use detail "brief" only when asked to omit the reply instructions. Set surface and density to JSON null unless individually requested; do not write their default values.',
+    "Use detail \"brief\" only when asked to omit the reply instructions.",
   ],
   region: "body", weight: 3, dense: true, tier: "people",
   realPath: "Availability is collected through a shared app or link.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["guide"] } },
   parts: ["root", "dates", "best", "count", "scroll", "guide", "empty"],
   items: { key: "cells", parts: ["root"], pickers: { root: { prop: "answer", choices: dateReplyChoices } } },
@@ -102,7 +102,7 @@ export const probes = [
   ),
   {
     ...write(
-      "Compare availability for June 11 and 12, 2027. Ruth Shah can make June 11 and might make June 12. Omit the instructions for replying, and leave spacing and surface unset.",
+      "Compare availability for June 11 and 12, 2027. Ruth Shah can make June 11 and might make June 12. Omit the instructions for replying.",
     ),
     variant: { axis: "detail", value: "brief" },
   },
@@ -114,7 +114,7 @@ export const probes = [
 
 type View = c.Props<typeof props, typeof meta>;
 type DateWords = ReturnType<typeof eventsWordsFor>["findDate"];
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 
 // prettier-ignore
 function ColumnHeading({ heading, details, density, corner = false }: {
@@ -159,8 +159,8 @@ function Availability({ input, matrix, words, density }: {
 export function FindDate(input: View) {
   const { lang, words: { findDate: words } } = kit.useWords(eventsWordsFor);
   const scope = kit.usePartContext();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const live = kit.useLiveControls(meta, input) as View;
   if (scope.state === "empty") return <kit.KitCard part="root" {...{ density, surface }}>

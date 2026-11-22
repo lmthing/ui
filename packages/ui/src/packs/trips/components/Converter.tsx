@@ -1,12 +1,13 @@
 import { z } from "zod";
 import {
   probesFor,
-  variantProps,
   type DeviceData,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
+  variantProps,
 } from "../../../catalog";
 import * as kit from "../../../kit";
 import { converterDisplay, converterMax, converterReading, projectConverter } from "../copy";
@@ -21,13 +22,13 @@ export const meta = {
   pick: "Convert two editable amounts between home and destination currencies with a swap control. Not displaying one sum (Amount) or entering an expense (AmountPad).",
   writeHints: [
     "Use value for the optional starting amount. Do not write currencies, the rate, or a date; the host supplies them.",
-    'When asked to hide the rate date with no change to spacing or surface, use "detail":"brief", "density":null, and "surface":null. Do not fill in defaults for any unrequested variant.',
+    "When asked to hide only the rate date, use detail brief. Do not fill in defaults for unrequested variants.",
   ],
   region: "body",
   weight: 2,
   tier: "service",
   realPath: "A rates service supplies exchange rates, cached on the device for offline use.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["rate_date"] } },
   parts: ["root", "from", "to", "swap", "rate_date"],
   states: ["filled", "loading"],
@@ -89,7 +90,7 @@ function ConverterSwap({
   label,
   loading,
 }: {
-  density: (typeof meta.variants.density)[number];
+  density: ThemeDensity;
   label: string;
   loading: boolean;
 }) {
@@ -113,7 +114,7 @@ function ConverterSwap({
 // prettier-ignore
 function ConverterField({ part, label, text, result, loading, density, hint }: {
   part: "from" | "to"; label: string; text: string; result: boolean | undefined; loading: boolean;
-  density: NonNullable<ConverterProps["density"]>; hint: string;
+  density: ThemeDensity; hint: string;
 }) {
   return (
     <kit.KitContent {...{ density }} group={part === "to" ? "response" : "content"} rhythm="flush">
@@ -138,8 +139,8 @@ function ConverterField({ part, label, text, result, loading, density, hint }: {
 
 // prettier-ignore
 export function Converter(input: ConverterProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const loading = kit.useComponentState() === "loading";
   const { lang, words } = kit.useWords(tripsWordsFor);
   const live = kit.useLiveControls(meta, input);

@@ -1,14 +1,15 @@
 // prettier-ignore
 import {
   detailOf, itemsOf, photo, planAct, placeholderTitle, probesFor, sessionAvailable,
-  sessionKey, sessionState, text, thingOf, titleOf, variantProps, wordsFor,
+  sessionKey, sessionState, text, thingOf, titleOf, wordsFor,
   type FallbackInput, type Meta, type Probe, type Props, type SessionState,
+  variantProps,
 } from "../../../catalog";
 import { z } from "zod";
 // prettier-ignore
 import {
   KitAction, KitCard, KitContent, KitEmpty, KitPhoto, KitRow, KitSkeleton, KitText, PartScope,
-  useControlValue, useKit, usePartContext, useVariant, useWords,
+  useControlValue, useKit, usePartContext, useWords,
 } from "../../../kit";
 import { triviaPointsCopy } from "../copy";
 import { playWordsFor } from "../lang";
@@ -21,12 +22,12 @@ export const meta = {
   pick: "Host-controlled question and answer reveals for players answering aloud or on paper. Not private option selection (Choice), graded submissions (Quiz), or spaced recall (Flashcard).",
   writeHints: [
     "Write seed question, answer, optional explanation/photo and points. Never write submissions, grades, awarded scores, current index or reveal state.",
-    'To hide photos alone use {"media":"none","emphasis":null,"density":null}. Keep the supplied photo in the question data. Use hero only when the user separately asks for large question text.',
+    'To hide photos alone use {"media":"none","emphasis":null}. Keep the supplied photo in the question data. Use hero only when the user separately asks for large question text.',
   ],
   region: "body", weight: 2, tier: "phone",
   confirmParts: ["restart"],
   realPath: "A local deck uses host-controlled reveals; awarded points are recorded separately.",
-  variants: { density: ["comfortable", "compact"], emphasis: ["normal", "hero"], media: ["thumb", "none"] },
+  variants: { emphasis: ["normal", "hero"], media: ["thumb", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
   parts: ["root", "question", "answer", "explain", "photo", "points", "reveal", "next", "restart"],
   states: ["filled", "loading", "success", "empty"],
@@ -93,7 +94,7 @@ export const examples = [
   { questions: [{ question: "Why do dogs pant?", answer: "To cool down", points: 1 }], emphasis: "hero" },
   { questions: [{ question: "Why do dogs pant?", answer: "To cool down", points: 1 }] },
   { ...gardenDeck, media: "none" },
-  { ...gardenDeck, density: "compact" },
+  { ...gardenDeck },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Trivia");
 export const probes = [
@@ -155,7 +156,7 @@ export function Trivia(input: TriviaProps) {
   const { screen, component, state, thing } = scope;
   const { controller } = useKit();
   const { lang, words: { trivia } } = useWords(playWordsFor);
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const saved = useControlValue<unknown>(`${screen}/${component}/${sessionKey}`, undefined);
   const current = sessionState(meta, input, () =>
     !controller && state === "success" ? previewReveal(input, screen, component) : saved,

@@ -13,7 +13,7 @@ export const meta = {
   pick: "A league table with played, wins, draws, losses, goal difference, points and recent form. Not a ranking on one value (List) or a general records table (Table).",
   writeHints: [
     "Write wins, draws, losses and goals for and against; never write played, points, goal difference or rank. Mine is a zero-based index in the input rows; lines are one-based cut positions in the ordered table.",
-    'To hide recent form, write detail "brief" and still supply the form data. Write density: null unless the person asks to change spacing. Omit scoring unless the league awards nonstandard points per win or draw.',
+    'To hide recent form, write detail "brief" and still supply the form data. Omit scoring unless the league awards nonstandard points per win or draw.',
   ],
   region: "body",
   weight: 3,
@@ -21,7 +21,7 @@ export const meta = {
   tier: "phone",
   partTiers: { root: "people" },
   realPath: "The organiser enters results on one phone; sharing the league across clubs needs a shared app.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["form"] } },
   parts: ["root", "title", "hint", "table"],
   items: {
@@ -91,7 +91,6 @@ export const examples = [
     ],
   },
   {
-    density: "compact",
     scoring: { win: 2, draw: 1 },
     rows: [
       { team: "Trot Town", won: 3, drawn: 2, lost: 0, for: 9, against: 5, form: ["w", "w", "d", "d", "w"] },
@@ -134,7 +133,7 @@ type StandingsProps = c.Props<typeof props, typeof meta>;
 // prettier-ignore
 export function Standings(input: StandingsProps) {
   const { lang, words: { standings: words } } = kit.useWords(sportsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const loading = kit.useComponentState() === "loading";
   const { rows, cuts } = standingsCopy(input, lang);

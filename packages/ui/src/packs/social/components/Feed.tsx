@@ -12,7 +12,7 @@ export const meta = {
   purpose: "Browse recent posts shared by several people.",
   pick: "Several community posts to scroll, with authors, short excerpts and reactions. Not one full post (Post), ordinary tappable rows (List), a private journal (Entries), or chat messages (Bubbles).",
   writeHints: [
-    'For "hide attached post pictures", set media to "none" and keep the author avatars. Do not change the finish: write density null and surface null unless the person explicitly asks for compact spacing or outlined cards.',
+    'For "hide attached post pictures", set media to "none" and keep the author avatars.',
     "Put the newest post first. Keep the full excerpt even if it clips on screen. Each post needs an avatar (use lib:people if unspecified), time, excerpt and destination. Use zero for unknown counts and false for unknown liked state.",
   ],
   region: "body",
@@ -20,7 +20,7 @@ export const meta = {
   dense: true,
   tier: "people",
   realPath: "Posts in a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["thumb", "none"] },
+  variants: { media: ["thumb", "none"] },
   variantParts: { "media.none": { hides: ["image"] } },
   parts: ["root", "empty"],
   // prettier-ignore
@@ -175,8 +175,8 @@ function FeedLoading({ post, density }: { post: FeedPost; density: c.ThemeDensit
 // prettier-ignore
 export function Feed(input: FeedProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
   if (state === "empty") return <kit.KitCard part="root" {...{ density, surface }}>
     <kit.KitEmpty part="empty" icon="message" decorativeIcon />

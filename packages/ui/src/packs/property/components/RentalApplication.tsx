@@ -17,11 +17,11 @@ export const meta = {
   pick: "Screening prospective tenants for a specific rental unit with move-in, household income against rent, verification checks and a waitlist, approval or decline. Not a static facts card (KeyValue), job recruiting (Candidate), viewing appointments (Viewings), or active tenancies (Units).",
   writeHints: [
     "Use snake_case application and unit refs, a real YYYY-MM-DD move-in date, and numeric monthly rent and income. Give each check a distinct kind. Do not write household totals or ratios.",
-    'Use detail "brief" for a summary without notes or decision buttons; otherwise leave it null for the full dossier. Leave density and surface null unless requested.',
+    "Use detail \"brief\" for a summary without notes or decision buttons; otherwise leave it null for the full dossier.",
   ],
   region: "body", weight: 2,
   realPath: "Decisions and entered screening records stay on the manager’s device; pulling reports or notifying an applicant requires a separate host.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["check_note", ...decisionParts] } },
   parts: ["root", "unit", "move_in", "decision", "ratio", "household_income", "monthly_rent", "message", ...decisionParts],
   items: { key: "checks", parts: ["root", "kind", "status", "check_note"] },
@@ -168,8 +168,8 @@ export function RentalApplication(input: c.Props<typeof props, typeof meta>) {
   const thing = kit.useEmptyThing();
   const copy = applicationCopy(lang, kit.useAppCurrency());
   const live = kit.useLiveControls(meta, input) as View;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const layout = <Dossier {...{ live, density, full, copy }} />;
   return <kit.KitCard part="root" padded {...{ density, surface }}>

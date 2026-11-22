@@ -34,7 +34,6 @@ describe("hiring draft examples and probes", () => {
       expect(def.meta.tier).toBe("phone");
       expect(def.meta.realPath).not.toBe("");
       expect(def.meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
-      expect(def.meta.variants).toBeDefined();
     }
   });
 

@@ -13,15 +13,13 @@ export const meta = {
   pick: "Record work attendance with clock-in, clock-out and breaks for the current shift. Not a stopwatch or countdown for an activity (Timer), or approving a week's hours (Timesheet).",
   writeHints: [
     "on means clocked in. since is the local clock-in time if known; omit it when off. Do not write elapsed time or breaks.",
-    'To hide only the clock-in timestamp, use {"detail":"brief","density":null,"surface":null}; still keep the supplied since time. Use JSON null, not "card" or "comfortable", for any unrequested axis.',
+    'To hide only the clock-in timestamp, use {"detail":"brief"}; still keep the supplied since time. Use JSON null for any unrequested axis.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Clock events stay on the device; sharing them with a manager needs a shared app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["since"] } },
@@ -83,8 +81,8 @@ export const probes = [
 export function TimeClock(input: c.Props<typeof props, typeof meta>) {
   const state = kit.useComponentState();
   const { lang, words } = kit.useWords(teamWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const copy = timeClockDisplay({ ...input, detail }, state, kit.useDeviceData(), lang, words.timeClock);
   const group = density === "compact" ? "content" : "response";

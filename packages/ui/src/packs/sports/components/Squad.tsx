@@ -14,14 +14,14 @@ export const meta = {
   pick: "Players' availability for one upcoming match: yes, maybe or no, an optional reason, and coach selection. Not an ordinary player directory (People), who plays where (Lineup), guest RSVPs (GuestList), or staff shifts (Roster).",
   writeHints: [
     "Put the current player's own row first; only that row offers a reply. Picked is the coach's selection, separate from the answer. Do not write totals.",
-    'To show replies without reasons, write detail "brief" and still supply any known reasons. Write density: null unless the person asks to change spacing.',
+    'To show replies without reasons, write detail "brief" and still supply any known reasons.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "people",
   realPath: "Players send their availability and the coach picks the side in a shared app.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["reason"] } },
   parts: ["root", "available", "empty"],
   items: { key: "players", parts: ["root", "name", "photo", "answer", "reason", "picked"] },
@@ -132,7 +132,7 @@ const answerTones = { yes: "good", maybe: "warn", no: "bad", none: "muted" } as 
 export function Squad(input: SquadProps) {
   const { lang, words: { squad: words } } = kit.useWords(sportsWordsFor);
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const squad = kit.useLiveControls(meta, input) as SquadProps;
   const amount = squadSummary(squad, lang);

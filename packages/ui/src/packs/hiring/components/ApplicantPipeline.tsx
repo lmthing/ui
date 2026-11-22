@@ -15,7 +15,6 @@ export const meta = {
   tier: "phone",
   realPath:
     "Application records live on the phone and the host moves only active applicants between hiring stages.",
-  variants: { density: ["comfortable", "compact"] },
   parts: ["root", "title", "applied", "screening", "interview", "offer", "outcomes"],
   items: {
     key: "applicants",
@@ -36,7 +35,6 @@ export const meta = {
 } as const satisfies c.Meta;
 
 export const props = z.strictObject({
-  ...c.variantProps(meta.variants),
   jobId: c.text(32),
   title: c.text(32),
   applicants: z
@@ -106,7 +104,6 @@ export const examples: z.input<typeof props>[] = [
     jobId: "baker",
     title: "Morning baker",
     style: "stack",
-    density: "compact",
     applicants: [
       {
         applicationId: "mara",

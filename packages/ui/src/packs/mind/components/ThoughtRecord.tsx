@@ -22,7 +22,7 @@ export const meta = {
   tier: "phone",
   realPath: "Reflection prompts and responses are stored privately on the device.",
   // prettier-ignore
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   // prettier-ignore
   variantParts: { "detail.brief": { hides: [
     "prompt", "situation", "situation_label", "mood_before", "mood_after", "before_label", "after_label", "mood_guide", "delta",
@@ -52,8 +52,8 @@ export const meta = {
   recordRuntime: reflectionRecord(),
   read: (input, state, lang): string[] => readReflection(input as z.output<typeof props>, state, lang),
   writeHints: [
-    'For the short exercise with just thought, thinking traps and reframe, set exactly these axis values: {"density":null,"surface":null,"detail":"brief"}. Short refers to fewer fields, not tighter spacing or another surface.',
-    'For a guided reflection with a situation, prompt or mood check, use {"density":null,"surface":null,"detail":null} unless a finish is explicitly requested. Never fill in the defaults "comfortable" or "card".',
+    'For the short exercise with just thought, thinking traps and reframe, set exactly these axis values: {"detail":"brief"}.',
+    'For a guided reflection with a situation, prompt or mood check, use {"detail":null}.',
     "Only seed answers the person supplied; leave other fields null and keep traps off unless requested on.",
     "Mood ratings are whole numbers 1–5. Never supply a mood difference; the app computes it.",
   ],
@@ -151,8 +151,8 @@ export function ThoughtRecord(input: Reflection) {
   const seed = state === "empty" ? { ...input, ...emptyReflection(input.distortions) } : input;
   const live = kit.useLiveControls(meta, seed) as Reflection & { state?: c.StateName };
   const { words: { thoughtRecord: words }, lang } = kit.useWords(mindWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const delta = full ? moodChange(live.moodBefore, live.moodAfter, lang) : undefined;
   const prompt = state === "empty" ? c.emptyLine(thing, lang) : live.prompt, guide = words.guide(c.numberLine(1, lang), c.numberLine(5, lang));

@@ -32,14 +32,14 @@ export const meta = {
   pick: "One service ticket's replies interleaved with typed status, assignment and work-order events, with staff-only or requester-visible audiences. Not an ordinary chat (Bubbles), read-only history (Timeline), general audit (ActivityLog), or post replies (Comments).",
   writeHints: [
     "Each entry has by, date, time and audience. Set only fields for its kind: message = text and optional photo; status = from/to; assignment = who; work = order/goto. Other fields must be null.",
-    'For shorter event details but the same reply text, use detail "brief". Set density to null unless the person asks for tighter spacing. The host filters internal entries for requesters and authors new operational events.',
+    'For shorter event details but the same reply text, use detail "brief". The host filters internal entries for requesters and authors new operational events.',
   ],
   region: "body",
   weight: 2,
   tier: "people",
   partTiers: { send: "people" },
   realPath: "Messages and operational events are linked to one request in a shared app.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["event_detail"] } },
   parts: ["root", "number", "field", "audience", "send", "send_label", "notice"],
   items: {
@@ -114,7 +114,7 @@ export const examples = [
     { by: "Ella", date: "2026-11-19", time: "10:15", audience: "internal", kind: "message", text: "The grow light cable is loose.", photo: "local:1" },
   ] },
   { ...trot, entries: [...trot.entries] },
-  { ...trot, entries: [...trot.entries], density: "compact" },
+  { ...trot, entries: [...trot.entries] },
   { ...trot, entries: [...trot.entries], detail: "brief" },
 ] satisfies z.input<typeof props>[];
 
@@ -132,7 +132,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type ThreadProps = c.Props<typeof props, typeof meta>;
-type Finish = Pick<ThreadProps, "density" | "detail">;
+type Finish = Pick<ThreadProps, "detail"> & { density: c.ThemeDensity };
 type ThreadLive = ThreadProps & { audience_choices: readonly ThreadProps["audience"][]; sendable: boolean };
 // prettier-ignore
 function ThreadEntry({ row, detail, density, lang }: Finish & { row: ThreadProps["entries"][number]; lang: string }) {
@@ -162,7 +162,7 @@ function ThreadEntry({ row, detail, density, lang }: Finish & { row: ThreadProps
 export function RequestThread(input: ThreadProps) {
   const { words: { thread: words }, lang } = kit.useWords(requestsWordsFor);
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { entries, draft, audience, audience_choices: choices, sendable } = kit.useLiveControls(meta, input) as ThreadLive;
   const loading = state === "loading" ? threadLoading({ number: input.number, detail, entries }, lang) : undefined;

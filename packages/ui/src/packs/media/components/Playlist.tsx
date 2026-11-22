@@ -14,15 +14,13 @@ export const meta = {
   writeHints: [
     'Use style "episodes" for dated episodes with a description line in sub, otherwise "tracks" for numbered tracks. If no episode note or date is supplied, set sub to null. The playing index is zero-based; omit it unless one is playing.',
     "Seconds are whole recording lengths; played is a fraction from zero to one. Each row opens its own player screen.",
-    'Default to "detail":null,"density":null,"surface":null. Only when explicitly asked to hide episode notes, write "detail":"brief"; keep the supplied notes in sub and leave density and surface null unless independently requested.',
+    'Default to "detail":null. Only when explicitly asked to hide episode notes, write "detail":"brief"; keep the supplied notes in sub.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "The recordings are media files on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "plain", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["sub"] } },
@@ -175,8 +173,9 @@ function PlaylistRow(row: RowProps) {
 
 // prettier-ignore
 export function Playlist(input: PlaylistProps) {
-  const { items, playing, style, surface } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const { items, playing, style } = input;
+  const surface = "card";
+  const density = kit.useKit().density;
   const context = kit.usePartContext();
   const episodes = style === "episodes";
   const loading = context.state === "loading";

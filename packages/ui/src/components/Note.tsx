@@ -6,11 +6,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
 import { z } from "zod";
 import { KitIcon, KitBlock, KitText } from "../kit";
@@ -21,7 +21,7 @@ export const meta = {
   purpose: "One short sentence of supporting information.",
   pick: "Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).",
   writeHints: [
-    'An ordinary icon uses the icon field alone. To hide a supplied icon, keep the icon field and use media "none"; density, emphasis and tone remain null unless specifically requested.',
+    'An ordinary icon uses the icon field alone. To hide a supplied icon, keep the icon field and use media "none"; emphasis and tone remain null unless specifically requested.',
     'A supporting line is a normal Note, not a request for quiet emphasis. Use "quiet" only for a smaller, muted treatment, or "hero" for an explicitly prominent quotation with the quote icon.',
   ],
   region: "body",
@@ -29,7 +29,6 @@ export const meta = {
   tier: "phone",
   realPath: "A short text field on one thing in the on-device database.",
   variants: {
-    density: ["comfortable", "compact"],
     emphasis: ["normal", "quiet", "hero"],
     media: ["icon", "none"],
     tone: ["neutral", "good", "warn", "bad"],
@@ -68,7 +67,7 @@ export const examples = [
   },
   { text: "Keep your fern in indirect light.", icon: "sun", emphasis: "quiet" },
   { text: "Fern is thriving.", tone: "good", icon: "leaf" },
-  { text: "Fern is thriving.", density: "compact", icon: "leaf" },
+  { text: "Fern is thriving.", icon: "leaf" },
   { text: "Fern is thriving.", icon: "leaf" },
   { text: "Clover's booking was missed.", tone: "bad" },
   { text: "Pip likes shaded routes.", icon: "sun", media: "none" },
@@ -88,15 +87,15 @@ export const probes = [
   },
 ] satisfies Probe[];
 
-export function Note({ text, tone, icon, density, emphasis }: Props<typeof props, typeof meta>) {
+export function Note({ text, tone, icon, emphasis }: Props<typeof props, typeof meta>) {
   const textTone = tone === "neutral" ? (emphasis === "quiet" ? "muted" : "text") : tone;
   return (
     <KitBlock
       label={text}
-      {...{ density, emphasis }}
+      {...{ emphasis }}
       leading={icon && <KitIcon name={icon} tone={tone === "neutral" ? "muted" : tone} part="icon" />}
     >
-      <KitText role="body" tone={textTone} part="text" {...{ density, emphasis }}>
+      <KitText role="body" tone={textTone} part="text" {...{ emphasis }}>
         {text}
       </KitText>
     </KitBlock>

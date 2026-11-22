@@ -17,11 +17,11 @@ export const meta = {
   writeHints: [
     "Use snake_case renewal and unit refs, a real YYYY-MM-DD deadline, and unformatted positive rents. Term months are whole numbers, with 0 for month-to-month. An option without rent uses proposedRent; do not write a delta.",
     'Set selectedOption to the zero-based position of the chosen option when specified. Use style "summary" for a read-only outcome after a response.',
-    'Hide per-option term explanations with "detail":"brief","density":null,"surface":null. This request is not about card finish or spacing; leave them null. Leave detail null for the default explanations.',
+    "Hide per-option term explanations with \"detail\":\"brief\". Leave detail null for the default explanations.",
   ],
   region: "body", weight: 2,
   realPath: "A shared app delivers the proposal and response between tenant and landlord; a counter does not amend the lease.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["sub"] } },
   parts: ["root", "unit", "tenant", "deadline", "status", "current_rent", "proposed_rent", "change",
     "selected_term", "message", "note", "accept", "counter", "decline"],
@@ -177,8 +177,8 @@ export function LeaseRenewal(input: c.Props<typeof props, typeof meta>) {
   const state = kit.useComponentState(), { lang, words } = kit.useWords(propertyWordsFor);
   const copy = renewalCopy(lang, kit.useAppCurrency(), words.renewals);
   const live = kit.useLiveControls(meta, input) as View;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const layout = <Offer {...{ live, density, full, copy, state }} />;
   const expired = live.expired && live.status === "sent";

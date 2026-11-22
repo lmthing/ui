@@ -16,7 +16,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "An issuer-supplied pass saved on the device, not a way to issue credentials.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["root", "label", "value"] } },
   // prettier-ignore
   parts: [
@@ -157,7 +157,7 @@ export function PassCard(input: PassProps) {
   const { scannable, state: invalid } = passControls(input);
   const reveal = kit.useControlValue<unknown>(`${screen}/${component}/reveal`, undefined);
   const { words: { passCard: words } } = kit.useWords();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const align = input.style === "code" ? "center" : "start";
   const layout = { density, align } as const;
   if (state === "empty" || state === "error" || (state === "filled" && invalid))

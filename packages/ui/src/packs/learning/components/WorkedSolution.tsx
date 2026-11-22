@@ -20,7 +20,7 @@ export const meta = {
     'Use overflow "all" only when asked to show every step immediately; otherwise use null, even for one step. The default card and spacing are null, not "card" or "comfortable".',
     'Null media shows a supplied problemPhoto by default. To turn photo display off, retain the exact problemPhoto reference and write media "none"; null does not hide it. If there is no photo, use null for media.',
   ],
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["cover", "none"], overflow: ["page", "all"] },
+  variants: { media: ["cover", "none"], overflow: ["page", "all"] },
   variantParts: {
     "media.none": { hides: ["photo"] },
     "overflow.page": {
@@ -85,13 +85,13 @@ const fern = {
 // prettier-ignore
 export const examples = [
   fern,
-  { overflow: "all", surface: "outlined", subject: "Time", problem: "Clover’s walk starts at 10:45 and lasts 35 minutes. When does it end?",
+  { overflow: "all", subject: "Time", problem: "Clover’s walk starts at 10:45 and lasts 35 minutes. When does it end?",
     steps: [
       { title: "Reach the next hour", explanation: "Use 15 minutes to get to 11:00." },
       { title: "Add the time left", explanation: "There are 20 minutes left after the hour.", formula: "11:00 + 20 min = 11:20" },
     ], answer: "11:20" },
-  { ...fern, problemPhoto: "lib:plants", density: "compact" },
-  { ...fern, problemPhoto: "lib:plants", density: "compact", media: "none" },
+  { ...fern, problemPhoto: "lib:plants" },
+  { ...fern, problemPhoto: "lib:plants", media: "none" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("WorkedSolution");
@@ -185,8 +185,8 @@ function SolutionBody({ input, density, shown, photo }: { input: View; density: 
 export function WorkedSolution(input: View) {
   const scope = kit.usePartContext(), state = kit.useComponentState();
   const { lang, words: { workedSolution: words } } = kit.useWords(learningWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density),
-    surface = kit.useVariant("surface", meta.variants.surface, input.surface),
+  const density = kit.useKit().density,
+    surface = "card",
     media = kit.useVariant("media", meta.variants.media, input.media),
     overflow = kit.useVariant("overflow", meta.variants.overflow, input.overflow);
   const live = kit.useLiveControls(meta, input);

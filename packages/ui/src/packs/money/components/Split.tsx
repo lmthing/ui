@@ -11,7 +11,7 @@ export const meta = {
   purpose: "Work out who owes whom after sharing expenses.",
   pick: "Shared costs, each person's balance and the payments to settle the group. Not one sum owed (Amount), personal bills (Bills), client payments (PaymentStatus), or fixed debt repayment (Loan, Payoff).",
   writeHints: [
-    'For each expense write by (payer index) and split: "equal" or "shares". Both use one share per person. Never write derived totals. To hide avatars alone, use lead none, keep photos, and write density null (not comfortable).',
+    'For each expense write by (payer index) and split: "equal" or "shares". Both use one share per person. Never write derived totals. To hide avatars alone, use lead none and keep photos.',
   ],
   region: "body",
   weight: 2,
@@ -19,7 +19,7 @@ export const meta = {
   realPath: "Shared expense records and acknowledgement of settlements in a shared app.",
   partTiers: { settle: "people" },
   confirmParts: ["settle"],
-  variants: { density: ["comfortable", "compact"], lead: ["avatar", "none"] },
+  variants: { lead: ["avatar", "none"] },
   variantParts: { "lead.none": { hides: ["photo"] } },
   parts: ["root", "add", "add_label", "empty", "settled", "settlements", "balances", "expenses"],
   items: { key: "people", parts: ["root", "name", "photo", "balance", "status", "settle", "settle_label"] },
@@ -92,7 +92,7 @@ export const examples = [
     goto: "expense",
   },
   { ...ledgeLedger, lead: "none" },
-  { ...ledgeLedger, density: "compact" },
+  { ...ledgeLedger },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = c.probesFor("Split");
 export const probes = [
@@ -140,7 +140,7 @@ function LedgerRows({
   ledger,
   lead,
   density,
-}: Pick<SplitProps, "people" | "lead" | "density"> & { ledger: SplitCopy }) {
+}: Pick<SplitProps, "people" | "lead"> & { density: c.ThemeDensity } & { ledger: SplitCopy }) {
   const { words } = kit.useWords(moneyWordsFor);
   const w = words.split;
   // prettier-ignore
@@ -172,7 +172,7 @@ function LedgerRows({
 }
 export function Split(input: SplitProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const { thing } = kit.usePartContext();
   const { lang, words } = kit.useWords(moneyWordsFor);
   const w = words.split;

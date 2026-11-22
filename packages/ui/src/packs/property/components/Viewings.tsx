@@ -18,13 +18,13 @@ export const meta = {
   pick: "Property viewing appointments with a unit, prospect, confirmation, invitation or attendance outcome. Not a day's timed agenda (Timeline), free slots (Slots), or a booked service (Appointment).",
   writeHints: [
     "Use snake_case viewing and unit refs, a start datetime carrying its timezone, duration in minutes and an edit screen goto. Future viewings cannot be attended or no_show; elapsed time alone is not attendance.",
-    'To show all details including a note, set detail to "full". Leave surface and density null unless separately asked for cards or tighter spacing.',
+    "To show all details including a note, set detail to \"full\".",
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Agreed appointments live on the agent’s phone; invitations use messaging, not booking sync.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["brief", "full"] },
+  variants: { detail: ["brief", "full"] },
   variantParts: { "detail.full": { adds: ["note"] } },
   parts: ["root", "message"],
   items: { key: "viewings", parts: ["root", "unit", "prospect", "start", "end", "status",
@@ -145,7 +145,7 @@ function ViewingControls({ row, density, loading = false }: RowProps & { loading
 // prettier-ignore
 const statusTone = { proposed: "muted", confirmed: "good", attended: "good", no_show: "warn", cancelled: "muted" } as const;
 // prettier-ignore
-function ViewingRow({ row, density, surface, state }: RowProps & { surface: ViewingsProps["surface"]; state: c.StateName }) {
+function ViewingRow({ row, density, surface, state }: RowProps & { surface: c.SurfaceFinish; state: c.StateName }) {
   const { lang, words: { viewings: words } } = kit.useWords(propertyWordsFor);
   const scope = kit.usePartContext();
   return <kit.PartScope {...scope} item={row.id}><kit.KitCard padded {...{ density, surface }} part="root" label={state === "loading" ? "" : row.unit}>
@@ -185,8 +185,8 @@ export function Viewings(input: ViewingsProps) {
   const state = kit.useComponentState();
   const thing = kit.useEmptyThing();
   const { words: { viewings: words } } = kit.useWords(propertyWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   return <kit.KitCard part="root" style="cards" {...{ density }}>
     {state === "empty" ? <kit.KitEmpty icon="calendar" {...(!thing ? { title: words.empty } : {})} part="message" decorativeIcon /> : <>
       {(state === "success" || state === "error") && <kit.KitContent inset="md">

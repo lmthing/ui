@@ -5,7 +5,6 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -22,13 +21,11 @@ export const meta = {
   weight: 3,
   tier: "phone",
   realPath: "A custom on-device interaction not represented by the catalog, recorded by the host as a miss.",
-  variants: { surface: ["outlined", "plain"] },
-  writeHints: ['Use surface "plain" only when asked to remove the outline or card around the placeholder.'],
   parts: ["root", "caption"],
   states: ["filled"],
 } as const satisfies Meta;
 
-export const props = z.strictObject({ ...variantProps(meta.variants), caption: text(80) });
+export const props = z.strictObject({ caption: text(80) });
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const item = cast.items[0];
@@ -39,7 +36,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 export const examples = [
   { caption: "Garden sketchpad" },
   { caption: "Guess the dog breed" },
-  { caption: "Garden sketchpad", surface: "plain" },
+  { caption: "Garden sketchpad" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Canvas");
@@ -47,13 +44,10 @@ export const probes = [
   choose("Let me draw with my finger to sketch where each plant goes"),
   choose("My plant collection has no plants yet; show a calm message explaining that", "Empty"),
   write("A game where I guess the dog breed and earn points for correct answers"),
-  {
-    ...write("I want a drawing pad to sketch where each plant goes. Don't put an outline or card around it."),
-    variant: { axis: "surface", value: "plain" },
-  },
 ] satisfies Probe[];
 
-export function Canvas({ caption, surface }: Props<typeof props, typeof meta>) {
+export function Canvas({ caption }: Props<typeof props, typeof meta>) {
+  const surface = "outlined";
   return (
     <KitCard surface={surface} part="root" padded>
       <KitEmpty title={caption} part="caption" icon="palette" fill={surface === "outlined"} decorativeIcon />

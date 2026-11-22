@@ -23,8 +23,7 @@ export const meta = {
   tier: "people",
   realPath:
     "A shared record links stored motions and members; chair approval locks decisions, but actions can still progress.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"] },
-  parts: ["root", "title", "date", "chair", "approval", "approve", "approve_label", "empty"],
+    parts: ["root", "title", "date", "chair", "approval", "approve", "approve_label", "empty"],
   items: {
     key: "entries",
     parts: ["root", "title", "text", "motion", "decision", "owner", "due", "done", "chevron"],
@@ -53,7 +52,7 @@ const followUp = z.strictObject({
 
 // prettier-ignore
 const schema = z.strictObject({
-  ...c.variantProps(meta.variants), title: c.text(40), date: c.isoDate, chairId: ref,
+  title: c.text(40), date: c.isoDate, chairId: ref,
   decisions: z.array(decision).min(1).max(8), actions: z.array(followUp).min(0).max(12),
   approvedAt: dateTime.optional(), approvedBy: ref.optional(),
   style: z.enum(["record", "actions"]).default("record"),
@@ -113,7 +112,7 @@ export const examples: z.input<typeof props>[] = [
     approvedBy: "ana",
   },
   {
-    title: "Trot committee minutes", date: "2026-10-08", chairId: "jo", style: "actions", surface: "outlined",
+    title: "Trot committee minutes", date: "2026-10-08", chairId: "jo", style: "actions",
     decisions: [{ id: "route", title: "Adopt the winter route", text: "Start at the park gate in winter." }],
     actions: [
       { id: "confirm_dates", decisionId: "route", text: "Confirm walk dates", ownerId: "lee", done: false },
@@ -134,7 +133,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type View = c.Props<typeof props, typeof meta>;
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 
 // prettier-ignore
 function Entry({ row, density, loading }: { row: MinutesRow; density: Density; loading: boolean }) {
@@ -161,8 +160,8 @@ function Entry({ row, density, loading }: { row: MinutesRow; density: Density; l
 // prettier-ignore
 export function Minutes(input: View) {
   const state = kit.useComponentState(), loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const { lang, words: { minutes: w } } = kit.useWords(communityWordsFor);
   const { entries, can_approve } = kit.useLiveControls(meta, input) as { entries: MinutesRow[]; can_approve: boolean };
   const header = minutesHeader(input, lang);

@@ -1,5 +1,14 @@
 import { z } from "zod";
-import { itemsOf, placeholderTitle, probesFor, text, thingOf, titleOf, variantProps } from "../../../catalog";
+import {
+  itemsOf,
+  placeholderTitle,
+  probesFor,
+  text,
+  thingOf,
+  titleOf,
+  type ThemeDensity,
+  variantProps,
+} from "../../../catalog";
 import type { FallbackInput, Meta, Probe, Props } from "../../../catalog";
 import * as kit from "../../../kit";
 import { chartPoints, chartTicks, pointReading, pointValue, seriesId, seriesTones } from "../copy";
@@ -14,16 +23,14 @@ export const meta = {
   pick: "Compare one to three time series over four or more labelled points, with labelled axes and readable points. Not a tiny trend under one headline number (Sparkline), category amounts (Bars) or a holding's price (PriceChart).",
   writeHints: [
     "Series values are numbers, one per label in the same order. Labels are at most six characters. Do not write axes, latest values, ticks or colours.",
-    'If asked to omit the latest-value summary but keep the chart and point controls, use detail "brief"; otherwise leave detail null. Leave density and surface null unless requested.',
+    'If asked to omit the latest-value summary but keep the chart and point controls, use detail "brief"; otherwise leave detail null.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Values aggregated from records on the device.",
   variants: {
-    density: ["comfortable", "compact"],
     detail: ["full", "brief"],
-    surface: ["card", "outlined"],
   },
   variantParts: { "detail.brief": { hides: ["latest"] } },
   parts: ["root", "title", "axes", "unit", "latest", "reading", "points", "series_1", "series_2", "series_3"],
@@ -124,7 +131,7 @@ export const probes = [
 type ChartProps = Props<typeof props, typeof meta>;
 type Point = ReturnType<typeof chartPoints>[number];
 // prettier-ignore
-function ChartLatest({ series, density, loading }: Pick<ChartProps, "series" | "density"> & { loading: boolean }) {
+function ChartLatest({ series, density, loading }: Pick<ChartProps, "series"> & { density: ThemeDensity } & { loading: boolean }) {
   const { words, lang } = kit.useWords(dataWordsFor);
   const summary = <kit.KitGrid columns={series.length === 3 ? 3 : 2} density={density}>
     {series.map(({ label, values }, index) => {
@@ -166,8 +173,8 @@ function ChartControls({ points, selected, title, loading }: { points: Point[]; 
 // prettier-ignore
 export function LineChart(input: ChartProps) {
   const { title, unit } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const { words, lang } = kit.useWords(dataWordsFor);
   const unitLabel = unit ? words.chartUnit(unit) : undefined;

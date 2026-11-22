@@ -15,12 +15,12 @@ export const meta = {
   writeHints: [
     "Every receipt references a charge in this line; keep older charges when needed for arrears. Seed obligations and allocations only, not computed receipt totals, outstanding, arrears, credit or statuses.",
     'Give each charge and each receipt its own snake_case reference. Charges and receipts use positive numbers, not currency text. Use style "outstanding" only to filter unpaid units.',
-    'If asked to shorten numbers, set figures to "short". Leave density null unless the person asks for tighter rows, even when figures is "short".',
+    "If asked to shorten numbers, set figures to \"short\".",
     'Use style "tenant" only for a resident’s own rent ledger. Supply their tenantLetRef and only charges from that let and receipts allocated to them. Write autopay only when its on/off status is supplied.',
   ],
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Recording a receipt never moves money. The host scopes the tenant ledger to the signed-in resident; reminders and tenant payments need outside services.",
-  variants: { density: ["comfortable", "compact"], figures: ["exact", "short"] },
+  variants: { figures: ["exact", "short"] },
   parts: ["root", "month", "assessed", "received", "outstanding", "arrears", "notice", "tenant", "autopay"],
   items: {
     key: "lines", visibleWhen: { visible: true },
@@ -111,7 +111,7 @@ export const examples = [
     charges: [{ chargeRef: "nov_willow", letRef: "asha_let", unitRef: "flat_a", unit: "Willow Flat", occupant: "Asha", due: "2026-11-01", amount: 900 }],
     receipts: [{ receiptRef: "nov_willow_one", chargeRef: "nov_willow", date: "2026-11-05", amount: 600, method: "transfer" }],
   },
-  cedar, { ...cedar, density: "compact", figures: "exact" },
+  cedar, { ...cedar, figures: "exact" },
   { ...cedar, style: "tenant", tenantLetRef: "lee_let", autopay: false, figures: "exact",
     charges: [{ ...cedar.charges[0], amount: 1100 }],
     receipts: [{ ...cedar.receipts[0], voided: false }] },
@@ -136,7 +136,7 @@ type RollProps = c.Props<typeof props, typeof meta>;
 export function RentRoll(input: RollProps) {
   const { totals, lines } = input;
   const state = kit.useComponentState(), loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const figures = kit.useVariant("figures", meta.variants.figures, input.figures);
   const { lang, words: { rentRoll: words } } = kit.useWords(propertyWordsFor);
   const tenant = input.style === "tenant", autopay = tenant ? autopayLabel(input.autopay, lang) : undefined;

@@ -8,23 +8,14 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
 import { z } from "zod";
-import {
-  KitCard,
-  KitContent,
-  KitPhoto,
-  KitSkeleton,
-  KitText,
-  useComponentState,
-  useKit,
-  useVariant,
-} from "../kit";
+import { KitCard, KitContent, KitPhoto, KitSkeleton, KitText, useComponentState, useKit } from "../kit";
 
 export const meta = {
   id: "Hero",
@@ -32,7 +23,7 @@ export const meta = {
   purpose: "The screen's main statement or headline number, including what needs attention today.",
   pick: "The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).",
   writeHints: [
-    'Use style "number" when the title is a headline number. For a requested wide photo, set media to "cover" and give its photo reference; density, emphasis, align and tone stay null unless explicitly requested.',
+    "Use style number when the title is a headline number. For a requested wide photo, set media to cover and give its photo reference. Leave emphasis and tone null unless explicitly requested.",
     'Put visible subtitles in sub and keep detail null. Only an explicit request to hide the subtitle sets detail to "brief"; keep the subtitle in sub.',
   ],
   region: "body",
@@ -40,9 +31,7 @@ export const meta = {
   tier: "phone",
   realPath: "A headline derived from content or a query in the on-device database.",
   variants: {
-    density: ["comfortable", "compact"],
     emphasis: ["normal", "quiet"],
-    align: ["start", "center"],
     detail: ["full", "brief"],
     media: ["none", "cover"],
     tone: ["neutral", "good", "warn", "bad"],
@@ -90,13 +79,13 @@ export const examples = [
   },
   { title: "Morning walk", sub: "Clover and Pip are ready for their morning park walk" },
   { style: "number", title: "2", sub: "plants need water", tone: "warn" },
-  { title: "Watered", align: "center", sub: "Next check on Friday" },
+  { title: "Watered", sub: "Next check on Friday" },
   { title: "Watered", tone: "good", sub: "Next check on Friday" },
   { title: "Watered", sub: "Next check on Friday" },
   { title: "Cancelled", tone: "bad" },
   { title: "Plant care", sub: "Check the ferns before watering", emphasis: "quiet" },
   { title: "Plant care", sub: "Check the ferns before watering", detail: "brief" },
-  { title: "Plant care", sub: "Check the ferns before watering", density: "compact" },
+  { title: "Plant care", sub: "Check the ferns before watering" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Hero");
@@ -113,8 +102,9 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Hero(input: Props<typeof props, typeof meta>) {
-  const { style, title, sub, photo, media, tone, emphasis, align } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const { style, title, sub, photo, media, tone, emphasis } = input;
+  const align = "start";
+  const density = useKit().density;
   const state = useComponentState();
   const { resolvePhoto } = useKit();
   const hasPhoto = media === "cover" && photo && resolvePhoto?.(photo);

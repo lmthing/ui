@@ -1,4 +1,4 @@
-import { useVariant, useWords, KitCard, KitScaleTrack, KitText } from "../kit";
+import { useWords, KitCard, KitScaleTrack, KitText, useKit } from "../kit";
 import {
   wordsFor,
   probesFor,
@@ -8,11 +8,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
 import { z } from "zod";
 
@@ -31,7 +31,6 @@ export const meta = {
   tier: "phone",
   realPath: "A selected level is stored with a record in the on-device database.",
   variants: {
-    density: ["comfortable", "compact"],
     emphasis: ["normal", "quiet", "hero"],
     detail: ["full", "brief"],
   },
@@ -99,7 +98,7 @@ export const examples = [
   { label: "How did it go? 1 low, 5 high", style: "dots", value: 0 },
   { ...rated, meta: "212 reviews" },
   checkIn,
-  { ...checkIn, density: "compact" },
+  { ...checkIn },
   { label: "How was the walk?", style: "stars", value: 4, emphasis: "quiet" },
   { label: "How was the walk?", style: "stars", value: 4, emphasis: "hero" },
   { ...rated, meta: "212 reviews", detail: "brief" },
@@ -125,7 +124,7 @@ export const probes = [
 
 export function Scale(input: Props<typeof props, typeof meta>) {
   const { style, label, value, readonly, emphasis, detail, meta: note } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const { lang } = useWords();
   const labels = [1, 2, 3, 4, 5].map((level) => `${numberLine(level, lang)} ${goalLine(5, lang)}`) as [
     string,

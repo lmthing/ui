@@ -14,13 +14,13 @@ export const meta = {
   pick: "Dated delivery gates reached only after required deliverables are accepted. Not dates alone (Timeline), screen steps (Steps), or measured targets (Progress).",
   writeHints: [
     'Each gate requires 1–6 distinct deliverable refs supplied by the brief. Leave out status, reached date and missing counts; the app computes them from acceptance records. Use style "cards" when the requirements should be listed beneath each date.',
-    'For cards showing only outstanding requirements, use detail "brief"; keep all requires refs in the data. Leave density null unless explicitly requested.',
+    'For cards showing only outstanding requirements, use detail "brief"; keep all requires refs in the data.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Milestone requirements and deliverable acceptance records are stored on the device.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["requires"] } },
   parts: ["root", "empty"],
   items: { key: "gates", parts: ["root", "title", "due", "requires", "reached", "missing"] },
@@ -86,12 +86,9 @@ function exampleAcceptance(project: unknown, state: c.StateName): c.DeviceData {
   };
 }
 
-export const examples = [
-  garden,
-  route,
-  { ...route, density: "compact" },
-  { ...route, detail: "brief" },
-] satisfies z.input<typeof props>[];
+export const examples = [garden, route, { ...route }, { ...route, detail: "brief" }] satisfies z.input<
+  typeof props
+>[];
 
 const { choose, write, read } = c.probesFor("Milestones");
 export const probes = [
@@ -116,7 +113,7 @@ type View = c.Props<typeof props, typeof meta>;
 type GateCopy = ReturnType<typeof milestoneCopies<View["gates"][number]>>[number];
 
 // prettier-ignore
-function GateLines({ copy, density }: { copy: GateCopy; density: View["density"] }) {
+function GateLines({ copy, density }: { copy: GateCopy; density: c.ThemeDensity }) {
   return <>
     <kit.KitText part="title" role="body" density={density}>{copy.gate.title}</kit.KitText>
     <kit.KitContent density={density}>
@@ -132,7 +129,7 @@ function GateLines({ copy, density }: { copy: GateCopy; density: View["density"]
 export function Milestones(input: View) {
   const { lang } = kit.useWords(projectsWordsFor), state = kit.useComponentState();
   const { loadingLabel } = kit.useWords().words;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const copies = milestoneCopies({ ...input, detail }, kit.useDeviceData(), lang);
   const cards = input.style === "cards" && state !== "empty";

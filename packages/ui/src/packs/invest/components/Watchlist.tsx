@@ -14,14 +14,14 @@ export const meta = {
   pick: "Use only when dated investment quotes or personal price thresholds belong in the rows. For names and links alone, even stock or fund favourites, use List. Not owned positions (Holdings) or things to buy (Wishlist).",
   writeHints: [
     "Write a dated quote for each item. Provide direction only when there is a target; the target and direction are stored preferences, not a trade. Do not write a computed gap or threshold status.",
-    'For targets and signed gaps beside quotes, write "detail":"full","density":null. A request for more detail is not a spacing request. Leave density null unless spacing is explicitly requested, and leave detail null for the default quotes view.',
+    'For targets and signed gaps beside quotes, write "detail":"full". Leave detail null for the default quotes view.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath:
     "On-device watch records and dated quotes are independent of owned positions and shared quote history, and a live feed is optional.",
-  variants: { density: ["comfortable", "compact"], detail: ["brief", "full"] },
+  variants: { detail: ["brief", "full"] },
   variantParts: { "detail.full": { adds: ["target", "gap"] } },
   parts: ["root", "refresh", "refresh_label", "notice"],
   items: {
@@ -86,7 +86,6 @@ export const examples = [
   },
   {
     detail: "full",
-    density: "compact",
     items: [
       { assetId: "short_bonds", name: "Short Bond Fund", symbol: "SBF",
         price: 55, quotedAt: "2026-03-01T16:00:00Z", target: 50 },
@@ -122,10 +121,10 @@ export function bindWatchlist(hasQuoteService: (instance: string) => boolean): c
 }
 type WatchProps = c.Props<typeof props, typeof meta>;
 type WatchRow = WatchProps["items"][number];
-type Density = NonNullable<WatchProps["density"]>;
+type Density = c.ThemeDensity;
 // prettier-ignore
 function ThresholdLine({ threshold, density }: { threshold: NonNullable<ReturnType<typeof watchlistQuote>["threshold"]>; density: Density }) {
-  const figure = { role: "number", numberScale: "compact", emphasis: "quiet", density: "compact", tabular: true } as const;
+  const figure = { role: "number", numberScale: "compact", emphasis: "quiet", tabular: true } as const;
   const tone = threshold.met ? "good" : "muted";
   return <kit.KitGrid density={density}>
     <kit.KitText part="target" role="caption" tone="muted">{threshold.lead}
@@ -180,7 +179,7 @@ function QuoteRow({ row, detail, density, state }: { row: WatchRow; detail: Watc
 // prettier-ignore
 export function Watchlist(input: WatchProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { quote_service } = kit.useLiveControls(meta, input);
   const { words: { watchlist } } = kit.useWords(investWordsFor);

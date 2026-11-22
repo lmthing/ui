@@ -13,13 +13,13 @@ export const meta = {
   pick: "Saved quotes or clip moments with a source, optional time and optional personal note, opening where they came from. Not original journal entries (Entries), whole saved titles (Library), or short tappable rows (List).",
   writeHints: [
     "Put the excerpt in text without surrounding quotation marks, the source title in from, and a clip time in at. Set goto to the screen for that source moment.",
-    'Write the exact note in note. Use "detail":null for normal excerpts with visible notes. Only when the person explicitly asks to hide notes, write "detail":"brief","density":null,"surface":null unless another axis was requested.',
+    'Write the exact note in note. Use "detail":null for normal excerpts with visible notes. Only when the person explicitly asks to hide notes, write "detail":"brief" unless another axis was requested.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "The saved excerpts live on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["note"] } },
   parts: ["root", "empty"],
   items: { key: "items", parts: ["root", "text", "from", "at", "note"] },
@@ -152,7 +152,7 @@ function HighlightRow({
 }: {
   item: HighlightItem;
   density: c.ThemeDensity;
-  surface: HighlightsProps["surface"];
+  surface: c.SurfaceFinish;
 }) {
   const { lang } = kit.useWords(mediaWordsFor);
   return (
@@ -175,9 +175,10 @@ function HighlightRow({
 }
 
 export function Highlights(input: HighlightsProps) {
-  const { items, surface } = input;
+  const { items } = input;
+  const surface = "card";
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   if (state === "empty")
     return (
       <kit.KitCard part="root" {...{ density, surface }}>

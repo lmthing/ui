@@ -12,14 +12,14 @@ export const meta = {
   purpose: "Read and react to one community post in full.",
   pick: "One community post in full, with author, long text, optional photo carousel and like, comment and share controls. Not several posts (Feed), an article (Article), or one featured thing preview (Card).",
   writeHints: [
-    'Write null for unrequested variants, not an explicit default. If only asked to hide attachments, write "density":null, "surface":null, "media":"none". Preserve the images array and the author photo.',
+    'Write null for unrequested variants, not an explicit default. If only asked to hide attachments, write "media":"none". Preserve the images array and the author photo.',
     "Use images for up to four post attachments, not for the author avatar. Use zero for unknown counts and false for an unknown liked state.",
   ],
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "A post in a shared app; more opens the screen's menu.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["cover", "none"] },
+  variants: { media: ["cover", "none"] },
   variantParts: { "media.none": { hides: imageParts } },
   parts: [
     "root",
@@ -185,8 +185,8 @@ function PostReactions({ input, density, loading }: Finish & { input: PostProps 
 // prettier-ignore
 export function Post(input: PostProps) {
   const loading = kit.useComponentState() === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const hasImages = media !== "none" && input.images.length > 0;
   const group = hasImages && !loading && input.images.length > 1 ? "content" : "response";

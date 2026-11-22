@@ -1,13 +1,15 @@
 import { z } from "zod";
 // prettier-ignore
 import {
-  KitCard, KitFigure, KitHeader, KitLayoutText, KitMeter, KitRing, KitRow, KitSkeleton, KitState, useVariant, useWords,
+  KitCard, KitFigure, KitHeader, KitLayoutText, KitMeter, KitRing, KitRow, KitSkeleton, KitState, useWords,
+  useKit,
 } from "../kit";
 // prettier-ignore
 import {
   probesFor, goalLine, itemVariantProps, localeOf, numberLine, itemsOf, placeholderTitle,
-  screenId, text, thingOf, titleOf, variantProps, wordsFor,
+  screenId, text, thingOf, titleOf, wordsFor,
   type FallbackInput, type Meta, type Probe, type Props,
+  variantProps,
 } from "../catalog";
 export const meta = {
   id: "Progress",
@@ -27,7 +29,7 @@ export const meta = {
   realPath: "Amounts summed from records on the device, each compared with a stored target.",
   signatureByStyle: { ring: "ring_fill" },
   // prettier-ignore
-  variants: { density: ["comfortable", "compact"], figures: ["exact", "short"], emphasis: ["normal", "hero"], detail: ["full", "brief"] },
+  variants: { figures: ["exact", "short"], emphasis: ["normal", "hero"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["sub"] } },
   items: {
     key: "bars",
@@ -124,7 +126,7 @@ const ring = {
 // prettier-ignore
 export const examples = [
   { bars: [{ label: "Watered this week", value: 3, of: 5, unit: "plants" }, { label: "Fed this month", value: 1, of: 4, unit: "plants" }] },
-  { density: "compact", bars: walkMeters },
+  { bars: walkMeters },
   { bars: walkMeters },
   { bars: [steps] },
   { figures: "short", bars: [steps] },
@@ -158,7 +160,8 @@ export const probes = [
 type ViewProps = Props<typeof props, typeof meta>;
 
 // prettier-ignore
-function ProgressRing({ bars, emphasis, density, detail, sub }: ViewProps) {
+function ProgressRing({ bars, emphasis, detail, sub }: ViewProps) {
+  const density = useKit().density;
   const goal = bars[0]!;
   const scale = emphasis === "hero" ? "lg" : "md";
   const { lang } = useWords();
@@ -182,11 +185,11 @@ function ProgressRing({ bars, emphasis, density, detail, sub }: ViewProps) {
 // prettier-ignore
 export function Progress(input: ViewProps) {
   const { bars, figures, style } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const { lang } = useWords();
   return (
     <KitCard style="inset" part="root" padded density={density}>
-      {style === "ring" ? <ProgressRing {...input} density={density} /> : (
+      {style === "ring" ? <ProgressRing {...input} /> : (
         <KitState density={density} loading={<KitSkeleton rows={bars.length} lead="none" inset="none" density={density} />}>
           {bars.map((bar) => (
             <KitRow key={bar.id} item={bar.id} label={bar.label} goto={bar.goto} inset="none" density={density}>

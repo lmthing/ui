@@ -26,7 +26,7 @@ describe("PackingList schema and boundaries", () => {
     expect(props.safeParse(example).success).toBe(true),
   );
   it("trims text, applies defaults and preserves authored quantities in brief", () => {
-    expect(props.parse(packing)).toMatchObject({ surface: "card", detail: "full" });
+    expect(props.parse(packing)).toMatchObject({ detail: "full" });
     const brief = props.parse({ detail: "brief", groups: [{ label: " Clothes ", items: [shirt] }] });
     expect(brief.groups[0]).toMatchObject({ label: "Clothes", items: [shirt] });
     expectTypeOf<Props<typeof props, typeof meta>["groups"][number]["id"]>().toEqualTypeOf<string>();

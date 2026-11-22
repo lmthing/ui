@@ -14,7 +14,7 @@ export const meta = {
   pick: "Move cards between two to five named stage columns with counts and optional totals. Not ticking off jobs in one list (Checklist), working a service request queue (RequestQueue), or a week of shifts (Roster).",
   writeHints: [
     "card.column is a zero-based index into columns. Use unique stage labels because the move action takes the destination label. Counts and totals are computed; never write them.",
-    'Use arrange "rows" for stages stacked vertically, otherwise null. Leave density and surface null unless requested.',
+    'Use arrange "rows" for stages stacked vertically, otherwise null.',
   ],
   region: "body",
   weight: 3,
@@ -22,8 +22,6 @@ export const meta = {
   tier: "phone",
   realPath: "Records with a stage field on the device.",
   variants: {
-    density: ["compact", "comfortable"],
-    surface: ["plain", "outlined"],
     arrange: ["strip", "rows"],
   },
   parts: ["root", "columns", "empty"],
@@ -124,14 +122,14 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type ViewProps = c.Props<typeof props, typeof meta>;
-export function Board({ columns, cards, density: requestedDensity, surface, arrange }: ViewProps) {
-  const density = kit.useVariant("density", meta.variants.density, requestedDensity);
+export function Board({ columns, cards, arrange }: ViewProps) {
+  const density = kit.useKit().density;
   const layout = kit.useVariant("arrange", meta.variants.arrange, arrange);
   const state = kit.useComponentState();
   const { words, lang } = kit.useWords(dataWordsFor);
   const currency = kit.useAppCurrency();
   const stages = boardStages(columns, cards, lang, currency);
-  const background = state === "empty" && surface === "plain" ? "card" : surface;
+  const background = state === "empty" ? "card" : "plain";
   const cardSlots = (card: ViewProps["cards"][number]): StageCard => {
     const { id, column, goto, title, tag, who, value } = card;
     const lines: StageCard["lines"][number][] = [{ part: "title", role: "body", text: title, density }];
@@ -151,7 +149,7 @@ export function Board({ columns, cards, density: requestedDensity, surface, arra
     return { id, column, goto, label: title, lines, destinations };
   };
   return (
-    <kit.KitCard density={density} padded={surface === "outlined"} surface={background}>
+    <kit.KitCard density={density} surface={background}>
       {state === "empty" ? (
         <kit.KitEmpty part="empty" decorativeIcon />
       ) : (

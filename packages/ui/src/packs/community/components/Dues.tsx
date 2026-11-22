@@ -23,8 +23,7 @@ export const meta = {
   tier: "phone",
   realPath:
     "The treasurer keeps a local ledger; messaging sends reminders and only a payment service's confirmed receipt changes the ledger.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"] },
-  parts: ["root", "period", "assessed", "collected", "outstanding", "empty"],
+    parts: ["root", "period", "assessed", "collected", "outstanding", "empty"],
   items: {
     key: "entries",
     visibleWhen: { visible: true },
@@ -63,7 +62,7 @@ const receipt = z.strictObject({
 });
 // prettier-ignore
 const schema = z.strictObject({
-  ...c.variantProps(meta.variants), period: c.text(20),
+  period: c.text(20),
   assessments: z.array(assessment).min(1).max(30), receipts: z.array(receipt).min(0).max(60),
   style: z.enum(["ledger", "member"]).default("ledger"),
 });
@@ -111,8 +110,7 @@ export const examples: z.input<typeof props>[] = [
     ],
   },
   {
-    period: "Trot autumn dues",
-    surface: "outlined", style: "member",
+    period: "Trot autumn dues", style: "member",
     assessments: [{ id: "jo_autumn", memberId: "jo", amount: 30, due: "2026-09-08" }],
     receipts: [{ id: "receipt_3", assessmentId: "jo_autumn", amount: 30, date: "2026-09-06", method: "card" }],
   },
@@ -128,7 +126,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type View = c.Props<typeof props, typeof meta>;
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 const totals = ["assessed", "collected", "outstanding"] as const;
 
 // prettier-ignore
@@ -166,8 +164,8 @@ function LedgerRow({ row, density, ledger, loading }: {
 // prettier-ignore
 export function Dues(input: View) {
   const state = kit.useComponentState(), loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const { lang, words: { dues: w } } = kit.useWords(communityWordsFor);
   const { entries, treasurer } = kit.useLiveControls(meta, input) as { entries: DuesRow[]; treasurer: boolean };
   const rows = entries.filter((entry) => entry.visible);

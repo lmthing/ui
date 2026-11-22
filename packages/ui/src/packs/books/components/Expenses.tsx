@@ -14,10 +14,10 @@ export const meta = {
   writeHints: [
     'Use style "receipt" for exactly one receipt with editable draft lines; otherwise use "register". A receipt has one to eight splits; each has a positive net amount and businessUse from 0 to 1.',
     "Use snake_case references. A posted receipt has an offset datetime in postedAt; only a posted receipt can be voided. Never write gross, deductible cost or recoverable VAT.",
-    'For a register with only the gross totals, use detail "brief". Keep all receipt data and write surface and density null unless requested.',
+    "For a register with only the gross totals, use detail \"brief\". Keep all receipt data.",
   ], region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Receipts are local; the core Camera captures evidence with consent and OCR guesses never post automatically.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["deductible_cost", "recoverable_vat"] } },
   parts: ["root", "post", "post_label", "capture", "capture_label", "gross", "deductible_cost", "recoverable_vat"],
   items: {
@@ -71,7 +71,7 @@ export const examples = [
       { title: "Delivery", net: 7, businessUse: 0.5, categoryRef: "travel", vatCode: "standard" },
     ] },
   ] },
-  { style: "register", density: "compact", receipts: [
+  { style: "register", receipts: [
     { expenseRef: "walk_travel", date: "2026-11-20", supplier: "Town Transit", postedAt: "2026-11-20T18:00:00+00:00",
       voided: false, goto: "travel_receipt",
       lines: [{ title: "Walk travel", net: 100, businessUse: 1, categoryRef: "travel", vatCode: "none" }] }] },
@@ -93,7 +93,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type View = c.Props<typeof props, typeof meta>;
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 
 // prettier-ignore
 function SplitChoice({ part, label, selected, options, editable }: {
@@ -165,7 +165,7 @@ function ReceiptLine({ row, density, detail, register }: { row: ReceiptRow; dens
 }
 // prettier-ignore
 export function Expenses(input: View) {
-  const density = kit.useVariant("density", meta.variants.density, input.density), surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density, surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const state = kit.useComponentState(), { lang, words: { expenses: w } } = kit.useWords(booksWordsFor), data = kit.useDeviceData();
   const { rows = [], canPost } = kit.useLiveControls(meta, input) as { rows?: ExpenseRow[]; canPost?: boolean };

@@ -7,22 +7,13 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
-import {
-  KitCard,
-  KitCheck,
-  KitRow,
-  KitSkeleton,
-  KitText,
-  useComponentState,
-  KitEmpty,
-  useVariant,
-} from "../kit";
+import { KitCard, KitCheck, KitRow, KitSkeleton, KitText, useComponentState, KitEmpty, useKit } from "../kit";
 
 export const meta = {
   id: "Checklist",
@@ -31,13 +22,13 @@ export const meta = {
   purpose: "Things to do, with each job ticked off when done.",
   pick: "Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).",
   writeHints: [
-    'Set "detail":null for normal task lists, even when there are no notes. Only an explicit request to hide notes means "detail":"brief"; keep any supplied notes in meta. Without a request for density or mark, write "density":null and "mark":null, not their named defaults.',
+    'Set "detail":null for normal task lists, even when there are no notes. Only an explicit request to hide notes means "detail":"brief"; keep any supplied notes in meta. Without a request for mark, write "mark":null, not their named defaults.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Task completion flags stored in the on-device database.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   items: {
     key: "items",
     parts: ["root", "check", "text", "meta"],
@@ -97,7 +88,7 @@ export const examples = [
       { text: "Bring spare waste bags", done: false },
     ],
   },
-  { density: "compact", items: plantJobs },
+  { items: plantJobs },
   { detail: "brief", items: plantJobs },
   { items: [{ ...plantJobs[0]!, mark: "highlight" }, ...plantJobs.slice(1)] },
 ] satisfies z.input<typeof props>[];
@@ -118,7 +109,7 @@ export const probes = [
 
 export function Checklist(input: Props<typeof props, typeof meta>) {
   const { items } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const state = useComponentState();
   if (state === "loading") {
     return (

@@ -31,7 +31,7 @@ export const meta = {
   realPath:
     "baggage custody scans and carousel assignments synced from the airline's baggage-handling service.",
   parts: ["root", "heading", "selector", "notice", "refresh", "refresh_error", "report", "report_error"],
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "plain"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": {
     hides: ["selector", "weight", "flight", "track", "next", ...scanParts], adds: ["latest", "tag"],
   } },
@@ -140,7 +140,7 @@ export const probes = [
 
 type BagProps = c.Props<typeof props, typeof meta>;
 type Bag = BagProps["bags"][number];
-type Density = BagProps["density"];
+type Density = c.ThemeDensity;
 
 // prettier-ignore
 function ScanDetails({ bag, density }: { bag: Bag; density: Density }) {
@@ -188,8 +188,8 @@ function CompactBag({ bag, selected, density }: { bag: Bag; selected: boolean; d
 export function BagTracker(input: BagProps) {
   const { words: { bagTracker } } = kit.useWords(tripsWordsFor);
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { bags } = kit.useLiveControls(meta, input) as { bags: (Bag & { active?: boolean })[] };
   const selected = activeBag(bags);

@@ -15,9 +15,9 @@ export const meta = {
   writeHints: [
     'Use packId for the stored bundle reference. Write used, not remaining; used cannot exceed total. Dates use YYYY-MM-DD.',
     'Use "detail":null for ordinary bundles. If full details with a meter or controls are requested, use "detail":"full". Only a read-only credits-left row uses "detail":"brief".',
-    'Unless explicitly asked for an outline, write "surface":null (not "card"). Unless asked for tighter spacing, write "density":null (not "comfortable").',
+
   ],
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": {
     hides: ["service", "label", "amount", "redeem", "redeem_label", "renew", "renew_label",
       "retry", "retry_label", "renew_error", "renew_error_label"], adds: ["remaining"],
@@ -169,8 +169,8 @@ function PackBody({ title, state, ...presentation }: Presentation & { title: str
 
 export function SessionPack(input: c.Props<typeof props, typeof meta>) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const { lang, words } = kit.useWords(bookingWordsFor);
   const live = kit.useLiveControls(meta, input);
   const facts = copy.sessionPackFacts(live);

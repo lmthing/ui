@@ -8,11 +8,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
 import {
   KitCard,
@@ -22,7 +22,7 @@ import {
   KitSwipeStack,
   KitText,
   useComponentState,
-  useVariant,
+  useKit,
 } from "../kit";
 
 export const meta = {
@@ -32,14 +32,13 @@ export const meta = {
   purpose: "Choose between things one at a time, swiping the current one to keep or skip.",
   pick: "Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).",
   writeHints: [
-    'A request to hide only photos sets media to "none" and leaves detail and density null. Descriptions remain visible. Set detail to "brief" only when asked to hide descriptions. When spacing is not requested, density must be null, never "comfortable".',
+    'A request to hide only photos sets media to "none" and leaves detail. Descriptions remain visible. Set detail to "brief" only when asked to hide descriptions. When spacing is not requested must be null.',
   ],
   region: "body",
   weight: 3,
   tier: "phone",
   realPath: "An ordered set of on-device records with a keep or skip decision stored for each.",
   variants: {
-    density: ["comfortable", "compact"],
     detail: ["full", "brief"],
     media: ["cover", "none"],
   },
@@ -105,7 +104,7 @@ export const examples = [
   { cards: [{ title: "Aloe" }, { title: "Pothos" }] },
   { detail: "brief", cards: [...dogChoices] },
   { media: "none", cards: [...dogChoices] },
-  { density: "compact", cards: [...dogChoices] },
+  { cards: [...dogChoices] },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("SwipeStack");
@@ -159,9 +158,9 @@ function SwipeCard({ card, compact }: { card: StackProps["cards"][number]; compa
   );
 }
 
-export function SwipeStack({ cards, density: requestedDensity }: StackProps) {
+export function SwipeStack({ cards }: StackProps) {
   const state = useComponentState();
-  const density = useVariant("density", meta.variants.density, requestedDensity);
+  const density = useKit().density;
   if (state === "empty") {
     return (
       <KitCard style="inset" part="root">

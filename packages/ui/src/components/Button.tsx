@@ -5,13 +5,13 @@ import {
   icon,
   screenId,
   text,
-  variantProps,
   type CastLike,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
-import { KitAction, useVariant } from "../kit";
+import { KitAction } from "../kit";
 
 export const meta = {
   id: "Button",
@@ -23,13 +23,11 @@ export const meta = {
   tier: "phone",
   realPath: "A press runs an on-device action or opens the linked screen.",
   variants: {
-    surface: ["card", "tinted", "plain"],
     media: ["icon", "none"],
   },
   variantParts: { "media.none": { hides: ["root_icon"] } },
   writeHints: [
-    'Use literal JSON null for surface on a regular filled button; do not spell out the default as "card". Use "tinted" only for a requested softer fill and "plain" only for a requested text action.',
-    'To hide an authored icon, keep its icon value and set media to "none". This changes only media: leave surface null unless a different surface is separately requested. Use null for all unrequested axes.',
+    'To hide an authored icon, keep its icon value and set media to "none". Use null for all unrequested axes.',
     'For a destructive action, set kind to "danger" and supply confirm. Otherwise leave kind null.',
   ],
   parts: ["root", "root_icon"],
@@ -61,8 +59,8 @@ export const examples = [
   { label: "Log watering", icon: "drop" },
   { label: "Log watering", icon: "drop", media: "none" },
   { label: "Remove plant", kind: "danger", confirm: "Remove this plant and its history?" },
-  { label: "Log watering", icon: "drop", surface: "tinted" },
-  { label: "Log watering", icon: "drop", surface: "plain" },
+  { label: "Log watering", icon: "drop" },
+  { label: "Log watering", icon: "drop" },
   { label: "Book a walk", goto: "book_walk" },
   { label: "Back to walks", goto: "back" },
 ] satisfies z.input<typeof props>[];
@@ -80,11 +78,8 @@ export const probes = [
   read("Press the main button", { address: "b1/root", action: "press" }),
 ] satisfies Probe[];
 
-const actionLook = { card: "primary", tinted: "secondary", plain: "quiet" } as const;
-
-export function Button({ label, surface, kind, media, icon, goto }: Props<typeof props, typeof meta>) {
-  const look = useVariant("surface", meta.variants.surface, surface);
-  const action = kind ?? actionLook[look];
+export function Button({ label, kind, media, icon, goto }: Props<typeof props, typeof meta>) {
+  const action = kind ?? "primary";
   return (
     <KitAction
       label={label}

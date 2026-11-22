@@ -18,14 +18,14 @@ export const meta = {
     "Use unique snake_case ids. Opens and closes need ISO datetimes with offsets, opens earlier than closes. Seed at most one ballot per eligible member; never write counts or a decision.",
     'Choose rule "majority", "two_thirds" or "unanimous". Use style "result" only for a read-only closed result.',
     "Use voteId for the stored motion reference; the screen instance id is separate.",
-    'Use arrange "rows" only when asked to stack choices one per line. Otherwise use arrange:null. Use null for unrequested density, surface and detail. Do not copy a description from the example.',
+    "Use arrange \"rows\" only when asked to stack choices one per line. Otherwise use arrange:null. Use null for unrequested detail. Do not copy a description from the example.",
   ],
   region: "body",
   weight: 2,
   tier: "people",
   realPath:
     "A shared app snapshots eligible voters at opening, accepts one replaceable ballot per member and freezes the decision at closing.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], arrange: ["grid", "rows"] },
+  variants: { arrange: ["grid", "rows"] },
   parts: [
     "root", "motion", "detail", "opens", "closes", "quorum", "rule", "participation", "status",
     "decision", "own", "for", "for_label", "against", "against_label", "abstain", "abstain_label",
@@ -160,8 +160,8 @@ function Quorum({ copy, facts, density, loading, label }: {
 // prettier-ignore
 export function Vote(input: c.Props<typeof props, typeof meta>) {
   const state = kit.useComponentState(), loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   const { lang, words: { vote: w } } = kit.useWords(communityWordsFor);
   const live = kit.useLiveControls(meta, input);

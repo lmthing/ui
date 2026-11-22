@@ -20,7 +20,7 @@ export const meta = {
   weight: 2,
   tier: "ok",
   realPath: "The camera scans codes with permission; multiple doors need a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["recent"] } },
   parts: [
     "root",
@@ -103,7 +103,7 @@ export const probes = [
 
 type DoorReading = ReturnType<typeof projectDoor> & { detail?: c.AxisValue<"detail"> | undefined };
 type View = c.Props<typeof props, typeof meta>;
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 
 // prettier-ignore
 function ManualCheckIn({ live, density }: { live: DoorReading; density: Density }) {
@@ -127,8 +127,8 @@ export function Door(input: View) {
   const { lang, words: { door } } = kit.useWords(eventsWordsFor);
   const state = kit.useComponentState();
   const { screen, component } = kit.usePartContext();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const query = kit.useControlValue(`${screen}/${component}/$type/search`, "");
   const live = projectDoor({ query }, component, kit.useDeviceData());

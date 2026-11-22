@@ -2,7 +2,9 @@ import { z } from "zod";
 // prettier-ignore
 import {
   clock, detailOf, formatAddress, isoDate, itemsOf, placeholderTitle, probesFor, screenId,
-  text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props,
+  text, thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props,
+  type ThemeDensity,
+  variantProps,
 } from "../../../catalog";
 import * as kit from "../../../kit";
 import { TimelineRail, type TimelineRailRow } from "../../../kit/timeline";
@@ -25,14 +27,14 @@ export const meta = {
   pick: "A whole trip grouped into foldable dated days with places, timed stops and travel legs. Not a single day's time order (Timeline), a path through places (Route), or a family week (Agenda).",
   writeHints: [
     "Use 1–14 dated days and 1–6 stops per day. Give each stop a title and a goto screen id. Only a travel stop may have minutes.",
-    'Leave density and surface null unless requested. To hide travel durations, set only detail to "brief" and keep minutes on travel stops.',
+    'To hide travel durations, set only detail to "brief" and keep minutes on travel stops.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "The plan lives on the device; sharing it needs a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: durationParts } },
   parts: ["root", "title"],
   items: { key: "days", parts: ["root", "date", "place", ...stopParts, ...timeParts, ...durationParts] },
@@ -144,7 +146,7 @@ export const probes = [
 ] satisfies Probe[];
 
 type ItineraryProps = Props<typeof props, typeof meta>;
-type DayProps = Pick<ItineraryProps, "density" | "detail">;
+type DayProps = Pick<ItineraryProps, "detail"> & { density: ThemeDensity };
 
 // prettier-ignore
 function ItineraryDay({ day, initial, density, detail }: DayProps & { day: ItineraryProps["days"][number]; initial: boolean }) {
@@ -171,8 +173,9 @@ function ItineraryDay({ day, initial, density, detail }: DayProps & { day: Itine
 
 // prettier-ignore
 export function Itinerary(input: ItineraryProps) {
-  const { days, detail, surface } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const { days, detail } = input;
+  const surface = "card";
+  const density = kit.useKit().density;
   const empty = kit.useComponentState() === "empty", current = initialItineraryDay(days, new Date());
   return (
     <kit.KitCard {...{ density, surface }} padded={!empty} part="root">

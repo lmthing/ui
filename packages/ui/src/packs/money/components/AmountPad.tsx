@@ -7,11 +7,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import {
   KitCard,
@@ -23,7 +23,6 @@ import {
   useControlValue,
   usePartContext,
   useWords,
-  useVariant,
 } from "../../../kit";
 import { amountPadDisplay, amountPadKeys, amountPadReading, amountPadText } from "../copy";
 import { moneyWordsFor } from "../lang";
@@ -36,13 +35,13 @@ export const meta = {
   purpose: "Enter a money amount quickly with a large keypad.",
   pick: "Entering money is the main screen task: large live amount, decimal keypad and optional note. Not a number among form fields (Field), or a count to step (Counter).",
   writeHints: [
-    "value and max are nonnegative numbers; value must not exceed max. note enables input, never note text. For a hidden enabled note use note true, detail brief. If no border or surface requested, write surface null, not card.",
+    "value and max are nonnegative numbers; value must not exceed max. note enables input, never note text. For a hidden enabled note use note true, detail brief.",
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "An amount saved to a new entry on the device.",
-  variants: { detail: ["full", "brief"], surface: ["card", "outlined"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["note"] } },
   parts: ["root", "label", "value", "pad", "note"],
   items: { key: "keys", parts: ["root"] },
@@ -83,7 +82,7 @@ export const examples = [
   ledgePad,
   { label: "Trot walking income", note: false },
   { ...ledgePad, detail: "brief" },
-  { ...ledgePad, surface: "outlined" },
+  { ...ledgePad },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("AmountPad");
@@ -113,7 +112,7 @@ export function AmountPad(input: Props<typeof props, typeof meta>) {
   const { lang, words } = useWords(moneyWordsFor);
   const initialText = amountPadText(input.value);
   const draft = useControlValue(formatAddress({ screen, component, part: "pad" }), initialText);
-  const surface = useVariant("surface", meta.variants.surface, input.surface);
+  const surface = "card";
   const keys = amountPadKeys(words.amountPad, Boolean(draft));
   return (
     <KitCard surface={surface} part="root" padded={state !== "empty"}>

@@ -13,15 +13,13 @@ export const meta = {
   pick: "Live courier and destination together on a map with delivery ETA and current step. Not order steps without a map (OrderStatus) or a path through planned stops (Route).",
   writeHints: [
     "Write the current step only. Never write an ETA or map positions; the delivery service supplies them.",
-    'Hiding the courier photo only changes media: use "media":"none","density":null. Keep the photo reference. Leave density and surface null unless specifically requested.',
+    'Hiding the courier photo only changes media: use "media":"none". Keep the photo reference.',
   ],
   region: "body",
   weight: 2,
   tier: "service",
   realPath: "A delivery service supplies the live courier location and arrival estimate.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     media: ["thumb", "none"],
   },
   variantParts: { "media.none": { hides: ["photo"] } },
@@ -56,7 +54,7 @@ export function fallback(_input: c.FallbackInput): z.input<typeof props> {
 const potDelivery = { step: "on_the_way", courier: "Nia", photo: "lib:people" } as const;
 export const examples = [
   potDelivery,
-  { step: "nearby", courier: "Sam", density: "compact" },
+  { step: "nearby", courier: "Sam" },
   { ...potDelivery, media: "none" },
 ] satisfies z.input<typeof props>[];
 
@@ -119,8 +117,8 @@ function DeliveryContact({ courier, photo, call, courierLabel, density, loading 
 // prettier-ignore
 export function DeliveryTracker(input: DeliveryProps) {
   const state = kit.useComponentState(), loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const { lang, words } = kit.useWords(placesWordsFor);
   const display = deliveryCopy(input, state, kit.useDeviceData(), lang);

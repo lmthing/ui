@@ -12,15 +12,15 @@ export const meta = {
   purpose: "Browse saved books, shows or albums and see progress and new releases.",
   pick: "The media the person has saved to read or play, shown as cover tiles with per-title progress and new episode badges. Not a grid of photos (Gallery), a shelf of suggestions (List), or things owned (Things).",
   writeHints: [
-    'Default to "density":null,"aspect":null,"detail":null. Set aspect only if a crop is explicitly requested; do not infer it from the type of media.',
-    'When asked to hide bylines, change only "detail":"brief"; leave density and aspect null. Keep progress as a fraction and badges as short authored text.',
+    'Default to "aspect":null,"detail":null. Set aspect only if a crop is explicitly requested; do not infer it from the type of media.',
+    'When asked to hide bylines, change only "detail":"brief"; leave aspect null. Keep progress as a fraction and badges as short authored text.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "The saved media items live on the device.",
-  variants: { density: ["comfortable", "compact"], aspect: ["square", "tall"], detail: ["full", "brief"] },
+  variants: { aspect: ["square", "tall"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["by"] } },
   parts: ["root", "empty"],
   items: { key: "items", parts: ["root", "title", "by", "photo", "progress", "badge"] },
@@ -143,7 +143,7 @@ function LibraryCover({ item, density, aspect, loading }: TileProps) {
 }
 
 export function Library(input: LibraryProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const aspect = kit.useVariant("aspect", meta.variants.aspect, input.aspect);
   const context = kit.usePartContext();
   const { words } = kit.useWords(mediaWordsFor);

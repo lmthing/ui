@@ -15,7 +15,6 @@ export const meta = {
   partTiers: { send: "service", accept: "people", decline: "people", withdraw: "service" },
   realPath:
     "The phone holds drafts and logged outcomes, sending needs an outside service, and actual responses need a shared app.",
-  variants: { density: ["comfortable", "compact"] },
   parts: [
     "root",
     "candidate",
@@ -52,7 +51,6 @@ export const meta = {
 } as const satisfies c.Meta;
 
 export const props = z.strictObject({
-  ...c.variantProps(meta.variants),
   offerId: c.text(32),
   applicationId: c.text(32),
   candidate: c.text(24),
@@ -115,7 +113,6 @@ export const examples: z.input<typeof props>[] = [
     conditions: [],
     status: "draft",
     goto: "mara_edit",
-    density: "compact",
   },
 ] satisfies z.input<typeof props>[];
 

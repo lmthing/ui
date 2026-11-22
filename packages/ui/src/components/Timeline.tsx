@@ -11,13 +11,14 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
+  variantProps,
 } from "../catalog";
-import { KitCard, KitEmpty, KitHours, KitSkeleton, useComponentState, useVariant } from "../kit";
+import { KitCard, KitEmpty, KitHours, KitSkeleton, useComponentState, useKit } from "../kit";
 import { TimelineFlow, type TimelineFlowGroup } from "../kit/timeline";
 
 export const meta = {
@@ -28,7 +29,7 @@ export const meta = {
   writeHints: [
     "Use day for a schedule of events with only single times, even if some are already done. Use history for an explicitly past-only log. Either takes up to six items. To show time and title only, set detail brief and keep supplied notes in meta.",
     "Use hours for duration blocks on an hour rail: up to eight items, time as the start in HH:MM and a later end in HH:MM. Only hours uses end and goto; omit meta and done in hours.",
-    "Set density, detail and each event tone to null unless explicitly requested. Times, notes, completion and scheduling are data, not requests for a variant.",
+    "Set detail and each event tone to null unless explicitly requested. Times, notes, completion and scheduling are data, not requests for a variant.",
   ],
   region: "body",
   weight: 2,
@@ -36,7 +37,7 @@ export const meta = {
   signatureByStyle: { hours: "day_unfold" },
   tier: "phone",
   realPath: "Time-stamped events or activity start and end times stored on the device.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   items: {
     key: "items",
     parts: ["root", "time", "title", "meta"],
@@ -134,7 +135,7 @@ export const examples = [
   },
   { style: "day", items: dayWalks },
   { style: "hours", items: careHours },
-  { density: "compact", items: dayWalks },
+  { items: dayWalks },
   ...(["good", "warn", "bad"] as const).map((tone) => ({
     style: "hours" as const, items: careHours.map((item, index) => index === 0 ? { ...item, tone } : item),
   })),
@@ -163,7 +164,7 @@ export const probes = [
 
 type TimelineProps = Props<typeof props, typeof meta>;
 
-function TimelineEvents({ items, density }: Pick<TimelineProps, "items" | "density">) {
+function TimelineEvents({ items, density }: Pick<TimelineProps, "items"> & { density: ThemeDensity }) {
   const group: TimelineFlowGroup = {
     rows: items.map((item) => ({
       kind: "event",
@@ -181,9 +182,9 @@ function TimelineEvents({ items, density }: Pick<TimelineProps, "items" | "densi
 }
 
 // prettier-ignore
-export function Timeline({ style, items, density: requested }: TimelineProps) {
+export function Timeline({ style, items }: TimelineProps) {
   const state = useComponentState();
-  const density = useVariant("density", meta.variants.density, requested);
+  const density = useKit().density;
   const hours = style === "hours";
   return <KitCard style="inset" part="root" density={density} padded={state === "filled" && hours}>
     {state === "loading" ? <KitSkeleton rows={items.length} lead="time" items={items} density={density} /> :

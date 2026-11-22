@@ -18,11 +18,11 @@ import {
   photo,
   probesFor,
   text,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import { healthWordsFor } from "../lang";
 import { z } from "zod";
@@ -36,9 +36,9 @@ export const meta = {
   purpose: "Learn one exercise's form, muscles and equipment, and recall previous results.",
   pick: "A reference for one movement with written form cues, muscles, equipment or past results. Never pick for video playback alone: if the person only asks to play or control an exercise video, choose Player. Not a course lesson (Lesson) or a whole session (Workout).",
   writeHints: [
-    "Write surface null unless asked for an outline. Do not write the default surface card; a supplied photo normally shows as a wide frame. Only when asked to hide it, use media none and keep the photo reference in the data.",
+    "A supplied photo normally shows in a wide frame. To hide it, set media to none and keep the photo reference.",
   ],
-  variants: { surface: ["card", "outlined"], media: ["cover", "none"] },
+  variants: { media: ["cover", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
   region: "body",
   weight: 2,
@@ -163,8 +163,8 @@ function ExerciseResults({
 
 // prettier-ignore
 export function Exercise({
-  name, surface, media, photo: image, muscles, cues, equipment, best, last,
-}: Props<typeof props, typeof meta>) {
+  name, media, photo: image, muscles, cues, equipment, best, last }: Props<typeof props, typeof meta>) {
+  const surface = "card";
   const { exerciseLabels } = useWords(healthWordsFor).words;
   const loading = useComponentState() === "loading";
   const showPhoto = useVariant("media", meta.variants.media, media) === "cover";

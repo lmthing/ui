@@ -17,14 +17,14 @@ export const meta = {
   writeHints: [
     "Write dates and an optional ledger destination, never figures or categories. The host computes all amounts and reads the full ledger.",
     'Use both comparison dates or neither. Each period is ordered and at most 366 days inclusive. Use style "tax_bridge" for disallowed costs and taxable profit; otherwise use "statement".',
-    'When asked to hide the individual category changes, use detail "brief" and keep both comparison dates. In a brief-detail statement write surface null and density null unless explicitly asked for an outline or compact spacing. Leave all unrequested axes null.',
+    "When asked to hide the individual category changes, use detail \"brief\" and keep both comparison dates. Leave all unrequested axes null.",
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "The host aggregates the full local ledger under the brief's accounting and deductibility rules.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["change"] } },
   parts: ["root", "from", "to", "comparison", "income", "costs", "profit", "profit_change",
     "disallowed_costs", "taxable_profit"],
@@ -64,7 +64,7 @@ export const examples = [
   { from: "2026-10-01", to: "2026-10-31", ledgerGoto: "care_ledger" },
   {
     from: "2026-11-01", to: "2026-11-30", compareFrom: "2026-10-01", compareTo: "2026-10-31",
-    ledgerGoto: "walk_ledger", style: "tax_bridge", density: "compact",
+    ledgerGoto: "walk_ledger", style: "tax_bridge",
   },
   { from: "2026-11-01", to: "2026-11-30", compareFrom: "2026-10-01", compareTo: "2026-10-31",
     ledgerGoto: "walk_ledger", style: "tax_bridge", detail: "brief" },
@@ -94,7 +94,7 @@ export const probes = [
 type View = c.Props<typeof props, typeof meta>;
 type Display = NonNullable<ReturnType<typeof profitDisplay>>;
 type Row = ProfitRow & { id: string };
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 type Words = ReturnType<typeof booksWordsFor>["profitLoss"];
 
 // prettier-ignore
@@ -163,8 +163,8 @@ function StatementLoading({ w, dates, display, density, bridge, categories }: {
 
 // prettier-ignore
 export function ProfitLoss(input: View) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang, words: { profitLoss: w } } = kit.useWords(booksWordsFor);
   const { categories = [] } = kit.useLiveControls(meta, input) as { categories?: Row[] };

@@ -11,14 +11,12 @@ export const meta = {
   group: "content",
   purpose: "Find a venue, copy its address, or call it.",
   pick: "One place’s postal address with a map tile and copy or directions; call if a phone is supplied. Not facts about a venue (KeyValue) or live delivery progress (DeliveryTracker).",
-  writeHints: [
-    'Hiding an access note only changes detail: use "detail":"brief","density":null. Keep the supplied note text verbatim. Use density null unless tighter spacing was requested separately.',
-  ],
+  writeHints: ["To hide only the access note, set detail to brief and keep the supplied note text verbatim."],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "The address is stored with the place, and directions open the phone’s maps app.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["note"] } },
   parts: ["root", "lines", "map", "note", "copy", "directions", "call"],
   partTiers: { directions: "service", call: "service" },
@@ -90,7 +88,7 @@ export const probes = [
 
 export function Address(input: c.Props<typeof props, typeof meta>) {
   const { lines, phone, note } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { words } = kit.useWords(placesWordsFor);
   const [street, ...rest] = lines;

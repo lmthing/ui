@@ -6,13 +6,13 @@ import {
   screenId,
   text,
   thingOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
-import { KitAction, KitBlock, KitText, useVariant } from "../kit";
+import { KitAction, KitBlock, KitText, useKit } from "../kit";
 
 export const meta = {
   id: "SectionTitle",
@@ -20,13 +20,13 @@ export const meta = {
   purpose: "Label a group of content and offer one optional link to more.",
   pick: "A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).",
   writeHints: [
-    'A request for a See all link means show it: write link and keep detail null. Only a request to hide the link uses detail "brief", keeping the link label and target in link. Keep density null unless explicitly asked to change spacing.',
+    'A request for a See all link means show it: write link and keep detail null. Only a request to hide the link uses detail "brief", keeping the link label and target in link.',
   ],
   region: "body",
   weight: 1,
   tier: "phone",
   realPath: "A label above a group and an optional navigation link in the on-device app.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["link", "link_label"] } },
   parts: ["root", "text", "link", "link_label"],
   states: ["filled"],
@@ -54,7 +54,7 @@ export const examples = [
   { text: "Today's walks" },
   { text: "Upcoming walks", link: { label: "See schedule", goto: "schedule" } },
   { text: "Upcoming walks", link: { label: "See schedule", goto: "schedule" }, detail: "brief" },
-  { text: "Needs water", link: { label: "See all", goto: "plants" }, density: "compact" },
+  { text: "Needs water", link: { label: "See all", goto: "plants" } },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("SectionTitle");
@@ -71,7 +71,7 @@ export const probes = [
 
 export function SectionTitle(input: Props<typeof props, typeof meta>) {
   const { text, link } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   return (
     <KitBlock
       label={text}

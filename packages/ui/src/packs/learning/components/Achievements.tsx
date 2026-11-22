@@ -17,13 +17,11 @@ export const meta = {
   tier: "phone",
   realPath: "Learning milestones are checked on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     arrange: ["grid", "rows"],
   },
   writeHints: [
     "Use earned for the date an earned badge was awarded. For locked badges leave earned null and put any unlock criterion in how.",
-    'When asked for one badge per row, set arrange to "rows", density to null and surface to null. Never write "comfortable" or "card" as defaults. Only set density or surface when the person explicitly requests a spacing or surface treatment.',
+    'When asked for one badge per row, set arrange to "rows". Otherwise leave arrange null unless a layout is requested.',
   ],
   parts: ["root", "empty"],
   items: { key: "badges", parts: ["root", "title", "icon", "earned", "how"] },
@@ -152,8 +150,8 @@ function Badge({
 }
 
 export function Achievements(input: AchievementsProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   const state = kit.useComponentState();
   const thing = kit.useEmptyThing();

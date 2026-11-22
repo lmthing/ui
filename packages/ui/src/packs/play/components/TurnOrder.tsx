@@ -2,7 +2,9 @@ import { z } from "zod";
 // prettier-ignore
 import {
   itemsOf, photo, placeholderTitle, probesFor, sessionAvailable, sessionKey, sessionState,
-  text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props, type SessionState,
+  text, thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props, type SessionState,
+  type ThemeDensity,
+  variantProps,
 } from "../../../catalog";
 import * as kit from "../../../kit";
 import { turnOrderLines } from "../copy";
@@ -15,12 +17,12 @@ export const meta = {
   pick: "Game turns, laps and play direction. Not a plain roster (People), scheduled events (Timeline), or rotating household duties (Turns).",
   writeHints: [
     "first is a zero-based index into players. Optional laps bounds the game; omit it for open-ended rotation. Never write current player, lap, completed turns or skips.",
-    'To hide only the lap and direction line write {"detail":"brief","density":null}; keep any lap limit. Never write comfortable as the default.',
+    'To hide only the lap and direction line write {"detail":"brief"}; keep any lap limit. Never write comfortable as the default.',
   ],
   region: "body", weight: 2, tier: "phone",
   confirmParts: ["restart"],
   realPath: "An ordered roster and turn events live on one device without accounts or remote replies.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["lap"] } },
   items: { key: "players", parts: ["root", "name", "photo"] },
   parts: ["root", "current", "lap", "next", "skip", "reverse", "restart"],
@@ -74,7 +76,7 @@ export const examples = [
   { players: roster, laps: 2, style: "ring" },
   { players: [{ name: "Jo" }, { name: "Lee" }], first: 1, direction: "reverse", style: "queue" },
   { players: roster, laps: 2, detail: "brief" },
-  { players: roster, laps: 2, density: "compact" },
+  { players: roster, laps: 2 },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("TurnOrder");
 export const probes = [
@@ -104,7 +106,7 @@ type Actions = {
   loading: boolean;
   success: boolean;
   queue: boolean;
-  density: Setup["density"];
+  density: ThemeDensity;
 };
 function TurnActions({ current, loading, success, queue, density }: Actions) {
   const { KitAction, KitContent, KitGrid, KitRow, KitSkeleton, KitText } = kit;
@@ -146,7 +148,7 @@ function TurnActions({ current, loading, success, queue, density }: Actions) {
 export function TurnOrder(setup: Setup) {
   const { KitContent, KitOrbit, KitSkeleton, KitText } = kit;
   const { players, style, detail: shown } = setup;
-  const density = kit.useVariant("density", meta.variants.density, setup.density);
+  const density = kit.useKit().density;
   const { screen, component } = kit.usePartContext();
   const { lang } = kit.useWords(playWordsFor);
   const state = kit.useComponentState();

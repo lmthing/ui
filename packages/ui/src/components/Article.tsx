@@ -14,14 +14,13 @@ export const meta = {
     "Body uses headings, paragraphs, lists, quotes, > [!NOTE] callouts, bold, italic and [label](screen:screen_id) links. No HTML or external links.",
     'Use style "book" for a book page, "response" for a long answer with attribution at the end, or omit for a regular article. Set paper and fontScale only when requested.',
     'Copy this JSON body pattern: "## Heading\\nFirst paragraph.\\n\\nSecond paragraph." Put each heading, quote and list item on its own line. Use JSON escapes, not tabs, spaces or invisible characters for line breaks. Keep headings short and paragraphs focused.',
-    'For body-only reading with no header, set detail "brief". Keep title in the line; reading time is computed. Leave density null unless the brief explicitly asks for tighter spacing.',
+    'For body-only reading with no header, set detail "brief". Keep title in the line; reading time is computed.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "The text is stored on or bundled with the app.",
   variants: {
-    density: ["comfortable", "compact"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["title", "by", "date", "reading_time", "photo"] } },
@@ -176,7 +175,7 @@ function ArticleBody({ input, density, loading, full }: Layout & { full: boolean
 }
 // prettier-ignore
 export function Article(input: ArticleProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const loading = kit.useComponentState() === "loading";
   const { photo, paper, style } = input;

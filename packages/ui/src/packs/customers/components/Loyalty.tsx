@@ -7,7 +7,7 @@ import {
   KitGrid,
   KitText,
   useComponentState,
-  useVariant,
+  useKit,
 } from "../../../kit";
 import {
   wordsFor,
@@ -20,11 +20,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import { z } from "zod";
 
@@ -37,13 +37,13 @@ export const meta = {
   pick: "A business client's four-to-twelve stamp reward card, with stamp and redeem actions. Not a habit streak (Streak) or a personal goal (Progress).",
   writeHints: [
     "stamps is a whole count from zero through of; of is a whole number from four through twelve. Code enables redeem only when full.",
-    'Whenever the client name must be hidden or kept private on screen, set detail to "brief" (not null) and still write the supplied name in name. Leave density and surface null unless requested. If the name should be visible, leave detail null.',
+    'Whenever the client name must be hidden or kept private on screen, set detail to "brief" (not null) and still write the supplied name in name. If the name should be visible, leave detail null.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "A count per client on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["name"] } },
   parts: ["root", "stamps", "of", "reward", "name", "earned", "stamp", "redeem"],
   states: ["filled", "success"],
@@ -99,8 +99,8 @@ export const examples = [
   { stamps: 3, of: 6, reward: "Your sixth plant care visit is free", name: "Anna Patel" },
   { stamps: 10, of: 10, reward: "Your tenth walk is free", name: "Ben Carter" },
   variantExample,
-  { ...variantExample, density: "compact" },
-  { ...variantExample, surface: "outlined" },
+  { ...variantExample },
+  { ...variantExample },
   { ...variantExample, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Loyalty");
@@ -142,8 +142,9 @@ function LoyaltyMarks({ stamps, of, density }: { stamps: number; of: number; den
 }
 
 export function Loyalty(input: Props<typeof props, typeof meta>) {
-  const { stamps, of, reward, name, surface } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const { stamps, of, reward, name } = input;
+  const surface = "card";
+  const density = useKit().density;
   const { lang, words } = useWords();
   const { loyaltyLabels } = words;
   const success = useComponentState() === "success";

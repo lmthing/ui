@@ -1,9 +1,9 @@
 // prettier-ignore
-import { useWords, KitAction, KitActionFooter, KitCard, KitCode, KitContent, KitFigure, KitGrid, KitHeader, KitLayoutText, KitRow, KitRowGroup, KitState, useComponentState, useVariant } from "../../../kit";
+import { useWords, KitAction, KitActionFooter, KitCard, KitCode, KitContent, KitFigure, KitGrid, KitHeader, KitLayoutText, KitRow, KitRowGroup, KitState, useComponentState, useKit } from "../../../kit";
 import { customersWordsFor } from "../lang";
 import { z } from "zod";
 // prettier-ignore
-import { compactMoneyLine, isoDate, probesFor, text, variantProps, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
+import { compactMoneyLine, isoDate, probesFor, text, type CastLike, type Meta, type Probe, type Props, type ThemeDensity, variantProps } from "../../../catalog";
 // prettier-ignore
 import { installmentLine, installmentTotal, paymentDetails, paymentFallback, paymentPaid, paymentReading, paymentStatus } from "../copy";
 
@@ -15,14 +15,14 @@ export const meta = {
   pick: "One payment from a client, with paid amount, dates, method and mark or remind actions. Not a full bill (Invoice) or the person's own balance (Amount).",
   writeHints: [
     "Write amount and optional paid amount, not a status or balance. Code derives paid, due, overdue or part paid from paid, amount and due.",
-    'If asked only to hide the payment method, use {"density":null,"surface":null,"detail":"brief"} and keep the method in the data. Otherwise detail is null.',
+    'If asked only to hide the payment method, use {"detail":"brief"} and keep the method in the data. Otherwise detail is null.',
     'Use style "link" only with a supplied HTTPS paymentLink; never invent a link. For received installments, write their date and amount in installments. If paid is supplied, it is the full amount received and already includes these rows; otherwise code sums the rows.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "A payment flag stored on the device; card payments need a payment service.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["method"] } },
   // prettier-ignore
   parts: ["root", "status", "amount", "paid", "date", "due", "method", "mark", "remind", "confirmation",
@@ -91,8 +91,8 @@ export const examples = [
   { amount: 60, paid: 20, date: "2026-11-18", due: "2026-12-02", method: "Bank transfer" },
   { amount: 120, paid: 120, date: "2026-11-17", method: "Cash" },
   { amount: 40, date: "2026-11-01", due: "2026-11-10" },
-  { ...variantExample, density: "compact" },
-  { ...variantExample, surface: "outlined" },
+  { ...variantExample },
+  { ...variantExample },
   { ...variantExample, detail: "brief" },
   { amount: 60, date: "2026-11-18", style: "link", paymentLink: exampleLink },
   { amount: 60, date: "2026-11-18", installments: exampleInstallments },
@@ -119,7 +119,7 @@ export const probes = [
 
 type PaymentProps = Props<typeof props, typeof meta>;
 // prettier-ignore
-function PaymentFacts({ input, density, lang }: { input: PaymentProps; density: PaymentProps["density"]; lang: string }) {
+function PaymentFacts({ input, density, lang }: { input: PaymentProps; density: ThemeDensity; lang: string }) {
   const details = paymentDetails(input, lang);
   const rows = [
     details.filter(({ part }) => part === "date" || part === "due"),
@@ -137,7 +137,7 @@ function PaymentFacts({ input, density, lang }: { input: PaymentProps; density: 
 }
 
 // prettier-ignore
-function Installments({ installments, density }: Pick<PaymentProps, "installments" | "density">) {
+function Installments({ installments, density }: Pick<PaymentProps, "installments"> & { density: ThemeDensity }) {
   const { lang, words } = useWords(customersWordsFor);
   if (!installments?.length) return null;
   return <KitContent {...{ density }}>
@@ -153,7 +153,7 @@ function Installments({ installments, density }: Pick<PaymentProps, "installment
 }
 
 // prettier-ignore
-function PaymentLink({ link, density }: { link: string; density: PaymentProps["density"] }) {
+function PaymentLink({ link, density }: { link: string; density: ThemeDensity }) {
   const { words } = useWords(customersWordsFor);
   const { copied } = useWords().words.codeLabels;
   const { copy, share, link: label } = words.paymentLabels;
@@ -173,8 +173,9 @@ function PaymentLink({ link, density }: { link: string; density: PaymentProps["d
 export function PaymentStatus(input: PaymentProps) {
   const { lang, words: { paymentLabels } } = useWords(customersWordsFor);
   const { words: { moneyLabels } } = useWords();
-  const { surface, installments, paymentLink } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const { installments, paymentLink  } = input;
+  const surface = "card";
+  const density = useKit().density;
   const state = useComponentState();
   const status = paymentStatus(input);
   const tone = status === "paid" ? "good" : status === "overdue" ? "bad" : "warn";

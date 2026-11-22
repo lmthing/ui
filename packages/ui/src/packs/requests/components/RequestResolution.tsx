@@ -17,12 +17,12 @@ export const meta = {
   writeHints: [
     "unable and duplicate require a reason; duplicateOf is required only for duplicate. Reopening also needs a reason at action time.",
     "Use review for a proposed outcome and receipt for the saved outcome. The host gates actions on roles and linked work; never write completion or acceptance flags.",
-    'For hidden photos, keep all evidence references and use media "none", density null, surface null unless spacing or surface is requested.',
+    "For hidden photos, keep all evidence references and set media to \"none\".",
   ],
   region: "body", weight: 2, tier: "phone",
   partTiers: { accept: "people", reopen: "people" }, confirmParts: ["resolve"],
   realPath: "A resolution is saved on the operator's device; acceptance and reopening need a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["thumb", "none"] },
+  variants: { media: ["thumb", "none"] },
   variantParts: { "media.none": { hides: photoParts } },
   parts: ["root", "number", "outcome", "summary", "duplicate_of", ...photoParts,
     "resolve", "resolve_label", "accept", "accept_label", "saved_reason", "reason", "reopen", "reopen_label"],
@@ -87,7 +87,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type Props = c.Props<typeof props, typeof meta>;
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 type Words = RequestsWords["resolution"];
 // prettier-ignore
 type HostFacts = { staff: boolean; requester: boolean; workComplete: boolean; saved: boolean; resolved: boolean;
@@ -161,7 +161,7 @@ function Decision({ p, w, density, accepted, loading }: { p: View; w: Words; den
 // prettier-ignore
 export function RequestResolution(input: Props) {
   const state = kit.useComponentState(), { words: { resolution: w } } = kit.useWords(requestsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density), surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density, surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const p = kit.useLiveControls(meta, input) as View, accepted = state === "success";
   const title = resolutionHeading(p.style, state, w), evidence = media !== "none" && p.photos.length > 0;

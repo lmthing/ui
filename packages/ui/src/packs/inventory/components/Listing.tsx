@@ -13,14 +13,14 @@ export const meta = {
   pick: "A dwelling actually offered for rent or sale, with beds, baths, floor area or lease terms. For a single notice or any other photo-and-text preview that opens more, choose Card instead. Not a venue to visit (PlaceCard) or goods for sale (Product).",
   writeHints: [
     "Price is a number without a currency, per is month/week for rent and none for sale. Area uses m2 or ft2; photos go in a separate Gallery.",
-    'For an ordinary listing with a description, end with "detail":null,"density":null,"surface":null. Keep the supplied about text.',
-    'Only an explicit request to hide the description sets "detail":"brief"; keep about in the data. Hiding it does not request density or surface. Set those only for explicit spacing or surface requests.',
+    'For an ordinary listing with a description, end with "detail":null. Keep the supplied about text.',
+    'Only an explicit request to hide the description sets "detail":"brief"; keep about in the data.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Listings live on the device; contacting the advertiser requires a service.",
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "plain"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["about"] } },
   // prettier-ignore
   parts: ["root", "title", "price", "per", "beds", "baths", "area", "area_unit",
@@ -161,8 +161,8 @@ function ListingLoading({ input, copy, density }: { input: ListingProps; copy: L
 // prettier-ignore
 export function Listing(input: ListingProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { screen, component } = kit.usePartContext();
   const saved = kit.useControlValue(`${screen}/${component}/save`, false);

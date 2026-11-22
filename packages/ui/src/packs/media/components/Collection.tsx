@@ -13,13 +13,13 @@ export const meta = {
   pick: "The overview at the top of one show, album, book or course, with artwork, credits, play-all and follow. Not a photo and headline (Hero), a person (Profile), one recording (Player), or owned things (Things).",
   writeHints: [
     "Count and duration come from Playlist on this screen; never write either value.",
-    'Use detail "brief" only when asked to hide the description. Keep it in about and leave density and aspect null unless explicitly requested.',
+    'Use detail "brief" only when asked to hide the description. Keep it in about and leave aspect null unless explicitly requested.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "The collection details are stored with the app's media.",
-  variants: { density: ["comfortable", "compact"], aspect: ["square", "wide"], detail: ["full", "brief"] },
+  variants: { aspect: ["square", "wide"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["about"] } },
   parts: [
     "root",
@@ -149,7 +149,7 @@ function CollectionDetails({ title, by, about, density, summary }: Pick<Collecti
 
 export function Collection(input: CollectionProps) {
   const { title, by, about, photo, followed } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const aspect = kit.useVariant("aspect", meta.variants.aspect, input.aspect);
   const loading = kit.useComponentState() === "loading";
   const { controller } = kit.useKit();

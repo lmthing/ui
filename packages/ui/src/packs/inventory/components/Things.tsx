@@ -14,14 +14,14 @@ export const meta = {
   pick: "Owned or stocked items with editable quantities, storage locations or a per-item low-stock minimum. Not a directory of plain links (List), goods for sale (ProductGrid), food at home (Pantry), or a media library (Library).",
   writeHints: [
     'qty and min are nonnegative whole counts. A minimum marks low stock automatically. Use filter "all" unless asked to show only low stock, and always keep all records.',
-    'For rows without other styling requests, write arrange "rows", density null and surface null. Leave all three axes null when no presentation is requested.',
+    'For rows without other styling requests, write arrange "rows". Leave arrange null unless a layout is requested.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Stock and ownership records live on the device.",
-  variants: { arrange: ["grid", "rows"], density: ["comfortable", "compact"], surface: ["card", "outlined"] },
+  variants: { arrange: ["grid", "rows"] },
   parts: ["root", "empty"],
   items: {
     key: "items",
@@ -174,8 +174,8 @@ function ThingLoading({ item, peer, layout, density }: TileProps) {
 export function Things(input: ThingsProps) {
   const context = kit.usePartContext();
   const { words } = kit.useWords(inventoryWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   const visible = c.visibleItems<Item>(meta, input);
   const items = visible.length === 0 && context.state === "loading" ? input.items : visible;

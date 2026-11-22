@@ -13,13 +13,13 @@ export const meta = {
   pick: "One venue to visit with its opening times, distance, rating or price level. Not a compact preview of an ordinary record (Card), several places (List), a product (Product), or a rental (Listing).",
   writeHints: [
     "Supply opening and closing times together or neither. Never write open status or distance; they are computed. Leave photo null when a Gallery already shows the venue.",
-    'To hide a supplied photo, keep its reference and write media "none"; this does not change density. Write density null unless the person explicitly asks for compact or comfortable spacing. Leave media null unless the person requests a media treatment.',
+    "To hide a supplied photo, keep its reference and set media to none. Otherwise leave media null unless a media treatment is requested.",
   ],
   region: "body",
   weight: 2,
   tier: "ok",
   realPath: "Place details are stored with the app, and distance needs location permission.",
-  variants: { density: ["comfortable", "compact"], media: ["cover", "none"] },
+  variants: { media: ["cover", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
   parts: ["root", "photo", "name", "category", "rating", "price_level", "distance", "open_state"],
   states: ["filled", "loading"],
@@ -75,7 +75,7 @@ export const examples = [
   nursery,
   { name: "Juniper Café", category: "Dog-friendly café", rating: 4.5, goto: "juniper" },
   { ...nursery, media: "none", closes: "13:30" },
-  { ...nursery, density: "compact" },
+  { ...nursery },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("PlaceCard");
@@ -99,7 +99,7 @@ export const probes = [
 
 type PlaceCardProps = c.Props<typeof props, typeof meta>;
 type PlaceCopy = ReturnType<typeof placeCardCopy>;
-type Density = NonNullable<PlaceCardProps["density"]>;
+type Density = c.ThemeDensity;
 const nameRole = (density: Density) => (density === "compact" ? "title" : "heading");
 
 // prettier-ignore
@@ -163,7 +163,7 @@ function VenueLoading({ input, copy, density, thumb }: { input: PlaceCardProps; 
 
 export function PlaceCard(input: PlaceCardProps) {
   const { name, goto } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const loading = kit.useComponentState() === "loading";
   const { resolvePhoto } = kit.useKit();

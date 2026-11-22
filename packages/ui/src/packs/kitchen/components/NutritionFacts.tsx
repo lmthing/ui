@@ -16,14 +16,14 @@ export const meta = {
   pick: "One food or recipe's nutrition label: calories, protein, carbs and fat that update with the serving count, plus nutrients and allergens. Choose for scaled nutrition, not ingredient amounts to cook with (Ingredients). Not flat facts (KeyValue), daily targets (Progress), or a day's meals (FoodLog).",
   writeHints: [
     "Write nutrition amounts for exactly one serving, even when the opening number of servings is different. Never write scaled amounts or macro percentages.",
-    'Set detail to "brief" only when asked to hide the secondary nutrient rows and allergen pills. Keep their data. Leave density and surface null unless requested.',
+    'Set detail to "brief" only when asked to hide the secondary nutrient rows and allergen pills. Keep their data.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Calculate from recipe data on the device, or look up the food in an external barcode database.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["nutrients", "allergens", ...allergenParts] } },
   items: { key: "points", parts: ["root", "label"] },
   // prettier-ignore
@@ -142,8 +142,8 @@ function Extras({ nutrients, allergens, display, density }: ExtrasProps) {
 export function NutritionFacts(input: ViewProps) {
   const { lang, words: { nutritionFacts: words } } = kit.useWords(kitchenWordsFor);
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { screen, component } = kit.usePartContext();
   const servings = kit.useControlValue(`${screen}/${component}/$adjust/servings`, input.servings);

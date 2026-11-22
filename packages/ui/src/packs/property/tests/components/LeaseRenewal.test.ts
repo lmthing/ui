@@ -94,7 +94,7 @@ describe("LeaseRenewal states and parts", () => {
         "home/l1/decline",
       ]),
     );
-    expect(addresses({ ...offer, surface: "outlined", density: "compact" })).toEqual(filled);
+    expect(addresses({ ...offer })).toEqual(filled);
     expect(addresses({ ...offer, detail: "brief" })).toEqual(filled.filter((part) => !part.endsWith("/sub")));
     expect(addresses(summary)).toContain("home/l1/selected_term");
     expect(read(summary)).toContain("Selected term · 12 months");

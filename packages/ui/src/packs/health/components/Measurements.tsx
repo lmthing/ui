@@ -22,11 +22,11 @@ import {
   probesFor,
   screenId,
   text,
-  variantProps,
   type CastLike,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import { seedTitles } from "..";
 import {
@@ -50,9 +50,9 @@ export const meta = {
   realPath:
     "Measurements typed on the device; a scale or health-store import needs read permission, and is not medical advice.",
   writeHints: [
-    "Write surface null unless asked for an outline. Do not write the default surface card. Use detail brief to hide the change since the first reading; keep all measurement points and any supplied goal.",
+    "Use detail brief to hide the change since the first reading; keep all measurement points and any supplied goal.",
   ],
-  variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["change"] } },
   parts: ["root", "label", "latest", "change", "goal", "plot", "range", "add"],
   states: ["filled", "empty", "loading"],
@@ -147,7 +147,8 @@ function MeasurementSummary({ label, copy, full, unit }: {
 }
 
 // prettier-ignore
-export function Measurements({ label, unit, points, goal, range, goto, surface, detail }: Props<typeof props, typeof meta>) {
+export function Measurements({ label, unit, points, goal, range, goto, detail  }: Props<typeof props, typeof meta>) {
+  const surface = "card";
   const full = useVariant("detail", meta.variants.detail, detail) === "full";
   const { lang, words } = useWords(healthWordsFor);
   const { measurementLabels } = words;

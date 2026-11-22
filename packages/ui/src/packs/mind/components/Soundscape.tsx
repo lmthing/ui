@@ -17,9 +17,9 @@ export const meta = {
   pick: "Combine two to six looping background sounds such as rain and fire with independent volumes and a sleep timer. Not one recording (Player) or a list of tracks to play in turn (Playlist).",
   region: "body", weight: 2, tier: "phone",
   realPath: "Bundled sound loops are mixed and played on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], arrange: ["grid", "rows"] },
+  variants: { arrange: ["grid", "rows"] },
   writeHints: [
-    'Leave unrequested density and surface null, even when arrange is requested: {"density":null,"surface":null,"arrange":"rows"}. Use compact or outlined only when explicitly asked for that finish.',
+    "Use arrange rows only when explicitly asked to place one sound per row.",
     "Supply each loop with its own icon and a whole-number volume from 0 to 10; use 0 for muted. The sleep timer is whole minutes (0 means off).",
     'Use arrange "rows" for a full-width stack with one sound per row, or null for the default two-column grid.',
     "Only if asked for saved mixes, supply presets with unique labels and one level for every sound in the order written. Changes to the sliders customize the live mix, not the saved presets.",
@@ -167,8 +167,8 @@ function SoundRows({ sounds, density, arrange, presets }: Pick<SoundscapeProps, 
 // prettier-ignore
 export function Soundscape(input: SoundscapeProps) {
   const { words: { soundscape: { play, pause, sleep, presets: presetLabel } }, lang } = kit.useWords(mindWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   const live = kit.useLiveControls(meta, input);
   const { running, sounds, timer } = live as SoundscapeProps & { running?: boolean };

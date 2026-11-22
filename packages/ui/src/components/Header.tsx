@@ -7,13 +7,13 @@ import {
   screenId,
   text,
   thingOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
-import { KitAction, KitBlock, KitText, useVariant } from "../kit";
+import { KitAction, KitBlock, KitText, useKit } from "../kit";
 
 export const meta = {
   id: "Header",
@@ -21,14 +21,13 @@ export const meta = {
   purpose: "Name the screen and offer one optional shortcut.",
   pick: "The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).",
   writeHints: [
-    'Use style "back" only when a back button is needed. To hide a subtitle, use detail "brief" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis and density to null unless the brief explicitly asks for those changes.',
+    'Use style "back" only when a back button is needed. To hide a subtitle, use detail "brief" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis to null unless the brief explicitly asks for those changes.',
   ],
   region: "top",
   weight: 1,
   tier: "phone",
   realPath: "The screen's title and navigation links in the on-device app.",
   variants: {
-    density: ["comfortable", "compact"],
     emphasis: ["normal", "quiet"],
     detail: ["full", "brief"],
   },
@@ -88,7 +87,6 @@ export const examples = [
     title: "My plants",
     sub: "Three need water today",
     action: { icon: "plus", label: "Add a plant", goto: "new_plant" },
-    density: "compact",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -108,7 +106,7 @@ export const probes = [
 
 export function Header(input: Props<typeof props, typeof meta>) {
   const { style, title, sub, action, emphasis } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const role = style === "back" ? "heading" : "title";
   return (
     <KitBlock

@@ -17,7 +17,7 @@ export const meta = {
   tier: "ok",
   realPath:
     "The host document picker supplies opaque references, the viewer previews them, and a host adapter downloads them.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["metadata", "pages"] } },
   parts: ["root", "message"],
   items: {
@@ -176,7 +176,7 @@ function FileMetadata({ size, pages, status, density, cards, missing }: {
 export function FileList(input: FileListProps) {
   const state = kit.useComponentState();
   const { words: { fileList: words } } = kit.useWords();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const cards = input.style === "cards";
   return <kit.KitCard part="root" style={cards && (state === "filled" || state === "loading") ? "cards" : "inset"} density={density}>
     {state === "empty" || state === "error" ? <kit.KitEmpty icon={state === "empty" ? "paperclip" : "alert"} part="message"

@@ -13,13 +13,13 @@ export const meta = {
   purpose: "Show the holder's admission pass and code for one event.",
   pick: "One issued event admission pass with holder, ticket type, venue and scannable ticket number. Not ordinary label/value facts (KeyValue), a travel confirmation (Reservation), a discount code (Promo) or the door scanner (Door).",
   writeHints: [
-    'For an ordinary admission pass use {"detail":null,"align":null,"density":null}. Only set detail to "brief" if the person explicitly says to omit the scan instruction. Never output "start" or "comfortable" just to set a default.',
+    'For an ordinary admission pass use {"detail":null}. Only set detail to "brief" if the person explicitly says to omit the scan instruction.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "The app issues the admission ticket; the organiser scans it at the door.",
-  variants: { density: ["comfortable", "compact"], align: ["start", "center"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["hint"] } },
   parts: ["root", "event", "date", "time", "place", "type", "holder", "number", "code", "hint"],
   states: ["filled", "success"],
@@ -69,7 +69,6 @@ export const examples = [
     type: "Member",
     holder: "Hugo Wells",
     number: "SO0081",
-    align: "center",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -94,7 +93,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type TicketProps = c.Props<typeof props, typeof meta>;
-type Finish = Pick<TicketProps, "align" | "density">;
+type Finish = { align: c.ContentAlign } & { density: c.ThemeDensity };
 
 // prettier-ignore
 function TicketBody({ input, finish, used }: { input: TicketProps; finish: Finish; used: boolean }) {
@@ -122,8 +121,8 @@ function TicketBody({ input, finish, used }: { input: TicketProps; finish: Finis
 export function Ticket(input: TicketProps) {
   const used = kit.useComponentState() === "success";
   const { words: { ticket } } = kit.useWords(eventsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const align = kit.useVariant("align", meta.variants.align, input.align);
+  const density = kit.useKit().density;
+  const align = "start";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const stub = used ? <kit.KitContent align="center" density={density}>
     <kit.KitIcon name="circle_check" tone="good" decorative />

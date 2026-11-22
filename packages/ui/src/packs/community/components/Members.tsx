@@ -14,14 +14,14 @@ export const meta = {
   pick: "A group's official membership register with joining or leaving dates, voting rights and dues badges. Not a small directory (People), one person's identity (Profile), business clients (ClientCard) or event guests (GuestList).",
   writeHints: [
     "Use unique snake_case member ids. Leave ended unset for continuing members; when supplied it must not precede joined. Dues badges are computed by the host.",
-    'For names, primary roles and badges only, write detail "brief" and keep the dates, roles and photo in the data. Hiding extra details does not request different row spacing: write density null unless the person expressly asks for tighter or roomier spacing.',
+    'For names, primary roles and badges only, write detail "brief" and keep the dates, roles and photo in the data.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "The secretary can keep records on one device, while member access requires a shared app.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["joined", "ended", "photo", "other_roles"] } },
   parts: ["root", "empty"],
   items: {
@@ -148,7 +148,7 @@ type Row = Omit<View["members"][number], "joined"> & {
   joined?: string | undefined;
   can_end?: boolean;
 };
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 
 // prettier-ignore
 function MemberRow({ row, density, loading }: { row: Row; density: Density; loading: boolean }) {
@@ -176,7 +176,7 @@ function MemberRow({ row, density, loading }: { row: Row; density: Density; load
 // prettier-ignore
 export function Members(input: View) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const { members } = kit.useLiveControls(meta, input) as { members: Row[] };
   const { words: { members: w } } = kit.useWords(communityWordsFor);
   const rows = <kit.KitRowGroup density={density} leadingWidth={members.some((row) => row.photo || row.joined) ? "avatar" : undefined}>

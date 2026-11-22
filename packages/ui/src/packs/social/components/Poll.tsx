@@ -13,15 +13,13 @@ export const meta = {
   pick: "A shared question with voting options and group results. Not a choice for oneself (Choice), a quiz with right answers (Quiz), or coordinating a date via availability (FindDate).",
   writeHints: [
     "voted is a zero-based index, omitted until the person votes. Write each option's vote count; total and shares are derived. closes uses YYYY-MM-DD.",
-    'Hide only the closing date with "detail":"brief","density":null,"surface":null,"emphasis":null. Keep closes in the data and keep the results. For unrequested variants output null, never a named default.',
+    'Hide only the closing date with "detail":"brief","emphasis":null. Keep closes in the data and keep the results. For unrequested variants output null, never a named default.',
   ],
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "Votes counted in a shared app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     emphasis: ["normal", "quiet"],
     detail: ["full", "brief"],
   },
@@ -136,8 +134,8 @@ export function Poll(input: PollProps) {
   const state = kit.useComponentState();
   const live = kit.useLiveControls(meta, input) as PollProps;
   const { lang, words: { poll } } = kit.useWords(socialWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const emphasis = kit.useVariant("emphasis", meta.variants.emphasis, input.emphasis);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const closes = pollDate({ ...input, detail }, lang);

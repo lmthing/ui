@@ -16,8 +16,6 @@ export const meta = {
   tier: "phone",
   realPath: "The phone computes the comparison averages and findings from stored entries.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["with", "without"] } },
@@ -26,7 +24,7 @@ export const meta = {
   states: ["filled", "empty"],
   writeHints: [
     "Use factor labels from the same screen's Factors when available. Only choose labels and minDays; never invent findings or write mood averages or bar values.",
-    'Leave density, surface and detail null unless requested. When asked for finding sentences without comparison charts, set detail to "brief".',
+    'Leave detail null unless requested. When asked for finding sentences without comparison charts, set detail to "brief".',
   ],
   deviceData: ["journal_entries"],
   previewDeviceData: ({ input, state }): c.DeviceData => ({
@@ -105,8 +103,8 @@ export function Patterns(input: c.Props<typeof props, typeof meta>) {
   const state = kit.useComponentState();
   const data = kit.useDeviceData().journal_entries ?? [];
   const { lang, words } = kit.useWords(mindWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const report = patternReport(input, state, lang, data);
   const { title, withFactor, withoutFactor } = words.patterns;

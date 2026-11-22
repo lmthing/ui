@@ -15,11 +15,11 @@ export const meta = {
   pick: "A saved work log of individual project or task time entries, billable marks, and totals. Not a single unsaved elapsed clock (Timer), staff clock-in (TimeClock), or payroll approval (Timesheet).",
   writeHints: [
     "Week is a Monday. Use ISO date-times expressed in the log's local time with its UTC offset (Z only for UTC), with end after start and no overlap. Entries must fit the selected local week. Use projectRef on each entry and when setting a current taskRef. Do not write durations, totals or running states.",
-    'For a week view, set style to "days" and day to null, even if there is only one entry. Use "single_day" only when the view is explicitly filtered to one day; supply its ISO date in day and at most six entries. To hide notes, set only detail to "brief" and retain notes in the data. Leave density null unless tighter rows are explicitly requested.',
+    "For a week view, set style to \"days\" and day to null, even if there is only one entry. Use \"single_day\" only when the view is explicitly filtered to one day; supply its ISO date in day and at most six entries. To hide notes, set only detail to \"brief\" and retain notes in the data.",
   ],
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Timestamped work entries are stored on the device; export opens the phone share sheet without submitting payroll.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["note"] } },
   parts: ["root", "week", "day", "day_total", "week_total", "timer", "timer_label", "elapsed",
     "discard", "discard_label", "add", "add_label", "export", "export_label", "empty", "status"],
@@ -133,7 +133,7 @@ type View = Input & { timerRunning?: boolean; timerSeconds?: number; weekMs?: nu
 type Row = ReturnType<typeof log.timeLogCopy<Input["entries"][number]>>["days"][number]["rows"][number];
 type Words = ReturnType<typeof projectsWordsFor>["timeLog"];
 // prettier-ignore
-function Entry({ copy, density, w, loading }: { copy: Row; density: Input["density"]; w: Words; loading: boolean }) {
+function Entry({ copy, density, w, loading }: { copy: Row; density: c.ThemeDensity; w: Words; loading: boolean }) {
   const { row, start, end, duration, billable, note } = copy, scope = kit.usePartContext();
   const remove = <kit.PartScope {...scope} item={row.id}>
     <kit.KitAction part="remove" kind="quiet" icon="trash" a11y={w.remove(row.title)} />
@@ -162,7 +162,7 @@ function Entry({ copy, density, w, loading }: { copy: Row; density: Input["densi
 export function TimeLog(seed: Input) {
   const input = kit.useLiveControls(meta, seed) as View, state = kit.useComponentState();
   const { lang, words: { timeLog: w } } = kit.useWords(projectsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const copy = log.timeLogCopy({ ...input, detail }, lang, kit.useDeviceData());
   const loading = state === "loading", empty = state === "empty" || !copy.days.some(({ rows }) => rows.length);

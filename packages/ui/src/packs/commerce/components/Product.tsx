@@ -17,14 +17,14 @@ export const meta = {
   pick: "One product for sale with a description, stock, saving or quantity and add controls. Not a price alone (Amount), several products (ProductGrid), or a timed service (ServiceMenu).",
   writeHints: [
     "Write the current price and the optional old price as numbers, with no currency. Write stock only when known. Leave qty null unless asked to start with a specific quantity.",
-    'When only asked to hide the description, keep its text and write "detail":"brief","density":null,"surface":null. Do not write "card" for the default surface.',
+    'When only asked to hide the description, keep its text and write "detail":"brief".',
     'Store name, aisle and storeStock describe the physical store; stock is for online quantity. Use cleanTags for short shopping claims. For a barcode scan use scan: {"goto":"scan_barcode"} with the requested Camera scan screen id.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Product records and saved products live on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["description"] } },
   // prettier-ignore
   parts: ["root", "name", "price", "was", "description", "stock", "badge",
@@ -184,10 +184,10 @@ function ProductBar({ input, state, density }: { input: ProductProps; state: c.S
 // prettier-ignore
 export function Product(input: ProductProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   return <>
-    <kit.KitCard part="root" padded {...{ density, surface }} {...(surface === "plain" ? { inset: "none" as const } : {})}>
+    <kit.KitCard part="root" padded {...{ density, surface }}>
       <ProductDetails {...{ input, density, state }} />
     </kit.KitCard>
     <kit.KitPinnedBottom>

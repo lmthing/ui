@@ -1,7 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 // prettier-ignore
-import { KitCard, KitContent, KitGrid, KitHeader, KitInput, KitLayoutText, KitRowGroup, KitSkeleton, KitState, useAppCurrency, useComponentState, useLiveControls, useVariant, useWords } from "../../../kit";
+import { KitCard, KitContent, KitGrid, KitHeader, KitInput, KitLayoutText, KitRowGroup, KitSkeleton, KitState, useAppCurrency, useComponentState, useLiveControls, useVariant, useWords, useKit } from "../../../kit";
 import * as unitView from "./unit-row";
 import { exclusiveLets, unitDisplay, unitReading, unitSnapshot } from "../copy";
 import { propertyWordsFor } from "../lang";
@@ -17,7 +17,7 @@ export const meta = {
   writeHints: [
     "Use snake_case references. Every let must reference a unit in this line. Active lets for one unit must not overlap; the end date is exclusive, and cancelled lets do not count.",
     'A stay requires an end date and per "night"; a tenancy uses "week" or "month". Supply askingRent and askingPer together, or omit both. Do not write occupancy or totals.',
-    'Do not copy unrequested photos, addresses or links from the example. A requested thumbnail sets only media to "thumb". Usual, regular or default spacing and surface mean null for density and surface, never explicit defaults.',
+    'Do not copy unrequested photos, addresses or links from the example. A requested thumbnail sets only media to "thumb".',
     'For a Vacancies view (vacant and notice-given units), set style to "vacancies". Otherwise set style to "register". Always write every supplied unit and let, even in the Vacancies view: the view, not the Writer, filters their visibility.',
     "For a tenancy described as on notice, write the given notice date in noticeGivenOn. Its end must be later than notice. Do not use a scheduled end alone as notice.",
   ],
@@ -27,7 +27,7 @@ export const meta = {
   tier: "phone",
   realPath:
     "Units and agreed tenancy or stay records live on the device, without a booking engine or lease editor.",
-  variants: { density: ["comfortable", "compact"], surface: ["plain", "card"], media: ["none", "thumb"] },
+  variants: { media: ["none", "thumb"] },
   variantParts: { "media.thumb": { adds: ["photo"] } },
   parts: ["root", "date", "message", "vacancies"],
   items: {
@@ -159,8 +159,8 @@ export function Units(input: UnitsProps) {
   const loading = state === "loading";
   const { words, lang } = useWords(propertyWordsFor);
   const currency = useAppCurrency();
-  const density = useVariant("density", meta.variants.density, input.density);
-  const surface = useVariant("surface", meta.variants.surface, input.surface);
+  const density = useKit().density;
+  const surface = "plain";
   const media = useVariant("media", meta.variants.media, input.media);
   const rows = units.filter(({ visible }) => visible).map((unit) => <unitView.UnitRow key={unit.id} notice={unit.notice}
     snapshot={unitSnapshot(unit, lets, on, lang, currency)} {...{ unit, media, density, loading }} />);
