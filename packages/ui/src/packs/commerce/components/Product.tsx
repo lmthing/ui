@@ -121,35 +121,32 @@ function ProductDetails({ input, density, state }: { input: ProductProps; densit
   const { price, was, stock } = productDetailCopy(input, lang);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const loading = state === "loading", description = detail === "brief" ? undefined : input.description;
-  const storeLines = productStoreLines(input, lang).filter(([, line]) => line !== undefined);
+  const [storeName, aisle, storeStock] = productStoreLines(input, lang);
   const bar = (role: kit.TextRole, text: string | undefined) => text === undefined ? null :
     <kit.KitSkeleton shape="figure" inset="none" content={[[role, text]]} {...{ density }} />;
-  const prices = loading ? <kit.KitContent {...{ density }}>
-    {bar("body", price)}{bar("label", was)}
-  </kit.KitContent> : <kit.KitContent {...{ density }}>
-    <kit.KitText part="price" role="number" numberScale="compact" tabular {...{ density }}>{price}</kit.KitText>
-    {was !== undefined && <kit.KitText part="was" role="label" tone="muted" strike tabular {...{ density }}>{was}</kit.KitText>}
-  </kit.KitContent>;
-  const badge = input.badge && (loading ? <kit.KitSkeleton shape="control" kind="quiet" label={input.badge} /> :
-    <kit.KitTrail part="badge" kind="badge" value={input.badge} tone="good" {...{ density }} />);
+  const save = loading ? <kit.KitSkeleton shape="control" inset="none" /> : state === "filled" &&
+    <kit.KitAction part="save" action="toggle" icon={saved ? "check" : "heart"}
+      kind="quiet" a11y={saved ? words.unsave : words.save} />;
   return <>
-    <kit.KitRow part={null} inline label={input.name} lineRole="heading" {...{ density }}
-      trailing={state === "filled" && <kit.KitAction part="save" action="toggle" icon={saved ? "check" : "heart"}
-        kind={saved ? "primary" : "quiet"} a11y={saved ? words.unsave : words.save} />}>
-      {loading ? bar("heading", input.name) : <kit.KitText part="name" role="heading" {...{ density }}>{input.name}</kit.KitText>}
+    <kit.KitRow inline fitContent label={input.name} part={null} lineRole="heading" trailing={save} {...{ density }}>
+      <kit.KitContent {...{ density }}>
+        {loading ? bar("heading", input.name) : <kit.KitText part="name" role="heading" {...{ density }}>{input.name}</kit.KitText>}
+        <kit.KitLayoutText line={{ text: price, part: "price", role: "figure", compact: true, tabular: true }} {...{ density }} />
+        {loading ? bar("label", was) : was !== undefined && <kit.KitText part="was" role="label" tone="muted" strike tabular {...{ density }}>{was}</kit.KitText>}
+      </kit.KitContent>
     </kit.KitRow>
-    {badge ? <kit.KitContent lead={prices} leadingAlign="row" {...{ density }}>
-      <kit.KitContent lead={badge} leadingAlign="row" {...{ density }}>{null}</kit.KitContent>
-    </kit.KitContent> : prices}
+    {input.badge && <kit.KitContent leadingAlign="row"
+      lead={<kit.KitTrail part="badge" kind="badge" value={input.badge} tone="good" {...{ density }} />}>{null}</kit.KitContent>}
     {loading ? bar("body", description) : description &&
       <kit.KitText part="description" tone="muted" {...{ density }}>{description}</kit.KitText>}
     {loading ? bar("label", stock) : stock &&
       <kit.KitText part="stock" role="label" tone={input.stock === 0 ? "bad" : "muted"} {...{ density }}>{stock}</kit.KitText>}
-    {storeLines.length > 0 && <kit.KitContent group="response" {...{ density }}>{storeLines.map(([part, line]) => {
-      const role = part === "store_stock" ? "number" : "label";
-      return loading ? <kit.KitContent key={part}>{bar(role, line)}</kit.KitContent> :
-        <kit.KitText key={part} part={part} role={role} tone="muted" numberScale="compact" {...{ density }}>{line}</kit.KitText>;
-    })}</kit.KitContent>}
+    {(storeName[1] || aisle[1]) && <kit.KitContent group="response" rhythm="flush" {...{ density }}>
+      {[storeName, aisle].map(([part, text]) => <kit.KitLayoutText key={part} line={{ text, part, role: "meta", tone: "muted" }} {...{ density }} />)}
+    </kit.KitContent>}
+    {storeStock[1] && <kit.KitContent group="response" {...{ density }}>
+      <kit.KitLayoutText line={{ text: storeStock[1], part: storeStock[0], role: "figure", compact: true, tone: "muted" }} {...{ density }} />
+    </kit.KitContent>}
     {input.cleanTags && <kit.KitTrack part="clean_tags">{input.cleanTags.map((tag, index) =>
       <kit.KitTrail key={index} part={`clean_tag_${index + 1}`} kind="badge" tone="text" value={tag} />)}</kit.KitTrack>}
     {input.scan && state === "filled" && <kit.KitAction part="scan" kind="secondary" action="press" icon="camera" label={words.scan} goto={input.scan.goto} />}

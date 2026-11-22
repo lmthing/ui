@@ -124,14 +124,14 @@ function ReceiptRow({ line, density, detail, loading }: LineProps) {
   const amount = loading
     ? <kit.KitSkeleton shape="figure" inset="none" emphasis="quiet" {...{ density }} content={[["number", extended, "end", "compact"]]} />
     : <kit.KitText role="number" numberScale="compact" emphasis="quiet" tone="muted" part="line_total" tabular {...{ density }}>{extended}</kit.KitText>;
-  return <kit.KitRow label={name} inline {...{ density }} {...(loading ? {} : { item: line.id })} trailing={amount}>
-    {loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["body", name], ["caption", summary]]} /> : <>
-      <kit.KitText part="name" {...{ density }}>{name}</kit.KitText>
+  return <kit.KitRow label={name} inline fitContent {...{ density }} {...(loading ? {} : { item: line.id })} trailing={amount}>
+    <kit.KitLayoutText line={{ text: name, part: "name", role: "body" }} {...{ density }} />
+    {loading ? <kit.KitLayoutText line={{ text: summary, role: "caption" }} {...{ density }} /> :
       <kit.KitText role="caption" tone="muted" part={null} {...{ density }}>
         <kit.KitText role="caption" tone="muted" part="qty" tabular {...{ density }}>{qty}</kit.KitText>
         {price && <>{words.receiptSeparator}<kit.KitText role="caption" tone="muted" part="price" tabular {...{ density }}>{price}</kit.KitText></>}
       </kit.KitText>
-    </>}
+    }
   </kit.KitRow>;
 }
 
@@ -155,9 +155,9 @@ export function OrderSummary(input: OrderSummaryProps) {
         </kit.KitText>
       </kit.KitContent>}
     <kit.KitContent group={density === "compact" ? "content" : "response"} {...{ density }}>
-      <kit.KitGrid arrange="rows" list={!loading}>
+      <kit.KitRowGroup spacing="groups" separators={false} {...{ density }}>
         {input.lines.map((line) => <ReceiptRow key={line.id} {...{ line, density, detail, loading }} />)}
-      </kit.KitGrid>
+      </kit.KitRowGroup>
     </kit.KitContent>
     <kit.KitContent group={density === "compact" ? "content" : "response"} {...{ density }}>
       <kit.KitGrid fitLast {...{ density }}>

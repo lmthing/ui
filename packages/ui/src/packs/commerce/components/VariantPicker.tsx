@@ -12,8 +12,9 @@ export const meta = {
   purpose: "Choose an available size, colour or other option for one product.",
   pick: "Select the variant of one product, with optional price differences and disabled unavailable options. Not choosing a plan (Choice) or filtering a product list (Chips).",
   writeHints: [
+    'For hide-price-only requests the shared fields must be {"detail":"brief","density":null,"surface":null}. Swatches and stock status never imply outlined or compact; only an explicit finish request sets a finish field.',
     "Use zero-based at pointing to an available option, or omit it if unselected. Only swatch style takes a swatch on every option.",
-    'Keep supplied price differences in extra even when hidden. If asked only to hide them, write detail "brief", density null, and surface null. Otherwise write detail null. Use null for any finish not requested, never explicit defaults like surface "card" or density "comfortable".',
+    "Keep supplied price differences in extra even when hidden. Use null for unrequested variant fields, never explicit defaults.",
     'For complexion shades set style "shade": each option has depth (fair, light, medium, deep), undertone (cool, neutral, warm), and "swatch":null. For colour swatches set style "swatch" and write "depth":null,"undertone":null on every option.',
   ],
   region: "body",
@@ -128,10 +129,9 @@ function VariantOption({ option, selected, style, detail, density }: {
   const { lang, words } = kit.useWords(commerceWordsFor);
   const { id, label, swatch, available, extra, undertone } = option;
   const price = variantExtra(extra, detail, lang);
-  const align = style === "shade" ? "start" : "center";
   return (
     <kit.PartScope {...scope} item={id}>
-      <kit.KitContent density={density}>
+      <kit.KitContent density={density} align="center">
         <kit.KitChip
           item={id}
           label={label}
@@ -142,7 +142,7 @@ function VariantOption({ option, selected, style, detail, density }: {
           {...(swatch ? { swatch, swatchPart: "swatch", dimSwatch: false } : {})}
         />
         {undertone && (
-          <kit.KitText part="undertone" role="caption" tone="muted" align={align}>
+          <kit.KitText part="undertone" role="caption" tone="muted" align="center">
             {words.shadeUndertone[undertone]}
           </kit.KitText>
         )}
@@ -152,14 +152,14 @@ function VariantOption({ option, selected, style, detail, density }: {
             role="number"
             numberScale="compact"
             density="compact"
-            align={align}
+            align="center"
             tabular
           >
             {price}
           </kit.KitText>
         )}
         {!available && (
-          <kit.KitText part="available" role="caption" tone="muted" align={align}>
+          <kit.KitText part="available" role="caption" tone="muted" align="center">
             {words.variantUnavailable}
           </kit.KitText>
         )}
@@ -176,8 +176,7 @@ export function VariantPicker(input: PickerProps) {
   const { words } = kit.useWords(commerceWordsFor), scope = kit.usePartContext();
   const optionAt = (option: PickerProps["options"][number], index: number) =>
     <VariantOption key={option.id} {...{ option, density, detail }} style={input.style} selected={input.at === index} />;
-  return <kit.KitContent align="center">
-    <kit.KitCard part="root" padded {...{ density, surface }}>
+  return <kit.KitCard part="root" padded {...{ density, surface }}>
       <kit.KitText part="label" role="heading" {...{ density }}>{input.label}</kit.KitText>
       {input.style === "shade" ? <kit.KitTrack part="options" role="radiogroup" label={input.label}><kit.KitContent {...{ density }}>
         {shadeGroups(input.options).map(({ depth, group }, index) => <kit.KitContent key={depth} group={index === 0 ? "content" : "response"} {...{ density }}>
@@ -191,6 +190,5 @@ export function VariantPicker(input: PickerProps) {
       </kit.KitContent></kit.KitTrack> : <kit.KitTrack part="options" role="radiogroup" label={input.label}>
         {input.options.map(optionAt)}
       </kit.KitTrack>}
-    </kit.KitCard>
-  </kit.KitContent>;
+  </kit.KitCard>;
 }
