@@ -145,24 +145,10 @@ export const probes = [
 type ViewProps = c.Props<typeof props, typeof meta>;
 type SheetRow = ViewProps["rows"][number] & ReturnType<typeof timesheetRow>;
 type MatrixProps = Pick<ViewProps, "rows"> & { brief: boolean; density: c.ThemeDensity };
-type CellText = Parameters<typeof kit.KitText>[0];
-
-function SheetTotalSpacing({
-  children,
-  density,
-}: {
-  children: CellText["children"];
-  density: c.ThemeDensity;
-}) {
-  return (
-    <kit.KitContent group="response" density={density}>
-      {children}
-    </kit.KitContent>
-  );
-}
 
 function SheetMatrix({ rows, brief, density }: MatrixProps) {
   type TableRow = Parameters<typeof kit.KitTable>[0]["rows"][number];
+  type CellText = Parameters<typeof kit.KitText>[0];
   const {
     words: { timesheet: wording },
     lang,
@@ -174,24 +160,18 @@ function SheetMatrix({ rows, brief, density }: MatrixProps) {
   const label = (children: string) => text({ children, part: null, tone: "muted", role: "label" });
   const value = (children: string, part: string | null, tone: CellText["tone"] = "text") =>
     text({ children, part, tone, align: "end", role: "number", numberScale: "compact", tabular: true });
+  // prettier-ignore
+  const separated = (children: CellText["children"]) =>
+    <kit.KitContent group="response" density={density}>{children}</kit.KitContent>;
   const line = (id: string, title: string, draw: (row: SheetRow) => CellText["children"]): TableRow => ({
     id,
     label: title,
-    heading:
-      id === "total" && !brief ? (
-        <SheetTotalSpacing density={density}>{label(title)}</SheetTotalSpacing>
-      ) : (
-        label(title)
-      ),
+    heading: id === "total" && !brief ? separated(label(title)) : label(title),
     cells: people.map((row) => ({
       id: row.id,
       content: (
         <kit.PartContext.Provider value={{ ...context, item: row.id }}>
-          {id === "total" && !brief ? (
-            <SheetTotalSpacing density={density}>{draw(row)}</SheetTotalSpacing>
-          ) : (
-            draw(row)
-          )}
+          {id === "total" && !brief ? separated(draw(row)) : draw(row)}
         </kit.PartContext.Provider>
       ),
     })),
