@@ -12,10 +12,18 @@ import {
 } from "@lmthing/ui/catalog";
 import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
 import { config, drawPreviewEnvironment, previewComponent } from "../index";
-import { createPreviewController } from "./draw";
+import { createPreviewController, SignaturePreview } from "./draw";
 import { galleryParts } from "./parts";
 import { resolvePhoto } from "./photos";
 import { cellKey, cellLabel, cellsOf, DraftPreview, screenPresets, type Cell } from "./overview";
+
+function screenCells(id: ComponentName): Cell[] {
+  const cells = cellsOf(id);
+  if (id !== "Documents") return cells;
+  // Keep the folder skeleton beside its filled example for visual review only.
+  const folders = cells[components.Documents.examples.findIndex(({ style }) => style === "folders")];
+  return folders ? [...cells, { ...folders, state: "loading" }] : cells;
+}
 
 function Screen({
   id,
@@ -37,6 +45,7 @@ function Screen({
   const screen = `${id.toLowerCase()}_${preset}_${mode}_${cellKey(cell)}`;
   const controller = View ? createPreviewController(def, input, screen, cell) : undefined;
   if (cell.drawn && !controller) return null;
+  const view = View ? <View {...props} /> : <DraftPreview id={id} />;
   return (
     <YStack gap={space.xs}>
       <Text fontSize={12} data-look-label>{`${preset} · ${cellLabel(cell)}`}</Text>
@@ -55,7 +64,11 @@ function Screen({
           data-look-frame={screen}
         >
           <PartScope screen={screen} component={previewComponent} rev={1} state={cell.state}>
-            {View ? <View {...props} /> : <DraftPreview id={id} />}
+            {id === "Signature" && cell.state === "filled" ? (
+              <SignaturePreview style={input.style}>{view}</SignaturePreview>
+            ) : (
+              view
+            )}
           </PartScope>
         </YStack>
       </KitProvider>
@@ -74,6 +87,7 @@ export function Screens({
   mode: "light" | "dark";
   presetIds: readonly string[];
 }) {
+  const cells = screenCells(id);
   return (
     <TamaguiProvider config={config} defaultTheme={`kit_calm_${mode}_moss`}>
       <XStack
@@ -85,7 +99,7 @@ export function Screens({
       >
         {screenPresets(presetIds).map((preset) => (
           <YStack key={preset.id} gap={space.lg}>
-            {cellsOf(id).map((cell) => (
+            {cells.map((cell) => (
               <Screen key={cellKey(cell)} id={id} cell={cell} preset={preset.id} mode={mode} width={width} />
             ))}
           </YStack>
