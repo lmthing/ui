@@ -4,7 +4,7 @@ Manage counted hiring lanes and move active applicants between stages for one op
 
 ## Pick
 
-A hiring board: each stage has its own lane and count, with active applicants movable between lanes. Not one vertical list of names, static status badges and profile links (List), a generic board (Board), or the seeker's tracker (Applications).
+Choose only for managing applicants across separate hiring-stage lanes, with per-stage counts or moves between lanes. Not a flat set of tappable applicant rows (List), even with a status badge on each row; not a generic board (Board) or the job seeker's tracker (Applications).
 
 ## Writer
 

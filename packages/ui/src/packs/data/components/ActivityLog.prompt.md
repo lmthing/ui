@@ -8,4 +8,5 @@ Audit changes by several people with actor portraits, times and links to changed
 
 ## Writer
 
-- Write the actor in who and the change in text, without repeating the actor in text. Keep the supplied timestamp and record link. Use lead "none" only when explicitly asked to hide portraits; still write photo for every entry.
+- If the rows should show no portraits, explicitly write `"lead":"none"` at the top level. Keep each entry's photo reference; leaving lead null shows the portraits.
+- Write the actor in who and the change in text, without repeating the actor in text. Keep the supplied timestamp and record link.

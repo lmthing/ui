@@ -4,7 +4,7 @@ Read, save or open an application for one job opening.
 
 ## Pick
 
-The full terms and application window of one job opening: work arrangement, pay, requirements and deadline. Not a photo-and-teaser preview linking to the terms elsewhere (Card), a list of openings (List), an available shift (OpenShift), or goods for sale (Product).
+Choose for the actual role detail or application screen, where the work terms, requirements or application controls appear. Not a tappable preview that shows only a photo, title and teaser and opens the details elsewhere (Card); not multiple openings (List), an available shift (OpenShift) or goods for sale (Product).
 
 ## Writer
 
