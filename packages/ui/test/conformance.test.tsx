@@ -23,6 +23,7 @@ import { addressedElements, config, exampleDeviceData, renderExample } from "./r
 import { selectedIds } from "../scripts/build";
 import { conformanceThemes, modes } from "./themes";
 import {
+  decode,
   derivedItemIds,
   derivedItemIssues,
   peekForExample,
@@ -44,6 +45,7 @@ function stampExampleItems(meta: Meta, props: Record<string, unknown>) {
 }
 
 function expectEmptyCopy(meta: Meta, input: Record<string, unknown>, html: string, data?: DeviceData) {
+  if (meta.id === "CannedReplies") return expect(visibleTexts(html)).toContain("No saved replies yet");
   if (meta.id === "TravelDocs") return expect(visibleTexts(html)).toContain("No travel documents yet");
   if (meta.id === "Transcript") return expect(visibleTexts(html)).toContain("No transcript available");
   // Explicit empty screen reads only the state header; use the declared copy hook here.
@@ -52,7 +54,12 @@ function expectEmptyCopy(meta: Meta, input: Record<string, unknown>, html: strin
       ? meta.read?.(input, "empty", undefined, data)
       : undefined;
   if (!lines?.length) return expect(html).toContain(emptyLine(meta.deviceDataVisible ? undefined : "walk"));
-  const visible = visibleTexts(html).join(" ");
+  const placeholders = [...addressedElements(html).values()].flatMap(({ tag, text, attributes }) => {
+    if (tag !== "textarea" || text.length > 0 || attributes.includes('aria-hidden="true"')) return [];
+    const placeholder = attributes.match(/\bplaceholder="([^"]+)"/)?.[1];
+    return placeholder ? [decode(placeholder)] : [];
+  });
+  const visible = [...visibleTexts(html), ...placeholders].join(" ");
   for (const line of lines) expect(visible).toContain(line);
 }
 
