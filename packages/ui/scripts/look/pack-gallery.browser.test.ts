@@ -1,7 +1,8 @@
 import { existsSync, readdirSync } from "node:fs";
-import { URL } from "node:url";
+import { mkdir, mkdtemp, rm } from "node:fs/promises";
+import { fileURLToPath, URL } from "node:url";
 import { afterAll, beforeAll, expect, it } from "vitest";
-import { createServer, type ViteDevServer } from "vite";
+import { build, preview, type PreviewServer } from "vite";
 import type { Browser, Page } from "playwright-core";
 import { components, packOf, presets, type Definition } from "@lmthing/ui/catalog";
 import { galleryConfig, launchChrome } from "./index";
@@ -9,16 +10,32 @@ import { galleryConfig, launchChrome } from "./index";
 const folder = new URL("../../src/packs/", import.meta.url);
 const packs = readdirSync(folder).filter((name) => existsSync(new URL(`${name}/pack.ts`, folder)));
 const defs: Record<string, Definition> = components;
-let server: ViteDevServer, browser: Browser;
+let server: PreviewServer, browser: Browser, outDir: string | undefined;
 
 beforeAll(async () => {
-  server = await createServer(galleryConfig(0));
-  await server.listen();
+  // Repeated document navigations must not refetch the whole unbundled development module graph.
+  const shots = new URL("../../shots/", import.meta.url);
+  await mkdir(shots, { recursive: true });
+  outDir = await mkdtemp(fileURLToPath(new URL("pack-gallery-", shots)));
+  const options = {
+    ...galleryConfig(0),
+    build: { outDir },
+    preview: { host: "127.0.0.1", port: 0 },
+  };
+  await build(options);
+  server = await preview(options);
   browser = await launchChrome();
 }, 60000);
 afterAll(async () => {
-  await browser?.close();
-  await server?.close();
+  try {
+    await browser?.close();
+  } finally {
+    try {
+      await server?.close();
+    } finally {
+      if (outDir) await rm(outDir, { recursive: true, force: true });
+    }
+  }
 });
 
 async function overview(page: Page, pack: string, ids: string[]) {
