@@ -145,7 +145,7 @@ type Words = ReturnType<typeof projectsWordsFor>["timeLog"];
 function Entry({ copy, density, w, loading }: { copy: Row; density: Input["density"]; w: Words; loading: boolean }) {
   const { row, start, end, duration, billable, note } = copy, scope = kit.usePartContext();
   const remove = <kit.PartScope {...scope} item={row.id}>
-    <kit.KitAction part="remove" kind="quiet" icon="trash" a11y={w.remove(row.title)} />
+    <kit.KitAction part="remove" kind="danger" icon="trash" a11y={w.remove(row.title)} />
   </kit.PartScope>;
   return <kit.KitRow part={null} label={row.title} density={density} inset="none" trailing={remove}>
     <kit.KitRow {...(loading ? { part: null } : { item: row.id, goto: row.goto })} label={row.title} density={density} inline>
@@ -209,7 +209,7 @@ function LogFooter({ input, copy, w, density, empty }: { input: View; copy: { ti
   const footer = <>
     {(input.projectRef || copy.timer) && <kit.KitAction part="timer" action={copy.timer ? "stop" : "start"}
       label={copy.timer ? w.stop : w.start} kind={empty || copy.timer ? "primary" : "secondary"} full />}
-    {copy.timer && <kit.KitAction part="discard" kind="quiet" label={w.discard} full />}
+    {copy.timer && <kit.KitAction part="discard" kind="danger" label={w.discard} full />}
     {(input.addGoto || exportable) && <kit.KitGrid density={density} arrange={input.addGoto && exportable ? "grid" : "rows"}>
       {input.addGoto && <kit.KitAction part="add" goto={input.addGoto} label={w.add} kind={empty ? "secondary" : "quiet"} full />}
       {exportable && <kit.KitAction part="export" label={w.export} kind="quiet" full />}

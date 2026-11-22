@@ -116,7 +116,7 @@ export function bindTasks(choicesFor: (instance: string) => readonly string[]): 
 export const props = z
   .strictObject({
     ...c.variantProps(meta.variants), items: z.array(task).min(1).max(6),
-    style: z.enum(["rows", "today"]).default("rows"),
+    style: z.enum(["today"]).optional(),
   })
   .refine(({ items }) => validTasks(items), {
     path: ["items"],
@@ -191,14 +191,15 @@ export const probes = [
 type View = c.Props<typeof props, typeof meta>;
 type ViewRow = View["items"][number] & ReturnType<typeof projectTasks>[number];
 // prettier-ignore
-function TaskRow({ row, density, lang, indent, loading, choices }: {
-  row: ViewRow; density: View["density"]; lang: string; indent: boolean; loading: boolean; choices: readonly string[];
+function TaskRow({ row, density, lang, indent, loading, choices, framed }: {
+  row: ViewRow; density: View["density"]; lang: string; indent: boolean; loading: boolean; choices: readonly string[]; framed?: boolean;
 }) {
   const words = projectsWordsFor(lang).tasks, { state, due, overdue, priority, blockers, repeat, tags } = taskCopy(row, lang);
   const controls = loading ? row.done !== undefined && <kit.KitSkeleton lead="box" inset="none" items={[{}]} density={density} /> :
     (row.done !== undefined || row.checked) && <kit.KitCheck part="done" readonly={row.done === undefined} done={!!row.checked} label={words.done(row.title)} />;
   const captions = [due, [state, row.assignee, priority].filter(Boolean).join(words.separator), blockers];
-  return <kit.KitRow item={row.id} part={null} label={row.title} trailing={controls} lineRole={due || blockers ? "body" : "heading"} density={density} indent={indent ? 1 : 0}>
+  return <kit.KitRow item={row.id} part={null} label={row.title} trailing={controls} lineRole={due || blockers ? "body" : "heading"}
+    density={density} indent={indent ? 1 : 0} {...(framed ? { inset: "none" as const } : {})}>
     {loading ? [row.title, ...captions].map((text, index) => text &&
       <kit.KitSkeleton key={index} shape="figure" inset="none" density={density} content={[[index ? "caption" : "body", text]]} />) :
     <kit.KitRow part="root" label={row.title} goto={row.goto} inline density={density}><kit.KitText part="title" role="body">{row.title}</kit.KitText>
@@ -229,11 +230,11 @@ export function Tasks(input: View) {
   const rows = c.visibleItems<ViewRow>(meta, { ...live, items: shown });
   const groups = group === "sections" ? taskGroups(rows) : [{ project: undefined, tasks: rows }];
   const content = <kit.KitContent>{groups.map(({ project, tasks }) => <kit.KitContent key={project ?? tasks[0]?.id} group={project ? "response" : "content"}>
-        {project && <kit.KitContent inset="md">
+        {project && <kit.KitContent {...(today ? {} : { inset: "md" as const })}>
           {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.project(project)]]} /> :
             <kit.KitText role="label" tone="muted" item={tasks[0]?.id} part="project">{words.project(project)}</kit.KitText>}
         </kit.KitContent>}{today ? <kit.KitRowGroup density={density}>
-          {tasks.map((row) => <TaskRow key={row.id} {...{ row, lang, loading, density }}
+          {tasks.map((row) => <TaskRow key={row.id} {...{ row, lang, loading, density }} framed
             indent={Boolean(project && row.parentRef)} choices={assigneeChoices} />)}
         </kit.KitRowGroup> : <kit.KitGrid arrange="rows" list density={density}>
           {tasks.map((row, index) => <kit.KitContent key={row.id} group={!row.parentRef && project && tasks[index - 1]?.parentRef ? "response" : "content"}><TaskRow {...{ row, lang, loading }}

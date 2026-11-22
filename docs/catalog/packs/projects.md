@@ -41,16 +41,17 @@ each task. Checking a task updates the project record; a blocked task cannot be 
   optional, `due` date optional, `priority` (`normal` default, `low`, `high`), `state` (`todo`, `doing`,
   `done`) optional, `parentRef` text(32) optional, `after` task refs text(32) each 0–3, `goto` optional,
   `repeat` (`never`, `daily`, `weekly`, `monthly`) optional, `tags` text(20) each 0–2 optional, 1–6;
-  `style`. Parent tasks omit `state`: code derives it from their children. Overdue and blockers are computed.
-- Styles: `rows` (default), `today` (only tasks due on the device's local date; hidden tasks still count
+  `style` optional. Parent tasks omit `state`: code derives it from their children. Overdue and blockers are computed.
+- Styles: omit for ordinary rows; `today` (only tasks due on the device's local date; hidden tasks still count
   toward dependencies). Shared axes: density: `comfortable`, `compact`; group: `none`, `sections`
   (by project, with subtasks indented).
+  The `today` empty view says no tasks are due today.
 - Parts → actions: items `root press` (linked), items `done check` (unblocked leaf tasks only), items
   `assign select` (an available assignee; local assignment by the person).
 - Read-only parts: `empty`, `today`, `status`; items `title`, `project`, `assignee`, `due`, `priority`,
   `state`, `blockers`, `repeat`, `tags`. No cadence marker for omitted or `never` repeat, and no tag part
   for an omitted or empty array. Repeat describes a stored cadence; checking does not create a new task.
-- States: filled, empty (no tasks due today in `today`), loading, success (all shown tasks done).
+- States: filled, empty, loading, success (all shown tasks done).
 - Real path: tasks and dependency links saved on the device; assigning work on another person's device
   needs a shared app, not merely an assignee name.
 
@@ -96,6 +97,7 @@ marks and computed day and week totals. Start and stop append one timed entry; a
 - Styles: `days` (default), `single_day` (one selected day's entries, at most 6, with the same timer),
   `summary` (weekly elapsed time per project split into billable and non-billable, without entry rows).
   Shared axes: density: `comfortable`, `compact`; detail: `full`, `brief` (hide entry notes).
+  The `summary` empty view says no time was logged this week.
 - Parts → actions: `timer start`, `timer stop`, `discard press` (while running), `add press` (to `addGoto`),
   `export press`, entries `root press` (linked), entries `remove press`. Entry actions are not offered in
   `summary`. · Metadata: `meta.dense: true`, weight 3;
@@ -103,7 +105,7 @@ marks and computed day and week totals. Start and stop append one timed entry; a
 - Read-only parts: `week`, `day`, `day_total`, `week_total`, `timer_label`, `elapsed`, `discard_label`,
   `add_label`, `export_label`, `empty`, `status`, `summary`; entries `title`, `start`, `end`, `duration`,
   `billable`, `note`, `remove_icon`.
-- States: filled, empty (no time logged this week in `summary`), loading, success (entry saved).
+- States: filled, empty, loading, success (entry saved).
 - Real path: timestamped work entries stored on the device; export shares a file through the phone's
   share sheet, never submits a payroll approval.
 
