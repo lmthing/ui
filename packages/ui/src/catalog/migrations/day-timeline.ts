@@ -83,7 +83,8 @@ function migrateLegacyLine<T extends Record<string, unknown>>(
   }
   if (
     variantOnly ||
-    legacyTarget(String(line.c)) !== "Timeline" ||
+    (line.c !== "Timeline" && legacyTarget(String(line.c)) !== "Timeline") ||
+    (line.c === "Timeline" && Object.hasOwn(line, "items")) ||
     !Array.isArray(line.blocks) ||
     !line.blocks.every(isBlock)
   )
