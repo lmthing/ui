@@ -1,5 +1,5 @@
 import { expect, it, vi } from "vitest";
-import { components, type ScreenLike } from "@lmthing/ui/catalog";
+import { clipKey, components, readScreen, type ScreenLike } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 
 const cards = [
@@ -51,4 +51,18 @@ it.each([
   } finally {
     controller.dispose();
   }
+});
+
+it("does not read an old failure after replacing the clip with a silent prompt at the same address", () => {
+  const screen = {
+    id: "home",
+    components: [
+      { id: "cards", c: "Flashcard", cards: [cards[1]!, cards[2]!] },
+      { id: "quiz", c: "Quiz", questions: [questions[1]!, questions[2]!] },
+    ],
+  };
+  const values = Object.fromEntries(
+    ["cards", "quiz"].map((id) => [`home/${id}/${clipKey("audio")}`, "error"]),
+  );
+  expect(readScreen(screen, components, values)).not.toContain("Audio unavailable");
 });

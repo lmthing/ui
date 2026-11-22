@@ -37,7 +37,9 @@ export const readFlashcard: NonNullable<Meta["read"]> = (input, state, lang, _da
   return [
     cardsLeft(current.recall.remaining, lang),
     ...(style === "binary" && current.revealed ? [flashcard.stillLearning, flashcard.know] : []),
-    ...(control?.(clipKey(roundAudioPart(current.index))) === "error" && !current.revealed
+    ...(!current.revealed &&
+    current.item.audio &&
+    control?.(clipKey(roundAudioPart(current.index))) === "error"
       ? [promptAudio.unavailable]
       : []),
   ];

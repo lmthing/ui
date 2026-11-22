@@ -76,7 +76,9 @@ export const readQuiz: NonNullable<Meta["read"]> = (input, _state, lang, _data, 
   if (round.revealed) return [progress, ...(round.complete ? [] : [quiz.next])];
   const intro = [
     progress,
-    ...(control?.(clipKey(roundAudioPart(round.index))) === "error" ? [promptAudio.unavailable] : []),
+    ...(item.media && control?.(clipKey(roundAudioPart(round.index))) === "error"
+      ? [promptAudio.unavailable]
+      : []),
   ];
   if (item.kind === "type") return [...intro, quiz.type, quiz.check];
   if (item.kind === "order") {
