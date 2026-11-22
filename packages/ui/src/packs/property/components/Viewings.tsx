@@ -118,17 +118,16 @@ function RecordAction({ part, label, goto, loading }: {
 }
 
 // prettier-ignore
-function ViewingControls({ row, density, loading = false }: RowProps & { loading?: boolean }) {
+function ViewingControls({ row, density, loading, selected }: RowProps & { loading: boolean; selected: Viewing["status"] }) {
   const { words: { viewings: words } } = kit.useWords(propertyWordsFor);
-  const { screen, component } = kit.usePartContext();
-  const value = kit.useControlValue<unknown>(`${screen}/${component}/${row.id}/outcome`, row.status);
-  const selected = value === "attended" || value === "no_show" ? value : row.status;
+  const recorded = selected === "attended" || selected === "no_show";
+  const outcomeLabel = recorded ? words.editOutcome : words.outcome;
   const { confirm, invite, edit, cancel } = viewingActions(row);
   return (invite || cancel || row.canRecord) ? <kit.KitContent group="response" density={density}>
     {row.canRecord && (loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.outcome]]} /> : <>
-      <kit.KitText role="label" tone="muted" part={null} {...{ density }}>{words.outcome}</kit.KitText>
-      <kit.KitTrack part="outcome" role="radiogroup" label={words.outcome}>
-        {outcomes.map((value) => <kit.KitChip key={value} item={null} role="radio" value={value} on={selected === value} label={words.statuses[value]} />)}
+      {!recorded && <kit.KitText role="label" tone="muted" part={null} {...{ density }}>{words.outcome}</kit.KitText>}
+      <kit.KitTrack part="outcome" role="radiogroup" label={outcomeLabel} look="segments">
+        {outcomes.map((value) => <kit.KitChip key={value} item={null} role="radio" look="segment" value={value} on={selected === value} label={words.statuses[value]} />)}
       </kit.KitTrack>
     </>)}
     {(invite || cancel) && <kit.KitTrack part="actions">
@@ -156,14 +155,17 @@ function ViewingDetails({ row, density, state, lang, words }: RowProps & {
   state: c.StateName; lang: string; words: ReturnType<typeof propertyWordsFor>["viewings"];
 }) {
   const { startLabel, endLabel } = viewingTimes(row.start, row.minutes, lang);
-  const badge = <kit.KitTrail kind="badge" part="status" value={words.statuses[row.status]} tone={statusTone[row.status]} {...{ density }} />;
+  const { screen, component } = kit.usePartContext();
+  const value = kit.useControlValue<unknown>(`${screen}/${component}/${row.id}/outcome`, row.status);
+  const selected = row.canRecord && (value === "attended" || value === "no_show") ? value : row.status;
+  const badge = <kit.KitTrail kind="badge" part="status" value={words.statuses[selected]} tone={statusTone[selected]} {...{ density }} />;
   const loading = state === "loading";
   return <>
     <kit.KitGrid fitLast {...{ density }}>
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["title", row.unit], ["body", row.prospect]]} /> :
+      {loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["body", row.unit], ["caption", row.prospect]]} /> :
       <kit.KitContent {...{ density }}>
-        <kit.KitText part="unit" role="title" {...{ density }}>{row.unit}</kit.KitText>
-        <kit.KitText part="prospect" role="body" tone="muted" {...{ density }}>{row.prospect}</kit.KitText>
+        <kit.KitText part="unit" role="body" emphasis="strong" {...{ density }}>{row.unit}</kit.KitText>
+        <kit.KitText part="prospect" role="caption" tone="muted" {...{ density }}>{row.prospect}</kit.KitText>
       </kit.KitContent>}
       {badge}
     </kit.KitGrid>
@@ -174,7 +176,7 @@ function ViewingDetails({ row, density, state, lang, words }: RowProps & {
       {row.active && !row.upcoming && <kit.KitText part="past" role="label" tone="muted" {...{ density }}>{words.past}</kit.KitText>}
       {row.note && <kit.KitText part="note" role="body" tone="muted" {...{ density }}>{row.note}</kit.KitText>}
     </kit.KitContent>}
-    {(state === "filled" || loading) && <ViewingControls {...{ row, density, loading }} />}
+    {(state === "filled" || loading) && <ViewingControls {...{ row, density, loading, selected }} />}
   </>;
 }
 

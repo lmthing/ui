@@ -139,7 +139,11 @@ function InspectionReport({ input, density, state, lang }: { input: InspectionPr
     <kit.KitContent {...{ density }}>
       <kit.KitHeader title={{ text: input.unit, part: "unit" }}
         meta={[{ text: kind, part: "kind" }, { text: date, part: "date" }]} {...{ density }} />
-      <kit.KitLayoutText line={{ text: completion, part: "completion", role: "body", strong: true, tabular: true }} {...{ density }} />
+      {loading ? <kit.KitLayoutText line={{ text: `${completion.count} ${completion.label}` }} {...{ density }} /> :
+        <kit.KitText part="completion" role="label" tone="muted" {...{ density }}>
+          <kit.KitText part={null} role="number" numberScale="compact" tabular {...{ density }}>{completion.count}</kit.KitText>
+          {" "}{completion.label}
+        </kit.KitText>}
       <kit.KitLayoutText line={{ text: signed, part: "signed", role: "meta", tone: "good" }} {...{ density }} />
       <kit.KitLayoutText line={{ text: previous, part: "previous", role: "meta", tone: "muted" }} {...{ density }} />
     </kit.KitContent>

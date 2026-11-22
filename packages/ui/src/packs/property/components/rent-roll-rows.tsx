@@ -11,21 +11,18 @@ export function Datum({ part, role, text, density, strike, tone }: {
   strike?: boolean; tone?: kit.TextTone;
 }) {
   return kit.useComponentState() === "loading" ?
-    <kit.KitSkeleton shape="figure" inset="none" content={[[role, text, "start", "compact"]]} {...{ density }} /> :
-    <kit.KitText {...{ part, role, density }} tone={tone ?? "text"} strike={Boolean(strike)} numberScale="compact" tabular={role === "number"}>{text}</kit.KitText>;
+    <kit.KitSkeleton shape="figure" inset="none" content={[[role, text, role === "number" ? "end" : "start", "compact"]]} {...{ density }} /> :
+    <kit.KitText {...{ part, role, density }} tone={tone ?? "text"} strike={Boolean(strike)} numberScale="compact"
+      align={role === "number" ? "end" : "start"} tabular={role === "number"}>{text}</kit.KitText>;
 }
 // prettier-ignore
-export function Metric({ part, label, value, density, focal = false, alignEnd }: {
-  part: string; label: string; value: string; density: c.ThemeDensity; focal?: boolean; alignEnd?: boolean;
+export function Metric({ part, label, value, density, focal = false }: {
+  part: string; label: string; value: string; density: c.ThemeDensity; focal?: boolean;
 }) {
   const tone = focal ? "accent" : "text";
-  if (alignEnd) return <kit.KitContent {...{ density }}>
-    <kit.KitLayoutText line={{ text: label, role: "caption", tone: "muted" }} {...{ density }} />
-    <kit.KitFigure value={{ text: value, part, compact: true, tone }} align="end" {...{ density }} />
-  </kit.KitContent>;
-  return <kit.KitContent {...{ density }}>
-    <Datum part={null} role="caption" tone="muted" text={label} {...{ density }} />
-    <Datum {...{ part, density, tone }} role="number" text={value} />
+  return <kit.KitContent rhythm="flush" {...{ density }}>
+    <kit.KitLayoutText line={{ text: label, role: "caption", tone: "muted" }} align="end" {...{ density }} />
+    <kit.KitLayoutText line={{ text: value, part, role: "figure", compact: true, tabular: true, tone }} align="end" {...{ density }} />
   </kit.KitContent>;
 }
 

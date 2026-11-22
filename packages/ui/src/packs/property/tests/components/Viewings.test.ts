@@ -102,6 +102,18 @@ describe("Viewings fallback", () => {
 });
 
 describe("Viewings parts and states", () => {
+  it("asks to record a pending outcome and offers to change an already recorded one", () => {
+    const pending = render({ viewings: [expired] });
+    expect(pending).toContain(`>${words.outcome}<`);
+    const recorded = render({ viewings: [{ ...expired, status: "no_show" }] });
+    expect(recorded).not.toContain(`>${words.outcome}<`);
+    expect(addressedElements(recorded).get("home/v1/r1/outcome")?.attributes).toContain(
+      `aria-label="${words.editOutcome}"`,
+    );
+    expect(recorded).toMatch(
+      /aria-checked="true"[^>]*aria-label="No-show"|aria-label="No-show"[^>]*aria-checked="true"/,
+    );
+  });
   it("shows the same addressed parts under finish variants and hides notes under brief", () => {
     const input = { viewings: [confirmed], detail: "full" };
     const full = [...addressedElements(render(input)).keys()];
