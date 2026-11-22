@@ -168,11 +168,12 @@ function TextRun(props: TextProps) {
   const state = usePartContext().state;
   const loading = useRunLoading(props);
   const nested = loading && Children.toArray(children).some(isValidElement);
-  const linked = Boolean(goto && part !== null && state !== "empty" && !loading && children);
+  const linkSlot = Boolean(goto && part !== null && state !== "empty" && children);
+  const linked = linkSlot && !loading;
   const target = useTextLink(part, linked ? goto : undefined, !loading);
   const { step, numberStep, weight } = useRunTypography(role, props, style.strong);
   const content = role === "number" && typeof children === "string" ? countText(children, count) : children;
-  const webLink = linked && isWeb;
+  const webLink = linkSlot && isWeb;
   const text = (
     <Frame
       {...(!webLink ? target : {})}
@@ -205,7 +206,7 @@ function TextRun(props: TextProps) {
     </Frame>
   );
   return webLink ? (
-    <Text {...target} style={webLinkSlot as never}>
+    <Text {...target} aria-hidden={loading || undefined} style={webLinkSlot as never}>
       {text}
     </Text>
   ) : (

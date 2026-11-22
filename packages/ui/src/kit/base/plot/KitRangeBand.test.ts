@@ -103,6 +103,15 @@ describe("KitRangeBand caller-owned reading", () => {
     expect(render({ ...input, reading, value: NaN, label: "No reading yet" })).toContain("No reading yet");
     expect(render({ ...input, reading, value: NaN })).not.toContain("118 / 76");
   });
+  it("omits an explicitly null reading in filled and loading states", () => {
+    for (const loading of [false, true]) {
+      const html = render({ ...input, part: "band", reading: null, loading });
+      const [track, ...rest] = elementAt(html, "home/c1/band").children;
+      expect(rest).toEqual([]);
+      expect(track?.attributes).toContain('aria-hidden="true"');
+      expect(html).not.toContain(">Reading<");
+    }
+  });
 });
 
 const zonesInput = {

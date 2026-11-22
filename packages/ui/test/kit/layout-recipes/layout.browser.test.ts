@@ -150,6 +150,22 @@ it("reserves separate touch slots for inline links without changing their order 
   expect(await second.count()).toBe(0);
 });
 
+it("reserves the filled Article paragraph geometry without links during loading", async () => {
+  const article = (index: number) => page.getByTestId(`fixture/article_${index}/root`);
+  const articles = [article(0), article(1)];
+  const sizes = await Promise.all(articles.map(box));
+  for (const card of articles) {
+    expect(await card.getByRole("link").count()).toBe(1);
+    expect(await card.locator('[data-testid$="/r1/root"]').count()).toBe(1);
+  }
+  await state("loading");
+  for (const [index, card] of articles.entries()) {
+    expect(await card.getByRole("link").count()).toBe(0);
+    expect(await card.locator('[data-testid$="/r1/root"]').count()).toBe(0);
+    expect((await box(card)).height).toBeCloseTo(sizes[index]!.height, 0);
+  }
+});
+
 it("rests on whole lane pages and reaches the last lane by keyboard", async () => {
   const lanes = page.getByTestId("fixture/columns/lanes");
   const rail = lanes.getByRole("region");
@@ -163,6 +179,10 @@ it("rests on whole lane pages and reaches the last lane by keyboard", async () =
   await expect.poll(async () => (await box(lane(2))).x).toBeCloseTo(view.x);
   await rail.press("Home");
   await expect.poll(async () => (await box(lane(0))).x).toBeCloseTo(view.x);
+  await expect.poll(() => rail.evaluate((node) => getComputedStyle(node).scrollbarWidth)).not.toBe("none");
+  await rail.hover();
+  await page.mouse.wheel(view.width * 2, 0);
+  await expect.poll(async () => (await box(lane(2))).x).toBeCloseTo(view.x);
   await state("loading");
   expect(await lane(0).count()).toBe(0);
   expect(await rail.getAttribute("tabindex")).toBe("-1");

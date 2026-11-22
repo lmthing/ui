@@ -146,9 +146,9 @@ export function KitRangeBand({
                 <PlotLabel label={props.label} tone="muted" loading={loading} />
               </YStack>
             </XStack>
-          ) : (
+          ) : reading !== null ? (
             <BandReading reading={reading} loading={loading} />
-          )}
+          ) : null}
           <RangeDrawing {...props} tone={tone} loading={loading} />
         </>
       )}

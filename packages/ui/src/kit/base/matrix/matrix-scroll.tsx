@@ -68,7 +68,6 @@ export function MatrixScroll({
       contentContainerStyle={{ minWidth: "100%" }}
       {...(pages && {
         pagingEnabled: true,
-        showsHorizontalScrollIndicator: false,
         ...(isWeb ? { style: { scrollSnapType: "x mandatory" } as never } : {}),
         scrollEventThrottle: 32,
         onScroll: (event: { nativeEvent: { contentOffset: { x: number } } }) => {

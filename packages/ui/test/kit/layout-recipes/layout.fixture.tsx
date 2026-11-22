@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { TamaguiProvider } from "tamagui";
-import { themeName, type StateName } from "@lmthing/ui/catalog";
+import { stampItemIds, themeName, type StateName } from "@lmthing/ui/catalog";
 import {
   KitAction,
   KitActionFooter,
@@ -30,6 +30,7 @@ import {
   PartScope,
 } from "@lmthing/ui/kit";
 import { config } from "../../render";
+import { Article, meta as articleMeta, props as articleProps } from "../../../src/components/Article";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const sample = [
@@ -139,6 +140,19 @@ function Links({ state }: { state: StateName }) {
       </KitCard>
     </PartScope>
   );
+}
+
+function Articles({ state }: { state: StateName }) {
+  const short = "See [it](screen:first) next.";
+  const long = `Open [${"LongUnbrokenLabel".repeat(6)}](screen:long) for the next step.`;
+  return [short, long].map((body, index) => {
+    const props = stampItemIds(articleMeta, articleProps.parse({ title: "Reading", body, detail: "brief" }));
+    return (
+      <PartScope key={index} screen="fixture" component={`article_${index}`} state={state} rev={1}>
+        <Article {...(props as Parameters<typeof Article>[0])} />
+      </PartScope>
+    );
+  });
 }
 
 function Columns({ state }: { state: StateName }) {
@@ -258,6 +272,7 @@ function Fixture() {
           </KitCard>
         </PartScope>
         <Links state={state} />
+        <Articles state={state} />
         <output data-testid="pressed">{pressed}</output>
         <Columns state={state} />
         <Controls state={state} />

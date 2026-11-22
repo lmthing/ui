@@ -94,9 +94,10 @@ it("draws a reduced-motion level immediately, a paused clock, and unavailable an
   expect(paused).toContain("1:05");
   expect(elementAt(unavailable, "test/mic/record").attributes).toContain('aria-disabled="true"');
   expect(unavailable).toContain("Recording unavailable");
-  expect(unavailable).not.toContain("1:05");
-  expect(elementAt(unavailable, "test/mic/root").children[0]!.children).toHaveLength(2);
-  expect(elementAt(unavailable, "test/mic/root").children[0]!.children[1]!.children).toHaveLength(0);
+  expect(unavailable).toContain("1:05");
+  const offlineReading = elementAt(unavailable, "test/mic/root").children[0]!.children[1]!;
+  expect(offlineReading.children).toHaveLength(2);
+  expect(offlineReading.children[0]!.children).toHaveLength(0);
   expect([...addressedElements(loading).keys()]).toEqual(["test/mic/root"]);
   expect(loading).not.toMatch(/role="button"|1:05|Recording unavailable/);
   expect(open).not.toHaveBeenCalled();

@@ -128,7 +128,7 @@ function ArticleLine({ block, density, loading, input }: Layout & { block: Artic
   const role = bodyRole[input.fontScale];
   const { lang } = kit.useWords();
   const [start, end] = articleEdges(block, lang);
-  if (loading) {
+  if (loading && !block.runs.some((run) => run.link !== undefined)) {
     const text = `${start}${block.runs.map((run) => run.text).join("")}${end}`;
     return <kit.KitSkeleton shape="figure" inset="none" content={[[role, text]]} {...{ density }} />;
   }
