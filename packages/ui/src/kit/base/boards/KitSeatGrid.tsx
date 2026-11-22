@@ -40,7 +40,7 @@ function SeatTile({ seat, row, col, loading }: { seat: Seat; row: number; col: n
       alignItems="center"
       borderRadius={shifted("sm", ks.radiusShift)}
       borderWidth={selected ? component.base.strongBorder : component.base.borderWidth}
-      borderColor={selected ? "$accent" : taken || loading ? "$line" : "$muted"}
+      borderColor={selected ? "$accent" : "$line"}
       backgroundColor={seatFill[loading ? "loading" : selected ? "selected" : taken ? "taken" : "free"]}
     >
       {!loading && (
@@ -129,19 +129,22 @@ function SeatRow({
   row,
   index,
   columns,
+  headerWidth,
   loading,
 }: {
   row: Section["rows"][number];
   index: number;
   columns: readonly number[];
+  headerWidth: number;
   loading: boolean;
 }) {
   return (
     <XStack gap={space.xs} alignItems="center" {...(isWeb && !loading ? { role: "row" } : {})}>
-      <YStack
-        width={size.control.md}
+      <XStack
+        width={headerWidth}
         height={size.control.md}
-        justifyContent="center"
+        alignItems="center"
+        gap={space.xs}
         aria-label={!loading && row.mark ? `${row.label}, ${row.mark.label}` : undefined}
         accessibilityLabel={!loading && row.mark ? `${row.label}, ${row.mark.label}` : undefined}
         accessible={!loading && row.mark ? true : undefined}
@@ -155,7 +158,7 @@ function SeatRow({
           </KitText>
         )}
         {!loading && row.mark && <BoardGlyph mark={row.mark} />}
-      </YStack>
+      </XStack>
       {columns.map((width, col) => {
         const seat = row.seats[col];
         return seat && seat.kind !== "aisle" ? (
@@ -176,6 +179,7 @@ function SeatSection({ section, loading }: { section: Section; loading: boolean 
   const positions = section.rows.flatMap(({ seats }, row) =>
     seats.flatMap(({ kind }, col) => (kind === "aisle" ? [] : [{ row, col: col + 1 }])),
   );
+  const headerWidth = size.control.md + (section.rows.some(({ mark }) => mark) ? space.xs : 0);
   return (
     <YStack gap={space.sm}>
       <SeatHeading label={section.label} loading={loading} />
@@ -187,9 +191,10 @@ function SeatSection({ section, loading }: { section: Section; loading: boolean 
           label={section.label}
           loading={loading}
           gap={space.xs}
+          centered
         >
           {section.rows.map((row, index) => (
-            <SeatRow key={index} row={row} index={index} columns={columns} loading={loading} />
+            <SeatRow key={index} row={row} index={index} {...{ columns, headerWidth, loading }} />
           ))}
         </BoardGrid>
       )}

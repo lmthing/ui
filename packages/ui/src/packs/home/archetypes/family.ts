@@ -6,6 +6,9 @@ export const family = {
   defaultLayout: "board",
   layouts: {
     board: {
+      writeHints: [
+        'Between Header and Chores, show the household as overlapping avatars: explicitly set People "style":"stack", not a roster or a rail.',
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["People"], required: true, variant: "stack" },

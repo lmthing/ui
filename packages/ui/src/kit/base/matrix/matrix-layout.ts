@@ -1,7 +1,7 @@
 import { Children, cloneElement, createContext, isValidElement, useState, type ReactNode } from "react";
 import { component, radius, size, space, type KitStyle } from "../../../catalog";
 import { KitText, shifted } from "../text";
-import type { YStackProps } from "tamagui";
+import { isWeb, type YStackProps } from "tamagui";
 
 export type Drawing = { part?: string; loading?: boolean };
 export type Target = { item?: string; part: string };
@@ -30,7 +30,14 @@ export const MatrixSelectionContext = createContext<readonly string[]>([]);
 
 export const fittedTableWidth = (columns: number) => columns * fittedColumnMin;
 
-export function matrixColumnLayout(fit: boolean, heading: boolean): YStackProps {
+export function matrixColumnLayout(fit: boolean, heading: boolean, contentWidth = false): YStackProps {
+  if (contentWidth)
+    return {
+      flexShrink: component.base.none,
+      minWidth: size.control.md + space.sm * 2,
+      maxWidth: heading ? scrollColumnWidth : scrollColumnWidth + size.control.md * 2,
+      ...(isWeb ? { width: "max-content" as never } : {}),
+    };
   if (!fit) return { width: scrollColumnWidth, flexShrink: component.base.none };
   if (heading) return { flexShrink: component.base.none, maxWidth: scrollColumnWidth };
   // Start at the intrinsic width so a column with more content gets more room than a short one.
@@ -41,7 +48,7 @@ export function matrixColumnLayout(fit: boolean, heading: boolean): YStackProps 
   };
 }
 
-export function useCompactMatrix(fit: boolean) {
+export function useCompactMatrix(fit: boolean, measureContents = false) {
   const [width, setWidth] = useState<number>();
   const [heading, setHeading] = useState<number>();
   const measure = (set: (value: number) => void) => (event: { nativeEvent: { layout: { width: number } } }) =>
@@ -49,8 +56,44 @@ export function useCompactMatrix(fit: boolean) {
   return {
     compact: fit && width !== undefined && width < size.control.md * 7,
     available: width !== undefined && heading !== undefined ? width - heading : undefined,
-    onLayout: fit ? measure(setWidth) : undefined,
-    onHeadingLayout: fit ? measure(setHeading) : undefined,
+    onLayout: fit || measureContents ? measure(setWidth) : undefined,
+    onHeadingLayout: fit || measureContents ? measure(setHeading) : undefined,
+  };
+}
+
+// Stop on a whole column at the starting edge, but don't narrow the rail past its largest cell.
+export function wholeColumnViewport(available: number, widths: readonly number[]) {
+  let complete = 0;
+  for (const width of widths) {
+    if (complete + width > available) break;
+    complete += width;
+  }
+  return complete >= Math.max(...widths) &&
+    complete < available &&
+    complete < widths.reduce((a, b) => a + b, 0)
+    ? complete
+    : undefined;
+}
+
+export function useColumnViewport(
+  columns: readonly Column[],
+  available: number | undefined,
+  active: boolean,
+) {
+  const [sizes, setSizes] = useState<Record<string, number>>({});
+  const widths = columns.map(({ id }) => sizes[id] ?? 0);
+  return {
+    width:
+      active && available !== undefined && widths.length && widths.every((width) => width > 0)
+        ? wholeColumnViewport(available, widths)
+        : undefined,
+    measure: (id: string) =>
+      active
+        ? (event: { nativeEvent: { layout: { width: number } } }) => {
+            const { width } = event.nativeEvent.layout;
+            setSizes((previous) => (previous[id] === width ? previous : { ...previous, [id]: width }));
+          }
+        : undefined,
   };
 }
 
@@ -154,17 +197,21 @@ export function useMatrixHeights(padding: number) {
   };
 }
 
-export function matrixKey(event: {
-  key: string;
-  target: unknown;
-  currentTarget: unknown;
-  preventDefault(): void;
-}) {
+export function matrixKey(
+  event: {
+    key: string;
+    target: unknown;
+    currentTarget: unknown;
+    preventDefault(): void;
+  },
+  pages = false,
+) {
   if (event.target !== event.currentTarget) return;
   const node = event.currentTarget as HTMLElement;
+  const step = pages ? node.clientWidth : size.control.md;
   const distance = {
-    ArrowLeft: -size.control.md,
-    ArrowRight: size.control.md,
+    ArrowLeft: -step,
+    ArrowRight: step,
     PageUp: -node.clientWidth,
     PageDown: node.clientWidth,
     Home: -node.scrollLeft,

@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 import { projectSignUp, signUpRecordKind, signUpRowCopy, validSignUpClaims } from "../../copy";
 
-const slot = { id: "r1", slotId: "tables", capacity: 2 };
+const slot = { id: "r1", slotId: "tables", title: "Bring a table", capacity: 2 };
 const ana = { slotId: "tables", memberId: "ana" };
 const lee = { slotId: "tables", memberId: "lee" };
 const seed = { slots: [slot], claims: [ana] };
@@ -18,7 +18,14 @@ const projected = (...records: unknown[]) => projectSignUp(seed, "s1", { [signUp
 
 it("keeps a former member's release available for their own claim only", () => {
   expect(projected(snapshot).slots).toEqual([
-    { ...slot, claimants: ["Ana Park", "Lee Singh"], can_claim: false, own_claim: true },
+    {
+      ...slot,
+      claimants: ["Ana Park", "Lee Singh"],
+      can_claim: false,
+      own_claim: true,
+      retry_claim: false,
+      retry_release: false,
+    },
   ]);
   expect(projected({ ...snapshot, viewer: "outsider" }).slots[0]).toMatchObject({
     can_claim: false,
@@ -35,7 +42,14 @@ it("falls back to read-only seed claims when a matching host record is ambiguous
     [{ ...snapshot, claims: [ana, ana] }],
   ]) {
     expect(projected(...records).slots).toEqual([
-      { ...slot, claimants: ["ana"], can_claim: false, own_claim: false },
+      {
+        ...slot,
+        claimants: ["ana"],
+        can_claim: false,
+        own_claim: false,
+        retry_claim: false,
+        retry_release: false,
+      },
     ]);
   }
   expect(validSignUpClaims([{ id: slot.slotId, capacity: 1 }], [ana, lee])).toBe(false);

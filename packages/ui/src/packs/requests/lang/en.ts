@@ -1,3 +1,5 @@
+import { words as CannedRepliesWords } from "./en/CannedReplies";
+import { words as SlaPolicyWords } from "./en/SlaPolicy";
 import { words as RequestQueueWords } from "./en/RequestQueue";
 import { words as RequestThreadWords } from "./en/RequestThread";
 import { words as WorkOrderWords } from "./en/WorkOrder";
@@ -10,6 +12,8 @@ export const en = {
   ...WorkOrderWords,
   ...RequestTriageWords,
   ...RequestResolutionWords,
+  ...CannedRepliesWords,
+  ...SlaPolicyWords,
 };
 
 export type RequestsWords = typeof en;

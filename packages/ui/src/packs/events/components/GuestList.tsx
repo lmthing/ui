@@ -1,14 +1,8 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import {
-  groupGuests,
-  guestFacts,
-  guestListReading,
-  guestStats,
-  guestStatuses,
-  hideGuestDiets,
-} from "../copy";
+// prettier-ignore
+import { groupGuests, guestFacts, guestListReading, guestStats, guestStatuses, hideGuestDiets } from "../copy";
 import { eventsWordsFor } from "../lang";
 import { seedTitles } from "../seeds";
 import { prompt } from "../../../entry/prompt-GuestList.generated";
@@ -29,13 +23,20 @@ export const meta = {
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["diet"] } },
   parts: ["root", "counts", "remind", "remind_label", "empty"],
-  items: { key: "guests", parts: ["root", "name", "party", "status", "plus", "diet"] },
+  items: {
+    key: "guests",
+    // prettier-ignore
+    parts: ["root", "name", "party", "status", "plus", "diet", "approve", "approve_label", "decline", "decline_label"],
+  },
   partTiers: { remind: "service" },
+  confirmParts: ["decline"],
   states: ["filled", "empty", "loading"],
   actions: {
     parts: { remind: ["press"] },
-    items: { root: ["press"] },
-    when: { remind: { hasWaiting: true } },
+    items: { root: ["press"], approve: ["press"], decline: ["press"] },
+    noGoto: { items: ["approve", "decline"] },
+    // prettier-ignore
+    when: { remind: { hasWaiting: true }, approve: { status: "pending_approval" }, decline: { status: "pending_approval" } },
   },
   live: { derive: hideGuestDiets },
   read: (input, state, lang): string[] => guestListReading(input as z.output<typeof props>, state, lang),
@@ -49,11 +50,8 @@ const guest = z.strictObject({
   diet: c.text(16).optional(),
   goto: c.screenId,
 });
-export const props = z
-  .strictObject({
-    ...c.variantProps(meta.variants),
-    guests: z.array(guest).min(1).max(30),
-  })
+// prettier-ignore
+export const props = z.strictObject({ ...c.variantProps(meta.variants), guests: z.array(guest).min(1).max(30) })
   .overwrite((input) => ({ ...input, hasWaiting: input.guests.some(({ status }) => status === "waiting") }));
 
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
@@ -73,27 +71,35 @@ export const examples = [
     guests: [
       { name: "Imani Cole", status: "maybe", plus: 1, goto: "imani" },
       { name: "Hugo Wells", status: "no", plus: 0, goto: "hugo" },
+      { name: "Lee Ortiz", status: "pending_approval", plus: 0, goto: "lee" },
+      { name: "Mara Chen", status: "waitlisted", plus: 0, goto: "mara" },
     ],
   },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("GuestList");
+// prettier-ignore
 export const probes = [
   choose(
     "As the party organiser, show everyone invited in household groups, their reply status, extra guests and dietary needs. Let me remind those still waiting.",
   ),
-  choose(
-    "Show the hosts as a simple roster with names, portraits and roles, with no invitations or replies.",
-    "People",
-  ),
+  choose("Show the hosts as a simple roster with names, portraits and roles, with no invitations or replies.", "People"),
   write(
     "Track gala invites for the Shah household: Ruth Shah said yes with one extra guest and needs vegetarian food, open ruth; Deepa Shah is waiting, no extra guests, open deepa.",
   ),
   {
     ...write(
-      "In our invitation roster, Ruth Shah of the Shah family accepted with one extra guest and a vegetarian diet; link to ruth. Keep her dietary note in the data but leave it off the screen.",
+      "In our invitation roster, Ruth Shah of the Shah family accepted with one extra guest and a vegetarian diet; link to ruth. Keep her dietary note in the data but leave it off the screen. Leave spacing and card surface unset.",
     ),
     variant: { axis: "detail", value: "brief" },
+  },
+  {
+    ...write("Lee Ortiz submitted an RSVP and is awaiting host approval. Give the host Approve and Decline on Lee's row. Lee has no plus-ones; link to lee."),
+    expectProps: { guests: [{ name: "Lee Ortiz", status: "pending_approval" }] },
+  },
+  {
+    ...write("List Mara Chen on the event waitlist, not yet invited or accepted. Mara has no plus-ones; link to mara."),
+    expectProps: { guests: [{ name: "Mara Chen", status: "waitlisted" }] },
   },
   read("Send a reminder to everyone who hasn't replied yet.", { address: "g1/remind", action: "press" }),
 ] satisfies c.Probe[];
@@ -103,66 +109,79 @@ type Row = View["guests"][number];
 type Density = c.ThemeDensity;
 
 // prettier-ignore
-function GuestRow({ row, density, detail }: { row: Row; density: Density; detail: View["detail"] }) {
+function GuestRow({ row, density, detail, loading }: { row: Row; density: Density; detail: View["detail"]; loading: boolean }) {
   const { lang, words: { guestList } } = kit.useWords(eventsWordsFor);
   const { plus, diet, status, tone } = guestFacts(row, detail, lang);
-  const badge = <kit.KitTrail kind="badge" part="status" value={status} tone={tone} density={density} />;
-  return <kit.KitRow item={row.id} label={row.name} goto={row.goto} inline lineRole="body" trailing={badge} density={density}>
-    <kit.KitContent density={density}>
-      <kit.KitText part="name" role="body" density={density}>{row.name}</kit.KitText>
-      {(plus || diet) && <kit.KitText part={null} role="label" tone="muted" density={density}>
+  const badge = loading ? <kit.KitChip item={null} part={null} look="segment" role="radio" label={status} on={false} disabled={false} />
+    : <kit.KitTrail kind="badge" part="status" value={status} tone={tone} density={density} />;
+  const target = loading ? { part: null } : { item: row.id, goto: row.goto };
+  return <kit.KitContent density={density} rhythm="flush">
+    <kit.KitRow {...target} label={row.name} inline lineRole="body" trailing={badge} density={density}>
+    <kit.KitContent density={density} rhythm="flush">
+      <kit.KitMetaLine title={{ part: "name", text: row.name }} density={density} />
+      {loading ? <kit.KitLayoutText density={density} line={{ role: "meta", text: [plus, diet].filter(Boolean).join(guestList.separator) }} />
+        : (plus || diet) && <kit.KitText part={null} role="label" tone="muted" density={density}>
         {plus && <kit.KitText part="plus" role="label" tone="muted" density={density}>{plus}</kit.KitText>}
         {plus && diet && guestList.separator}
         {diet && <kit.KitText part="diet" role="label" tone="muted" density={density}>{diet}</kit.KitText>}
       </kit.KitText>}
     </kit.KitContent>
-  </kit.KitRow>;
+    </kit.KitRow>
+    {row.status === "pending_approval" && <GuestDecisions {...{ row, density, loading }} />}
+  </kit.KitContent>;
+}
+
+// prettier-ignore
+function GuestDecisions({ row, density, loading }: { row: Row; density: Density; loading: boolean }) {
+  const context = kit.usePartContext();
+  const { words: { guestList } } = kit.useWords(eventsWordsFor);
+  return <kit.PartContext.Provider value={{ ...context, item: row.id }}>
+    <kit.KitActionFooter density={density}>
+      <kit.KitAction part={loading ? null : "approve"} label={guestList.approve} />
+      <kit.KitAction part={loading ? null : "decline"} kind="danger" label={guestList.decline} />
+    </kit.KitActionFooter>
+  </kit.PartContext.Provider>;
 }
 
 // prettier-ignore
 function GuestGroups({ guests, density, detail, loading }: Pick<View, "guests" | "detail"> & { density: Density; loading: boolean }) {
-  const { lang } = kit.useWords(eventsWordsFor);
   const groups = groupGuests(guests);
   return groups.map(({ rows, party }, index) => <kit.KitContent key={rows[0]!.id}
-    group={index && (party || groups[index - 1]?.party) ? "response" : "content"}>
-    {party && (loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", party]]} density={density} />
+    group={index && (party || groups[index - 1]?.party || groups[index - 1]?.rows.at(-1)?.status === "pending_approval") ? "response" : "content"}>
+    {party && (loading ? <kit.KitLayoutText line={{ text: party, role: "meta" }} density={density} />
       : <kit.KitText item={rows[0]!.id} part="party" role="label" tone="muted" density={density}>{party}</kit.KitText>)}
-    {loading ? <kit.KitSkeleton shape="rows" inset="none" lead="none" rows={rows.length} items={rows.map((row) => {
-      const { status, plus, diet } = guestFacts(row, detail, lang);
-      const meta = [plus, diet].filter(Boolean).join(eventsWordsFor(lang).guestList.separator);
-      return { title: row.name, meta, trail: "badge", value: status };
-    })} density={density} /> : <kit.KitGrid list arrange="rows" density={density}>
-      {rows.map((row) => <GuestRow key={row.id} {...{ row, density, detail }} />)}
-    </kit.KitGrid>}
+    <kit.KitRowGroup spacing="groups" separators={false} density={density}>
+      {rows.map((row) => <GuestRow key={row.id} {...{ row, density, detail, loading }} />)}
+    </kit.KitRowGroup>
   </kit.KitContent>);
 }
 
 // prettier-ignore
 export function GuestList(input: View) {
-  const state = kit.useComponentState(), loading = state === "loading";
+  const loading = kit.useComponentState() === "loading";
   const { thing } = kit.usePartContext();
   const { lang, words: { guestList } } = kit.useWords(eventsWordsFor);
   const density = kit.useKit().density;
   const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const stats = guestStats(input.guests, lang);
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    {state === "empty" ? <kit.KitEmpty part="empty" decorativeIcon icon="users"
-      {...(thing ? {} : { title: guestList.empty })} />
-      : <>
+  const roster = <>
         <kit.KitRow part={loading ? null : "counts"} label={guestList.counts} inline density={density}>
           <kit.KitGrid density={density}>
             {stats.map(({ key, line, count }) => loading
-              ? <kit.KitSkeleton key={key} shape="figure" inset="none" density={density} content={[["body", line]]} />
+              ? <kit.KitLayoutText key={key} density={density} line={{ text: line, role: "meta" }} />
               : <GuestCount key={key} {...{ line, count, density }} />)}
           </kit.KitGrid>
         </kit.KitRow>
         <kit.KitContent group="response"><GuestGroups guests={input.guests} {...{ density, detail, loading }} /></kit.KitContent>
-        {input.guests.some((row) => row.status === "waiting") && <kit.KitContent group="response">
-          {loading ? <kit.KitSkeleton shape="control" inset="none" kind="secondary" label={guestList.remind} full />
-            : <kit.KitAction part="remind" kind="secondary" label={guestList.remind} full />}
+        {input.guests.some((row) => row.status === "waiting") && <kit.KitContent group="response" density={density}>
+          <kit.KitAction part={loading ? null : "remind"} kind="secondary" label={guestList.remind} full />
         </kit.KitContent>}
-      </>}
+      </>;
+  return <kit.KitCard part="root" padded {...{ density, surface }}>
+    <kit.KitState part="empty" icon="users" message={thing ? undefined : guestList.empty} loading={roster} density={density}>
+      {roster}
+    </kit.KitState>
   </kit.KitCard>;
 }
 

@@ -95,12 +95,14 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   }));
   return { steps: steps.length ? steps : [{ text: placeholderDetail, uses: [] }], at: 1 };
 }
-// prettier-ignore
-const supper = { at: 1, steps: [
-  { text: "Gently simmer the tomato sauce until thickened.", uses: ["Tomatoes", "Olive oil"], minutes: 20 },
-  { text: "Layer the sauce and pasta.", uses: ["Lasagne sheets"] },
-  { text: "Bake until golden.", uses: [], minutes: 40 },
-] } satisfies z.input<typeof props>;
+const supper = {
+  at: 1,
+  steps: [
+    { text: "Gently simmer the tomato sauce until thickened.", uses: ["Tomatoes", "Olive oil"], minutes: 20 },
+    { text: "Layer the sauce and pasta.", uses: ["Lasagne sheets"] },
+    { text: "Bake until golden.", uses: [], minutes: 40 },
+  ],
+} satisfies z.input<typeof props>;
 export const examples = [
   supper,
   { ...supper, detail: "brief" },
@@ -132,13 +134,36 @@ export const probes = [
   read("Start the sauce's cooking timer", { address: "c1/timer", action: "start" }),
 ] satisfies Probe[];
 
-// prettier-ignore
-export function CookSteps({ steps, at, detail: choice }: Props<typeof props, typeof meta>) {
-  const detail = useVariant("detail", meta.variants.detail, choice);
+function CookStepTimer({ minutes, brief }: { minutes: number; brief: boolean }) {
   const {
     lang,
     words: { timerLabels },
   } = useWords();
+  const { cookStepsLabels } = kitchenWordsFor(lang);
+  return (
+    <KitContent group="response">
+      <KitText role="label" tone="muted" part={null}>
+        {cookStepsLabels.timer}
+      </KitText>
+      <KitText
+        role="number"
+        tabular
+        part={null}
+        {...(brief ? ({ numberScale: "compact", emphasis: "hero" } as const) : {})}
+      >
+        {clockLine(minutes * 60, lang)}
+      </KitText>
+      <KitGrid columns={2}>
+        <KitAction label={timerLabels.start} kind="secondary" part="timer" action="start" full />
+        <KitAction label={timerLabels.stop} kind="quiet" part="timer_stop" action="stop" full />
+      </KitGrid>
+    </KitContent>
+  );
+}
+
+export function CookSteps({ steps, at, detail: choice }: Props<typeof props, typeof meta>) {
+  const detail = useVariant("detail", meta.variants.detail, choice);
+  const { lang } = useWords();
   const { cookStepsLabels } = kitchenWordsFor(lang);
   const done = useComponentState() === "success";
   const step = steps[at - 1]!;
@@ -162,23 +187,21 @@ export function CookSteps({ steps, at, detail: choice }: Props<typeof props, typ
         </KitContent>
       )}
       {!done && step.minutes !== undefined && (
-        <KitContent group="response">
-          <KitText role="label" tone="muted" part={null}>
-            {cookStepsLabels.timer}
-          </KitText>
-          <KitText role="number" tabular part={null}
-            {...(detail === "brief" ? { numberScale: "compact", emphasis: "hero" } as const : {})}>
-            {clockLine(step.minutes * 60, lang)}
-          </KitText>
-          <KitGrid columns={2}>
-            <KitAction label={timerLabels.start} kind="secondary" part="timer" action="start" full />
-            <KitAction label={timerLabels.stop} kind="quiet" part="timer_stop" action="stop" full />
-          </KitGrid>
-        </KitContent>
+        <CookStepTimer minutes={step.minutes} brief={detail === "brief"} />
       )}
       {!done && (
         <KitContent group="response">
-          {detail === "brief" ? <KitGrid columns={2}>{next}{back}</KitGrid> : <>{next}{back}</>}
+          {detail === "brief" ? (
+            <KitGrid columns={2}>
+              {next}
+              {back}
+            </KitGrid>
+          ) : (
+            <>
+              {next}
+              {back}
+            </>
+          )}
         </KitContent>
       )}
     </KitCard>

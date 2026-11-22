@@ -7,7 +7,7 @@ export const words = {
   queuePosition: (label: string, position: string) => `${label}: ${position}`,
   quadrillion: (count: string) => `${count}Q`,
   queueLabels: {
-    waiting: "Waiting for a place",
+    waiting: "Waitlist",
     joined: "You're on the waitlist",
     position: "Your place in line",
     join: "Join waitlist",

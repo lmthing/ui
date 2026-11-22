@@ -61,9 +61,10 @@ type GridProps = {
   label?: string | undefined;
   loading: boolean;
   gap?: number;
+  centered?: boolean;
   children: ReactNode;
 };
-export function BoardGrid({ rows, cols, positions, label, loading, gap, children }: GridProps) {
+export function BoardGrid({ rows, cols, positions, label, loading, gap, centered, children }: GridProps) {
   const navigation = useNavigation(positions);
   const grid = useRef<TamaguiElement>(null);
   useLayoutEffect(() => {
@@ -78,6 +79,7 @@ export function BoardGrid({ rows, cols, positions, label, loading, gap, children
       minWidth={component.base.none}
       showsHorizontalScrollIndicator
       scrollEnabled={!loading}
+      contentContainerStyle={centered ? { minWidth: "100%" } : undefined}
       {...(isWeb ? { tabIndex: -1 } : {})}
     >
       <Navigation.Provider value={navigation}>
@@ -85,6 +87,7 @@ export function BoardGrid({ rows, cols, positions, label, loading, gap, children
           ref={grid}
           flexShrink={component.base.none}
           gap={gap ?? component.base.none}
+          marginHorizontal={centered ? "auto" : undefined}
           {...(loading
             ? {
                 "aria-hidden": true,

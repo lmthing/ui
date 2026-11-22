@@ -68,8 +68,8 @@ const record = {
           : undefined,
       plan({ props, now }) {
         const { reflectionInstance, detail, moodBefore, moodAfter, distortions } = props;
-        const thought = trimmed(props.thought),
-          reframe = trimmed(props.reframe);
+        const thought = trimmed(props.thought);
+        const reframe = trimmed(props.reframe);
         if (!thought || !reframe || typeof reflectionInstance !== "string")
           return { error: mindWordsFor().thoughtRecord.incomplete };
         const guided = detail === "full";

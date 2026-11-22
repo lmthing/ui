@@ -11,7 +11,10 @@ export const serviceCapacity = (capacity: number, lang?: string): string =>
   bookingWordsFor(lang).serviceCapacity(numberLine(capacity, lang));
 
 export const serviceDeposit = (deposit: number, lang?: string): string =>
-  bookingWordsFor(lang).serviceDeposit(compactMoneyLine(deposit, undefined, lang));
+  bookingWordsFor(lang).serviceDeposit(serviceDepositAmount(deposit, lang));
+
+export const serviceDepositAmount = (deposit: number, lang?: string): string =>
+  compactMoneyLine(deposit, undefined, lang);
 
 export function serviceReading(
   services: readonly {

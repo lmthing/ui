@@ -99,7 +99,6 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
-// prettier-ignore
 export const examples = [
   {
     families: [
@@ -146,21 +145,35 @@ export const probes = [
 
 type FeelingsProps = c.Props<typeof props, typeof meta>;
 
-// prettier-ignore
-function FeelingWords({ parent, controls, label }: ReturnType<typeof kit.useNestedControls> & { label: string }) {
+function FeelingWords({
+  parent,
+  controls,
+  label,
+}: ReturnType<typeof kit.useNestedControls> & { label: string }) {
   const { words } = kit.useWords(mindWordsFor);
   return (
     <kit.KitTrack part="words" label={label}>
       {controls.map(({ target, part, item, spec, disabled }) => (
-        <kit.KitChip key={target} item={parent ?? null} part={part} labelPart={null}
-          label={String(item.label)} role="checkbox" on={item[spec.prop] === true} disabled={disabled} />
+        <kit.KitChip
+          key={target}
+          item={parent ?? null}
+          part={part}
+          labelPart={null}
+          label={String(item.label)}
+          role="checkbox"
+          on={item[spec.prop] === true}
+          disabled={disabled}
+        />
       ))}
-      {!controls.length && <kit.KitText part={null} role="caption" tone="muted">{words.feelings.noWords}</kit.KitText>}
+      {!controls.length && (
+        <kit.KitText part={null} role="caption" tone="muted">
+          {words.feelings.noWords}
+        </kit.KitText>
+      )}
     </kit.KitTrack>
   );
 }
 
-// prettier-ignore
 export function Feelings(input: FeelingsProps) {
   const density = kit.useKit().density;
   const surface = "card";
@@ -169,12 +182,19 @@ export function Feelings(input: FeelingsProps) {
   const nested = kit.useNestedControls(meta, input);
   const { parent, remaining = maxChosen } = nested;
   const family = input.families.find(({ id }) => id === parent);
-  const columns = input.families.length % 3 === 0 && input.families.every(({ label }) => label.length <= 8) ? 3 : 2;
+  const columns =
+    input.families.length % 3 === 0 && input.families.every(({ label }) => label.length <= 8) ? 3 : 2;
   return (
     <kit.KitCard part="root" padded density={density} surface={surface}>
       <kit.KitContent density={density}>
-        <kit.KitText part="title" role="heading" density={density}>{words.feelings.title}</kit.KitText>
-        {full && <kit.KitText part="hint" role="caption" tone="muted" density={density}>{words.feelings.hint}</kit.KitText>}
+        <kit.KitText part="title" role="heading" density={density}>
+          {words.feelings.title}
+        </kit.KitText>
+        {full && (
+          <kit.KitText part="hint" role="caption" tone="muted" density={density}>
+            {words.feelings.hint}
+          </kit.KitText>
+        )}
       </kit.KitContent>
       <kit.KitContent group="response" density={density}>
         <kit.KitTrack part="families" look="segments" role="radiogroup" label={words.feelings.families}>

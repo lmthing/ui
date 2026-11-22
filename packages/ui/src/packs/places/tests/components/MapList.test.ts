@@ -88,6 +88,9 @@ describe("MapList contract and boundaries", () => {
       expect.objectContaining({ kind: "read", expect: { address: "m1/view", action: "select" } }),
       expect.objectContaining({ kind: "read", expect: { address: "m1/r1", action: "press" } }),
       expect.objectContaining({ kind: "read", expect: { address: "m1/r1/pin", action: "select" } }),
+      ...["map", "list", "split"].map((style) =>
+        expect.objectContaining({ kind: "write", expectProps: { style } }),
+      ),
     ]);
   });
 });

@@ -7,7 +7,7 @@ export const hiring_openings = {
   layouts: {
     hiring_roles: {
       writeHints: [
-        "Use short List rows for the openings and a badge trail with a value on each row for the status.",
+        'Use one flat List with "style":null and "trail":"badge" at the component level. Put each status label in the row value, not the shelf-only badge field. Give each row a short title and a goto; leave row trail and badge null.',
       ],
       recipe: [
         { allow: ["Header"], required: true },
