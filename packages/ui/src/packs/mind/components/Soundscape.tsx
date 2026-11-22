@@ -2,12 +2,13 @@ import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 // prettier-ignore
-import { levelValue, mixPresetOptions, mixRead, mixTimer, presetList, soundscapeMix, volumeMax } from "../copy";
+import { levelValue, mixPresetOptions, mixRead, mixTimerParts, presetList, soundscapeMix, volumeMax } from "../copy";
 import { mindWordsFor } from "../lang";
 
 // Core first: Player/audio plays one recording, not simultaneous loops with separate volume and a sleep timer.
 const timerMax = 120;
 const secondsPerMinute = 60;
+const levelSet = { prop: "level", min: 0, max: volumeMax, integer: true } as const;
 
 // prettier-ignore
 export const meta = {
@@ -26,12 +27,16 @@ export const meta = {
   parts: ["root", "mix", "mix_label", "mix_icon", "timer", "timer_label", "presets"],
   items: {
     key: "sounds",
-    parts: ["root", "label", "icon", "level"],
-    set: { level: { prop: "level", min: 0, max: volumeMax, integer: true } },
+    parts: ["root", "label", "icon", "level", "mix_level"],
+    set: { level: levelSet, mix_level: levelSet },
   },
   set: { timer: { prop: "timer", min: 0, max: timerMax, integer: true } },
   states: ["filled"],
-  actions: { parts: { mix: ["play", "pause"], timer: ["set"], presets: ["select"] }, items: { level: ["set"] } },
+  actions: {
+    parts: { mix: ["play", "pause"], timer: ["set"], presets: ["select"] },
+    items: { level: ["set"], mix_level: ["set"] },
+    when: { level: { savedMixControls: false }, mix_level: { savedMixControls: true } },
+  },
   selections: { presets: { prop: "selectedPreset", choices: { prop: "presetOptions" }, runtime: true } },
   localState: soundscapeMix,
   live: { derive: ({ presets }) => mixPresetOptions(presets) },
@@ -118,7 +123,7 @@ export const probes = [
     ...write("Mix rain at 4 and waves at 7 with an icon and a volume slider for each. Stack them in full-width rows, one sound per row, not side by side. Leave the sleep timer off."),
     variant: { axis: "arrange", value: "rows" },
   },
-  read("Set the Wind volume separately.", { address: "s1/r2/level", action: "set" }),
+  read("Which addressed level slider do I set to change Wind volume without touching the rest of the mix?", { address: "s1/r2/level", action: "set" }),
   {
     ...write("Mix Rain then Wind, at levels 6 and 2. Keep the timer off. Include one saved mix named Night rain that sets Rain to 3 and Wind to 0."),
     expectProps: { presets: [{ label: "Night rain", levels: [3, 0] }] },
@@ -126,10 +131,9 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type SoundscapeProps = c.Props<typeof props, typeof meta>;
-
 // prettier-ignore
-function SoundTile({ sound: { id, label, icon, level }, density }: {
-  sound: SoundscapeProps["sounds"][number]; density: c.ThemeDensity;
+function SoundTile({ sound: { id, label, icon, level }, density, part }: {
+  sound: SoundscapeProps["sounds"][number]; density: c.ThemeDensity; part: "level" | "mix_level";
 }) {
   const { words, lang } = kit.useWords(mindWordsFor);
   return (
@@ -143,22 +147,20 @@ function SoundTile({ sound: { id, label, icon, level }, density }: {
           {c.numberLine(level, lang)}
         </kit.KitText>
       </kit.KitGrid>
-      <kit.KitSlider label={words.soundscape.volume(label)} part="level" value={level} max={volumeMax} />
+      <kit.KitSlider label={words.soundscape.volume(label)} part={part} value={level} max={volumeMax} />
     </kit.KitRow>
   );
 }
 
 // prettier-ignore
-function SoundRows({ sounds, density, arrange }: Pick<SoundscapeProps, "sounds" | "arrange"> & { density: c.ThemeDensity }) {
-  const tiles = sounds.map((sound) => <SoundTile key={sound.id} {...{ sound, density }} />);
-  const rows =
-    arrange === "rows"
-      ? tiles
-      : tiles.flatMap((tile, index) => {
-          if (index % 2 !== 0) return [];
-          const second = tiles[index + 1];
-          return second ? <kit.KitGrid key={sounds[index]!.id} density={density}>{tile}{second}</kit.KitGrid> : tile;
-        });
+function SoundRows({ sounds, density, arrange, presets }: Pick<SoundscapeProps, "sounds" | "arrange" | "presets"> & { density: c.ThemeDensity }) {
+  const part = presets ? "mix_level" : "level";
+  const tiles = sounds.map((sound) => <SoundTile key={sound.id} {...{ sound, density, part }} />);
+  const rows = arrange === "rows" ? tiles : tiles.flatMap((tile, index) => {
+    if (index % 2 !== 0) return [];
+    const second = tiles[index + 1];
+    return second ? <kit.KitGrid key={sounds[index]!.id} density={density}>{tile}{second}</kit.KitGrid> : tile;
+  });
   return <kit.KitRowGroup density={density} separators={false} spacing="groups">{rows}</kit.KitRowGroup>;
 }
 
@@ -170,7 +172,7 @@ export function Soundscape(input: SoundscapeProps) {
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   const live = kit.useLiveControls(meta, input);
   const { running, sounds, timer } = live as SoundscapeProps & { running?: boolean };
-  const action = running ? "pause" : "play";
+  const action = running ? "pause" : "play", time = mixTimerParts(timer, lang);
   return <kit.KitCard part="root" padded {...{ density, surface }}>
       {input.presets && <kit.KitContent density={density}>
         <kit.KitHeader title={{ text: presetLabel, role: "body", strong: true }} density={density} />
@@ -180,17 +182,19 @@ export function Soundscape(input: SoundscapeProps) {
         </kit.KitTrack>
       </kit.KitContent>}
       <kit.KitContent group={input.presets ? "response" : "content"} density={density}>
-        <SoundRows {...{ density, arrange, sounds }} />
+        <SoundRows presets={input.presets} {...{ density, arrange, sounds }} />
       </kit.KitContent>
       <kit.KitContent group="response" density={density}>
         <kit.KitGrid fitLast density={density}>
           <kit.KitText part="timer_label" role="label" density={density}>{sleep}</kit.KitText>
-          <kit.KitText part={null} role="label" tone="muted" density={density}>{mixTimer(timer, lang)}</kit.KitText>
+          <kit.KitText part={null} role="label" tone="muted" density={density}>
+            {time.count && <kit.KitText part={null} role="number" numberScale="compact" tabular>{time.count}</kit.KitText>}
+            {time.suffix}
+          </kit.KitText>
         </kit.KitGrid>
         <kit.KitSlider label={sleep} part="timer" max={timerMax} value={timer} />
       </kit.KitContent>
-      <kit.KitActionFooter density={density}>
-        <kit.KitAction label={running ? pause : play} part="mix" icon={action} action={action} full />
-      </kit.KitActionFooter>
+      <kit.KitActionFooter density={density}><kit.KitAction label={running ? pause : play}
+        part="mix" icon={action} action={action} full /></kit.KitActionFooter>
     </kit.KitCard>;
 }

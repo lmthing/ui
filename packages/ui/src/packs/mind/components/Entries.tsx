@@ -27,31 +27,31 @@ export const meta = {
   items: { key: "entries", parts: ["root", "date", "mood", "text", "tags", "photo"] },
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] } },
+  // prettier-ignore
+  live: { derive: ({ entries, media }) => media === "none" && Array.isArray(entries)
+    ? { entries: entries.map((row: Record<string, unknown>) => ({ ...row, photo: undefined })) } : {} },
   writeHints: [
     "Use real dates in YYYY-MM-DD, newest first. Each entry needs a goto screen id; when fewer than three tags are known, provide only those tags.",
     'Use detail null when tags should be visible, including whenever the journal brief names tags to show. Use detail "brief" only when explicitly asked to hide tags. Write null for unrequested density and surface; never fill in default variant names.',
-    'For a compact digest with one-line excerpts and no thumbnails, use {"density":"compact","media":"none"}. Media "none" suppresses thumbnails and makes excerpts single-line; keep any source photos in entries. Leave media null for the ordinary feed. Supply prompt only if a shared journal prompt badge is requested.',
+    'For a compact digest with one-line excerpts and no thumbnails, use {"density":"compact","media":"none"}. Do not set media when no photo was supplied or when only tags are hidden; leave it null. Keep source photos in entries. Supply prompt only when a shared journal prompt badge is requested.',
   ],
   read: (input, state, lang): string[] => {
     if (state !== "filled") return [];
-    const { entries, detail, prompt } = input as z.output<typeof props>;
+    const { entries, detail } = input as z.output<typeof props>;
     const words = mindWordsFor(lang);
-    return [
-      ...(prompt ? [JSON.stringify(prompt)] : []),
-      ...entries.flatMap(({ date, tags, mood }, index) => [
-        ...(index === 0 || entries[index - 1]!.date.slice(0, 7) !== date.slice(0, 7)
-          ? [entryMonth(date, lang)]
-          : []),
-        [
-          `r${index + 1}`,
-          c.appointmentDate(date, lang),
-          mood === undefined ? "" : words.entryMood[mood - 1],
-          detail === "brief" ? "" : entryTags(tags, lang),
-        ]
-          .filter(Boolean)
-          .join(" · "),
-      ]),
-    ];
+    return entries.flatMap(({ date, tags, mood }, index) => [
+      ...(index === 0 || entries[index - 1]!.date.slice(0, 7) !== date.slice(0, 7)
+        ? [entryMonth(date, lang)]
+        : []),
+      [
+        `r${index + 1}`,
+        c.appointmentDate(date, lang),
+        mood === undefined ? "" : words.entryMood[mood - 1],
+        detail === "brief" ? "" : entryTags(tags, lang),
+      ]
+        .filter(Boolean)
+        .join(" · "),
+    ]);
   },
 } as const satisfies c.Meta;
 
@@ -132,9 +132,9 @@ export const probes = [
   read("Open the reflection about putting my phone away early.", { address: "e1/r2", action: "press" }),
   {
     ...write(
-      "Show a journal entry dated 2026-11-19, ‘I felt calmer after walking’, linking to nov_19. Make a compact digest with one-line excerpts and no thumbnails.",
+      "Make a compact journal digest with one-line excerpts and no thumbnails. Keep the attached park photo (lib:parks) on the 2026-11-19 entry ‘I felt calmer after walking’, which opens nov_19, but hide that photo in the digest.",
     ),
-    expectProps: { density: "compact", media: "none" },
+    expectProps: { density: "compact", media: "none", entries: [{ photo: "lib:parks" }] },
   },
   {
     ...write(
@@ -145,7 +145,6 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type EntriesProps = c.Props<typeof props, typeof meta>;
-
 // prettier-ignore
 function EntryRow({ entry, density, compact }: { entry: EntriesProps["entries"][number]; density: c.ThemeDensity; compact: boolean }) {
   const { lang, words } = kit.useWords(mindWordsFor);
@@ -158,13 +157,16 @@ function EntryRow({ entry, density, compact }: { entry: EntriesProps["entries"][
   const thumbnail = photo && !compact
     ? <kit.KitPhoto photo={photo} part={loading ? null : "photo"} loading={loading} shape="thumb" ring="muted" label={words.entryPhoto} />
     : undefined;
-  return <kit.KitRow item={id} {...target} leading={face} trailing={thumbnail} inset="none" lineRole="heading" density={density}>
-    <kit.KitMetaLine density={density}
-      title={{ part: "date", role: "meta", tone: "muted", text: loading ? skeleton.date : day, lines: 1 }}
-      meta={[
-        { part: "text", role: "body", tone: "text", text: loading ? skeleton.excerpt : text, lines: compact ? 1 : 2 },
-        { part: "tags", text: tags.length ? (loading ? skeleton.tags : entryTags(tags, lang)) : undefined },
-      ]} />
+  return <kit.KitRow item={id} {...target} leading={face} inset="none" lineRole="heading" density={density}>
+    <kit.KitGrid fitLast density={density}>
+      <kit.KitMetaLine density={density}
+        title={{ part: "date", role: "meta", tone: "muted", text: loading ? skeleton.date : day, lines: 1 }}
+        meta={[
+          { part: "text", role: "body", tone: "text", text: loading ? skeleton.excerpt : text, lines: compact ? 1 : 2 },
+          { part: "tags", text: tags.length ? (loading ? skeleton.tags : entryTags(tags, lang)) : undefined },
+        ]} />
+      {thumbnail}
+    </kit.KitGrid>
   </kit.KitRow>;
 }
 
@@ -180,14 +182,14 @@ export function Entries(input: EntriesProps) {
         const rows = detail === "brief" ? group.map((row) => ({ ...row, tags: [] })) : group;
         const heading = state === "loading" ? words.entrySkeleton.month : entryMonth(rows[0]!.date, lang);
         return <kit.KitContent key={month} group={index ? "response" : "content"} {...{ density }}>
-          <kit.KitHeader title={{ text: heading, part: index ? null : "month" }} density="comfortable" />
+          <kit.KitHeader title={{ text: heading, part: index ? null : "month", role: "meta", tone: "muted", strong: true }} density="comfortable" />
           <kit.KitRowGroup density={density}>
             {rows.map((entry) => <EntryRow key={entry.id} {...{ entry, density }} compact={input.media === "none"} />)}
           </kit.KitRowGroup>
         </kit.KitContent>;
   });
   const content = <kit.KitContent density={density}>
-    {input.prompt && <kit.KitContent lead={<kit.KitTrail kind="badge" part="prompt" value={state === "loading" ? words.entrySkeleton.prompt : input.prompt} />}><></></kit.KitContent>}
+    {input.prompt && <kit.KitContent leadingAlign="row" lead={<kit.KitTrail kind="badge" part="prompt" value={state === "loading" ? words.entrySkeleton.prompt : input.prompt} />}><></></kit.KitContent>}
     {groups}
   </kit.KitContent>;
   return <kit.KitCard part="root" padded {...{ surface, density }}>

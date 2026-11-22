@@ -7,6 +7,13 @@ export function mixTimer(minutes: number, lang?: string): string {
   return minutes === 0 ? words.off : words.minutes(numberLine(minutes, lang));
 }
 
+export function mixTimerParts(minutes: number, lang?: string) {
+  const words = mindWordsFor(lang).soundscape;
+  return minutes === 0
+    ? { suffix: words.off }
+    : { count: numberLine(minutes, lang), suffix: words.minutes("") };
+}
+
 export const volumeMax = 10;
 export const levelValue = z.int().min(0).max(volumeMax);
 export const presetList = z
@@ -35,7 +42,7 @@ export const soundscapeMix = defineLocalState({
     presets: presets as Preset[] | undefined,
   }),
   events: ["presets.select"],
-  itemEvents: ["level.set"],
+  itemEvents: ["mix_level.set"],
   reduce: (state, event) => {
     if (event.part === "presets") {
       const preset = state.presets?.find(({ label }) => label === event.value);
@@ -50,11 +57,12 @@ export const soundscapeMix = defineLocalState({
     const sounds = state.sounds.map((row) => (row === current ? { ...row, level: level.data } : row));
     return { state: { ...state, sounds, selected: undefined } };
   },
-  project: ({ sounds, selected }) => ({ sounds, selectedPreset: selected }),
+  project: ({ sounds, presets, selected }) => (presets ? { sounds, selectedPreset: selected } : {}),
 });
 
 export function mixPresetOptions(presets: unknown) {
-  return { presetOptions: Array.isArray(presets) ? (presets as Preset[]).map(({ label }) => label) : [] };
+  const options = Array.isArray(presets) ? (presets as Preset[]).map(({ label }) => label) : [];
+  return { presetOptions: options, savedMixControls: options.length > 0 };
 }
 
 export function mixRead(

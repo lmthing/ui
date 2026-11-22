@@ -94,7 +94,7 @@ export const en = {
     month: "Journal entries",
     prompt: "Journal prompt",
     date: "Date of entry",
-    excerpt: "The text of a journal entry will appear here.",
+    excerpt: "Journal entry preview",
     tags: "Tags for this entry",
   },
   patterns: {

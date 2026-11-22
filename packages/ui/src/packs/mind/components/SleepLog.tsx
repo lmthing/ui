@@ -23,8 +23,8 @@ export const meta = {
   emptyActions: ["edit.press"],
   writeHints: [
     "Use 24-hour HH:MM for bed and wake. Awake minutes cannot exceed the interval from bed to wake across midnight. If supplied, week contains exactly seven hours values from 0 to 24; never write duration or average.",
-    'Use detail "brief" only when asked to show the night without the weekly average. Keep the seven nights in week if supplied.',
-    'Use style "stages" for the stage breakdown. Supply deep, rem, light and awake as whole minutes in stages only when known. They must fit the night; if both awake fields are supplied they must agree. Leave unrequested style, stages, hrAvg (bpm) and hrv (ms) null.',
+    'For a night with the weekly average hidden, use {"density":null,"surface":null,"detail":"brief"}. Keep the seven nights in week. Set unrequested finish axes to null, never "card" or "comfortable".',
+    'Only select style "stages" if a breakdown is requested. Never infer stages from bedtime, wake or awake time. Leave stages null unless all four actual durations are given; their total must match the night, and the two awake values must agree if both given. Leave unrequested style, hrAvg (bpm) and hrv (ms) null.',
   ],
   read: (input, state, lang): string[] => {
     if (state === "empty") return [JSON.stringify(mindWordsFor(lang).sleep.log)];
@@ -52,8 +52,8 @@ export const props = z
   })
   .refine(({ bed, wake, awake, stages }) => !stages ||
       ((awake === undefined || awake === stages.awake) &&
-        sleepStageKeys.reduce((total, key) => total + stages[key], 0) <= nightMinutes(bed, wake)),
-    { path: ["stages"], message: "Stage minutes must fit the night and match any explicit awake duration" },
+        sleepStageKeys.reduce((total, key) => total + stages[key], 0) === nightMinutes(bed, wake)),
+    { path: ["stages"], message: "Stage minutes must cover the night and match any explicit awake duration" },
   );
 
 export function fallback({ cast }: c.FallbackInput): z.input<typeof props> {
@@ -189,7 +189,7 @@ export function SleepLog(input: SleepLogProps) {
       {!empty && <kit.KitContent group="response" density={density}>
         <kit.KitText part="import" tone="muted" role="caption" density={density}>{words.sleep.import}</kit.KitText>
       </kit.KitContent>}
-      <kit.KitContent group={empty ? "content" : "response"} density={density}>
+      <kit.KitContent group={empty ? "content" : "response"} align={empty ? "center" : "start"} density={density}>
         <kit.KitActionFooter density={density}><kit.KitAction part="edit" label={empty ? words.sleep.log : words.editSleep}
           goto={input.goto} kind="secondary" full /></kit.KitActionFooter>
       </kit.KitContent>

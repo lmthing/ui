@@ -62,10 +62,14 @@ export function groundingCopy(index: number, lang?: string) {
   const { title, cues, next, finish, done } = mindWordsFor(lang).breathe.grounding;
   const cue = cues[index];
   if (!cue) return { title, cue: done };
+  const step = stepLine(index + 1, groundingSteps, lang);
+  const count = numberLine(index + 1, lang);
+  const at = step.indexOf(count);
   return {
     title,
     cue,
-    step: stepLine(index + 1, groundingSteps, lang),
+    step,
+    progress: { before: step.slice(0, at), count, after: step.slice(at + count.length) },
     next: index + 1 === groundingSteps ? finish : next,
   };
 }

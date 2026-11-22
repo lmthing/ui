@@ -12,7 +12,7 @@ describe("Breathe grounding", () => {
   it("opens on the first sense without a clock or round count", () => {
     const html = renderInstance("Breathe", input, "filled", theme);
     expect([...addressedElements(html).keys()]).toEqual(
-      ["root", "grounding", "step", "phase", "next"].map((part) => instance + part),
+      ["root", "phase", "grounding", "step", "next"].map((part) => instance + part),
     );
     expect(html).toContain("Notice five things you can see.");
     expect(elementAt(html, instance + "next").attributes).toContain('aria-label="Next sense"');
@@ -74,6 +74,8 @@ describe("Entries options", () => {
     expect(components.Entries.props.parse(compact).entries[0]?.photo).toBe(entry.photo);
     const read = readComponent(components.Entries, compact, "c1").join("\n");
     expect(read).toContain(prompt);
+    expect(read.match(/Small joys/g)).toHaveLength(1);
+    expect(read).not.toContain("photo:parks");
     expect(read).toContain("[c1/r1 press");
   });
 
@@ -103,7 +105,8 @@ describe("SleepLog options", () => {
       expect(html).toContain(value);
       expect(read).toContain(value);
     }
-    expect(read).toContain("REM: 110 min");
+    expect(read).toContain("REM: 110 min (23%)");
+    expect(html).toContain("23%");
     expect(read).toContain("[c1/edit press");
   });
 
@@ -118,6 +121,7 @@ describe("SleepLog options", () => {
 
   it.each([
     { stages: { ...stages, light: 261 } },
+    { stages: { ...stages, light: 259 } },
     { stages: { ...stages, rem: -1 } },
     { awake: 31 },
     { hrv: -1 },
@@ -149,7 +153,7 @@ describe("Soundscape saved mixes", () => {
     const screen = { id: "home", components: ["c1", "c2"].map((id) => ({ id, c: "Soundscape", ...input })) };
     const controller = createScreenController({ screen, defs: components });
     const mix = (value: string) => controller.act({ address: "c1/presets", action: "select", value });
-    const volume = (value: number) => controller.act({ address: "c1/r1/level", action: "set", value });
+    const volume = (value: number) => controller.act({ address: "c1/r1/mix_level", action: "set", value });
     const line = () =>
       controller
         .read()
@@ -157,6 +161,7 @@ describe("Soundscape saved mixes", () => {
         .find((line) => line.startsWith("c1 Soundscape"));
     try {
       expect(mix("Not a preset").ok).toBe(false);
+      expect(controller.act({ address: "c1/r1/level", action: "set", value: 2 }).ok).toBe(false);
       expect(controller.press("c1/mix").ok).toBe(true);
       expect(mix("Night rain").ok).toBe(true);
       expect(line()).toContain('10 min — Pause mix — "Rain": 3 — "Wind": 0');

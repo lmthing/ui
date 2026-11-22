@@ -123,13 +123,12 @@ export const probes = [
   },
 ] satisfies c.Probe[];
 
-function RoundCount({ before, count, after }: ReturnType<typeof breathCopy>["rounds"]) {
+// prettier-ignore
+function CountLabel({ before, count, after, part }: ReturnType<typeof breathCopy>["rounds"] & { part: "rounds" | "step" }) {
   return (
-    <kit.KitText part="rounds" role="caption" tone="muted" align="center">
+    <kit.KitText part={part} role="caption" tone="muted" align={part === "rounds" ? "center" : "start"}>
       {before}
-      <kit.KitText part={null} role="number" numberScale="compact" tabular>
-        {count}
-      </kit.KitText>
+      <kit.KitText part={null} role="number" numberScale="compact" tabular>{count}</kit.KitText>
       {after}
     </kit.KitText>
   );
@@ -140,11 +139,11 @@ type BreathProps = c.Props<typeof props, typeof meta>;
 function Grounding({ index }: { index: number }) {
   const context = kit.usePartContext();
   const { lang } = kit.useWords();
-  const { title, cue, step, next } = groundingCopy(
+  const { title, cue, progress, next } = groundingCopy(
     context.state === "success" ? groundingSteps : index,
     lang,
   );
-  if (!next)
+  if (!next || !progress)
     return (
       <kit.PartContext.Provider value={{ ...context, state: "success" }}>
         <kit.KitState part="grounding" message={cue} />
@@ -152,10 +151,10 @@ function Grounding({ index }: { index: number }) {
     );
   return (
     <kit.KitContent>
-      <kit.KitHeader title={{ text: title, part: "grounding" }} meta={{ text: step, part: "step" }} />
-      <kit.KitLayoutText line={{ text: cue, part: "phase" }} />
+      <kit.KitHeader title={{ text: cue, part: "phase" }} meta={{ text: title, part: "grounding" }} />
+      <CountLabel part="step" {...progress} />
       <kit.KitActionFooter>
-        <kit.KitAction part="next" label={next} full contentParts={{}} />
+        <kit.KitAction part="next" label={next} kind="secondary" contentParts={{}} />
       </kit.KitActionFooter>
     </kit.KitContent>
   );
@@ -186,14 +185,14 @@ function BreathCircle({ input, live }: { input: BreathProps; live: Record<string
   const phaseLine = <kit.KitText part="phase" role={controlFirst ? "caption" : "heading"}
     align="center" tone={controlFirst ? "muted" : "text"} emphasis={emphasis}>{cue}</kit.KitText>;
   const control = !complete && <kit.KitText part={null} role={controlFirst ? "heading" : "caption"}
-    align="center" tone="accent" emphasis={emphasis}>{action}</kit.KitText>;
-  return <kit.KitContent>
+    align="center" tone={emphasis === "quiet" ? "text" : "accent"} emphasis={emphasis}>{action}</kit.KitText>;
+  return <kit.KitContent rhythm="flush">
     <kit.KitBreath part={null} target={{ part: complete ? null : "circle" }}
       phase={frame.phase} progress={frame.progress} paused={!running}
       label={complete ? cue : words.breathe.controlLabel(action, cue)}>
       {controlFirst ? control : phaseLine}
       {controlFirst ? phaseLine : control}
     </kit.KitBreath>
-    {detail === "full" && <RoundCount {...rounds} />}
+    {detail === "full" && <CountLabel part="rounds" {...rounds} />}
   </kit.KitContent>;
 }

@@ -88,7 +88,13 @@ export function readSleepLog(input: Night, full: boolean, lang?: string): string
     words.reading(words.duration, words.minuteReading(lines.duration, lines.asleepMinutes)),
     ...(stages
       ? sleepStagePoints(stages, lang).map(({ label, value }) =>
-          words.reading(label, durationLine(value, lang)),
+          words.reading(
+            label,
+            words.minuteReading(
+              durationLine(value, lang),
+              percentLine(value, nightMinutes(input.bed, input.wake), lang),
+            ),
+          ),
         )
       : [lines.share, lines.awake]),
     ...(lines.quality === undefined ? [] : [words.reading(words.quality, lines.quality)]),
