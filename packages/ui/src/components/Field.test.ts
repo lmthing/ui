@@ -186,7 +186,7 @@ describe("Field fallback and metadata", () => {
       task: "Name the plant Basil",
       expect: { address: "f1/field", action: "type" },
     });
-    expect(new Set(examples.map((example) => example.kind)).size).toBe(9);
+    expect(new Set(examples.map((example) => example.kind)).size).toBe(11);
   });
   it("registers its data-only definition and ids", () => {
     const registry = createRegistry();

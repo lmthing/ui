@@ -23,12 +23,32 @@ import {
 
 type Job = { abort: AbortController; token: symbol | undefined; before?: AttachmentEntry | undefined };
 
-function mirror(ctx: ControllerContext, address: string, entry?: AttachmentEntry) {
+function mirrorKey(ctx: ControllerContext, address: string) {
   const [id, ...target] = address.split("/");
-  ctx.store.set(
-    ctx.key(id!, attachmentKey(target.join("/") || "root")),
-    entry && { phase: entry.phase, present: entry.reference !== undefined },
+  return ctx.key(id!, attachmentKey(target.join("/") || "root"));
+}
+
+function mirror(ctx: ControllerContext, address: string, entry?: AttachmentEntry) {
+  const status = entry && { phase: entry.phase, present: entry.reference !== undefined };
+  ctx.store.set(mirrorKey(ctx, address), status);
+}
+
+function consumed(ctx: ControllerContext, address: string) {
+  const [id, part, extra] = address.split("/");
+  return (
+    part === "attach" &&
+    !extra &&
+    ctx.sourceOf(id!)?.c === "Composer" &&
+    ctx.store.get(mirrorKey(ctx, address)) === undefined
   );
+}
+
+function discardConsumed(ctx: ControllerContext, jobs: Map<string, Job>, address: string) {
+  if (!consumed(ctx, address)) return;
+  ctx.attachmentEntries.delete(address);
+  const job = jobs.get(address);
+  jobs.delete(address);
+  job?.abort.abort();
 }
 
 function admitted(ctx: ControllerContext, offer: AttachmentOffer, job?: Job) {
@@ -99,6 +119,7 @@ function restoreEntry(ctx: ControllerContext, address: string, before?: Attachme
 }
 
 function reconcile(ctx: ControllerContext, jobs: Map<string, Job>) {
+  for (const address of ctx.attachmentEntries.keys()) discardConsumed(ctx, jobs, address);
   for (const [address, job] of jobs) {
     const entry = ctx.attachmentEntries.get(address);
     if (!entry || !admitted(ctx, entry.offer, job)) {
@@ -116,6 +137,7 @@ async function run(ctx: ControllerContext, jobs: Map<string, Job>, offer: Attach
   const host = ctx.options.attachments;
   if (!host || ctx.status.disposed) return;
   const { address, spec } = offer;
+  discardConsumed(ctx, jobs, address);
   const token = ctx.mounted.get(address);
   const prior = ctx.attachmentEntries.get(address);
   const previous = jobs.get(address);
@@ -162,7 +184,7 @@ export function createAttachments(ctx: ControllerContext) {
     reference(address: string) {
       const local = ctx.relative(address);
       const stored = ctx.attachmentEntries.get(local);
-      if (stored && !ctx.status.disposed && currentOwner(ctx, stored.offer))
+      if (stored && !ctx.status.disposed && !consumed(ctx, local) && currentOwner(ctx, stored.offer))
         return registeredAttachment(ctx.attachmentEntries, local, stored.offer.identity)?.reference;
     },
     reconcile: () => reconcile(ctx, jobs),
