@@ -1,5 +1,5 @@
 import { packIds, packIndex, type PackId, type PackMeta, type ArchetypeMeta } from "../meta";
-import type { Definition } from "../probes";
+import { packSelectionProbes, type Definition } from "../probes";
 import { registryOf } from "../registry";
 import { archetypes, type ArchetypeOverrides } from "../archetypes";
 import { checkArchetypeOverrides } from "./check-archetypes";
@@ -29,7 +29,7 @@ function checkMeta(input: Input, pack: PackMeta): string[] {
   if (!entry?.purpose.trim() || !pick.trim() || (!nearest.length && !excludesCore))
     issues.push(`${pack.id}: purpose/pick`);
   if ((input.packArchetypes[pack.id]?.length ?? 0) < 2) issues.push(`${pack.id}: archetypes`);
-  const probes = pack.probes.filter((probe) => probe.kind === "pack");
+  const probes = packSelectionProbes(pack.id, pack);
   const positive = probes.filter((probe) => probe.expect.includes(pack.id));
   const miss = probes.some(
     (probe) =>
@@ -70,7 +70,11 @@ function checkComponents(input: Input): string[] {
   return Object.values(input.components).flatMap(({ meta }) => {
     if (!input.packOf[meta.id]) return [];
     const issues: string[] = [];
-    const parts = new Set([...(meta.parts ?? ["root"]), ...(meta.items?.parts ?? [])]);
+    const parts = new Set([
+      ...(meta.parts ?? ["root"]),
+      ...(meta.items?.parts ?? []),
+      ...Object.values(meta.collections ?? {}).flatMap(({ parts }) => parts),
+    ]);
     if ([...(meta.confirmParts ?? []), ...Object.keys(meta.partTiers ?? {})].some((part) => !parts.has(part)))
       issues.push(`${meta.id}: parts`);
     if (denseIds.includes(meta.id) && !meta.dense) issues.push(`${meta.id}: dense`);

@@ -10,8 +10,32 @@ import {
   type Props,
 } from "@lmthing/ui/catalog";
 import { renderInstance } from "../../test/render";
+import { createScreenController } from "@lmthing/ui/kit";
 
 const { props, meta, examples, fallback, probes } = components.Camera;
+
+// prettier-ignore
+it.each([
+  ["video", ["start", "stop", "start"]],
+  ["document_dual", ["increment", "increment", undefined]],
+] as const)("advances the %s shutter without leaking actions from other kinds", (kind, actions) => {
+  const screen = { id: "home", components: [{ c: "Camera", id: "c1", kind, hint: "Aim here" }] };
+  const controller = createScreenController({ screen, defs: components });
+  const address = "c1/shutter";
+  try {
+    expect(controller.actionsAt(address)).toEqual([actions[0]]);
+    for (const [index, action] of actions.slice(0, 2).entries()) {
+      expect(controller.act({ address, action: action! })).toMatchObject({ ok: true });
+      expect(controller.actionsAt(address)).toEqual(actions[index + 1] ? [actions[index + 1]] : []);
+      const live = { "c1/$recording": controller.store.get("home/c1/$recording"), "c1/$adjust/side": controller.store.get("home/c1/$adjust/side") };
+      const read = readComponent(components.Camera, { kind, hint: "Aim here" }, "c1", "filled", live).join("\n");
+      expect(read).toContain(kind === "video" ? ["Stop recording", "Start recording"][index] : ["Scan back", "Both sides scanned"][index]);
+      if (kind === "document_dual") expect(read).not.toContain("Aim here");
+    }
+  } finally {
+    controller.dispose();
+  }
+});
 
 describe("Camera schema", () => {
   it.each(examples)("accepts a real example", (example) =>
@@ -22,6 +46,7 @@ describe("Camera schema", () => {
       kind: "photo",
       hint: "Point at the subject",
       surface: "plain",
+      still: true,
     });
   });
   it.each([
@@ -30,7 +55,7 @@ describe("Camera schema", () => {
     { hint: "   " },
     { hint: "a".repeat(49) },
     { hint: 4 },
-    { hint: "Aim", kind: "video" },
+    { hint: "Aim", kind: "burst" },
     { hint: "Aim", kind: null },
     { hint: "Aim", surface: "tinted" },
     { hint: "Aim", aspect: "square" },
@@ -40,12 +65,15 @@ describe("Camera schema", () => {
     { hint: "Aim", shutter: "Take" },
     { hint: "Aim", id: "c1" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
-  it.each(["photo", "scan"] as const)("accepts the exact hint limit in %s mode", (kind) => {
-    expect(props.safeParse({ kind, hint: "a".repeat(48) }).success).toBe(true);
-  });
+  it.each(["photo", "scan", "video", "document_dual"] as const)(
+    "accepts the exact hint limit in %s mode",
+    (kind) => {
+      expect(props.safeParse({ kind, hint: "a".repeat(48) }).success).toBe(true);
+    },
+  );
   it("keeps strict wire props and typed view props", () => {
     type ViewProps = Props<typeof props, typeof meta>;
-    expectTypeOf<ViewProps["kind"]>().toEqualTypeOf<"photo" | "scan">();
+    expectTypeOf<ViewProps["kind"]>().toEqualTypeOf<"photo" | "scan" | "video" | "document_dual">();
     expectTypeOf<ViewProps["hint"]>().toEqualTypeOf<string>();
     expectTypeOf<ViewProps>().not.toBeAny();
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
@@ -96,7 +124,7 @@ describe("Camera metadata and probes", () => {
       tier: "ok",
       parts: ["root", "viewfinder", "hint", "shutter"],
       states: ["filled"],
-      actions: { parts: { shutter: ["press"] } },
+      actions: { parts: { shutter: ["press", "start", "stop", "increment"] } },
     });
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
@@ -157,6 +185,15 @@ describe("Camera rendering and reading", () => {
     expect(read).toContain(label);
     expect(read).toContain(input.hint);
     expect(read).toContain("c1/shutter");
-    expect(meta.read(props.parse(input), "loading")).toEqual([]);
+    expect(meta.read(props.parse(input), "loading", undefined, undefined, undefined, undefined)).toEqual([]);
+  });
+  it.each([
+    ["video", "Start recording"],
+    ["document_dual", "Scan front"],
+  ] as const)("renders the initial %s capture action", (kind, label) => {
+    const input = { kind, hint: "Aim at the subject" };
+    expect(renderInstance("Camera", input, "filled", theme)).toContain(`aria-label="${label}"`);
+    const read = readComponent(components.Camera, input, "c1").join("\n");
+    expect(read).toContain(kind === "video" ? "c1/shutter start" : label);
   });
 });

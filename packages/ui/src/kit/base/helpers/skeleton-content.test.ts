@@ -24,7 +24,7 @@ const ids = [
   "Stats",
   "Hero",
   "Profile",
-  "Ring",
+  "Progress",
   "Gallery",
 ] as const;
 

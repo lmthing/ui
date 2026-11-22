@@ -1,55 +1,37 @@
 import type { ClockState, Meta } from "../../meta";
 import type { ActionName } from "../../types";
-import type { Values } from "../index";
-import { clockKey, clockMax, clockPropKey, clockTargets, clockTime } from "./clock";
-import {
-  componentSetAt,
-  effectiveLimits,
-  finite,
-  isNumericSet,
-  isRuntimeSet,
-  keyFor,
-  runtimeNumber,
-} from "./component-sets";
-const knownRows = (value: unknown) => (Array.isArray(value) ? (value as Values[]) : []);
-const rowId = (meta: Meta, row: Values, index: number) =>
-  String(row.id ?? `${meta.items?.prefix ?? "r"}${index + 1}`);
+import { validateActionValue, type DeviceData, type Values } from "../index";
+import { clockKey, clockMax, clockPropKey, clockRows as knownRows, clockTargets, clockTime } from "./clock";
+import { effectiveLimits, finite, isNumericSet, keyFor, runtimeNumber } from "./component-sets";
+import { resolveRange, rowId, snapNumber, type ResolvedRange } from "./numeric";
 function nextNumber(current: number, delta: number, min: number, max: number) {
   if (!finite(delta) || min > max) return;
   const next = Math.min(max, Math.max(min, current + delta));
   if (finite(next) && Math.sign(next - current) === Math.sign(delta) && next !== current) return next;
 }
 
-export function itemSetAt(meta: Meta, props: Values, target: string) {
-  const sets = meta.items?.set;
-  if (!sets) return;
-  const [id, part = "root", ...rest] = target.split("/");
-  if (rest.length || !Object.hasOwn(sets, part)) return;
-  const spec = sets[part]!;
-  const rows = knownRows(props[meta.items!.key]);
-  const holder = rows.find((row, index) => rowId(meta, row, index) === id);
-  if (holder)
-    return {
-      key: keyFor(`${id}/`, spec.prop),
-      spec: effectiveLimits(spec, meta.items?.adjust, props),
-      value: holder[spec.prop],
-    };
-}
-
-export function numericSetAt(meta: Meta, props: Values, target: string) {
-  const item = itemSetAt(meta, props, target);
-  if (item) return item;
-  const set = componentSetAt(meta, props, target);
-  if (set && isNumericSet(set.spec)) return { ...set, spec: effectiveLimits(set.spec, meta.adjust, props) };
-}
-
-export function setAt(meta: Meta, props: Values, target: string) {
-  return numericSetAt(meta, props, target) ?? componentSetAt(meta, props, target);
-}
-export function hasNumericRoom(meta: Meta, props: Values, part: string, action: string) {
-  if (action !== "set" || !isRuntimeSet(meta.set?.[part])) return true;
-  const { min, max } = numericSetAt(meta, props, part)!.spec;
-  return min <= max && max !== -Infinity;
+function boundedNext(
+  current: unknown,
+  delta: number,
+  bounds: ResolvedRange,
+  clock?: ReturnType<typeof clockTargets>[number],
+) {
+  if (!finite(current)) return;
+  const min = Math.max(bounds.min, clock ? 0 : -Infinity);
+  const max = Math.min(bounds.max, clock ? clockMax(clock) : Infinity);
+  const unsnapped = nextNumber(current, delta, min, max);
+  if (unsnapped === undefined) return;
+  const next = bounds.step ? snapNumber(unsnapped, min, max, bounds.step) : unsnapped;
+  if (
+    clock &&
+    (clock.spec.kind === "until" || clock.spec.timestamp || clock.spec.journal || !Number.isSafeInteger(next))
+  )
+    return;
+  if (
+    Math.sign(next - current) === Math.sign(delta) &&
+    !validateActionValue("set", next, { ...bounds, min, max })
+  )
+    return next;
 }
 
 /** Used only after the controller has resumed a confirmed component press. */
@@ -81,6 +63,7 @@ export function adjustmentAt(
   action: string,
   get: (part: string) => unknown,
   now: number,
+  data?: DeviceData,
 ) {
   if (!meta.adjust && !meta.items?.adjust) return;
   const rows = knownRows(props[meta.items?.key ?? ""]);
@@ -99,20 +82,21 @@ export function adjustmentAt(
   const sets = row < 0 ? meta.set : meta.items?.set;
   const setter =
     !clock && Object.entries(sets ?? {}).find(([, set]) => set.prop === prop && isNumericSet(set));
-  const bounds =
-    setter && isNumericSet(setter[1]) ? effectiveLimits(setter[1], adjustments, props) : undefined;
+  const holder = row < 0 ? props : rows[row]!;
+  const setLimits =
+    setter && isNumericSet(setter[1])
+      ? effectiveLimits(meta, setter[1], adjustments, props, holder, data)
+      : undefined;
+  const bounds = setLimits ?? resolveRange(meta, [spec], holder, props, data);
   const state = clock ? (get(clockKey(clock)) as ClockState | undefined) : undefined;
   const saved = get(key);
   const current = clock
     ? clockTime(clock, state, get(clockPropKey(clock)), now)
-    : bounds?.runtime
-      ? runtimeNumber(bounds, saved)
+    : setLimits?.runtime
+      ? runtimeNumber(setLimits, saved)
       : saved === undefined || (setter && row < 0)
-        ? (row < 0 ? props : rows[row])?.[prop]
+        ? holder[prop]
         : saved;
-  const min = Math.max(spec.min ?? -Infinity, bounds?.min ?? -Infinity, clock ? 0 : -Infinity);
-  const max = Math.min(spec.max ?? Infinity, bounds?.max ?? Infinity, clock ? clockMax(clock) : Infinity);
-  const next = finite(current) ? nextNumber(current, delta, min, max) : undefined;
   const atSet =
     setter && (action === "increment" || action === "decrement")
       ? row >= 0 && setter[0] === "root"
@@ -125,11 +109,8 @@ export function adjustmentAt(
     state,
     current,
     atSet,
-    next:
-      (clock && (clock.spec.kind === "until" || !Number.isSafeInteger(next))) ||
-      (bounds?.integer && !Number.isInteger(next))
-        ? undefined
-        : next,
+    declared: bounds.declared,
+    next: boundedNext(current, delta, bounds, clock),
   };
 }
 
@@ -181,8 +162,8 @@ export function projectMatrix(
   return props;
 }
 
-/** Read from the store after parsing so this also works for derived, addressed item rows. */
-export function projectAdjustments(meta: Meta, props: Values, get: (part: string) => unknown): Values {
+// prettier-ignore
+export function projectAdjustments(meta: Meta, props: Values, get: (part: string) => unknown, wire = false): Values {
   const setters = new Set(Object.values(meta.set ?? {}).map(({ prop }) => prop));
   const top = Object.values(meta.adjust ?? {}).filter((spec) => spec && !setters.has(spec.prop));
   if (top.length) props = projectHolder(props, top, "", get);
@@ -193,7 +174,7 @@ export function projectAdjustments(meta: Meta, props: Values, get: (part: string
   return {
     ...props,
     [items.key]: knownRows(props[items.key]).map((row, index) => {
-      const base = `${rowId(meta, row, index)}/`;
+      const base = `${rowId(meta, wire ? {} : row, index)}/`; // Wire ids belong to records, not address slots.
       return projectItemSets(meta, projectHolder(row, specs, base, get), base, get);
     }),
   };

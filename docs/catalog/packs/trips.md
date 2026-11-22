@@ -123,7 +123,8 @@ Interactive aircraft or train cabin seat grid laid out in numbered rows and lett
 - Styles: `cabin` (default, full row-by-column grid with aisle spacing and legend), `compact` (zoomed section around the selected row).
 - Parts → actions: seats `root select`, `confirm press`.
 - States: filled, empty (seat map unavailable), loading, success (seat confirmed), error (seat taken or assignment failed).
-- Real path: live cabin inventory and seat fees fetched and reserved through the carrier's booking service using the new Wave 6 `KitSeatGrid` base.
+- Real path: live cabin inventory and seat fees fetched and reserved through the carrier's booking service.
+- Renderer: reuse the Trips `CabinSeats` view adapter over `SeatPlan` / `KitSeatGrid`. Keep the single selection, fee preview and confirm policy in Trips. The adapter is not a Writer entry.
 - Density: `meta.dense: true`, weight 3; multi-row cabin seat matrices hold up to 20 rows and 10 columns.
 
 ## Archetypes (5)
@@ -154,7 +155,7 @@ group's shared plan needs a shared app.
 - `Itinerary` reads one line per day ("Tue 4 Mar Kyoto: 09:00 Fushimi Inari, train 25 min, 13:00 Nishiki").
 - `TravelDocs` uses the core `secret` helper, so numbers never reach a model.
 - Wave 6 migration & option upgrades: standalone forecast apps move to the Wave 6 `weather` pack (`trips/Weather` remains intact here for trip overview screens, while trip apps needing full hourly/radar forecasts load `trips` + `weather`). On existing components: `Reservation` adds optional `terminal` text(8), `gate` text(8), `boarding` HH:MM, `zone` text(10), `baggage` text(12), and `status` (`on_time`, `delayed`, `boarding`, `checked_in`, `cancelled`); `Converter` extends `currencies` to a 3–6 ISO currency switcher; `PackingList` adds optional `who` text(16) per item; `Itinerary` adds optional `cost` number and `ref` text(12) linking to `Reservation`.
-- Wave 6 boundaries: commercial lodging search and fare calendars belong in `stays`; turn-by-turn street and transit routing belongs in `navigation`. `CabinSeats` requires the new Wave 6 `KitSeatGrid` base.
+- Wave 6 boundaries: commercial lodging search and fare calendars belong in `stays`; turn-by-turn street and transit routing belongs in `navigation`. `CabinSeats` shares `SeatPlan` with `watch/SeatPicker`.
 
 ## Open questions
 

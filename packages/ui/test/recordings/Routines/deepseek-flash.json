@@ -1,0 +1,410 @@
+{
+  "0b7afe6392b127df": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nRoutines: Manage smart-home rules that run connected devices when their triggers occur.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", routines: [1..6 { id: text≤24, name: text≤28, triggerKind: schedule|sunrise_sunset|arrival|sensor, triggerSummary: text≤36, actionsSummary: text≤48, enabled: boolean, lastRun?: id snake_case, goto?: id snake_case }], style?: rules|activity=\"rules\" }\nRule: If asked to hide device action summaries, set detail to \"brief\". Use JSON null for density and surface unless requested; do not fill in defaults.\nRule: Optional lastRun is an observed ISO timestamp with an offset, e.g. \"2026-11-20T07:00:00+00:00\"; omit it when unknown.\nexample: {\"c\":\"Routines\",\"routines\":[{\"id\":\"grow_lights\",\"name\":\"Morning grow lights\",\"triggerKind\":\"schedule\",\"triggerSummary\":\"Every day at 07:00\",\"actionsSummary\":\"Switch on the plant shelf lights\",\"enabled\":true,\"lastRun\":\"2026-11-20T07:00:00+00:00\",\"goto\":\"grow_lights\"},{\"id\":\"greenhouse_fan\",\"name\":\"Vent the greenhouse\",\"triggerKind\":\"sensor\",\"triggerSummary\":\"Humidity above 70%\",\"actionsSummary\":\"Switch on the extractor fan\",\"enabled\":false}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Show my enabled Morning grow lights automatic rule, id grow_lights, every day at 07:00 to switch on plant shelf lights. Hide the device action summary from the list; leave spacing and borders alone.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Routines",
+              "enum": [
+                "Routines"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "routines": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "triggerKind": {
+                    "type": "string",
+                    "enum": [
+                      "schedule",
+                      "sunrise_sunset",
+                      "arrival",
+                      "sensor"
+                    ]
+                  },
+                  "triggerSummary": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 36
+                  },
+                  "actionsSummary": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 48
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "lastRun": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d+)?)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "triggerKind",
+                  "triggerSummary",
+                  "actionsSummary",
+                  "enabled",
+                  "lastRun",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rules",
+                    "activity"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "routines",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Routines\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"routines\":[{\"id\":\"grow_lights\",\"name\":\"Morning grow lights\",\"triggerKind\":\"schedule\",\"triggerSummary\":\"Every day at 07:00\",\"actionsSummary\":\">\",\"enabled\":true,\"lastRun\":null,\"goto\":\"grow_lights\"}],\"style\":\"rules\"}",
+    "replies": [
+      "{\"c\":\"Routines\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"routines\":[{\"id\":\"grow_lights\",\"name\":\"Morning grow lights\",\"triggerKind\":\"schedule\",\"triggerSummary\":\"Every day at 07:00\",\"actionsSummary\":\">\",\"enabled\":true,\"lastRun\":null,\"goto\":\"grow_lights\"}],\"style\":\"rules\"}",
+      "{\"c\":\"Routines\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"routines\":[{\"id\":\"grow_lights\",\"name\":\"Morning grow lights\",\"triggerKind\":\"schedule\",\"triggerSummary\":\"Every day at 07:00\",\"actionsSummary\":\"Switch on the plant shelf lights\",\"enabled\":true,\"lastRun\":null,\"goto\":null}] ,\"style\":\"rules\"}",
+      "{\"c\":\"Routines\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"routines\":[{\"id\":\"grow_lights\",\"name\":\"Morning grow lights\",\"triggerKind\":\"schedule\",\"triggerSummary\":\"Every day at 07:00\",\"actionsSummary\": \"Switch on plant shelf lights\",\"enabled\":true,\"lastRun\":null,\"goto\":\"grow_lights\"}] , \"style\":null}"
+    ]
+  },
+  "149a7760fe16ed4b": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nr1 Routines Automation rules — r1 · Morning grow lights · When: Every day at 07:00 · Then: Switch on the plant shelf lights · Last run: 20 Nov 2026 · 07:00 — r2 · Vent the greenhouse · When: Humidity above 70% · Then: Switch on the extractor fan · Not run yet\n  r1 \"Morning grow lights\" [r1/r1 press→grow_lights !needs-service] [r1/r1/enabled toggle:on !needs-service] [r1/r1/run press !needs-service]\n  r2 \"Vent the greenhouse\" [r1/r2/enabled toggle:off !needs-service] [r1/r2/run press !needs-service]\n\nTask: Run Morning grow lights right now without opening its details.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"r1/r1/run\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"r1/r1/run\", \"action\": \"press\"}",
+      "{\"address\": \"r1/r1/run\", \"action\": \"press\"}",
+      "{\"address\": \"r1/r1/run\", \"action\": \"press\"}"
+    ]
+  },
+  "82cc65aa360556e3": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nr1 Routines Automation rules — Auto run — Run now — r1 · Morning grow lights · When: Every day at 07:00 · Then: Switch on the plant shelf lights · Last run: 20 Nov 2026 · 07:00 — r2 · Vent the greenhouse · When: Humidity above 70% · Then: Switch on the extractor fan · Not run yet\n  r1 \"Morning grow lights\" [r1/r1 press→grow_lights !needs-service] [r1/r1/enabled toggle:on !needs-service] [r1/r1/run press !needs-service]\n  r2 \"Vent the greenhouse\" [r1/r2/enabled toggle:off !needs-service] [r1/r2/run press !needs-service]\n\nTask: Run Morning grow lights right now without opening its details.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"r1/r1/run\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"r1/r1/run\", \"action\": \"press\"}",
+      "{\"address\": \"r1/r1/run\", \"action\": \"press\"}",
+      "{\"address\": \"r1/r1/run\", \"action\": \"press\"}"
+    ]
+  },
+  "8ab7d9bd4c016d38": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nr1 Routines Automation rules — Auto run — Run now — r1 · Morning grow lights · When: Every day at 07:00 · Then: Switch on the plant shelf lights · Last run: 20 Nov 2026 · 07:00 — r2 · Vent the greenhouse · When: Humidity above 70% · Then: Switch on the extractor fan · Not run yet\n  r1 \"Morning grow lights\" [r1/r1 press→grow_lights !needs-service] [r1/r1/enabled toggle:on !needs-service] [r1/r1/run press !needs-service]\n  r2 \"Vent the greenhouse\" [r1/r2/enabled toggle:off !needs-service] [r1/r2/run press !needs-service]\n\nTask: Enable the automation that vents the greenhouse.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"r1/r2/enabled\", \"action\": \"toggle\"}",
+    "replies": [
+      "{\"address\": \"r1/r2/enabled\", \"action\": \"toggle\"}",
+      "{\"address\": \"r1/r2/enabled\", \"action\": \"toggle\"}",
+      "{\"address\": \"r1/r2/enabled\", \"action\": \"toggle\"}"
+    ]
+  },
+  "98fb88980eecdca4": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nr1 Routines Automation rules — Auto run — Run now — r1 · Morning grow lights · When: Every day at 07:00 · Then: Switch on the plant shelf lights · Last run: 20 Nov 2026 · 07:00 — r2 · Vent the greenhouse · When: Humidity above 70% · Then: Switch on the extractor fan · Not run yet\n  r1 \"Morning grow lights\" [r1/r1 press→grow_lights !needs-service] [r1/r1/enabled toggle:on !needs-service] [r1/r1/run press !needs-service]\n  r2 \"Vent the greenhouse\" [r1/r2/enabled toggle:off !needs-service] [r1/r2/run press !needs-service]\n\nTask: Open the Morning grow lights rule details, without running it.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"r1/r1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"r1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"r1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"r1/r1\", \"action\": \"press\"}"
+    ]
+  },
+  "99fd5561f57312c3": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nr1 Routines Automation rules — r1 · Morning grow lights · When: Every day at 07:00 · Then: Switch on the plant shelf lights · Last run: 20 Nov 2026 · 07:00 — r2 · Vent the greenhouse · When: Humidity above 70% · Then: Switch on the extractor fan · Not run yet\n  r1 \"Morning grow lights\" [r1/r1 press→grow_lights !needs-service] [r1/r1/enabled toggle:on !needs-service] [r1/r1/run press !needs-service]\n  r2 \"Vent the greenhouse\" [r1/r2/enabled toggle:off !needs-service] [r1/r2/run press !needs-service]\n\nTask: Open the Morning grow lights rule details, without running it.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"r1/r1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"r1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"r1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"r1/r1\", \"action\": \"press\"}"
+    ]
+  },
+  "af0f5bf9476718b3": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nRoutines: Manage smart-home rules that run connected devices when their triggers occur.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", routines: [1..6 { id: text≤24, name: text≤28, triggerKind: schedule|sunrise_sunset|arrival|sensor, triggerSummary: text≤36, actionsSummary: text≤48, enabled: boolean, lastRun?: id snake_case, goto?: id snake_case }], style?: rules|activity=\"rules\" }\nRule: If asked to hide device action summaries, set detail to \"brief\". Use JSON null for density and surface unless requested; do not fill in defaults.\nRule: Optional lastRun is an observed ISO timestamp with an offset, e.g. \"2026-11-20T07:00:00+00:00\"; omit it when unknown.\nexample: {\"c\":\"Routines\",\"routines\":[{\"id\":\"grow_lights\",\"name\":\"Morning grow lights\",\"triggerKind\":\"schedule\",\"triggerSummary\":\"Every day at 07:00\",\"actionsSummary\":\"Switch on the plant shelf lights\",\"enabled\":true,\"lastRun\":\"2026-11-20T07:00:00+00:00\",\"goto\":\"grow_lights\"},{\"id\":\"greenhouse_fan\",\"name\":\"Vent the greenhouse\",\"triggerKind\":\"sensor\",\"triggerSummary\":\"Humidity above 70%\",\"actionsSummary\":\"Switch on the extractor fan\",\"enabled\":false}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: A smart-home rule with id grow_lights named Morning grow lights. Every day at 07:00, switch on the plant shelf lights. Enable it.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Routines",
+              "enum": [
+                "Routines"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "routines": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "triggerKind": {
+                    "type": "string",
+                    "enum": [
+                      "schedule",
+                      "sunrise_sunset",
+                      "arrival",
+                      "sensor"
+                    ]
+                  },
+                  "triggerSummary": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 36
+                  },
+                  "actionsSummary": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 48
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "lastRun": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d+)?)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "triggerKind",
+                  "triggerSummary",
+                  "actionsSummary",
+                  "enabled",
+                  "lastRun",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rules",
+                    "activity"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "routines",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Routines\",\"density\":null,\"surface\":null,\"detail\":null,\"routines\":[{\"id\":\"grow_lights\",\"name\":\"Morning grow lights\",\"triggerKind\":\"schedule\",\"triggerSummary\":\"Every day at 07:00\",\"actionsSummary\":\"Switch on the plant shelf lights\",\"enabled\":true,\"lastRun\":null,\"goto\":null}] ,\"style\":null}",
+    "replies": [
+      "{\"c\":\"Routines\",\"density\":null,\"surface\":null,\"detail\":null,\"routines\":[{\"id\":\"grow_lights\",\"name\":\"Morning grow lights\",\"triggerKind\":\"schedule\",\"triggerSummary\":\"Every day at 07:00\",\"actionsSummary\":\"Switch on the plant shelf lights\",\"enabled\":true,\"lastRun\":null,\"goto\":null}] ,\"style\":null}",
+      "{\"c\":\"Routines\",\"density\":null,\"surface\":null,\"detail\":null,\"routines\":[{\"id\":\"grow_lights\",\"name\":\"Morning grow lights\",\"triggerKind\":\"schedule\",\"triggerSummary\":\"Every day at 07:00\",\"actionsSummary\":\"Switch on the plant shelf lights\",\"enabled\":true,\"lastRun\":null,\"goto\":null}],\"style\":\"rules\"}",
+      "{\"c\":\"Routines\",\"density\":null,\"surface\":null,\"detail\":null,\"routines\":[{\"id\":\"grow_lights\",\"name\":\"Morning grow lights\",\"triggerKind\":\"schedule\",\"triggerSummary\":\"Every day at 07:00\",\"actionsSummary\":\"Switch on the plant shelf lights\",\"enabled\":true,\"lastRun\":null,\"goto\":null}],\"style\":null}"
+    ]
+  },
+  "b3328d0df63e1f23": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Agenda: Group the family's events by date across multiple days, showing who attends each. Pick: The family's next seven days grouped by date: each day heading has timed or all-day events and each event's attendees. This multi-day family week belongs here, not Timeline: Timeline/hours is one day and has no per-event attendees. Not a month of marked dates (Calendar) or class timetables (Timetable).\n- BabyLog: Quickly log a baby's feeds, nappies and sleeps and time an active feed or sleep. Pick: Baby feeds, nappies and sleeps with quick tiles, an active timer and today's log. Not timing one thing (Timer), adult habits (HabitGrid), or a general care history (Timeline).\n- CameraFeed: Check a connected home camera, change its arming mode and review recent events. Pick: Connected home security cameras or baby monitors with arming modes and motion events. Not taking a device photo (Camera), playing local media (Player), or controlling switches and thermostats (Devices).\n- CareSchedule: Keep recurring care for pets, plants, cars or a house and log each completion. Pick: Recurring care with last completion and code-derived next due dates. Not today's one-off jobs (Checklist), shared household points (Chores), a person's medicine (Medication), or provider appointments (Appointment).\n- Chores: Share recurring household jobs with owners and points earned for completing them. Pick: Shared household jobs with an owner, a repeat and optional points. Not one person's jobs today (Checklist), staff shifts (Shift), or recurring care for a pet or plant (CareSchedule).\n- Devices: Read and control connected household devices and apply saved settings together. Pick: Connected household devices: switches, thermostat reading and set point, sensor ranges and multi-device scenes. Not local preference rows with trailing switches (List), one labelled form value (Field), navigation (Actions), independent manual summary measurements (Stats), recent manual history (Sparkline), or a person's body readings (Vitals).\n- Rewards: Keep children's earned points or pocket money and claim prizes they can afford. Pick: Children's points earned and spent on prizes with costs. Not one person's goal (Ring), a business stamp card (Loyalty), or milestone badges (Achievements).\n- Routines: Manage smart-home rules that run connected devices when their triggers occur. Pick: Automatic smart-home rules with trigger conditions, device actions, enable switches and manual runs. Not manual scenes (Devices), household chores (Chores, CareSchedule), or a repeat value in a form (Field).\n- Turns: Rotate one household duty through people and advance or skip the current turn. Pick: One household job rotating through people, with current and next holders. Not a roster of several named household members without turns (People), many chores (Chores), staff shifts (Roster), or game turns (TurnOrder).\n\nNeed, in the person's words: \"I need just one form input labelled Water it, set to repeat every week. It stores a preference, no connected device or automatic action.\"\nReply with only the component id, nothing else.",
+    "reply": "Field",
+    "replies": [
+      "Field",
+      "Field",
+      "Field"
+    ]
+  },
+  "db045e1925c4dfd9": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nr1 Routines Automation rules — r1 · Morning grow lights · When: Every day at 07:00 · Then: Switch on the plant shelf lights · Last run: 20 Nov 2026 · 07:00 — r2 · Vent the greenhouse · When: Humidity above 70% · Then: Switch on the extractor fan · Not run yet\n  r1 \"Morning grow lights\" [r1/r1 press→grow_lights !needs-service] [r1/r1/enabled toggle:on !needs-service] [r1/r1/run press !needs-service]\n  r2 \"Vent the greenhouse\" [r1/r2/enabled toggle:off !needs-service] [r1/r2/run press !needs-service]\n\nTask: Enable the automation that vents the greenhouse.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"r1/r2/enabled\", \"action\": \"toggle\"}",
+    "replies": [
+      "{\"address\": \"r1/r2/enabled\", \"action\": \"toggle\"}",
+      "{\"address\": \"r1/r2/enabled\", \"action\": \"toggle\"}",
+      "{\"address\": \"r1/r2/enabled\", \"action\": \"toggle\"}"
+    ]
+  },
+  "f223c1be3869372a": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Agenda: Group the family's events by date across multiple days, showing who attends each. Pick: The family's next seven days grouped by date: each day heading has timed or all-day events and each event's attendees. This multi-day family week belongs here, not Timeline: Timeline/hours is one day and has no per-event attendees. Not a month of marked dates (Calendar) or class timetables (Timetable).\n- BabyLog: Quickly log a baby's feeds, nappies and sleeps and time an active feed or sleep. Pick: Baby feeds, nappies and sleeps with quick tiles, an active timer and today's log. Not timing one thing (Timer), adult habits (HabitGrid), or a general care history (Timeline).\n- CameraFeed: Check a connected home camera, change its arming mode and review recent events. Pick: Connected home security cameras or baby monitors with arming modes and motion events. Not taking a device photo (Camera), playing local media (Player), or controlling switches and thermostats (Devices).\n- CareSchedule: Keep recurring care for pets, plants, cars or a house and log each completion. Pick: Recurring care with last completion and code-derived next due dates. Not today's one-off jobs (Checklist), shared household points (Chores), a person's medicine (Medication), or provider appointments (Appointment).\n- Chores: Share recurring household jobs with owners and points earned for completing them. Pick: Shared household jobs with an owner, a repeat and optional points. Not one person's jobs today (Checklist), staff shifts (Shift), or recurring care for a pet or plant (CareSchedule).\n- Devices: Read and control connected household devices and apply saved settings together. Pick: Connected household devices: switches, thermostat reading and set point, sensor ranges and multi-device scenes. Not local preference rows with trailing switches (List), one labelled form value (Field), navigation (Actions), independent manual summary measurements (Stats), recent manual history (Sparkline), or a person's body readings (Vitals).\n- Rewards: Keep children's earned points or pocket money and claim prizes they can afford. Pick: Children's points earned and spent on prizes with costs. Not one person's goal (Ring), a business stamp card (Loyalty), or milestone badges (Achievements).\n- Routines: Manage smart-home rules that run connected devices when their triggers occur. Pick: Automatic smart-home rules with trigger conditions, device actions, enable switches and manual runs. Not manual scenes (Devices), household chores (Chores, CareSchedule), or a repeat value in a form (Field).\n- Turns: Rotate one household duty through people and advance or skip the current turn. Pick: One household job rotating through people, with current and next holders. Not a roster of several named household members without turns (People), many chores (Chores), staff shifts (Roster), or game turns (TurnOrder).\n\nNeed, in the person's words: \"Manage automatic smart-home rules: switch grow lights on every morning, run a fan above 70% humidity, and let me pause or run each rule now.\"\nReply with only the component id, nothing else.",
+    "reply": "Routines",
+    "replies": [
+      "Routines",
+      "Routines",
+      "Routines"
+    ]
+  }
+}

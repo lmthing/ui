@@ -1,18 +1,25 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+// prettier-ignore
+import { KitCard, KitContent, KitGrid, KitHeader, KitInput, KitLayoutText, KitRowGroup, KitSkeleton, KitState, useAppCurrency, useComponentState, useLiveControls, useVariant, useWords } from "../../../kit";
+import * as unitView from "./unit-row";
+import { exclusiveLets, unitDisplay, unitReading, unitSnapshot } from "../copy";
+import { propertyWordsFor } from "../lang";
 import { distinct, ref, seedDate, seedLabels } from "../seeds";
 
 // Core first: List/rows cannot derive occupancy and agreed rent from dated, mutually exclusive lets.
 export const meta = {
   id: "Units",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "See who occupies each rental unit and the agreed rent on a chosen date.",
-  pick: "Only choose this to derive occupancy or agreed rent across rental units from dated lets. For a directory of tenant names linking to profiles, choose List, not Units. Not owned stock (Things), an advertised place (Listing), or one agreement (Lease).",
+  pick: "A tenant directory of names and profile links is List, not Units. Choose Units only to calculate rental-unit occupancy or agreed rent on a date from tenancy or stay records. Not owned stock (Things), an advertised place (Listing), or one agreement (Lease).",
   writeHints: [
     "Use snake_case references. Every let must reference a unit in this line. Active lets for one unit must not overlap; the end date is exclusive, and cancelled lets do not count.",
     'A stay requires an end date and per "night"; a tenancy uses "week" or "month". Supply askingRent and askingPer together, or omit both. Do not write occupancy or totals.',
-    'A requested thumbnail sets media to "thumb" only. Leave surface and density null unless asked separately for a card surface or tighter spacing.',
+    'Do not copy unrequested photos, addresses or links from the example. A requested thumbnail sets only media to "thumb". Usual, regular or default spacing and surface mean null for density and surface, never explicit defaults.',
+    'For a Vacancies view (vacant and notice-given units), set style to "vacancies". Otherwise set style to "register". Always write every supplied unit and let, even in the Vacancies view: the view, not the Writer, filters their visibility.',
+    "For a tenancy described as on notice, write the given notice date in noticeGivenOn. Its end must be later than notice. Do not use a scheduled end alone as notice.",
   ],
   region: "body",
   weight: 3,
@@ -22,45 +29,25 @@ export const meta = {
     "Units and agreed tenancy or stay records live on the device, without a booking engine or lease editor.",
   variants: { density: ["comfortable", "compact"], surface: ["plain", "card"], media: ["none", "thumb"] },
   variantParts: { "media.thumb": { adds: ["photo"] } },
-  parts: ["root", "date"],
-  items: { key: "units", parts: ["root", "title", "address", "photo", "occupant", "occupancy", "rent"] },
+  parts: ["root", "date", "message", "vacancies"],
+  items: {
+    key: "units",
+    visibleWhen: { visible: true },
+    parts: ["root", "title", "address", "photo", "occupant", "occupancy", "rent"],
+  },
   states: ["filled", "empty", "loading", "error"],
   actions: { parts: { date: ["set"] }, items: { root: ["press"] }, when: { root: { linked: true } } },
-  read: (input, _state, lang): string[] => {
-    const { on, units, lets } = input as z.output<typeof props>;
-    return [
-      on,
-      ...units.map((unit, index) => {
-        const current = lets.find(
-          (record) =>
-            record.unitRef === unit.unitRef &&
-            !record.cancelled &&
-            record.start <= on &&
-            (!record.end || on < record.end),
-        );
-        const reserved = lets.some(
-          (record) => record.unitRef === unit.unitRef && !record.cancelled && record.start > on,
-        );
-        const rent = current?.rent ?? unit.askingRent;
-        const per = current?.per ?? unit.askingPer;
-        return [
-          `r${index + 1}`,
-          unit.title,
-          current ? "occupied" : reserved ? "reserved" : "vacant",
-          current?.occupant,
-          rent === undefined ? undefined : c.moneyLine(rent, undefined, per, lang),
-        ]
-          .filter(Boolean)
-          .join(" · ");
-      }),
-    ];
-  },
+  set: { date: { type: "date", prop: "on" } },
+  emptyActions: [],
+  live: { derive: unitDisplay },
+  read: (input, state, lang, _data, currency): string[] =>
+    state === "filled" ? unitReading(input as z.output<typeof props>, lang, currency) : [],
 } as const satisfies c.Meta;
 
 const per = z.enum(["night", "week", "month"]);
 const unit = z
   .strictObject({
-    unitRef: ref,
+    unitRef: ref.meta({ kind: "ref" }),
     title: c.text(32),
     address: c.text(36).optional(),
     photo: c.photo.optional(),
@@ -80,6 +67,7 @@ const letRecord = z
     kind: z.enum(["tenancy", "stay"]),
     start: c.isoDate,
     end: c.isoDate.optional(),
+    noticeGivenOn: c.isoDate.optional(),
     rent: z.number().nonnegative(),
     per,
     cancelled: z.boolean().default(false),
@@ -88,22 +76,11 @@ const letRecord = z
     ({ kind, start, end, per }) =>
       (!end || start < end) && (kind === "stay" ? Boolean(end && per === "night") : per !== "night"),
     { path: ["end"], message: "Use a later end; stays also need nightly rent and a required end" },
+  )
+  .refine(
+    ({ kind, end, noticeGivenOn }) => !noticeGivenOn || (kind === "tenancy" && !!end && noticeGivenOn < end),
+    { path: ["noticeGivenOn"], message: "Notice needs a tenancy with a later end date" },
   );
-
-type Let = z.output<typeof letRecord>;
-function exclusiveLets(lets: readonly Let[]) {
-  const active = lets.filter(({ cancelled }) => !cancelled);
-  return active.every((a, index) =>
-    active
-      .slice(index + 1)
-      .every(
-        (b) =>
-          a.unitRef !== b.unitRef ||
-          (a.end !== undefined && a.end <= b.start) ||
-          (b.end !== undefined && b.end <= a.start),
-      ),
-  );
-}
 
 export const props = z
   .strictObject({
@@ -111,6 +88,7 @@ export const props = z
     units: z.array(unit).min(1).max(12),
     lets: z.array(letRecord).min(0).max(48),
     on: c.isoDate,
+    style: z.enum(["register", "vacancies"]).optional(),
   })
   .refine(({ units }) => distinct(units, (unit) => unit.unitRef), { path: ["units"] })
   .refine(
@@ -124,6 +102,7 @@ export const props = z
     ...value,
     units: value.units.map((unit) => ({
       ...unit,
+      photo: value.media === "thumb" ? unit.photo : undefined,
       linked: Boolean(unit.goto),
     })),
   }));
@@ -139,38 +118,67 @@ export function fallback(input: c.FallbackInput): z.input<typeof props> {
 // prettier-ignore
 export const examples = [
   {
-    units: [{ unitRef: "flat_a", title: "Willow Flat", address: "14 Mill Lane", goto: "property_unit_detail" },
+    units: [{ unitRef: "flat_a", title: "Willow Flat", address: "14 Mill Lane", photo: "lib:home", goto: "property_unit_detail" },
       { unitRef: "flat_b", title: "Cedar Flat", askingRent: 1050, askingPer: "month" }],
     lets: [{ letRef: "asha_let", unitRef: "flat_a", occupant: "Asha", kind: "tenancy", start: "2026-10-01", rent: 900, per: "month" }],
     on: "2026-11-18",
   },
   {
-    units: [{ unitRef: "north_cabin", title: "North Cabin", photo: "lib:home" }],
+    units: [{ unitRef: "north_cabin", title: "North Cabin", address: "8 Pine Track", photo: "lib:home" }],
     lets: [
       { letRef: "lee_stay", unitRef: "north_cabin", occupant: "Lee", kind: "stay", start: "2026-11-19", end: "2026-11-21", rent: 85, per: "night" },
       { letRef: "ivy_stay", unitRef: "north_cabin", occupant: "Ivy", kind: "stay", start: "2026-11-21", end: "2026-11-23", rent: 80, per: "night", cancelled: true },
     ],
-    on: "2026-11-18", density: "compact", surface: "card", media: "thumb",
+    on: "2026-11-18", media: "thumb",
   },
+  { style: "vacancies", on: "2026-11-18", units: [{ unitRef: "flat_a", title: "Willow Flat" }, { unitRef: "flat_b", title: "Cedar Flat" }],
+    lets: [{ letRef: "asha_let", unitRef: "flat_a", occupant: "Asha", kind: "tenancy", start: "2026-10-01", end: "2026-12-01", noticeGivenOn: "2026-11-10", rent: 900, per: "month" }] },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Units");
+// prettier-ignore
 export const probes = [
-  choose(
-    "On any date, see which rental flats are occupied, reserved or vacant from the agreed lets and see each flat's current rent",
-  ),
-  choose(
-    "Show a plain tenant directory of names linked to their profiles, with no occupancy or date calculations",
-    "List",
-  ),
-  write(
-    "On 2026-11-18 show Willow Flat (flat_a) occupied under Asha’s monthly tenancy (asha_let) from 2026-10-01 for 900. Add vacant Cedar Flat (flat_b), asking 1050 per month.",
-  ),
-  {
-    ...write(
-      "Show North Cabin (north_cabin) on 2026-11-18 with thumbnail photo lib:home; there are no agreed lets. Keep the usual row surface and spacing.",
-    ),
-    variant: { axis: "media", value: "thumb" },
-  },
+  choose("On any date, see which rental flats are occupied, reserved or vacant from the agreed lets and see each flat's current rent"),
+  choose("Show a plain tenant directory of names linked to their profiles, with no occupancy or date calculations", "List"),
+  { ...write("On 2026-11-18 show Willow Flat (flat_a) occupied under Asha’s monthly tenancy (asha_let) from 2026-10-01 for 900. Add vacant Cedar Flat (flat_b), asking 1050 per month."),
+    expectProps: { style: "register" } },
+  { ...write("Show North Cabin (north_cabin) on 2026-11-18 with thumbnail photo lib:home; there are no agreed lets. Keep the usual row surface and spacing."),
+    variant: { axis: "media", value: "thumb" }, expectProps: { style: "register" } },
   read("Open Willow Flat’s details", { address: "u1/r1", action: "press" }),
+  { ...write("Use the Vacancies view on 2026-11-18. Include both Willow Flat (flat_a) and Cedar Flat (flat_b) in the underlying register for date changes. Store Asha's tenancy asha_let for Willow Flat, 900 monthly from 2026-10-01 to 2026-12-01. Asha already gave notice on 2026-11-10; retain that exact notice date on the tenancy. Cedar Flat has no lets."),
+    expectProps: { style: "vacancies", units: [{ unitRef: "flat_a" }, { unitRef: "flat_b" }], lets: [{ letRef: "asha_let", noticeGivenOn: "2026-11-10" }] } },
 ] satisfies c.Probe[];
+
+type UnitsProps = c.Props<typeof props, typeof meta>;
+type Unit = UnitsProps["units"][number];
+type VisibleUnits = Omit<UnitsProps, "units"> & { units: (Unit & { visible: boolean; notice: boolean })[] };
+// prettier-ignore
+export function Units(input: UnitsProps) {
+  const { units, lets, on, style } = useLiveControls(meta, input) as VisibleUnits;
+  const state = useComponentState();
+  const loading = state === "loading";
+  const { words, lang } = useWords(propertyWordsFor);
+  const currency = useAppCurrency();
+  const density = useVariant("density", meta.variants.density, input.density);
+  const surface = useVariant("surface", meta.variants.surface, input.surface);
+  const media = useVariant("media", meta.variants.media, input.media);
+  const rows = units.filter(({ visible }) => visible).map((unit) => <unitView.UnitRow key={unit.id} notice={unit.notice}
+    snapshot={unitSnapshot(unit, lets, on, lang, currency)} {...{ unit, media, density, loading }} />);
+  const content = <>
+    <KitContent {...{ density }}>
+      <KitLayoutText line={{ role: "meta", text: words.units.date, tone: "muted" }} {...{ density }} />
+      {loading ? <KitSkeleton shape="control" kind="secondary" label={words.units.date} full /> :
+        <KitInput part="date" kind="date" icon="calendar" action="set" label={words.units.date} hint={words.units.dateFormat} value={on} projected />}
+    </KitContent>
+    {style === "vacancies" ? <KitContent {...{ density }}>
+      <KitHeader title={{ text: words.units.vacancies, part: "vacancies" }} {...{ density }} />
+      <KitRowGroup {...{ density }}>{rows}</KitRowGroup>
+    </KitContent> :
+      <KitGrid arrange="rows" list={!loading} {...{ density }}>{rows}</KitGrid>}
+    {!rows.length && !loading && <KitLayoutText line={{ text: words.units.noVacancies, part: "message", tone: "muted" }} {...{ density }} />}
+  </>;
+  return <KitCard part="root" padded surface={state === "filled" || loading ? surface : "card"} {...{ density }}>
+    <KitState part="message" icon={state === "error" ? "alert" : "home"}
+      message={state === "error" ? words.units.error : undefined} loading={content} {...{ density }}>{content}</KitState>
+  </KitCard>;
+}

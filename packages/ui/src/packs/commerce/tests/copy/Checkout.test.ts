@@ -1,5 +1,15 @@
 import { expect, it } from "vitest";
-import { checkoutAmount } from "../../copy";
+import { checkoutAmount, checkoutChoices } from "../../copy";
+
+it("keeps the supplied wire values and order while giving controls readable labels", () => {
+  expect(checkoutChoices({ modes: ["pickup"], methods: ["cash", "card"] })).toEqual({
+    modeChoices: [{ value: "pickup", label: "Pickup" }],
+    methodChoices: [
+      { value: "cash", label: "Cash" },
+      { value: "card", label: "Card" },
+    ],
+  });
+});
 
 it("formats the host total in its currency and the app locale", () => {
   const basket = [{ total: 1234.5, currency: "EUR" }];

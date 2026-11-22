@@ -2,7 +2,7 @@ import { useSignatureProgress } from "../../motion";
 import { motion } from "../../../catalog";
 import * as Lucide from "@tamagui/lucide-icons";
 import { YStack, styled } from "tamagui";
-import { iconTable, size, type IconName } from "../../../catalog";
+import { iconTable, radius, size, type IconName } from "../../../catalog";
 import { usePart } from "../../part";
 
 const Frame = styled(YStack, { alignItems: "center", justifyContent: "center" });
@@ -15,6 +15,7 @@ export function KitIcon({
   tone = "muted",
   scale = "md",
   decorative = false,
+  loading = false,
 }: {
   name?: IconName | undefined;
   part?: string;
@@ -22,18 +23,29 @@ export function KitIcon({
   scale?: keyof typeof size.icon;
   /** Pure decoration (a chevron): no address, hidden from reading and acting. */
   decorative?: boolean;
+  loading?: boolean;
 }) {
-  const address = usePart(part, !decorative);
+  const addressed = !decorative && !loading;
+  const address = usePart(part, addressed);
   const progress = useSignatureProgress("streak_flame");
   const Icon = Lucide[iconTable[name]];
   return (
     <Frame
       scale={name === "flame" ? 1 + motion.pulseScale * Math.sin(progress * Math.PI) : 1}
-      {...(decorative ? {} : address)}
+      {...(addressed ? address : {})}
       accessibilityElementsHidden
       aria-hidden
     >
-      <Icon size={size.icon[scale]} color={`$${tone}`} />
+      {loading ? (
+        <YStack
+          width={size.icon[scale]}
+          height={size.icon[scale]}
+          borderRadius={radius.pill}
+          backgroundColor="$line"
+        />
+      ) : (
+        <Icon size={size.icon[scale]} color={`$${tone}`} />
+      )}
     </Frame>
   );
 }

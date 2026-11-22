@@ -17,12 +17,6 @@ export type DataWords = {
   chartSeriesPoints: (series: string) => string;
   chartUnit: (unit: string) => string;
   chartValue: (value: string, unit: string) => string;
-  filterClear: string;
-  filterCount: (count: string, form: LDMLPluralRule) => string;
-  filterLabel: string;
-  filterList: string;
-  filterOptions: (id: string, label: string, options: readonly string[], value?: string) => string;
-  filterSort: (label: string) => string;
   heatDay: (index: number, short?: boolean) => string;
   heatDetail: (style: "weeks" | "hours") => string;
   heatHour: (hour: string, short?: boolean) => string;
@@ -53,13 +47,6 @@ export const en = {
   chartSeriesPoints: (series) => `${series} data points`,
   chartUnit: (unit) => `Unit: ${unit}`,
   chartValue: (value, unit) => `${value} ${unit}`,
-  filterClear: "Clear filters",
-  filterCount: (count, form) => (form === "one" ? `${count} active filter` : `${count} active filters`),
-  filterLabel: "Name",
-  filterList: "Filter fields",
-  filterOptions: (id, label, options, value) =>
-    `${id} ${value === undefined ? label : `${label}: ${value}`} (${options.join(" · ")})`,
-  filterSort: (label) => `Sort: ${label}`,
   heatDay: (index, short) =>
     (short
       ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]

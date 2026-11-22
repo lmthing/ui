@@ -1,3 +1,5 @@
+import type { KeypadProfile } from "../agent";
+
 export type ActionName =
   | "press"
   | "toggle"
@@ -17,19 +19,24 @@ export type ActionName =
   | "flip"
   | "move"
   | "send"
-  | "scan";
+  | "scan"
+  | "copy";
 export type ScreenAction = "back" | "tab" | "scroll";
 /** Store-backed inputs and derived gates, applied to parsed props, never to Writer input. */
 export type LiveActionInputs = {
   text?: Readonly<Record<string, { prop: string; max: number }>>;
+  /** Item check or toggle part → the parsed boolean projected before deriving live props. */
   checks?: Readonly<Record<string, string>>;
+  /** Component check or toggle part → one live boolean, seeded by a parsed boolean or `initial`. */
+  toggles?: Readonly<Record<string, { prop: string; initial: boolean }>>;
   /** Send part → declared text input and optional audience prop, captured at the admitted step. */
-  send?: Readonly<Record<string, { field: string; audience?: string }>>;
+  send?: Readonly<Record<string, { field: string; audience?: string; attachments?: readonly string[] }>>;
   /** Derive presentation props/gates, optionally closing over trusted host facts for this instance. */
   derive?: (props: Readonly<Record<string, unknown>>, instance: string) => Record<string, unknown>;
 };
+export type PartActionName = ActionName | "focus" | "jump";
 export type ActionSpec = {
-  parts?: Record<string, readonly ActionName[]>;
+  parts?: Record<string, readonly PartActionName[]>;
   items?: Record<string, readonly ActionName[]>;
   /**
    * A part that exists only for some prop values: `{ back: { style: "back" }, trail: { trail: "toggle" } }`.
@@ -39,6 +46,16 @@ export type ActionSpec = {
    * matches only the first item.
    */
   when?: Record<string, Record<string, string | boolean>>;
+  /** Component toggle part → credential prop. A grant applies only to the exact credential. */
+  credentialToggles?: Readonly<Record<string, string>>;
   /** These presses ignore their component/item's inherited `goto`, but not a link on the part itself. */
   noGoto?: { parts?: readonly string[]; items?: readonly string[] };
+  /** Declared presses that require local host authentication before the view may reveal a secret. */
+  reveal?: { parts?: readonly string[]; items?: readonly string[] };
+  /** Copy controls that require local authentication and a host-bound clipboard operation. */
+  authenticatedCopy?: { parts?: readonly string[]; items?: readonly string[] };
+  /** Component `type` part → local-only keypad profile. Never bind this to a wire value. */
+  privateInput?: Readonly<Record<string, KeypadProfile>>;
+  /** Component `press` part → private keypad part to submit to the host. */
+  privateVerify?: Readonly<Record<string, string>>;
 };

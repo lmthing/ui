@@ -1,2 +1,3 @@
 export { PartContext, PartScope, usePartContext, useComponentState, useEmptyThing } from "./part-context";
-export { usePart } from "./usePart";
+export { usePart, usePartDisabled } from "./usePart";
+export { PartRefScope } from "./part-ref-scope";

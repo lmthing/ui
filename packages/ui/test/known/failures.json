@@ -1,24 +1,6 @@
 [
   {
     "file": "test/probes.test.ts",
-    "test": "shared variant probes on deepseek-flash > replays every requested and plain brief with a passing majority",
-    "reason": "The current shared variant prompts are missing from the DeepSeek Flash recording.",
-    "owner": "ui-fix-variant-probes"
-  },
-  {
-    "file": "test/probes.test.ts",
-    "test": "probes on deepseek-flash > List passes its probes",
-    "reason": "The recorded write chooses an unrequested density variant.",
-    "owner": "ui-fix-list-probes"
-  },
-  {
-    "file": "test/probes.test.ts",
-    "test": "probes on deepseek-flash > Scale passes its probes",
-    "reason": "The recorded write chooses an unrequested density variant.",
-    "owner": "ui-fix-scale-probes"
-  },
-  {
-    "file": "test/probes.test.ts",
     "test": "pack probes on deepseek-flash > booking passes selection, component and composition probes",
     "reason": "Missing current pack recording.",
     "owner": "ui-refresh-pack-booking"
@@ -144,9 +126,33 @@
     "owner": "ui-refresh-pack-sports"
   },
   {
+    "file": "test/archetypes.test.ts",
+    "test": "archetype composition on deepseek-flash > checklist/progress passes its layout and the text-first rubric",
+    "reason": "Only 1 of 3 valid screens meets the composition rubric.",
+    "owner": "ui-fix-core-gates"
+  },
+  {
+    "file": "test/archetypes.test.ts",
+    "test": "archetype composition on deepseek-flash > calendar/week passes its layout and the text-first rubric",
+    "reason": "Only 1 of 3 valid screens meets the composition rubric.",
+    "owner": "ui-fix-core-gates"
+  },
+  {
+    "file": "test/archetypes.test.ts",
+    "test": "archetype composition on deepseek-flash > calendar/month passes its layout and the text-first rubric",
+    "reason": "Only 1 of 3 valid screens meets the composition rubric.",
+    "owner": "ui-fix-core-gates"
+  },
+  {
     "file": "test/probes.test.ts",
-    "test": "pack probes on deepseek-flash > trips passes selection, component and composition probes",
-    "reason": "The recorded pack selection adds paperwork and places to trips, and component replay lacks a recording.",
-    "owner": "ui-refresh-pack-trips"
+    "test": "probes on deepseek-flash > Button passes its probes",
+    "reason": "The hidden-icon write probe passes 1 of 3 samples; replies set an unrequested surface.",
+    "owner": "ui-fix-core-gates"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "probes on deepseek-flash > List passes its probes",
+    "reason": "The names-only preview write probe passes 1 of 3 samples; replies set unrequested detail.",
+    "owner": "ui-fix-core-gates"
   }
 ]

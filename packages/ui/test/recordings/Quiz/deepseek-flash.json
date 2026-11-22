@@ -2064,5 +2064,1193 @@
       "Choice",
       "Choice"
     ]
+  },
+  "Quiz%2Fchoose%2FAsk%20me%20graded%20practice%20questions%20one%20at%20a%20time.%20Check%20each%20submission%20and%20explain%20the%20right%20answer%20before%20moving%20on./ddede48133eab539/5d641e0b694fa4c5": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Achievements: See the learning badges you earned and how to unlock the rest. Pick: A grid of learning milestone badges with earned dates and unlock criteria. Not consecutive days of a habit (Streak), photos (Gallery) or redeemable rewards (Rewards).\n- Assignments: Know which coursework is due, handed in or graded. Pick: Homework and coursework with subjects, due dates, hand-in status and grades. Not simple tasks to tick off (Checklist) or the outcome of one practice session (Result).\n- Flashcard: Recall an answer, reveal it and rate how well you remembered it. Pick: Recall from a prompt, flip to reveal its answer, then rate recall to schedule the next review. Not checked answers (Quiz) or swiping to keep or skip things (SwipeStack).\n- Gradebook: See your weighted course grade and how each category contributes. Pick: A course gradebook with weighted categories, raw assignment points and GPA. Not homework due dates (Assignments), one quiz (Result), or independent counters (Stats).\n- Lesson: Learn one idea from a short explanation and worked example before practising it. Pick: Teach one idea with a titled explanation, an optional illustrated example and a continue action. Not a short supporting sentence (Note), long-form reading (Article) or an assessed question (Quiz).\n- Path: See which course units are finished, open now or still locked. Pick: A course map with done, current and locked units, selectable unlocked units and occasional milestones. Not progress through a short flow (Steps) or a plain browsable list (List).\n- Quiz: Practise one question at a time and get feedback after checking each answer. Pick: Assessed practice questions with correct answers and immediate feedback. Use for multiple choice, true or false, typed recall, matching pairs or putting words in sentence order. Not choosing a preference (Choice), a vote (Poll), or self-rated recall (Flashcard).\n- Result: See a practice score and review the mistakes before trying again. Pick: A finished quiz or practice outcome: score, time, points, mistakes to review and a retry. Not independent summary numbers (Stats), a goal (Progress), confirmation (Success) or a sports score (Scoreboard).\n- SpeechCheck: Practise saying a phrase aloud and see which words need another try. Pick: Practise saying an exact target phrase into a microphone and get per-word pronunciation feedback and a fluency score. Not passive playback (Player), tap-or-type tests (Quiz), or open-ended chat (AiThread).\n- Timetable: See the week's repeating classes and where to go for each period. Pick: A student's repeating week of class periods with subject, room and teacher. Not a one-day schedule (Timeline), staff shifts (Roster), bookable slots (Slots) or family events (Agenda).\n- WorkedSolution: Work through a problem one derivation step at a time. Pick: Show how a specific problem is solved, with numbered derivation steps and an answer. Not general teaching (Lesson), quizzes (Quiz), recipes (CookSteps), or a bare step position (Steps).\n\nNeed, in the person's words: \"Ask me graded practice questions one at a time. Check each submission and explain the right answer before moving on.\"\nReply with only the component id, nothing else.",
+    "reply": "Quiz",
+    "replies": [
+      "Quiz",
+      "Quiz",
+      "Quiz"
+    ]
+  },
+  "Quiz%2Fchoose%2FLet%20me%20pick%20one%20of%20three%20study%20plans%2C%20each%20with%20an%20explanatory%20sentence.%20None%20is%20right%20or%20wrong./91ec4d544f50ab3a/5b69c667fbbf62ae": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Achievements: See the learning badges you earned and how to unlock the rest. Pick: A grid of learning milestone badges with earned dates and unlock criteria. Not consecutive days of a habit (Streak), photos (Gallery) or redeemable rewards (Rewards).\n- Assignments: Know which coursework is due, handed in or graded. Pick: Homework and coursework with subjects, due dates, hand-in status and grades. Not simple tasks to tick off (Checklist) or the outcome of one practice session (Result).\n- Flashcard: Recall an answer, reveal it and rate how well you remembered it. Pick: Recall from a prompt, flip to reveal its answer, then rate recall to schedule the next review. Not checked answers (Quiz) or swiping to keep or skip things (SwipeStack).\n- Gradebook: See your weighted course grade and how each category contributes. Pick: A course gradebook with weighted categories, raw assignment points and GPA. Not homework due dates (Assignments), one quiz (Result), or independent counters (Stats).\n- Lesson: Learn one idea from a short explanation and worked example before practising it. Pick: Teach one idea with a titled explanation, an optional illustrated example and a continue action. Not a short supporting sentence (Note), long-form reading (Article) or an assessed question (Quiz).\n- Path: See which course units are finished, open now or still locked. Pick: A course map with done, current and locked units, selectable unlocked units and occasional milestones. Not progress through a short flow (Steps) or a plain browsable list (List).\n- Quiz: Practise one question at a time and get feedback after checking each answer. Pick: Assessed practice questions with correct answers and immediate feedback. Use for multiple choice, true or false, typed recall, matching pairs or putting words in sentence order. Not choosing a preference (Choice), a vote (Poll), or self-rated recall (Flashcard).\n- Result: See a practice score and review the mistakes before trying again. Pick: A finished quiz or practice outcome: score, time, points, mistakes to review and a retry. Not independent summary numbers (Stats), a goal (Progress), confirmation (Success) or a sports score (Scoreboard).\n- SpeechCheck: Practise saying a phrase aloud and see which words need another try. Pick: Practise saying an exact target phrase into a microphone and get per-word pronunciation feedback and a fluency score. Not passive playback (Player), tap-or-type tests (Quiz), or open-ended chat (AiThread).\n- Timetable: See the week's repeating classes and where to go for each period. Pick: A student's repeating week of class periods with subject, room and teacher. Not a one-day schedule (Timeline), staff shifts (Roster), bookable slots (Slots) or family events (Agenda).\n- WorkedSolution: Work through a problem one derivation step at a time. Pick: Show how a specific problem is solved, with numbered derivation steps and an answer. Not general teaching (Lesson), quizzes (Quiz), recipes (CookSteps), or a bare step position (Steps).\n\nNeed, in the person's words: \"Let me pick one of three study plans, each with an explanatory sentence. None is right or wrong.\"\nReply with only the component id, nothing else.",
+    "reply": "Choice",
+    "replies": [
+      "Choice",
+      "Choice",
+      "Choice"
+    ]
+  },
+  "Quiz%2Fread%2FCheck%20my%20answer%20to%20the%20current%20question./08f85baf144101be/52390bc6b1b71b5c": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nq1 Quiz Question 1 of 2 — A · Roots — B · Fronds — C · Spores — Check answer — \"What absorbs water?\" — photo:plants [q1 select = 0; choices [0,1,2,\"A\",\"B\",\"C\"]] [q1/check press]\n\nTask: Check my answer to the current question.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"q1/check\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"q1/check\", \"action\": \"press\"}",
+      "{\"address\": \"q1/check\", \"action\": \"press\"}",
+      "{\"address\": \"q1/check\", \"action\": \"press\"}"
+    ]
+  },
+  "Quiz%2Fread%2FUse%20the%20quiz's%20shared%20choice%20control%20to%20select%20an%20answer.%20Don't%20check%20it%20yet./1d756e79ccbd85b3/8b9f5675fec3258e": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nq1 Quiz Question 1 of 2 — A · Roots — B · Fronds — C · Spores — Check answer — \"What absorbs water?\" — photo:plants [q1 select choices [0,1,2,\"A\",\"B\",\"C\"]]\n\nTask: Use the quiz's shared choice control to select an answer. Don't check it yet.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"q1\", \"action\": \"select\"}",
+    "replies": [
+      "{\"address\": \"q1\", \"action\": \"select\"}",
+      "{\"address\": \"q1\", \"action\": \"select\"}",
+      "{\"address\": \"q1\", \"action\": \"select\"}"
+    ]
+  },
+  "Quiz%2Fwrite%2FAsk%20which%20reading%20means%20water%3A%20mizu%2C%20yama%20or%20kawa.%20The%20first%20option%20is%20correct.%20Then%20ask%20me%20to%20type%20the%20reading%20of%20%E5%B7%9D%2C%20which%20is%20kawa./607a2abf5918a40f/1c03d47981598c14": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nQuiz: Practise one question at a time and get feedback after checking each answer.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", media?: thumb|none=\"thumb\", questions: [1..6 { question: text≤120, kind: choice|truefalse|type|match|order, explain?: text≤200, photo?: photo lib:<tag>|local:<n>, media?: media lib:<tag>|local:<n>, options?: [2..5 text≤40], words?: [3..8 text≤20], answer?: any, pairs?: [3..5 { left: text≤20, right: text≤20 }] }], selected_option?: int 0..4, selected_left?: int 0..4, selected_right?: int 0..4 }\nRule: Use null for unused fields. For choice, write 2–5 options and a zero-based answer index. For truefalse, write a boolean answer. For type, write a text answer. For match, write 3–5 correct left/right pairs and set answer to null.\nRule: For kind \"order\", put 3–8 scrambled word tiles in words, and write answer as the complete list of their zero-based indexes in correct sentence order. For example, words [\"fern\", \"the\", \"Water\"] have answer [2, 1, 0]. Set options and pairs to null.\nRule: Use media inside a question only for its supplied audio clip reference. Component-level media controls question photos, not audio.\nRule: Leave selected_option, selected_left and selected_right null; selections are made by the learner.\nRule: When asked to hide the question photo, write media \"none\" and retain its photo reference. Always write density and surface as null unless requested; do not fill in defaults such as \"comfortable\" or \"card\". Use media null for unrequested media.\nexample: {\"c\":\"Quiz\",\"questions\":[{\"question\":\"What absorbs water?\",\"kind\":\"choice\",\"options\":[\"Roots\",\"Fronds\",\"Spores\"],\"answer\":0,\"explain\":\"Roots take up water and minerals from the soil.\",\"photo\":\"lib:plants\"},{\"question\":\"Name the fern's leaves.\",\"kind\":\"type\",\"answer\":\"Fronds\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Ask which reading means water: mizu, yama or kawa. The first option is correct. Then ask me to type the reading of 川, which is kawa.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Quiz",
+              "enum": [
+                "Quiz"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "questions": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "question": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "choice",
+                      "truefalse",
+                      "type",
+                      "match",
+                      "order"
+                    ]
+                  },
+                  "explain": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "media": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "options": {
+                    "anyOf": [
+                      {
+                        "minItems": 2,
+                        "maxItems": 5,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 40
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "words": {
+                    "anyOf": [
+                      {
+                        "minItems": 3,
+                        "maxItems": 8,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "answer": {
+                    "anyOf": [
+                      {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 4
+                          },
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "minItems": 3,
+                            "maxItems": 8,
+                            "type": "array",
+                            "items": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 7
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "pairs": {
+                    "anyOf": [
+                      {
+                        "minItems": 3,
+                        "maxItems": 5,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "left": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20
+                            },
+                            "right": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20
+                            }
+                          },
+                          "required": [
+                            "left",
+                            "right"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "question",
+                  "kind",
+                  "explain",
+                  "photo",
+                  "media",
+                  "options",
+                  "words",
+                  "answer",
+                  "pairs"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "selected_option": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "selected_left": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "selected_right": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "media",
+            "questions",
+            "selected_option",
+            "selected_left",
+            "selected_right"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Quiz\",\"density\":null,\"surface\":null,\"media\":null,\"questions\":[{\"question\":\"Which reading means water?\",\"kind\":\"choice\",\"explain\":null,\"photo\":null,\"media\":null,\"options\":[\"mizu\",\"yama\",\"kawa\"],\"words\":null,\"answer\":0,\"pairs\":null},{\"question\":\"Type the reading of 川.\",\"kind\":\"type\",\"explain\":null,\"photo\":null,\"media\":null,\"options\":null,\"words\":null,\"answer\":\"kawa\",\"pairs\":null}],\"selected_option\":null,\"selected_left\":null,\"selected_right\":null}",
+    "replies": [
+      "{\"c\":\"Quiz\",\"density\":null,\"surface\":null,\"media\":null,\"questions\":[{\"question\":\"Which reading means water?\",\"kind\":\"choice\",\"explain\":null,\"photo\":null,\"media\":null,\"options\":[\"mizu\",\"yama\",\"kawa\"],\"words\":null,\"answer\":0,\"pairs\":null},{\"question\":\"Type the reading of 川.\",\"kind\":\"type\",\"explain\":null,\"photo\":null,\"media\":null,\"options\":null,\"words\":null,\"answer\":\"kawa\",\"pairs\":null}],\"selected_option\":null,\"selected_left\":null,\"selected_right\":null}",
+      "{\"c\":\"Quiz\",\"density\":null,\"surface\":null,\"media\":null,\"questions\":[{\"question\":\"Which reading means water?\",\"kind\":\"choice\",\"explain\":null,\"photo\":null,\"media\":null,\"options\":[\"mizu\",\"yama\",\"kawa\"],\"words\":null,\"answer\":0,\"pairs\":null},{\"question\":\"Type the reading of 川.\",\"kind\":\"type\",\"explain\":null,\"photo\":null,\"media\":null,\"options\":null,\"words\":null,\"answer\":\"kawa\",\"pairs\":null}],\"selected_option\":null,\"selected_left\":null,\"selected_right\":null}",
+      "{\"c\":\"Quiz\",\"density\":null,\"surface\":null,\"media\":null,\"questions\":[{\"question\":\"Which reading means water?\",\"kind\":\"choice\",\"explain\":null,\"photo\":null,\"media\":null,\"options\":[\"mizu\",\"yama\",\"kawa\"],\"words\":null,\"answer\":0,\"pairs\":null},{\"question\":\"Type the reading of 川.\",\"kind\":\"type\",\"explain\":null,\"photo\":null,\"media\":null,\"options\":null,\"words\":null,\"answer\":\"kawa\",\"pairs\":null}],\"selected_option\":null,\"selected_left\":null,\"selected_right\":null}"
+    ]
+  },
+  "Quiz%2Fwrite%2FWrite%20exactly%20one%20assessed%20question%20that%20asks%20%22Which%20reading%20means%20water%3F%22%20with%20options%20mizu%20and%20yama%2C%20mizu%20correct.%20Attach%20the%20supplied%20audio%20prompt%20lib%3Awater_prompt%20to%20that%20question%2C%20not%20as%20a%20photo./c830eca06b37475e/a9daf7a2707e2048": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nQuiz: Practise one question at a time and get feedback after checking each answer.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", media?: thumb|none=\"thumb\", questions: [1..6 { question: text≤120, kind: choice|truefalse|type|match|order, explain?: text≤200, photo?: photo lib:<tag>|local:<n>, media?: media lib:<tag>|local:<n>, options?: [2..5 text≤40], words?: [3..8 text≤20], answer?: any, pairs?: [3..5 { left: text≤20, right: text≤20 }] }], selected_option?: int 0..4, selected_left?: int 0..4, selected_right?: int 0..4 }\nRule: Use null for unused fields. For choice, write 2–5 options and a zero-based answer index. For truefalse, write a boolean answer. For type, write a text answer. For match, write 3–5 correct left/right pairs and set answer to null.\nRule: For kind \"order\", put 3–8 scrambled word tiles in words, and write answer as the complete list of their zero-based indexes in correct sentence order. For example, words [\"fern\", \"the\", \"Water\"] have answer [2, 1, 0]. Set options and pairs to null.\nRule: Use media inside a question only for its supplied audio clip reference. Component-level media controls question photos, not audio.\nRule: Leave selected_option, selected_left and selected_right null; selections are made by the learner.\nRule: When asked to hide the question photo, write media \"none\" and retain its photo reference. Always write density and surface as null unless requested; do not fill in defaults such as \"comfortable\" or \"card\". Use media null for unrequested media.\nexample: {\"c\":\"Quiz\",\"questions\":[{\"question\":\"What absorbs water?\",\"kind\":\"choice\",\"options\":[\"Roots\",\"Fronds\",\"Spores\"],\"answer\":0,\"explain\":\"Roots take up water and minerals from the soil.\",\"photo\":\"lib:plants\"},{\"question\":\"Name the fern's leaves.\",\"kind\":\"type\",\"answer\":\"Fronds\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Write exactly one assessed question that asks \"Which reading means water?\" with options mizu and yama, mizu correct. Attach the supplied audio prompt lib:water_prompt to that question, not as a photo.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Quiz",
+              "enum": [
+                "Quiz"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "questions": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "question": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "choice",
+                      "truefalse",
+                      "type",
+                      "match",
+                      "order"
+                    ]
+                  },
+                  "explain": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "media": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "options": {
+                    "anyOf": [
+                      {
+                        "minItems": 2,
+                        "maxItems": 5,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 40
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "words": {
+                    "anyOf": [
+                      {
+                        "minItems": 3,
+                        "maxItems": 8,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "answer": {
+                    "anyOf": [
+                      {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 4
+                          },
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "minItems": 3,
+                            "maxItems": 8,
+                            "type": "array",
+                            "items": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 7
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "pairs": {
+                    "anyOf": [
+                      {
+                        "minItems": 3,
+                        "maxItems": 5,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "left": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20
+                            },
+                            "right": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20
+                            }
+                          },
+                          "required": [
+                            "left",
+                            "right"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "question",
+                  "kind",
+                  "explain",
+                  "photo",
+                  "media",
+                  "options",
+                  "words",
+                  "answer",
+                  "pairs"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "selected_option": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "selected_left": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "selected_right": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "media",
+            "questions",
+            "selected_option",
+            "selected_left",
+            "selected_right"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Quiz\",\"density\":null,\"surface\":null,\"media\":null,\"questions\":[{\"question\":\"Which reading means water?\",\"kind\":\"choice\",\"explain\":null,\"photo\":null,\"media\":\"lib:water_prompt\",\"options\":[\"mizu\",\"yama\"],\"words\":null,\"answer\":0,\"pairs\":null}],\"selected_option\":null,\"selected_left\":null,\"selected_right\":null}",
+    "replies": [
+      "{\"c\":\"Quiz\",\"density\":null,\"surface\":null,\"media\":null,\"questions\":[{\"question\":\"Which reading means water?\",\"kind\":\"choice\",\"explain\":null,\"photo\":null,\"media\":\"lib:water_prompt\",\"options\":[\"mizu\",\"yama\"],\"words\":null,\"answer\":0,\"pairs\":null}],\"selected_option\":null,\"selected_left\":null,\"selected_right\":null}",
+      "{\"c\":\"Quiz\",\"density\":null,\"surface\":null,\"media\":null,\"questions\":[{\"question\":\"Which reading means water?\",\"kind\":\"choice\",\"explain\":null,\"photo\":null,\"media\":\"lib:water_prompt\",\"options\":[\"mizu\",\"yama\"],\"words\":null,\"answer\":0,\"pairs\":null}],\"selected_option\":null,\"selected_left\":null,\"selected_right\":null}",
+      "{\"c\":\"Quiz\",\"density\":null,\"surface\":null,\"media\":null,\"questions\":[{\"question\":\"Which reading means water?\",\"kind\":\"choice\",\"explain\":null,\"photo\":null,\"media\":\"lib:water_prompt\",\"options\":[\"mizu\",\"yama\"],\"words\":null,\"answer\":0,\"pairs\":null}],\"selected_option\":null,\"selected_left\":null,\"selected_right\":null}"
+    ]
+  },
+  "Quiz%2Fwrite%2FWrite%20exactly%20one%20question%3A%20%22Which%20part%20absorbs%20water%3F%22%20Choices%20Roots%20and%20Leaves%2C%20with%20Roots%20correct.%20Keep%20the%20plant%20photo%20attached%20but%20hide%20it%20from%20the%20question%3B%20leave%20all%20other%20appearance%20settings%20unset./d8182a500ffdb8f5/70ab647d2324d580": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nQuiz: Practise one question at a time and get feedback after checking each answer.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", media?: thumb|none=\"thumb\", questions: [1..6 { question: text≤120, kind: choice|truefalse|type|match|order, explain?: text≤200, photo?: photo lib:<tag>|local:<n>, media?: media lib:<tag>|local:<n>, options?: [2..5 text≤40], words?: [3..8 text≤20], answer?: any, pairs?: [3..5 { left: text≤20, right: text≤20 }] }], selected_option?: int 0..4, selected_left?: int 0..4, selected_right?: int 0..4 }\nRule: Use null for unused fields. For choice, write 2–5 options and a zero-based answer index. For truefalse, write a boolean answer. For type, write a text answer. For match, write 3–5 correct left/right pairs and set answer to null.\nRule: For kind \"order\", put 3–8 scrambled word tiles in words, and write answer as the complete list of their zero-based indexes in correct sentence order. For example, words [\"fern\", \"the\", \"Water\"] have answer [2, 1, 0]. Set options and pairs to null.\nRule: Use media inside a question only for its supplied audio clip reference. Component-level media controls question photos, not audio.\nRule: Leave selected_option, selected_left and selected_right null; selections are made by the learner.\nRule: When asked to hide the question photo, write media \"none\" and retain its photo reference. Always write density and surface as null unless requested; do not fill in defaults such as \"comfortable\" or \"card\". Use media null for unrequested media.\nexample: {\"c\":\"Quiz\",\"questions\":[{\"question\":\"What absorbs water?\",\"kind\":\"choice\",\"options\":[\"Roots\",\"Fronds\",\"Spores\"],\"answer\":0,\"explain\":\"Roots take up water and minerals from the soil.\",\"photo\":\"lib:plants\"},{\"question\":\"Name the fern's leaves.\",\"kind\":\"type\",\"answer\":\"Fronds\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Write exactly one question: \"Which part absorbs water?\" Choices Roots and Leaves, with Roots correct. Keep the plant photo attached but hide it from the question; leave all other appearance settings unset.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Quiz",
+              "enum": [
+                "Quiz"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "questions": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "question": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "choice",
+                      "truefalse",
+                      "type",
+                      "match",
+                      "order"
+                    ]
+                  },
+                  "explain": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "media": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "options": {
+                    "anyOf": [
+                      {
+                        "minItems": 2,
+                        "maxItems": 5,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 40
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "words": {
+                    "anyOf": [
+                      {
+                        "minItems": 3,
+                        "maxItems": 8,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "answer": {
+                    "anyOf": [
+                      {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 4
+                          },
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "minItems": 3,
+                            "maxItems": 8,
+                            "type": "array",
+                            "items": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 7
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "pairs": {
+                    "anyOf": [
+                      {
+                        "minItems": 3,
+                        "maxItems": 5,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "left": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20
+                            },
+                            "right": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20
+                            }
+                          },
+                          "required": [
+                            "left",
+                            "right"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "question",
+                  "kind",
+                  "explain",
+                  "photo",
+                  "media",
+                  "options",
+                  "words",
+                  "answer",
+                  "pairs"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "selected_option": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "selected_left": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "selected_right": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "media",
+            "questions",
+            "selected_option",
+            "selected_left",
+            "selected_right"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Quiz\",\"density\":null,\"surface\":null,\"media\":\"none\",\"questions\":[{\"question\":\"Which part absorbs water?\",\"kind\":\"choice\",\"explain\":null,\"photo\":\"lib:plants\",\"media\":null,\"options\":[\"Roots\",\"Leaves\"],\"words\":null,\"answer\":0,\"pairs\":null}],\"selected_option\":null,\"selected_left\":null,\"selected_right\":null}",
+    "replies": [
+      "{\"c\":\"Quiz\",\"density\":null,\"surface\":null,\"media\":\"none\",\"questions\":[{\"question\":\"Which part absorbs water?\",\"kind\":\"choice\",\"explain\":null,\"photo\":\"lib:plants\",\"media\":null,\"options\":[\"Roots\",\"Leaves\"],\"words\":null,\"answer\":0,\"pairs\":null}],\"selected_option\":null,\"selected_left\":null,\"selected_right\":null}",
+      "{\"c\":\"Quiz\",\"density\":null,\"surface\":null,\"media\":\"none\",\"questions\":[{\"question\":\"Which part absorbs water?\",\"kind\":\"choice\",\"explain\":null,\"photo\":\"lib:plants\",\"media\":null,\"options\":[\"Roots\",\"Leaves\"],\"words\":null,\"answer\":0,\"pairs\":null}],\"selected_option\":null,\"selected_left\":null,\"selected_right\":null}",
+      "{\"c\":\"Quiz\",\"density\":null,\"surface\":null,\"media\":\"none\",\"questions\":[{\"question\":\"Which part absorbs water?\",\"kind\":\"choice\",\"explain\":null,\"photo\":\"lib:plants\",\"media\":null,\"options\":[\"Roots\",\"Leaves\"],\"words\":null,\"answer\":0,\"pairs\":null}],\"selected_option\":null,\"selected_left\":null,\"selected_right\":null}"
+    ]
+  },
+  "Quiz%2Fwrite%2FWrite%20exactly%20one%20sentence-order%20question%20using%20tappable%20word%20tiles%20in%20this%20starting%20order%3A%20%22fern.%22%2C%20%22the%22%2C%20%22Water%22.%20The%20checked%20sentence%20must%20be%20%22Water%20the%20fern.%22%20Do%20not%20use%20a%20typing%20field./9c4e053dee19be41/4994cb015aef1171": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nQuiz: Practise one question at a time and get feedback after checking each answer.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", media?: thumb|none=\"thumb\", questions: [1..6 { question: text≤120, kind: choice|truefalse|type|match|order, explain?: text≤200, photo?: photo lib:<tag>|local:<n>, media?: media lib:<tag>|local:<n>, options?: [2..5 text≤40], words?: [3..8 text≤20], answer?: any, pairs?: [3..5 { left: text≤20, right: text≤20 }] }], selected_option?: int 0..4, selected_left?: int 0..4, selected_right?: int 0..4 }\nRule: Use null for unused fields. For choice, write 2–5 options and a zero-based answer index. For truefalse, write a boolean answer. For type, write a text answer. For match, write 3–5 correct left/right pairs and set answer to null.\nRule: For kind \"order\", put 3–8 scrambled word tiles in words, and write answer as the complete list of their zero-based indexes in correct sentence order. For example, words [\"fern\", \"the\", \"Water\"] have answer [2, 1, 0]. Set options and pairs to null.\nRule: Use media inside a question only for its supplied audio clip reference. Component-level media controls question photos, not audio.\nRule: Leave selected_option, selected_left and selected_right null; selections are made by the learner.\nRule: When asked to hide the question photo, write media \"none\" and retain its photo reference. Always write density and surface as null unless requested; do not fill in defaults such as \"comfortable\" or \"card\". Use media null for unrequested media.\nexample: {\"c\":\"Quiz\",\"questions\":[{\"question\":\"What absorbs water?\",\"kind\":\"choice\",\"options\":[\"Roots\",\"Fronds\",\"Spores\"],\"answer\":0,\"explain\":\"Roots take up water and minerals from the soil.\",\"photo\":\"lib:plants\"},{\"question\":\"Name the fern's leaves.\",\"kind\":\"type\",\"answer\":\"Fronds\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Write exactly one sentence-order question using tappable word tiles in this starting order: \"fern.\", \"the\", \"Water\". The checked sentence must be \"Water the fern.\" Do not use a typing field.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Quiz",
+              "enum": [
+                "Quiz"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "questions": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "question": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "choice",
+                      "truefalse",
+                      "type",
+                      "match",
+                      "order"
+                    ]
+                  },
+                  "explain": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "media": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "options": {
+                    "anyOf": [
+                      {
+                        "minItems": 2,
+                        "maxItems": 5,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 40
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "words": {
+                    "anyOf": [
+                      {
+                        "minItems": 3,
+                        "maxItems": 8,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "answer": {
+                    "anyOf": [
+                      {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 4
+                          },
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "minItems": 3,
+                            "maxItems": 8,
+                            "type": "array",
+                            "items": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 7
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "pairs": {
+                    "anyOf": [
+                      {
+                        "minItems": 3,
+                        "maxItems": 5,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "left": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20
+                            },
+                            "right": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20
+                            }
+                          },
+                          "required": [
+                            "left",
+                            "right"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "question",
+                  "kind",
+                  "explain",
+                  "photo",
+                  "media",
+                  "options",
+                  "words",
+                  "answer",
+                  "pairs"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "selected_option": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "selected_left": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "selected_right": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "media",
+            "questions",
+            "selected_option",
+            "selected_left",
+            "selected_right"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Quiz\",\"density\":null,\"surface\":null,\"media\":null,\"questions\":[{\"question\":\"Arrange the words to form a correct sentence.\",\"kind\":\"order\",\"explain\":null,\"photo\":null,\"media\":null,\"options\":null,\"words\":[\"fern.\",\"the\",\"Water\"],\"answer\":[2,1,0],\"pairs\":null}],\"selected_option\":null,\"selected_left\":null,\"selected_right\":null}",
+    "replies": [
+      "{\"c\":\"Quiz\",\"density\":null,\"surface\":null,\"media\":null,\"questions\":[{\"question\":\"Arrange the words to form a correct sentence.\",\"kind\":\"order\",\"explain\":null,\"photo\":null,\"media\":null,\"options\":null,\"words\":[\"fern.\",\"the\",\"Water\"],\"answer\":[2,1,0],\"pairs\":null}],\"selected_option\":null,\"selected_left\":null,\"selected_right\":null}",
+      "{\"c\":\"Quiz\",\"density\":null,\"surface\":null,\"media\":null,\"questions\":[{\"question\":\"Tap the words in the correct order to form the sentence.\",\"kind\":\"order\",\"explain\":null,\"photo\":null,\"media\":null,\"options\":null,\"words\":[\"fern.\",\"the\",\"Water\"],\"answer\":[2,1,0],\"pairs\":null}],\"selected_option\":null,\"selected_left\":null,\"selected_right\":null}",
+      "{\"c\":\"Quiz\",\"density\":null,\"surface\":null,\"media\":null,\"questions\":[{\"question\":\"Tap the tiles to form the sentence: 'Water the fern.'\",\"kind\":\"order\",\"explain\":null,\"photo\":null,\"media\":null,\"options\":null,\"words\":[\"fern.\",\"the\",\"Water\"],\"answer\":[2,1,0],\"pairs\":null}],\"selected_option\":null,\"selected_left\":null,\"selected_right\":null}"
+    ]
   }
 }

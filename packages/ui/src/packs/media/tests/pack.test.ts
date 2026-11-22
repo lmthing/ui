@@ -18,7 +18,7 @@ import {
   type Definition,
 } from "@lmthing/ui/catalog";
 
-const ids = ["Article", "Library", "Collection", "Playlist", "ChapterList", "MiniPlayer", "Highlights"];
+const ids = ["Library", "Collection", "Playlist", "ChapterList", "MiniPlayer", "Highlights"];
 const core = createRegistry();
 const scoped = createRegistry({ packs: ["media"], includeDrafts: true });
 const defs: Record<string, Definition> = components;
@@ -48,30 +48,32 @@ const recipes = {
   "reader/highlights": ["Header", "Search", "Highlights"],
 };
 
-it("isolates generated Media entries and never offers MiniPlayer to the Writer", () => {
+it("offers the ready Media pack only when selected and keeps MiniPlayer out of the Writer", () => {
+  expect(createRegistry().resolve("Article")).toBe("Article");
+  expect(Object.hasOwn(packOf, "Article")).toBe(false);
   const live = createRegistry({ packs: ["media"] });
-  const ready = packReady("media");
+  expect(packReady("media")).toBe(true);
   const owned = Object.entries(packOf)
     .filter(([, owner]) => owner === "media")
     .map(([id]) => id);
   expect(owned.sort()).toEqual([...ids].sort());
   expect(scoped.ids.filter((id) => !core.ids.includes(id)).sort()).toEqual([...ids].sort());
-  if (!ready) expect(live.ids).toEqual(core.ids);
+  expect(live.ids).toEqual(scoped.ids);
   const draftFormat = JSON.stringify(writerFormat(scoped));
   const liveFormat = JSON.stringify(writerFormat(live));
   for (const id of ids) {
     expect(core.ids).not.toContain(id);
     expect(draftFormat.includes(`"const":"${id}"`)).toBe(id !== "MiniPlayer");
-    expect(liveFormat.includes(`"const":"${id}"`)).toBe(ready && id !== "MiniPlayer");
+    expect(liveFormat.includes(`"const":"${id}"`)).toBe(id !== "MiniPlayer");
   }
   for (const id of ["library", "collection", "reader"]) {
     expect(Object.hasOwn(core.archetypes, id)).toBe(false);
     expect(Object.hasOwn(scoped.archetypes, id)).toBe(true);
-    expect(Object.hasOwn(live.archetypes, id)).toBe(ready);
+    expect(Object.hasOwn(live.archetypes, id)).toBe(true);
   }
 });
 
-it("has valid examples and neutral fallbacks for all seven definitions", () => {
+it("has valid examples and neutral fallbacks for all six pack definitions", () => {
   for (const id of ids) {
     const def = defs[id]!;
     expect(def.examples.length, id).toBeGreaterThanOrEqual(2);
@@ -186,7 +188,9 @@ it("validates every Pew line with the real registry, one count-up signature and 
   expect(new Set(lines.map(({ id }) => id)).size).toBe(lines.length);
   for (const { c, id, ...props } of lines)
     expect(scoped.schema(c)?.safeParse(props).success, `${id}/${c}`).toBe(true);
-  expect(lines.map(({ c }) => c)).toEqual(expect.arrayContaining(ids.filter((id) => id !== "MiniPlayer")));
+  expect(lines.map(({ c }) => c)).toEqual(
+    expect.arrayContaining(["Article", ...ids.filter((id) => id !== "MiniPlayer")]),
+  );
   expect(lines.some(({ c }) => defs[c]?.meta.codeOwned)).toBe(false);
   expect(lines.flatMap(({ c }) => defs[c]?.meta.signature ?? [])).toEqual(["count_up"]);
 });

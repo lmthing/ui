@@ -1,8 +1,9 @@
-import { numberLine, sessionKey, type SessionState, type Values } from "../../../catalog";
+import { numberLine, sessionKey, type Meta, type SessionState, type Values } from "../../../catalog";
 import { learningWordsFor } from "../lang";
-import { mappingOf, quizKey, rightOrder, type QuizItem } from "./quiz-answers";
+import { readPromptAudio } from "./Flashcard";
+import { mappingOf, quizKey, quizWordOrder, rightOrder, wordKey, type QuizItem } from "./quiz-answers";
 
-export type { QuizItem } from "./quiz-answers";
+export { quizWordOrder, wordBankLimit, wordKey, type QuizItem } from "./quiz-answers";
 export type QuizRound = Extract<SessionState, { kind: "rounds" }>;
 
 export function quizOptions(item: QuizItem, lang?: string) {
@@ -13,6 +14,20 @@ export function quizOptions(item: QuizItem, lang?: string) {
 export function quizChoices(item: QuizItem, lang?: string) {
   const { quiz } = learningWordsFor(lang);
   return quizOptions(item, lang).map((label, index) => quiz.keyed(label, quizKey("root", index)));
+}
+
+export function quizOrderCopy(item: QuizItem, answers: Readonly<Values>, lang?: string) {
+  const { quiz } = learningWordsFor(lang);
+  const words = item.words ?? [];
+  const order = quizWordOrder(answers);
+  return {
+    draft: quiz.orderLine(order.map((index) => words[index]!)),
+    tiles: words.map((word, index) => ({
+      label: word,
+      value: wordKey(index),
+      on: order.includes(index),
+    })),
+  };
 }
 
 export function quizMatches(item: QuizItem, answers: Readonly<Values>, lang?: string) {
@@ -34,9 +49,10 @@ export function quizMatches(item: QuizItem, answers: Readonly<Values>, lang?: st
 }
 
 export function quizSolution(item: QuizItem, lang?: string): string[] {
-  const { answer, pairs } = item;
+  const { answer, pairs, words } = item;
   const { quiz } = learningWordsFor(lang);
   if (pairs) return pairs.map(({ left, right }) => quiz.pair(left, right));
+  if (words && Array.isArray(answer)) return [quiz.orderLine(answer.map((index) => words[index]!))];
   if (typeof answer === "number") return quizOptions(item, lang).slice(answer, answer + 1);
   if (typeof answer === "boolean") return [quiz[answer ? "true" : "false"]];
   return typeof answer === "string" ? [answer] : [];
@@ -51,19 +67,30 @@ export function quizProgress(round: QuizRound, lang?: string) {
   };
 }
 
-export function readQuiz(input: unknown, _state: unknown, lang?: string): string[] {
+export const readQuiz: NonNullable<Meta["read"]> = (input, _state, lang, _data, _currency, control) => {
   const round = (input as { [sessionKey]?: QuizRound })[sessionKey];
   if (!round?.assessment) return [];
   const { quiz } = learningWordsFor(lang);
   const item = round.item as QuizItem;
   const { progress } = quizProgress(round, lang);
   if (round.revealed) return [progress, ...(round.complete ? [] : [quiz.next])];
-  if (item.kind === "type") return [progress, quiz.type, quiz.check];
+  const intro = [progress, ...(item.media ? readPromptAudio(round.index, lang, control) : [])];
+  if (item.kind === "type") return [...intro, quiz.type, quiz.check];
+  if (item.kind === "order") {
+    const { draft, tiles } = quizOrderCopy(item, round.assessment.answers, lang);
+    return [
+      ...intro,
+      quiz.orderHint,
+      ...(draft ? [quiz.orderDraft, draft] : []),
+      ...tiles.map(({ label }) => label),
+      quiz.check,
+    ];
+  }
   if (item.kind === "match") {
     const answers = round.assessment.answers;
     const { left, right } = quizMatches(item, answers, lang);
     return [
-      progress,
+      ...intro,
       answers.left === undefined ? quiz.pickLeft : quiz.pickRight,
       quiz.left,
       ...left,
@@ -72,5 +99,5 @@ export function readQuiz(input: unknown, _state: unknown, lang?: string): string
       quiz.check,
     ];
   }
-  return [progress, ...quizChoices(item, lang), quiz.check];
-}
+  return [...intro, ...quizChoices(item, lang), quiz.check];
+};

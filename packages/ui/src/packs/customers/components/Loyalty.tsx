@@ -34,10 +34,10 @@ export const meta = {
   status: "ready",
   group: "data",
   purpose: "Reward repeat clients with stamps toward a redeemable free thing.",
-  pick: "A business client's four-to-twelve stamp reward card, with stamp and redeem actions. Not a habit streak (Streak) or a personal goal (Ring).",
+  pick: "A business client's four-to-twelve stamp reward card, with stamp and redeem actions. Not a habit streak (Streak) or a personal goal (Progress).",
   writeHints: [
     "stamps is a whole count from zero through of; of is a whole number from four through twelve. Code enables redeem only when full.",
-    'If asked only to hide the client name, use {"density":null,"surface":null,"detail":"brief"} and keep the name in the data. Otherwise detail is null.',
+    'Whenever the client name must be hidden or kept private on screen, set detail to "brief" (not null) and still write the supplied name in name. Leave density and surface null unless requested. If the name should be visible, leave detail null.',
   ],
   region: "body",
   weight: 2,
@@ -112,7 +112,7 @@ export const probes = [
   write("Ben Carter has seven of ten stamps; reward is Your tenth walk is free"),
   {
     ...write(
-      "Ben Carter has seven of ten stamps and his reward is Your tenth walk is free. Remember his name, but don't display the name on the stamp card.",
+      "Ben Carter has seven of ten stamps. His reward says Your tenth walk is free. Show the stamps and reward without displaying the customer name; keep Ben Carter in the saved name field. Do not change the spacing or frame.",
     ),
     variant: { axis: "detail", value: "brief" },
   },
