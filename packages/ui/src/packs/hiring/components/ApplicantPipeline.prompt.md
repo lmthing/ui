@@ -1,10 +1,10 @@
 ## Purpose
 
-Manage counted hiring lanes and move active applicants between stages for one opening.
+Move candidates between stage lanes on a recruiter's board for one opening.
 
 ## Pick
 
-Choose only for managing applicants across separate hiring-stage lanes, with per-stage counts or moves between lanes. Not a flat set of tappable applicant rows (List), even with a status badge on each row; not a generic board (Board) or the job seeker's tracker (Applications).
+Use only when asked to show separate lanes keyed by hiring stage or let recruiters change a candidate's stage. Not a single collection of linked rows (List); a row's status alone does not qualify. Not a generic board (Board) or the job seeker's tracker (Applications).
 
 ## Writer
 

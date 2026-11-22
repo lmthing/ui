@@ -1,10 +1,10 @@
 ## Purpose
 
-Read, save or open an application for one job opening.
+Read a vacancy's full employment terms at the destination and decide whether to apply.
 
 ## Pick
 
-Choose for the actual role detail or application screen, where the work terms, requirements or application controls appear. Not a tappable preview that shows only a photo, title and teaser and opens the details elsewhere (Card); not multiple openings (List), an available shift (OpenShift) or goods for sale (Product).
+Use only when the current screen itself presents the employment terms or lets the person apply. Not a way to navigate to the vacancy page: a single linked teaser is Card, and an openings directory is List. Not an available shift (OpenShift) or goods for sale (Product).
 
 ## Writer
 

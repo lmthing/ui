@@ -39866,6 +39866,718 @@
       "{\"id\":\"family_board\",\"title\":\"The household this week\",\"components\":[{\"id\":\"header\",\"c\":\"Header\",\"emphasis\":null,\"detail\":\"full\",\"style\":null,\"title\":\"The household this week\",\"sub\":null,\"action\":null},{\"id\":\"people\",\"c\":\"People\",\"detail\":null,\"style\":\"rail\",\"more\":null,\"members\":[{\"name\":\"Sam\",\"role\":null,\"photo\":null,\"goto\":null,\"online\":true,\"ring\":\"accent\",\"statusText\":null},{\"name\":\"Alex\",\"role\":null,\"photo\":null,\"goto\":null,\"online\":false,\"ring\":null,\"statusText\":null},{\"name\":\"Mia\",\"role\":null,\"photo\":null,\"goto\":null,\"online\":true,\"ring\":null,\"statusText\":null}]},{\"id\":\"chores\",\"c\":\"Chores\",\"detail\":null,\"chores\":[{\"mark\":null,\"title\":\"Take out trash\",\"who\":\"Sam\",\"photo\":null,\"repeat\":\"weekly\",\"every\":1,\"last\":null,\"points\":10,\"goto\":\"chore_trash\"},{\"mark\":null,\"title\":\"Vacuum living room\",\"who\":\"Alex\",\"photo\":null,\"repeat\":\"weekly\",\"every\":1,\"last\":null,\"points\":15,\"goto\":\"chore_vacuum\"},{\"mark\":null,\"title\":\"Water plants\",\"who\":\"Mia\",\"photo\":null,\"repeat\":\"daily\",\"every\":1,\"last\":null,\"points\":5,\"goto\":\"chore_water\"}]},{\"id\":\"turns\",\"c\":\"Turns\",\"lead\":\"avatar\",\"emphasis\":null,\"job\":\"Wash dishes\",\"people\":[{\"name\":\"Sam\",\"photo\":null},{\"name\":\"Alex\",\"photo\":null},{\"name\":\"Mia\",\"photo\":null}],\"at\":1}]}"
     ]
   },
+  "compose%2Ffamily%2Fboard%2FThe%20household's%20people%2C%20shared%20chores%20and%20whose%20turn%20it%20is/3f915210b30659d1/3405df4c8a6927d6": {
+    "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: family/board. Job: The household this week.\n\nBrief: The household's people, shared chores and whose turn it is\nReturn compact JSON. When a layout says to omit a field the schema requires, write null for it instead.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot_1\",\"allow\":[\"People\"],\"min\":1,\"max\":1,\"variant\":\"stack\"},{\"id\":\"slot_2\",\"allow\":[\"Chores\"],\"min\":1,\"max\":1},{\"id\":\"slot_3\",\"allow\":[\"Turns\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nLayout rule: Between Header and Chores, show the household as overlapping avatars: explicitly set People \"style\":\"stack\", not a roster or a rail.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: Use style \"back\" only when a back button is needed. To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nPeople: Who else is involved, with their names and roles.\nprops: { detail?: full|brief=\"full\", style?: stack|rail, more?: int 1..999, members: [1..6 { name: text≤24, role?: text≤24, photo?: photo lib:<tag>|local:<n>, goto?: id snake_case, online?: boolean, ring?: none|accent|muted, statusText?: text≤24 }] }\nRule: Set \"detail\":null even when role is absent or when drawing a stack. Only an explicit request to hide existing roles means \"detail\":\"brief\"; keep those roles in role. If asked to show roles, never use brief. Use style \"stack\" only for overlapping avatars.\nRule: Use style \"rail\" for a sideways strip of portraits. In a rail, online is presence, ring is accent or muted around the portrait, and statusText is a short message.\nexample: {\"c\":\"People\",\"members\":[{\"name\":\"Maya\",\"role\":\"Waters on weekends\"}]}\nweight: 2\n\nChores: Share recurring household jobs with owners and points earned for completing them.\nprops: { detail?: full|brief=\"full\", chores: [1..6 { mark?: none|highlight=\"none\", title: text≤28, who: text≤16, photo?: photo lib:<tag>|local:<n>, repeat: never|daily|weekdays|weekly|monthly|yearly, every: int 1..12, last?: date YYYY-MM-DD, points?: num 0..100, goto: id snake_case }] }\nRule: Write last completion, repeat and every, never next due, overdue or done-for-now. Completion awards points and advances the due date in code.\nRule: Use brief only when asked to hide the repeat and last completion. Keep recurrence data, owner, points and next due.\nRule: Set a chore's mark only if specifically asked to highlight it, at most one in three.\nexample: {\"c\":\"Chores\",\"chores\":[{\"title\":\"Mist the fern\",\"who\":\"Sam\",\"repeat\":\"daily\",\"every\":1,\"last\":\"2026-11-16\",\"points\":5,\"goto\":\"fern\"},{\"title\":\"Dust shelves\",\"who\":\"Alex\",\"repeat\":\"weekly\",\"every\":1,\"points\":10,\"goto\":\"shelves\"}]}\nweight: 2\n\nTurns: Rotate one household duty through people and advance or skip the current turn.\nprops: { lead?: avatar|none=\"avatar\", emphasis?: normal|hero=\"normal\", job: text≤24, people: [2..6 { name: text≤16, photo?: photo lib:<tag>|local:<n> }], at: int 0..5 }\nRule: at is a zero-based index smaller than people.length. The next people and next index are computed.\nRule: Use lead \"none\" only when asked to show the rotation without portraits or initials. Keep current and upcoming names. Leave emphasis null unless asked to change prominence.\nexample: {\"c\":\"Turns\",\"job\":\"Mist the plants\",\"people\":[{\"name\":\"Sam\"},{\"name\":\"Alex\"},{\"name\":\"Mia\"}],\"at\":0}\nweight: 2\n\nA valid default for this layout: {\"id\":\"family_board\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Item one\"},{\"id\":\"p1\",\"c\":\"People\",\"members\":[{\"name\":\"Item one\"},{\"name\":\"Item two\"},{\"name\":\"Item three\"}],\"style\":\"stack\"},{\"id\":\"c1\",\"c\":\"Chores\",\"chores\":[{\"title\":\"Item one\",\"who\":\"Item one\",\"repeat\":\"weekly\",\"every\":1,\"goto\":\"detail\"}]},{\"id\":\"t1\",\"c\":\"Turns\",\"job\":\"Item one\",\"people\":[{\"name\":\"Item one\"},{\"name\":\"Item two\"}],\"at\":0}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing. Reply with JSON only.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_screen",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Header",
+                        "enum": [
+                          "Header"
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "back"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "action": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "icon": {
+                                "type": "string",
+                                "enum": [
+                                  "dot",
+                                  "leaf",
+                                  "drop",
+                                  "dog",
+                                  "cat",
+                                  "calendar",
+                                  "calendar_days",
+                                  "clock",
+                                  "check",
+                                  "chevron_right",
+                                  "plus",
+                                  "minus",
+                                  "close",
+                                  "search",
+                                  "settings",
+                                  "bell",
+                                  "bell_off",
+                                  "heart",
+                                  "star",
+                                  "bookmark",
+                                  "share",
+                                  "send",
+                                  "message",
+                                  "mail",
+                                  "phone",
+                                  "camera",
+                                  "image",
+                                  "video",
+                                  "mic",
+                                  "music",
+                                  "play",
+                                  "pause",
+                                  "square",
+                                  "undo",
+                                  "timer",
+                                  "alarm_clock",
+                                  "sun",
+                                  "moon",
+                                  "cloud",
+                                  "cloud_rain",
+                                  "thermometer",
+                                  "wind",
+                                  "flame",
+                                  "zap",
+                                  "battery",
+                                  "wifi",
+                                  "pin",
+                                  "map",
+                                  "navigation",
+                                  "compass",
+                                  "home",
+                                  "building",
+                                  "store",
+                                  "shopping_cart",
+                                  "shopping_bag",
+                                  "tag",
+                                  "gift",
+                                  "credit_card",
+                                  "wallet",
+                                  "banknote",
+                                  "piggy_bank",
+                                  "receipt",
+                                  "trending_up",
+                                  "trending_down",
+                                  "bar_chart",
+                                  "pie_chart",
+                                  "activity",
+                                  "target",
+                                  "trophy",
+                                  "medal",
+                                  "award",
+                                  "flag",
+                                  "user",
+                                  "users",
+                                  "user_plus",
+                                  "baby",
+                                  "smile",
+                                  "dumbbell",
+                                  "bike",
+                                  "footprints",
+                                  "heart_pulse",
+                                  "pill",
+                                  "stethoscope",
+                                  "apple",
+                                  "coffee",
+                                  "utensils",
+                                  "wine",
+                                  "pizza",
+                                  "carrot",
+                                  "sprout",
+                                  "flower",
+                                  "tree",
+                                  "mountain",
+                                  "waves",
+                                  "car",
+                                  "bus",
+                                  "plane",
+                                  "train",
+                                  "briefcase",
+                                  "graduation_cap",
+                                  "book_open",
+                                  "book",
+                                  "pencil",
+                                  "file_text",
+                                  "clipboard",
+                                  "clipboard_list",
+                                  "checklist",
+                                  "lock",
+                                  "unlock",
+                                  "key",
+                                  "shield",
+                                  "eye",
+                                  "link",
+                                  "paperclip",
+                                  "download",
+                                  "upload",
+                                  "trash",
+                                  "edit",
+                                  "filter",
+                                  "sliders",
+                                  "info",
+                                  "alert",
+                                  "help",
+                                  "sparkles",
+                                  "lightbulb",
+                                  "palette",
+                                  "scissors",
+                                  "wrench",
+                                  "hammer",
+                                  "package",
+                                  "truck",
+                                  "recycle",
+                                  "globe",
+                                  "languages",
+                                  "gamepad",
+                                  "ticket",
+                                  "paw",
+                                  "shirt",
+                                  "bed",
+                                  "bath",
+                                  "sofa",
+                                  "lamp",
+                                  "chevron_left",
+                                  "arrow_left",
+                                  "more",
+                                  "external_link",
+                                  "quote",
+                                  "circle_check"
+                                ]
+                              },
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "icon",
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "emphasis",
+                      "detail",
+                      "style",
+                      "title",
+                      "sub",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "People",
+                        "enum": [
+                          "People"
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "stack",
+                              "rail"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "more": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 999
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "members": {
+                        "minItems": 1,
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 24
+                            },
+                            "role": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 24
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "photo": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "goto": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_]*$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "online": {
+                              "anyOf": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "ring": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "none",
+                                    "accent",
+                                    "muted"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "statusText": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 24
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "role",
+                            "photo",
+                            "goto",
+                            "online",
+                            "ring",
+                            "statusText"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "detail",
+                      "style",
+                      "more",
+                      "members"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Chores",
+                        "enum": [
+                          "Chores"
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "chores": {
+                        "minItems": 1,
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "mark": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "none",
+                                    "highlight"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "title": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 28
+                            },
+                            "who": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 16
+                            },
+                            "photo": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "repeat": {
+                              "type": "string",
+                              "enum": [
+                                "never",
+                                "daily",
+                                "weekdays",
+                                "weekly",
+                                "monthly",
+                                "yearly"
+                              ]
+                            },
+                            "every": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 12
+                            },
+                            "last": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "points": {
+                              "anyOf": [
+                                {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 100
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "goto": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_]*$"
+                            }
+                          },
+                          "required": [
+                            "mark",
+                            "title",
+                            "who",
+                            "photo",
+                            "repeat",
+                            "every",
+                            "last",
+                            "points",
+                            "goto"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "detail",
+                      "chores"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Turns",
+                        "enum": [
+                          "Turns"
+                        ]
+                      },
+                      "lead": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "avatar",
+                              "none"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "hero"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "job": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      "people": {
+                        "minItems": 2,
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 16
+                            },
+                            "photo": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "photo"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "at": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 5
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "lead",
+                      "emphasis",
+                      "job",
+                      "people",
+                      "at"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "components"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"id\":\"family_board\",\"title\":\"This Week at Home\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"emphasis\":null,\"detail\":\"brief\",\"style\":null,\"title\":\"This Week at Home\",\"sub\":\"The household's people, chores, and turn\",\"action\":{\"icon\":\"settings\",\"label\":\"Settings\",\"goto\":\"household_settings\"}},{\"id\":\"p1\",\"c\":\"People\",\"detail\":null,\"style\":\"stack\",\"more\":null,\"members\":[{\"name\":\"Sam\",\"role\":null,\"photo\":null,\"goto\":null,\"online\":null,\"ring\":null,\"statusText\":null},{\"name\":\"Alex\",\"role\":null,\"photo\":null,\"goto\":null,\"online\":null,\"ring\":null,\"statusText\":null},{\"name\":\"Mia\",\"role\":null,\"photo\":null,\"goto\":null,\"online\":null,\"ring\":null,\"statusText\":null}]},{\"id\":\"c1\",\"c\":\"Chores\",\"detail\":null,\"chores\":[{\"mark\":null,\"title\":\"Dishes\",\"who\":\"Sam\",\"photo\":null,\"repeat\":\"daily\",\"every\":1,\"last\":null,\"points\":10,\"goto\":\"chore_dishes\"},{\"mark\":null,\"title\":\"Vacuum\",\"who\":\"Alex\",\"photo\":null,\"repeat\":\"weekly\",\"every\":1,\"last\":null,\"points\":20,\"goto\":\"chore_vacuum\"},{\"mark\":null,\"title\":\"Take out trash\",\"who\":\"Mia\",\"photo\":null,\"repeat\":\"weekly\",\"every\":1,\"last\":null,\"points\":5,\"goto\":\"chore_trash\"}]},{\"id\":\"t1\",\"c\":\"Turns\",\"lead\":\"avatar\",\"emphasis\":null,\"job\":\"Cooking dinner\",\"people\":[{\"name\":\"Sam\",\"photo\":null},{\"name\":\"Alex\",\"photo\":null},{\"name\":\"Mia\",\"photo\":null}],\"at\":1}]}",
+    "replies": [
+      "{\"id\":\"family_board\",\"title\":\"This Week at Home\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"emphasis\":null,\"detail\":\"brief\",\"style\":null,\"title\":\"This Week at Home\",\"sub\":\"The household's people, chores, and turn\",\"action\":{\"icon\":\"settings\",\"label\":\"Settings\",\"goto\":\"household_settings\"}},{\"id\":\"p1\",\"c\":\"People\",\"detail\":null,\"style\":\"stack\",\"more\":null,\"members\":[{\"name\":\"Sam\",\"role\":null,\"photo\":null,\"goto\":null,\"online\":null,\"ring\":null,\"statusText\":null},{\"name\":\"Alex\",\"role\":null,\"photo\":null,\"goto\":null,\"online\":null,\"ring\":null,\"statusText\":null},{\"name\":\"Mia\",\"role\":null,\"photo\":null,\"goto\":null,\"online\":null,\"ring\":null,\"statusText\":null}]},{\"id\":\"c1\",\"c\":\"Chores\",\"detail\":null,\"chores\":[{\"mark\":null,\"title\":\"Dishes\",\"who\":\"Sam\",\"photo\":null,\"repeat\":\"daily\",\"every\":1,\"last\":null,\"points\":10,\"goto\":\"chore_dishes\"},{\"mark\":null,\"title\":\"Vacuum\",\"who\":\"Alex\",\"photo\":null,\"repeat\":\"weekly\",\"every\":1,\"last\":null,\"points\":20,\"goto\":\"chore_vacuum\"},{\"mark\":null,\"title\":\"Take out trash\",\"who\":\"Mia\",\"photo\":null,\"repeat\":\"weekly\",\"every\":1,\"last\":null,\"points\":5,\"goto\":\"chore_trash\"}]},{\"id\":\"t1\",\"c\":\"Turns\",\"lead\":\"avatar\",\"emphasis\":null,\"job\":\"Cooking dinner\",\"people\":[{\"name\":\"Sam\",\"photo\":null},{\"name\":\"Alex\",\"photo\":null},{\"name\":\"Mia\",\"photo\":null}],\"at\":1}]}",
+      "{\n  \"id\": \"family_board\",\n  \"title\": \"The household this week\",\n  \"components\": [\n    {\n      \"id\": \"header\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"The household this week\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"people_stack\",\n      \"c\": \"People\",\n      \"detail\": null,\n      \"style\": \"stack\",\n      \"more\": null,\n      \"members\": [\n        {\"name\": \"Parent 1\", \"role\": null, \"photo\": null, \"goto\": null, \"online\": null, \"ring\": null, \"statusText\": null}\n      ]\n    },\n    {\n      \"id\": \"chores_list\",\n      \"c\": \"Chores\",\n      \"detail\": null,\n      \"chores\": [\n        {\"mark\": null, \"title\": \"Take out trash\", \"who\": \"Parent 1\", \"photo\": null, \"repeat\": \"weekly\", \"every\": 1, \"last\": null, \"points\": 5, \"goto\": \"detail\"},\n        {\"mark\": null, \"title\": \"Vacuum living room\", \"who\": \"Parent 2\", \"photo\": null, \"repeat\": \"weekly\", \"every\": 1, \"last\": null, \"points\": 10, \"goto\": \"detail\"}\n      ]\n    },\n    {\n      \"id\": \"turns\",\n      \"c\": \"Turns\",\n      \"lead\": \"avatar\",\n      \"emphasis\": null,\n      \"job\": \"Do the dishes\",\n      \"people\": [\n        {\"name\": \"Parent 1\", \"photo\": null},\n        {\"name\": \"Parent 2\", \"photo\": null}\n      ],\n      \"at\": 0\n    }\n  ]\n}",
+      "{\n  \"id\": \"family_board\",\n  \"title\": \"The household this week\",\n  \"components\": [\n    {\n      \"id\": \"header_home\",\n      \"c\": \"Header\",\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Household\",\n      \"sub\": null,\n      \"action\": {\n        \"icon\": \"plus\",\n        \"label\": \"Add\",\n        \"goto\": \"add_item\"\n      }\n    },\n    {\n      \"id\": \"people_overview\",\n      \"c\": \"People\",\n      \"detail\": null,\n      \"style\": \"stack\",\n      \"more\": null,\n      \"members\": [\n        {\n          \"name\": \"Sam\",\n          \"role\": null,\n          \"photo\": null,\n          \"goto\": null,\n          \"online\": null,\n          \"ring\": null,\n          \"statusText\": null\n        },\n        {\n          \"name\": \"Alex\",\n          \"role\": null,\n          \"photo\": null,\n          \"goto\": null,\n          \"online\": null,\n          \"ring\": null,\n          \"statusText\": null\n        },\n        {\n          \"name\": \"Mia\",\n          \"role\": null,\n          \"photo\": null,\n          \"goto\": null,\n          \"online\": null,\n          \"ring\": null,\n          \"statusText\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"chores_list\",\n      \"c\": \"Chores\",\n      \"detail\": null,\n      \"chores\": [\n        {\n          \"mark\": null,\n          \"title\": \"Take out trash\",\n          \"who\": \"Sam\",\n          \"photo\": null,\n          \"repeat\": \"weekly\",\n          \"every\": 1,\n          \"last\": null,\n          \"points\": null,\n          \"goto\": \"chore_detail\"\n        },\n        {\n          \"mark\": null,\n          \"title\": \"Vacuum living room\",\n          \"who\": \"Alex\",\n          \"photo\": null,\n          \"repeat\": \"weekly\",\n          \"every\": 1,\n          \"last\": null,\n          \"points\": null,\n          \"goto\": \"chore_detail\"\n        },\n        {\n          \"mark\": null,\n          \"title\": \"Water plants\",\n          \"who\": \"Mia\",\n          \"photo\": null,\n          \"repeat\": \"weekly\",\n          \"every\": 1,\n          \"last\": null,\n          \"points\": null,\n          \"goto\": \"chore_detail\"\n        }\n      ]\n    },\n    {\n      \"id\": \"turns_rotation\",\n      \"c\": \"Turns\",\n      \"lead\": null,\n      \"emphasis\": null,\n      \"job\": \"Dinner dishes\",\n      \"people\": [\n        {\n          \"name\": \"Sam\",\n          \"photo\": null\n        },\n        {\n          \"name\": \"Alex\",\n          \"photo\": null\n        },\n        {\n          \"name\": \"Mia\",\n          \"photo\": null\n        }\n      ],\n      \"at\": 0\n    }\n  ]\n}"
+    ]
+  },
   "compose%2Ffamily%2Fleaders%2FRank%20household%20members%20with%20a%20period%20selector/84f968ed380933b6/0a94816c8642e2cf": {
     "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: family/leaders. Job: The household this week.\n\nBrief: Rank household members with a period selector\nReturn compact JSON. When a layout says to omit a field the schema requires, write null for it instead.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot_1\",\"allow\":[\"Segmented\"],\"min\":1,\"max\":1},{\"id\":\"slot_2\",\"allow\":[\"List\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nLayout rule: Use List with lead \"number\", trail \"value\", no style, and 1–6 short titles. Use trail \"none\" on rows with no supplied score. Do not write points totals computed from chore data.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: Use style \"back\" only when a back button is needed. To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nSegmented: Switch between two to four views of the same screen.\nprops: { options: [2..4 { label: text≤14 }], at?: int 0..9007199254740991=0 }\nexample: {\"c\":\"Segmented\",\"options\":[{\"label\":\"Today\"},{\"label\":\"Week\"},{\"label\":\"All\"}],\"at\":0}\nweight: 1\n\nList: Several things of the same kind, each one tappable.\nprops: { detail?: full|brief=\"full\", aspect?: wide|square|tall=\"wide\", arrange?: rows|grid=\"rows\", group?: none|sections=\"none\", overflow?: all|peek=\"all\", lead?: icon|none|thumb|number=\"icon\", trail?: chevron|none|value|badge|toggle|check=\"chevron\", style?: cards|shelf|expand, rows: [1..6 { title: text≤28, meta?: text≤36, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, photo?: photo lib:<tag>|local:<n>, trail?: chevron|none|value|badge|toggle|check, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\", value?: text≤10, goto?: id snake_case, body?: text≤200, me?: boolean, section?: text≤24, progress?: num 0..1, badge?: text≤12, unread?: boolean, pinned?: boolean }] }\nRule: Use null for all unrequested List and row axes. Data such as status, urgency or recency does not request a mark or tone. If asked to highlight, use mark \"highlight\" on at most one in three rows (none in a one- or two-row list).\nRule: Use style \"expand\" with a body on every FAQ row or \"shelf\" with a photo on every sideways rail row. Photos use references like \"lib:plants\" or \"local:1\". The water icon is \"drop\".\nRule: Rankings use style null (never expand), lead \"number\", trail \"value\", and each score in value. Only the person’s row gets me.\nRule: For grouped headings use group \"sections\" and a section label on every row; keep rows in section order.\nRule: For a two-row preview with See all, set overflow to \"peek\" and output every row in order, including hidden ones. Keep style and every other axis null unless separately requested.\nRule: Names only is a row-content request: write title and leave all other row fields null. Keep detail null; \"brief\" hides existing metadata and is only for an explicit request to hide it.\nRule: For a photo shelf with a tall crop or portrait covers, output \"style\":\"shelf\" and \"aspect\":\"tall\". Leave unrequested axes null. Use arrange \"grid\" for two-column quick cards with style null. Progress is a fraction (0 to 1) and badge is a short label. Only set unread or pinned on rows explicitly described that way.\nexample: {\"c\":\"List\",\"trail\":null,\"rows\":[{\"title\":\"Fern\",\"meta\":\"Bathroom · water today\",\"icon\":\"leaf\",\"goto\":\"fern\"},{\"title\":\"Monstera\",\"meta\":\"Living room · in two days\",\"icon\":\"leaf\",\"trail\":null,\"goto\":\"monstera\"},{\"title\":\"Basil\",\"meta\":\"Kitchen · freshly watered\",\"icon\":\"drop\",\"trail\":null,\"goto\":\"basil\"}]}\nweight: 2\n\nA valid default for this layout: {\"id\":\"family_leaders\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Item one\"},{\"id\":\"s1\",\"c\":\"Segmented\",\"options\":[{\"label\":\"Item one\"},{\"label\":\"Item two\"}],\"at\":0},{\"id\":\"l1\",\"c\":\"List\",\"rows\":[{\"title\":\"Item one\",\"trail\":\"none\"},{\"title\":\"Item two\",\"trail\":\"none\"},{\"title\":\"Item three\",\"trail\":\"none\"}],\"lead\":\"number\",\"trail\":\"value\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing. Reply with JSON only.",
     "format": {
