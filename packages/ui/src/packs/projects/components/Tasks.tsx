@@ -27,7 +27,7 @@ export const meta = {
   tier: "phone",
   realPath:
     "Tasks, assignments and dependency links live on the device; assignments on another person's device require a shared app.",
-  variants: { density: ["comfortable", "compact"], group: ["none", "sections"] },
+  variants: { group: ["none", "sections"] },
   variantParts: { "group.sections": { adds: ["project"] } },
   parts: ["root", "empty"],
   items: {
@@ -133,7 +133,7 @@ export const examples = [
   ledge,
   { ...trot, group: "sections" },
   trot,
-  { ...trot, density: "compact" },
+  { ...trot },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Tasks");
@@ -153,7 +153,7 @@ type View = c.Props<typeof props, typeof meta>;
 type ViewRow = View["items"][number] & ReturnType<typeof projectTasks>[number];
 // prettier-ignore
 function TaskRow({ row, density, lang, indent, loading, choices }: {
-  row: ViewRow; density: View["density"]; lang: string; indent: boolean; loading: boolean; choices: readonly string[];
+  row: ViewRow; density: c.ThemeDensity; lang: string; indent: boolean; loading: boolean; choices: readonly string[];
 }) {
   const words = projectsWordsFor(lang).tasks, { state, due, overdue, priority, blockers } = taskCopy(row, lang);
   const controls = loading ? row.done !== undefined && <kit.KitSkeleton lead="box" inset="none" items={[{}]} density={density} /> :
@@ -180,7 +180,7 @@ function TaskRow({ row, density, lang, indent, loading, choices }: {
 export function Tasks(input: View) {
   const { lang, words: { tasks: words } } = kit.useWords(projectsWordsFor), state = kit.useComponentState();
   const { controller } = kit.useKit(), loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density), group = kit.useVariant("group", meta.variants.group, input.group);
+  const density = kit.useKit().density, group = kit.useVariant("group", meta.variants.group, input.group);
   const { items, assigneeChoices } = kit.useLiveControls(meta, input) as { items: ViewRow[]; assigneeChoices: string[] },
     rows = state === "success" && !controller ? taskPreviewComplete(items) : items;
   const groups = group === "sections" ? taskGroups(rows) : [{ project: undefined, tasks: rows }];

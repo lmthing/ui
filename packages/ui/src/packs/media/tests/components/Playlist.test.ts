@@ -39,7 +39,6 @@ describe("Playlist schema", () => {
     };
     expect(props.parse({ items: Array.from({ length: 6 }, () => item), playing: 5 })).toMatchObject({
       style: "tracks",
-      surface: "card",
       detail: "full",
       playing: 5,
       items: Array.from({ length: 6 }, () => ({ ...item, title })),
@@ -139,7 +138,7 @@ describe("Playlist states and parts", () => {
         ...["r1", "r2"].flatMap((row) => meta.items.parts.map((part) => `${prefix}${row}/${part}`)),
       ].sort(),
     );
-    expect(ids({ ...episodes, density: "comfortable", surface: "outlined" }).sort()).toEqual(full);
+    expect(ids({ ...episodes }).sort()).toEqual(full);
     const brief = { ...episodes, detail: "brief" };
     expect(ids(brief).sort()).toEqual(full.filter((id) => !id.endsWith("/sub")));
     expect(readComponent(def, brief, "c1").join("\n")).not.toContain(props.parse(episodes).items[0]!.sub);

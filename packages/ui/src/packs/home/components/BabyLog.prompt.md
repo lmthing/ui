@@ -9,4 +9,4 @@ Baby feeds, nappies and sleeps with quick tiles, an active timer and today's log
 ## Writer
 
 - log has 0–12 entries. Write kind, HH:MM time and optional minutes/amount; never time-since-last. running is none or one kind, not a boolean.
-- Use detail "brief" only when asked to hide durations and amounts in history. Keep them in log. Write density:null and surface:null unless the person separately requests spacing or finish.
+- Use detail "brief" only when asked to hide durations and amounts in history. Keep them in log.

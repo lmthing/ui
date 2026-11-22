@@ -59,7 +59,6 @@ describe("SessionPack contract", () => {
     expect(props.parse({ ...maxText, total: 50, used: 50, expires: "2028-02-29" })).toMatchObject({
       ...maxText,
       detail: "full",
-      surface: "card",
     });
     expect(props.safeParse({ ...maxText, total: 2, used: 0 }).success).toBe(true);
   });

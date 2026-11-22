@@ -22,7 +22,6 @@ export const meta = {
   partTiers: { root: "people" },
   realPath: "One phone keeps the score; following it live elsewhere needs a shared app.",
   variants: {
-    density: ["comfortable", "compact"],
     emphasis: ["normal", "quiet"],
     detail: ["full", "brief"],
   },
@@ -122,7 +121,7 @@ type ScoreView = c.Props<typeof props, typeof meta> & { elapsed?: number; runnin
 // prettier-ignore
 function ScoreCenter({ input, lang }: { input: ScoreView; lang: string }) {
   const { status, clock } = scoreboardCopy(input, lang);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const emphasis = kit.useVariant("emphasis", meta.variants.emphasis, input.emphasis);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   return (
@@ -153,7 +152,7 @@ export function Scoreboard(seed: c.Props<typeof props, typeof meta>) {
     words: { scoreboard },
   } = kit.useWords(sportsWordsFor);
   const { loadingLabel } = c.wordsFor(lang);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const { home, away } = scoreboardCopy(input, lang);
   const clockLabel = input.running ? scoreboard.stop : scoreboard.start;
   // prettier-ignore

@@ -1,9 +1,10 @@
+import type { ThemeDensity } from "../../../catalog";
 import * as kit from "../../../kit";
 import { threadEntryCopy } from "../copy";
 import { requestsWordsFor } from "../lang";
 import type { ThreadProps } from "./RequestThread";
 
-type Finish = Pick<ThreadProps, "density" | "detail">;
+type Finish = Pick<ThreadProps, "detail"> & { density: ThemeDensity };
 
 // prettier-ignore
 export function ThreadEntry({ row, detail, density, lang }: Finish & { row: ThreadProps["entries"][number] & { fileName?: string }; lang: string }) {

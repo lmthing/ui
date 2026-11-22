@@ -20,7 +20,7 @@ export const meta = {
   pick: prompt.pick,
   realPath: "Reply templates are saved on the operator's phone or shared library, and RequestThread sends only on a separate action.",
   writeHints: prompt.writeHints,
-  variants: { detail: ["full", "brief"], surface: ["card", "outlined"], density: ["comfortable", "compact"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["snippet"] } },
   parts: ["root", "title", "category", "empty"],
   items: { key: "templates", visibleWhen: { visible: true }, parts: ["root", "title", "snippet", "preview", "insert"] },
@@ -142,9 +142,8 @@ function ReplyRow({ row, brief, density, words, lang, loading }: {
 // prettier-ignore
 export function CannedReplies(input: ReplyProps) {
   const state = kit.useComponentState(), loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const { lang, words: { cannedReplies: words } } = kit.useWords(requestsWordsFor);
   const { templates, activeCategory } = kit.useLiveControls(meta, input) as { templates: Reply[]; activeCategory?: string };
   const rows = templates.filter(({ visible }) => visible);
@@ -154,7 +153,7 @@ export function CannedReplies(input: ReplyProps) {
       {rows.map((row) => <ReplyRow key={row.id} {...{ row, density, words, lang, loading }} brief={detail === "brief"} />)}
     </kit.KitRowGroup> : <kit.KitLayoutText density={density} line={{ text: words.noMatches, part: "empty", role: "meta", tone: "muted" }} />}
   </>;
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
+  return <kit.KitCard part="root" padded density={density} surface="card">
     <kit.KitHeader title={{ text: words.title, part: "title" }} {...{ density }} />
     <kit.KitState loading={content} message={words.empty} part="empty" icon="message" {...{ density }}>
       {content}

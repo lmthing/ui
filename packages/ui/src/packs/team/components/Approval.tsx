@@ -18,8 +18,6 @@ export const meta = {
   tier: "people",
   realPath: "A shared app stores requests and tells each requester the decision.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     lead: ["avatar", "none"],
   },
   variantParts: { "lead.none": { hides: ["photo"] } },
@@ -115,7 +113,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type ApprovalProps = c.Props<typeof props, typeof meta>;
-type RequestProps = Pick<ApprovalProps, "lead" | "surface"> & {
+type RequestProps = Pick<ApprovalProps, "lead"> & { surface: c.SurfaceFinish } & {
   row: ApprovalProps["requests"][number];
   density: c.ThemeDensity;
 };
@@ -163,9 +161,9 @@ function ApprovalRow({ row, lead, surface, density }: RequestProps) {
 export function Approval(input: ApprovalProps) {
   const state = kit.useComponentState();
   const { words } = kit.useWords(teamWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const lead = kit.useVariant("lead", meta.variants.lead, input.lead);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const surface = "card";
   const filled = state === "filled";
   const success = state === "success";
   return (

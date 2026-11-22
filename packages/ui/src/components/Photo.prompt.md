@@ -8,5 +8,5 @@ One picture on its own, optionally captioned. Not several pictures (Gallery) or 
 
 ## Writer
 
-- For one picture without an expressly requested crop or edge treatment, write aspect:null and bleed:null, not the default "wide" and "inset". Use aspect "square", "wide" or "tall" only for an explicit crop and bleed "edge" only for a requested edge-to-edge image.
+- Use aspect only when explicitly asked for a square, wide or tall crop. Otherwise leave aspect null.
 - When asked to keep a supplied caption but not show it, set only detail "brief" and fill caption. If there is no caption to keep, leave both null.

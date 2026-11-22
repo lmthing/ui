@@ -22,7 +22,6 @@ export const meta = {
     commands: [{ scope: "item", part: "root", to: player, action: "seek", payload: { from: "at" } }],
     observe: { from: player, at: "playhead" },
   },
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"] },
   parts: ["root", "follow", "lines", "empty"],
   items: { key: "lines", parts: ["root", "at", "speaker", "text", "save"] },
   states: ["filled", "empty", "loading"],
@@ -42,7 +41,6 @@ const line = z.strictObject({
 
 export const props = z
   .strictObject({
-    ...c.variantProps(meta.variants),
     lines: z.array(line).min(2).max(maxLines),
     current: z
       .int()

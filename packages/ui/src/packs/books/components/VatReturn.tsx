@@ -28,7 +28,6 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "A versioned VAT rule computes the local preview; saving never files or pays a return.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"] },
   parts: ["root", "from", "to", "save", "save_label", "result"],
   items: {
     key: "boxes",
@@ -51,7 +50,6 @@ export const meta = {
 
 export const props = z
   .strictObject({
-    ...c.variantProps(meta.variants),
     ...periodFields,
     schemeRef: ref.meta({ kind: "ref" }),
     ledgerGoto: c.screenId.optional(),
@@ -71,7 +69,6 @@ export const examples = [
     schemeRef: "domestic_cash",
     ledgerGoto: "walk_ledger",
     style: "reconcile",
-    density: "compact",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -96,7 +93,7 @@ export const probes = [
 
 type View = c.Props<typeof props, typeof meta>;
 type Display = NonNullable<ReturnType<typeof vatDisplay>>;
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 type Row = VatBox & { id: string };
 
 // prettier-ignore
@@ -151,8 +148,8 @@ function VatLoading({ density, display, dates, boxes }: {
 
 // prettier-ignore
 export function VatReturn(input: View) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const state = kit.useComponentState(), data = kit.useDeviceData();
   const { lang, words: { vatReturn: w } } = kit.useWords(booksWordsFor);
   const { boxes = [], validSnapshot } = kit.useLiveControls(meta, input) as { boxes?: Row[]; validSnapshot?: boolean };

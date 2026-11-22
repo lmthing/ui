@@ -127,7 +127,7 @@ describe("Gantt states and parts", () => {
     }
     expect(elements.has(part("r2/after"))).toBe(true);
     expect(elements.has(part("r2/conflict"))).toBe(false);
-    expect([...addressedElements(render({ ...weeks, density: "compact" })).keys()]).toEqual([
+    expect([...addressedElements(render({ ...weeks })).keys()]).toEqual([
       ...addressedElements(render(weeks)).keys(),
     ]);
     expect([...addressedElements(render({ ...weeks, detail: "brief" })).keys()]).toEqual(

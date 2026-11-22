@@ -26,7 +26,6 @@ describe("Loyalty contract and boundaries", () => {
       ...seed,
       name: "Sam",
       detail: "full",
-      surface: "card",
       stamp: true,
       redeem: false,
     });

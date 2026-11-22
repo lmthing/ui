@@ -1,3 +1,5 @@
+<!-- replay-literals: d d mcd -->
+
 ## Purpose
 
 Track one booked flight's live status, airport details and progress.
@@ -8,4 +10,4 @@ Live operational status, gate updates and progress for one specific flight. Not 
 
 ## Writer
 
-- Use local HH:MM for each airport; progress is a fraction, not a percent. Only write an estimate if known. For a single strip with status, gate and departure, set detail to "brief". Leave density and surface null unless explicitly requested; do not write "card" for the default surface.
+- Use local HH:MM for each airport; progress is a fraction, not a percent. Only write an estimate if known. For a single strip with status, gate and departure, set detail to "brief".

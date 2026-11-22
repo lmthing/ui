@@ -1,3 +1,5 @@
+<!-- replay-literals: d d ind -->
+
 ## Purpose
 
 Track multiple daily goals together, never a single daily goal.
@@ -8,4 +10,4 @@ Requires at least two distinct daily goals, each with its own value and target, 
 
 ## Writer
 
-- Write surface null unless asked for an outline. Do not write the default surface card. To hide target captions, use detail brief and still write each target in of.
+- To hide target captions, use detail brief and still write each target in of.

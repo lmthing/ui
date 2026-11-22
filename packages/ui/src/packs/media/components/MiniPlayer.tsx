@@ -17,7 +17,6 @@ export const meta = {
   tier: "phone",
   realPath: "The bar follows the device's current playback.",
   codeOwned: true,
-  variants: { surface: ["card", "plain"], density: ["comfortable", "compact"] },
   parts: ["root", "photo", "title", "progress", "time", "play", "play_icon"],
   states: ["filled"],
   actions: {
@@ -33,7 +32,6 @@ export const meta = {
 
 export const props = z
   .strictObject({
-    ...c.variantProps(meta.variants),
     title: c.text(40),
     photo: c.photo,
     at: z.int().min(0).max(36000),
@@ -72,7 +70,6 @@ export const examples = [
     seconds: 275,
     playing: false,
     goto: "slow_walk",
-    surface: "plain",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -89,8 +86,8 @@ export const probes = [
 
 export function MiniPlayer(input: c.Props<typeof props, typeof meta>) {
   const { title, photo, at, seconds, playing, goto } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const { lang, words } = kit.useWords(mediaWordsFor);
   const action = playing ? "pause" : "play";
   const copy = words.miniPlayer;

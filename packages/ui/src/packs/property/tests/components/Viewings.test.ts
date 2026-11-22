@@ -39,7 +39,6 @@ describe("Viewings contract and boundaries", () => {
   );
   it("defaults to brief cards and trims authored text", () => {
     expect(props.parse(rowInput({ unit: "  Cedar Flat  ", note: "Gate" }))).toMatchObject({
-      surface: "card",
       detail: "brief",
       viewings: [{ unit: "Cedar Flat", note: undefined }],
     });
@@ -108,7 +107,7 @@ describe("Viewings parts and states", () => {
     // prettier-ignore
     for (const part of ["root", "unit", "prospect", "start", "end", "status", "note", "edit", "cancel", "invite"])
       expect(full).toContain(`home/${address(part)}`);
-    const compactRow = render({ ...input, surface: "plain", density: "compact" });
+    const compactRow = render({ ...input });
     expect([...addressedElements(compactRow).keys()]).toEqual(full);
     expect([...addressedElements(render({ ...input, detail: "brief" })).keys()]).toEqual(
       full.filter((part) => !part.endsWith("/note")),

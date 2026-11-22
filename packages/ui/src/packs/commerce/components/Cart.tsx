@@ -18,7 +18,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "The basket is kept on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["variant"] } },
   parts: ["root", "empty", "promo", "subtotal", "delivery", "total"],
   items: {
@@ -180,8 +180,8 @@ export function Cart(input: CartProps) {
   const { words: { cart } } = kit.useWords(commerceWordsFor);
   const { thing } = kit.usePartContext();
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const loading = state === "loading";
   return <kit.KitCard padded part="root" {...{ density, surface }}>

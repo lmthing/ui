@@ -18,7 +18,7 @@ export const meta = {
   tier: "phone",
   realPath:
     "Confirmation details are typed or pasted onto the device; live flight status would need a service.",
-  variants: { density: ["comfortable", "compact"], align: ["start", "center"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["seat"] } },
   // prettier-ignore
   parts: ["root", "kind", "title", "from", "to", "start", "end", "ref", "ref_value", "ref_icon", "seat", "code"],
@@ -155,10 +155,9 @@ export function Reservation(input: ReservationProps) {
   const { title, ref, code, style } = input;
   const loading = kit.useComponentState() === "loading";
   const { words } = kit.useWords(tripsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const preferredAlign = kit.useVariant("align", meta.variants.align, input.align);
-  const align = style === "pass" ? "center" : preferredAlign;
-  const finish = { density, align };
+  const density = kit.useKit().density;
+  const align = style === "pass" ? "center" : "start";
+  const finish: Finish = { density, align };
   const copy = loading ? <kit.KitSkeleton shape="control" kind="quiet" inset="none" />
     : <kit.KitAction action="press" part="ref" kind="quiet" icon="clipboard" a11y={words.copyReservationRef} />;
   const reference = <kit.KitMetaLine {...finish}

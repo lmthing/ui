@@ -24,7 +24,7 @@ export const meta = {
   tier: "people",
   partTiers: { field: "phone", send: "people", canned: "phone" },
   realPath: "Messages and operational events are linked to one request in a shared app.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["event_detail"] } },
   parts: ["root", "number", "field", "audience", "send", "send_label", "notice", "canned"],
   items: {
@@ -113,7 +113,7 @@ export const examples = [
     { by: "Ella", date: "2026-11-19", time: "10:15", audience: "internal", kind: "message", text: "The grow light cable is loose.", photo: "local:1" },
   ] },
   { ...trot, entries: [...trot.entries] },
-  { ...trot, entries: [...trot.entries], density: "compact" },
+  { ...trot, entries: [...trot.entries] },
   { ...trot, entries: [...trot.entries], detail: "brief" },
   { ...trot, cannedGoto: "saved_replies", entries: [{ ...trot.entries[0], file: sampleFile.fileRef }, trot.entries[1]] },
 ] satisfies z.input<typeof props>[];
@@ -143,7 +143,7 @@ type ThreadLive = ThreadProps & {
 export function RequestThread(input: ThreadProps) {
   const { words: { thread: words }, lang } = kit.useWords(requestsWordsFor);
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { entries, draft, audience, audience_choices: choices, sendable, canBrowseReplies } = kit.useLiveControls(meta, input) as ThreadLive;
   const rows = threadOrder(entries).map((row) => <threadView.ThreadEntry key={row.id} {...{ row, detail, density, lang }} />);

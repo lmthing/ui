@@ -13,7 +13,7 @@ export const meta = {
   pick: prompt.pick,
   realPath: "The host calculates contractual deadlines from the request's policy and timestamps or syncs them from a shared service desk.",
   writeHints: prompt.writeHints,
-  variants: { detail: ["full", "brief"], surface: ["card", "outlined"], density: ["comfortable", "compact"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["request", "response", "meter", "status"] } },
   parts: ["root", "request", "tier", "response", "resolution", "meter", "status", "policy", "policy_label"],
   actions: { parts: { policy: ["press"] }, when: { policy: { hasPolicy: true } } },
@@ -121,9 +121,8 @@ function PolicyRow({ goto, label, density, loading = false }: { goto: string; la
 
 // prettier-ignore
 export function SlaPolicy(input: SlaProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const { lang } = kit.useWords(requestsWordsFor), context = kit.usePartContext();
   const live = kit.useLiveControls(meta, input) as SlaProps;
   const reading = slaReading(live, lang), { words } = reading;
@@ -135,7 +134,7 @@ export function SlaPolicy(input: SlaProps) {
   const showTargets = context.state === "filled" || context.state === reading.state;
   const message = state === "error" ? words.error : words.success;
   const policy = input.policyGoto && { goto: input.policyGoto, label: words.policy, density };
-  return <kit.KitCard padded {...{ density, surface }}>
+  return <kit.KitCard padded density={density} surface="card">
     <kit.PartScope {...context} state={rowState}>
       <kit.KitState {...{ retain, density, message }} part={brief ? null : "status"}
         loading={<>{targets}{policy && <PolicyRow {...policy} loading />}</>}>

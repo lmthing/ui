@@ -9,4 +9,4 @@ A student's repeating week of class periods with subject, room and teacher. Not 
 ## Writer
 
 - Write each scheduled weekday once. For each period, write a 24-hour start time and subject, with room, teacher and semantic tone if supplied. Leave selected_day null; it is for the locally selected view. Never write the current period.
-- Leave density, surface and detail null unless requested. For start times and subjects only, use detail "brief" and retain any rooms and teachers in the data.
+- Leave detail null unless requested. For start times and subjects only, use detail "brief" and retain any rooms and teachers in the data.

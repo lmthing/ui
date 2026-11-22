@@ -8,7 +8,7 @@ A guided thought record: what happened, automatic thought, thinking traps, balan
 
 ## Writer
 
-- For the short exercise with just thought, thinking traps and reframe, set exactly these axis values: {"density":null,"surface":null,"detail":"brief"}. Short refers to fewer fields, not tighter spacing or another surface.
-- For a guided reflection with a situation, prompt or mood check, use {"density":null,"surface":null,"detail":null} unless a finish is explicitly requested. Never fill in the defaults "comfortable" or "card".
+- For the short exercise with just thought, thinking traps and reframe, set exactly these axis values: {"detail":"brief"}.
+- For a guided reflection with a situation, prompt or mood check, use {"detail":null}.
 - Only seed answers the person supplied; leave other fields null and keep traps off unless requested on.
 - Mood ratings are whole numbers 1–5. Never supply a mood difference; the app computes it.

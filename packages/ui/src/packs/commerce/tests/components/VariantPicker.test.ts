@@ -31,7 +31,6 @@ describe("VariantPicker schema and boundaries", () => {
     expect(props.parse({ ...named, label: "  Finish  " })).toMatchObject({
       label: "Finish",
       style: "named",
-      surface: "card",
       detail: "full",
     });
     expect(props.parse(named).at).toBeUndefined();

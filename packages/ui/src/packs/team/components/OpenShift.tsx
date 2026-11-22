@@ -18,8 +18,6 @@ export const meta = {
   tier: "people",
   realPath: "A manager approves claims for open shifts in a shared rota.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["pay"] } },
@@ -162,8 +160,8 @@ export function OpenShift(input: OpenShiftProps) {
   const state = kit.useComponentState();
   const thing = kit.useEmptyThing();
   const { words } = kit.useWords(teamWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   return (
     <kit.KitCard part="root" density={density} surface={surface}>

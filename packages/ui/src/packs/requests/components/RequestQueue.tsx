@@ -22,7 +22,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "The operator's request records live on the device; sharing changes needs a shared app.",
-  variants: { density: ["comfortable", "compact"], group: ["sections", "none"] },
+  variants: { group: ["sections", "none"] },
   variantParts: { "group.none": { hides: ["status_heading"], adds: ["status"] } },
   parts: ["root", "view", "count", "status_heading", "retry", "empty", "error", "more", "mine"],
   items: {
@@ -154,7 +154,7 @@ function readQueue(input: unknown, state: c.StateName, lang?: string, data?: c.D
 export function RequestQueue(input: QueueProps) {
   const state = kit.useComponentState(), { thing } = kit.usePartContext();
   const { lang, words: { queue } } = kit.useWords(requestsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const grouped = kit.useVariant("group", meta.variants.group, input.group) === "sections";
   const { view, style } = input, personal = style === "mine";
   const rows = c.visibleItems<QueueRowProps>(meta, kit.useLiveControls(meta, input));

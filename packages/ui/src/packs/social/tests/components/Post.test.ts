@@ -26,7 +26,6 @@ describe("Post schema and bounds", () => {
   it("trims input, applies defaults and retains all hidden attachments", () => {
     expect(props.parse({ ...example, name: "  Maya ", media: "none" })).toMatchObject({
       name: "Maya",
-      surface: "card",
       media: "none",
       images: example.images,
     });
@@ -139,7 +138,7 @@ describe("Post states, parts and read", () => {
     const addresses = [...parts(input).keys()];
     const attachments = ["images", "image_2", "image_3", "image_4"].map((name) => `home/p1/${name}`);
     expect(addresses).toEqual(expect.arrayContaining(attachments));
-    expect([...parts({ ...input, density: "compact", surface: "outlined" }).keys()]).toEqual(addresses);
+    expect([...parts({ ...input }).keys()]).toEqual(addresses);
     const without = addresses.filter((address) => !attachments.includes(address));
     expect([...parts({ ...input, media: "none" }).keys()]).toEqual(without);
     expect([...parts({ ...input, images: [] }).keys()]).toEqual(without);

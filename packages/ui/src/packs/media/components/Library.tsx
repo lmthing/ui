@@ -19,7 +19,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "The saved media items live on the device.",
-  variants: { density: ["comfortable", "compact"], aspect: ["square", "tall"],
+  variants: { aspect: ["square", "tall"],
     detail: ["full", "brief"], arrange: ["grid", "rows", "strip"] },
   variantParts: { "detail.brief": { hides: ["by"] } },
   parts: ["root", "empty"],
@@ -176,7 +176,7 @@ function LibraryTile({ item, density, aspect, style, row, loading }: TileProps) 
 // prettier-ignore
 export function Library(input: LibraryProps) {
   const { style } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const aspect = kit.useVariant("aspect", meta.variants.aspect, input.aspect);
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   const row = arrange === "rows";

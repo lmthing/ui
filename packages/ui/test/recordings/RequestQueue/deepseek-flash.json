@@ -440,6 +440,24 @@
       "RequestQueue"
     ]
   },
+  "RequestQueue%2Fchoose%2FGive%20the%20repair%20desk%20one%20inbox%20to%20switch%20between%20active%20and%20completed%20tickets%2C%20grouped%20by%20status%20and%20ordered%20by%20urgency%20and%20promised%20deadlines/4c33c1c35ad739ff/103077dd5bc9975b": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- CannedReplies: Find a saved reply and put it in a support draft without sending it. Pick: Filter and preview reusable support or repair reply templates, then insert one into the active draft without sending. Not typing a blank reply (Composer), browsing generic rows (List), or showing the request stream (RequestThread).\n- RequestQueue: Find the next service request to work on by urgency and deadline. Pick: An operator's active and completed service tickets, grouped by lifecycle status and ordered by urgency and deadline. Not a short tappable badge list (List), arbitrary stages (Board), or one rental repair (Request).\n- RequestResolution: Verify a repair outcome, accept it or reopen the original request. Pick: Save a proposed repair outcome with evidence and verification checks, then let the requester accept it or reopen the same service ticket. Not a conversation or status updates (RequestThread), a success message (Success), a star rating (Scale), or contract terms (Agreement).\n- RequestThread: Follow one request through staff updates, work events and replies. Pick: One service ticket's replies interleaved with typed status, assignment and work-order events, with staff-only or requester-visible audiences. Not an ordinary chat (Bubbles), read-only history (Timeline), general audit (ActivityLog), or post replies (Comments).\n- RequestTriage: Prioritise and route a report, or link it to an existing request. Pick: Triage one incoming service report: compare reported urgency with impact, set effective priority and route it or link a duplicate. Not a simple form dropdown (Field) or manager permission (Approval).\n- SlaPolicy: Track contractual first-response and resolution deadlines for a request. Pick: Track the service-level policy and both first-response and resolution targets on one ticket, including missed targets. Not a generic countdown (Timer), an operational queue (RequestQueue), or static policy facts (KeyValue).\n- WorkOrder: Carry out a repair with required checks, time and parts used. Pick: One assigned execution record tied to a service request, with required checks, time and consumed parts. Not simple jobs to tick (Checklist), attendance (TimeClock), or a booked visit (Appointment).\n\nNeed, in the person's words: \"Give the repair desk one inbox to switch between active and completed tickets, grouped by status and ordered by urgency and promised deadlines\"\nReply with only the component id, nothing else.",
+    "reply": "RequestQueue",
+    "replies": [
+      "RequestQueue",
+      "RequestQueue",
+      "RequestQueue"
+    ]
+  },
+  "RequestQueue%2Fchoose%2FGive%20the%20repair%20desk%20one%20inbox%20to%20switch%20between%20active%20and%20completed%20tickets%2C%20grouped%20by%20status%20and%20ordered%20by%20urgency%20and%20promised%20deadlines/960716fe95ffb2a7/103077dd5bc9975b": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- CannedReplies: Find a saved reply and put it in a support draft without sending it. Pick: Filter and preview reusable support or repair reply templates, then insert one into the active draft without sending. Not typing a blank reply (Composer), browsing generic rows (List), or showing the request stream (RequestThread).\n- RequestQueue: Find the next service request to work on by urgency and deadline. Pick: An operator's active and completed service tickets, grouped by lifecycle status and ordered by urgency and deadline. Not a short tappable badge list (List), arbitrary stages (Board), or one rental repair (Request).\n- RequestResolution: Verify a repair outcome, accept it or reopen the original request. Pick: Save a proposed repair outcome with evidence and verification checks, then let the requester accept it or reopen the same service ticket. Not a conversation or status updates (RequestThread), a success message (Success), a star rating (Scale), or contract terms (Agreement).\n- RequestThread: Follow one request through staff updates, work events and replies. Pick: One service ticket's replies interleaved with typed status, assignment and work-order events, with staff-only or requester-visible audiences. Not an ordinary chat (Bubbles), read-only history (Timeline), general audit (ActivityLog), or post replies (Comments).\n- RequestTriage: Prioritise and route a report, or link it to an existing request. Pick: Triage one incoming service report: compare reported urgency with impact, set effective priority and route it or link a duplicate. Not a simple form dropdown (Field) or manager permission (Approval).\n- SlaPolicy: Track contractual first-response and resolution deadlines for a request. Pick: Track the service-level policy and both first-response and resolution targets on one ticket, including missed targets. Not a generic countdown (Timer), an operational queue (RequestQueue), or static policy facts (KeyValue).\n- WorkOrder: Carry out a repair with required checks, time and parts used. Pick: One assigned execution record tied to a service request, with required checks, time and consumed parts. Not simple jobs to tick (Checklist), attendance (TimeClock), or a booked visit (Appointment).\n\nNeed, in the person's words: \"Give the repair desk one inbox to switch between active and completed tickets, grouped by status and ordered by urgency and promised deadlines\"\nReply with only the component id, nothing else.",
+    "reply": "RequestQueue",
+    "replies": [
+      "RequestQueue",
+      "RequestQueue",
+      "RequestQueue"
+    ]
+  },
   "RequestQueue%2Fchoose%2FShow%20my%20three%20saved%20repair%20shops%20as%20ordinary%20tappable%20rows%2C%20each%20with%20a%20short%20status%20badge/48c839c83a3d56b9/1cdfa8a25f0b2329": {
     "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- CannedReplies: Find a saved reply and put it in a support draft without sending it. Pick: Filter and preview reusable support or repair reply templates, then insert one into the active draft without sending. Not typing a blank reply (Composer), browsing generic rows (List), or showing the request stream (RequestThread).\n- RequestQueue: Find the next service request to work on by urgency and deadline. Pick: An operator's active and completed service tickets, grouped by lifecycle status and ordered by urgency and deadline. Not a short tappable badge list (List), arbitrary stages (Board), or one rental repair (Request).\n- RequestResolution: Verify a repair outcome, accept it or reopen the original request. Pick: Save a proposed repair outcome with evidence and verification checks, then let the requester accept it or reopen the same service ticket. Not a conversation or status updates (RequestThread), a success message (Success), a star rating (Scale), or contract terms (Agreement).\n- RequestThread: Follow one request through staff updates, work events and replies. Pick: One service ticket's replies interleaved with typed status, assignment and work-order events, with staff-only or requester-visible audiences. Not an ordinary chat (Bubbles), read-only history (Timeline), general audit (ActivityLog), or post replies (Comments).\n- RequestTriage: Prioritise and route a report, or link it to an existing request. Pick: Triage one incoming service report: compare reported urgency with impact, set effective priority and route it or link a duplicate. Not a simple form dropdown (Field) or manager permission (Approval).\n- SlaPolicy: Track contractual first-response and resolution deadlines for a request. Pick: Track the service-level policy and both first-response and resolution targets on one ticket, including missed targets. Not a generic countdown (Timer), an operational queue (RequestQueue), or static policy facts (KeyValue).\n- WorkOrder: Carry out a repair with required checks, time and parts used. Pick: One assigned execution record tied to a service request, with required checks, time and consumed parts. Not simple jobs to tick (Checklist), attendance (TimeClock), or a booked visit (Appointment).\n\nNeed, in the person's words: \"Show my three saved repair shops as ordinary tappable rows, each with a short status badge\"\nReply with only the component id, nothing else.",
     "reply": "List",
@@ -447,6 +465,42 @@
       "List",
       "List",
       "List"
+    ]
+  },
+  "RequestQueue%2Fchoose%2FShow%20my%20three%20saved%20repair%20shops%20as%20ordinary%20tappable%20rows%2C%20each%20with%20a%20short%20status%20badge/887a177fc11302e9/1cdfa8a25f0b2329": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- CannedReplies: Find a saved reply and put it in a support draft without sending it. Pick: Filter and preview reusable support or repair reply templates, then insert one into the active draft without sending. Not typing a blank reply (Composer), browsing generic rows (List), or showing the request stream (RequestThread).\n- RequestQueue: Find the next service request to work on by urgency and deadline. Pick: An operator's active and completed service tickets, grouped by lifecycle status and ordered by urgency and deadline. Not a short tappable badge list (List), arbitrary stages (Board), or one rental repair (Request).\n- RequestResolution: Verify a repair outcome, accept it or reopen the original request. Pick: Save a proposed repair outcome with evidence and verification checks, then let the requester accept it or reopen the same service ticket. Not a conversation or status updates (RequestThread), a success message (Success), a star rating (Scale), or contract terms (Agreement).\n- RequestThread: Follow one request through staff updates, work events and replies. Pick: One service ticket's replies interleaved with typed status, assignment and work-order events, with staff-only or requester-visible audiences. Not an ordinary chat (Bubbles), read-only history (Timeline), general audit (ActivityLog), or post replies (Comments).\n- RequestTriage: Prioritise and route a report, or link it to an existing request. Pick: Triage one incoming service report: compare reported urgency with impact, set effective priority and route it or link a duplicate. Not a simple form dropdown (Field) or manager permission (Approval).\n- SlaPolicy: Track contractual first-response and resolution deadlines for a request. Pick: Track the service-level policy and both first-response and resolution targets on one ticket, including missed targets. Not a generic countdown (Timer), an operational queue (RequestQueue), or static policy facts (KeyValue).\n- WorkOrder: Carry out a repair with required checks, time and parts used. Pick: One assigned execution record tied to a service request, with required checks, time and consumed parts. Not simple jobs to tick (Checklist), attendance (TimeClock), or a booked visit (Appointment).\n\nNeed, in the person's words: \"Show my three saved repair shops as ordinary tappable rows, each with a short status badge\"\nReply with only the component id, nothing else.",
+    "reply": "List",
+    "replies": [
+      "List",
+      "List",
+      "List"
+    ]
+  },
+  "RequestQueue%2Fchoose%2FShow%20my%20three%20saved%20repair%20shops%20as%20ordinary%20tappable%20rows%2C%20each%20with%20a%20short%20status%20badge/ea56de0722491f22/1cdfa8a25f0b2329": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- CannedReplies: Find a saved reply and put it in a support draft without sending it. Pick: Filter and preview reusable support or repair reply templates, then insert one into the active draft without sending. Not typing a blank reply (Composer), browsing generic rows (List), or showing the request stream (RequestThread).\n- RequestQueue: Find the next service request to work on by urgency and deadline. Pick: An operator's active and completed service tickets, grouped by lifecycle status and ordered by urgency and deadline. Not a short tappable badge list (List), arbitrary stages (Board), or one rental repair (Request).\n- RequestResolution: Verify a repair outcome, accept it or reopen the original request. Pick: Save a proposed repair outcome with evidence and verification checks, then let the requester accept it or reopen the same service ticket. Not a conversation or status updates (RequestThread), a success message (Success), a star rating (Scale), or contract terms (Agreement).\n- RequestThread: Follow one request through staff updates, work events and replies. Pick: One service ticket's replies interleaved with typed status, assignment and work-order events, with staff-only or requester-visible audiences. Not an ordinary chat (Bubbles), read-only history (Timeline), general audit (ActivityLog), or post replies (Comments).\n- RequestTriage: Prioritise and route a report, or link it to an existing request. Pick: Triage one incoming service report: compare reported urgency with impact, set effective priority and route it or link a duplicate. Not a simple form dropdown (Field) or manager permission (Approval).\n- SlaPolicy: Track contractual first-response and resolution deadlines for a request. Pick: Track the service-level policy and both first-response and resolution targets on one ticket, including missed targets. Not a generic countdown (Timer), an operational queue (RequestQueue), or static policy facts (KeyValue).\n- WorkOrder: Carry out a repair with required checks, time and parts used. Pick: One assigned execution record tied to a service request, with required checks, time and consumed parts. Not simple jobs to tick (Checklist), attendance (TimeClock), or a booked visit (Appointment).\n\nNeed, in the person's words: \"Show my three saved repair shops as ordinary tappable rows, each with a short status badge\"\nReply with only the component id, nothing else.",
+    "reply": "List",
+    "replies": [
+      "List",
+      "List",
+      "List"
+    ]
+  },
+  "RequestQueue%2Fread%2FTap%20the%20Flickering%20grow%20light%20report%20row%20to%20open%20its%20details.%20Leave%20the%20queue%20view%20unchanged./a4129d875fb211c7/16f644c42c4e4398": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nr1 RequestQueue Show active — Show completed — 2 requests — New — r2 · LG-42 · \"Leaking mister\" · Normal · 1 day old — In progress — r1 · LG-41 · \"Flickering grow light\" · Urgent · Fern shelf · Assigned to Noor · 2 days old · Overdue · 20 Nov 2026, 16:00 [r1/view select = \"active\"; choices [\"active\",\"completed\"]]\n  r1 [r1/r1 press→grow_light]\n  r2 [r1/r2 press→mister]\n\nTask: Tap the Flickering grow light report row to open its details. Leave the queue view unchanged.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"r1/r1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"r1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"r1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"r1/r1\", \"action\": \"press\"}"
+    ]
+  },
+  "RequestQueue%2Fread%2FTap%20the%20Flickering%20grow%20light%20report%20row%20to%20open%20its%20details.%20Leave%20the%20queue%20view%20unchanged./b30dee1455b07882/16f644c42c4e4398": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nr1 RequestQueue Show active — Show completed — 2 requests — New — r2 · LG-42 · \"Leaking mister\" · Normal · 1 day old — In progress — r1 · LG-41 · \"Flickering grow light\" · Urgent · Fern shelf · Assigned to Noor · 2 days old · Overdue · 20 Nov 2026, 16:00 [r1/view select = \"active\"; choices [\"active\",\"completed\"]]\n  r1 [r1/r1 press→grow_light]\n  r2 [r1/r2 press→mister]\n\nTask: Tap the Flickering grow light report row to open its details. Leave the queue view unchanged.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"r1/r1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"r1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"r1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"r1/r1\", \"action\": \"press\"}"
     ]
   },
   "RequestQueue%2Fread%2FTap%20the%20Flickering%20grow%20light%20report%20row%20to%20open%20its%20details.%20Leave%20the%20queue%20view%20unchanged./e9ff23e51a6791e4/16f644c42c4e4398": {
@@ -723,6 +777,1014 @@
       "{\"c\":\"RequestQueue\",\"density\":null,\"group\":null,\"rows\":[{\"number\":\"LG-41\",\"title\":\"Flickering grow light\",\"place\":null,\"status\":\"working\",\"urgency\":\"urgent\",\"who\":null,\"opened\":\"2026-11-18\",\"openedAt\":\"09:00\",\"due\":null,\"dueAt\":null,\"sla\":{\"openedAt\":\"2026-11-18T09:00:00Z\",\"responseDueAt\":\"2026-11-18T12:00:00Z\",\"respondedAt\":null,\"resolutionDueAt\":\"2026-11-23T16:00:00Z\",\"resolvedAt\":null,\"paused\":false},\"goto\":\"grow_light\"}],\"view\":\"active\",\"style\":null}",
       "{\"c\":\"RequestQueue\",\"density\":null,\"group\":null,\"rows\":[{\"number\":\"LG-41\",\"title\":\"Flickering grow light\",\"place\":null,\"status\":\"working\",\"urgency\":\"urgent\",\"who\":null,\"opened\":\"2026-11-18\",\"openedAt\":\"09:00\",\"due\":null,\"dueAt\":null,\"sla\":{\"openedAt\":\"2026-11-18T09:00:00Z\",\"responseDueAt\":\"2026-11-18T12:00:00Z\",\"respondedAt\":null,\"resolutionDueAt\":\"2026-11-23T16:00:00Z\",\"resolvedAt\":null,\"paused\":false},\"goto\":\"grow_light\"}],\"view\":\"active\",\"style\":null}",
       "{\"c\":\"RequestQueue\",\"density\":null,\"group\":\"sections\",\"rows\":[{\"number\":\"LG-41\",\"title\":\"Flickering grow light\",\"place\":\"Fern shelf\",\"status\":\"working\",\"urgency\":\"urgent\",\"who\":null,\"opened\":\"2026-11-18\",\"openedAt\":\"09:00\",\"due\":null,\"dueAt\":null,\"sla\":{\"openedAt\":\"2026-11-18T09:00:00Z\",\"responseDueAt\":\"2026-11-18T12:00:00Z\",\"respondedAt\":null,\"resolutionDueAt\":\"2026-11-23T16:00:00Z\",\"resolvedAt\":null,\"paused\":false},\"goto\":\"grow_light\"}],\"view\":\"active\",\"style\":null}"
+    ]
+  },
+  "RequestQueue%2Fwrite%2FFor%20the%20active%20queue%2C%20LG-41%20Flickering%20grow%20light%20is%20working%20and%20urgent%2C%20opened%202026-11-18%20at%2009%3A00%2C%20linking%20to%20grow_light.%20Flag%20missed%20contractual%20service%20targets%20from%20these%20policy%20times%3A%20opened%202026-11-18T09%3A00%3A00Z%2C%20first%20reply%20due%202026-11-18T12%3A00%3A00Z%2C%20resolution%20due%202026-11-23T16%3A00%3A00Z.%20No%20reply%20or%20resolution%20yet./ece8167983e0cf92/b0316c1fc34cddab": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nRequestQueue: Find the next service request to work on by urgency and deadline.\nprops: { group?: sections|none=\"sections\", rows: [1..6 { number: text≤12, title: text≤32, place?: text≤36, status: new|queued|working|waiting|resolved|closed, urgency: low|normal|urgent, who?: text≤24, opened: date YYYY-MM-DD, openedAt: time HH:MM, due?: date YYYY-MM-DD, dueAt?: time HH:MM, sla?: { openedAt: id snake_case, responseDueAt: id snake_case, respondedAt?: id snake_case, resolutionDueAt: id snake_case, resolvedAt?: id snake_case, paused?: boolean=false }, goto: id snake_case }], view?: active|completed=\"active\", style?: text≤? }\nRule: Write 1–6 records across both views, only from the brief. An explicit request for one flat queue with no status headings requires group \"none\", not null.\nRule: Never write display order, age, overdue or counts.\nRule: Use date and HH:MM for opening; dueAt requires due. Omit both if there is no deadline.\nRule: If the brief says to show only tickets assigned to the current operator, set style to \"mine\", even for one ticket. The host identifies those rows. For a general queue, leave style null.\nRule: For a contractual SLA badge, write row.sla with the supplied ISO timestamps (with seconds and offset), including both targets. Never write a breach flag.\nexample: {\"c\":\"RequestQueue\",\"rows\":[{\"number\":\"LG-41\",\"title\":\"Flickering grow light\",\"place\":\"Fern shelf\",\"status\":\"working\",\"urgency\":\"urgent\",\"who\":\"Noor\",\"opened\":\"2026-11-18\",\"openedAt\":\"09:00\",\"due\":\"2026-11-20\",\"dueAt\":\"16:00\",\"goto\":\"grow_light\"},{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"status\":\"new\",\"urgency\":\"normal\",\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"goto\":\"mister\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: For the active queue, LG-41 Flickering grow light is working and urgent, opened 2026-11-18 at 09:00, linking to grow_light. Flag missed contractual service targets from these policy times: opened 2026-11-18T09:00:00Z, first reply due 2026-11-18T12:00:00Z, resolution due 2026-11-23T16:00:00Z. No reply or resolution yet.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "RequestQueue",
+              "enum": [
+                "RequestQueue"
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "sections",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "number": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 12
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "place": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 36
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "new",
+                      "queued",
+                      "working",
+                      "waiting",
+                      "resolved",
+                      "closed"
+                    ]
+                  },
+                  "urgency": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "normal",
+                      "urgent"
+                    ]
+                  },
+                  "who": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "opened": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "openedAt": {
+                    "type": "string",
+                    "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "due": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "dueAt": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sla": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "openedAt": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                          },
+                          "responseDueAt": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                          },
+                          "respondedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "resolutionDueAt": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                          },
+                          "resolvedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "paused": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "openedAt",
+                          "responseDueAt",
+                          "respondedAt",
+                          "resolutionDueAt",
+                          "resolvedAt",
+                          "paused"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "number",
+                  "title",
+                  "place",
+                  "status",
+                  "urgency",
+                  "who",
+                  "opened",
+                  "openedAt",
+                  "due",
+                  "dueAt",
+                  "sla",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "view": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "active",
+                    "completed"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "mine"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "group",
+            "rows",
+            "view",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"RequestQueue\",\"group\":null,\"rows\":[{\"number\":\"LG-41\",\"title\":\"Flickering grow light\",\"place\":null,\"status\":\"working\",\"urgency\":\"urgent\",\"who\":null,\"opened\":\"2026-11-18\",\"openedAt\":\"09:00\",\"due\":\"2026-11-23\",\"dueAt\":\"16:00\",\"sla\":{\"openedAt\":\"2026-11-18T09:00:00Z\",\"responseDueAt\":\"2026-11-18T12:00:00Z\",\"respondedAt\":null,\"resolutionDueAt\":\"2026-11-23T16:00:00Z\",\"resolvedAt\":null,\"paused\":false},\"goto\":\"grow_light\"}],\"view\":\"active\",\"style\":null}",
+    "replies": [
+      "{\"c\":\"RequestQueue\",\"group\":null,\"rows\":[{\"number\":\"LG-41\",\"title\":\"Flickering grow light\",\"place\":null,\"status\":\"working\",\"urgency\":\"urgent\",\"who\":null,\"opened\":\"2026-11-18\",\"openedAt\":\"09:00\",\"due\":\"2026-11-23\",\"dueAt\":\"16:00\",\"sla\":{\"openedAt\":\"2026-11-18T09:00:00Z\",\"responseDueAt\":\"2026-11-18T12:00:00Z\",\"respondedAt\":null,\"resolutionDueAt\":\"2026-11-23T16:00:00Z\",\"resolvedAt\":null,\"paused\":false},\"goto\":\"grow_light\"}],\"view\":\"active\",\"style\":null}",
+      "{\"c\":\"RequestQueue\",\"group\":\"sections\",\"rows\":[{\"number\":\"LG-41\",\"title\":\"Flickering grow light\",\"place\":\"Fern shelf\",\"status\":\"working\",\"urgency\":\"urgent\",\"who\":null,\"opened\":\"2026-11-18\",\"openedAt\":\"09:00\",\"due\":\"2026-11-23\",\"dueAt\":\"16:00\",\"sla\":{\"openedAt\":\"2026-11-18T09:00:00Z\",\"responseDueAt\":\"2026-11-18T12:00:00Z\",\"respondedAt\":null,\"resolutionDueAt\":\"2026-11-23T16:00:00Z\",\"resolvedAt\":null,\"paused\":false},\"goto\":\"grow_light\"}],\"view\":\"active\",\"style\":null}",
+      "{\"c\":\"RequestQueue\",\"group\":\"sections\",\"rows\":[{\"number\":\"LG-41\",\"title\":\"Flickering grow light\",\"place\":\"Fern shelf\",\"status\":\"working\",\"urgency\":\"urgent\",\"who\":\"Noor\",\"opened\":\"2026-11-18\",\"openedAt\":\"09:00\",\"due\":\"2026-11-23\",\"dueAt\":\"16:00\",\"sla\":{\"openedAt\":\"2026-11-18T09:00:00Z\",\"responseDueAt\":\"2026-11-18T12:00:00Z\",\"respondedAt\":null,\"resolutionDueAt\":\"2026-11-23T16:00:00Z\",\"resolvedAt\":null,\"paused\":false},\"goto\":\"grow_light\"}],\"view\":\"active\",\"style\":null}"
+    ]
+  },
+  "RequestQueue%2Fwrite%2FFor%20the%20active%20queue%2C%20LG-41%20Flickering%20grow%20light%20is%20working%20and%20urgent%2C%20opened%202026-11-18%20at%2009%3A00%2C%20linking%20to%20grow_light.%20Flag%20missed%20contractual%20service%20targets%20from%20these%20policy%20times%3A%20opened%202026-11-18T09%3A00%3A00Z%2C%20first%20reply%20due%202026-11-18T12%3A00%3A00Z%2C%20resolution%20due%202026-11-23T16%3A00%3A00Z.%20No%20reply%20or%20resolution%20yet./ef1ddb8ef86ecb6d/8f7fb88111673bcb": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nRequestQueue: Find the next service request to work on by urgency and deadline.\nprops: { group?: sections|none=\"sections\", rows: [1..6 { number: text≤12, title: text≤32, place?: text≤36, status: new|queued|working|waiting|resolved|closed, urgency: low|normal|urgent, who?: text≤24, opened: date YYYY-MM-DD, openedAt: time HH:MM, due?: date YYYY-MM-DD, dueAt?: time HH:MM, sla?: { openedAt: id snake_case, responseDueAt: id snake_case, respondedAt?: id snake_case, resolutionDueAt: id snake_case, resolvedAt?: id snake_case, paused?: boolean=false }, goto: id snake_case }], view?: active|completed=\"active\", style?: text≤? }\nRule: Write 1–6 records across both views, only from the brief. An explicit request for one flat queue with no status headings requires group \"none\", not null.\nRule: Never write display order, age, overdue or counts.\nRule: Use date and HH:MM for opening; dueAt requires due. Omit both if there is no deadline.\nRule: Use style \"mine\" only for the current operator’s assigned requests; the host identifies those rows. For a contractual SLA badge, write row.sla with the supplied ISO timestamps (with seconds and offset), including both targets. Never write a breach flag.\nexample: {\"c\":\"RequestQueue\",\"rows\":[{\"number\":\"LG-41\",\"title\":\"Flickering grow light\",\"place\":\"Fern shelf\",\"status\":\"working\",\"urgency\":\"urgent\",\"who\":\"Noor\",\"opened\":\"2026-11-18\",\"openedAt\":\"09:00\",\"due\":\"2026-11-20\",\"dueAt\":\"16:00\",\"goto\":\"grow_light\"},{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"status\":\"new\",\"urgency\":\"normal\",\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"goto\":\"mister\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: For the active queue, LG-41 Flickering grow light is working and urgent, opened 2026-11-18 at 09:00, linking to grow_light. Flag missed contractual service targets from these policy times: opened 2026-11-18T09:00:00Z, first reply due 2026-11-18T12:00:00Z, resolution due 2026-11-23T16:00:00Z. No reply or resolution yet.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "RequestQueue",
+              "enum": [
+                "RequestQueue"
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "sections",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "number": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 12
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "place": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 36
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "new",
+                      "queued",
+                      "working",
+                      "waiting",
+                      "resolved",
+                      "closed"
+                    ]
+                  },
+                  "urgency": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "normal",
+                      "urgent"
+                    ]
+                  },
+                  "who": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "opened": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "openedAt": {
+                    "type": "string",
+                    "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "due": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "dueAt": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sla": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "openedAt": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                          },
+                          "responseDueAt": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                          },
+                          "respondedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "resolutionDueAt": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                          },
+                          "resolvedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "paused": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "openedAt",
+                          "responseDueAt",
+                          "respondedAt",
+                          "resolutionDueAt",
+                          "resolvedAt",
+                          "paused"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "number",
+                  "title",
+                  "place",
+                  "status",
+                  "urgency",
+                  "who",
+                  "opened",
+                  "openedAt",
+                  "due",
+                  "dueAt",
+                  "sla",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "view": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "active",
+                    "completed"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "mine"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "group",
+            "rows",
+            "view",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"RequestQueue\",\"group\":\"sections\",\"rows\":[{\"number\":\"LG-41\",\"title\":\"Flickering grow light\",\"place\":null,\"status\":\"working\",\"urgency\":\"urgent\",\"who\":null,\"opened\":\"2026-11-18\",\"openedAt\":\"09:00\",\"due\":null,\"dueAt\":null,\"sla\":{\"openedAt\":\"2026-11-18T09:00:00Z\",\"responseDueAt\":\"2026-11-18T12:00:00Z\",\"respondedAt\":null,\"resolutionDueAt\":\"2026-11-23T16:00:00Z\",\"resolvedAt\":null,\"paused\":false},\"goto\":\"grow_light\"}],\"view\":\"active\",\"style\":null}",
+    "replies": [
+      "{\"c\":\"RequestQueue\",\"group\":\"sections\",\"rows\":[{\"number\":\"LG-41\",\"title\":\"Flickering grow light\",\"place\":null,\"status\":\"working\",\"urgency\":\"urgent\",\"who\":null,\"opened\":\"2026-11-18\",\"openedAt\":\"09:00\",\"due\":null,\"dueAt\":null,\"sla\":{\"openedAt\":\"2026-11-18T09:00:00Z\",\"responseDueAt\":\"2026-11-18T12:00:00Z\",\"respondedAt\":null,\"resolutionDueAt\":\"2026-11-23T16:00:00Z\",\"resolvedAt\":null,\"paused\":false},\"goto\":\"grow_light\"}],\"view\":\"active\",\"style\":null}",
+      "{\"c\":\"RequestQueue\",\"group\":null,\"rows\":[{\"number\":\"LG-41\",\"title\":\"Flickering grow light\",\"place\":null,\"status\":\"working\",\"urgency\":\"urgent\",\"who\":null,\"opened\":\"2026-11-18\",\"openedAt\":\"09:00\",\"due\":\"2026-11-23\",\"dueAt\":\"16:00\",\"sla\":{\"openedAt\":\"2026-11-18T09:00:00Z\",\"responseDueAt\":\"2026-11-18T12:00:00Z\",\"respondedAt\":null,\"resolutionDueAt\":\"2026-11-23T16:00:00Z\",\"resolvedAt\":null,\"paused\":false},\"goto\":\"grow_light\"}],\"view\":\"active\",\"style\":null}",
+      "{\"c\":\"RequestQueue\",\"group\":null,\"rows\":[{\"number\":\"LG-41\",\"title\":\"Flickering grow light\",\"place\":\"Fern shelf\",\"status\":\"working\",\"urgency\":\"urgent\",\"who\":null,\"opened\":\"2026-11-18\",\"openedAt\":\"09:00\",\"due\":\"2026-11-23\",\"dueAt\":\"16:00\",\"sla\":{\"openedAt\":\"2026-11-18T09:00:00Z\",\"responseDueAt\":\"2026-11-18T12:00:00Z\",\"respondedAt\":null,\"resolutionDueAt\":\"2026-11-23T16:00:00Z\",\"resolvedAt\":null,\"paused\":false},\"goto\":\"grow_light\"}],\"view\":\"active\",\"style\":null}"
+    ]
+  },
+  "RequestQueue%2Fwrite%2FShow%20my%20service%20request%20queue%20as%20one%20flat%2C%20ordered%20list.%20Do%20not%20group%20by%20status%20or%20show%20any%20section%20headings.%20The%20only%20ticket%20is%20LG-42%20Leaking%20mister%2C%20new%20and%20normal%2C%20opened%202026-11-19%20at%2010%3A00%3B%20tapping%20it%20opens%20mister./54df5932b093068a/8aad25096227e6fd": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nRequestQueue: Find the next service request to work on by urgency and deadline.\nprops: { group?: sections|none=\"sections\", rows: [1..6 { number: text≤12, title: text≤32, place?: text≤36, status: new|queued|working|waiting|resolved|closed, urgency: low|normal|urgent, who?: text≤24, opened: date YYYY-MM-DD, openedAt: time HH:MM, due?: date YYYY-MM-DD, dueAt?: time HH:MM, sla?: { openedAt: id snake_case, responseDueAt: id snake_case, respondedAt?: id snake_case, resolutionDueAt: id snake_case, resolvedAt?: id snake_case, paused?: boolean=false }, goto: id snake_case }], view?: active|completed=\"active\", style?: text≤? }\nRule: Write 1–6 records across both views, only from the brief. An explicit request for one flat queue with no status headings requires group \"none\", not null.\nRule: Never write display order, age, overdue or counts.\nRule: Use date and HH:MM for opening; dueAt requires due. Omit both if there is no deadline.\nRule: If the brief says to show only tickets assigned to the current operator, set style to \"mine\", even for one ticket. The host identifies those rows. For a general queue, leave style null.\nRule: For a contractual SLA badge, write row.sla with the supplied ISO timestamps (with seconds and offset), including both targets. Never write a breach flag.\nexample: {\"c\":\"RequestQueue\",\"rows\":[{\"number\":\"LG-41\",\"title\":\"Flickering grow light\",\"place\":\"Fern shelf\",\"status\":\"working\",\"urgency\":\"urgent\",\"who\":\"Noor\",\"opened\":\"2026-11-18\",\"openedAt\":\"09:00\",\"due\":\"2026-11-20\",\"dueAt\":\"16:00\",\"goto\":\"grow_light\"},{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"status\":\"new\",\"urgency\":\"normal\",\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"goto\":\"mister\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show my service request queue as one flat, ordered list. Do not group by status or show any section headings. The only ticket is LG-42 Leaking mister, new and normal, opened 2026-11-19 at 10:00; tapping it opens mister.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "RequestQueue",
+              "enum": [
+                "RequestQueue"
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "sections",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "number": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 12
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "place": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 36
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "new",
+                      "queued",
+                      "working",
+                      "waiting",
+                      "resolved",
+                      "closed"
+                    ]
+                  },
+                  "urgency": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "normal",
+                      "urgent"
+                    ]
+                  },
+                  "who": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "opened": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "openedAt": {
+                    "type": "string",
+                    "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "due": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "dueAt": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sla": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "openedAt": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                          },
+                          "responseDueAt": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                          },
+                          "respondedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "resolutionDueAt": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                          },
+                          "resolvedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "paused": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "openedAt",
+                          "responseDueAt",
+                          "respondedAt",
+                          "resolutionDueAt",
+                          "resolvedAt",
+                          "paused"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "number",
+                  "title",
+                  "place",
+                  "status",
+                  "urgency",
+                  "who",
+                  "opened",
+                  "openedAt",
+                  "due",
+                  "dueAt",
+                  "sla",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "view": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "active",
+                    "completed"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "mine"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "group",
+            "rows",
+            "view",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"RequestQueue\",\"group\":\"none\",\"rows\":[{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"place\":null,\"status\":\"new\",\"urgency\":\"normal\",\"who\":null,\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"due\":null,\"dueAt\":null,\"sla\":null,\"goto\":\"mister\"}],\"view\":\"active\",\"style\":\"mine\"}",
+    "replies": [
+      "{\"c\":\"RequestQueue\",\"group\":\"none\",\"rows\":[{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"place\":null,\"status\":\"new\",\"urgency\":\"normal\",\"who\":null,\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"due\":null,\"dueAt\":null,\"sla\":null,\"goto\":\"mister\"}],\"view\":\"active\",\"style\":\"mine\"}",
+      "{\"c\":\"RequestQueue\",\"group\":\"none\",\"rows\":[{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"place\":null,\"status\":\"new\",\"urgency\":\"normal\",\"who\":null,\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"due\":null,\"dueAt\":null,\"sla\":null,\"goto\":\"mister\"}],\"view\":\"active\",\"style\":\"mine\"}",
+      "{\"c\":\"RequestQueue\",\"group\":\"none\",\"rows\":[{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"place\":null,\"status\":\"new\",\"urgency\":\"normal\",\"who\":null,\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"due\":null,\"dueAt\":null,\"sla\":null,\"goto\":\"mister\"}],\"view\":\"active\",\"style\":\"mine\"}"
+    ]
+  },
+  "RequestQueue%2Fwrite%2FShow%20my%20service%20request%20queue%20as%20one%20flat%2C%20ordered%20list.%20Do%20not%20group%20by%20status%20or%20show%20any%20section%20headings.%20The%20only%20ticket%20is%20LG-42%20Leaking%20mister%2C%20new%20and%20normal%2C%20opened%202026-11-19%20at%2010%3A00%3B%20tapping%20it%20opens%20mister./8286f7aec76069ae/a7063f87194464f2": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nRequestQueue: Find the next service request to work on by urgency and deadline.\nprops: { group?: sections|none=\"sections\", rows: [1..6 { number: text≤12, title: text≤32, place?: text≤36, status: new|queued|working|waiting|resolved|closed, urgency: low|normal|urgent, who?: text≤24, opened: date YYYY-MM-DD, openedAt: time HH:MM, due?: date YYYY-MM-DD, dueAt?: time HH:MM, sla?: { openedAt: id snake_case, responseDueAt: id snake_case, respondedAt?: id snake_case, resolutionDueAt: id snake_case, resolvedAt?: id snake_case, paused?: boolean=false }, goto: id snake_case }], view?: active|completed=\"active\", style?: text≤? }\nRule: Write 1–6 records across both views, only from the brief. An explicit request for one flat queue with no status headings requires group \"none\", not null.\nRule: Never write display order, age, overdue or counts.\nRule: Use date and HH:MM for opening; dueAt requires due. Omit both if there is no deadline.\nRule: Use style \"mine\" only for the current operator’s assigned requests; the host identifies those rows. For a contractual SLA badge, write row.sla with the supplied ISO timestamps (with seconds and offset), including both targets. Never write a breach flag.\nexample: {\"c\":\"RequestQueue\",\"rows\":[{\"number\":\"LG-41\",\"title\":\"Flickering grow light\",\"place\":\"Fern shelf\",\"status\":\"working\",\"urgency\":\"urgent\",\"who\":\"Noor\",\"opened\":\"2026-11-18\",\"openedAt\":\"09:00\",\"due\":\"2026-11-20\",\"dueAt\":\"16:00\",\"goto\":\"grow_light\"},{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"status\":\"new\",\"urgency\":\"normal\",\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"goto\":\"mister\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show my service request queue as one flat, ordered list. Do not group by status or show any section headings. The only ticket is LG-42 Leaking mister, new and normal, opened 2026-11-19 at 10:00; tapping it opens mister.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "RequestQueue",
+              "enum": [
+                "RequestQueue"
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "sections",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "number": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 12
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "place": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 36
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "new",
+                      "queued",
+                      "working",
+                      "waiting",
+                      "resolved",
+                      "closed"
+                    ]
+                  },
+                  "urgency": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "normal",
+                      "urgent"
+                    ]
+                  },
+                  "who": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "opened": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "openedAt": {
+                    "type": "string",
+                    "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "due": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "dueAt": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sla": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "openedAt": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                          },
+                          "responseDueAt": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                          },
+                          "respondedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "resolutionDueAt": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                          },
+                          "resolvedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "paused": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "openedAt",
+                          "responseDueAt",
+                          "respondedAt",
+                          "resolutionDueAt",
+                          "resolvedAt",
+                          "paused"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "number",
+                  "title",
+                  "place",
+                  "status",
+                  "urgency",
+                  "who",
+                  "opened",
+                  "openedAt",
+                  "due",
+                  "dueAt",
+                  "sla",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "view": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "active",
+                    "completed"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "mine"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "group",
+            "rows",
+            "view",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"RequestQueue\",\"group\":\"none\",\"rows\":[{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"place\":null,\"status\":\"new\",\"urgency\":\"normal\",\"who\":null,\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"due\":null,\"dueAt\":null,\"sla\":null,\"goto\":\"mister\"}],\"view\":\"active\",\"style\":null}",
+    "replies": [
+      "{\"c\":\"RequestQueue\",\"group\":\"none\",\"rows\":[{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"place\":null,\"status\":\"new\",\"urgency\":\"normal\",\"who\":null,\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"due\":null,\"dueAt\":null,\"sla\":null,\"goto\":\"mister\"}],\"view\":\"active\",\"style\":null}",
+      "{\"c\":\"RequestQueue\",\"group\":\"none\",\"rows\":[{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"place\":null,\"status\":\"new\",\"urgency\":\"normal\",\"who\":null,\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"due\":null,\"dueAt\":null,\"sla\":null,\"goto\":\"mister\"}],\"view\":null,\"style\":null}",
+      "{\"c\":\"RequestQueue\",\"group\":\"none\",\"rows\":[{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"place\":null,\"status\":\"new\",\"urgency\":\"normal\",\"who\":null,\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"due\":null,\"dueAt\":null,\"sla\":null,\"goto\":\"mister\"}],\"view\":\"active\",\"style\":null}"
     ]
   },
   "RequestQueue%2Fwrite%2FShow%20my%20service%20request%20queue%20as%20one%20flat%2C%20ordered%20list.%20Do%20not%20group%20by%20status%20or%20show%20any%20section%20headings.%20The%20only%20ticket%20is%20LG-42%20Leaking%20mister%2C%20new%20and%20normal%2C%20opened%202026-11-19%20at%2010%3A00%3B%20tapping%20it%20opens%20mister./df9d7c3bbd4d28d5/e44d1f20ef811ad5": {
@@ -1257,6 +2319,510 @@
       "{\"c\":\"RequestQueue\",\"density\":null,\"group\":null,\"rows\":[{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"place\":null,\"status\":\"new\",\"urgency\":\"normal\",\"who\":null,\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"due\":null,\"dueAt\":null,\"sla\":null,\"goto\":\"mister\"}],\"view\":\"active\",\"style\":\"mine\"}",
       "{\"c\":\"RequestQueue\",\"density\":null,\"group\":null,\"rows\":[{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"place\":null,\"status\":\"new\",\"urgency\":\"normal\",\"who\":null,\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"due\":null,\"dueAt\":null,\"sla\":null,\"goto\":\"mister\"}],\"view\":\"active\",\"style\":\"mine\"}",
       "{\"c\":\"RequestQueue\",\"density\":null,\"group\":\"none\",\"rows\":[{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"place\":null,\"status\":\"new\",\"urgency\":\"normal\",\"who\":null,\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"due\":null,\"dueAt\":null,\"sla\":null,\"goto\":\"mister\"}],\"view\":\"active\",\"style\":\"mine\"}"
+    ]
+  },
+  "RequestQueue%2Fwrite%2FShow%20only%20the%20repair%20tickets%20assigned%20to%20me.%20Include%20LG-42%20Leaking%20mister%2C%20new%20and%20normal%2C%20opened%202026-11-19%20at%2010%3A00%2C%20linking%20to%20mister./ddf419ebc12aa142/ca1da04eab8281f8": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nRequestQueue: Find the next service request to work on by urgency and deadline.\nprops: { group?: sections|none=\"sections\", rows: [1..6 { number: text≤12, title: text≤32, place?: text≤36, status: new|queued|working|waiting|resolved|closed, urgency: low|normal|urgent, who?: text≤24, opened: date YYYY-MM-DD, openedAt: time HH:MM, due?: date YYYY-MM-DD, dueAt?: time HH:MM, sla?: { openedAt: id snake_case, responseDueAt: id snake_case, respondedAt?: id snake_case, resolutionDueAt: id snake_case, resolvedAt?: id snake_case, paused?: boolean=false }, goto: id snake_case }], view?: active|completed=\"active\", style?: text≤? }\nRule: Write 1–6 records across both views, only from the brief. An explicit request for one flat queue with no status headings requires group \"none\", not null.\nRule: Never write display order, age, overdue or counts.\nRule: Use date and HH:MM for opening; dueAt requires due. Omit both if there is no deadline.\nRule: If the brief says to show only tickets assigned to the current operator, set style to \"mine\", even for one ticket. The host identifies those rows. For a general queue, leave style null.\nRule: For a contractual SLA badge, write row.sla with the supplied ISO timestamps (with seconds and offset), including both targets. Never write a breach flag.\nexample: {\"c\":\"RequestQueue\",\"rows\":[{\"number\":\"LG-41\",\"title\":\"Flickering grow light\",\"place\":\"Fern shelf\",\"status\":\"working\",\"urgency\":\"urgent\",\"who\":\"Noor\",\"opened\":\"2026-11-18\",\"openedAt\":\"09:00\",\"due\":\"2026-11-20\",\"dueAt\":\"16:00\",\"goto\":\"grow_light\"},{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"status\":\"new\",\"urgency\":\"normal\",\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"goto\":\"mister\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show only the repair tickets assigned to me. Include LG-42 Leaking mister, new and normal, opened 2026-11-19 at 10:00, linking to mister.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "RequestQueue",
+              "enum": [
+                "RequestQueue"
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "sections",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "number": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 12
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "place": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 36
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "new",
+                      "queued",
+                      "working",
+                      "waiting",
+                      "resolved",
+                      "closed"
+                    ]
+                  },
+                  "urgency": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "normal",
+                      "urgent"
+                    ]
+                  },
+                  "who": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "opened": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "openedAt": {
+                    "type": "string",
+                    "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "due": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "dueAt": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sla": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "openedAt": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                          },
+                          "responseDueAt": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                          },
+                          "respondedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "resolutionDueAt": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                          },
+                          "resolvedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "paused": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "openedAt",
+                          "responseDueAt",
+                          "respondedAt",
+                          "resolutionDueAt",
+                          "resolvedAt",
+                          "paused"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "number",
+                  "title",
+                  "place",
+                  "status",
+                  "urgency",
+                  "who",
+                  "opened",
+                  "openedAt",
+                  "due",
+                  "dueAt",
+                  "sla",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "view": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "active",
+                    "completed"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "mine"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "group",
+            "rows",
+            "view",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"RequestQueue\",\"group\":null,\"rows\":[{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"place\":null,\"status\":\"new\",\"urgency\":\"normal\",\"who\":null,\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"due\":null,\"dueAt\":null,\"sla\":null,\"goto\":\"mister\"}],\"view\":\"active\",\"style\":\"mine\"}",
+    "replies": [
+      "{\"c\":\"RequestQueue\",\"group\":null,\"rows\":[{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"place\":null,\"status\":\"new\",\"urgency\":\"normal\",\"who\":null,\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"due\":null,\"dueAt\":null,\"sla\":null,\"goto\":\"mister\"}],\"view\":\"active\",\"style\":\"mine\"}",
+      "{\"c\":\"RequestQueue\",\"group\":\"none\",\"rows\":[{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"place\":null,\"status\":\"new\",\"urgency\":\"normal\",\"who\":null,\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"due\":null,\"dueAt\":null,\"sla\":null,\"goto\":\"mister\"}],\"view\":null,\"style\":\"mine\"}",
+      "{\"c\":\"RequestQueue\",\"group\":null,\"rows\":[{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"place\":null,\"status\":\"new\",\"urgency\":\"normal\",\"who\":null,\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"due\":null,\"dueAt\":null,\"sla\":null,\"goto\":\"mister\"}],\"view\":\"active\",\"style\":\"mine\"}"
+    ]
+  },
+  "RequestQueue%2Fwrite%2FShow%20only%20the%20repair%20tickets%20assigned%20to%20me.%20Include%20LG-42%20Leaking%20mister%2C%20new%20and%20normal%2C%20opened%202026-11-19%20at%2010%3A00%2C%20linking%20to%20mister./f7969c027364ad44/b8828386734da054": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nRequestQueue: Find the next service request to work on by urgency and deadline.\nprops: { group?: sections|none=\"sections\", rows: [1..6 { number: text≤12, title: text≤32, place?: text≤36, status: new|queued|working|waiting|resolved|closed, urgency: low|normal|urgent, who?: text≤24, opened: date YYYY-MM-DD, openedAt: time HH:MM, due?: date YYYY-MM-DD, dueAt?: time HH:MM, sla?: { openedAt: id snake_case, responseDueAt: id snake_case, respondedAt?: id snake_case, resolutionDueAt: id snake_case, resolvedAt?: id snake_case, paused?: boolean=false }, goto: id snake_case }], view?: active|completed=\"active\", style?: text≤? }\nRule: Write 1–6 records across both views, only from the brief. An explicit request for one flat queue with no status headings requires group \"none\", not null.\nRule: Never write display order, age, overdue or counts.\nRule: Use date and HH:MM for opening; dueAt requires due. Omit both if there is no deadline.\nRule: Use style \"mine\" only for the current operator’s assigned requests; the host identifies those rows. For a contractual SLA badge, write row.sla with the supplied ISO timestamps (with seconds and offset), including both targets. Never write a breach flag.\nexample: {\"c\":\"RequestQueue\",\"rows\":[{\"number\":\"LG-41\",\"title\":\"Flickering grow light\",\"place\":\"Fern shelf\",\"status\":\"working\",\"urgency\":\"urgent\",\"who\":\"Noor\",\"opened\":\"2026-11-18\",\"openedAt\":\"09:00\",\"due\":\"2026-11-20\",\"dueAt\":\"16:00\",\"goto\":\"grow_light\"},{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"status\":\"new\",\"urgency\":\"normal\",\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"goto\":\"mister\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show only the repair tickets assigned to me. Include LG-42 Leaking mister, new and normal, opened 2026-11-19 at 10:00, linking to mister.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "RequestQueue",
+              "enum": [
+                "RequestQueue"
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "sections",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "number": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 12
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "place": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 36
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "new",
+                      "queued",
+                      "working",
+                      "waiting",
+                      "resolved",
+                      "closed"
+                    ]
+                  },
+                  "urgency": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "normal",
+                      "urgent"
+                    ]
+                  },
+                  "who": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "opened": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "openedAt": {
+                    "type": "string",
+                    "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                  },
+                  "due": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "dueAt": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sla": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "openedAt": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                          },
+                          "responseDueAt": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                          },
+                          "respondedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "resolutionDueAt": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                          },
+                          "resolvedAt": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "paused": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "openedAt",
+                          "responseDueAt",
+                          "respondedAt",
+                          "resolutionDueAt",
+                          "resolvedAt",
+                          "paused"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "number",
+                  "title",
+                  "place",
+                  "status",
+                  "urgency",
+                  "who",
+                  "opened",
+                  "openedAt",
+                  "due",
+                  "dueAt",
+                  "sla",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "view": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "active",
+                    "completed"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "mine"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "group",
+            "rows",
+            "view",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"RequestQueue\",\"group\":null,\"rows\":[{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"place\":null,\"status\":\"new\",\"urgency\":\"normal\",\"who\":null,\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"due\":null,\"dueAt\":null,\"sla\":null,\"goto\":\"mister\"}],\"view\":\"active\",\"style\":null}",
+    "replies": [
+      "{\"c\":\"RequestQueue\",\"group\":null,\"rows\":[{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"place\":null,\"status\":\"new\",\"urgency\":\"normal\",\"who\":null,\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"due\":null,\"dueAt\":null,\"sla\":null,\"goto\":\"mister\"}],\"view\":\"active\",\"style\":null}",
+      "{\"c\":\"RequestQueue\",\"group\":\"none\",\"rows\":[{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"place\":null,\"status\":\"new\",\"urgency\":\"normal\",\"who\":null,\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"due\":null,\"dueAt\":null,\"sla\":null,\"goto\":\"mister\"}],\"view\":\"active\",\"style\":\"mine\"}",
+      "{\"c\":\"RequestQueue\",\"group\":null,\"rows\":[{\"number\":\"LG-42\",\"title\":\"Leaking mister\",\"place\":null,\"status\":\"new\",\"urgency\":\"normal\",\"who\":null,\"opened\":\"2026-11-19\",\"openedAt\":\"10:00\",\"due\":null,\"dueAt\":null,\"sla\":null,\"goto\":\"mister\"}],\"view\":null,\"style\":null}"
     ]
   }
 }

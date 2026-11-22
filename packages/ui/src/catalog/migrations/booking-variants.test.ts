@@ -18,10 +18,10 @@ const menu = {
   services: [{ name: "Park walk", minutes: 30, goto: "time", photo: "lib:dogs" }],
 } as const;
 
-it.each(["rows", "cards"] as const)("migrates the ServiceMenu %s surface and preserves links", (style) => {
+it.each(["rows", "cards"] as const)("migrates the ServiceMenu %s style and preserves links", (style) => {
   const { c, id, ...input } = migrateLine({ ...menu, style });
   expect({ c, id }).toEqual({ c: menu.c, id: menu.id });
-  expect(input).toMatchObject({ surface: "card", services: menu.services });
+  expect(input).toMatchObject({ services: menu.services });
   expect(input).toMatchObject(style === "cards" ? { style: "cards" } : {});
   if (style === "rows") expect(input).not.toHaveProperty("style");
   const { meta, props } = components.ServiceMenu;
@@ -30,7 +30,7 @@ it.each(["rows", "cards"] as const)("migrates the ServiceMenu %s surface and pre
   expect(affordancesOf(meta, parsed, menu.id)).toMatchObject([
     { address: "services/r1", action: "press", detail: "→time" },
   ]);
-  expect(migrateLine({ ...menu, style, surface: "outlined" })).toMatchObject({ surface: "outlined" });
+  expect(migrateLine({ ...menu, style, surface: "outlined" })).not.toHaveProperty("surface");
 });
 
 it.each([

@@ -1,6 +1,6 @@
 import { z } from "zod";
 // prettier-ignore
-import { probesFor, text, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+import { probesFor, text, type FallbackInput, type Meta, type Probe, type Props, variantProps } from "../../../catalog";
 import {
   KitCard,
   KitChip,
@@ -14,6 +14,7 @@ import {
   usePart,
   useVariant,
   useWords,
+  useKit,
 } from "../../../kit";
 import { indexedActions, indexedParts, indexedValues, indexedWhen, seedTitles } from "..";
 import { symptomChosen, symptomSeverity, symptomLevelLine, symptomReading, symptomTargets } from "../copy";
@@ -33,7 +34,7 @@ export const meta = {
   tier: "phone",
   realPath: "Symptom entries stored on the device; logging symptoms is not a diagnosis or medical advice.",
   writeHints: prompt.writeHints,
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: indexedParts(8, ["reading"]) } },
   items: {
     key: "groups",
@@ -170,9 +171,9 @@ function SymptomSeverity({ symptom, index, full }: {
   );
 }
 // prettier-ignore
-export function SymptomLog({ groups, detail, density: preferred }: Props<typeof props, typeof meta>) {
+export function SymptomLog({ groups, detail }: Props<typeof props, typeof meta>) {
   const full = useVariant("detail", meta.variants.detail, detail) === "full";
-  const density = useVariant("density", meta.variants.density, preferred);
+  const density = useKit().density;
   const compact = density === "compact";
   return (
     <KitCard style="inset" part="root" density={density} padded={compact}>

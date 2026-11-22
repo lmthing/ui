@@ -19,8 +19,6 @@ export const meta = {
   tier: "phone",
   realPath: "The reusable billing item library is stored on the business device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     group: ["none", "sections"],
   },
   variantParts: { "group.sections": { adds: ["category"] } },
@@ -102,8 +100,8 @@ export const examples = [
     { id: "river", title: "River walk", rate: 20, unit: "walk", category: "Dog walking" },
   ] },
   { ...ledge, group: "sections" },
-  { ...ledge, density: "compact" },
-  { ...ledge, surface: "outlined" },
+  { ...ledge },
+  { ...ledge },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("SavedItems");
@@ -154,8 +152,9 @@ function SavedItemRow({ row, density }: { row: SavedItemsProps["items"][number];
 }
 
 // prettier-ignore
-export function SavedItems({ items, surface, group, density: requested }: SavedItemsProps) {
-  const density = kit.useVariant("density", meta.variants.density, requested);
+export function SavedItems({ items, group  }: SavedItemsProps) {
+  const surface = "card";
+  const density = kit.useKit().density;
   const state = kit.useComponentState();
   const { words: { savedItemLabels: copy } } = kit.useWords(customersWordsFor);
   const render = (row: SavedItemsProps["items"][number]) => <SavedItemRow key={row.id} {...{ row, density }} />;

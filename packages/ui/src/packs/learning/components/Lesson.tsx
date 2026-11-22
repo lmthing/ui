@@ -18,8 +18,6 @@ export const meta = {
   tier: "phone",
   realPath: "Lesson content is stored with the app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     emphasis: ["normal", "hero"],
     detail: ["full", "brief"],
   },
@@ -85,8 +83,9 @@ export const probes = [
 ] satisfies c.Probe[];
 
 export function Lesson(input: c.Props<typeof props, typeof meta>) {
-  const { title, text, example, photo, surface, emphasis } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const { title, text, example, photo, emphasis } = input;
+  const surface = "card";
+  const density = kit.useKit().density;
   const { words } = kit.useWords(learningWordsFor);
   return (
     <kit.KitCard part="root" padded density="comfortable" surface={surface}>

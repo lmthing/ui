@@ -17,7 +17,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "The address is stored with the place, and directions open the phone’s maps app.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["note"] } },
   parts: ["root", "lines", "map", "note", "copy", "directions", "call"],
   partTiers: { directions: "service", call: "service" },
@@ -89,7 +89,7 @@ export const probes = [
 
 export function Address(input: c.Props<typeof props, typeof meta>) {
   const { lines, phone, note } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { words } = kit.useWords(placesWordsFor);
   const [street, ...rest] = lines;

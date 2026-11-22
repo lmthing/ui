@@ -10,4 +10,4 @@ One service ticket's replies interleaved with typed status, assignment and work-
 
 - Each entry has by, date, time and audience. Set only fields for its kind: message = text and optional photo or opaque file reference; status = from/to; assignment = who; work = order/goto. Other fields must be null.
 - Set cannedGoto only when given a screen id for opening saved reply templates. A message's file is the supplied opaque FileList reference, not a filename, URL, or path.
-- For shorter event details but the same reply text, use detail "brief". Set density to null unless the person asks for tighter spacing. The host filters internal entries for requesters and authors new operational events.
+- For shorter event details but the same reply text, use detail "brief". The host filters internal entries for requesters and authors new operational events.
