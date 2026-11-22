@@ -6,3 +6,5 @@
 - `Units.test.ts` covers the bounded ledger schema, fallback, snapshot states, addressed parts and actions.
 - `Units.date.test.ts` checks live date validation and consistency across the rendered register and both readers.
 - `Viewings.test.ts` covers viewing contracts, rendered states and read/act behavior.
+- `RentalApplication.test.ts`: screening contracts, addresses, live decisions and confirmations.
+- `LeaseRenewal.test.ts`: renewal contracts, term changes, deadline and confirmed responses.
