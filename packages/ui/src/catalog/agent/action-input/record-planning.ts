@@ -44,6 +44,9 @@ function usesLiveState(meta: Meta) {
     emptyActions ||
     meta.loadingActions?.length ||
     meta.hostCommands ||
+    meta.actions?.authenticatedCopy ||
+    meta.actions?.privateInput ||
+    meta.actions?.privateVerify ||
     errorActions?.length ||
     session ||
     successActions?.length ||

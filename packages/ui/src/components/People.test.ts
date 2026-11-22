@@ -1,16 +1,35 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
+import { renderInstance } from "../../test/render";
 import {
   affordancesOf,
   components,
   createRegistry,
   migrateLine,
   placeholderTitle,
+  readComponent,
   stampItemIds,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
 
 const { props, meta, examples, fallback, probes } = components.People;
+
+// prettier-ignore
+it("draws presence and status in the rail and preserves linked members and the legacy more stack", () => {
+  const members = [{ name: "Anna", statusText: "At the park", online: true, ring: "accent", goto: "anna" }];
+  const rail = { style: "rail", members };
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  const render = (input: unknown) => renderInstance("People", input, "filled", theme);
+  expect(render(rail)).toContain('data-testid="home/c1/r1/online"');
+  expect(render(rail)).toContain('data-testid="home/c1/r1/status_text"');
+  expect(render({ members })).not.toContain("At the park");
+  expect(affordancesOf(meta, stampItemIds(meta, props.parse(rail)), "p1")[0]?.address).toBe("p1/r1");
+  expect(props.safeParse({ ...rail, more: 1 }).success).toBe(false);
+  expect(props.parse({ members, more: 1 })).toMatchObject({ style: "stack", members: [{ root: undefined }] });
+  expect(readComponent(components.People, rail, "p1").join()).toContain("r1: Online");
+  expect(readComponent(components.People, { members }, "p1").join()).not.toContain("Online");
+  expect(props.safeParse({ ...rail, members: [{ ...members[0], ring: "blue" }] }).success).toBe(false);
+});
 
 describe("People schema", () => {
   it.each(examples)("accepts a real example", (example) =>
@@ -121,7 +140,10 @@ describe("People fallback and metadata", () => {
   });
   it("has the contract metadata and well-formed choose, write and read probes", () => {
     expect(meta).toMatchObject({ id: "People", group: "content", region: "body", weight: 2, tier: "people" });
-    expect(meta.items).toEqual({ key: "members", parts: ["root", "photo", "name", "role"] });
+    expect(meta.items).toEqual({
+      key: "members",
+      parts: ["root", "photo", "name", "role", "online", "status_text"],
+    });
     expect(meta.parts).toEqual(["root", "more"]);
     expect(meta.states).toEqual(["filled", "empty"]);
     expect(meta.actions).toEqual({ items: { root: ["press"] } });
@@ -131,7 +153,7 @@ describe("People fallback and metadata", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "People")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Profile")).toBeDefined();
-    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(3);
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(4);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "People" });
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       screen: 1,

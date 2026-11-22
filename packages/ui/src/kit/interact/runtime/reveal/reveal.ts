@@ -5,7 +5,11 @@ import type { createAct } from "../dispatch";
 import { holdFailure } from "../hold";
 
 type AuthResult = "approved" | "denied" | "unavailable";
-export type AuthenticateReveal = (request: { address: string; tier: "ok" }) => Promise<AuthResult>;
+export type AuthenticateReveal = (request: {
+  address: string;
+  tier: "ok";
+  action?: "copy";
+}) => Promise<AuthResult>;
 type RevealStatus = "masked" | "pending" | "revealed" | "denied" | "unavailable";
 type Attempt = {
   authenticate: AuthenticateReveal;

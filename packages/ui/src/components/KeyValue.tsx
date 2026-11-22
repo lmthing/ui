@@ -1,31 +1,21 @@
 import { z } from "zod";
-import {
-  probesFor,
-  clip,
-  icon,
-  itemVariantProps,
-  itemsOf,
-  placeholderTitle,
-  placeholderValue,
-  text,
-  thingOf,
-  variantProps,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
-  type ThemeDensity,
+// prettier-ignore
+import { probesFor, clip, icon, itemVariantProps, itemsOf, placeholderTitle,
+  placeholderValue, secretRevealKey, secretRevealMatches, text, thingOf, variantProps, type FallbackInput, type Meta, type Probe,
+  type Props, type ThemeDensity,
 } from "../catalog";
 import * as kit from "../kit";
 
 export const meta = {
   id: "KeyValue",
+  status: "ready",
   group: "content",
   purpose: "Label and value details of one single thing, like its room or schedule.",
   pick: "Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).",
   writeHints: [
     'A request for a two-column grid sets arrange to "grid" only. Otherwise leave arrange null for rows. Density, surface and lead must each be null unless their specific treatment was requested.',
     'For ordinary facts, set both tone and mark to null on every pair, never "neutral" or "none". Use those axes only if a specific fact needs visual status or highlighting by request. Set lead to "none" only when specifically asked to hide icons.',
+    "Set masked to true only when the values should be hidden until revealed. Use only synthetic example values for private facts; never copy real credentials.",
   ],
   region: "body",
   weight: 2,
@@ -39,11 +29,19 @@ export const meta = {
   },
   items: {
     key: "pairs",
-    parts: ["root", "label", "value", "icon"],
+    parts: ["root", "label", "value", "icon", "reveal", "reveal_icon", "copy", "copy_icon"],
+    readSecrets: { fields: ["value"], when: { masked: true } },
+    revealSecrets: { part: "reveal", fields: ["label", "value"] },
     variants: { tone: ["neutral", "good", "warn", "bad"], mark: ["none", "highlight", "muted"] },
   },
   variantParts: { "lead.none": { hides: ["icon"] } },
   states: ["filled", "empty", "loading"],
+  actions: {
+    items: { reveal: ["toggle"], copy: ["copy"] },
+    when: { reveal: { masked: true }, copy: { masked: true } },
+  },
+  partTiers: { reveal: "ok", copy: "ok" },
+  confirmParts: ["copy"],
 } as const satisfies Meta;
 
 const pairProps = z.strictObject({
@@ -55,6 +53,7 @@ const pairProps = z.strictObject({
 export const props = z
   .strictObject({
     ...variantProps(meta.variants),
+    masked: z.boolean().optional(),
     pairs: z.array(pairProps).min(1).max(6),
   })
   .overwrite((value) =>
@@ -112,9 +111,10 @@ export const examples = [
   { pairs: [{ label: "Drainage", value: "Blocked", icon: "filter", tone: "bad" }, ...facts.slice(1)] },
   { pairs: [facts[0], facts[1], { ...facts[2], mark: "highlight" }, facts[3]] },
   { pairs: [facts[0], facts[1], facts[2], { ...facts[3], mark: "muted" }] },
+  { masked: true, pairs: [{ label: "Walk entry code", value: "DEMO-042" }] },
 ] satisfies z.input<typeof props>[];
 
-const { choose, write } = probesFor("KeyValue");
+const { choose, write, read } = probesFor("KeyValue");
 export const probes = [
   choose("the facts about one plant: room, light, water interval"),
   choose("show all my plants to pick one", "List"),
@@ -125,6 +125,11 @@ export const probes = [
     ),
     variant: { axis: "arrange", value: "grid" },
   },
+  {
+    ...write("Hide the dog walk's entry code until revealed. Use the fake code DEMO-042."),
+    expectProps: { masked: true },
+  },
+  read("Show the hidden walk entry code", { address: "k1/r1/reveal", action: "toggle" }, 11),
 ] satisfies Probe[];
 
 type Pair = Props<typeof props, typeof meta>["pairs"][number];
@@ -133,8 +138,27 @@ const valueRole = (value: string) =>
   /^\d+(?:\s+\p{L}+)?$/u.test(value) && value.length <= 6 ? "number" : "body";
 
 // prettier-ignore
-function PairRow({ pair, horizontal, density, loading }: {
-  pair: Pair; horizontal: boolean; density: ThemeDensity; loading: boolean;
+function MaskedValue({ pair, loading, density }: { pair: Pair; loading: boolean; density: ThemeDensity }) {
+  const { screen, component } = kit.usePartContext();
+  const { words: { secretValue: copy } } = kit.useWords();
+  const grant = kit.useControlValue<unknown>(secretRevealKey(`${screen}/${component}/${pair.id}/reveal`), undefined);
+  const shown = secretRevealMatches(grant, [pair.label, pair.value]);
+  const value = shown && !loading ? pair.value : copy.mask;
+  if (loading) return <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["body", value]]} />;
+  const reveal = <kit.KitAction part="reveal" action="toggle" icon={shown ? "lock" : "eye"} kind="quiet"
+    a11y={shown ? copy.hide(pair.label) : copy.reveal(pair.label)} />;
+  return <kit.KitGrid fitLast density={density}>
+    <kit.KitText part="value">{value}</kit.KitText>
+    <kit.KitContent lead={reveal} leadingAlign="row" density={density}>
+      <kit.KitAction part="copy" action="copy" icon="clipboard" value={pair.value} kind="quiet"
+        a11y={copy.copy(pair.label)} copiedLabel={copy.copied} />
+    </kit.KitContent>
+  </kit.KitGrid>;
+}
+
+// prettier-ignore
+function PairRow({ pair, horizontal, density, loading, masked }: {
+  pair: Pair; horizontal: boolean; density: ThemeDensity; loading: boolean; masked: boolean;
 }) {
   const lead = pair.icon && <kit.KitIcon name={pair.icon} tone="muted" part="icon" decorative={loading} />;
   const role = valueRole(pair.value);
@@ -147,10 +171,11 @@ function PairRow({ pair, horizontal, density, loading }: {
       density={density}
       leading={lead}
     >
-      <kit.KitGrid arrange={horizontal ? "grid" : "rows"} density={density}>
+      <kit.KitGrid arrange={horizontal && !masked ? "grid" : "rows"} density={density}>
         {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", pair.label]]} />
           : <kit.KitText role="caption" tone="muted" part="label" density={density}>{pair.label}</kit.KitText>}
-        {loading ? <kit.KitSkeleton shape="figure" inset="none" density="comfortable" content={[[role, pair.value]]} />
+        {masked ? <MaskedValue pair={pair} loading={loading} density={density} />
+          : loading ? <kit.KitSkeleton shape="figure" inset="none" density="comfortable" content={[[role, pair.value]]} />
           : <kit.KitText role={role} part="value" density="comfortable">{pair.value}</kit.KitText>}
       </kit.KitGrid>
     </kit.KitRow>
@@ -158,18 +183,17 @@ function PairRow({ pair, horizontal, density, loading }: {
 }
 
 // prettier-ignore
-export function KeyValue({ arrange, pairs, surface, density: requestedDensity }: Props<typeof props, typeof meta>) {
+export function KeyValue({ arrange, pairs, surface, masked = false, density: requestedDensity }: Props<typeof props, typeof meta>) {
   const state = kit.useComponentState();
   const density = kit.useVariant("density", meta.variants.density, requestedDensity);
   const grid = arrange === "grid";
   const spacing = grid ? "compact" : density;
-  const drawPairs = () => pairs.map((pair) => (
-    <PairRow key={pair.id} pair={pair} horizontal={!grid} density={spacing} loading={state === "loading"} />
-  ));
   return (
     <kit.KitCard surface={surface} density={density} part="root" padded={grid && state !== "empty"}>
       {state === "empty" ? <kit.KitEmpty part="label" />
-        : <kit.KitGrid arrange={arrange} density={spacing}>{drawPairs()}</kit.KitGrid>}
+        : <kit.KitGrid arrange={arrange} density={spacing}>{pairs.map((pair) =>
+          <PairRow key={pair.id} pair={pair} horizontal={!grid} density={spacing} loading={state === "loading"} masked={masked} />
+        )}</kit.KitGrid>}
     </kit.KitCard>
   );
 }

@@ -28,7 +28,7 @@ export const pack = {
     {
       kind: "choose",
       need: "Show one circular daily step goal, 3000 of 8000, with no other goals or cycle tracking",
-      expect: "Ring",
+      expect: "Progress",
     },
   ],
 } as const satisfies PackMeta;

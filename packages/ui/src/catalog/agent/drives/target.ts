@@ -77,7 +77,7 @@ export function resolveTarget(
     baselineInput: input,
   });
   const offer = offered.find(
-    (a) => a.address === address && a.action === action && !a.hostIntent && !a.hostReveal,
+    (a) => a.address === address && a.action === action && !a.hostIntent && !a.hostReveal && !a.hostSecret,
   );
   if (hostOnlyAddresses(def, id, [{ address, part, action, detail: "" }])?.has(address)) return;
   if (mode === "observe" ? shown !== "filled" : !offer) return;

@@ -24,17 +24,17 @@ export const wallet = {
     },
     goal: {
       writeHints: [
-        "The Ring is the main savings-goal figure. Leave Amount emphasis null so the screen has at most one hero.",
+        "The Progress ring is the main savings-goal figure. Leave Amount emphasis null so the screen has at most one hero.",
       ],
       recipe: [
         { allow: ["Header"], required: true },
-        { allow: ["Ring"], required: true },
+        { allow: ["Progress"], required: true, variant: "ring" },
         { allow: ["Amount"], required: true },
         { allow: ["Transactions"], required: true },
       ],
       defaults: [
         { id: "h1", c: "Header" },
-        { id: "r1", c: "Ring" },
+        { id: "r1", c: "Progress", style: "ring" },
         { id: "a1", c: "Amount" },
         { id: "t1", c: "Transactions" },
       ],

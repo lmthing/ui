@@ -3,7 +3,7 @@ import { Reveal } from "../shared/Reveal";
 import { itemById, site } from "../data/site";
 import { Specimen } from "../index/Specimen";
 
-const picks = ["Amount", "List", "Stats", "Checklist", "Ring", "Slots"];
+const picks = ["Amount", "List", "Stats", "Checklist", "Progress", "Slots"];
 
 /** A first look at the catalog: six specimens, then the full index on its own page. */
 export function Specimens() {

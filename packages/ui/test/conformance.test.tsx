@@ -11,6 +11,7 @@ import {
   stampItemIds,
   themeName,
   themeRoles,
+  visibleItems,
   type ComponentName,
   type Definition,
   type DeviceData,
@@ -157,7 +158,9 @@ describe.each(ready)("%s conformance", (id) => {
         }
         if (state === "filled" && items) {
           const props = stampExampleItems(meta, parsed);
-          const rows = props[items.key] as { id: string }[];
+          const rows = items.addressedWhen
+            ? visibleItems<{ id: string }>(meta, props)
+            : (props[items.key] as { id: string }[]);
           const { hidden, issues } = peekForExample(meta, props, html);
           expect(issues).toEqual([]);
           if (items.visible === "first")
