@@ -4,6 +4,10 @@
 - `Post.test.ts`: Post contract, reading, rendering and shared controller tests.
 - `Poll.test.ts`: Poll contract, vote and results states, variants, and one-vote controller tests.
 - `Stories.test.ts`: Stories contract, rail states, variants, and actions.
+- `StoryViewer.test.ts`: Story schema, view states, timed playback and slide-specific actions.
+- `StoryViewer.browser.test.ts`: Keyboard and pointer controls, live playback and reply acknowledgment.
+- `LiveRoom.test.ts`: Live audio room schema, display and host commands.
+- `LiveRoom.browser.test.ts`: Live stage interactions and destructive confirmation at 390px.
 - `EventCard.test.ts`: Event details, RSVP states, variants, and controller dispatch.
 - `Challenge.test.ts`: Shared goal, deadline, ranks, membership actions, and variant addresses.
 - `Invite.test.ts`: Invite codes, QR, joined count, variants, and copy/share actions.

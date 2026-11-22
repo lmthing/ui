@@ -78,3 +78,20 @@ it("keeps disabled and loading timed targets inert for both pointers and control
   }
   expect(await count()).toBe(before);
 });
+
+it("puts timed labels and detail on one rail next to the badge in both states", async () => {
+  const tile = page.getByTestId("test/pads/r1/buzz");
+  const loading = page.getByTestId("test/pads/r4/buzz");
+  const [badge, label, detail] = await Promise.all([
+    tile.locator("svg").boundingBox(),
+    page.getByTestId("test/pads/r1/label").boundingBox(),
+    tile.getByText("Tap to answer").boundingBox(),
+  ]);
+  expect(label!.x).toBeGreaterThanOrEqual(badge!.x + badge!.width);
+  expect(detail!.x).toBeCloseTo(label!.x);
+  expect(detail!.y).toBeGreaterThan(label!.y);
+  expect((await tile.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  expect((await loading.boundingBox())!.height).toBeCloseTo((await tile.boundingBox())!.height);
+  expect(await loading.evaluate((node) => getComputedStyle(node).flexDirection)).toBe("row");
+  expect(await page.getByTestId("test/pads/r4/label").count()).toBe(0);
+});

@@ -144,72 +144,137 @@ export const probes = [
 type ViewProps = Props<typeof props, typeof meta>;
 const priorities = { info: "muted", important: "warn", urgent: "bad" } as const;
 
-// prettier-ignore
-function NoticeHeader({ input, brief, density }: { input: ViewProps; brief: boolean; density: ThemeDensity }) {
+function NoticeHeader({
+  input,
+  brief,
+  density,
+}: {
+  input: ViewProps;
+  brief: boolean;
+  density: ThemeDensity;
+}) {
   const loading = kit.useComponentState() === "loading";
-  const { words: { teamNotice: words } } = kit.useWords(teamWordsFor);
-  const badge = <kit.KitTrail kind="badge" value={words.priority[input.priority]} part="priority" tone={priorities[input.priority]} density={density} />;
+  const {
+    words: { teamNotice: words },
+  } = kit.useWords(teamWordsFor);
+  const badge = (
+    <kit.KitTrail
+      kind="badge"
+      value={words.priority[input.priority]}
+      part="priority"
+      tone={priorities[input.priority]}
+      density={density}
+    />
+  );
   return (
-    <kit.KitRow part={loading ? null : "root"} label={input.title} goto={loading ? undefined : input.goto}
-      inset="none" inline fitContent density={density}>
-      {brief ? <kit.KitGrid fitLast density={density}>
-        <kit.KitHeader density={density} title={{ text: input.title, part: "title", role: "body", strong: true }} />
-        {badge}
-      </kit.KitGrid> : <kit.KitContent density={density}>
+    <kit.KitRow
+      part={loading ? null : "root"}
+      label={input.title}
+      goto={loading ? undefined : input.goto}
+      inset="none"
+      inline
+      fitContent
+      density={density}
+    >
+      {brief ? (
         <kit.KitGrid fitLast density={density}>
-          <kit.KitLayoutText line={{ text: input.by, part: "author", role: "meta" }} density={density} />
+          <kit.KitHeader
+            density={density}
+            title={{ text: input.title, part: "title", role: "body", strong: true }}
+          />
           {badge}
         </kit.KitGrid>
-        <kit.KitHeader density={density} title={{ text: input.title, part: "title", role: "title" }}
-          meta={[
-            { text: input.postedAt, part: "posted" },
-          ]} />
-      </kit.KitContent>}
+      ) : (
+        <kit.KitContent density={density}>
+          <kit.KitGrid fitLast density={density}>
+            <kit.KitLayoutText line={{ text: input.by, part: "author", role: "meta" }} density={density} />
+            {badge}
+          </kit.KitGrid>
+          <kit.KitHeader
+            density={density}
+            title={{ text: input.title, part: "title", role: "title" }}
+            meta={[{ text: input.postedAt, part: "posted" }]}
+          />
+        </kit.KitContent>
+      )}
     </kit.KitRow>
   );
 }
 
-// prettier-ignore
 function Acknowledgment({ done, density }: { done: boolean; density: ThemeDensity }) {
   const loading = kit.useComponentState() === "loading";
-  const { words: { teamNotice: words } } = kit.useWords(teamWordsFor);
+  const {
+    words: { teamNotice: words },
+  } = kit.useWords(teamWordsFor);
   const text = done ? words.acknowledged : words.ack;
   return (
-    <kit.KitRow label={text} inline inset="none" density={density}
-      trailing={loading ? <kit.KitSkeleton shape="control" kind="quiet" />
-        : <kit.KitCheck done={done} label={text} part="ack" readonly={done} />}>
+    <kit.KitRow
+      label={text}
+      inline
+      inset="none"
+      density={density}
+      trailing={
+        loading ? (
+          <kit.KitSkeleton shape="control" kind="quiet" />
+        ) : (
+          <kit.KitCheck done={done} label={text} part="ack" readonly={done} />
+        )
+      }
+    >
       <kit.KitLayoutText line={{ text, part: "ack_label", role: "body" }} density={density} />
     </kit.KitRow>
   );
 }
 
-// prettier-ignore
-function NoticeContent({ input, brief, density }: { input: ViewProps; brief: boolean; density: ThemeDensity }) {
+function NoticeContent({
+  input,
+  brief,
+  density,
+}: {
+  input: ViewProps;
+  brief: boolean;
+  density: ThemeDensity;
+}) {
   const state = kit.useComponentState();
   const { lang } = kit.useWords(teamWordsFor);
   const progress = noticeProgress(input, state === "success", lang);
   return (
     <>
       <NoticeHeader {...{ input, brief, density }} />
-      {!brief && <>
-        <kit.KitLayoutText line={{ text: input.body, part: "body", role: "body" }} density={density} />
-        {state === "loading" ? <kit.KitLayoutText line={{ text: progress.count, role: "body" }} density={density} />
-          : <kit.KitText part="count" role="body" density={density}>
-            {noticeCountPieces(progress.count, lang).map(({ text, figure }, index) =>
-              <kit.KitText key={index} role={figure ? "number" : "body"} numberScale="compact"
-                tone={figure ? "text" : "muted"} tabular={figure} part={null} density={density}>{text}</kit.KitText>
-            )}
-          </kit.KitText>}
-        {input.requireAck && <Acknowledgment done={progress.done} density={density} />}
-      </>}
+      {!brief && (
+        <>
+          <kit.KitLayoutText line={{ text: input.body, part: "body", role: "body" }} density={density} />
+          {state === "loading" ? (
+            <kit.KitLayoutText line={{ text: progress.count, role: "body" }} density={density} />
+          ) : (
+            <kit.KitText part="count" role="body" density={density}>
+              {noticeCountPieces(progress.count, lang).map(({ text, figure }, index) => (
+                <kit.KitText
+                  key={index}
+                  role={figure ? "number" : "body"}
+                  numberScale="compact"
+                  tone={figure ? "text" : "muted"}
+                  tabular={figure}
+                  part={null}
+                  density={density}
+                >
+                  {text}
+                </kit.KitText>
+              ))}
+            </kit.KitText>
+          )}
+          {input.requireAck && <Acknowledgment done={progress.done} density={density} />}
+        </>
+      )}
     </>
   );
 }
 
-// prettier-ignore
 export function TeamNotice(input: ViewProps) {
   const { screen, component, state } = kit.usePartContext();
-  const { words: { teamNotice: words } } = kit.useWords(teamWordsFor);
+  const {
+    words: { teamNotice: words },
+  } = kit.useWords(teamWordsFor);
   kit.useControlValue(`${screen}/${component}/$localState/${meta.id}`, undefined);
   const live = kit.useLiveControls(meta, input) as ViewProps;
   const density = kit.useKit().density;

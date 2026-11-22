@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { activityLabel } from "../../copy";
+import { activityLabel, activityReading, type ActivityEntry } from "../../copy";
 import { dataWordsFor, registerDataWords } from "../../lang";
 
 describe("ActivityLog copy", () => {
@@ -16,6 +16,30 @@ describe("ActivityLog copy", () => {
     });
     try {
       expect(activityLabel(entry, "fr-CA")).toBe("٠٩:١٠ Ana Changed the record.");
+    } finally {
+      unregister();
+    }
+  });
+
+  it("localizes the active filter and keeps category ids independent of language", () => {
+    const english = dataWordsFor();
+    const unregister = registerDataWords("fr", {
+      ...english,
+      activityKind: "Type de changement",
+      activityKinds: { ...english.activityKinds, updated: "Modifié" },
+    });
+    const updated: ActivityEntry = {
+      ...entry,
+      id: "r1",
+      photo: "lib:people",
+      goto: "record",
+      kind: "updated",
+    };
+    try {
+      expect(activityReading({ entries: [updated], kind: "updated" }, "fr-CA")).toEqual([
+        "Type de changement",
+        "Modifié",
+      ]);
     } finally {
       unregister();
     }
