@@ -1,8 +1,20 @@
 import { z } from "zod";
-// prettier-ignore
 import {
-  itemsOf, photo, placeholderTitle, probesFor, sessionAvailable, sessionKey, sessionState,
-  text, thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props, type SessionState,
+  itemsOf,
+  photo,
+  placeholderTitle,
+  probesFor,
+  sessionAvailable,
+  sessionKey,
+  sessionState,
+  text,
+  thingOf,
+  titleOf,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+  type SessionState,
   type ThemeDensity,
   variantProps,
 } from "../../../catalog";
@@ -11,13 +23,16 @@ import { turnOrderLines } from "../copy";
 import { playWordsFor } from "../lang";
 import { prompt } from "../../../entry/prompt-TurnOrder.generated";
 // Core first: People/default cannot track a game turn cursor, laps, skips or reversed direction.
-// prettier-ignore
 export const meta = {
-  id: "TurnOrder", status: "ready", group: "data",
+  id: "TurnOrder",
+  status: "ready",
+  group: "data",
   purpose: prompt.purpose,
   pick: prompt.pick,
   writeHints: prompt.writeHints,
-  region: "body", weight: 2, tier: "phone",
+  region: "body",
+  weight: 2,
+  tier: "phone",
   confirmParts: ["restart"],
   realPath: "An ordered roster and turn events live on one device without accounts or remote replies.",
   variants: { detail: ["full", "brief"] },
@@ -26,8 +41,15 @@ export const meta = {
   parts: ["root", "current", "lap", "next", "skip", "reverse", "restart"],
   states: ["filled", "loading", "success"],
   session: {
-    kind: "turns", items: "players", first: "first", direction: "direction", laps: "laps",
-    next: "next", skip: "skip", reverse: "reverse", restart: "restart",
+    kind: "turns",
+    items: "players",
+    first: "first",
+    direction: "direction",
+    laps: "laps",
+    next: "next",
+    skip: "skip",
+    reverse: "reverse",
+    restart: "restart",
   },
   actions: { parts: { next: ["press"], skip: ["press"], reverse: ["press"], restart: ["press"] } },
   successActions: ["restart.press"],
@@ -142,7 +164,14 @@ function TurnActions({ current, loading, success, queue, density }: Actions) {
   );
 }
 
-// prettier-ignore
+function OrbitNodes(players: Setup["players"]) {
+  return players.map((player) => ({
+    id: player.id,
+    label: player.name,
+    content: <PlayerAvatar player={player} />,
+  }));
+}
+
 export function TurnOrder(setup: Setup) {
   const { KitContent, KitOrbit, KitSkeleton, KitText } = kit;
   const { players, style, detail: shown } = setup;
@@ -161,7 +190,10 @@ export function TurnOrder(setup: Setup) {
   const hero = { role: "title", tone: "text" } as const;
   const detail = { role: "label", tone: "muted" } as const;
   const count = { role: "number", numberScale: "compact", tone: "muted" } as const;
-  const loadingLines: NonNullable<Parameters<typeof KitSkeleton>[0]["content"]> = [["label", status], ["title", player]];
+  const loadingLines: NonNullable<Parameters<typeof KitSkeleton>[0]["content"]> = [
+    ["label", status],
+    ["title", player],
+  ];
   if (shown !== "brief") loadingLines.push(["number", lap, "center", "compact"]);
   return (
     <KitContent density={density}>
@@ -171,7 +203,13 @@ export function TurnOrder(setup: Setup) {
         ) : (
           <>
             <KitText {...(success ? hero : detail)} align="center" part={null} children={status} />
-            <KitText {...(success ? detail : hero)} {...{ density }} align="center" part="current" children={player} />
+            <KitText
+              {...(success ? detail : hero)}
+              {...{ density }}
+              align="center"
+              part="current"
+              children={player}
+            />
             {shown !== "brief" && <KitText {...count} align="center" part="lap" children={lap} />}
           </>
         )}
@@ -179,11 +217,7 @@ export function TurnOrder(setup: Setup) {
       <KitContent group="response" density={density}>
         <KitOrbit
           part="root"
-          nodes={players.map((player) => ({
-            id: player.id,
-            label: player.name,
-            content: <PlayerAvatar player={player} />,
-          }))}
+          nodes={OrbitNodes(players)}
           at={success ? "" : (players[current.index]?.id ?? "")}
           reverse={current.direction === "reverse"}
           style={style}

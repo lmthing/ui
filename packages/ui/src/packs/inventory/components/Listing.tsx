@@ -19,9 +19,24 @@ export const meta = {
   realPath: "Listings live on the device; contacting the advertiser requires a service.",
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["about"] } },
-  // prettier-ignore
-  parts: ["root", "title", "price", "per", "beds", "baths", "area", "area_unit",
-    "where", "from", "about", "contact", "contact_label", "save", "save_label", "save_icon"],
+  parts: [
+    "root",
+    "title",
+    "price",
+    "per",
+    "beds",
+    "baths",
+    "area",
+    "area_unit",
+    "where",
+    "from",
+    "about",
+    "contact",
+    "contact_label",
+    "save",
+    "save_label",
+    "save_icon",
+  ],
   partTiers: { contact: "service" },
   states: ["filled", "loading"],
   actions: { parts: { contact: ["press"], save: ["toggle"] } },
@@ -115,47 +130,125 @@ type ListingProps = c.Props<typeof props, typeof meta>;
 type ListingCopy = ReturnType<typeof listingCopy>;
 type Density = c.ThemeDensity;
 
-// prettier-ignore
-function ListingFacts({ copy, unitSpace, density }: { copy: ListingCopy; unitSpace: string; density: Density }) {
+function ListingFacts({
+  copy,
+  unitSpace,
+  density,
+}: {
+  copy: ListingCopy;
+  unitSpace: string;
+  density: Density;
+}) {
   const facts = [
     { part: "beds", icon: "bed", text: copy.beds },
     { part: "baths", icon: "bath", text: copy.baths },
     { part: "area", icon: "home", text: copy.area },
   ] as const;
-  return <kit.KitContent density={density}>
-    {facts.map(({ part, icon, text }) =>
-      <kit.KitContent key={part} leadingAlign="row" lead={<kit.KitIcon name={icon} scale="sm" decorative />} density={density}>
-        <kit.KitText part={part} role="label" density={density}>
-          {text}{part === "area" && <kit.KitText part="area_unit" role="label" density={density}>{unitSpace}{copy.areaUnit}</kit.KitText>}
-        </kit.KitText>
-      </kit.KitContent>
-    )}
-  </kit.KitContent>;
+  return (
+    <kit.KitContent density={density}>
+      {facts.map(({ part, icon, text }) => (
+        <kit.KitContent
+          key={part}
+          leadingAlign="row"
+          lead={<kit.KitIcon name={icon} scale="sm" decorative />}
+          density={density}
+        >
+          <kit.KitText part={part} role="label" density={density}>
+            {text}
+            {part === "area" && (
+              <kit.KitText part="area_unit" role="label" density={density}>
+                {unitSpace}
+                {copy.areaUnit}
+              </kit.KitText>
+            )}
+          </kit.KitText>
+        </kit.KitContent>
+      ))}
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
-function ListingLoading({ input, copy, density }: { input: ListingProps; copy: ListingCopy; density: Density }) {
-  const { words: { listing: words } } = kit.useWords(inventoryWordsFor);
-  return <>
-    <kit.KitSkeleton shape="figure" inset="none" content={[["heading", input.title], ["number", copy.price]]} {...{ density }} />
-    <kit.KitContent density={density}>
-      {[copy.beds, copy.baths, copy.area + words.unitSpace + copy.areaUnit].map((text, index) =>
-        <kit.KitSkeleton key={index} shape="figure" inset="none" lead="dot" content={[["label", text]]} density={density} />
-      )}
-    </kit.KitContent>
-    <kit.KitContent density={density}>
-      <kit.KitSkeleton shape="figure" inset="none" content={[["label", input.where], ["label", copy.from], ["label", copy.about]]} {...{ density }} />
-      <kit.KitContent group="response" density={density}>
-        <kit.KitGrid {...{ density }}>
-          <kit.KitSkeleton shape="control" label={words.contact} full />
-          <kit.KitSkeleton shape="control" label={words.save} kind="secondary" full />
-        </kit.KitGrid>
+function ListingLoading({
+  input,
+  copy,
+  density,
+}: {
+  input: ListingProps;
+  copy: ListingCopy;
+  density: Density;
+}) {
+  const {
+    words: { listing: words },
+  } = kit.useWords(inventoryWordsFor);
+  return (
+    <>
+      <kit.KitSkeleton
+        shape="figure"
+        inset="none"
+        content={[
+          ["heading", input.title],
+          ["number", copy.price],
+        ]}
+        {...{ density }}
+      />
+      <kit.KitContent density={density}>
+        {[copy.beds, copy.baths, copy.area + words.unitSpace + copy.areaUnit].map((text, index) => (
+          <kit.KitSkeleton
+            key={index}
+            shape="figure"
+            inset="none"
+            lead="dot"
+            content={[["label", text]]}
+            density={density}
+          />
+        ))}
       </kit.KitContent>
-    </kit.KitContent>
-  </>;
+      <kit.KitContent density={density}>
+        <kit.KitSkeleton
+          shape="figure"
+          inset="none"
+          content={[
+            ["label", input.where],
+            ["label", copy.from],
+            ["label", copy.about],
+          ]}
+          {...{ density }}
+        />
+        <kit.KitContent group="response" density={density}>
+          <kit.KitGrid {...{ density }}>
+            <kit.KitSkeleton shape="control" label={words.contact} full />
+            <kit.KitSkeleton shape="control" label={words.save} kind="secondary" full />
+          </kit.KitGrid>
+        </kit.KitContent>
+      </kit.KitContent>
+    </>
+  );
 }
 
-// prettier-ignore
+function ListingPrice(
+  title: string,
+  copy: ReturnType<typeof listingCopy>,
+  unitSpace: string,
+  density: c.ThemeDensity,
+) {
+  return (
+    <kit.KitContent {...{ density }}>
+      <kit.KitText part="title" role="heading" {...{ density }}>
+        {title}
+      </kit.KitText>
+      <kit.KitText part="price" role="number" tabular {...{ density }}>
+        {copy.price}
+        {copy.per && (
+          <kit.KitText part="per" role="label" tone="muted" {...{ density }}>
+            {unitSpace}
+            {copy.per}
+          </kit.KitText>
+        )}
+      </kit.KitText>
+    </kit.KitContent>
+  );
+}
+
 export function Listing(input: ListingProps) {
   const state = kit.useComponentState();
   const density = kit.useKit().density;
@@ -163,28 +256,49 @@ export function Listing(input: ListingProps) {
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { screen, component } = kit.usePartContext();
   const saved = kit.useControlValue(`${screen}/${component}/save`, false);
-  const { lang, words: { listing: words } } = kit.useWords(inventoryWordsFor);
+  const {
+    lang,
+    words: { listing: words },
+  } = kit.useWords(inventoryWordsFor);
   const copy = listingCopy({ ...input, detail }, lang);
-  return <kit.KitCard padded {...{ density, surface }}>
-    {state === "loading" ? <ListingLoading {...{ input, copy, density }} /> : <>
-      <kit.KitContent {...{ density }}>
-        <kit.KitText part="title" role="heading" {...{ density }}>{input.title}</kit.KitText>
-        <kit.KitText part="price" role="number" tabular {...{ density }}>
-          {copy.price}{copy.per && <kit.KitText part="per" role="label" tone="muted" {...{ density }}>{words.unitSpace}{copy.per}</kit.KitText>}
-        </kit.KitText>
-      </kit.KitContent>
-      <ListingFacts copy={copy} unitSpace={words.unitSpace} density={density} />
-      <kit.KitContent {...{ density }}>
-        <kit.KitText part="where" role="label" {...{ density }}>{input.where}</kit.KitText>
-        {copy.from && <kit.KitText part="from" role="label" tone="muted" {...{ density }}>{copy.from}</kit.KitText>}
-        {copy.about && <kit.KitText part="about" role="label" tone="muted" {...{ density }}>{copy.about}</kit.KitText>}
-        <kit.KitContent group="response" density={density}>
-          <kit.KitGrid {...{ density }}>
-            <kit.KitAction part="contact" label={words.contact} full />
-            <kit.KitAction part="save" action="toggle" kind="secondary" icon={saved ? "check" : "bookmark"} label={saved ? words.unsave : words.save} full />
-          </kit.KitGrid>
-        </kit.KitContent>
-      </kit.KitContent>
-    </>}
-  </kit.KitCard>;
+  return (
+    <kit.KitCard padded {...{ density, surface }}>
+      {state === "loading" ? (
+        <ListingLoading {...{ input, copy, density }} />
+      ) : (
+        <>
+          {ListingPrice(input.title, copy, words.unitSpace, density)}
+          <ListingFacts copy={copy} unitSpace={words.unitSpace} density={density} />
+          <kit.KitContent {...{ density }}>
+            <kit.KitText part="where" role="label" {...{ density }}>
+              {input.where}
+            </kit.KitText>
+            {copy.from && (
+              <kit.KitText part="from" role="label" tone="muted" {...{ density }}>
+                {copy.from}
+              </kit.KitText>
+            )}
+            {copy.about && (
+              <kit.KitText part="about" role="label" tone="muted" {...{ density }}>
+                {copy.about}
+              </kit.KitText>
+            )}
+            <kit.KitContent group="response" density={density}>
+              <kit.KitGrid {...{ density }}>
+                <kit.KitAction part="contact" label={words.contact} full />
+                <kit.KitAction
+                  part="save"
+                  action="toggle"
+                  kind="secondary"
+                  icon={saved ? "check" : "bookmark"}
+                  label={saved ? words.unsave : words.save}
+                  full
+                />
+              </kit.KitGrid>
+            </kit.KitContent>
+          </kit.KitContent>
+        </>
+      )}
+    </kit.KitCard>
+  );
 }

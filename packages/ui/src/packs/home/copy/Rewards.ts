@@ -46,8 +46,13 @@ export function rewardShortfall(cost: number, best: number, money: boolean, lang
   return rewardNeeds(rewardAmount(rounded, money, lang).value);
 }
 
-// prettier-ignore
-export function rewardReading(entries: readonly RewardEntry[], money: boolean, state: string, lang?: string, brief = false) {
+export function rewardReading(
+  entries: readonly RewardEntry[],
+  money: boolean,
+  state: string,
+  lang?: string,
+  brief = false,
+) {
   const words = homeWordsFor(lang);
   if (state === "success") return [words.rewardLabels.success];
   if (state !== "filled") return [];
@@ -58,8 +63,12 @@ export function rewardReading(entries: readonly RewardEntry[], money: boolean, s
       const name = entry.entryKind === "kid" ? entry.name : entry.title;
       const amount = entry.entryKind === "kid" ? entry.points : entry.cost;
       const line = words.rewardEntry(name, rewardAmount(amount, money, lang).label);
-      const reason = entry.entryKind !== "prize" || amount <= best ? undefined
-        : brief ? words.rewardLabels.unavailable : rewardShortfall(amount, best, money, lang);
+      const reason =
+        entry.entryKind !== "prize" || amount <= best
+          ? undefined
+          : brief
+            ? words.rewardLabels.unavailable
+            : rewardShortfall(amount, best, money, lang);
       const copy = reason ? words.rewardPrizeStatus(line, reason) : line;
       return entry.id ? `${entry.id} ${copy}` : copy;
     }),
