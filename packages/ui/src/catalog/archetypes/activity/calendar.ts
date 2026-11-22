@@ -16,8 +16,8 @@ export const meta = createMeta(
     ],
     month: [
       ...timelineHint,
-      'Use "Monthly appointments" for the Header title. In its subtitle, name the selected date and count its supplied appointments, e.g. "Nov 18 agenda below · 1 appointment". This connects the marked month overview to the selected day’s agenda directly below it. Do not promise that tapping a date loads a new agenda. Keep all Header axes null.',
-      'Mark the supplied appointment dates with tone good. The Timeline is only the agenda for the supplied selected day: exclude every other day even when marked on the Calendar. Retain each title and time, put a readable date first and purpose second in meta (e.g. "Nov 18 · Routine review"), and leave done and all Timeline axes null.',
+      'Use "Monthly appointments" for Header.title and name the selected date and count in Header.sub, e.g. "Nov 18 agenda below · 1 appointment". The subtitle must be visible: write literal null for Header.detail, Header.emphasis and Header.density. Do not use detail "brief" because it suppresses the subtitle. Do not promise that tapping a date loads a new agenda.',
+      'Name the Calendar instance month_calendar and the following Timeline selected_day_agenda. Mark the supplied appointment dates with tone good. The Timeline lists only the supplied selected day’s appointments; keep their titles and times and put the readable date and purpose in meta (e.g. "Nov 18 · Routine review"). Keep Timeline.detail, Timeline.density and every item’s done null.',
     ],
   },
 ) satisfies ArchetypeMeta;

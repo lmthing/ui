@@ -14,9 +14,10 @@ type SliderControl = {
   declared?: boolean;
   inset?: number;
   action?: "set" | "seek" | undefined;
+  keyboardOnly?: boolean;
 };
 function webHandlers(
-  { min, max, value, step = 1, inset = size.icon.lg }: SliderControl,
+  { min, max, value, step = 1, inset = size.icon.lg, keyboardOnly }: SliderControl,
   dispatch: (next: number) => void,
   drag: RefObject<(() => void) | null>,
 ) {
@@ -39,6 +40,7 @@ function webHandlers(
       }
     },
     onPointerDown: (event: PointerEvent) => {
+      if (keyboardOnly) return;
       if (event.isPrimary === false || drag.current) return;
       const node = event.currentTarget as HTMLElement;
       const rect = node.getBoundingClientRect();
@@ -103,7 +105,7 @@ export function useSlider(control: SliderControl) {
       : isWeb
         ? webHandlers(control, dispatch, drag)
         : {
-            onStartShouldSetResponder: () => true,
+            onStartShouldSetResponder: () => !control.keyboardOnly,
             onResponderGrant: (event: { nativeEvent: { locationX: number } }) =>
               dispatch(min + (event.nativeEvent.locationX / Math.max(1, width.current)) * (max - min)),
             onResponderMove: (event: { nativeEvent: { locationX: number } }) =>

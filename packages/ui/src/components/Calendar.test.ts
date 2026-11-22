@@ -1,14 +1,10 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
+// prettier-ignore
 import {
-  affordancesOf,
-  components,
-  createRegistry,
-  readComponent,
-  stampItemIds,
-  type CastLike,
-  type Props,
+  affordancesOf, components, createRegistry, readComponent, stampItemIds, type CastLike, type Props,
 } from "@lmthing/ui/catalog";
 import { renderInstance } from "../../test/render";
+import { createScreenController } from "@lmthing/ui/kit";
 
 const { props, meta, examples, fallback, probes } = components.Calendar;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -158,7 +154,7 @@ describe("Calendar fallback and metadata", () => {
   });
   it("has the required metadata and well-formed choose, write and read probes", () => {
     expect(meta).toMatchObject({ id: "Calendar", group: "data", region: "body", weight: 3, tier: "phone" });
-    expect(meta.parts).toEqual(["root", "month"]);
+    expect(meta.parts).toEqual(["root", "month", "range_status"]);
     expect(meta.items).toMatchObject({ key: "marked", parts: ["root", "label"] });
     expect(meta.states).toEqual(["filled"]);
     expect(meta.realPath).not.toBe("");
@@ -182,4 +178,21 @@ describe("Calendar fallback and metadata", () => {
     expect(registry.resolve("c-a-l-e-n-d-a-r")).toBe("Calendar");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
+});
+
+it("derives leap-month geometry and rejects ranges crossing an unavailable date", () => {
+  const input = { month: "February 2028", range: true, yearMonth: "2028-02", marked: [], unavailable: [25] };
+  expect(props.parse(input)).toMatchObject({ style: "month", start: 2, days: 29 });
+  expect(props.safeParse({ ...input, checkIn: "2028-02-24", checkOut: "2028-02-26" }).success).toBe(false);
+  const read = readComponent(components.Calendar, { ...input, checkIn: "2028-02-24" }, "c1").join("\n");
+  expect(read).toContain("Choose check-out");
+  expect(read).not.toContain("[c1/r26 select");
+  const screen = { id: "home", components: [{ id: "c1", c: "Calendar", ...input }] };
+  const controller = createScreenController({ screen, defs: { Calendar: components.Calendar } });
+  const pick = (day: number) => controller.act({ address: `home/c1/r${day}`, action: "select" });
+  expect(pick(24).ok).toBe(true);
+  expect(pick(26).ok).toBe(false);
+  expect(pick(23).ok).toBe(true); // An earlier date becomes the new check-in.
+  expect(pick(24).ok).toBe(true);
+  expect(pick(26).ok).toBe(true); // A completed span can be replaced.
 });

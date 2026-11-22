@@ -1,13 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { renderInstance } from "../../test/render";
+// prettier-ignore
 import {
-  affordancesOf,
-  components,
-  createRegistry,
-  readComponent,
-  stampItemIds,
-  type CastLike,
-  type Props,
+  affordancesOf, components, createRegistry, readComponent, stampItemIds, type CastLike, type Props,
 } from "@lmthing/ui/catalog";
 
 const { props, meta, examples, fallback, probes } = components.Route;
@@ -121,7 +116,7 @@ describe("Route metadata", () => {
       weight: 2,
       tier: "service",
       items: { key: "stops", parts: ["root", "label", "meta"] },
-      parts: ["root", "distance"],
+      parts: ["root", "distance", "mode", "duration"],
       states: ["filled"],
     });
     expect(meta.realPath).not.toBe("");
@@ -164,6 +159,14 @@ describe("Route metadata", () => {
     expect(registry.schema("Route")).toBe(props);
     expect(registry.resolve("r-o-u-t-e")).toBe("Route");
   });
+});
+
+it("reads mode and bounded duration without hiding distance in brief detail", () => {
+  const input = { stops: pair, detail: "brief", distance: "4 km", mode: "bike", duration: "15 min" };
+  expect(props.safeParse({ ...input, mode: "train" }).success).toBe(false);
+  expect(props.safeParse({ ...input, duration: "x".repeat(13) }).success).toBe(false);
+  const read = readComponent(components.Route, input, "c1").join("\n");
+  for (const value of ["Cycling", "15 min", "4 km"]) expect(read).toContain(value);
 });
 
 describe("Route rendering", () => {
