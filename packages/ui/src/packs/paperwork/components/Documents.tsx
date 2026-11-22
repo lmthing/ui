@@ -16,6 +16,7 @@ export const meta = {
     "Never invent a document number or expiry warning. Copy dates only if known. File is an opaque local:<id> or supplied synthetic lib:<id>, never a URL or file content.",
     "Exact defaults are style:null, density:null, surface:null, detail:null. Change each field only for its own explicit request: cards for separate file tiles, compact for tighter spacing, plain for no enclosing card, brief for fewer details.",
     'A request to hide issuer, number, issue date and tags changes only detail to "brief". Keep surface:null and density:null unless separately requested. If only a plain background is requested, set surface:"plain" and keep density:null and detail:null.',
+    'A separate file card or tile is style:"cards", not surface:"card". A row having few supplied fields does not imply brief detail. Leave detail:null unless the person expressly asks to hide fields or use a brief view.',
     'For a register grouped into folders, set style:"folders" and put each supplied folder name in its document row. Set pages only for an explicitly supplied page count. Set share:true only for a row with an attachment and an explicit request to offer sharing; never supply a recipient.',
   ],
   region: "body",
@@ -184,6 +185,8 @@ function DocumentFile({ row, density, surface, now, grouped, first }: {
 }) {
   const { lang, words } = kit.useWords(paperworkWordsFor);
   const loading = kit.useComponentState() === "loading", canOpen = Boolean(row.file || row.goto);
+  const hasOptions = Boolean(grouped || row.folder || row.pages !== undefined || (row.share && row.file));
+  const removeKind = hasOptions ? "danger" : "quiet";
   const lines = [{ part: "owner", line: row.owner }, ...documentDetails(row, now, lang).map((detail) =>
     detail.part === "file" ? { ...detail, line: words.documents.attached } : detail)];
   const fields = (...parts: string[]) => lines.filter(({ part }) => parts.includes(part));
@@ -202,12 +205,13 @@ function DocumentFile({ row, density, surface, now, grouped, first }: {
   return (
     <kit.KitRow item={row.id} part={null} label="" inset={grouped ? "none" : "md"} inline={first === true}
       {...{ density, surface }} trailing={loading ?
-      <kit.KitSkeleton shape="control" kind="danger" /> :
-      <kit.KitAction icon="trash" part="remove" kind="danger" a11y={words.documents.remove(row.title)} />
+      <kit.KitSkeleton shape="control" kind={removeKind} /> :
+      <kit.KitAction icon={hasOptions ? "trash" : "close"} part="remove" kind={removeKind} a11y={words.documents.remove(row.title)} />
     }>
       <kit.KitRow part={loading ? null : "root"} inline surface="plain" label={loading ? "" : row.title}
         goto={loading ? undefined : row.goto} role={!loading && row.file ? "button" : "text"} density={density}
-        trailing={canOpen && <kit.KitIcon name="chevron_right" tone="muted" decorative loading={loading} />}
+        trailing={canOpen && (loading && !hasOptions ? dot :
+          <kit.KitIcon name="chevron_right" tone="muted" decorative loading={loading} />)}
         leading={loading ? dot : <kit.KitContent lead={<kit.KitIcon name="file_text" tone="muted" decorative />} children={null} />}>
         {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["body", row.title]]} />
           : <kit.KitText part="title" density={density}>{row.title}</kit.KitText>}

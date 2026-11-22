@@ -18,7 +18,7 @@ export const meta = {
   status: "ready",
   group: "input",
   purpose: "Draw a personal signature and save a dated copy of the reviewed form.",
-  pick: "Draw a handwritten mark on a personal administrative form and save a dated local copy. Not a yes/no field (Field), typed client waiver acceptance (Agreement) or just viewing a file (Documents).",
+  pick: "Hand-draw a signature or initials with a finger or stylus on a reviewed form, then save a local signed copy. Not filling named form fields (FormFiller), a yes/no field (Field), typed client waiver acceptance (Agreement) or just viewing a file (Documents).",
   writeHints: [
     "document must be an opaque local:<id> or supplied synthetic lib:<id>. Do not write strokes, marks, version, timestamp, review or saved state; those belong to the host.",
     "Never claim verified identity, legal validity or remote signing. Omit hint unless supplied or useful.",
@@ -161,7 +161,7 @@ function SignatureWorkflow({ copy, density, options }: { copy: Display; density:
     <kit.KitGrid fitLast density={density}>
       <kit.KitAction part="save" label={copy.save} full disabled={!copy.canSave}
         kind={copy.loading || copy.canSave ? "primary" : "quiet"} />
-      <kit.KitAction part="clear" label={copy.clear} kind="danger" disabled={!copy.canClear} />
+      <kit.KitAction part="clear" label={copy.clear} kind={options ? "danger" : "quiet"} disabled={!copy.canClear} />
     </kit.KitGrid>
   </>;
 }
