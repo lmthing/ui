@@ -90,7 +90,7 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
   const wireGet = (part: string) => get(controlValueKey(def, part));
   const adjusted = projectWireAdjustments(def, nested, get);
   const projected = items.set
-    ? projectMatrix(meta, projectAdjustments(meta, adjusted, wireGet), wireGet, (rows, values) => {
+    ? projectMatrix(meta, projectAdjustments(meta, adjusted, wireGet, true), wireGet, (rows, values) => {
         const array = unwrapField(fieldOf(def.props, rows));
         return array instanceof z.ZodArray
           ? defaultInput(fieldOf(unwrapField(array.element), values))

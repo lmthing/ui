@@ -41,6 +41,18 @@ export const product = {
         { id: "s1", c: "Scale", style: "stars", readonly: true },
       ],
     },
+    sizing: {
+      recipe: [
+        { allow: ["Header"], required: true, variant: "back" },
+        { allow: ["SizeGuide"], required: true },
+        { allow: ["VariantPicker"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header", style: "back" },
+        { id: "s1", c: "SizeGuide" },
+        { id: "v1", c: "VariantPicker" },
+      ],
+    },
   },
 } as const satisfies ArchetypeMeta;
 
@@ -57,5 +69,12 @@ export const probes = [
     layout: "variants",
     brief:
       "See one product with its photos, stock and add control, choose its size, and show a read-only rating.",
+  },
+  {
+    kind: "compose",
+    archetype: "product",
+    layout: "sizing",
+    brief:
+      "Compare a jacket's measurements by size in inches or centimetres before choosing an available size.",
   },
 ] satisfies ComposeProbe[];

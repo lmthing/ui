@@ -23,6 +23,7 @@ export {
   type DeviceData,
 } from "./device-data";
 export { visibleItems } from "./visibility";
+export { credentialToggleOn } from "./credential-toggle";
 export { pickerAt, pickerKey, projectLiveInputs } from "./live-inputs";
 export { linkedEditKey } from "./linked-edits";
 export { itemMoveOffer } from "./action-input";

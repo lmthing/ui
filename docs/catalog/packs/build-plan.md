@@ -78,6 +78,7 @@ Before scaffolding any of the 30 Wave 6 packs in TypeScript, complete these shar
    index before component scaffolding. Re-record just the selection probes with `pnpm llm:check --director`
    against all 57 choices, then replay them with `pnpm llm:check --director --replay`.
 6. **12 new shared kit bases:** Build `KitMicCapture`, `KitCodeBlock`, `KitVoiceOrb`, `KitCalcPad`, `KitDialGauge`, `KitMasonry`, `KitHoldButton`, `KitPanelStrip`, `KitRemotePad`, `KitSeatGrid`, `KitCellGrid`, and `KitLetterKeys` (plus minor `KitMapTile`, `KitLinePlot`, and `KitPhoto` option extensions) as mapped in [bases.md](bases.md).
+7. **Renderer reuse:** Check shipped and planned packs before drawing another seat plan, lane board or feed. Use `SeatPlan` for cabin/cinema and assigned seating, `StageBoard` for counted lanes, and `FeedRow`/`DateRows` for authored and dated streams. This does not change pack picks or permit nested Writer components.
 
 ### Wave 6 extensions to existing packs and core
 

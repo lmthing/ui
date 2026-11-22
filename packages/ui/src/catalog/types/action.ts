@@ -41,6 +41,8 @@ export type ActionSpec = {
    * matches only the first item.
    */
   when?: Record<string, Record<string, string | boolean>>;
+  /** Component toggle part → credential prop. A grant applies only to the exact credential. */
+  credentialToggles?: Readonly<Record<string, string>>;
   /** These presses ignore their component/item's inherited `goto`, but not a link on the part itself. */
   noGoto?: { parts?: readonly string[]; items?: readonly string[] };
 };
