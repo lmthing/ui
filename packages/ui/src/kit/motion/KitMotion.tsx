@@ -13,8 +13,8 @@ type MotionProps = {
 
 export function KitMotion({ children, index = 0, exiting = false, cue = "filled" }: MotionProps) {
   const { environment } = useKit();
-  const measured = useRef<number | undefined>(undefined),
-    cancel = useRef<(() => void) | undefined>(undefined);
+  const measured = useRef<number | undefined>(undefined);
+  const cancel = useRef<(() => void) | undefined>(undefined);
   const [height, setHeight] = useState<number | undefined>(undefined);
   const progress = useReveal(`${cue}:${exiting}`, !environment.agentMode, {
     ...(environment.reduceMotion || exiting ? { duration: durations.fast } : { spring: springs.gentle }),
@@ -41,8 +41,8 @@ export function KitMotion({ children, index = 0, exiting = false, cue = "filled"
     >
       <YStack
         onLayout={(event) => {
-          const next = event.nativeEvent.layout.height,
-            previous = measured.current;
+          const next = event.nativeEvent.layout.height;
+          const previous = measured.current;
           measured.current = next;
           if (
             previous === undefined ||

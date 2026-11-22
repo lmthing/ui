@@ -41,8 +41,8 @@ export function nearestPin(
   height: number,
   imageSpace = false,
 ) {
-  let closest: Pin | undefined,
-    best = Infinity;
+  let closest: Pin | undefined;
+  let best = Infinity;
   for (const pin of pins) {
     if (!pin.target) continue;
     const { x, y } = centerOf(pin, width, height, imageSpace);

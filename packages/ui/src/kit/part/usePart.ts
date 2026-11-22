@@ -39,8 +39,8 @@ export function usePart(part = "root", enabled = true) {
       const origin = root.current as Measurable | null;
       if (!node || !origin) return;
       if (node.getBoundingClientRect && origin.getBoundingClientRect) {
-        const rect = node.getBoundingClientRect(),
-          base = origin.getBoundingClientRect();
+        const rect = node.getBoundingClientRect();
+        const base = origin.getBoundingClientRect();
         parts.register({
           screen,
           rev,

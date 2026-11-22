@@ -1,8 +1,8 @@
-import { registerPrivateMark } from "../../../../catalog/agent/action-input";
+import { registerPrivateMark } from "../../../../catalog/agent/private-controls";
 import type { ControllerContext } from "../context";
 import type { createAct } from "../dispatch";
 export { PrivateMarkContext, type PrivateMarkAdapter, type PrivateMarkSurfaceProps } from "./adapter";
-export { createPrivateMarks } from "../../../../catalog/agent/action-input";
+export { createPrivateMarks } from "../../../../catalog/agent/private-controls";
 
 export function privateMarkRegistration(ctx: ControllerContext, act: ReturnType<typeof createAct>) {
   return (address: string, accepts?: (reference: string) => boolean) => {
