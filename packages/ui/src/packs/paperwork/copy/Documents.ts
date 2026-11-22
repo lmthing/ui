@@ -8,11 +8,14 @@ type DocumentDetails = {
   issued?: string | undefined;
   expires?: string | undefined;
   file?: string | undefined;
+  folder?: string | undefined;
+  pages?: number | undefined;
   tags: readonly string[];
 };
 
 type Detail = {
-  part: "kind" | "issuer" | "number" | "issued" | "expires" | "file" | "tags" | "warning";
+  part:
+    "kind" | "issuer" | "number" | "issued" | "expires" | "file" | "tags" | "warning" | "folder" | "pages";
   line: string;
   tone?: "warn" | "bad";
 };
@@ -46,7 +49,28 @@ export function documentDetails(row: DocumentDetails, now: Date, lang?: string):
   }
   if (row.file) lines.push({ part: "file", line: words.privateFile });
   if (row.tags.length) lines.push({ part: "tags", line: row.tags.join(words.separator) });
+  if (row.folder) lines.push({ part: "folder", line: row.folder });
+  if (row.pages !== undefined)
+    lines.push({
+      part: "pages",
+      line: words.pages(numberLine(row.pages, lang), pluralForm(row.pages, lang)),
+    });
   return lines;
+}
+
+export function documentFolders<Row extends { folder?: string | undefined }>(rows: readonly Row[]) {
+  const folders = new Map<string | undefined, Row[]>();
+  for (const row of rows) {
+    const files = folders.get(row.folder);
+    if (files) files.push(row);
+    else folders.set(row.folder, [row]);
+  }
+  const unfiled = folders.get(undefined);
+  if (unfiled) {
+    folders.delete(undefined);
+    folders.set(undefined, unfiled);
+  }
+  return [...folders];
 }
 
 export function documentReading(row: DocumentDetails, now: Date, lang?: string): string[] {

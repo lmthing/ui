@@ -12,10 +12,13 @@ import { attachment, seedDate } from "../seeds";
 
 const kind = "signatureForms";
 const revision = z.string().min(1).max(120);
+export const signatureStyle = z.enum(["pad", "initials"]);
 const hostForm = z.strictObject({
   instance: z.string(),
   document: attachment,
   signer: z.string(),
+  style: signatureStyle.optional(),
+  datedStamp: z.boolean().optional(),
   version: revision,
   openedVersion: revision.optional(),
   reviewedVersion: revision.optional(),
@@ -33,13 +36,23 @@ const hostForm = z.strictObject({
   failure: z.strictObject({ version: revision, action: z.enum(["open", "save"]) }).optional(),
 });
 
-/** Match the current component and form. The host must supply one authoritative snapshot. */
+function signatureOptionsMatch(form: z.output<typeof hostForm>, input: Readonly<Values>): boolean {
+  return (
+    (form.style ?? "pad") === (input.style ?? "pad") &&
+    (form.datedStamp === true) === (input.datedStamp === true)
+  );
+}
+
+/** Match the current form and save settings. The host must supply one authoritative snapshot. */
 export function signatureHost(input: Readonly<Values>, instance: string, data: DeviceData) {
   const matches = (data[kind] ?? []).flatMap((source) => {
     const result = hostForm.safeParse(source);
     if (!result.success) return [];
     const form = result.data;
-    return form.instance === instance && form.document === input.document && form.signer === input.signer
+    return form.instance === instance &&
+      form.document === input.document &&
+      form.signer === input.signer &&
+      signatureOptionsMatch(form, input)
       ? [form]
       : [];
   });
@@ -57,7 +70,11 @@ export function signatureHost(input: Readonly<Values>, instance: string, data: D
 type SignatureHost = ReturnType<typeof signatureHost>;
 type SignatureWords = ReturnType<typeof paperworkWordsFor>["signature"];
 
-function padLabel(w: SignatureWords, reviewed: boolean, hasDraft: boolean) {
+function padLabel(
+  w: Pick<SignatureWords, "draft" | "draw" | "locked">,
+  reviewed: boolean,
+  hasDraft: boolean,
+) {
   return hasDraft ? w.draft : reviewed ? w.draw : w.locked;
 }
 
@@ -70,7 +87,16 @@ function signatureProjection(input: Readonly<Values>, instance: string, data: De
     can_save: Boolean(draft && !savedOn),
     savedOn,
     // Identity for the clear confirmation, never a mark reference or drawing payload.
-    clearRevision: draft && !savedOn ? JSON.stringify([instance, draft.version, draft.revision]) : undefined,
+    clearRevision:
+      draft && !savedOn
+        ? JSON.stringify([
+            instance,
+            draft.version,
+            draft.revision,
+            input.style ?? "pad",
+            input.datedStamp === true,
+          ])
+        : undefined,
   };
 }
 
@@ -108,6 +134,8 @@ export function previewSignature({
       instance,
       document: input.document,
       signer: input.signer,
+      ...(input.style === "initials" ? { style: input.style } : {}),
+      ...(input.datedStamp === true ? { datedStamp: true } : {}),
       version,
       ...(active ? { openedVersion: version, reviewedVersion: version } : {}),
       ...(state === "filled" ? { draft: { version, revision: "demo-draft", mark: "local:synthetic" } } : {}),
@@ -117,38 +145,68 @@ export function previewSignature({
   };
 }
 
-export function signatureDisplay(signer: string, state: StateName, host: SignatureHost, lang?: string) {
+type SignatureOptions = { style?: unknown; datedStamp?: unknown };
+
+function signingCopy(w: SignatureWords, options: SignatureOptions) {
+  const mark = options.style === "initials" ? w.initials : w;
+  const stamped = options.datedStamp === true;
+  return { mark, stamped, savedOn: stamped ? w.dateStamped : w.savedOn };
+}
+
+function signatureFeedback(
+  state: StateName,
+  host: SignatureHost,
+  w: SignatureWords,
+  options: SignatureOptions,
+  lang?: string,
+) {
+  const { mark, savedOn: dateLine } = signingCopy(w, options);
+  const { savedOn, failure } = host;
+  if (state === "error" || (state === "success" && !savedOn))
+    return {
+      part: "error",
+      title:
+        failure === "save" && options.style === "initials"
+          ? w.initials.failed
+          : failure
+            ? w.failed[failure]
+            : w.unavailable,
+      sub: failure === "open" ? w.checkOriginal : w.originalSafe,
+      icon: "alert",
+      tone: "neutral",
+    } as const;
+  if (state === "success" && savedOn)
+    return {
+      part: "success",
+      title: mark.saved,
+      sub: dateLine(appointmentDate(savedOn, lang)),
+      icon: "circle_check",
+      tone: "good",
+    } as const;
+}
+
+export function signatureDisplay(
+  signer: string,
+  state: StateName,
+  host: SignatureHost,
+  lang?: string,
+  options: SignatureOptions = {},
+) {
   const w = paperworkWordsFor(lang).signature;
-  const { draft, reviewed, opened, savedOn, failure } = host;
+  const { mark, stamped } = signingCopy(w, options);
+  const { draft, reviewed, opened, savedOn } = host;
   const activeDraft = state === "filled" && !savedOn ? draft : undefined;
-  const feedback =
-    state === "error" || (state === "success" && !savedOn)
-      ? ({
-          part: "error",
-          title: failure ? w.failed[failure] : w.unavailable,
-          sub: failure === "open" ? w.checkOriginal : w.originalSafe,
-          icon: "alert",
-          tone: "neutral",
-        } as const)
-      : state === "success" && savedOn
-        ? ({
-            part: "success",
-            title: w.saved,
-            sub: w.savedOn(appointmentDate(savedOn, lang)),
-            icon: "circle_check",
-            tone: "good",
-          } as const)
-        : undefined;
   const loading = state === "loading";
   return {
     signer: w.signer(signer),
     open: w.open,
     review: w.review,
-    save: w.save,
+    save: mark.save,
     clear: w.clear,
-    pad: padLabel(w, reviewed, Boolean(activeDraft)),
+    pad: padLabel(mark, reviewed, Boolean(activeDraft)),
+    dateStamp: stamped ? w.dateStamp : undefined,
     loading,
-    feedback,
+    feedback: signatureFeedback(state, host, w, options, lang),
     reviewed,
     mark: activeDraft?.mark,
     canReview: !loading && opened && !reviewed,
@@ -160,21 +218,22 @@ export function signatureDisplay(signer: string, state: StateName, host: Signatu
 
 export function signatureReading(input: unknown, state: StateName, lang?: string): string[] {
   const w = paperworkWordsFor(lang).signature;
-  const { signer, reviewed, has_mark, savedOn } = input as Values;
+  const { signer, reviewed, has_mark, savedOn, style, datedStamp } = input as Values;
+  const { mark, stamped, savedOn: dateLine } = signingCopy(w, { style, datedStamp });
   const identity = typeof signer === "string" ? [w.signer(signer)] : [];
-  const controls = [w.open, w.review, w.save, w.clear];
-  if (state === "empty") return [...identity, ...controls, w.locked];
+  const controls = [w.open, w.review, mark.save, w.clear, ...(stamped ? [w.dateStamp] : [])];
+  if (state === "empty") return [...identity, ...controls, mark.locked];
   if (state === "success")
     return [
       w.privateFile,
       ...identity,
-      ...(typeof savedOn === "string" ? [w.saved, w.savedOn(appointmentDate(savedOn, lang))] : []),
+      ...(typeof savedOn === "string" ? [mark.saved, dateLine(appointmentDate(savedOn, lang))] : []),
     ];
   return [
     w.privateFile,
     ...identity,
     ...(has_mark ? [w.privateMark] : []),
     ...controls,
-    padLabel(w, reviewed === true, has_mark === true),
+    padLabel(mark, reviewed === true, has_mark === true),
   ];
 }

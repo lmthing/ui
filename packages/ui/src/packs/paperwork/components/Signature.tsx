@@ -7,6 +7,7 @@ import {
   signatureHost,
   signatureReading,
   signatureRecord,
+  signatureStyle,
 } from "../copy";
 import { paperworkWordsFor } from "../lang";
 import { attachment, seedFile, seedRows } from "../seeds";
@@ -23,6 +24,7 @@ export const meta = {
     "Never claim verified identity, legal validity or remote signing. Omit hint unless supplied or useful.",
     'Exact axis defaults are {"density":null,"surface":null,"detail":null}. Override only the one axis explicitly requested: tighter spacing changes density to "compact"; a plain background with no surrounding card changes surface to "plain"; hiding the optional hint changes detail to "brief".',
     'For hiding the hint alone use {"density":null,"surface":null,"detail":"brief"} and keep the supplied hint text in hint. For a plain background alone use {"density":null,"surface":"plain","detail":null}. Never write "plain" merely because the brief asks for fewer words, nor "full" for an unrequested detail axis.',
+    'Use style:"initials" only for hand-drawn initials. Set datedStamp:true only if asked to stamp the signing date on the copy itself; never supply the date. Merely keeping a dated local copy does not request a stamp.',
   ],
   region: "body",
   weight: 3,
@@ -33,7 +35,7 @@ export const meta = {
   variantParts: { "detail.brief": { hides: ["hint"] } },
   // prettier-ignore
   parts: ["root", "title", "signer", "hint", "document", "document_label", "document_icon",
-    "review", "review_label", "pad", "pad_frame", "clear", "clear_label", "save", "save_label", "success", "error", "sub"],
+    "review", "review_label", "pad", "pad_frame", "clear", "clear_label", "save", "save_label", "success", "error", "sub", "date_stamp"],
   states: ["empty", "filled", "loading", "success", "error"],
   confirmParts: ["clear"],
   emptyActions: ["document.press", "review.check", "pad.set"],
@@ -61,7 +63,8 @@ export const props = z
     document: attachment,
     signer: c.text(28),
     hint: c.text(60).optional(),
-    style: z.enum(["pad"]).default("pad"),
+    style: signatureStyle.default("pad"),
+    datedStamp: z.boolean().optional(),
   })
   .overwrite((input) => (input.detail === "brief" ? { ...input, hint: undefined } : input));
 
@@ -81,6 +84,13 @@ export const examples = [
     title: "Trot office access form",
     document: "lib:trot_access",
     signer: "Alex",
+  },
+  {
+    title: "Trot key handover form",
+    document: "lib:trot_keys",
+    signer: "Alex",
+    style: "initials",
+    datedStamp: true,
   },
 ] satisfies z.input<typeof props>[];
 
@@ -105,6 +115,18 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
+  {
+    ...write(
+      "Let Mina review the Allotment access form, synthetic original lib:ledge_access, and draw only her handwritten initials on the copy.",
+    ),
+    expectProps: { style: "initials" },
+  },
+  {
+    ...write(
+      "Let Mina sign the Allotment access form, synthetic original lib:ledge_access. Stamp the actual signing date on the signed copy itself, without changing the original.",
+    ),
+    expectProps: { datedStamp: true },
+  },
   read(
     "Use the document preview action, not the signature pad, to open Mina's original allotment access form.",
     {
@@ -119,7 +141,12 @@ type Density = c.AxisValue<"density">;
 type Display = ReturnType<typeof signatureDisplay>;
 
 // prettier-ignore
-function SignatureWorkflow({ copy, density }: { copy: Display; density: Density }) {
+function SignatureWorkflow({ copy, density, options }: { copy: Display; density: Density; options: boolean }) {
+  const pad = <kit.KitSignaturePad part="pad_frame" target={{ part: "pad" }} label={copy.pad}
+    loading={copy.loading} disabled={!copy.canDraw} {...(copy.mark ? { mark: copy.mark } : {})} />;
+  const save = <kit.KitAction part="save" label={copy.save} full={!options} disabled={!copy.canSave}
+    kind={copy.loading || copy.canSave ? "primary" : "quiet"} />;
+  const clear = <kit.KitAction part="clear" label={copy.clear} kind="quiet" disabled={!copy.canClear} />;
   return <>
     <kit.KitAction part="document" label={copy.open} icon="file_text" kind="secondary" full />
     <kit.KitRow part={null} label="" inline density={density} lineRole="label"
@@ -129,13 +156,15 @@ function SignatureWorkflow({ copy, density }: { copy: Display; density: Density 
       {copy.loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", copy.review]]} /> :
         <kit.KitText part="review_label" role="label" density={density}>{copy.review}</kit.KitText>}
     </kit.KitRow>
-    <kit.KitSignaturePad part="pad_frame" target={{ part: "pad" }} label={copy.pad}
-      loading={copy.loading} disabled={!copy.canDraw} {...(copy.mark ? { mark: copy.mark } : {})} />
-    <kit.KitGrid fitLast density={density}>
-      <kit.KitAction part="save" label={copy.save} full disabled={!copy.canSave}
-        kind={copy.loading || copy.canSave ? "primary" : "quiet"} />
-      <kit.KitAction part="clear" label={copy.clear} kind="quiet" disabled={!copy.canClear} />
-    </kit.KitGrid>
+    {options ? <>
+      <kit.KitFigure density={density} media={pad}
+        caption={copy.dateStamp && <kit.KitLayoutText {...{ density }}
+          line={{ part: "date_stamp", text: copy.dateStamp, role: "caption", tone: "muted" }} />} />
+      <kit.KitActionFooter {...{ density }}>{save}{clear}</kit.KitActionFooter>
+    </> : <>
+      {pad}
+      <kit.KitGrid fitLast density={density}>{save}{clear}</kit.KitGrid>
+    </>}
   </>;
 }
 
@@ -144,13 +173,16 @@ export function Signature(input: View) {
   const { component } = kit.usePartContext(), state = kit.useComponentState();
   const { lang } = kit.useWords(paperworkWordsFor);
   const host = signatureHost(input, component, kit.useDeviceData());
-  const copy = signatureDisplay(input.signer, state, host, lang);
+  const copy = signatureDisplay(input.signer, state, host, lang, input);
+  const options = input.style === "initials" || input.datedStamp === true;
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const hint = detail === "full" ? input.hint : undefined;
   return <kit.KitCard part="root" padded {...{ density, surface }}>
-    {copy.loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
+    {options ? <kit.KitHeader {...{ density }} title={{ part: "title", text: input.title, role: "title" }}
+      meta={[{ part: "signer", text: copy.signer }, { part: "hint", text: hint }]} />
+      : copy.loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
       content={[["title", input.title], ["label", copy.signer], ["label", hint]]} />
       : <kit.KitContent lineRole="title" density={density}>
         <kit.KitText part="title" role="title" density={density}>{input.title}</kit.KitText>
@@ -162,6 +194,6 @@ export function Signature(input: View) {
       <kit.KitText part={copy.feedback.part} role="body" emphasis="strong" density={density}>{copy.feedback.title}</kit.KitText>
       <kit.KitText part="sub" role="label" tone="muted" density={density}>{copy.feedback.sub}</kit.KitText>
     </kit.KitContent>
-      : <SignatureWorkflow {...{ copy, density }} />}
+      : <SignatureWorkflow {...{ copy, density, options }} />}
   </kit.KitCard>;
 }

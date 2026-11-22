@@ -39,6 +39,7 @@ describe("Signature contract", () => {
       expect(props.safeParse({ ...bounds, [field]: `${bounds[field]}a` }).success).toBe(false);
     for (const [key, value] of Object.entries({
       style: "typed",
+      datedStamp: "true",
       density: "large",
       detail: "tiny",
       color: "#fff",
@@ -111,6 +112,26 @@ describe("Signature view", () => {
     ];
     expect(parts({ surface: "plain", density: "compact" })).toEqual(parts({}));
     expect(parts({ detail: "brief" })).toEqual(parts({}).filter((key) => !key.endsWith("/hint")));
+  });
+
+  it("uses the same private pad for initials and adds stamp copy only when requested", () => {
+    const legacy = renderExample("Signature", input, "filled", theme).html;
+    const explicit = renderExample(
+      "Signature",
+      { ...input, style: "pad", datedStamp: false },
+      "filled",
+      theme,
+    ).html;
+    expect(explicit).toBe(legacy);
+    const options = { ...input, style: "initials", datedStamp: true };
+    const draft = renderExample("Signature", options, "filled", theme).html;
+    expect(elementAt(draft, "home/c1/date_stamp").text).toContain("Add the signing date to the copy");
+    expect(draft).toContain("Draft initials");
+    expect(draft).toContain("Save initialed copy");
+    const success = renderExample("Signature", options, "success", theme).html;
+    expect(success).toContain("Initialed copy saved");
+    expect(success).toContain("Date stamped on the copy");
+    expect(success).not.toMatch(/home\/c1\/pad|local:synthetic/);
   });
 });
 

@@ -72,4 +72,23 @@ describe("Signature host projection", () => {
       "Draft signature",
     ]);
   });
+
+  it("will not adopt a draft or saved copy from different signing options", () => {
+    const options = { style: "initials", datedStamp: true };
+    const saved = { ...reviewed, draft, saved: { version: "v1", date: "2026-10-04" } };
+    for (const other of [{}, { style: "initials" }, { datedStamp: true }]) {
+      const host = signatureHost({ ...input, ...options }, "c1", {
+        signatureForms: [{ ...saved, ...other }],
+      });
+      expect(host).toMatchObject({ reviewed: false, draft: undefined, savedOn: undefined });
+    }
+    const host = signatureHost({ ...input, ...options }, "c1", {
+      signatureForms: [{ ...saved, ...options }],
+    });
+    expect(host).toMatchObject({ reviewed: true, draft, savedOn: "2026-10-04" });
+    const reading = signatureReading({ ...input, ...options, ...host }, "success", "en-GB");
+    expect(reading).toContain("Initialed copy saved");
+    expect(reading.some((line) => line.includes("Date stamped on the copy"))).toBe(true);
+    expect(reading.join("\n")).not.toContain(draft.mark);
+  });
 });
