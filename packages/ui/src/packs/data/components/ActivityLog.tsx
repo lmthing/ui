@@ -174,8 +174,8 @@ export function ActivityLog(input: LogProps) {
   const avatar = kit.useVariant("lead", meta.variants.lead, input.lead) === "avatar";
   const live = kit.useLiveControls(meta, input);
   const entries = visibleItems(meta, live) as Entry[];
-  const options = activityOptions(input.entries);
-  const { words } = kit.useWords(dataWordsFor);
+  const { lang, words } = kit.useWords(dataWordsFor);
+  const options = activityOptions(input.entries, lang);
   const upgraded = options.length > 0 || input.entries.some(({ diff }) => diff);
   const rows = entries.map((entry) => <optionView.ActivityRow key={entry.id} {...{ entry, density, avatar, upgraded }} />);
   const feed = <kit.KitRowGroup density={density} separators={upgraded}

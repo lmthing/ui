@@ -1,6 +1,7 @@
 import { localeOf, type StateName } from "../../../catalog";
 import { socialWordsFor } from "../lang";
 import { feedCountParts } from "./Feed";
+import { postExtraReading, type PostExtras } from "./post-options";
 
 type Counts = { likes: number; comments: number };
 
@@ -17,7 +18,7 @@ export function postCountParts(input: Counts, lang?: string) {
 
 export function postReading(input: unknown, state: StateName, lang?: string): string[] {
   if (state !== "filled") return [];
-  const post = input as Counts & { media: string; images: string[] };
+  const post = input as Counts & PostExtras & { media: string; images: string[] };
   const { countSeparator } = socialWordsFor(lang).feed;
   const photos = post.media === "none" ? [] : post.images;
   return [
@@ -25,5 +26,6 @@ export function postReading(input: unknown, state: StateName, lang?: string): st
       .map(({ line }) => line)
       .join(countSeparator),
     ...photos.map((photo) => `photo:${photo.replace(/^lib:/, "")}`),
+    ...postExtraReading(post, post.media !== "none", lang),
   ];
 }
