@@ -12,7 +12,7 @@ import {
   type Props,
 } from "@lmthing/ui/catalog";
 import { slotEndLine, slotLabels } from "../copy";
-import { elementAt, renderInstance } from "../../../../test/render";
+import { addressedElements, elementAt, renderInstance, styleAt } from "../../../../test/render";
 import { createScreenController } from "@lmthing/ui/kit";
 
 const { props, meta, examples, fallback, probes } = components.Slots;
@@ -196,5 +196,24 @@ describe("Slots selectable item parts", () => {
     }
     expect(elementAt(html, "home/c1/minutes")).toBeDefined();
     expect(elementAt(html, "home/c1/times")).toBeDefined();
+  });
+  it("keeps the end time inside the figure and the taken status in its own slot", () => {
+    const html = renderInstance("Slots", examples[3], "filled", theme);
+    const parts = addressedElements(html);
+    expect(parts.get("home/c1/r2/time")?.text).toEqual(["23:59 → 09:59 next day"]);
+    expect(parts.get("home/c1/r2/root")?.attributes).toContain('aria-disabled="true"');
+    const empty = renderInstance("Slots", examples[0], "empty", theme);
+    expect(styleAt(empty, "home/c1/minutes")).toContain("color:var(--muted)");
+  });
+  it("shows adjoining, non-overlapping free and taken intervals in the range example", () => {
+    const input = examples[4]!;
+    const parts = addressedElements(renderInstance("Slots", input, "filled", theme));
+    expect(input.times.map(({ taken }) => taken)).toEqual([false, true, false, true]);
+    expect(input.times.map((_, index) => parts.get(`home/c1/r${index + 1}/time`)?.text.join(""))).toEqual([
+      "09:00–09:45",
+      "09:45–10:30",
+      "10:30–11:15",
+      "11:15–12:00",
+    ]);
   });
 });

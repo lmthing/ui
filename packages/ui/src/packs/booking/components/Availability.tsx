@@ -1,18 +1,11 @@
 // prettier-ignore
-import { KitCard, KitContent, KitGrid, KitInput, KitRow, KitText, KitTrail,
+import { KitCard, KitContent, KitGrid, KitInput, KitLayoutText, KitRow, KitRowGroup, KitText, KitTrail,
   useControlValue, usePart, useVariant, useWords } from "../../../kit";
 // prettier-ignore
 import { clock, isoDate, probesFor, variantProps, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
 import { z } from "zod";
 import { bookingWordsFor } from "../lang";
-import {
-  availabilityDefaults,
-  availabilityReading,
-  breakLine,
-  breakRange,
-  bufferLine,
-  dateOverrideLine,
-} from "../copy";
+import { availabilityDefaults, availabilityReading, breakLine, bufferLine, dateOverrideLine } from "../copy";
 // Core first: Field/time edits one time, not a seven-day working week with switches and breaks.
 export const meta = {
   id: "Availability",
@@ -136,7 +129,7 @@ export const probes = [
     expectProps: { dateOverrides: [{ date: "2026-12-24", kind: "blocked" }, { date: "2026-12-25", kind: "holiday" }] } },
 ] satisfies Probe[];
 // prettier-ignore
-function DayFields({ day, enhanced }: { day: Props<typeof props, typeof meta>["days"][number]; enhanced: boolean }) {
+function DayFields({ day }: { day: Props<typeof props, typeof meta>["days"][number] }) {
   const { lang, words: { weekdayNames } } = useWords();
   const weekday = weekdayNames[weekdays.indexOf(day.day)]!;
   const { availabilityLabels } = bookingWordsFor(lang);
@@ -145,7 +138,8 @@ function DayFields({ day, enhanced }: { day: Props<typeof props, typeof meta>["d
   return (
     <>
       <KitRow inline label={weekday} trailing={<KitTrail kind="toggle" on={day.on} part="toggle" />}>
-        <KitText role={enhanced ? "heading" : "label"} part="day">{weekday}</KitText>
+        <KitLayoutText line={{ text: on ? weekday : availabilityLabels.off(weekday),
+          part: "day", strong: on, tone: on ? "text" : "muted" }} />
       </KitRow>
       <KitGrid columns={2}>
         <KitRow inline label={availabilityLabels.from}>
@@ -158,10 +152,10 @@ function DayFields({ day, enhanced }: { day: Props<typeof props, typeof meta>["d
         </KitRow>
       </KitGrid>
       {day.breakFrom && day.breakTo && (
-        <KitText role="caption" tone="muted" part="break">
-          {enhanced ? <>{availabilityLabels.break} <KitText role="number" numberScale="compact" tabular part={null}>
-            {breakRange(day.breakFrom, day.breakTo)}</KitText></> : breakLine(day.breakFrom, day.breakTo, lang)}
-        </KitText>
+        <KitContent group="response">
+          <KitLayoutText line={{ text: breakLine(day.breakFrom, day.breakTo, lang),
+            part: "break", role: "caption", tone: "muted", tabular: true }} />
+        </KitContent>
       )}
     </>
   );
@@ -174,11 +168,13 @@ export function Availability(input: Props<typeof props, typeof meta>) {
   const { lang, words } = useWords(bookingWordsFor);
   return (
     <KitCard style="inset" part="root">
-      {days.map((day) => (
-        <KitRow key={day.id} item={day.id} label={day.day} density={density}>
-          <DayFields day={day} enhanced={bufferMinutes !== undefined || !!dateOverrides?.length} />
-        </KitRow>
-      ))}
+      <KitRowGroup density={density}>
+        {days.map((day) => (
+          <KitRow key={day.id} item={day.id} label={day.day} density={density}>
+            <DayFields day={day} />
+          </KitRow>
+        ))}
+      </KitRowGroup>
       {bufferMinutes !== undefined && <KitRow part={null} label={bufferLine(bufferMinutes, lang)} density={density}>
         <KitText part="buffer" role="label">{bufferLine(bufferMinutes, lang)}</KitText>
       </KitRow>}

@@ -1,8 +1,9 @@
 import {
   useWords,
   KitCard,
+  KitContent,
   KitFigure,
-  KitMetaLine,
+  KitLayoutText,
   KitPhoto,
   KitRow,
   KitState,
@@ -148,12 +149,18 @@ export function StaffPicker({
               />
             }
             caption={
-              <KitMetaLine
-                align="center"
-                density={density}
-                title={{ text: person.name, part: person.id ? "name" : "anyone_name", lines: 1 }}
-                meta={{ text: person.role, part: "role", role: "caption" }}
-              />
+              <KitContent align="center" rhythm="flush" density={density}>
+                <KitLayoutText
+                  align="center"
+                  density={density}
+                  line={{ text: person.name, part: person.id ? "name" : "anyone_name", lines: 1 }}
+                />
+                <KitLayoutText
+                  align="center"
+                  density={density}
+                  line={{ text: person.role, part: "role", role: "caption", tone: "muted" }}
+                />
+              </KitContent>
             }
           />
         </KitRow>

@@ -10,7 +10,7 @@ export const en = {
   anyoneLabel: "Anyone",
   appointmentLabels: {
     reschedule: "Reschedule",
-    edit: "Edit details",
+    edit: "Change booking",
     booked: "Booked",
     confirmed: "Confirmed",
     pending: "Pending",
@@ -19,7 +19,12 @@ export const en = {
   },
   appointmentLocation: { in_person: "In person", video: "Video call", phone: "Phone call" },
   appointmentJoin: "Join meeting",
-  availabilityLabels: { from: "From", to: "To", break: "Break" },
+  availabilityLabels: {
+    from: "From",
+    to: "To",
+    break: "Break",
+    off: (weekday: string) => `${weekday} · Off`,
+  },
   availabilityBuffer: (duration: string) => `${duration} between bookings`,
   availabilityOverrides: "Date exceptions",
   availabilityOverride: { blocked: "Blocked", holiday: "Holiday" },
@@ -28,7 +33,7 @@ export const en = {
   serviceDeposit: (price: string) => `${price} deposit`,
   servicePortfolio: "View portfolio",
   queueLabels: {
-    waiting: "Waiting for a place",
+    waiting: "Waitlist",
     joined: "You're on the waitlist",
     position: "Your place in line",
     join: "Join waitlist",
