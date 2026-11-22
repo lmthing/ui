@@ -15,8 +15,8 @@ export const meta = {
   pick: "Recall from a prompt, flip to reveal its answer, then rate recall to schedule the next review. Not checked answers (Quiz) or swiping to keep or skip things (SwipeStack).",
   writeHints: [
     "Write only seed cards. Do not write cards left, flipped state or review dates.",
-    'Use style "binary" for just Know and Still learning; otherwise omit style for the four ratings (srs). Put an explicitly supplied audio clip reference in audio on that card only.',
-    'A request for a full-width photo sets only media: "cover"; set surface, align and density to null unless each is requested. Use null for any other unrequested axis and do not copy hints from examples.',
+    'In Writer JSON, use null for every unrequested appearance field. Do not write default values such as surface "card", align "center", density "comfortable" or media "thumb". A full-width photo sets media "cover" only; it never requests a surface, alignment or density.',
+    'Use style "binary" for just Know and Still learning; otherwise write style null for the four ratings (srs). Put a supplied recording in audio on that card only; audio does not request a photo or a media variant.',
   ],
   region: "body", weight: 2, tier: "phone",
   realPath: "Cards and their review dates are stored on the device.",
