@@ -26,7 +26,10 @@ export const invoice = {
       ],
     },
     status: {
-      writeHints: [numberHint],
+      writeHints: [
+        'Start the invoice status screen with Header.style set to "back", never null.',
+        numberHint,
+      ],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
         { allow: ["PaymentStatus"], required: true },

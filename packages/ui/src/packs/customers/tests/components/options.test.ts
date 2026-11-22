@@ -171,8 +171,10 @@ it("retains addressed installment rows and derives settlement without double cou
   expect(reading("PaymentStatus", withPriorPayment)).toContain("c1/mark");
   expect(components.PaymentStatus.props.safeParse({ ...input, paid: 20 }).success).toBe(false);
   expect(renderInstance("PaymentStatus", input, "success", theme)).toContain("home/c1/r2/amount");
+  expect(renderInstance("PaymentStatus", { ...payment, installments: [] }, "filled", theme)).not.toContain(
+    "home/c1/installments",
+  );
   for (const rows of [
-    [],
     [{ ...installments[0], amount: 0 }],
     [{ ...installments[0], date: "yesterday" }],
     Array.from({ length: 7 }, () => installments[0]),

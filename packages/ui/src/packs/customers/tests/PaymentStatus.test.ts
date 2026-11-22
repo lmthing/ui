@@ -24,6 +24,7 @@ describe("PaymentStatus schema and boundaries", () => {
       method: "Bank transfer",
       detail: "full",
       surface: "card",
+      installments: [],
       outstanding: true,
     });
     expectTypeOf<Props<typeof props, typeof meta>>().not.toBeAny();

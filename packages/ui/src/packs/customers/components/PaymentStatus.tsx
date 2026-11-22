@@ -60,7 +60,7 @@ export const props = z
       })
       .meta({ kind: "secret", max: 180 })
       .optional(),
-    installments: z.array(z.strictObject({ date: isoDate, amount: z.number().positive().multipleOf(0.01) })).min(1).max(6).optional(),
+    installments: z.array(z.strictObject({ date: isoDate, amount: z.number().positive().multipleOf(0.01) })).max(6).default([]),
   })
   .refine((value) => (value.style === "link") === (value.paymentLink !== undefined), { path: ["paymentLink"] })
   .refine(({ installments, paid }) => {
@@ -111,8 +111,8 @@ export const probes = [
   },
   read("Mark this payment as paid", { address: "p1/mark", action: "press" }),
   read("Send a reminder for this payment", { address: "p1/remind", action: "press" }),
-  { ...write(`Collect a client's payment of 60 dated 2026-11-18. Show the QR code and copy and share controls for this supplied payment link: ${exampleLink}`),
-    expectProps: { style: "link", paymentLink: exampleLink } },
+  { ...write(`A client still owes the full 60 for a charge dated 2026-11-18 and has paid 0 so far. Show its payment QR, Copy and Share controls using this supplied checkout link: ${exampleLink}`),
+    expectProps: { style: "link", amount: 60, paid: 0, paymentLink: exampleLink } },
   { ...write("A client owes 60 on a payment record dated 2026-11-18. Show two received installments in its history: 10 on 2026-11-17 and 15 on 2026-11-18."),
     expectProps: { installments: exampleInstallments } },
 ] satisfies Probe[];
