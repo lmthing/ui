@@ -1,7 +1,8 @@
 import { quote } from "./doc-section";
 import { indexChecks, seedObject, type Field } from "./shape";
 import type { readMeta } from "./metadata";
-import type { RowGroup } from "./parts";
+import { rowProjection } from "./render-rows";
+import type { RowGroup } from "./row-sources";
 
 type Metadata = ReturnType<typeof readMeta>["meta"];
 
@@ -51,16 +52,6 @@ function probeCode(meta: Metadata, near: string | undefined) {
         ]
       : []),
   ];
-}
-
-function rowProjection(key: string, groups: RowGroup[]) {
-  if (!groups.length) return "";
-  const rows = groups.map(({ key, scalar, flags }) => {
-    const row = scalar ? "value" : "...row";
-    const guards = Object.keys(flags).map((flag) => `${quote(flag)}: true`);
-    return `...(input.${key} ?? []).map((${scalar ? "value" : "row"}) => ({ ${[row, ...guards].join(", ")} }))`;
-  });
-  return `.overwrite((input) => ({ ...input, ${quote(key)}: [${rows.join(", ")}] }))`;
 }
 
 export function componentSource(
@@ -120,7 +111,7 @@ export function testSource(meta: Metadata, fields: Field[], core: boolean) {
 ${importComponent}
 
 const cast = { things: [], items: [] };
-const valid = props.parse(fallback({ cast }));
+const valid = fallback({ cast });
 const invalid: unknown[] = [{ ...valid, unknown: "invalid" }, ${invalid.join(",")}];
 
 it.each(examples)("accepts a draft example", (example) => {

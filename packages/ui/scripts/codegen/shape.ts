@@ -3,12 +3,12 @@ export type Shape = {
   seed: string;
   helpers?: string[];
   invalid?: string[] | undefined;
-  array?: { min: number; max: number };
+  array?: { min: number; max: number; hostOverflow: boolean };
   indexOf?: string;
 };
-export type Field = Shape & { name: string; omit?: boolean; collection?: boolean };
+export type Field = Shape & { name: string; omit?: boolean; members?: Field[] };
 
-export const count = /^(?:(\d+)\s*[–—-]\s*(\d+)|exactly\s+(\d+))$/;
+export const count = /^(?:(\d+)\s*[–—-]\s*(\d+)|exactly\s+(\d+))(\s+\(plus host overflow\b.*\))?$/;
 const bounds = (limit: RegExpExecArray) =>
   [Number(limit[1] ?? limit[3]), Number(limit[2] ?? limit[3])] as const;
 
@@ -17,7 +17,7 @@ export function arrayShape(child: Shape, limit: RegExpExecArray): Shape {
   if (min > max || !Number.isSafeInteger(max)) throw new Error("Invalid collection bounds");
   return {
     ...child,
-    array: { min, max },
+    array: { min, max, hostOverflow: Boolean(limit[4]) },
     schema: `z.array(${child.schema}).min(${min}).max(${max})`,
     seed: `Array.from({ length: ${min} }, (${child.seed.includes("index") ? "_, index" : ""}) => (${child.seed}))`,
     invalid: [

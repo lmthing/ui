@@ -146,18 +146,28 @@ function field(source: string, styles: Record<string, string[]>, prior: Field[])
   };
 }
 
-function readMembers(members: string[]) {
+function readMembers(
+  entries: string[],
+  styles: Record<string, string[]> = {},
+  axes: Record<string, string[]> = {},
+  nested = false,
+) {
   const fields: Field[] = [];
-  for (const member of members) fields.push(field(member, {}, fields));
+  while (entries.length && !(nested && count.test(entries[0]!))) {
+    const entry = entries.shift()!;
+    const repeated = /^`([a-zA-Z][a-zA-Z0-9_]*)` of (.+)$/.exec(entry);
+    if (repeated) {
+      const name = repeated[1]!;
+      entries.unshift(repeated[2]!);
+      const members = readMembers(entries, {}, {}, true);
+      const limit = count.exec(entries.shift() ?? "");
+      if (!limit) throw new Error(`Collection \`${name}\` needs explicit item bounds`);
+      fields.push({ name, members, ...arrayShape(objectShape(members, "index"), limit) });
+    } else if (!Object.hasOwn(axes, entry.replaceAll("`", ""))) {
+      fields.push(field(entry, styles, fields));
+    }
+  }
   return fields;
-}
-
-function collection(name: string, members: string[], limit: RegExpExecArray): Field {
-  return {
-    name,
-    collection: true,
-    ...arrayShape(objectShape(readMembers(members), "index"), limit),
-  };
 }
 
 export function readFields(writes: string, styles: Record<string, string[]>, axes: Record<string, string[]>) {
@@ -165,19 +175,7 @@ export function readFields(writes: string, styles: Record<string, string[]>, axe
     (splitTop(writes, ".")[0] ?? "").replace(/\s+and\s+(?=`[a-zA-Z][a-zA-Z0-9_]*`\s)/g, ", "),
     ",;",
   );
-  const fields: Field[] = [];
-  for (let i = 0; i < entries.length; i++) {
-    const entry = entries[i]!;
-    const repeated = /^`([a-zA-Z][a-zA-Z0-9_]*)` of (.+)$/.exec(entry);
-    if (repeated) {
-      const end = entries.findIndex((candidate, j) => j > i && count.test(candidate));
-      if (end < 0) throw new Error(`Collection \`${repeated[1]}\` needs explicit item bounds`);
-      fields.push(
-        collection(repeated[1]!, [repeated[2]!, ...entries.slice(i + 1, end)], count.exec(entries[end]!)!),
-      );
-      i = end;
-    } else if (!Object.hasOwn(axes, entry.replaceAll("`", ""))) fields.push(field(entry, styles, fields));
-  }
+  const fields = readMembers(entries, styles, axes);
   for (const key of Object.keys(styles))
     if (!fields.some(({ name }) => name === key)) fields.push(field(key, styles, fields));
   requireUnique(fields);

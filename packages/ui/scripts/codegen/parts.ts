@@ -1,5 +1,6 @@
 import type { ActionName, Meta, Tier } from "../../src/catalog";
 import { splitTop } from "./doc-section";
+import { addressedSources, projection, rowSources, type RowSource } from "./row-sources";
 import type { Field } from "./shape";
 
 const actions = [
@@ -30,16 +31,20 @@ const unique = (list: string[]) => [...new Set(list)];
 const rowsKey = "$rows";
 
 type Part = { name: string; itemKey?: string; shared?: boolean; actions: ActionName[]; confirm: boolean };
-export type RowGroup = { key: string; scalar: boolean; flags: Record<string, true> };
-
-function readParts(source: string, keys: string[]): Part[] {
+function readParts(source: string, sources: RowSource[], host: RowSource | undefined): Part[] {
+  const keys = sources.map(({ key }) => key);
+  const topKeys = sources.filter(({ parents }) => !parents.length).map(({ key }) => key);
   return splitTop(splitTop(source, ".")[0] ?? "", ",;").flatMap((raw) => {
     const entry = plain(raw);
     const words = (entry.split(/[(]/, 1)[0] ?? "").trim().split(/\s+/);
     const scope = words[0]!;
     const generic = scope === "items" || scope === "item";
-    const qualified = keys.includes(scope) && words.length >= 2 && !actions.includes(words[1] as ActionName);
-    const owners = generic ? keys : qualified ? [scope] : [];
+    const qualified =
+      keys.includes(scope) &&
+      (words.length >= 3 || (words.length === 2 && !actions.includes(words[1] as ActionName)));
+    // A host-annotated wire list can supply separately named runtime rows.
+    const hostRole = host && words.length >= 3 && !actions.includes(words[1] as ActionName);
+    const owners = generic ? topKeys : qualified || hostRole ? [scope] : [];
     if (generic && !owners.length) throw new Error(`Item part needs a bounded array: ${raw}`);
     if (owners.length) words.shift();
     const name = words.shift();
@@ -80,53 +85,19 @@ function merged(parts: Part[]) {
   return result;
 }
 
-function projection(items: Field[], rows: Part[], parts: Record<string, ActionName[]>) {
-  const when: NonNullable<Meta["actions"]>["when"] = {};
-  const groups: RowGroup[] = items.map(({ name, collection }) => {
-    const flags: RowGroup["flags"] = {};
-    for (const row of rows.filter(({ itemKey }) => name === itemKey)) {
-      for (const action of row.actions) {
-        // A guard is shared between component and item actions with the same name and verb.
-        if (Object.hasOwn(parts, row.name) && parts[row.name]!.includes(action))
-          throw new Error(`Item and component both declare ${row.name} ${action}`);
-        const key = `$${row.name}_${action}`;
-        flags[key] = true;
-        when[`${row.name}.${action}`] = { [key]: true };
-      }
-    }
-    return { key: name, scalar: !collection, flags };
-  });
-  return { groups, when };
-}
-
-export function partMeta(source: string, fields: Field[]) {
-  const arrays = fields.filter(({ array }) => array);
-  const entries = readParts(
-    source,
-    arrays.map(({ name }) => name),
-  );
-  const componentEntries = entries.filter(({ itemKey }) => !itemKey);
-  const components = componentEntries.map((part) => ({ ...part, name: partName(part.name) }));
-  const rowEntries = entries.filter(({ itemKey }) => itemKey);
-  const addressed = arrays.filter(({ name }) => rowEntries.some(({ itemKey }) => itemKey === name));
-  const multiple = addressed.length > 1;
-  const rows = rowEntries.map((row) => ({
-    ...row,
-    name: partName(row.shared || (multiple && row.name === "root") ? row.itemKey! : row.name),
-  }));
-  const key =
-    addressed[0]?.name ?? (arrays.length === 1 && arrays[0]!.collection ? arrays[0]!.name : undefined);
-  const projected = multiple || (addressed.length === 1 && !addressed[0]!.collection);
-  const parts = unique(["root", ...components.map(({ name }) => name)]);
-  const rowParts = unique(["root", ...rows.map(({ name }) => name)]);
-  const declared = [...parts, ...rowParts];
+function partPolicies(
+  source: string,
+  fields: Field[],
+  original: Part[],
+  renamed: Part[],
+  declared: string[],
+) {
   const targets = (name: string) => {
-    const mapped = rows.flatMap((row, i) => (rowEntries[i]!.name === name ? [row.name] : []));
-    if (componentEntries.some((part) => part.name === name) || !mapped.length) mapped.push(partName(name));
-    return unique(mapped);
+    const mapped = original.flatMap((part, i) => (part.name === name ? [renamed[i]!.name] : []));
+    return unique(mapped.length ? mapped : [partName(name)]);
   };
   const confirmParts = unique([
-    ...[...components, ...rows].filter(({ confirm }) => confirm).map(({ name }) => name),
+    ...renamed.filter(({ confirm }) => confirm).map(({ name }) => name),
     ...[...plain(source).matchAll(/confirmParts:\s*\[([^\]]*)\]/g)].flatMap((hit) =>
       [...hit[1]!.matchAll(/["'](\w+)["']/g)].flatMap((item) => targets(item[1]!)),
     ),
@@ -136,16 +107,51 @@ export function partMeta(source: string, fields: Field[]) {
   const overrides = Object.fromEntries(
     Object.entries(partTiers(source)).flatMap(([name, tier]) => targets(name).map((part) => [part, tier])),
   );
-  for (const part of Object.keys(overrides)) {
-    if (declared.includes(part)) continue;
+  const extraParts = Object.keys(overrides).filter((part) => !declared.includes(part));
+  for (const part of extraParts)
     if (!fields.some(({ name }) => partName(name) === part))
       throw new Error(`Invalid part tier declaration: ${part}`);
-    parts.push(part);
-  }
+  return { confirmParts, overrides, extraParts };
+}
+
+export function partMeta(source: string, fields: Field[]) {
+  const arrays = rowSources(fields);
+  const top = arrays.filter(({ parents }) => !parents.length);
+  const hosts = top.filter(({ field }) => field.members && field.array?.hostOverflow);
+  const host = hosts.length === 1 ? hosts[0] : undefined;
+  const entries = readParts(source, arrays, host);
+  const componentEntries = entries.filter(({ itemKey }) => !itemKey);
+  const components = componentEntries.map((part) => ({ ...part, name: partName(part.name) }));
+  const rowEntries = entries.filter(({ itemKey }) => itemKey);
+  const addressed = addressedSources(
+    arrays,
+    rowEntries.map(({ itemKey }) => itemKey!),
+    host,
+  );
+  const multiple = new Set(addressed.map(({ field }) => field)).size > 1;
+  const rows = rowEntries.map((row) => ({
+    ...row,
+    name: partName(row.shared || (multiple && row.name === "root") ? row.itemKey! : row.name),
+  }));
+  const key = addressed[0]?.key ?? (top.length === 1 && top[0]!.field.members ? top[0]!.key : undefined);
+  const projected =
+    multiple || addressed.some(({ parents, field, role }) => parents.length || !field.members || role);
+  const parts = unique(["root", ...components.map(({ name }) => name)]);
+  const rowParts = unique(["root", ...rows.map(({ name }) => name)]);
+  const { confirmParts, overrides, extraParts } = partPolicies(
+    source,
+    fields,
+    [...componentEntries, ...rowEntries],
+    [...components, ...rows],
+    [...parts, ...rowParts],
+  );
   const partsActions = merged(components);
   const itemsActions = merged(rows);
-  const { groups, when } = projected ? projection(addressed, rows, partsActions) : { groups: [], when: {} };
-  const actionSpec = {
+  const { groups, when } = projected
+    ? projection(addressed, rows, partsActions, fields)
+    : { groups: [], when: {} };
+  const visible = groups.some(({ parentIndex }) => parentIndex) ? { visibleWhen: { $active: true } } : {};
+  const actionSpec: NonNullable<Meta["actions"]> = {
     ...(Object.keys(partsActions).length ? { parts: partsActions } : {}),
     ...(Object.keys(itemsActions).length ? { items: itemsActions } : {}),
     ...(Object.keys(when).length ? { when } : {}),
@@ -153,8 +159,8 @@ export function partMeta(source: string, fields: Field[]) {
   return {
     groups,
     meta: {
-      parts,
-      ...(key ? { items: { key: projected ? rowsKey : key, parts: rowParts } } : {}),
+      parts: [...parts, ...extraParts],
+      ...(key ? { items: { key: projected ? rowsKey : key, parts: rowParts, ...visible } } : {}),
       ...(Object.keys(actionSpec).length ? { actions: actionSpec } : {}),
       ...(confirmParts.length ? { confirmParts } : {}),
       ...(Object.keys(overrides).length ? { partTiers: overrides } : {}),

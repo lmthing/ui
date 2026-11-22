@@ -1,116 +1,24 @@
-import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
-import { fileURLToPath, URL } from "node:url";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { runInNewContext } from "node:vm";
 import { transformSync } from "esbuild";
-import { format } from "prettier";
 import { expect, it } from "vitest";
 import { z } from "zod";
 import * as catalog from "../../src/catalog";
-import { generateEntries } from "../build/entries";
-import { checkRules } from "../rules";
 import { generateComponent } from "./generate";
+import { inFixture, put, workspace } from "./generate-fixture";
 
-const workspace = fileURLToPath(new URL("../../../../", import.meta.url));
-const dist = join(workspace, "packages/ui/dist");
-
-async function inFixture(check: (root: string) => Promise<void>) {
-  await mkdir(dist, { recursive: true });
-  const root = await mkdtemp(join(dist, "component-gen-"));
-  try {
-    await check(root);
-  } finally {
-    await rm(root, { recursive: true });
-  }
-}
-
-async function put(root: string, file: string, source: string) {
-  const path = join(root, file);
-  await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, source);
-}
-
-it("generates an unbuilt Wave 6 pack component and preserves subsequent edits", async () => {
-  await inFixture(async (root) => {
-    const doc = "docs/catalog/packs/weather.md";
-    await put(root, doc, await readFile(join(workspace, doc), "utf8"));
-    await put(root, ".prettierrc.json", '{"printWidth": 58}\n');
-    const pack = "src/packs/weather";
-    const first = await generateComponent(root, "weather", "AstroSun");
-    expect(first.written).toEqual([
-      `${pack}/tests/AstroSun.test.ts`,
-      `${pack}/copy/AstroSun.ts`,
-      `${pack}/lang/astro-sun.ts`,
-      `${pack}/components/AstroSun.tsx`,
-    ]);
-    const ui = join(root, "packages/ui");
-    const component = join(ui, `${pack}/components/AstroSun.tsx`);
-    const original = await readFile(component, "utf8");
-    expect(original).toContain('status: "draft"');
-    expect(original).toBe(await format(original, { filepath: component, printWidth: 58 }));
-    expect(await readFile(join(ui, pack, "index.ts"), "utf8")).toBe('export * from "./components";\n');
-    const door = join(ui, pack, "components/index.ts");
-    expect(await readFile(door, "utf8")).toBe('export * as AstroSun from "./AstroSun";\n');
-    expect(await checkRules(ui)).toEqual([]);
-    await generateEntries(ui);
-    expect(await readFile(join(ui, "src/entry/packs/group-1/weather.ts"), "utf8")).toContain(
-      'import { AstroSun } from "../../../packs/weather";',
-    );
-    expect(await readFile(join(ui, "src/entry/views/group-1.ts"), "utf8")).not.toContain("AstroSun");
-    const edited = original.replace("TODO: describe the nearest wrong choice", "Show a time zone");
-    await writeFile(component, edited);
-    expect(await generateComponent(root, "weather", "AstroSun")).toEqual({
-      written: [],
-      skipped: [`${pack}/components/AstroSun.tsx`],
-    });
-    expect(await readFile(component, "utf8")).toBe(edited);
-    expect(await readFile(door, "utf8")).toBe('export * as AstroSun from "./AstroSun";\n');
-  });
-});
-
-it("keeps handwritten auxiliary files, and extends rather than replacing existing pack doors", async () => {
-  await inFixture(async (root) => {
-    const doc = "docs/catalog/packs/weather.md";
-    await put(root, doc, await readFile(join(workspace, doc), "utf8"));
-    const pack = "packages/ui/src/packs/weather";
-    const oldDoor = 'export { pack } from "./pack";\n';
-    const copy = "export const label = () => 'custom';\n";
-    await put(root, `${pack}/copy/AstroSun.ts`, copy);
-    await put(root, `${pack}/index.ts`, oldDoor);
-    expect((await generateComponent(root, "weather", "AstroSun")).skipped).toEqual([
-      "src/packs/weather/copy/AstroSun.ts",
-    ]);
-    expect(await readFile(join(root, pack, "copy/AstroSun.ts"), "utf8")).toBe(copy);
-    expect(await readFile(join(root, pack, "index.ts"), "utf8")).toBe(
-      `${oldDoor}export { AstroSun } from "./components";\n`,
-    );
-  });
-});
-
-it("does not create files for invalid identifiers or an unsupported declaration", async () => {
-  await inFixture(async (root) => {
-    const doc = "docs/catalog/packs/weather.md";
-    const source = await readFile(join(workspace, doc), "utf8");
-    await put(root, doc, source.replace("`lat` number -90–90", "`lat` text without a limit"));
-    await expect(generateComponent(root, "weather", "../AstroSun")).rejects.toThrow("Usage");
-    await expect(generateComponent(root, "../weather", "AstroSun")).rejects.toThrow("Usage");
-    await expect(generateComponent(root, "weather", "NoSuchComponent")).rejects.toThrow("No catalog section");
-    await expect(generateComponent(root, "weather", "AstroSun")).rejects.toThrow("Unsupported field `lat`");
-    expect(await readdir(root)).toEqual(["docs"]);
-  });
-});
-
-async function medicalDraft(root: string, name: string, kebab: string) {
-  const doc = "docs/catalog/packs/medical.md";
+async function packDraft(root: string, scope: string, name: string, kebab: string) {
+  const doc = `docs/catalog/packs/${scope}.md`;
   await put(root, doc, await readFile(join(workspace, doc), "utf8"));
-  const pack = "src/packs/medical";
+  const pack = `src/packs/${scope}`;
   const files = {
     test: `${pack}/tests/${name}.test.ts`,
     copy: `${pack}/copy/${name}.ts`,
     lang: `${pack}/lang/${kebab}.ts`,
     view: `${pack}/components/${name}.tsx`,
   };
-  expect(await generateComponent(root, "medical", name)).toEqual({
+  expect(await generateComponent(root, scope, name)).toEqual({
     written: Object.values(files),
     skipped: [],
   });
@@ -129,7 +37,7 @@ async function medicalDraft(root: string, name: string, kebab: string) {
 
 it("generates a secret field with the handwritten bound and operator-read redaction", async () => {
   await inFixture(async (root) => {
-    const draft = await medicalDraft(root, "InsuranceBenefits", "insurance-benefits");
+    const draft = await packDraft(root, "medical", "InsuranceBenefits", "insurance-benefits");
     const input = draft.fallback({ cast: { things: [], items: [] } }) as Record<string, unknown>;
     const memberId = "DEMO".repeat(5);
     expect(draft.props.parse({ ...input, memberId })).toMatchObject({ memberId });
@@ -145,7 +53,7 @@ it("generates a secret field with the handwritten bound and operator-read redact
 
 it("generates an optional zero-based index into the question options, not its score array", async () => {
   await inFixture(async (root) => {
-    const draft = await medicalDraft(root, "ClinicalIntake", "clinical-intake");
+    const draft = await packDraft(root, "medical", "ClinicalIntake", "clinical-intake");
     const input = draft.fallback({ cast: { things: [], items: [] } }) as Record<string, unknown>;
     const question = { prompt: "Question", options: ["A", "B"], scoreValues: [0, 1, 2, 3, 4] };
     const accepts = (question: unknown) => draft.props.safeParse({ ...input, questions: [question] }).success;
@@ -160,7 +68,7 @@ it("generates an optional zero-based index into the question options, not its sc
 
 it("generates a named item action per array and stamps only its own rows", async () => {
   await inFixture(async (root) => {
-    const draft = await medicalDraft(root, "CareSummary", "care-summary");
+    const draft = await packDraft(root, "medical", "CareSummary", "care-summary");
     const expected = {
       conditions: ["press"],
       allergies: ["press"],
@@ -179,9 +87,6 @@ it("generates a named item action per array and stamps only its own rows", async
     };
     const rowActions = (input: unknown) => {
       const parsed = draft.props.parse(input) as Record<string, unknown>;
-      expect(draft.props.safeParse({ ...(input as object), [draft.meta.items!.key]: [] }).success).toBe(
-        false,
-      );
       return catalog
         .affordancesOf(draft.meta, catalog.stampItemIds(draft.meta, parsed), "c1")
         .filter(({ address }) => address.startsWith("c1/r"))
@@ -190,13 +95,67 @@ it("generates a named item action per array and stamps only its own rows", async
           return [address, action];
         });
     };
-    expect(rowActions(input)).toEqual([
+    const addresses = [
       ["c1/r1/conditions", "press"],
       ["c1/r2/allergies", "press"],
       ["c1/r3/care_team", "press"],
+    ];
+    const withPhone = { ...input, careTeam: [{ ...input.careTeam[0], phone: "555-0105" }] };
+    expect(rowActions(input)).toEqual(addresses);
+    expect(rowActions({ ...withPhone, style: "allergies_first" })).toEqual([
+      ...addresses,
       ["c1/r3/call", "press"],
     ]);
-    expect(rowActions({ ...input, style: "allergies_first" })).toEqual(rowActions(input));
+    expect(draft.props.safeParse({ ...input, [draft.meta.items!.key]: [] }).success).toBe(false);
     for (const part of Object.keys(expected)) expect(draft.lang).toContain(`${part}:`);
+  });
+});
+
+it("keeps host overflow out of the bounded listings schema", async () => {
+  await inFixture(async (root) => {
+    const draft = await packDraft(root, "realestate", "PropertySearch", "property-search");
+    const input = draft.fallback({ cast: { things: [], items: [] } }) as { listings: object[] };
+    const withListings = (n: number) => ({
+      ...input,
+      listings: Array.from({ length: n }, (_, i) => ({ ...input.listings[0], listingRef: `home_${i}` })),
+    });
+    expect(draft.props.safeParse(withListings(0)).success).toBe(false);
+    expect(draft.props.safeParse(withListings(6)).success).toBe(true);
+    expect(draft.props.safeParse(withListings(7)).success).toBe(false);
+    expect(draft.props.safeParse({ ...input, overflow: 7 }).success).toBe(false);
+    expect(draft.test).toContain("length: 7");
+    expect(draft.meta.items?.parts).toEqual(["root", "save"]);
+    expect(draft.meta.partTiers).toEqual({ locate: "ok" });
+    const read = catalog.readComponent(draft, withListings(2), "c1").join("\n");
+    for (const address of ["r1 press", "r1/save toggle", "r2 select", "r3 press", "r4 select"])
+      expect(read).toContain(`[c1/${address}`);
+    expect(read).not.toContain("[c1/r2 press");
+  });
+});
+
+it("generates independently bounded dates and slots with stable slot addresses", async () => {
+  await inFixture(async (root) => {
+    const draft = await packDraft(root, "realestate", "TourBooking", "tour-booking");
+    const input = draft.fallback({ cast: { things: [], items: [] } }) as Record<string, unknown>;
+    const time = (i: number) => ({ id: `slot_${i}`, label: "10:00 AM", taken: i === 1 });
+    const day = (i: number, n: number) => ({
+      date: `2026-12-0${i + 1}`,
+      slots: Array.from({ length: n }, (_, index) => time(index)),
+    });
+    const accepts = (dates: unknown[]) => draft.props.safeParse({ ...input, dates }).success;
+    expect(accepts([day(0, 1)])).toBe(true);
+    expect(accepts(Array.from({ length: 5 }, (_, i) => day(i, 8)))).toBe(true);
+    for (const dates of [[], [day(0, 0)], [day(0, 9)], Array.from({ length: 6 }, (_, i) => day(i, 1))])
+      expect(accepts(dates)).toBe(false);
+    expect(accepts([{ ...day(0, 1), slots: [{ ...time(0), extra: true }] }])).toBe(false);
+    expect(draft.meta.actions?.items).toEqual({ root: ["select"] });
+    expect(draft.meta.confirmParts).toEqual(["cancel"]);
+    const dates = [day(0, 2), day(1, 1)];
+    const read = (dateAt: number) =>
+      catalog.readComponent(draft, { ...input, dates, dateAt }, "c1").join("\n");
+    expect(read(0)).toContain("[c1/r1 select");
+    expect(read(0)).not.toMatch(/\[c1\/r[23] select/);
+    expect(read(1)).toContain("[c1/r3 select");
+    expect(read(1)).not.toMatch(/\[c1\/r[12] select/);
   });
 });
