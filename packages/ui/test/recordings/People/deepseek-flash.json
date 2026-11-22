@@ -2502,11 +2502,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"more\":null,\"members\":[{\"name\":\"Maya\",\"role\":\"weekend watering\",\"photo\":null,\"goto\":null},{\"name\":\"Anna\",\"role\":\"weekday watering\",\"photo\":null,\"goto\":null}]}",
+    "reply": "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"more\":null,\"members\":[{\"name\":\"Maya\",\"role\":\"Waters on weekends\",\"photo\":null,\"goto\":null},{\"name\":\"Anna\",\"role\":\"Waters on weekdays\",\"photo\":null,\"goto\":null}]}",
     "replies": [
-      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"more\":null,\"members\":[{\"name\":\"Maya\",\"role\":\"weekend watering\",\"photo\":null,\"goto\":null},{\"name\":\"Anna\",\"role\":\"weekday watering\",\"photo\":null,\"goto\":null}]}",
       "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"more\":null,\"members\":[{\"name\":\"Maya\",\"role\":\"Waters on weekends\",\"photo\":null,\"goto\":null},{\"name\":\"Anna\",\"role\":\"Waters on weekdays\",\"photo\":null,\"goto\":null}]}",
-      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"more\":null,\"members\":[{\"name\":\"Maya\",\"role\":\"weekend watering\",\"photo\":null,\"goto\":null},{\"name\":\"Anna\",\"role\":\"weekday watering\",\"photo\":null,\"goto\":null}]}"
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"more\":null,\"members\":[{\"name\":\"Maya\",\"role\":\"Waters on weekends\",\"photo\":null,\"goto\":null},{\"name\":\"Anna\",\"role\":\"Waters on weekdays\",\"photo\":null,\"goto\":null}]}",
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"more\":null,\"members\":[{\"name\":\"Maya\",\"role\":\"Waters on weekends\",\"photo\":null,\"goto\":null},{\"name\":\"Anna\",\"role\":\"Waters on weekdays\",\"photo\":null,\"goto\":null}]}"
     ]
   },
   "People%2Fwrite%2FShow%20Anna%2C%20Clover's%20owner%2C%20and%20Ben%2C%20Pip's%20owner%2C%20with%20a%20way%20to%20open%20each%20person's%20page/1d7e1162d222d0ce/4244904d7b2d8905": {
@@ -2665,7 +2665,7 @@
     "replies": [
       "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben\"}]}",
       "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben\"}]}",
-      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna_page\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben_page\"}]}"
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben\"}]}"
     ]
   },
   "People%2Fwrite%2FShow%20the%20three%20people%20going%20to%20the%20walk%20as%20small%20overlapping%20pictures%2C%20and%20that%203%20more%20are%20going%20too/d06c08ef743c04cc/87335ec5cd5f6381": {
@@ -2820,11 +2820,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":3,\"members\":[{\"name\":\"Alex\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Jordan\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Sam\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}",
+    "reply": "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":3,\"members\":[{\"name\":\"Alex\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Jordan\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Casey\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}",
     "replies": [
-      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":3,\"members\":[{\"name\":\"Alex\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Jordan\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Sam\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}",
-      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":3,\"members\":[{\"name\":\"Person 1\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Person 2\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Person 3\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}",
-      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"stack\",\"more\":3,\"members\":[{\"name\":\"Ava\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Liam\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Noah\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}"
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":3,\"members\":[{\"name\":\"Alex\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Jordan\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Casey\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}",
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"stack\",\"more\":3,\"members\":[{\"name\":\"Person 1\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Person 2\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Person 3\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}",
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"stack\",\"more\":3,\"members\":[{\"name\":\"Alex\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Sam\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Jordan\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}"
     ]
   }
 }

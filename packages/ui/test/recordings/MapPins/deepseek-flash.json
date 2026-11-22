@@ -977,11 +977,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"MapPins\",\"density\":null,\"trail\":\"chevron\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}",
+    "reply": "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}",
     "replies": [
-      "{\"c\":\"MapPins\",\"density\":null,\"trail\":\"chevron\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}",
       "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}",
-      "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":null,\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":null,\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}"
+      "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}"
     ]
   }
 }

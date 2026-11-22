@@ -474,11 +474,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Route\",\"detail\":\"brief\",\"stops\":[{\"label\":\"Home\",\"meta\":null},{\"label\":\"Park gate\",\"meta\":null},{\"label\":\"Pond\",\"meta\":\"pause for water\"},{\"label\":\"Home\",\"meta\":null}],\"distance\":\"3.2 km\"}",
+    "reply": "{\"c\":\"Route\",\"detail\":\"brief\",\"stops\":[{\"label\":\"Home\",\"meta\":null},{\"label\":\"Park gate\",\"meta\":null},{\"label\":\"Pond\",\"meta\":\"Pause for water\"},{\"label\":\"Home\",\"meta\":null}],\"distance\":\"3.2 km\"}",
     "replies": [
-      "{\"c\":\"Route\",\"detail\":\"brief\",\"stops\":[{\"label\":\"Home\",\"meta\":null},{\"label\":\"Park gate\",\"meta\":null},{\"label\":\"Pond\",\"meta\":\"pause for water\"},{\"label\":\"Home\",\"meta\":null}],\"distance\":\"3.2 km\"}",
-      "{\"c\":\"Route\",\"detail\":\"brief\",\"stops\":[{\"label\":\"Home\",\"meta\":\"Start\"},{\"label\":\"Park gate\",\"meta\":null},{\"label\":\"Pond\",\"meta\":\"Water break\"},{\"label\":\"Home\",\"meta\":null}],\"distance\":\"3.2 km\"}",
-      "{\"c\":\"Route\",\"detail\":\"brief\",\"stops\":[{\"label\":\"Home\",\"meta\":null},{\"label\":\"Park gate\",\"meta\":null},{\"label\":\"Pond\",\"meta\":\"Pause for water\"},{\"label\":\"Home\",\"meta\":null}],\"distance\":\"3.2 km\"}"
+      "{\"c\":\"Route\",\"detail\":\"brief\",\"stops\":[{\"label\":\"Home\",\"meta\":null},{\"label\":\"Park gate\",\"meta\":null},{\"label\":\"Pond\",\"meta\":\"Pause for water\"},{\"label\":\"Home\",\"meta\":null}],\"distance\":\"3.2 km\"}",
+      "{\"c\":\"Route\",\"detail\":\"brief\",\"stops\":[{\"label\":\"Home\",\"meta\":null},{\"label\":\"Park gate\",\"meta\":null},{\"label\":\"Pond\",\"meta\":\"Pause for water\"},{\"label\":\"Home\",\"meta\":null}],\"distance\":\"3.2 km\"}",
+      "{\"c\":\"Route\",\"detail\":\"brief\",\"stops\":[{\"label\":\"Home\",\"meta\":null},{\"label\":\"Park gate\",\"meta\":null},{\"label\":\"Pond\",\"meta\":\"pause for water\"},{\"label\":\"Home\",\"meta\":null}],\"distance\":\"3.2 km\"}"
     ]
   },
   "Route%2Fwrite%2FShow%20the%20dog%20walk%20from%20Home%20to%20Pond%2C%202%20km%20total.%20Save%20the%20note%20Water%20break%20for%20Pond%20but%20hide%20stop%20notes%20on%20screen./33f28033fe896bad/5bd8bb2b4a0fc81a": {
