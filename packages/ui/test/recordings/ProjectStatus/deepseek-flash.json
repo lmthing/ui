@@ -1,0 +1,850 @@
+{
+  "ProjectStatus%2Fchoose%2FFeature%20one%20project%20with%20a%20photo%2C%20a%20short%20description%20and%20a%20badge.%20Tap%20anywhere%20on%20its%20card%20to%20open%20it./37d0b4b251e6c740/447ab716e3ea9f16": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Gantt: See overlapping task dates, milestone diamonds and finish-to-start dependencies in one project. Pick: Overlapping multi-day task bars and finish-to-start dependencies within one project. Not one day's hour blocks (Timeline), operational columns (Board), or shifts (Roster).\n- Milestones: See dated delivery gates and the accepted deliverables each gate requires. Pick: Dated delivery gates reached only after required deliverables are accepted. Not dates alone (Timeline), screen steps (Steps), or measured targets (Progress).\n- ProjectStatus: Report a project's health, recent wins and current blockers, with the next milestone and a link to post another check-in. Pick: A periodic project health check-in with an on-track, at-risk or blocked status, wins and blockers. Not a featured generic card (Card), a dated acceptance gate (Milestones), or a shift handover (Handover).\n- Scope: Agree what one project delivers, how to accept it, and what is excluded. Pick: A project's versioned deliverables with testable acceptance conditions, accepted marks and exclusions. Not generic facts (KeyValue), terms signed once (Agreement), or an approval queue (Approval).\n- Tasks: Track assigned project tasks, their subtasks, due dates and blockers. Pick: Assigned deliverable work with subtasks or dependencies. Not independent jobs (Checklist), operational columns (Board), or graded coursework (Assignments).\n- TimeLog: Save timed work entries and review billable and non-billable time by day. Pick: A saved work log of individual project or task time entries, billable marks, and totals. Not a single unsaved elapsed clock (Timer), staff clock-in (TimeClock), or payroll approval (Timesheet).\n\nNeed, in the person's words: \"Feature one project with a photo, a short description and a badge. Tap anywhere on its card to open it.\"\nReply with only the component id, nothing else.",
+    "reply": "Card",
+    "replies": [
+      "Card",
+      "Card",
+      "Card"
+    ]
+  },
+  "ProjectStatus%2Fchoose%2FFeature%20one%20project%20with%20a%20photo%2C%20a%20short%20description%20and%20a%20badge.%20Tap%20anywhere%20on%20its%20card%20to%20open%20it./81f16f7a35a65e57/447ab716e3ea9f16": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Gantt: See overlapping task dates, milestone diamonds and finish-to-start dependencies in one project. Pick: Overlapping multi-day task bars and finish-to-start dependencies within one project. Not one day's hour blocks (Timeline), operational columns (Board), or shifts (Roster).\n- Milestones: See dated delivery gates and the accepted deliverables each gate requires. Pick: Dated delivery gates reached only after required deliverables are accepted. Not dates alone (Timeline), screen steps (Steps), or measured targets (Progress).\n- ProjectStatus: Report a project's health, recent wins and current blockers, with the next milestone and a link to post another check-in. Pick: A periodic project health check-in with an on-track, at-risk or blocked status, wins and blockers. Not a featured generic card (Card), a dated acceptance gate (Milestones), or a shift handover (Handover).\n- Scope: Agree what one project delivers, how to accept it, and what is excluded. Pick: A project's versioned deliverables with testable acceptance conditions, accepted marks and exclusions. Not generic facts (KeyValue), terms signed once (Agreement), or an approval queue (Approval).\n- Tasks: Track assigned project tasks, their subtasks, due dates and blockers. Pick: Assigned deliverable work with subtasks or dependencies. Not independent jobs (Checklist), operational columns (Board), or graded coursework (Assignments).\n- TimeLog: Save timed work entries and review billable and non-billable time by day. Pick: A saved work log of individual project or task time entries, billable marks, and totals. Not a single unsaved elapsed clock (Timer), staff clock-in (TimeClock), or payroll approval (Timesheet).\n\nNeed, in the person's words: \"Feature one project with a photo, a short description and a badge. Tap anywhere on its card to open it.\"\nReply with only the component id, nothing else.",
+    "reply": "Card",
+    "replies": [
+      "Card",
+      "Card",
+      "Card"
+    ]
+  },
+  "ProjectStatus%2Fchoose%2FShow%20the%20latest%20weekly%20project%20health%20check-in%2C%20with%20an%20at-risk%20badge%2C%20separate%20wins%20and%20blockers%2C%20and%20the%20next%20milestone./171b4189a9c3d68f/5b3190fd80270d67": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Gantt: See overlapping task dates, milestone diamonds and finish-to-start dependencies in one project. Pick: Overlapping multi-day task bars and finish-to-start dependencies within one project. Not one day's hour blocks (Timeline), operational columns (Board), or shifts (Roster).\n- Milestones: See dated delivery gates and the accepted deliverables each gate requires. Pick: Dated delivery gates reached only after required deliverables are accepted. Not dates alone (Timeline), screen steps (Steps), or measured targets (Progress).\n- ProjectStatus: Report a project's health, recent wins and current blockers, with the next milestone and a link to post another check-in. Pick: A periodic project health check-in with an on-track, at-risk or blocked status, wins and blockers. Not a featured generic card (Card), a dated acceptance gate (Milestones), or a shift handover (Handover).\n- Scope: Agree what one project delivers, how to accept it, and what is excluded. Pick: A project's versioned deliverables with testable acceptance conditions, accepted marks and exclusions. Not generic facts (KeyValue), terms signed once (Agreement), or an approval queue (Approval).\n- Tasks: Track assigned project tasks, their subtasks, due dates and blockers. Pick: Assigned deliverable work with subtasks or dependencies. Not independent jobs (Checklist), operational columns (Board), or graded coursework (Assignments).\n- TimeLog: Save timed work entries and review billable and non-billable time by day. Pick: A saved work log of individual project or task time entries, billable marks, and totals. Not a single unsaved elapsed clock (Timer), staff clock-in (TimeClock), or payroll approval (Timesheet).\n\nNeed, in the person's words: \"Show the latest weekly project health check-in, with an at-risk badge, separate wins and blockers, and the next milestone.\"\nReply with only the component id, nothing else.",
+    "reply": "ProjectStatus",
+    "replies": [
+      "ProjectStatus",
+      "ProjectStatus",
+      "ProjectStatus"
+    ]
+  },
+  "ProjectStatus%2Fchoose%2FShow%20the%20latest%20weekly%20project%20health%20check-in%2C%20with%20an%20at-risk%20badge%2C%20separate%20wins%20and%20blockers%2C%20and%20the%20next%20milestone./382334c74c7c6fc1/5b3190fd80270d67": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Gantt: See overlapping task dates, milestone diamonds and finish-to-start dependencies in one project. Pick: Overlapping multi-day task bars and finish-to-start dependencies within one project. Not one day's hour blocks (Timeline), operational columns (Board), or shifts (Roster).\n- Milestones: See dated delivery gates and the accepted deliverables each gate requires. Pick: Dated delivery gates reached only after required deliverables are accepted. Not dates alone (Timeline), screen steps (Steps), or measured targets (Progress).\n- ProjectStatus: Report a project's health, recent wins and current blockers, with the next milestone and a link to post another check-in. Pick: A periodic project health check-in with an on-track, at-risk or blocked status, wins and blockers. Not a featured generic card (Card), a dated acceptance gate (Milestones), or a shift handover (Handover).\n- Scope: Agree what one project delivers, how to accept it, and what is excluded. Pick: A project's versioned deliverables with testable acceptance conditions, accepted marks and exclusions. Not generic facts (KeyValue), terms signed once (Agreement), or an approval queue (Approval).\n- Tasks: Track assigned project tasks, their subtasks, due dates and blockers. Pick: Assigned deliverable work with subtasks or dependencies. Not independent jobs (Checklist), operational columns (Board), or graded coursework (Assignments).\n- TimeLog: Save timed work entries and review billable and non-billable time by day. Pick: A saved work log of individual project or task time entries, billable marks, and totals. Not a single unsaved elapsed clock (Timer), staff clock-in (TimeClock), or payroll approval (Timesheet).\n\nNeed, in the person's words: \"Show the latest weekly project health check-in, with an at-risk badge, separate wins and blockers, and the next milestone.\"\nReply with only the component id, nothing else.",
+    "reply": "ProjectStatus",
+    "replies": [
+      "ProjectStatus",
+      "ProjectStatus",
+      "ProjectStatus"
+    ]
+  },
+  "ProjectStatus%2Fread%2FOpen%20the%20Design%20sign-off%20milestone./981ad1e3f5084d1a/e3ca20fba4c2aad6": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 ProjectStatus At risk · Design is ready for review · 19 Nov 2026 · Jo Lee — Wins: Finished the mobile layouts; Shared the navigation prototype — Blockers: Waiting for homepage copy — Next milestone: Design sign-off · 24 Nov 2026 · 5 days left [p1/milestone press→projects_gates] [p1/update press→projects_check_in]\n\nTask: Open the Design sign-off milestone.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"p1/milestone\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"p1/milestone\", \"action\": \"press\"}",
+      "{\"address\": \"p1/milestone\", \"action\": \"press\"}",
+      "{\"address\": \"p1/milestone\", \"action\": \"press\"}"
+    ]
+  },
+  "ProjectStatus%2Fread%2FOpen%20the%20Design%20sign-off%20milestone./eaea82f50600efd4/e3ca20fba4c2aad6": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 ProjectStatus At risk · Design is ready for review · 19 Nov 2026 · Jo Lee — Wins: Finished the mobile layouts; Shared the navigation prototype — Blockers: Waiting for homepage copy — Next milestone: Design sign-off · 24 Nov 2026 · 5 days left [p1/milestone press→projects_gates] [p1/update press→projects_check_in]\n\nTask: Open the Design sign-off milestone.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"p1/milestone\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"p1/milestone\", \"action\": \"press\"}",
+      "{\"address\": \"p1/milestone\", \"action\": \"press\"}",
+      "{\"address\": \"p1/milestone\", \"action\": \"press\"}"
+    ]
+  },
+  "ProjectStatus%2Fread%2FOpen%20the%20form%20to%20post%20another%20project%20check-in./5c867b08dac6c0ff/d81f78b06f5dd16e": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 ProjectStatus At risk · Design is ready for review · 19 Nov 2026 · Jo Lee — Wins: Finished the mobile layouts; Shared the navigation prototype — Blockers: Waiting for homepage copy — Next milestone: Design sign-off · 24 Nov 2026 · 5 days left [p1/milestone press→projects_gates] [p1/update press→projects_check_in]\n\nTask: Open the form to post another project check-in.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"p1/update\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"p1/update\", \"action\": \"press\"}",
+      "{\"address\": \"p1/update\", \"action\": \"press\"}",
+      "{\"address\": \"p1/update\", \"action\": \"press\"}"
+    ]
+  },
+  "ProjectStatus%2Fread%2FOpen%20the%20form%20to%20post%20another%20project%20check-in./e169c95caefb525a/d81f78b06f5dd16e": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 ProjectStatus At risk · Design is ready for review · 19 Nov 2026 · Jo Lee — Wins: Finished the mobile layouts; Shared the navigation prototype — Blockers: Waiting for homepage copy — Next milestone: Design sign-off · 24 Nov 2026 · 5 days left [p1/milestone press→projects_gates] [p1/update press→projects_check_in]\n\nTask: Open the form to post another project check-in.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"p1/update\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"p1/update\", \"action\": \"press\"}",
+      "{\"address\": \"p1/update\", \"action\": \"press\"}",
+      "{\"address\": \"p1/update\", \"action\": \"press\"}"
+    ]
+  },
+  "ProjectStatus%2Fwrite%2FFor%20project%20folio%2C%20show%20Jo%20Lee's%202026-11-19%20health%20check-in%3A%20At%20risk.%20Headline%3A%20Design%20is%20ready%20for%20review.%20Wins%3A%20Finished%20the%20mobile%20layouts%20and%20Shared%20the%20navigation%20prototype.%20Blocker%3A%20Waiting%20for%20homepage%20copy.%20Design%20sign-off%20is%20due%202026-11-24%3B%20link%20it%20to%20projects_gates.%20Post%20check-in%20opens%20projects_check_in./a397a02324dfcd7d/543612796545d495": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nProjectStatus: Report a project's health, recent wins and current blockers, with the next milestone and a link to post another check-in.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", projectRef: text≤32, status?: on_track|at_risk|blocked=\"on_track\", headline: text≤80, author?: text≤24, updatedAt: date YYYY-MM-DD, wins: [0..3 text≤80], blockers: [0..3 text≤80], nextMilestone?: { title: text≤32, due: date YYYY-MM-DD, goto?: id snake_case }, postGoto?: id snake_case }\nRule: Use the reported health as status, never infer it from dates. Use the latest check-in date for updatedAt; use nextMilestone only when supplied. Days until the milestone are computed.\nRule: Set detail \"brief\" for a headline-only check-in with its health badge and check-in date; keep wins, blockers and links in the data.\nexample: {\"c\":\"ProjectStatus\",\"projectRef\":\"folio\",\"status\":\"at_risk\",\"headline\":\"Design is ready for review\",\"author\":\"Jo Lee\",\"updatedAt\":\"2026-11-19\",\"wins\":[\"Finished the mobile layouts\",\"Shared the navigation prototype\"],\"blockers\":[\"Waiting for homepage copy\"],\"nextMilestone\":{\"title\":\"Design sign-off\",\"due\":\"2026-11-24\",\"goto\":\"projects_gates\"},\"postGoto\":\"projects_check_in\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: For project folio, show Jo Lee's 2026-11-19 health check-in: At risk. Headline: Design is ready for review. Wins: Finished the mobile layouts and Shared the navigation prototype. Blocker: Waiting for homepage copy. Design sign-off is due 2026-11-24; link it to projects_gates. Post check-in opens projects_check_in.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "ProjectStatus",
+              "enum": [
+                "ProjectStatus"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "projectRef": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "on_track",
+                    "at_risk",
+                    "blocked"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "headline": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            },
+            "author": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "updatedAt": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "wins": {
+              "maxItems": 3,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              }
+            },
+            "blockers": {
+              "maxItems": 3,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              }
+            },
+            "nextMilestone": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 32
+                    },
+                    "due": {
+                      "type": "string",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                    },
+                    "goto": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "due",
+                    "goto"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "postGoto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "projectRef",
+            "status",
+            "headline",
+            "author",
+            "updatedAt",
+            "wins",
+            "blockers",
+            "nextMilestone",
+            "postGoto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"ProjectStatus\",\"density\":null,\"surface\":null,\"detail\":null,\"projectRef\":\"folio\",\"status\":\"at_risk\",\"headline\":\"Design is ready for review\",\"author\":\"Jo Lee\",\"updatedAt\":\"2026-11-19\",\"wins\":[\"Finished the mobile layouts\",\"Shared the navigation prototype\"],\"blockers\":[\"Waiting for homepage copy\"],\"nextMilestone\":{\"title\":\"Design sign-off\",\"due\":\"2026-11-24\",\"goto\":\"projects_gates\"},\"postGoto\":\"projects_check_in\"}",
+    "replies": [
+      "{\"c\":\"ProjectStatus\",\"density\":null,\"surface\":null,\"detail\":null,\"projectRef\":\"folio\",\"status\":\"at_risk\",\"headline\":\"Design is ready for review\",\"author\":\"Jo Lee\",\"updatedAt\":\"2026-11-19\",\"wins\":[\"Finished the mobile layouts\",\"Shared the navigation prototype\"],\"blockers\":[\"Waiting for homepage copy\"],\"nextMilestone\":{\"title\":\"Design sign-off\",\"due\":\"2026-11-24\",\"goto\":\"projects_gates\"},\"postGoto\":\"projects_check_in\"}",
+      "{\"c\":\"ProjectStatus\",\"density\":null,\"surface\":null,\"detail\":null,\"projectRef\":\"folio\",\"status\":\"at_risk\",\"headline\":\"Design is ready for review\",\"author\":\"Jo Lee\",\"updatedAt\":\"2026-11-19\",\"wins\":[\"Finished the mobile layouts\",\"Shared the navigation prototype\"],\"blockers\":[\"Waiting for homepage copy\"],\"nextMilestone\":{\"title\":\"Design sign-off\",\"due\":\"2026-11-24\",\"goto\":\"projects_gates\"},\"postGoto\":\"projects_check_in\"}",
+      "{\"c\":\"ProjectStatus\",\"density\":null,\"surface\":null,\"detail\":null,\"projectRef\":\"folio\",\"status\":\"at_risk\",\"headline\":\"Design is ready for review\",\"author\":\"Jo Lee\",\"updatedAt\":\"2026-11-19\",\"wins\":[\"Finished the mobile layouts\",\"Shared the navigation prototype\"],\"blockers\":[\"Waiting for homepage copy\"],\"nextMilestone\":{\"title\":\"Design sign-off\",\"due\":\"2026-11-24\",\"goto\":\"projects_gates\"},\"postGoto\":\"projects_check_in\"}"
+    ]
+  },
+  "ProjectStatus%2Fwrite%2FFor%20project%20folio%2C%20show%20Jo%20Lee's%202026-11-19%20health%20check-in%3A%20At%20risk.%20Headline%3A%20Design%20is%20ready%20for%20review.%20Wins%3A%20Finished%20the%20mobile%20layouts%20and%20Shared%20the%20navigation%20prototype.%20Blocker%3A%20Waiting%20for%20homepage%20copy.%20Design%20sign-off%20is%20due%202026-11-24%3B%20link%20it%20to%20projects_gates.%20Post%20check-in%20opens%20projects_check_in./b890965ebec84da3/543612796545d495": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nProjectStatus: Report a project's health, recent wins and current blockers, with the next milestone and a link to post another check-in.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", projectRef: text≤32, status?: on_track|at_risk|blocked=\"on_track\", headline: text≤80, author?: text≤24, updatedAt: date YYYY-MM-DD, wins: [0..3 text≤80], blockers: [0..3 text≤80], nextMilestone?: { title: text≤32, due: date YYYY-MM-DD, goto?: id snake_case }, postGoto?: id snake_case }\nRule: Use the reported health as status, never infer it from dates. Use the latest check-in date for updatedAt; use nextMilestone only when supplied. Days until the milestone are computed.\nRule: Set detail \"brief\" for a headline-only check-in with its health badge and check-in date; keep wins, blockers and links in the data.\nexample: {\"c\":\"ProjectStatus\",\"projectRef\":\"folio\",\"status\":\"at_risk\",\"headline\":\"Design is ready for review\",\"author\":\"Jo Lee\",\"updatedAt\":\"2026-11-19\",\"wins\":[\"Finished the mobile layouts\",\"Shared the navigation prototype\"],\"blockers\":[\"Waiting for homepage copy\"],\"nextMilestone\":{\"title\":\"Design sign-off\",\"due\":\"2026-11-24\",\"goto\":\"projects_gates\"},\"postGoto\":\"projects_check_in\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: For project folio, show Jo Lee's 2026-11-19 health check-in: At risk. Headline: Design is ready for review. Wins: Finished the mobile layouts and Shared the navigation prototype. Blocker: Waiting for homepage copy. Design sign-off is due 2026-11-24; link it to projects_gates. Post check-in opens projects_check_in.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "ProjectStatus",
+              "enum": [
+                "ProjectStatus"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "projectRef": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "on_track",
+                    "at_risk",
+                    "blocked"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "headline": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            },
+            "author": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "updatedAt": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "wins": {
+              "maxItems": 3,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              }
+            },
+            "blockers": {
+              "maxItems": 3,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              }
+            },
+            "nextMilestone": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 32
+                    },
+                    "due": {
+                      "type": "string",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                    },
+                    "goto": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "due",
+                    "goto"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "postGoto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "projectRef",
+            "status",
+            "headline",
+            "author",
+            "updatedAt",
+            "wins",
+            "blockers",
+            "nextMilestone",
+            "postGoto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"ProjectStatus\",\"density\":null,\"surface\":null,\"detail\":null,\"projectRef\":\"folio\",\"status\":\"at_risk\",\"headline\":\"Design is ready for review\",\"author\":\"Jo Lee\",\"updatedAt\":\"2026-11-19\",\"wins\":[\"Finished the mobile layouts\",\"Shared the navigation prototype\"],\"blockers\":[\"Waiting for homepage copy\"],\"nextMilestone\":{\"title\":\"Design sign-off\",\"due\":\"2026-11-24\",\"goto\":\"projects_gates\"},\"postGoto\":\"projects_check_in\"}",
+    "replies": [
+      "{\"c\":\"ProjectStatus\",\"density\":null,\"surface\":null,\"detail\":null,\"projectRef\":\"folio\",\"status\":\"at_risk\",\"headline\":\"Design is ready for review\",\"author\":\"Jo Lee\",\"updatedAt\":\"2026-11-19\",\"wins\":[\"Finished the mobile layouts\",\"Shared the navigation prototype\"],\"blockers\":[\"Waiting for homepage copy\"],\"nextMilestone\":{\"title\":\"Design sign-off\",\"due\":\"2026-11-24\",\"goto\":\"projects_gates\"},\"postGoto\":\"projects_check_in\"}",
+      "{\"c\":\"ProjectStatus\",\"density\":null,\"surface\":null,\"detail\":null,\"projectRef\":\"folio\",\"status\":\"at_risk\",\"headline\":\"Design is ready for review\",\"author\":\"Jo Lee\",\"updatedAt\":\"2026-11-19\",\"wins\":[\"Finished the mobile layouts\",\"Shared the navigation prototype\"],\"blockers\":[\"Waiting for homepage copy\"],\"nextMilestone\":{\"title\":\"Design sign-off\",\"due\":\"2026-11-24\",\"goto\":\"projects_gates\"},\"postGoto\":\"projects_check_in\"}",
+      "{\"c\":\"ProjectStatus\",\"density\":null,\"surface\":null,\"detail\":null,\"projectRef\":\"folio\",\"status\":\"at_risk\",\"headline\":\"Design is ready for review\",\"author\":\"Jo Lee\",\"updatedAt\":\"2026-11-19\",\"wins\":[\"Finished the mobile layouts\",\"Shared the navigation prototype\"],\"blockers\":[\"Waiting for homepage copy\"],\"nextMilestone\":{\"title\":\"Design sign-off\",\"due\":\"2026-11-24\",\"goto\":\"projects_gates\"},\"postGoto\":\"projects_check_in\"}"
+    ]
+  },
+  "ProjectStatus%2Fwrite%2FShow%20a%20brief%20check-in%20for%20project%20exhibit%2C%20reported%20on%20track%20on%202026-11-20%2C%20with%20headline%20Installation%20is%20on%20schedule.%20Show%20only%20its%20status%20badge%2C%20headline%20and%20check-in%20date.%20Keep%20Tested%20the%20lighting%20as%20a%20win%20in%20the%20record%2C%20but%20hide%20wins%20and%20blockers%20on%20this%20screen.%20Do%20not%20change%20spacing./27c491109b61f039/2f788919bf77a461": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nProjectStatus: Report a project's health, recent wins and current blockers, with the next milestone and a link to post another check-in.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", projectRef: text≤32, status?: on_track|at_risk|blocked=\"on_track\", headline: text≤80, author?: text≤24, updatedAt: date YYYY-MM-DD, wins: [0..3 text≤80], blockers: [0..3 text≤80], nextMilestone?: { title: text≤32, due: date YYYY-MM-DD, goto?: id snake_case }, postGoto?: id snake_case }\nRule: Use the reported health as status, never infer it from dates. Use the latest check-in date for updatedAt; use nextMilestone only when supplied. Days until the milestone are computed.\nRule: Set detail \"brief\" for a headline-only check-in with its health badge and check-in date; keep wins, blockers and links in the data.\nexample: {\"c\":\"ProjectStatus\",\"projectRef\":\"folio\",\"status\":\"at_risk\",\"headline\":\"Design is ready for review\",\"author\":\"Jo Lee\",\"updatedAt\":\"2026-11-19\",\"wins\":[\"Finished the mobile layouts\",\"Shared the navigation prototype\"],\"blockers\":[\"Waiting for homepage copy\"],\"nextMilestone\":{\"title\":\"Design sign-off\",\"due\":\"2026-11-24\",\"goto\":\"projects_gates\"},\"postGoto\":\"projects_check_in\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show a brief check-in for project exhibit, reported on track on 2026-11-20, with headline Installation is on schedule. Show only its status badge, headline and check-in date. Keep Tested the lighting as a win in the record, but hide wins and blockers on this screen. Do not change spacing.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "ProjectStatus",
+              "enum": [
+                "ProjectStatus"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "projectRef": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "on_track",
+                    "at_risk",
+                    "blocked"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "headline": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            },
+            "author": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "updatedAt": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "wins": {
+              "maxItems": 3,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              }
+            },
+            "blockers": {
+              "maxItems": 3,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              }
+            },
+            "nextMilestone": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 32
+                    },
+                    "due": {
+                      "type": "string",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                    },
+                    "goto": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "due",
+                    "goto"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "postGoto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "projectRef",
+            "status",
+            "headline",
+            "author",
+            "updatedAt",
+            "wins",
+            "blockers",
+            "nextMilestone",
+            "postGoto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"ProjectStatus\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"projectRef\":\"exhibit\",\"status\":\"on_track\",\"headline\":\"Installation is on schedule\",\"author\":null,\"updatedAt\":\"2026-11-20\",\"wins\":[\"Tested the lighting\"],\"blockers\":[],\"nextMilestone\":null,\"postGoto\":null}",
+    "replies": [
+      "{\"c\":\"ProjectStatus\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"projectRef\":\"exhibit\",\"status\":\"on_track\",\"headline\":\"Installation is on schedule\",\"author\":null,\"updatedAt\":\"2026-11-20\",\"wins\":[\"Tested the lighting\"],\"blockers\":[],\"nextMilestone\":null,\"postGoto\":null}",
+      "{\"c\":\"ProjectStatus\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"projectRef\":\"exhibit\",\"status\":\"on_track\",\"headline\":\"Installation is on schedule\",\"author\":null,\"updatedAt\":\"2026-11-20\",\"wins\":[\"Tested the lighting\"],\"blockers\":[],\"nextMilestone\":null,\"postGoto\":null}",
+      "{\"c\":\"ProjectStatus\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"projectRef\":\"exhibit\",\"status\":\"on_track\",\"headline\":\"Installation is on schedule\",\"author\":null,\"updatedAt\":\"2026-11-20\",\"wins\":[\"Tested the lighting\"],\"blockers\":[],\"nextMilestone\":null,\"postGoto\":null}"
+    ]
+  },
+  "ProjectStatus%2Fwrite%2FShow%20a%20brief%20check-in%20for%20project%20exhibit%2C%20reported%20on%20track%20on%202026-11-20%2C%20with%20headline%20Installation%20is%20on%20schedule.%20Show%20only%20its%20status%20badge%2C%20headline%20and%20check-in%20date.%20Keep%20Tested%20the%20lighting%20as%20a%20win%20in%20the%20record%2C%20but%20hide%20wins%20and%20blockers%20on%20this%20screen.%20Do%20not%20change%20spacing./5e3b11f7a5e53a32/2f788919bf77a461": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nProjectStatus: Report a project's health, recent wins and current blockers, with the next milestone and a link to post another check-in.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", projectRef: text≤32, status?: on_track|at_risk|blocked=\"on_track\", headline: text≤80, author?: text≤24, updatedAt: date YYYY-MM-DD, wins: [0..3 text≤80], blockers: [0..3 text≤80], nextMilestone?: { title: text≤32, due: date YYYY-MM-DD, goto?: id snake_case }, postGoto?: id snake_case }\nRule: Use the reported health as status, never infer it from dates. Use the latest check-in date for updatedAt; use nextMilestone only when supplied. Days until the milestone are computed.\nRule: Set detail \"brief\" for a headline-only check-in with its health badge and check-in date; keep wins, blockers and links in the data.\nexample: {\"c\":\"ProjectStatus\",\"projectRef\":\"folio\",\"status\":\"at_risk\",\"headline\":\"Design is ready for review\",\"author\":\"Jo Lee\",\"updatedAt\":\"2026-11-19\",\"wins\":[\"Finished the mobile layouts\",\"Shared the navigation prototype\"],\"blockers\":[\"Waiting for homepage copy\"],\"nextMilestone\":{\"title\":\"Design sign-off\",\"due\":\"2026-11-24\",\"goto\":\"projects_gates\"},\"postGoto\":\"projects_check_in\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show a brief check-in for project exhibit, reported on track on 2026-11-20, with headline Installation is on schedule. Show only its status badge, headline and check-in date. Keep Tested the lighting as a win in the record, but hide wins and blockers on this screen. Do not change spacing.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "ProjectStatus",
+              "enum": [
+                "ProjectStatus"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "projectRef": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "on_track",
+                    "at_risk",
+                    "blocked"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "headline": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            },
+            "author": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "updatedAt": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "wins": {
+              "maxItems": 3,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              }
+            },
+            "blockers": {
+              "maxItems": 3,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              }
+            },
+            "nextMilestone": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 32
+                    },
+                    "due": {
+                      "type": "string",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                    },
+                    "goto": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "due",
+                    "goto"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "postGoto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "projectRef",
+            "status",
+            "headline",
+            "author",
+            "updatedAt",
+            "wins",
+            "blockers",
+            "nextMilestone",
+            "postGoto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"ProjectStatus\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"projectRef\":\"exhibit\",\"status\":\"on_track\",\"headline\":\"Installation is on schedule\",\"author\":null,\"updatedAt\":\"2026-11-20\",\"wins\":[\"Tested the lighting\"],\"blockers\":[],\"nextMilestone\":null,\"postGoto\":null}",
+    "replies": [
+      "{\"c\":\"ProjectStatus\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"projectRef\":\"exhibit\",\"status\":\"on_track\",\"headline\":\"Installation is on schedule\",\"author\":null,\"updatedAt\":\"2026-11-20\",\"wins\":[\"Tested the lighting\"],\"blockers\":[],\"nextMilestone\":null,\"postGoto\":null}",
+      "{\"c\":\"ProjectStatus\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"projectRef\":\"exhibit\",\"status\":\"on_track\",\"headline\":\"Installation is on schedule\",\"author\":null,\"updatedAt\":\"2026-11-20\",\"wins\":[\"Tested the lighting\"],\"blockers\":[],\"nextMilestone\":null,\"postGoto\":null}",
+      "{\"c\":\"ProjectStatus\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"projectRef\":\"exhibit\",\"status\":\"on_track\",\"headline\":\"Installation is on schedule\",\"author\":null,\"updatedAt\":\"2026-11-20\",\"wins\":[\"Tested the lighting\"],\"blockers\":[],\"nextMilestone\":null,\"postGoto\":null}"
+    ]
+  }
+}

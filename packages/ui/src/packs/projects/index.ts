@@ -22,4 +22,6 @@ export const example = `{"id":"h1","c":"Header","style":"back","title":"Folio we
 {"id":"m1","c":"Milestones","projectRef":"folio","style":"cards","gates":[{"title":"Plan sign-off","due":"2026-11-18","requires":["sitemap"],"goto":"projects_scope"},{"title":"Design ready","due":"2026-11-24","requires":["home_design","about_design","contact_design"],"goto":"projects_scope"},{"title":"Send files","due":"2026-11-27","requires":["handoff"],"goto":"projects_scope"}]}
 {"id":"n4","c":"Note","text":"A gate is reached when every required output is accepted."}
 {"id":"b5","c":"Button","label":"See schedule","goto":"projects_ranges"}
+{"id":"h6","c":"Header","title":"Project overview"}
+{"id":"ps1","c":"ProjectStatus","projectRef":"folio","status":"at_risk","headline":"Design is ready for review","author":"Jo","updatedAt":"2026-11-19","wins":["Finished the mobile layouts","Shared the navigation prototype"],"blockers":["Waiting for homepage copy"],"nextMilestone":{"title":"Design ready","due":"2026-11-24","goto":"projects_gates"}}
 `;
