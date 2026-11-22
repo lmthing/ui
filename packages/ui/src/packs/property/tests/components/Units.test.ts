@@ -136,8 +136,8 @@ describe("Units states, parts and actions", () => {
     expect(parts.has("home/u1/r1/photo")).toBe(false);
     expect(addressedElements(draw(thumbnail)).has("home/u1/r1/photo")).toBe(true);
     const read = readComponent(components.Units, register, "u1").join("\n");
-    expect(read).toContain("occupied · Asha · $900 / month");
-    expect(read).toContain("vacant · $1,050 / month");
+    expect(read).toContain("Occupied · Asha · $900 / month");
+    expect(read).toContain("Vacant · $1,050 / month");
     expect(read).toContain("Occupancy date: 18 Nov 2026 (2026-11-18)");
     expect(read).toContain("[u1/date set]");
     expect(read).not.toContain("photo:home");
