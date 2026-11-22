@@ -18,7 +18,7 @@ import {
   type Definition,
 } from "@lmthing/ui/catalog";
 
-const ids = ["Article", "Library", "Collection", "Playlist", "ChapterList", "MiniPlayer", "Highlights"];
+const ids = ["Library", "Collection", "Playlist", "ChapterList", "MiniPlayer", "Highlights"];
 const core = createRegistry();
 const scoped = createRegistry({ packs: ["media"], includeDrafts: true });
 const defs: Record<string, Definition> = components;
@@ -49,6 +49,8 @@ const recipes = {
 };
 
 it("offers the ready Media pack only when selected and keeps MiniPlayer out of the Writer", () => {
+  expect(createRegistry().resolve("Article")).toBe("Article");
+  expect(Object.hasOwn(packOf, "Article")).toBe(false);
   const live = createRegistry({ packs: ["media"] });
   expect(packReady("media")).toBe(true);
   const owned = Object.entries(packOf)
@@ -71,7 +73,7 @@ it("offers the ready Media pack only when selected and keeps MiniPlayer out of t
   }
 });
 
-it("has valid examples and neutral fallbacks for all seven definitions", () => {
+it("has valid examples and neutral fallbacks for all six pack definitions", () => {
   for (const id of ids) {
     const def = defs[id]!;
     expect(def.examples.length, id).toBeGreaterThanOrEqual(2);
@@ -186,7 +188,9 @@ it("validates every Pew line with the real registry, one count-up signature and 
   expect(new Set(lines.map(({ id }) => id)).size).toBe(lines.length);
   for (const { c, id, ...props } of lines)
     expect(scoped.schema(c)?.safeParse(props).success, `${id}/${c}`).toBe(true);
-  expect(lines.map(({ c }) => c)).toEqual(expect.arrayContaining(ids.filter((id) => id !== "MiniPlayer")));
+  expect(lines.map(({ c }) => c)).toEqual(
+    expect.arrayContaining(["Article", ...ids.filter((id) => id !== "MiniPlayer")]),
+  );
   expect(lines.some(({ c }) => defs[c]?.meta.codeOwned)).toBe(false);
   expect(lines.flatMap(({ c }) => defs[c]?.meta.signature ?? [])).toEqual(["count_up"]);
 });

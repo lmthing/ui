@@ -22,6 +22,7 @@ import type {
 } from "../index";
 import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
+import { createMicCapture, type MicCaptureAdapter } from "./capture";
 import { visibleConfirmation } from "./read-controls";
 import { createPrivateMarks } from "./private-mark";
 import { createHostProjection, type HostCommandAdapter, type ParentGate } from "./host";
@@ -45,6 +46,7 @@ export type ControllerOptions = {
   defs: Record<string, Definition>;
   lang?: string | undefined;
   media?: MediaAdapter | undefined;
+  micCapture?: MicCaptureAdapter | undefined;
   resolvePlayback?: PlaybackResolver | undefined;
   attachments?: AttachmentHost | undefined;
   store?: InteractionStore | undefined;
@@ -98,6 +100,13 @@ function relativeAddress(screen: string, address: string) {
   const local = address.startsWith(`${screen}/`) ? address.slice(screen.length + 1) : address;
   return local.replace(/\/root$/, "");
 }
+function createClipboard(
+  { writeClipboard, resolveClipboardText }: ControllerOptions,
+  store: InteractionStore,
+  disposed: () => boolean,
+) {
+  return clipboardRuntime(store, disposed, writeClipboard, resolveClipboardText);
+}
 type RuntimeOptions = ControllerOptions & { clipboard?: ReturnType<typeof clipboardRuntime> };
 function createValues(
   options: ControllerOptions,
@@ -143,7 +152,6 @@ export function createControllerContext(options: RuntimeOptions, standalone = fa
     store.setMany({}),
   );
   const { withPolicy, ...projection } = host;
-  const { writeClipboard, resolveClipboardText } = options;
   return {
     standalone,
     options,
@@ -152,7 +160,8 @@ export function createControllerContext(options: RuntimeOptions, standalone = fa
     now,
     touchNow,
     store,
-    clipboard: clipboardRuntime(store, () => status.disposed, writeClipboard, resolveClipboardText),
+    micCapture: createMicCapture(options.micCapture, (address) => relativeAddress(screen.id, address)),
+    clipboard: createClipboard(options, store, () => status.disposed),
     status,
     valuesOf,
     ...projection,
@@ -163,6 +172,7 @@ export function createControllerContext(options: RuntimeOptions, standalone = fa
     expiredProgress: (values: Values, at = now()) => expiredProgress(screen, defs, values, at),
     resetValues,
     mounted: new Map<string, symbol>(),
+    hold: { parts: new Map<string, symbol>(), approval: undefined as symbol | undefined },
     anchors: new Map<string, (action: "focus" | "jump") => void>(),
     disabledParts,
     attachmentEntries,
@@ -173,18 +183,10 @@ export function createControllerContext(options: RuntimeOptions, standalone = fa
     sourceOf: (id: string) => screen.components.find((entry) => entry.id === id),
     inputOf: (entry: ScreenComponent) => entryInput(defs, entry),
     notifyChange() {
-      if (!options.onChange || !host.admitted()) return;
-      const updated = projectScreen(
-        screen,
-        defs,
-        valuesOf(),
-        now(),
-        status.openSheet,
-        true,
-        true,
-        options.deviceData,
-      );
-      options.onChange(updated, store.snapshot());
+      const { onChange, deviceData: data } = options;
+      if (!onChange || !host.admitted()) return;
+      const updated = projectScreen(screen, defs, valuesOf(), now(), status.openSheet, true, true, data);
+      onChange(updated, store.snapshot());
     },
   };
 }

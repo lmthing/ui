@@ -2,6 +2,7 @@ import { actionFailure } from "../../actions";
 import { offersReveal } from "../offers";
 import type { ControllerContext } from "../context";
 import type { createAct } from "../dispatch";
+import { holdFailure } from "../hold";
 
 type AuthResult = "approved" | "denied" | "unavailable";
 export type AuthenticateReveal = (request: {
@@ -92,13 +93,15 @@ export function createReveal(ctx: ControllerContext) {
   };
   const dispatch =
     (act: Act): Act =>
-    (steps, opts, markToken) => {
+    (steps, opts, markToken, approval) => {
       if (markToken !== undefined) return act(steps, opts, markToken);
       const list = Array.isArray(steps) ? steps : [steps];
       const index = list.findIndex(({ address, action }) => action === "press" && isRevealControl(address));
-      if (index < 0) return act(steps, opts);
+      if (index < 0) return act(steps, opts, undefined, approval);
       const step = list[index]!;
       const address = ctx.relative(step.address);
+      const hold = holdFailure(ctx, address, step.action, index, approval);
+      if (hold) return hold;
       if (opts?.agent || list.length !== 1 || !eligible(address))
         return actionFailure(index, "not_actionable", "Reveal requires a local press");
       if (step.value !== undefined || step.recordTarget !== undefined)

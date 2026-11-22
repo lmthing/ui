@@ -63,6 +63,7 @@ export function controllerLifecycle(
     sequence.tick();
   };
   const admission = watchAdmission(ctx, clock, sequence, () => {
+    if (!ctx.admitted()) ctx.micCapture.reset();
     reconcile(ctx, reveal, media);
     ctx.store.setMany({});
     if (ctx.admitted()) sequence.mount();
@@ -84,6 +85,7 @@ export function controllerLifecycle(
       ctx.status.confirmation = undefined;
       ctx.hosts.reset();
       reveal.clear();
+      ctx.micCapture.reset();
       media.reset();
       ctx.store.reset(ctx.screen.id);
       ctx.resetValues();
@@ -98,6 +100,7 @@ export function controllerLifecycle(
       reveal.dispose();
       clock.dispose();
       sequence.dispose();
+      ctx.micCapture.reset();
       media.dispose();
     },
   };

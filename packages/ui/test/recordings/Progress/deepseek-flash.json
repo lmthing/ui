@@ -1194,11 +1194,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":\"week\",\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this\",\"value\":1,\"of\":4,\"unit\":\"month\",\"tone\":null,\"goto\":null}]}",
+    "reply": "{\"c\":\"Progress\",\"density\":null,\"figures\":\"exact\",\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":null,\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this\",\"value\":1,\"of\":4,\"unit\":null,\"tone\":null,\"goto\":null}]}",
     "replies": [
-      "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":\"week\",\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this\",\"value\":1,\"of\":4,\"unit\":\"month\",\"tone\":null,\"goto\":null}]}",
-      "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":\"wk\",\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this mon\",\"value\":1,\"of\":4,\"unit\":\"mo\",\"tone\":null,\"goto\":null}]}",
-      "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":null,\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this mont\",\"value\":1,\"of\":4,\"unit\":null,\"tone\":null,\"goto\":null}]}"
+      "{\"c\":\"Progress\",\"density\":null,\"figures\":\"exact\",\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":null,\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this\",\"value\":1,\"of\":4,\"unit\":null,\"tone\":null,\"goto\":null}]}",
+      "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":\"plants\",\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this mon\",\"value\":1,\"of\":4,\"unit\":\"plants\",\"tone\":null,\"goto\":null}]}",
+      "{\"c\":\"Progress\",\"density\":null,\"figures\":\"exact\",\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":\"plants\",\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this\",\"value\":1,\"of\":4,\"unit\":\"plants\",\"tone\":null,\"goto\":null}]}"
     ]
   },
   "Progress%2Fwrite%2FTwo%20target%20bars%3A%20Steps%20walked%204%2C200%20out%20of%206%2C000%20and%20Distance%201%2C500%20out%20of%202%2C000%20metres.%20Store%20the%20exact%20values%2C%20but%20abbreviate%20the%20displayed%20numbers%20as%204.2K%2C%206K%2C%201.5K%20and%202K./9d544d07bb33b0f5/96f21f024451be28": {

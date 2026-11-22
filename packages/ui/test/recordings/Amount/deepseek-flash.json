@@ -1244,7 +1244,7 @@
     "replies": [
       "{\"c\":\"Amount\",\"density\":null,\"emphasis\":\"hero\",\"surface\":null,\"detail\":null,\"style\":null,\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":null,\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":null,\"goto\":null}",
       "{\"c\":\"Amount\",\"density\":null,\"emphasis\":\"hero\",\"surface\":null,\"detail\":null,\"style\":null,\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":null,\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":null,\"goto\":null}",
-      "{\"c\":\"Amount\",\"density\":null,\"emphasis\":\"hero\",\"surface\":null,\"detail\":null,\"style\":\"total\",\"label\":\"Savings\",\"value\":1240.50,\"currency\":\"EUR\",\"per\":null,\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":null,\"goto\":null}"
+      "{\"c\":\"Amount\",\"density\":null,\"emphasis\":\"hero\",\"surface\":null,\"detail\":null,\"style\":null,\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":null,\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":null,\"goto\":null}"
     ]
   },
   "Amount%2Fwrite%2FShow%20%C2%A372%20labelled%20Weekly%20walks.%20Store%20the%20note%20Four%20morning%20walks%20but%20hide%20it%20on%20screen./708f2ad532a3bdb6/00c7d263bee6f272": {

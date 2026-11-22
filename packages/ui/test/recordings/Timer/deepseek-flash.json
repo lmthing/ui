@@ -1578,11 +1578,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}",
+    "reply": "{\"c\":\"Timer\",\"density\":null,\"figures\":null,\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}",
     "replies": [
+      "{\"c\":\"Timer\",\"density\":null,\"figures\":null,\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}",
       "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}",
-      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}",
-      "{\"c\":\"Timer\",\"density\":null,\"figures\":null,\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}"
+      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}"
     ]
   },
   "Timer%2Fwrite%2FShow%20the%20walk's%20elapsed%20time%20of%2021%20minutes%2C%20labelled%20Walk%20timer%2C%20with%20controls%20to%20begin%20and%20end%20it/f9979945fcae8f87/d75cb6e4ba6d7c9f": {
@@ -1699,11 +1699,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Timer\",\"density\":null,\"figures\":\"exact\",\"style\":\"down\",\"label\":\"Walk timer\",\"seconds\":1260,\"until\":null,\"at\":null}",
+    "reply": "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Walk timer\",\"seconds\":1260,\"until\":null,\"at\":null}",
     "replies": [
+      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Walk timer\",\"seconds\":1260,\"until\":null,\"at\":null}",
       "{\"c\":\"Timer\",\"density\":null,\"figures\":\"exact\",\"style\":\"down\",\"label\":\"Walk timer\",\"seconds\":1260,\"until\":null,\"at\":null}",
-      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"exact\",\"style\":\"down\",\"label\":\"Walk timer\",\"seconds\":1260,\"until\":null,\"at\":null}",
-      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"exact\",\"style\":\"down\",\"label\":\"Walk timer\",\"seconds\":1260,\"until\":null,\"at\":null}"
+      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"up\",\"label\":\"Walk timer\",\"seconds\":1260,\"until\":null,\"at\":null}"
     ]
   },
   "Timer%2Fwrite%2FTime%20the%20orchid%20soak%20with%20start%20and%20stop.%20Keep%20650%20seconds%20as%20the%20starting%20value%20but%20show%20only%20whole%20minutes%2C%20like%2010%20min%20instead%20of%2010%3A50.%20Leave%20the%20spacing%20unchanged%2C%20with%20no%20density%20override./5f983e1938a5188c/a591ba36d21d7618": {
@@ -1820,9 +1820,9 @@
         }
       }
     },
-    "reply": "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Time the orchid soak\",\"seconds\":650,\"until\":null,\"at\":null}",
+    "reply": "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Soak the orchid\",\"seconds\":650,\"until\":null,\"at\":null}",
     "replies": [
-      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Time the orchid soak\",\"seconds\":650,\"until\":null,\"at\":null}",
+      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Soak the orchid\",\"seconds\":650,\"until\":null,\"at\":null}",
       "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Time the orchid soak\",\"seconds\":650,\"until\":null,\"at\":null}",
       "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Time the orchid soak\",\"seconds\":650,\"until\":null,\"at\":null}"
     ]
