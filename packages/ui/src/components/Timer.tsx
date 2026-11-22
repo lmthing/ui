@@ -191,6 +191,7 @@ export function Timer(input: TimerProps) {
   const { lang, words } = useWords();
   const { timerLabels } = words;
   const controls = style !== "until";
+  const readout = timerReadout(input, density, lang);
   const start = (
     <KitAction
       label={timerLabels.start}
@@ -202,7 +203,6 @@ export function Timer(input: TimerProps) {
   const stop = (
     <KitAction label={timerLabels.stop} kind={goal === undefined ? "secondary" : "quiet"} part="stop" full />
   );
-  const readout = timerReadout(input, density, lang);
   return (
     <KitCard style="inset" part="root" padded density={density}>
       {density === "compact" ? (

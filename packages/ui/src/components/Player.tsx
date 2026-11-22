@@ -294,6 +294,24 @@ function playerCover(
   );
 }
 
+function playerAudioSkeleton(
+  density: PlayerProps["density"],
+  artwork: PlayerProps["photo"],
+  lines: PlayerTitles["lines"],
+) {
+  return (
+    <KitCard style="inset" padded density={density}>
+      <KitSkeleton
+        shape="media"
+        inset="none"
+        playback
+        aspect={artwork ? "square" : "none"}
+        {...{ density, lines }}
+      />
+    </KitCard>
+  );
+}
+
 export function Player(input: PlayerProps) {
   const { style, title, sub, detail, photo: art, seconds, at, speed, loop, repeat } = input;
   const density = useVariant("density", meta.variants.density, input.density);
@@ -308,18 +326,7 @@ export function Player(input: PlayerProps) {
   const here = at ?? 0;
   const info = optionLines(input, lang).join(" · ");
   const lines = playerLines(title, sub, info);
-  if (loading && style === "audio")
-    return (
-      <KitCard style="inset" padded density={density}>
-        <KitSkeleton
-          shape="media"
-          inset="none"
-          playback
-          aspect={artwork ? aspect : "none"}
-          {...{ density, lines }}
-        />
-      </KitCard>
-    );
+  if (loading && style === "audio") return playerAudioSkeleton(density, artwork, lines);
   const controls = <KitMediaControls labels={mediaLabels} compact={compact} />;
   const titles = playerTitles({ title, sub, info, loading, compact, artwork, density, lines });
   const position = playerPosition({ title, here, seconds, lang, loading, style });
