@@ -1,10 +1,24 @@
-import type { ActResult, ActStep, HostIntent, ScreenLike, Values } from "../../../../catalog";
+import {
+  hasNestedCollectionControls,
+  isNestedTarget,
+  parseControlProps,
+  planAct,
+  projectAdjustments,
+  sessionEvent,
+  sessionKey,
+  stageReportEdit,
+  type ActResult,
+  type ActStep,
+  type HostIntent,
+  type RandomSource,
+  type ScreenLike,
+  type Values,
+} from "../../../../catalog";
+import { planHostAct } from "../../../../catalog/agent/action-input";
 import { selectedStep, stageConfirmedClear, type ActReply } from "../../index";
 import { actionFailure, type ActionContext, type ActionState } from "../../actions";
 import type { ControllerContext, MediaRuntime, ScreenComponent } from "../index";
-import { confirmReport, dispatchPlan, inactive, introducedPart, mediaContext } from "./introduced-part";
-import { matchesMediaConfirmation } from "../media";
-import { actionInput, disabledHint } from "./action-input";
+import { matchesMediaConfirmation, mediaActionContext } from "../media";
 
 export type PreparedAction = {
   state: ActionState;
@@ -36,7 +50,8 @@ function confirmedValues(
       ? plan.values
       : stageConfirmedClear(ctx.screen.id, entry, input, ctx.defs[entry.c]!, selected, plan.values);
   if (!values) return { error: actionFailure(at, "invalid_value", "Clear conflicts with component props") };
-  if (confirmReport(ctx, active, values, selected, confirmed.removal) === false)
+  const edit = { kind: "confirm" as const, now: ctx.now(), removal: confirmed.removal };
+  if (stageReportEdit(active, ctx.defs, values, selected, edit, ctx.options.deviceData) === false)
     return { error: actionFailure(at, "invalid_value", "Confirmation conflicts with report props") };
   return { values };
 }
@@ -96,7 +111,117 @@ export function prepareStep(
       now: ctx.now,
       key: ctx.key,
       options: ctx.options,
-      ...mediaContext(media),
+      ...mediaActionContext(media),
     },
   };
+}
+
+function actionInput(ctx: ControllerContext, entry: ScreenComponent, values: Values) {
+  try {
+    return parseActionInput(ctx, entry, values);
+  } catch {
+    return undefined;
+  }
+}
+
+function parseActionInput(ctx: ControllerContext, entry: ScreenComponent, values: Values) {
+  const def = ctx.defs[entry.c]!;
+  const get = (part: string) => values[ctx.key(entry.id, part)];
+  if (ctx.standalone) {
+    const { meta } = def;
+    const { id: _id, c: _c, state: _state, ...raw } = entry;
+    const { session, successActions, errorActions, live } = meta;
+    const useParsed =
+      meta.items?.reset ||
+      (meta.confirmParts?.length &&
+        (session || successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits));
+    return useParsed ? parseControlProps(def, raw, get) : raw;
+  }
+  const input = ctx.inputOf(entry);
+  return def.meta.items?.set ? projectAdjustments(def.meta, input, get) : input;
+}
+
+function disabledHint(component: string, action: string, input: Values) {
+  if (component === "Composer" && action === "send" && !String(input.value ?? "").trim())
+    return "Write a reply before sending";
+  if (component === "Counter" && action === "decrement" && Number(input.value) < Number(input.step))
+    return "The counter cannot go below zero";
+}
+
+export function inactive(ctx: ControllerContext, entry: ScreenComponent) {
+  if (ctx.standalone || !entry.state || entry.state === "filled") return false;
+  const { draw, emptyActions, errorActions, loadingActions, session, successActions } =
+    ctx.defs[entry.c]!.meta;
+  return (
+    !draw &&
+    !emptyActions?.length &&
+    !errorActions?.length &&
+    !loadingActions?.length &&
+    !session &&
+    !successActions?.length
+  );
+}
+
+/** Check whether an earlier step introduced the part before the view could update. */
+function introducedPart(
+  ctx: ControllerContext,
+  staged: { sheet: string | undefined; values: Values },
+  entry: ScreenComponent,
+  action: ActStep,
+  strict = false,
+) {
+  const initial = ctx.valuesOf();
+  const cursor = ctx.key(entry.id, "$cursor");
+  if (!strict && entry.c === "Sheet" && staged.sheet !== ctx.status.openSheet) return true;
+  if (!strict && entry.c === "SwipeStack" && staged.values[cursor] !== initial[cursor]) return true;
+  const target = action.address.split("/").slice(1).join("/") || "root";
+  const key = ctx.key(entry.id, sessionKey);
+  const meta = ctx.defs[entry.c]!.meta;
+  const session = staged.values[key] !== initial[key] && sessionEvent(meta, target, action.action);
+  const nested = !strict && meta.items?.nested?.activeParent && isNestedTarget(meta, target);
+  const prefix = `${ctx.screen.id}/${entry.id}/`;
+  const gated =
+    (meta.live?.derive ||
+      meta.live?.toggles ||
+      meta.localState ||
+      meta.collections ||
+      (hasNestedCollectionControls(meta) && isNestedTarget(meta, target)) ||
+      (isNestedTarget(meta, target) && (action.action === "increment" || action.action === "decrement")) ||
+      meta.select?.runtime ||
+      meta.dateSpan ||
+      meta.linkedEdits ||
+      meta.items?.visibleWhen ||
+      meta.items?.edits ||
+      meta.signOff) &&
+    Object.keys(staged.values).some((key) => key.startsWith(prefix) && staged.values[key] !== initial[key]);
+  if (!session && !nested && !gated) return false;
+  const sheet = ctx.status.openSheet;
+  const source = ctx.liveScreen(initial, sheet, Boolean(sheet));
+  const plan = dispatchPlan(ctx, source, initial, action, null);
+  return !plan.ok && (Boolean(session) || plan.code === "not_actionable");
+}
+
+export function dispatchPlan(
+  ctx: ControllerContext,
+  screen: ScreenLike,
+  values: Values,
+  step: ActStep,
+  random: RandomSource | null | undefined,
+  markToken?: symbol,
+) {
+  if (markToken) {
+    if (!ctx.mounted.has(step.address)) return { ok: false as const, code: "not_mounted" as const, at: 0 };
+    return planHostAct(screen, ctx.defs, values, step, ctx.privateMarks, markToken, ctx.options.deviceData);
+  }
+  return planAct(
+    screen,
+    ctx.defs,
+    values,
+    [{ ...step, address: `${screen.id}/${step.address}` }],
+    random,
+    ctx.standalone ? "planner" : "controller",
+    ctx.options.deviceData,
+    ctx.now(),
+    ctx.touchNow,
+  );
 }

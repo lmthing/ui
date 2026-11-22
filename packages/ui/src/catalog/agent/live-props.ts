@@ -7,14 +7,14 @@ import type { DeviceData, Values } from "./index";
 import { projectDeviceFlags, projectDeviceRows } from "./device-data";
 import { projectDraw } from "./draw";
 import { projectBuzz } from "./buzz";
-import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
+import { projectLiveInputs, projectLocalState, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
 import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
-import { projectCollections, projectDerivedMoves, projectMoves } from "./action-input";
+import { projectCollections, projectDerivedMoves, projectMoves } from "./collections";
 import { hasWireNestedControls, nestedChoiceSeed } from "./nested";
 import { dateSpanKey, projectDateSpan } from "./date-span";
 import { projectSequence } from "./media";
-import { projectLocalState, projectRecordRuntime } from "./record-runtime";
+import { projectRecordRuntime } from "./record-runtime";
 import {
   hasLiveAdjustments,
   projectAdjustments,
@@ -196,4 +196,22 @@ export function liveProps(
       values[`${instance}/${String(item.id)}`] === false ? { ...item, body: undefined } : item,
     );
   return projectBuzz(meta, { ...props, [key]: items }, get);
+}
+
+export function localValues(screen: string, values: Values): Values {
+  return Object.fromEntries(
+    Object.entries(values).map(([address, value]) => [address.replace(`${screen}/`, ""), value]),
+  );
+}
+
+export function projectLiveInput(
+  def: Definition,
+  input: Values,
+  id: string,
+  local: Values,
+  data?: DeviceData,
+  now?: number,
+) {
+  const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
+  return liveProps(def.meta, parsed, id, local, true, data, now);
 }
