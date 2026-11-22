@@ -6,7 +6,7 @@ Built in step U7 (drafts in U3), wave 5 of the catalog plan. Read `docs/catalog/
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
-- `components/`: `Table.tsx` `Board.tsx` `LineChart.tsx` `Heatmap.tsx` `BulkActions.tsx` `ActivityLog.tsx` `Funnel.tsx`
+- `components/`: `Table.tsx` `Board.tsx` `LineChart.tsx` `Heatmap.tsx` `BulkActions.tsx` `ActivityLog.tsx` `Funnel.tsx` `SavedViews.tsx`
 - The worked example and archetypes also use core `FilterBar` (no pack-owned export).
 - `archetypes/`: `admin-list.ts` `report.ts` `board.ts`
 

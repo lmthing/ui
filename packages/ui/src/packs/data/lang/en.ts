@@ -30,6 +30,12 @@ export type DataWords = {
   heatReading: (label: string, values: readonly string[]) => string;
   heatValue: (day: string, slot: string, value: string, unit: string) => string;
   heatWeek: (week: string, short?: boolean) => string;
+  savedViews: {
+    title: string;
+    save: string;
+    remove: (label: string) => string;
+    success: string;
+  };
   tableColumn: (label: string, position: string) => string;
   tableCount: (count: string, form: LDMLPluralRule) => string;
   tablePick: (label: string) => string;
@@ -68,6 +74,12 @@ export const en = {
   heatReading: (label, values) => `${label}: ${values.join(" · ")}`,
   heatValue: (day, slot, value, unit) => `${day}, ${slot}: ${value} ${unit}`,
   heatWeek: (week, short) => (short ? `W${week}` : `Week ${week}`),
+  savedViews: {
+    title: "Saved views",
+    save: "Save current view",
+    remove: (label) => `Remove ${label}`,
+    success: "Saved views updated",
+  },
   tableColumn: (label, position) => `${position}. ${label}`,
   tableCount: (count, form) => (form === "one" ? `${count} row` : `${count} rows`),
   tablePick: (label) => `Select ${label}`,
