@@ -33,7 +33,7 @@ export function KitScannerToggle({
       accessibilityRole="button"
       accessibilityLabel={label}
       aria-disabled={inactive || undefined}
-      tabIndex={inactive ? -1 : undefined}
+      {...(inactive ? { tabIndex: -1 } : {})}
       alignSelf="stretch"
       alignItems="center"
       justifyContent="center"

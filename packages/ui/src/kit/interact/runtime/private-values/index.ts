@@ -7,7 +7,6 @@ import { trackPrivateOperations, type PrivateResult } from "./operations";
 import { createReveal } from "./reveal";
 import { createScannerBrightness } from "./scanner-brightness";
 export type { AuthenticateReveal } from "./reveal";
-export type { ScannerBrightnessAdapter } from "./scanner-brightness";
 
 export type { PrivateResult, PrivateStatus } from "./operations";
 type HostResult = PrivateResult | Promise<PrivateResult>;

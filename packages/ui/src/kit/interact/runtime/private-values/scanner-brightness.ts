@@ -2,13 +2,7 @@ import { actionFailure } from "../../actions";
 import type { ControllerContext } from "../context";
 import type { createAct } from "../dispatch";
 import { offersAt } from "../offers";
-
-/** Raise brightness for the lifetime of the signal. On abort, restore the previous level. */
-export type ScannerBrightnessAdapter = (request: {
-  address: string;
-  tier: "ok";
-  signal: AbortSignal;
-}) => boolean | Promise<boolean>;
+import type { ScannerBrightnessAdapter } from "../host";
 
 type Status = "off" | "pending" | "on" | "failed";
 type Lease = {
@@ -107,7 +101,7 @@ export function createScannerBrightness(ctx: ControllerContext) {
       const step = list[at]!;
       const address = ctx.relative(step.address);
       const adapter = ctx.options.hostCommands?.scannerBrightness;
-      if (options?.agent || list.length !== 1 || !adapter || !eligible(address))
+      if (options?.agent || Array.isArray(steps) || !adapter || !eligible(address))
         return actionFailure(
           at,
           "not_actionable",

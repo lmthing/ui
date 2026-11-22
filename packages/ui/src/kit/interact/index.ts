@@ -42,6 +42,7 @@ export { controlStep, selectedStep, stageConfirmedClear, type ControlChange } fr
 export { projectScreen, valueKey, type TimerState } from "./live-screen";
 export {
   createParentGate,
+  createScannerBrightnessAdapter,
   type HostCommandAdapter,
   type HostCommandResult,
   type ParentGate,

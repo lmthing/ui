@@ -1,6 +1,11 @@
 import { expect, it, vi } from "vitest";
 import { components, planAct } from "@lmthing/ui/catalog";
-import { createAgentAccess, createScreenController, type ScannerBrightnessAdapter } from "@lmthing/ui/kit";
+import {
+  createAgentAccess,
+  createScannerBrightnessAdapter,
+  createScreenController,
+  type ScannerBrightnessAdapter,
+} from "@lmthing/ui/kit";
 import { createPreviewController } from "../../../../../apps/gallery/app/draw";
 
 const def = components.PassCard;
@@ -52,6 +57,7 @@ it("leases brightness only for one mounted local toggle, never for a plan or age
     expect(agent.read()).not.toContain(input.code);
     expect(agent.act(step, { agent: false }).ok).toBe(false);
     expect(planAct(screen, defs, {}, [step]).ok).toBe(false);
+    expect(controller.act([step]).ok).toBe(false);
     expect(controller.act([step, step]).ok).toBe(false);
     expect(controller.act({ ...step, value: true }).ok).toBe(false);
     expect(controller.act(step, { dryRun: true })).toMatchObject({ ok: true, dryRun: true });
@@ -108,6 +114,7 @@ it("stays unzoomed without a host or after a rejection and allows a retry", asyn
   const { controller, replace } = setup();
   try {
     controller.registerPart(address);
+    expect(controller.read()).not.toContain("c1/bright toggle");
     expect(controller.press(address).ok).toBe(false);
     replace(async () => {
       throw new Error("Denied");
@@ -116,10 +123,53 @@ it("stays unzoomed without a host or after a rejection and allows a retry", asyn
     await Promise.resolve();
     expect(controller.scannerBrightnessStatus(address)).toBe("failed");
     replace(() => true);
+    expect(controller.read()).toContain("[c1/bright toggle !needs-ok]");
     expect(controller.press(address).ok).toBe(true);
     expect(controller.scannerBrightnessStatus(address)).toBe("on");
+    replace();
+    expect(controller.read()).not.toContain("c1/bright toggle");
+    expect(controller.scannerBrightnessStatus(address)).toBe("off");
   } finally {
     controller.dispose();
+  }
+});
+
+it("serializes reopening across controllers behind delayed restoration of the physical brightness", async () => {
+  let level = 0.4;
+  let finishRestore!: () => void;
+  const blockedRestore = new Promise<void>((resolve) => {
+    finishRestore = resolve;
+  });
+  const read = vi.fn(() => level);
+  const write = vi.fn(async (next: number) => {
+    if (next === 0.4) await blockedRestore;
+    level = next;
+  });
+  const adapter = createScannerBrightnessAdapter({ read, write });
+  const first = setup(adapter).controller,
+    second = setup(adapter).controller;
+  try {
+    first.registerPart(address);
+    second.registerPart(address);
+    expect(first.press(address).ok).toBe(true);
+    await vi.waitFor(() => expect(first.scannerBrightnessStatus(address)).toBe("on"));
+    expect(level).toBe(1);
+    expect(first.press(address).ok).toBe(true);
+    expect(second.press(address).ok).toBe(true);
+    await vi.waitFor(() => expect(write).toHaveBeenNthCalledWith(2, 0.4));
+    expect(read).toHaveBeenCalledTimes(1);
+    expect(second.scannerBrightnessStatus(address)).toBe("pending");
+    finishRestore();
+    await vi.waitFor(() => expect(second.scannerBrightnessStatus(address)).toBe("on"));
+    expect(read).toHaveNthReturnedWith(2, 0.4);
+    expect(level).toBe(1);
+    expect(second.press(address).ok).toBe(true);
+    await vi.waitFor(() => expect(level).toBe(0.4));
+    expect(write.mock.calls).toEqual([[1], [0.4], [1], [0.4]]);
+  } finally {
+    finishRestore();
+    first.dispose();
+    second.dispose();
   }
 });
 

@@ -18,7 +18,7 @@ import {
   type ActionState,
 } from "../../actions";
 import type { ControllerContext } from "../index";
-import type { ScannerBrightnessAdapter } from "../private-values";
+import type { ScannerBrightnessAdapter } from "./scanner-brightness";
 
 export type HostCommandResult =
   { status: "accepted"; records?: HostRecords } | { status: "rejected"; records?: HostRecords };

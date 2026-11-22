@@ -17,10 +17,12 @@ export {
   allowsDestination,
   bindParentGatePart,
   createParentGate,
+  createScannerBrightnessAdapter,
   type HostCommandAdapter,
   type HostCommandResult,
   type ParentGate,
   type ParentGateProof,
+  type ScannerBrightnessAdapter,
 } from "./host";
 export {
   createPrivateControls,
@@ -28,7 +30,6 @@ export {
   type PrivateValuesHost,
   type PrivateResult,
   type PrivateStatus,
-  type ScannerBrightnessAdapter,
 } from "./private-values";
 export {
   privateMarkRegistration,
