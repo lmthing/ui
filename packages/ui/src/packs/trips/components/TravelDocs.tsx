@@ -120,15 +120,15 @@ function DocumentRow({ doc, tripEnds, density, detail }: Pick<TravelDocsProps, "
 }) {
   const { lang, words: { travelDocs: words } } = kit.useWords(tripsWordsFor);
   const { kind, number, expires, warning } = travelDocLines(doc, tripEnds, lang);
-  const emphasis = density === "compact" ? "hero" : "normal";
-  return <kit.KitRow item={doc.id} role="button" label={words.open(kind, doc.who)} lineRole="heading" {...{ density, emphasis }}
+  return <kit.KitRow item={doc.id} role="button" label={words.open(kind, doc.who)} density={density}
     leading={<kit.KitIcon name={icons[doc.kind]} decorative />}
     trailing={<kit.KitTrail kind="chevron" part="trail" />}>
-    <kit.KitText part="kind" role="heading" {...{ density, emphasis }}>{kind}</kit.KitText>
-    <kit.KitText part="who" tone="muted" density={density}>{doc.who}</kit.KitText>
-    {detail === "full" && <kit.KitText part="number" role="caption" tone="muted" density={density}>{number}</kit.KitText>}
-    <kit.KitText part="expires" role="caption" tone="muted" density={density}>{expires}</kit.KitText>
-    {warning && <kit.KitText part="warning" role="caption" tone={warning.tone} density={density}>{warning.label}</kit.KitText>}
+    <kit.KitMetaLine density={density} title={{ text: kind, part: "kind" }} meta={[
+      { text: doc.who, part: "who", role: "body" },
+      ...(detail === "full" ? [{ text: number, part: "number", role: "caption" } as const] : []),
+      { text: expires, part: "expires", role: "caption", tone: "text" },
+      ...(warning ? [{ text: warning.label, part: "warning", role: "caption", tone: warning.tone } as const] : []),
+    ]} />
   </kit.KitRow>;
 }
 
@@ -136,15 +136,17 @@ function DocumentRow({ doc, tripEnds, density, detail }: Pick<TravelDocsProps, "
 export function TravelDocs(input: TravelDocsProps) {
   const { docs, tripEnds, surface, detail } = input;
   const state = kit.useComponentState();
-  const { lang } = kit.useWords(tripsWordsFor);
+  const { lang, words } = kit.useWords(tripsWordsFor);
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const trip = travelDocsTripEnd(tripEnds, lang);
   return <kit.KitCard surface={surface} density={density} part="root" padded={state !== "empty"} inset="none">
-    {state === "empty" ? <kit.KitEmpty icon="file_text" part="empty" decorativeIcon /> : <kit.KitContent density={density}>
+    <kit.KitState icon="file_text" part="empty" message={words.travelDocs.empty} density={density}>
       {trip && <kit.KitContent inset="md" density={density}>
         <kit.KitText part="trip_ends" role="caption" tone="muted" density={density}>{trip}</kit.KitText>
       </kit.KitContent>}
-      {docs.map((doc) => <DocumentRow key={doc.id} {...{ doc, tripEnds, detail, density }} />)}
-    </kit.KitContent>}
+      <kit.KitRowGroup density={density}>
+        {docs.map((doc) => <DocumentRow key={doc.id} {...{ doc, tripEnds, detail, density }} />)}
+      </kit.KitRowGroup>
+    </kit.KitState>
   </kit.KitCard>;
 }

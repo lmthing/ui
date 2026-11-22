@@ -4,6 +4,7 @@ import { TamaguiProvider } from "tamagui";
 import {
   components,
   createRegistry,
+  packReady,
   space,
   stampItemIds,
   themeName,
@@ -58,7 +59,8 @@ it("draws a single cabin preview with its fee and preserves targets in the compa
   const html = render(<CabinSeats {...cabin} style="compact" selection={{ row: 4, col: "A" }} />);
   expect(html).toContain('aria-colcount="4"');
   expect(html).toContain('aria-rowcount="3"');
-  expect(html.includes("Upgrade fee: $0<")).toBe(true);
+  expect(partText(html, "fee_label")).toBe("Upgrade fee");
+  expect(partText(html, "fee")).toBe("$0");
   expect(html.match(/aria-selected="true"/g)).toHaveLength(1);
   expect(elementAt(html, `${prefix}r7/root`).attributes).toContain(
     "4A · Selected · Extra legroom · Exit row",
@@ -78,7 +80,7 @@ it("does not confirm an occupied seat or create a new Writer entry", () => {
   expect([...addressedElements(loading).keys()]).toEqual([`${prefix}root`]);
   const registry = createRegistry({ packs: ["trips"] });
   expect(registry.ids).toContain("Itinerary");
-  expect(createRegistry({ packs: ["trips"], includeDrafts: true }).ids).not.toContain("CabinSeats");
+  expect(registry.ids.includes("CabinSeats")).toBe(packReady("trips"));
 });
 
 it.each([
