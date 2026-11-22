@@ -24,7 +24,14 @@ it("localizes a selected clock reading and the latest advantage", () => {
     ),
   ).toEqual([
     "Win probability",
+    "Lions vs Fern",
     "55′ · 42,5 % · Fern +7,5 pp",
+    "55′ · Fern +7,5 pp",
+    "55′",
+    "Lions (home)",
+    "42.5",
+    "50",
+    "57.5",
     "Selected event: r2",
     "r2: 55′ · 42,5 % · Away goal",
   ]);

@@ -101,13 +101,15 @@ function activeMetrics({ metrics, periods }: MatchStatsProps, selected: number, 
   return slice.length === metrics.length ? slice : [];
 }
 
-function readStats(raw: unknown, _state: StateName, lang?: string): string[] {
+function readStats(raw: unknown, state: StateName, lang?: string): string[] {
   const input = raw as MatchStatsProps & { seedPeriodAt: number };
   const words = sportsWordsFor(lang).matchStats;
+  if (state !== "filled") return state === "empty" ? [words.empty] : [];
   const selected = input.periods[input.periodAt] ? input.periodAt : input.seedPeriodAt;
   const active = activeMetrics(input, selected, input.seedPeriodAt);
   const period = input.periods[selected];
   return [
+    words.title,
     ...(period ? [words.selectedPeriod(period)] : []),
     ...(active.length
       ? active.map(({ label, homeValue, awayValue, unit }) =>

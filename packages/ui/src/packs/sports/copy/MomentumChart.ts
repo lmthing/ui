@@ -9,6 +9,7 @@ type Match = {
   away: string;
 };
 type Reading = Match & {
+  detail?: "full" | "brief";
   points: readonly Point[];
   samples: readonly (Point & { id: string; selected?: boolean })[];
 };
@@ -43,6 +44,18 @@ export function momentumExtent(mode: Mode, points: readonly Pick<Point, "value">
   );
 }
 
+function scaleLimits(mode: Mode, points: readonly Pick<Point, "value">[]) {
+  const { baseline } = momentumSummary(mode, 0);
+  const extent = momentumExtent(mode, points);
+  return [baseline - extent, baseline, baseline + extent] as const;
+}
+
+export function momentumScale(mode: Mode, points: readonly Pick<Point, "value">[], lang?: string) {
+  const words = sportsWordsFor(lang).momentumChart;
+  const [low, even, high] = scaleLimits(mode, points).map((value) => momentumValue(mode, value, lang));
+  return words.scale(low!, high!, even!);
+}
+
 export function selectedEvent<T extends Point & { selected?: boolean }>(samples: readonly T[]) {
   let latest: T | undefined;
   for (const point of samples) {
@@ -73,7 +86,14 @@ export function momentumReading(input: Reading, lang?: string): string[] {
   const active = selectedEvent(input.samples);
   return [
     words.title[input.mode],
+    words.teams(input.home, input.away),
     words.current(last.clock, value, advantage),
+    words.latest(last.clock, advantage),
+    input.points[0]!.clock,
+    words.homeSeries(input.home),
+    ...(input.detail === "brief"
+      ? [momentumScale(input.mode, input.points, lang)]
+      : scaleLimits(input.mode, input.points).map((value) => String(Number(value.toPrecision(4))))),
     ...(active ? [words.selected(active.id)] : []),
     ...input.samples.map((point) =>
       words.event(point.id, point.clock, momentumValue(input.mode, point.value, lang), point.event),

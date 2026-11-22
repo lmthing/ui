@@ -2,9 +2,9 @@ import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import {
-  momentumExtent,
   momentumFigure,
   momentumReading,
+  momentumScale,
   momentumSummary,
   momentumTimes,
   momentumValue,
@@ -29,12 +29,21 @@ export const meta = {
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["root", "event"] } },
   parts: ["root", "plot", "event"],
-  items: { key: "samples", parts: ["root"], visibleWhen: { inspectable: true } },
+  items: {
+    key: "samples",
+    parts: ["root"],
+    addressedWhen: { detail: "full" },
+    visibleWhen: { inspectable: true },
+  },
   states: ["filled", "empty", "loading"],
   select: { prop: "selected", value: { field: "ref" }, mode: "flags", runtime: true },
   actions: { items: { root: ["select"] }, when: { root: { inspectable: true } } },
   read: (input, state, lang): string[] =>
-    state === "filled" ? momentumReading(input as Parameters<typeof momentumReading>[0], lang) : [],
+    state === "filled"
+      ? momentumReading(input as Parameters<typeof momentumReading>[0], lang)
+      : state === "empty"
+        ? [sportsWordsFor(lang).momentumChart.empty]
+        : [],
 } as const satisfies c.Meta;
 
 const point = z.strictObject({
@@ -62,17 +71,13 @@ const schema = z
   });
 
 function withSamples(input: z.output<typeof schema>) {
-  const lastEvent =
-    input.detail === "full"
-      ? input.points.reduce((last, { event }, index) => (event ? index : last), -1)
-      : -1;
   return {
     ...input,
-    samples: input.points.map(({ id: ref, ...row }, index) => ({
+    samples: input.points.map(({ id: ref, ...row }) => ({
       ...row,
       ref,
       inspectable: input.detail === "full" && !!row.event,
-      selected: index === lastEvent,
+      selected: false,
     })),
   };
 }
@@ -131,7 +136,7 @@ export const probes = [
     "Show how the home team's win probability rose and fell throughout this match, with the goals marked where they changed it.",
   ),
   choose(
-    "Put a tiny unlabelled trend under today's total walks. No axes, time labels, teams or events.",
+    "Under today's walk total, show the recent rise and fall as one tiny unlabelled line. No axes, time labels, teams or events.",
     "Sparkline",
   ),
   write(
@@ -164,7 +169,6 @@ function MatchPlot({
   const { mode, home, samples } = input;
   const { baseline } = momentumSummary(mode, 0);
   const words = sportsWordsFor(lang).momentumChart;
-  const extent = momentumExtent(mode, samples);
   const times = momentumTimes(samples);
   const points = samples.map(({ clock, value, ref }, index) => ({
     id: ref,
@@ -189,15 +193,7 @@ function MatchPlot({
       center={baseline}
       style={brief ? "compact" : "full"}
       targetPlacement={targets.length ? "marker" : "below"}
-      {...(brief
-        ? {
-            unit: words.scale(
-              momentumValue(mode, baseline - extent, lang),
-              momentumValue(mode, baseline + extent, lang),
-              momentumValue(mode, baseline, lang),
-            ),
-          }
-        : {})}
+      {...(brief ? { unit: momentumScale(mode, samples, lang) } : {})}
       {...(selected ? { selected } : {})}
     />
   );
