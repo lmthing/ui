@@ -168,7 +168,7 @@ function PathUnit({ unit, milestone, density, brief }: {
 export function Path({ units, milestones = [], detail, density: requested, surface, style }: PathProps) {
   const density = kit.useVariant("density", meta.variants.density, requested);
   const loading = kit.useComponentState() === "loading";
-  const { lang } = kit.useWords();
+  const { lang, words } = kit.useWords();
   if (style === "modules") {
     const modules = <moduleView.Modules {...{ units, milestones, density, loading }} brief={detail === "brief"} />;
     return <kit.KitCard part="root" {...{ density, surface }}>
@@ -187,6 +187,7 @@ export function Path({ units, milestones = [], detail, density: requested, surfa
     };
   });
   return <kit.KitCard part="root" padded {...{ density, surface }}>
+    {loading && <kit.KitText part={null} role="caption" tone="muted">{words.loadingLabel}</kit.KitText>}
     <kit.KitPath part={null} {...{ nodes, loading }} />
   </kit.KitCard>;
 }
