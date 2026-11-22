@@ -53,7 +53,7 @@ export function useScrollFollow(
   useLayoutEffect(() => {
     animation.current = animate;
     if (!optedIn) {
-      activity.current.offset = undefined;
+      if (isIos) activity.current.offset = undefined;
       activity.current.command = undefined;
     }
   }, [animate, optedIn]);
@@ -67,7 +67,8 @@ export function useScrollFollow(
       auto.current.until = 0;
       activity.current.lastManual = performance.now();
     },
-    nativeProps: isWeb ? {} : nativeScrollEvents(activity, optedIn),
+    // Android uses scroll events to recover interrupted drags, even before follow is configured.
+    nativeProps: isWeb ? {} : nativeScrollEvents(activity, optedIn || !isIos),
   };
 }
 
