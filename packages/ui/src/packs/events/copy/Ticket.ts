@@ -10,6 +10,7 @@ type Reading = Stamp &
     holder: string;
     detail?: "full" | "brief" | undefined;
     status?: Status | undefined;
+    transfer?: boolean | undefined;
   };
 
 export function ticketStamp({ date, time }: Stamp, lang?: string) {
@@ -51,5 +52,6 @@ export function ticketReading(input: Reading, state: StateName, lang?: string): 
       Boolean(line),
     ),
     ...(!blocked && input.detail !== "brief" ? [ticket.hint] : []),
+    ...(!blocked && input.transfer ? [ticket.transfer] : []),
   ];
 }

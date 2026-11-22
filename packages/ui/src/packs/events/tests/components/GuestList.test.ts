@@ -126,6 +126,9 @@ describe("GuestList states, parts and actions", () => {
     expect(addressedElements(render(answered)).has(address("remind"))).toBe(false);
     expect(mount(answered).press("g1/remind").ok).toBe(false);
   });
+});
+
+describe("GuestList host decisions", () => {
   it("counts new statuses and exposes decisions only for the pending RSVP", () => {
     const html = render(answered);
     const parts = addressedElements(html);

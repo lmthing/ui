@@ -66,6 +66,8 @@ export function guestListReading(
   const { guestList } = eventsWordsFor(lang);
   const stats = guestStats(guests, lang).map(({ line }) => line);
   if (guests.some(({ status }) => status === "waiting")) stats.push(guestList.remind);
+  if (guests.some(({ status }) => status === "pending_approval"))
+    stats.push(guestList.approve, guestList.decline);
   return [
     stats.join(guestList.separator),
     ...groupGuests(guests).map(({ rows, party }) =>
