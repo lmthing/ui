@@ -174,20 +174,23 @@ it("keeps all sixteen round seats separated and reachable in a narrow phone", as
     );
     expect(sizes).toHaveLength(16);
     for (const [index, a] of sizes.entries()) {
-      expect(a.width).toBe(size.control.md);
-      expect(a.height).toBe(size.control.md);
+      // DOMRect can subtract two subpixel coordinates when reporting the CSS dimensions.
+      expect(a.width).toBeCloseTo(size.control.md, 4);
+      expect(a.height).toBeCloseTo(size.control.md, 4);
       const b = sizes[(index + 1) % sizes.length]!;
       expect(Math.hypot(a.x - b.x, a.y - b.y)).toBeGreaterThan(size.control.md);
     }
     await table.press("ArrowRight");
     await expect.poll(() => table.evaluate((node) => node.scrollLeft)).toBeGreaterThan(0);
-    await table.evaluate((node) => {
-      node.scrollLeft = node.scrollWidth;
-    });
-    const last = page.getByTestId("home/c1/r5/root");
-    const viewport = (await table.boundingBox())!;
-    const seat = (await last.boundingBox())!;
-    expect(seat.x + seat.width).toBeLessThanOrEqual(viewport.x + viewport.width + 1);
+    const farSeat = page.getByTestId("home/c1/r5/root");
+    await farSeat.scrollIntoViewIfNeeded();
+    await expect
+      .poll(async () => {
+        const viewport = (await table.boundingBox())!;
+        const seat = (await farSeat.boundingBox())!;
+        return seat.x + seat.width - (viewport.x + viewport.width);
+      })
+      .toBeLessThanOrEqual(1);
   } finally {
     await page.close();
   }
