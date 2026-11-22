@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { numberLine, placeholderValue, text, wordsFor, type DeviceData } from "../../../catalog";
+import { numberLine, text, wordsFor, type DeviceData } from "../../../catalog";
 import { placesWordsFor } from "../lang";
 
 const rowKey = z.object({ line: text(6), to: text(28) });
@@ -46,10 +46,11 @@ function snapshotOf({ stop, rows }: Board<Row>, data?: DeviceData) {
 
 export function departuresCopy<T extends Row>(input: Board<T>, data?: DeviceData, lang?: string) {
   const words = placesWordsFor(lang);
+  const { peekCount, placeholderValue } = wordsFor(lang);
   const current = snapshotOf(input, data);
   const remaining = (current?.total ?? 0) - input.rows.length;
   return {
-    more: remaining > 0 ? wordsFor(lang).peekCount(numberLine(remaining, lang)) : undefined,
+    more: remaining > 0 ? peekCount(numberLine(remaining, lang)) : undefined,
     alerts: (input.alerts ?? []).map(({ line, severity, text }) => ({
       title: words.departureAlert(line, words.departureSeverity[severity]),
       text,
