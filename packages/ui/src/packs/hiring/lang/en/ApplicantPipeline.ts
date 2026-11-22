@@ -1,9 +1,13 @@
 export const words = {
   pipeline: {
     move: "Move to",
-    destination: (stage: string, candidate: string) => `Move ${candidate} to ${stage}`,
+    destination: (stage: string, name: string) => `Move ${name} to ${stage}`,
     outcomes: (counts: readonly string[]) => counts.join(" · "),
     count: (label: string, count: string) => `${label}: ${count}`,
-    error: "Couldn’t save the change",
+    countLabel: (label: string) => `${label}: `,
+    separator: " · ",
+    emptyStage: "No applicants",
+    thing: "applicant",
+    error: "Couldn’t save the stage change",
   },
 };

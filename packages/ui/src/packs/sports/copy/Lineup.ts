@@ -1,8 +1,37 @@
-import { numberLine } from "../../../catalog";
+import { numberLine, pluralForm } from "../../../catalog";
 import { sportsWordsFor } from "../lang";
 
-type Player = { id: string; line: number | undefined; name: string; number: number };
+type BadgeData = {
+  rating?: number | undefined;
+  cards?: readonly ("yellow" | "red")[] | undefined;
+  goals?: number | undefined;
+};
+type Player = BadgeData & { id: string; line: number | undefined; name: string; number: number };
 type Line = { players: readonly unknown[] };
+
+export function hasPlayerBadges({ rating, cards, goals }: BadgeData) {
+  return rating !== undefined || cards !== undefined || goals !== undefined;
+}
+
+export function playerBadges({ rating, cards, goals }: BadgeData, lang?: string) {
+  const { lineup } = sportsWordsFor(lang);
+  const badges: { part: string; text: string; tone: "text" | "warn" | "bad" }[] = [];
+  if (goals !== undefined)
+    badges.push({
+      part: "goals",
+      text: lineup.goals(numberLine(goals, lang), pluralForm(goals, lang) === "one"),
+      tone: "text",
+    });
+  if (rating !== undefined)
+    badges.push({ part: "rating", text: lineup.rating(numberLine(rating, lang)), tone: "text" });
+  if (cards)
+    badges.push({
+      part: "cards",
+      text: cards.map((card) => lineup.cards[card]).join(lineup.badgeSeparator),
+      tone: cards.includes("red") ? "bad" : "warn",
+    });
+  return badges;
+}
 
 export function formationLabel(lines: readonly Line[], lang?: string) {
   const { lineup } = sportsWordsFor(lang);
@@ -17,6 +46,16 @@ export function pitchLines(players: readonly Player[], lang?: string) {
     line.players.push(pitchPlayer(player, lang));
   }
   return lines;
+}
+
+export function playerGroups<T extends Pick<Player, "line">>(players: readonly T[]) {
+  const groups = new Map<number | undefined, T[]>();
+  for (const player of players) {
+    const group = groups.get(player.line);
+    if (group) group.push(player);
+    else groups.set(player.line, [player]);
+  }
+  return [...groups];
 }
 
 function pitchPlayer({ id, name, number }: Player, lang?: string) {
@@ -38,12 +77,18 @@ export function lineupReading(
   const lines = [lineup.title];
   if (input.detail !== "brief") lines.push(formationLabel(input.lines, lang));
   let seenBench = false;
-  for (const { id, name, number, line } of input.players) {
+  for (const player of input.players) {
+    const { id, name, number, line } = player;
     if (line === undefined && !seenBench) {
       lines.push(lineup.bench);
       seenBench = true;
     }
-    lines.push(lineup.read(id, name, numberLine(number, lang)));
+    lines.push(
+      [
+        lineup.read(id, name, numberLine(number, lang)),
+        ...playerBadges(player, lang).map(({ text }) => text),
+      ].join(lineup.badgeSeparator),
+    );
   }
   return lines;
 }

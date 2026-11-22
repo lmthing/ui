@@ -9,3 +9,4 @@ Use only when asked to show separate lanes keyed by hiring stage or let recruite
 ## Writer
 
 - Write one record per applicant. Stage is the last active stage even for a terminal outcome; do not write stage counts, outcome counts or column objects.
+- Use arrange "rows" for stages stacked vertically, otherwise null.

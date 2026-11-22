@@ -59,10 +59,9 @@ function expectEmptyCopy(meta: Meta, input: Record<string, unknown>, html: strin
   const expected = domainEmpty[meta.id];
   if (expected) return expect(visibleTexts(html)).toContain(expected);
   // Explicit empty screen reads only the state header; use the declared copy hook here.
-  const lines =
-    data || meta.id === "Flashcard" || meta.id === "Sessions"
-      ? meta.read?.(input, "empty", undefined, data)
-      : undefined;
+  const withEmptyReading =
+    Boolean(data) || meta.id === "Flashcard" || meta.id === "BoxScore" || meta.id === "Sessions";
+  const lines = withEmptyReading ? meta.read?.(input, "empty", undefined, data) : undefined;
   if (!lines?.length) return expect(html).toContain(emptyLine(meta.deviceDataVisible ? undefined : "walk"));
   const placeholders = [...addressedElements(html).values()].flatMap(({ tag, text, attributes }) => {
     if (tag !== "textarea" || text.length > 0 || attributes.includes('aria-hidden="true"')) return [];

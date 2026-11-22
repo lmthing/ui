@@ -152,8 +152,16 @@ it("rejects invalid interviews, offers and follow-ups", () => {
 });
 
 it("does not offer terminal, missing-link or non-navigation actions as available links", () => {
-  const pipeline = readComponent(ApplicantPipeline, ApplicantPipeline.examples[0], "p1").join("\n");
-  expect(pipeline).toContain("[p1/r1 move]");
+  const example = ApplicantPipeline.examples[0]!;
+  const pipeline = readComponent(
+    ApplicantPipeline,
+    {
+      ...example,
+      applicants: example.applicants.map((row, i) => (i === 1 ? { ...row, outcome: "withdrawn" } : row)),
+    },
+    "p1",
+  ).join("\n");
+  expect(pipeline).toContain('[p1/r1 move = "screening"; choices ["applied","interview","offer"]]');
   expect(pipeline).not.toContain("[p1/r2");
   const candidate = readComponent(Candidate, Candidate.examples[0], "c1").join("\n");
   expect(candidate).toContain("[c1/interview press→sam_interview]");
