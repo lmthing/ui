@@ -87,30 +87,50 @@ type Thread = {
   entries: readonly Entry[];
   detail: "full" | "brief";
   draft?: string | undefined;
+  audience: Entry["audience"];
   audience_choices?: readonly Entry["audience"][];
   canBrowseReplies?: boolean;
+  sendable?: boolean;
 };
 
 export function threadRead(input: unknown, state: StateName, lang?: string): string[] {
-  const { number, entries, detail, draft, audience_choices, canBrowseReplies } = input as Thread;
+  const { number, entries, detail, draft, audience, audience_choices, canBrowseReplies, sendable } =
+    input as Thread;
   const { thread: words } = requestsWordsFor(lang);
   const visible = state === "empty" ? [] : threadOrder(entries);
+  const failedDraft = state === "error" && audience_choices?.includes(audience) ? draft : undefined;
   return [
     words.heading(number),
     ...visible.map((entry) => {
       const { event, fact, date, time, audience, fileLabel } = threadEntryCopy(entry, detail, lang);
-      return [entry.id, event, fact, entry.by, time, date, audience, entry.photo && words.photo, fileLabel]
+      return [
+        entry.id,
+        event,
+        fact,
+        state === "error" && entry.text,
+        entry.by,
+        time,
+        date,
+        audience,
+        entry.photo && words.photo,
+        fileLabel,
+      ]
         .filter(Boolean)
         .join(" · ");
     }),
-    ...(state === "success"
-      ? [words.sent]
+    ...(state === "success" ? [words.sent] : []),
+    ...(state === "error"
+      ? [
+          words.failed,
+          ...(failedDraft ? [failedDraft, words.audiences[audience]] : []),
+          ...(sendable ? [words.retry] : []),
+        ]
       : audience_choices?.length
         ? [
             words.audience,
             ...audience_choices.map((choice) => words.audiences[choice]),
             draft || words.field,
-            ...(canBrowseReplies ? [words.canned] : []),
+            ...(canBrowseReplies && state !== "success" ? [words.canned] : []),
             words.send,
           ]
         : []),

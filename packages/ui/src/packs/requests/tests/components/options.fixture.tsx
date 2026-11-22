@@ -45,4 +45,43 @@ function Options() {
   );
 }
 
-createRoot(document.getElementById("root")!).render(<Options />);
+function RetryThread() {
+  const initial = RequestThread.examples[0]!;
+  const [sent, setSent] = useState<string[]>([]);
+  const screen: ScreenLike = {
+    id: "desk",
+    components: [
+      {
+        ...initial,
+        id: "thread",
+        c: "RequestThread",
+        state: sent.length ? "success" : "error",
+        draft: sent.length ? undefined : initial.draft,
+        entries: [
+          ...initial.entries,
+          ...sent.map((text) => ({
+            kind: "message",
+            text,
+            by: "Noor",
+            date: "2026-11-19",
+            time: "10:30",
+            audience: "requester",
+          })),
+        ],
+      },
+    ],
+  };
+  return (
+    <TamaguiProvider config={config}>
+      <PhoneScreen
+        theme={theme}
+        screen={screen}
+        onSend={(text) => setSent((previous) => [...previous, text])}
+      />
+    </TamaguiProvider>
+  );
+}
+
+createRoot(document.getElementById("root")!).render(
+  new URLSearchParams(location.search).has("retry") ? <RetryThread /> : <Options />,
+);

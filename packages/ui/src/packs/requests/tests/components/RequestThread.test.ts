@@ -5,10 +5,11 @@ import {
   packReady,
   placeholderValue,
   readComponent,
+  type Definition,
   type Props,
 } from "@lmthing/ui/catalog";
 import { createScreenController, createAgentAccess, createInteractionStore } from "@lmthing/ui/kit";
-import { addressedElements, renderInstance } from "../../../../../test/render";
+import { addressedElements, renderExample, renderInstance } from "../../../../../test/render";
 import { RequestThread } from "../../components";
 
 const { meta, props, examples, fallback, probes, bindRequestThread } = RequestThread;
@@ -20,6 +21,7 @@ const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const typed = (value: string) => ({ address: "t/field", action: "type", value });
 const select = (value: string) => ({ address: "t/audience", action: "select", value });
 const send = { address: "t/send", action: "send" };
+const retry = { address: "t/retry", action: "send" };
 const open = { address: "t/r2", action: "press" };
 const screen = (input: object) => ({ id: "desk", components: [{ id: "t", c: meta.id, ...input }] });
 
@@ -116,21 +118,55 @@ describe("RequestThread states and parts", () => {
     expect(compact.get("home/c1/r4/text")?.text).toEqual([message.text]);
     expect(render(brief).get("home/c1/send")?.attributes).toContain('aria-disabled="true"');
   });
-  it.each(["empty", "loading", "success", "error"] as const)("draws %s without extra actions", (state) => {
-    const html = renderInstance(meta.id, full, state, theme);
+  it.each(["empty", "loading", "success", "error"] as const)(
+    "draws the %s thread and reply slots",
+    (state) => {
+      const html = renderInstance(meta.id, full, state, theme);
+      const parts = addressedElements(html);
+      expect(parts.has("home/c1/root")).toBe(true);
+      expect(parts.has("home/c1/send")).toBe(state === "empty" || state === "success");
+      expect(parts.has("home/c1/retry")).toBe(state === "error");
+      if (state === "loading") expect(html).toContain("Loading");
+      if (state === "success") expect(html).toContain("Reply sent");
+      if (state === "error") {
+        expect(html).toContain("Reply not sent");
+        expect(parts.get("home/c1/field")?.text).toEqual([full.draft]);
+        expect(parts.get("home/c1/r4/text")?.text).toEqual([message.text]);
+        expect(parts.get("home/c1/r2/root")?.attributes).not.toContain('role="link"');
+      }
+    },
+  );
+  it("keeps the sent reply visible without repopulating the preview composer", () => {
+    const { html } = renderExample(meta.id, full, "success", theme);
     const parts = addressedElements(html);
-    expect(parts.has("home/c1/root")).toBe(true);
-    expect(parts.has("home/c1/send")).toBe(state === "empty");
-    if (state === "loading") expect(html).toContain("Loading");
-    if (state === "success") expect(html).toContain("Reply sent");
-    if (state === "error") {
-      expect(html).toContain("Reply not sent");
-      expect(parts.get("home/c1/field")?.text).toEqual([full.draft]);
-    }
+    expect(html).toContain(full.draft);
+    expect(parts.get("home/c1/field")?.text).not.toContain(full.draft);
+    expect(parts.get("home/c1/send")?.attributes).toContain('aria-disabled="true"');
   });
 });
 
 describe("RequestThread read and act", () => {
+  it("retries the same admitted draft and audience only in error", () => {
+    const onSend = vi.fn();
+    const host = (
+      input: object,
+      defs: Record<string, Definition> = { [meta.id]: components.RequestThread },
+    ) => createScreenController({ screen: screen(input), defs, onSend });
+    const failed = { ...full, state: "error", audience: "internal" };
+    expect(host(full).act(retry).ok).toBe(false);
+    expect(host({ ...failed, draft: undefined }).act(retry).ok).toBe(false);
+    const requester = bindRequestThread(() => ({ role: "requester", canReply: true }));
+    expect(host(failed, { [meta.id]: requester }).act(retry).ok).toBe(false);
+    const read = readComponent(requester, { ...full, audience: "internal" }, "t", "error").join("\n");
+    expect(read).toContain("Reply not sent");
+    expect(read).not.toMatch(/Noor|WO-14|cable|t\/retry send/);
+    expect(read).not.toContain(full.draft);
+    const controller = host(failed);
+    expect(controller.act(send).ok).toBe(false);
+    expect(controller.act(retry).ok).toBe(true);
+    expect(onSend).toHaveBeenCalledExactlyOnceWith(full.draft, "desk/t/field", "internal");
+  });
+
   it("keeps the original work address when displaying entries in date and time order", () => {
     const input = { ...full, entries: [message, work, assignment, status] };
     const read = readComponent(components.RequestThread, input, "t").join("\n");
