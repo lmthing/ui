@@ -3,10 +3,39 @@ import type { DeviceData } from "../device-data";
 import { drawKey, drawRole, holdIndex, performDraw, staleDraw, storeDraw, type RandomSource } from "../draw";
 import { buzzKey, buzzTarget, recordBuzz, staleBuzz } from "../buzz";
 import { advanceSession, sessionEvent, sessionKey, staleSession } from "../session";
-import { liveProps, parseControlProps, type ActStep, type ScreenLike, type Values } from "../index";
+import {
+  liveProps,
+  parseControlProps,
+  type ActStep,
+  type Affordance,
+  type ScreenLike,
+  type Values,
+} from "../index";
+import { stageCredentialToggle } from "../credential-toggle";
+import { stageLinkedEdit } from "../linked-edits";
+import { stageRecord } from "./record-planning";
 import { localValues } from "./select-step";
 
-export function stageProgress(
+export function expireProgress(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  values: Values,
+  data?: DeviceData,
+) {
+  for (const { id, c, state: _state, ...raw } of screen.components) {
+    const def = defs[c];
+    const base = `${screen.id}/${id}`;
+    const get = (part: string) => values[`${base}/${part}`];
+    if (!def || ![drawKey, sessionKey, buzzKey].some((part) => get(part) !== undefined)) continue;
+    const parsed = parseControlProps(def, raw, get);
+    const props = liveProps(def.meta, parsed, id, localValues(screen.id, values), true, data);
+    if (def.meta.draw && staleDraw(def.meta, props, get(drawKey))) values[`${base}/${drawKey}`] = undefined;
+    if (staleSession(def.meta, props, get(sessionKey))) values[`${base}/${sessionKey}`] = undefined;
+    if (staleBuzz(def.meta, props, get(buzzKey))) values[`${base}/${buzzKey}`] = undefined;
+  }
+}
+
+function stageProgress(
   screen: ScreenLike,
   defs: Record<string, Definition>,
   address: string,
@@ -52,21 +81,22 @@ export function stageProgress(
   return ` = ${JSON.stringify(value)}`;
 }
 
-export function expireProgress(
+export function stageStepProgress(
   screen: ScreenLike,
   defs: Record<string, Definition>,
-  values: Values,
-  data?: DeviceData,
+  next: Values,
+  step: ActStep,
+  found: Affordance,
+  random: RandomSource | null,
+  snapshot: DeviceData | undefined,
+  now: number,
+  touchNow: () => number,
 ) {
-  for (const { id, c, state: _state, ...raw } of screen.components) {
-    const def = defs[c];
-    const base = `${screen.id}/${id}`;
-    const get = (part: string) => values[`${base}/${part}`];
-    if (!def || ![drawKey, sessionKey, buzzKey].some((part) => get(part) !== undefined)) continue;
-    const parsed = parseControlProps(def, raw, get);
-    const props = liveProps(def.meta, parsed, id, localValues(screen.id, values), true, data);
-    if (def.meta.draw && staleDraw(def.meta, props, get(drawKey))) values[`${base}/${drawKey}`] = undefined;
-    if (staleSession(def.meta, props, get(sessionKey))) values[`${base}/${sessionKey}`] = undefined;
-    if (staleBuzz(def.meta, props, get(buzzKey))) values[`${base}/${buzzKey}`] = undefined;
-  }
+  const record = stageRecord(screen, defs, next, step, snapshot, now);
+  if (record !== undefined) return record ? "" : false;
+  return (
+    stageCredentialToggle(screen, defs, next, step) ??
+    stageLinkedEdit(screen, defs, next, found, step.value) ??
+    stageProgress(screen, defs, step.address, step, next, random, snapshot, touchNow)
+  );
 }

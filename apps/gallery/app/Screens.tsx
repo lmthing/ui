@@ -2,7 +2,14 @@
 // per selected preset (or all if omitted), every example and state stacked.
 // Each screen frame carries data-look-frame and each label data-look-label, so checks can find them.
 import { TamaguiProvider, Text, XStack, YStack } from "tamagui";
-import { accents, components, space, stampItemIds, type ComponentName } from "@lmthing/ui/catalog";
+import {
+  accents,
+  components,
+  space,
+  stampItemIds,
+  type ComponentName,
+  type Definition,
+} from "@lmthing/ui/catalog";
 import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
 import { config, drawPreviewEnvironment, previewComponent } from "../index";
 import { createPreviewController } from "./draw";
@@ -23,7 +30,7 @@ function Screen({
   mode: "light" | "dark";
   width: number;
 }) {
-  const def = components[id];
+  const def: Definition = components[id];
   const View = renderers[id as keyof typeof renderers] as ((props: object) => React.ReactNode) | undefined;
   const input = def.props.parse(cell.example) as Record<string, unknown>;
   const props = stampItemIds(def.meta, input);
@@ -37,6 +44,7 @@ function Screen({
         theme={{ preset, mode, accent: accents[0]!.id } as never}
         parts={galleryParts}
         resolvePhoto={(ref) => resolvePhoto(ref, { preset, mode, accent: accents[0]!.id } as never)}
+        interactive={Boolean(def.meta.actions?.reveal)}
         {...(controller ? { controller, environment: drawPreviewEnvironment } : {})}
       >
         <YStack

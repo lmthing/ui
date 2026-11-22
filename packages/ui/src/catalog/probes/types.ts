@@ -2,6 +2,7 @@ import type { z } from "zod";
 import type { Meta, PackId } from "../meta";
 import type { Axis, AxisValue, CastLike } from "../types";
 import type { WriterFormat } from "../format";
+import type { ScreenLike } from "../agent";
 
 export type ChooseProbe = { kind: "choose"; need: string; expect: string };
 type VariantExpectation = {
@@ -23,6 +24,8 @@ export type ReadProbe = {
   task: string;
   /** Fixed host time in epoch milliseconds for a time-gated example. */
   at?: number;
+  /** Parsed wire fixtures for sibling destinations or playback sources on this example screen. */
+  siblings?: readonly ScreenLike["components"][number][];
   expect: { address: string; action: string };
 };
 export type PackProbe = {

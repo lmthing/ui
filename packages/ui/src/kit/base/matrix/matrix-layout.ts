@@ -8,6 +8,9 @@ export type Target = { item?: string; part: string };
 export type Column = { id: string; label: string; header: ReactNode };
 export type Cell = {
   id: string;
+  label?: string;
+  start?: number;
+  span?: number;
   content: ReactNode;
   compactContent?: ReactNode;
   target?: Target;
@@ -21,7 +24,7 @@ export type MatrixRow = {
   selected?: boolean;
   target?: Target;
 };
-const scrollColumnWidth = size.control.md * 3;
+export const scrollColumnWidth = size.control.md * 3;
 const fittedColumnMin = size.control.md + space.xs * 2;
 export const MatrixSelectionContext = createContext<readonly string[]>([]);
 
