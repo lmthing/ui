@@ -16,6 +16,7 @@ export const en = {
     reading: (item: string, due: string, status: string) => `${item}: ${due} · ${status}`,
   },
   flashcard: {
+    empty: "No cards due",
     left: (count: string, category: Intl.LDMLPluralRule) =>
       `${count} ${category === "one" ? "card" : "cards"} left`,
     reveal: "Reveal answer",
@@ -23,8 +24,11 @@ export const en = {
     hard: "Hard",
     good: "Good",
     easy: "Easy",
+    know: "Know",
+    stillLearning: "Still learning",
     complete: "Done for today",
   },
+  promptAudio: { play: "Play audio", pause: "Pause audio", unavailable: "Audio unavailable" },
   gradebook: {
     empty: "No graded coursework yet",
     error: "Check category weights and scores.",
@@ -65,6 +69,10 @@ export const en = {
     keyed: (label: string, key: string) => `${key} · ${label}`,
     paired: (label: string, other: string) => `${label} (${other})`,
     pair: (left: string, right: string) => `${left} → ${right}`,
+    wordBank: "Word bank",
+    orderHint: "Tap words in order. Tap again to remove.",
+    orderDraft: "Your sentence",
+    orderLine: (words: readonly string[]) => words.join(" "),
   },
   result: {
     score: "Practice score",

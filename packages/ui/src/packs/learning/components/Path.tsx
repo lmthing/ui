@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { pathUnitCopy, readPath } from "../copy";
 import { learningWordsFor } from "../lang";
+import { Modules } from "../path-modules";
 
 // Core first: Steps/numbered cannot open course units or distinguish locked nodes and milestones.
 export const meta = {
@@ -10,9 +11,10 @@ export const meta = {
   status: "ready",
   group: "data",
   purpose: "See which course units are finished, open now or still locked.",
-  pick: "A winding course map with done, current and locked unit nodes, selectable unlocked units and occasional milestones. Not progress through a short flow (Steps) or a plain browsable list (List).",
+  pick: "A course map with done, current and locked units, selectable unlocked units and occasional milestones. Not progress through a short flow (Steps) or a plain browsable list (List).",
   writeHints: [
     "Write 3–12 units in course order. Use at most one current unit. Milestones, if any, are unique zero-based indexes into units.",
+    'Use style "modules" for a straight vertical course list with locks and milestones. Otherwise leave style null for the winding map.',
     'Unless asked to change spacing or card appearance, write density and surface as null, not their defaults. To hide the unit-state text but keep the visual markers, set only detail to "brief".',
   ],
   region: "body",
@@ -50,6 +52,7 @@ const unit = z
 export const props = z
   .strictObject({
     ...c.variantProps(meta.variants),
+    style: z.enum(["winding", "modules"]).default("winding"),
     units: z.array(unit).min(3).max(12),
     milestones: z.array(z.int().min(0).max(11)).min(0).max(12).optional(),
   })
@@ -87,6 +90,16 @@ export const examples = [
     milestones: [2],
   },
   {
+    style: "modules",
+    units: [
+      { title: "Pack the kit", state: "done", icon: "clipboard", goto: "kit" },
+      { title: "Loose lead", state: "current", icon: "dog", goto: "lead" },
+      { title: "Plan the route", state: "locked", icon: "map", goto: "park" },
+    ],
+    milestones: [0],
+  },
+  {
+    style: "winding",
     units: [
       { title: "Pack the kit", state: "done", icon: "clipboard", goto: "kit" },
       { title: "Loose lead", state: "current", icon: "dog", goto: "lead" },
@@ -97,31 +110,26 @@ export const examples = [
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Path");
+// prettier-ignore
 export const probes = [
-  choose(
-    "Show my course as a winding map. Completed and current units can open, future units are locked, and milestones have trophies.",
-  ),
+  choose("Show my course as a winding map. Completed and current units can open, future units are locked, and milestones have trophies."),
   choose("Show only that I am on step two of four in a short setup flow. No unit links or locks.", "Steps"),
-  write(
-    "Map three units: Basic strokes completed, Water radical current and Nature review locked with a trophy milestone. Link to strokes, water and review respectively; use pencil, drop and leaf icons.",
-  ),
+  write("Map three units: Basic strokes completed, Water radical current and Nature review locked with a trophy milestone. Link to strokes, water and review respectively; use pencil, drop and leaf icons."),
   {
-    ...write(
-      "Show a winding course map: Basic strokes completed, Water radical current and Nature review locked. Link them to strokes, water and review and use pencil, drop and leaf icons. Keep the progress symbols, but hide the text labels for the unit states. Don't specify spacing or a card treatment.",
-    ),
+    ...write("Show a winding course map: Basic strokes completed, Water radical current and Nature review locked. Link them to strokes, water and review and use pencil, drop and leaf icons. Keep the progress symbols, but hide the text labels for the unit states. Don't specify spacing or a card treatment."),
     variant: { axis: "detail", value: "brief" },
+  },
+  {
+    ...write("Show three course modules in a straight, full-width vertical list, not a winding map: Pack the kit completed, Loose lead current, Route planning locked. Link to kit, lead and route. Route planning is a milestone."),
+    expectProps: { style: "modules" },
   },
   read("Start the current unit, Check the soil.", { address: "p1/r2", action: "press" }),
 ] satisfies c.Probe[];
 
 type PathProps = c.Props<typeof props, typeof meta>;
 
-function PathUnit({
-  unit,
-  milestone,
-  density,
-  brief,
-}: {
+// prettier-ignore
+function PathUnit({ unit, milestone, density, brief }: {
   unit: PathProps["units"][number];
   milestone: boolean;
   density: c.ThemeDensity;
@@ -164,10 +172,17 @@ function LoadingUnits({ units, density }: { units: PathProps["units"]; density: 
   ));
 }
 
-export function Path({ units, milestones = [], detail, density: requested, surface }: PathProps) {
+// prettier-ignore
+export function Path({ units, milestones = [], detail, density: requested, surface, style }: PathProps) {
   const density = kit.useVariant("density", meta.variants.density, requested);
   const loading = kit.useComponentState() === "loading";
   const { lang } = kit.useWords();
+  if (style === "modules") {
+    const modules = <Modules {...{ units, milestones, density, loading }} brief={detail === "brief"} />;
+    return <kit.KitCard part="root" padded {...{ density, surface }}>
+      <kit.KitState density={density} loading={modules}>{modules}</kit.KitState>
+    </kit.KitCard>;
+  }
   const nodes = units.map((unit, index) => {
     const milestone = milestones.includes(index);
     return {

@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   components,
   createRegistry,
-  emptyLine,
   packReady,
   placeholderTitle,
   readComponent,
@@ -61,6 +60,13 @@ describe("Flashcard seed bounds", () => {
   it("accepts exact text and deck limits", () => {
     const card = { front: "x".repeat(80), back: "x".repeat(160), hint: "x".repeat(60), photo: "local:1" };
     expect(props.safeParse({ cards: Array(6).fill(card) }).success).toBe(true);
+  });
+  // prettier-ignore
+  it("keeps four ratings by default and validates optional audio as a host reference", () => {
+    expect(seed.style).toBe("srs");
+    expect(props.safeParse({ style: "binary", cards: [{ ...first, audio: "local:3" }, second] }).success).toBe(true);
+    expect(props.safeParse({ cards: [{ ...first, audio: "https://example.org/clip" }, second] }).success).toBe(false);
+    expect(props.safeParse({ ...seed, style: "unknown" }).success).toBe(false);
   });
 });
 
@@ -126,7 +132,7 @@ describe("Flashcard parts, states and reading", () => {
   });
   it.each([
     ["loading", undefined],
-    ["empty", emptyLine()],
+    ["empty", "No cards due"],
     ["success", "Done for today"],
   ] as const)("renders %s without a face or action", (state, message) => {
     const html = renderCard(state);
@@ -171,5 +177,27 @@ describe("Flashcard session", () => {
     expect(controller.press(flip).ok).toBe(false);
     expect(controller.press(rate).ok).toBe(false);
     controller.dispose();
+  });
+  // prettier-ignore
+  it("uses Good and Again as the two binary recall outcomes without shifting the session", () => {
+    const binary = { ...screen.components[0]!, style: "binary" };
+    const controller = createScreenController({
+      screen: { id: "home", components: [binary] }, defs: components, requireMounted: false,
+    });
+    try {
+      expect(controller.press(address("card")).ok).toBe(true);
+      const text = controller.read();
+      expect(text).toContain("Still learning");
+      expect(text).toContain("Know");
+      for (const part of ["again", "good"]) expect(text).toContain(`[f1/${part} press]`);
+      for (const part of ["hard", "easy"]) expect(controller.press(address(part)).ok).toBe(false);
+      expect(controller.press(address("again")).ok).toBe(true);
+      expect(controller.read()).toContain(second.front);
+      expect(controller.press(address("card")).ok).toBe(true);
+      expect(controller.press(address("good")).ok).toBe(true);
+      expect(controller.read()).toContain("(success) Done for today");
+    } finally {
+      controller.dispose();
+    }
   });
 });
