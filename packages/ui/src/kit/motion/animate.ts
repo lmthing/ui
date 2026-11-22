@@ -11,13 +11,13 @@ export function animateNumber(
   update: (value: number) => void,
   options: { spring?: Spring; duration?: number; delay?: number; done?(): void } = {},
 ): () => void {
-  let frame: number | undefined,
-    timer: ReturnType<typeof setTimeout> | undefined,
-    cancelled = false;
-  let position = from,
-    velocity = 0,
-    start = 0,
-    previous = 0;
+  let frame: number | undefined;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let cancelled = false;
+  let position = from;
+  let velocity = 0;
+  let start = 0;
+  let previous = 0;
   const spring = options.spring ?? springs.gentle;
   const run = (time: number) => {
     if (cancelled) return;
