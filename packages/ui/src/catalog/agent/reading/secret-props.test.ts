@@ -37,6 +37,32 @@ const customReader = {
   read: (input: unknown) => [JSON.stringify(input)],
 };
 
+it.each([
+  ["fixture-0642", "•••• 0642"],
+  ["fixture-🌱123", "•••• 🌱123"],
+  ["0642", "••••"],
+])("gives a custom reader only the display mask of a declared credential", (fixture, mask) => {
+  const def = {
+    ...components.Header,
+    meta: {
+      ...customReader,
+      actions: { parts: { reveal: ["toggle"] }, credentialToggles: { reveal: "idValue" } },
+    },
+    props: z.strictObject({
+      idValue: secret(32).optional(),
+      payload: secret(32),
+      row: z.strictObject({ idValue: secret(32) }),
+    }),
+  } satisfies Definition;
+  const lines = readComponent(
+    def,
+    { idValue: fixture, payload: "fixture-copy", row: { idValue: "fixture-nested" } },
+    "f1",
+  ).join("\n");
+  expect(lines).toContain(`{"idValue":"${mask}","payload":"(secret)","row":{"idValue":"(secret)"}}`);
+  expect(lines).not.toMatch(/fixture-|"0642"/);
+});
+
 it("protects custom readings for discriminated unions and intersections without masking public branches", () => {
   const def = {
     ...components.Header,

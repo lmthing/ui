@@ -1,8 +1,10 @@
+import { maskedPassId } from "../../copy";
 import type { Meta } from "../../meta";
 import type { SessionState } from "../session";
 import type { ReadSchema } from "./index";
 
 export const secretPlaceholder = "(secret)";
+type Mask = (value: string) => string;
 
 function matchesLiterals(schema: ReadSchema, value: unknown) {
   if (Object.hasOwn(schema, "const") && schema.const !== value) return false;
@@ -14,8 +16,11 @@ function matchesLiterals(schema: ReadSchema, value: unknown) {
   );
 }
 
-function redact(schema: ReadSchema, value: unknown): unknown {
-  if (schema.kind === "secret" && typeof value === "string" && value.trim()) return secretPlaceholder;
+function redact(schema: ReadSchema, value: unknown, mask?: Mask): unknown {
+  if (schema.kind === "secret" && typeof value === "string") {
+    if (mask && value) return mask(value);
+    if (value.trim()) return secretPlaceholder;
+  }
   if (Array.isArray(value) && schema.items) {
     const before = value;
     const rows = before.map((item) => redact(schema.items!, item));
@@ -25,22 +30,40 @@ function redact(schema: ReadSchema, value: unknown): unknown {
   }
   const alternatives = schema.oneOf ?? schema.anyOf;
   const matching = alternatives?.filter((option) => matchesLiterals(option, value));
-  for (const option of matching?.length ? matching : (alternatives ?? [])) value = redact(option, value);
-  for (const option of schema.allOf ?? []) value = redact(option, value);
+  for (const option of matching?.length ? matching : (alternatives ?? []))
+    value = redact(option, value, mask);
+  for (const option of schema.allOf ?? []) value = redact(option, value, mask);
   return value;
 }
 
-/** Custom readings receive the same secret placeholder as the generic reading. */
-export function redactSecretProps(schema: ReadSchema, props: Record<string, unknown>) {
+export function redactSecretProps(
+  schema: ReadSchema,
+  props: Record<string, unknown>,
+  maskFor?: (key: string) => Mask | undefined,
+) {
   let safe = props;
   for (const [key, field] of Object.entries(schema.properties ?? {})) {
-    const value = redact(field, props[key]);
+    const value = redact(field, props[key], maskFor?.(key));
     if (value !== props[key]) {
       if (safe === props) safe = { ...props };
       safe[key] = value;
     }
   }
   return safe;
+}
+
+/** Keep the display mask for declared credential fields, regardless of live reveal state. */
+export function redactCustomReadProps(
+  meta: Meta,
+  schema: ReadSchema,
+  props: Record<string, unknown>,
+  lang?: string,
+) {
+  const toggles = meta.actions?.credentialToggles;
+  if (!toggles) return redactSecretProps(schema, props);
+  const fields = new Set(Object.values(toggles));
+  const mask: Mask = (value) => maskedPassId(value, lang);
+  return redactSecretProps(schema, props, (key) => (fields.has(key) ? mask : undefined));
 }
 
 export const roundHide = (meta: Meta) => meta.session?.kind === "rounds" && meta.session.hide !== undefined;

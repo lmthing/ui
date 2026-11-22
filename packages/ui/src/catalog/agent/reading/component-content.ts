@@ -18,7 +18,7 @@ import { hasNestedCollectionControls } from "../nested";
 import { nestedRemaining, visibleNestedProps } from "../selection";
 import { projectVisibleItems } from "../visibility";
 import { componentTexts, type ReadSchema } from "./index";
-import { redactSecretProps, roundHide, sessionForRead } from "./secret-props";
+import { redactCustomReadProps, roundHide, sessionForRead } from "./secret-props";
 
 type Props = Values;
 
@@ -110,7 +110,12 @@ export function readContent(
   const remaining = nestedRemaining(meta, props);
   const own = [
     ...(meta.read?.(
-      redactSecretProps(schema, readingProps(meta, validated, instance, values, props, readable)),
+      redactCustomReadProps(
+        meta,
+        schema,
+        readingProps(meta, validated, instance, values, props, readable),
+        lang,
+      ),
       state,
       lang,
       selectDeviceData(meta, deviceData),
