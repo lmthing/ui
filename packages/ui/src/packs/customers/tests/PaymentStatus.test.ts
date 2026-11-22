@@ -24,6 +24,7 @@ describe("PaymentStatus schema and boundaries", () => {
       method: "Bank transfer",
       detail: "full",
       surface: "card",
+      installments: [],
       outstanding: true,
     });
     expectTypeOf<Props<typeof props, typeof meta>>().not.toBeAny();
@@ -128,10 +129,13 @@ describe("PaymentStatus states, parts and reading", () => {
     const input = { ...base, paid: 0, due: "9999-12-31", method: "Bank transfer" };
     const html = renderInstance("PaymentStatus", input, "filled", theme);
     const reading = readComponent(components.PaymentStatus, input, "p1").join("\n");
-    for (const part of meta.parts.filter((part) => part !== "confirmation"))
+    for (const part of ["root", "status", "amount", "paid", "date", "due", "method", "mark", "remind"])
       expect(html).toContain(`home/c1/${part}`);
     expect(html).not.toContain("home/c1/confirmation");
-    for (const text of ["Total $60", "Received $0", "Due 31 Dec 9999", "Bank transfer"]) {
+    expect(html).toContain(">Total<");
+    expect(html).toContain(">$60<");
+    expect(reading).toContain("Total $60");
+    for (const text of ["Received $0", "Due 31 Dec 9999", "Bank transfer"]) {
       expect(html).toContain(text);
       expect(reading).toContain(text);
     }

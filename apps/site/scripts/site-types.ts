@@ -1,3 +1,5 @@
+import type { DeviceData } from "@lmthing/ui/catalog";
+
 export type ItemState = "ready" | "pack in progress" | "draft";
 
 export type Item = {
@@ -24,6 +26,7 @@ export type Pack = {
   planned: Planned[];
   wave: number;
   lines: string[];
+  deviceData?: DeviceData;
 };
 
 export type Planned = { id: string; group: string; tier: string; summary: string };

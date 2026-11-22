@@ -1,5 +1,4 @@
 import type { ClockMeta, ClockState, ClockTrigger, Meta } from "../../meta";
-import type { StateName } from "../../types";
 import type { Values } from "../index";
 
 type ClockTarget = {
@@ -11,7 +10,7 @@ type ClockTarget = {
   base: string;
   suffix: string;
 };
-const rows = (value: unknown): Values[] => (Array.isArray(value) ? (value as Values[]) : []);
+export const clockRows = (value: unknown): Values[] => (Array.isArray(value) ? (value as Values[]) : []);
 const clockGroups = (meta: Meta) => [meta.clocks, meta.items?.clocks, meta.items?.nested?.clocks];
 export const isPlaybackAction = (action: string) => action === "play" || action === "pause";
 export const isPlaybackClock = (spec: ClockMeta) =>
@@ -31,11 +30,11 @@ function targets(specs: readonly ClockMeta[] | undefined, target: Omit<ClockTarg
 export function clockTargets(meta: Meta, props: Values): ClockTarget[] {
   return [
     ...targets(meta.clocks, { holder: props, outer: props, base: "", suffix: "" }),
-    ...rows(props[meta.items?.key ?? ""]).flatMap((holder, row) => {
+    ...clockRows(props[meta.items?.key ?? ""]).flatMap((holder, row) => {
       const base = `${String(holder.id ?? `${meta.items?.prefix ?? "r"}${row + 1}`)}/`;
       return [
         ...targets(meta.items?.clocks, { holder, outer: props, base, suffix: "", row }),
-        ...rows(holder[meta.items?.nested?.key ?? ""]).flatMap((item, child) =>
+        ...clockRows(holder[meta.items?.nested?.key ?? ""]).flatMap((item, child) =>
           targets(meta.items?.nested?.clocks, {
             holder: item,
             outer: props,
@@ -87,65 +86,6 @@ export function clockTriggerTarget(clock: ClockTarget, trigger: ClockTrigger) {
   return (
     `${clock.base}${trigger.part === "root" ? "" : trigger.part}${clock.suffix}`.replace(/\/$/, "") || "root"
   );
-}
-function projectHolder(meta: Meta, props: Values, clock: ClockTarget, changes: Values): Values {
-  if (clock.row === undefined) return { ...props, ...changes };
-  const key = meta.items!.key;
-  return {
-    ...props,
-    [key]: rows(props[key]).map((row, index) => {
-      if (index !== clock.row) return row;
-      if (clock.child === undefined) return { ...row, ...changes };
-      const nested = meta.items!.nested!.key;
-      return {
-        ...row,
-        [nested]: rows(row[nested]).map((child, at) =>
-          at === clock.child ? { ...child, ...changes } : child,
-        ),
-      };
-    }),
-  };
-}
-/** Live clock props are presentation data, projected only after validating the wire seeds. */
-export function projectClocks(
-  meta: Meta,
-  props: Values,
-  get: (part: string) => unknown,
-  now: number,
-  mode: "all" | "playback" | "legacy" | "record" = "all",
-): Values {
-  let playbackCompletion: StateName | undefined;
-  for (const clock of clockTargets(meta, props)) {
-    const playback = isPlaybackClock(clock.spec);
-    const family = clock.spec.commitOnStop ? "record" : playback ? "playback" : "legacy";
-    if (mode !== "all" && family !== mode) continue;
-    const state = get(clockKey(clock)) as ClockState | undefined;
-    if (!state && !playback && clock.spec.kind !== "until") continue;
-    const seconds = clockTime(clock, state, get(clockPropKey(clock)), now);
-    const changes: Values = clock.spec.prop ? { [clock.spec.prop]: seconds } : {};
-    if (clock.spec.runningProp)
-      changes[clock.spec.runningProp] = Boolean(state?.running && !clockEnded(clock, seconds));
-    const zero = clock.spec.zero;
-    if (state && clockEnded(clock, seconds) && zero && zero !== "stop") {
-      if ("state" in zero) {
-        props = { ...props, state: zero.state };
-        if (playback) playbackCompletion = zero.state;
-      } else changes[zero.prop] = zero.value;
-    }
-    props = projectHolder(meta, props, clock, changes);
-  }
-  const state = get("$state");
-  if (state === "filled" && playbackCompletion !== undefined) return { ...props, state: playbackCompletion };
-  return state === undefined ? props : { ...props, state };
-}
-export function projectLiveClocks(meta: Meta, props: Values, get: (part: string) => unknown, all: boolean) {
-  const records = meta.clocks?.some(({ commitOnStop }) => commitOnStop);
-  if (!all && !hasPlaybackClock(meta) && !records) return props;
-  const now = Number(get("$now") ?? Date.now());
-  if (!all && records) props = projectClocks(meta, props, get, now, "record");
-  return all || hasPlaybackClock(meta)
-    ? projectClocks(meta, props, get, now, all ? "all" : "playback")
-    : props;
 }
 export function clockControlDeclared(meta: Meta, target: string, action: string, playbackOnly = false) {
   const [row, part = "root"] = target.split("/");

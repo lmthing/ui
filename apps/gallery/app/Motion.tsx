@@ -3,13 +3,21 @@ import { TamaguiProvider, YStack } from "tamagui";
 import { components, signatures, type SignatureName, type ScreenLike } from "@lmthing/ui/catalog";
 import { PhoneScreen } from "@lmthing/ui/kit";
 import { config } from "../index";
+
+const ringExample = { style: "ring", bars: [{ label: "Watered today", value: 3, of: 5 }] };
+
 export function MotionPreview({ name }: { name: SignatureName }) {
   const [cue, setCue] = useState(0);
   const spec = signatures[name] ?? signatures.ring_fill;
   const screen = useMemo<ScreenLike>(() => {
     const c = spec.component as keyof typeof components;
     const def = components[c];
-    const example = name === "day_unfold" ? components.Timeline.examples[2] : def.examples[0];
+    const example =
+      spec === signatures.ring_fill
+        ? ringExample
+        : name === "day_unfold"
+          ? components.Timeline.examples[2]
+          : def.examples[0];
     return {
       id: "preview",
       components: [

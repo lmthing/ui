@@ -28,9 +28,9 @@ export const meta = {
   },
   variantParts: { "media.none": { hides: ["root_icon"] } },
   writeHints: [
-    'Use null for unrequested axes. For a destructive action use kind "danger" and supply confirm.',
-    'A filled action is the default; use surface "tinted" for a softer filled action or "plain" for a text action. Use media "none" only to hide an authored icon.',
-    "Hiding an icon does not change the button surface. Keep surface null for the regular filled button, and kind null for non-destructive actions.",
+    'Use literal JSON null for surface on a regular filled button; do not spell out the default as "card". Use "tinted" only for a requested softer fill and "plain" only for a requested text action.',
+    'To hide an authored icon, keep its icon value and set media to "none". This changes only media: leave surface null unless a different surface is separately requested. Use null for all unrequested axes.',
+    'For a destructive action, set kind to "danger" and supply confirm. Otherwise leave kind null.',
   ],
   parts: ["root", "root_icon"],
   states: ["filled"],

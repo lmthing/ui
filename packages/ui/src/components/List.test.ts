@@ -3,10 +3,13 @@ import {
   affordancesOf,
   components,
   createRegistry,
+  migrateLine,
   stampItemIds,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
+import { createScreenController } from "@lmthing/ui/kit";
+import { addressedElements, renderInstance } from "../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.List;
 
@@ -37,7 +40,9 @@ describe("List schema", () => {
     { rows: [{ title: "Fern", goto: "a".repeat(65) }] },
     { rows: [{ title: "Fern", photo: "https://example.org/image.png" }] },
     { rows: [{ title: "Fern", photo: `lib:${"a".repeat(65)}` }] },
-    { style: "grid", rows: [{ title: "Fern" }] },
+    { style: "masonry", rows: [{ title: "Fern" }] },
+    { rows: [{ title: "Fern", progress: 0.5 }] },
+    { rows: [{ title: "Fern", badge: "New" }] },
     { color: "red", rows: [{ title: "Fern" }] },
     { rows: [{ title: "Fern", pixels: 4 }] },
     { rows: [{ title: "Fern", root: "fern" }] },
@@ -61,6 +66,58 @@ describe("List schema", () => {
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
     expect(props.safeParse({ rows: [{ title: "Fern", id: "r1" }] }).success).toBe(false);
   });
+});
+
+it("allows both shelf progress endpoints, and preserves grid link addresses", () => {
+  const rows = [
+    { title: "Fern", photo: "lib:fern", progress: 0 },
+    { title: "Basil", photo: "lib:basil", progress: 1 },
+  ];
+  expect(props.safeParse({ style: "shelf", aspect: "tall", rows }).success).toBe(true);
+  for (const progress of [-0.01, 1.01])
+    expect(props.safeParse({ style: "shelf", rows: [{ ...rows[0], progress }, rows[1]] }).success).toBe(
+      false,
+    );
+  const legacy = {
+    id: "l1",
+    c: "List",
+    style: "grid",
+    rows: [
+      { title: "Fern", goto: "fern", pinned: true },
+      { title: "Basil", unread: true },
+    ],
+  };
+  const { c: name, id, ...input } = migrateLine(legacy);
+  expect([name, id, props.parse(input).arrange]).toEqual(["List", "l1", "grid"]);
+  expect(migrateLine({ ...legacy, arrange: "rows" })).toMatchObject({ arrange: "rows" });
+  const grid = props.parse(input);
+  expect(affordancesOf(meta, stampItemIds(meta, grid), "l1")).toEqual([
+    { address: "l1/r1", part: "root", action: "press", detail: "→fern" },
+  ]);
+});
+
+// prettier-ignore
+it("keeps a flagged row's separate toggle off until the first tap", () => {
+  const address = "l1/r1/trail", rows = [{ title: "Park", trail: "toggle", unread: true, pinned: true }];
+  const screen = { id: "home", components: [{ id: "l1", c: "List", rows }] };
+  const controller = createScreenController({ screen, defs: components });
+  try {
+    expect(affordancesOf(meta, stampItemIds(meta, props.parse({ rows })), "l1")[0]?.detail).toBe(":off");
+    expect(controller.act({ address, action: "toggle" })).toMatchObject({ ok: true });
+    expect(controller.store.get(`home/${address}`)).toBe(true);
+  } finally {
+    controller.dispose();
+  }
+});
+
+// prettier-ignore
+it("keeps the rank address when the shelf shows progress and badges", () => {
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  const rows = [{ title: "Fern", photo: "lib:fern", progress: 1, badge: "Finished" }, { title: "Basil", photo: "lib:basil", progress: 0 }];
+  const input = { style: "shelf", lead: "number", rows };
+  const parts = addressedElements(renderInstance("List", input, "filled", theme));
+  for (const part of ["r1/rank", "r1/badge", "r2/rank"]) expect(parts.has(`home/c1/${part}`)).toBe(true);
+  expect(renderInstance("List", input, "loading", theme).match(/aria-busy="true"/g)).toHaveLength(2);
 });
 
 describe("List fallback and metadata", () => {

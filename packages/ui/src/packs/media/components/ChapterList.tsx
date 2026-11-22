@@ -7,7 +7,7 @@ import { mediaWordsFor } from "../lang";
 // Core first: Player/default can scrub one recording but cannot jump to named chapter marks.
 export const meta = {
   id: "ChapterList",
-  status: "draft",
+  status: "ready",
   group: "content",
   purpose: "Jump to named chapters of the recording already on this screen.",
   pick: "Named timestamps inside the recording already on this screen; choose one to jump to its start. Not playback controls for one recording (Player), separate recordings (Playlist), or recipe steps (CookSteps).",
@@ -98,19 +98,19 @@ export function ChapterList(input: ChapterListProps) {
   const showsHours = chapters.some(({ at }) => at >= hourInSeconds);
   return (
     <kit.KitCard part="root" padded density={density} surface={surface}>
-      <kit.KitGrid list arrange="rows" density={density}>
+      <kit.KitGrid list arrange="rows" listRowGap={density === "comfortable" ? "group" : undefined}>
         {chapters.map(({ id, title, at }, index) => {
           const time = c.clockLine(at, lang);
           const selected = current === index;
           return (
-            <kit.KitRow key={id} item={id} part="root" role="button" selected={selected} density={density}
+            <kit.KitRow key={id} item={id} part="root" role="button" selected={selected} density="comfortable"
               label={words.chapterList.line(time, title, selected)}
               leadingWidth={showsHours ? undefined : "avatar"}
               leading={showsHours ? <kit.KitTime part="at" value={time} /> :
-                <kit.KitText part="at" role="label" tone="muted" align="end" tabular lines={1}>{time}</kit.KitText>}
+                <kit.KitText part="at" role="number" numberScale="compact" tone="muted" density="comfortable" align="end" tabular lines={1}>{time}</kit.KitText>}
               trailing={<kit.KitIcon name="play" scale="sm" tone={selected ? "accent" : "muted"} decorative />}
             >
-              <kit.KitText part="title" role="body" emphasis={selected ? "strong" : "normal"} density={density}>
+              <kit.KitText part="title" role="body" emphasis={selected ? "strong" : "normal"} density="comfortable">
                 {title}
               </kit.KitText>
             </kit.KitRow>

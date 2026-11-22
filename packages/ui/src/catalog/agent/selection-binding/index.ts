@@ -11,7 +11,8 @@ import {
   type ScreenLike,
   type Values,
 } from "../index";
-import { hostOnlyAddresses, isPrivateMark } from "../action-input";
+import { hostOnlyAddresses, isPrivateMark } from "../private-controls";
+import { hostActionPolicy } from "../host-commands";
 
 export type BoundSelection = Readonly<{
   source: string;
@@ -61,12 +62,13 @@ export function selectionBindingFor(
     local,
     (props.state as StateName | undefined) ?? state,
     false,
-    { data },
+    { data, host: screen[hostActionPolicy] },
   );
   const hostOnly = hostOnlyAddresses(def, id, offered);
   const checks = offered.filter(
-    ({ address, action, part }) =>
+    ({ address, action, part, hostIntent }) =>
       action === "check" &&
+      !hostIntent &&
       part === binding.check &&
       address.split("/").length === length &&
       !screen[disabledSelectionChecks]?.has(address) &&

@@ -7,3 +7,4 @@
 - `Patterns.test.ts`: schema, journal snapshots, read-only comparisons, empty state and variant addresses.
 - `SleepLog.test.ts`: schema, fallback, rendered states and edit action.
 - `Soundscape.test.ts`: schema, fallback, addressed sliders, playback and sleep timer.
+- `ThoughtRecord.test.ts`: schema, fallback, reflection controls, mood changes and local save.

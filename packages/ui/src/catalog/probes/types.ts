@@ -2,6 +2,7 @@ import type { z } from "zod";
 import type { Meta, PackId } from "../meta";
 import type { Axis, AxisValue, CastLike } from "../types";
 import type { WriterFormat } from "../format";
+import type { ScreenLike } from "../agent";
 
 export type ChooseProbe = { kind: "choose"; need: string; expect: string };
 type VariantExpectation = {
@@ -23,6 +24,8 @@ export type ReadProbe = {
   task: string;
   /** Fixed host time in epoch milliseconds for a time-gated example. */
   at?: number;
+  /** Parsed wire fixtures for sibling destinations or playback sources on this example screen. */
+  siblings?: readonly ScreenLike["components"][number][];
   expect: { address: string; action: string };
 };
 export type PackProbe = {
@@ -46,6 +49,25 @@ export type Definition = {
 
 /** One model call. `sample` numbers repeated calls with the same prompt (0, 1, 2, …). */
 export type CallModel = (prompt: string, sample?: number, format?: WriterFormat) => Promise<string>;
+
+/** Offline identity for one probe, separate from the exact request sent to the model. */
+export type ReplayProbe = {
+  id: string;
+  definition: unknown;
+  localPrompt: string;
+  /** Real component definitions can contain refinements and metadata functions. */
+  sourceComponent?: string;
+  samples?: number;
+  /** When present, the other entries in this listing do not affect replay identity. */
+  listing?: { ids: readonly string[] };
+};
+
+export type ProbeCall = (
+  prompt: string,
+  sample: number,
+  format: WriterFormat | undefined,
+  probe: ReplayProbe,
+) => Promise<string>;
 
 export type ProbeResult = {
   component: string;

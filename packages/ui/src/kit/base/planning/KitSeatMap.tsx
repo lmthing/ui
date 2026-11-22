@@ -4,6 +4,7 @@ import { XStack, YStack } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
 import { usePart } from "../../part";
 import { useKitStyle } from "../../provider";
+import { seatFill } from "../../seat-state";
 import { KitText, shifted, surfaceOf } from "../text";
 import { SeatMoveChoices, SeatMoveScope, SeatTray, useSeatMoveTarget, type Seat } from "./seat-move";
 import {
@@ -20,13 +21,17 @@ type Table = {
   shape: "round" | "long";
   seats: readonly Seat[];
   target?: Target;
+  labelPart?: string;
+  count?: { part: string; text: string };
 };
 type SeatMapProps = {
-  part?: string;
+  part?: string | null;
   loading?: boolean;
   tables: readonly Table[];
   tray?: ReactNode;
-  trayGuests?: readonly (Pick<Seat, "id" | "label" | "target"> & { move: NonNullable<Seat["move"]> })[];
+  trayGuests?: readonly (Pick<Seat, "id" | "label" | "target" | "namePart"> & {
+    move: NonNullable<Seat["move"]>;
+  })[];
 };
 const mapWidth = component.base.emptyMinHeight + 2 * (space.md + component.base.borderWidth);
 
@@ -48,11 +53,20 @@ function SeatMark({ seat, loading, tray }: { seat: Seat; loading: boolean; tray:
       borderRadius={tray ? radius.md : radius.pill}
       borderWidth={tray ? 0 : selected ? component.base.strongBorder : component.base.borderWidth}
       borderColor={selected ? "$accent" : "$line"}
-      backgroundColor={tray ? undefined : loading ? "$line" : selected ? "$accentSoft" : seatFill(seat)}
+      backgroundColor={
+        tray
+          ? undefined
+          : seatFill[loading ? "loading" : selected ? "selected" : seat.initials ? "taken" : "free"]
+      }
     >
       {!loading &&
         (tray || seat.initials ? (
-          <KitText role={tray ? "body" : "label"} part={null} align={tray ? "start" : "center"} lines={1}>
+          <KitText
+            role={tray ? "body" : "label"}
+            part={seat.namePart ?? null}
+            align={tray ? "start" : "center"}
+            lines={1}
+          >
             {tray ? seat.label : seat.initials}
           </KitText>
         ) : (
@@ -61,8 +75,6 @@ function SeatMark({ seat, loading, tray }: { seat: Seat; loading: boolean; tray:
     </YStack>
   );
 }
-const seatFill = (seat: Seat) => (seat.initials ? "$raised" : "$surface");
-
 type ScopedSeatProps = { seat: Seat; loading?: boolean; tray?: boolean };
 function ScopedSeat({ seat, loading = false, tray = false }: ScopedSeatProps) {
   return (
@@ -104,7 +116,7 @@ function TableTop({ table, loading }: { table: Table; loading: boolean }) {
       {loading ? (
         <YStack width="60%" height={space.sm} borderRadius={radius.pill} backgroundColor="$line" />
       ) : (
-        <KitText role="body" part={null} align="center" lines={round ? 2 : 1}>
+        <KitText role="body" part={table.labelPart ?? null} align="center" lines={round ? 2 : 1}>
           {table.label}
         </KitText>
       )}
@@ -140,6 +152,11 @@ function TableDrawing({ table, loading }: { table: Table; loading: boolean }) {
         {flanks && <ScopedSeat seat={seats[split]!} loading={loading} />}
       </XStack>
       <SeatBank seats={bottom} loading={loading} />
+      {!loading && table.count && (
+        <KitText role="caption" tone="muted" part={table.count.part} align="center" tabular>
+          {table.count.text}
+        </KitText>
+      )}
       {!loading &&
         seats.map(
           (seat) =>
@@ -157,11 +174,11 @@ const loadingTables: readonly Table[] = [{ id: "placeholder", label: "", shape: 
 /** Tables and their seats are separate targets, never nested controls. */
 export function KitSeatMap({ part = "root", loading = false, tables, tray, trayGuests = [] }: SeatMapProps) {
   const ks = useKitStyle();
-  const address = usePart(part);
+  const address = usePart(part ?? undefined, part !== null);
   const drawings = loading && !tables.length ? loadingTables : tables;
   const guests = trayGuests.map((guest) => <ScopedSeat key={guest.id} seat={guest} tray />);
   return (
-    <YStack {...address} gap={space[ks.density.gap]} aria-busy={loading || undefined}>
+    <YStack {...(part === null ? {} : address)} gap={space[ks.density.gap]} aria-busy={loading || undefined}>
       {!drawings.length && (
         <YStack
           alignItems="center"

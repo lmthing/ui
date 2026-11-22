@@ -21,7 +21,8 @@ import {
 } from "@lmthing/ui/catalog";
 import { example } from "..";
 
-const ids = ["Entries", "Factors", "Feelings", "Breathe", "SleepLog", "Soundscape", "Patterns"];
+const tideIds = ["Entries", "Factors", "Feelings", "Breathe", "SleepLog", "Soundscape", "Patterns"];
+const ids = [...tideIds, "ThoughtRecord"];
 const layouts = {
   checkin: ["quick", "full"],
   settle: ["breathe", "sounds"],
@@ -85,7 +86,7 @@ it("validates every Tide line, screen and internal navigation target", async () 
     .split("\n")
     .map((line): ScreenLike["components"][number] => JSON.parse(line));
   expect(new Set(lines.map(({ id }) => id)).size).toBe(lines.length);
-  for (const id of ids) expect(lines.some(({ c }) => c === id)).toBe(true);
+  for (const id of tideIds) expect(lines.some(({ c }) => c === id)).toBe(true);
   for (const id of ["breathing_note", "mix_note"]) {
     const note = lines.find((line) => line.id === id);
     expect(note).toMatchObject({ c: "Note", emphasis: "quiet", icon: "lightbulb" });

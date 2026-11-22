@@ -9,8 +9,13 @@ it.each([
   const original = { c: "Ring", id: "weekly", style, value: 3, of: 5, label: "Watered", ...explicit };
   const line = migrateLine(original);
   const { c, id, ...input } = line;
-  expect({ c, id }).toEqual({ c: "Ring", id: "weekly" });
-  expect(input).not.toHaveProperty("style");
-  expect(components.Ring.props.parse(input)).toMatchObject({ emphasis, value: 3, of: 5 });
+  expect({ c, id }).toEqual({ c: "Progress", id: "weekly" });
+  expect(components.Progress.props.parse(input)).toMatchObject({
+    style: "ring",
+    emphasis,
+    bars: [{ label: "Watered", value: 3, of: 5 }],
+  });
+  expect(migrateLine(original, { variantOnly: true })).toBe(original);
+  expect(migrateLine(original, { variantOnly: true, includeSavedRing: true })).toEqual(line);
   expect(migrateLine(line)).toEqual(line);
 });

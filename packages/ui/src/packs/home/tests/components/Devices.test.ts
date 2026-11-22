@@ -49,7 +49,7 @@ describe("Devices states and parts", () => {
       const full = `home/${address}${address.split("/").length === 2 ? "/root" : ""}`;
       expect(html.split(`data-testid="${full}"`)).toHaveLength(2);
     }
-    expect(elementAt(html, "home/d1/r2/name")).toBeDefined();
+    expect(elementAt(html, "home/d1/r1/name")).toBeDefined();
   });
 
   renderTest("shows one heading for a room grid rather than repeating it on every device", () => {

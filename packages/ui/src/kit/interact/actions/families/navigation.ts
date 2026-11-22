@@ -1,5 +1,6 @@
 import type { ActStep } from "../../../../catalog";
 import { rejected, type ActionContext, type ActionResult, type ActionState } from "../index";
+import { allowsDestination } from "../../runtime";
 export function navigationAction(state: ActionState, action: ActStep, ctx: ActionContext): ActionResult {
   let sheet = state.sheet;
   const effects: (() => void)[] = [];
@@ -15,7 +16,14 @@ export function navigationAction(state: ActionState, action: ActStep, ctx: Actio
           "A sheet link needs exactly one sheet on this screen",
         );
       sheet = sheets[0]!.id;
-    } else effects.push(() => ctx.options.onLink?.(link.goto, link.address));
+    } else {
+      if (!allowsDestination(ctx.options.parentGate, link.goto))
+        return rejected(state, ctx.at, "not_actionable", "This destination requires admission");
+      effects.push(() => {
+        if (allowsDestination(ctx.options.parentGate, link.goto))
+          ctx.options.onLink?.(link.goto, link.address);
+      });
+    }
   }
   effects.push(() =>
     ctx.options.onAction?.({

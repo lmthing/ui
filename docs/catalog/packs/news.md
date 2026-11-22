@@ -49,6 +49,7 @@ thumbnail photo, relative timestamp, topic pill, read marker, and inline bookmar
 - States: filled, empty, loading, error (news feed refresh failed).
 - Real path: article streams fetched from news publishers or an aggregator service (`service`).
 - Density: `meta.dense: true`, weight 3; a news river scans up to 12 headlines per screen.
+- Renderer: use `FeedRow` for outlet, timestamp, headline, thumbnail and bookmark/share accessories.
 
 ### `StoryCluster` · planned · content · service
 Multi-outlet coverage card for one news event showing the cluster headline, total source count, a 3-way
@@ -83,6 +84,7 @@ and key-event highlight badges. A toggle filters the stream down to key events o
 - States: filled, empty, loading, error (live stream disconnected).
 - Real path: live newsroom dispatches streamed or polled from a journalism service (`service`).
 - Density: `meta.dense: true`, weight 3; evolving live blogs hold up to 16 chronological dispatches.
+- Renderer: use `FeedRow` for dispatch content and `DateRows` for dated groups. News owns newest-first order, pinned summary, and the key-event filter.
 
 ### `BreakingTicker` · planned · content · service
 Pinned urgent alert strip highlighting 1–4 developing stories with severity badges (`Urgent`, `Local Alert`,

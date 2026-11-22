@@ -47,9 +47,11 @@ it("lists only ready fixture packs unless drafts are requested", () => {
   expect(buildPackIndex({}, {}, () => true)).toBe("");
 });
 
-it("does not offer a registered Wave 6 pack without an index entry", () => {
+it("offers indexed Wave 6 drafts only in the draft index", () => {
   const comms = { ...booking, id: "comms" } satisfies PackMeta;
-  expect(buildPackIndex({ comms }, {}, () => true)).toBe("");
+  expect(buildPackIndex({ comms }, {}, () => false)).toBe("");
+  expect(buildPackIndex({ comms }, {}, () => true)).toMatch(/^- comms: /);
+  expect(buildPackIndex({}, { includeDrafts: true })).toMatch(/^- comms: /m);
   expect(buildPackIndex({ comms }, { includeDrafts: true })).toBe(
     buildPackIndex({}, { includeDrafts: true }),
   );

@@ -104,7 +104,7 @@ describe("Challenge fallback and metadata", () => {
     expect(probes).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ kind: "choose", expect: "Challenge" }),
-        expect.objectContaining({ kind: "choose", expect: "Ring" }),
+        expect.objectContaining({ kind: "choose", expect: "Progress" }),
         expect.objectContaining({ kind: "write", expect: "Challenge" }),
         expect.objectContaining({ kind: "write", variant: { axis: "detail", value: "brief" } }),
         expect.objectContaining({ kind: "read", expect: { address: "c1/log", action: "press" } }),

@@ -3,7 +3,7 @@ import * as jsxRuntime from "react/jsx-dev-runtime";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it, vi } from "vitest";
-import { components, presets, space, themeName, type as typography } from "@lmthing/ui/catalog";
+import { components, presets, size, space, themeName, type as typography } from "@lmthing/ui/catalog";
 import {
   createScreenController,
   KitProvider,
@@ -138,10 +138,11 @@ describe("KitRow avatar choice geometry", () => {
       const staff = elementAt(html, "home/c1/r1/root");
       expect(styleAt(html, anyone)).toBe(styleAt(html, staff));
       expect(styleAt(html, "home/c1/anyone_name")).toBe(styleAt(html, "home/c1/r1/name"));
-      for (const row of [anyone, staff]) {
-        const body = row.children[0]!.children[0]!;
-        expect(body.children).toHaveLength(2);
-        expect(body.children[0]!.attributes).toContain('role="img"');
+      for (const part of ["anyone_photo", "r1/photo"]) {
+        const photo = elementAt(html, `home/c1/${part}`);
+        expect(photo.attributes).toContain('role="img"');
+        expect(styleAt(html, photo)).toContain(`height:${size.avatar.lg}px`);
+        expect(styleAt(html, photo)).toContain("align-self:center");
       }
     }
   });

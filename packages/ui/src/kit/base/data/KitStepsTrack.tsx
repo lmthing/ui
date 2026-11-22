@@ -31,24 +31,59 @@ const Circle = styled(YStack, {
 });
 const Joint = styled(YStack, { flex: 1, height: component.base.strongBorder });
 
-/**
- * The drawn track of a step sequence: `dots` (done and current in accent, the current a pill), `bar`
- * (a thin track filled to at/count) or `numbered` (circles joined by lines: done filled, current outlined on a soft tint, the rest a rule). Decorative: the track is
- * a part for layout and taps, hidden from reading and assistive tech; a label carries the meaning.
- */
-export function KitStepsTrack({
-  style,
+function SegmentedTrack({
   count,
   at,
-  part = "track",
+  progress,
+  frame,
 }: {
-  style: "dots" | "bar" | "numbered";
   count: number;
   at: number;
-  part?: string;
+  progress: number;
+  frame: ReturnType<typeof usePart> & { "aria-hidden": true; accessibilityElementsHidden: true };
 }) {
-  const steps = Array.from({ length: count }, (_, index) => index + 1);
+  const ratio = Number.isFinite(progress) ? Math.max(0, Math.min(1, progress)) : 0;
+  return (
+    <XStack {...frame} gap={space.xs} alignSelf="stretch">
+      {Array.from({ length: count }, (_, index) => {
+        const step = index + 1;
+        const fill = step < at ? 1 : step === at ? ratio : 0;
+        return (
+          <XStack
+            key={step}
+            flex={1}
+            height={space.xs}
+            borderRadius={radius.pill}
+            backgroundColor="$line"
+            overflow="hidden"
+          >
+            {fill > 0 && (
+              <YStack width={`${fill * 100}%`} backgroundColor="$accent" borderRadius={radius.pill} />
+            )}
+          </XStack>
+        );
+      })}
+    </XStack>
+  );
+}
+
+/**
+ * The drawn track of a step sequence: `dots` (done and current in accent, the current a pill), `bar`
+ * (filled to at/count), `numbered` (joined circles) or `segmented` (equal bars with per-step fill).
+ * Decorative: the track is a part for layout and taps, hidden from reading and assistive tech.
+ */
+type TrackProps = {
+  style: "dots" | "bar" | "numbered" | "segmented";
+  count: number;
+  at: number;
+  /** Current step fraction for `segmented`, where `at` is one-based. */
+  progress?: number;
+  part?: string;
+};
+
+export function KitStepsTrack({ style, count, at, progress = 0, part = "track" }: TrackProps) {
   const frame = { ...usePart(part), "aria-hidden": true, accessibilityElementsHidden: true } as const;
+  if (style === "segmented") return <SegmentedTrack {...{ count, at, progress, frame }} />;
   if (style === "bar") {
     return (
       <XStack
@@ -62,6 +97,7 @@ export function KitStepsTrack({
       </XStack>
     );
   }
+  const steps = Array.from({ length: count }, (_, index) => index + 1);
   if (style === "dots") {
     return (
       <XStack {...frame} gap={space.xs} alignItems="center">

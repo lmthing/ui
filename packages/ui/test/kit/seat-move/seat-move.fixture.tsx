@@ -8,7 +8,8 @@ import {
   type Props,
   type ScreenLike,
 } from "@lmthing/ui/catalog";
-import { KitSeatMap, KitText, useComponentState, useLiveControls } from "@lmthing/ui/kit";
+import { useComponentState, useLiveControls } from "@lmthing/ui/kit";
+import { SeatPlan } from "../../../src/kit/renderers";
 
 const guest = z.strictObject({ name: text(20), initials: text(2) });
 const wire = z.strictObject({
@@ -94,7 +95,8 @@ export function SeatMoveFixture(input: ViewProps) {
   }));
   const trayGuests = drawings.filter(({ at }) => at === null);
   return (
-    <KitSeatMap
+    <SeatPlan
+      kind="tables"
       loading={loading}
       tables={tables.map(({ label, capacity }, index) => {
         const assigned = drawings.filter(({ at }) => at === index);
@@ -104,13 +106,9 @@ export function SeatMoveFixture(input: ViewProps) {
         }));
         return { id: label, label, shape: index === 0 ? "round" : "long", seats: [...assigned, ...open] };
       })}
-      tray={
-        trayGuests.length ? (
-          <KitText role="label" tone="muted" part="tray">
-            Unassigned guests
-          </KitText>
-        ) : null
-      }
+      {...(trayGuests.length
+        ? { tray: { part: "tray", text: "Unassigned guests", role: "meta" as const, tone: "muted" as const } }
+        : {})}
       trayGuests={trayGuests}
     />
   );
