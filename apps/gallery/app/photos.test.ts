@@ -23,6 +23,15 @@ it("uses stable, distinct theme-based placeholders for photo tags", () => {
   expect(decode()).toContain('viewBox="0 0 160 90"');
 });
 
+it("uses a fern cue for the plant flashcard without changing other photo fixtures", () => {
+  const ref = "lib:plants";
+  const card = atob(resolvePhoto(ref, undefined, "Flashcard").split(",")[1]!);
+  expect(card).toContain('stroke="currentColor"');
+  expect(card).not.toContain('id="g"');
+  expect(resolvePhoto(ref, undefined, "Quiz")).toBe(resolvePhoto(ref));
+  expect(resolvePhoto("lib:dogs", undefined, "Flashcard")).toBe(resolvePhoto("lib:dogs"));
+});
+
 it("uses only catalog roles in every theme and keeps text readable at both gradient stops", () => {
   for (const preset of presets)
     for (const accent of accents)

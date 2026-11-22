@@ -154,9 +154,11 @@ function Feedback({ item, round }: { item: QuizItem; round: QuizRound }) {
       <kit.KitText role="heading" tone={correct ? "good" : "bad"} part="feedback">{correct ? quiz.correct : quiz.incorrect}</kit.KitText>
       <kit.KitText role="number" numberScale="compact" tabular part="score">{quizProgress(round, lang).score}</kit.KitText>
     </kit.KitContent>
-    <kit.KitContent>
-      <kit.KitText role="label" tone="muted" part={null}>{quiz.solution}</kit.KitText>
-      {quizSolution(item, lang).map((line, index) => <kit.KitText key={index} part={index === 0 ? "answer" : null}>{line}</kit.KitText>)}
+    <kit.KitContent group="response">
+      <kit.KitContent rhythm="flush">
+        <kit.KitText role="label" tone="muted" part={null}>{quiz.solution}</kit.KitText>
+        {quizSolution(item, lang).map((line, index) => <kit.KitText key={index} part={index === 0 ? "answer" : null}>{line}</kit.KitText>)}
+      </kit.KitContent>
       {item.explain && <kit.KitText part="explain" tone="muted">{item.explain}</kit.KitText>}
     </kit.KitContent>
     {!round.complete && <kit.KitAction full label={quiz.next} part="next" action="press" />}
