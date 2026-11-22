@@ -10,6 +10,7 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `Comments.tsx`
 - `Poll.tsx`
 - `Stories.tsx`
+- `StoryViewer.tsx`
 - `EventCard.tsx`
 - `Challenge.tsx`
 - `Invite.tsx`

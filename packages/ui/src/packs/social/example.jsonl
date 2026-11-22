@@ -9,3 +9,4 @@
 {"id":"s2","c":"SwipeStack","cards":[{"title":"Fern cutting","photo":"lib:fern","meta":"Two new fronds"},{"title":"Basil cutting","photo":"lib:basil","meta":"Rooted in water"}]}
 {"id":"i1","c":"Invite","title":"Invite to Fernpost","code":"FERN28","joined":6,"qr":true}
 {"id":"s3","c":"Sheet","style":"menu","title":"Post actions","items":[{"label":"Report post","tone":"bad"},{"label":"Block author","tone":"bad"}]}
+{"id":"fern_story","c":"StoryViewer","author":"Maya","slides":[{"photo":"lib:fern","time":"4 min ago","caption":"New fronds this morning."},{"photo":"lib:plants","time":"2 min ago","caption":"More cuttings at the greenhouse."}]}

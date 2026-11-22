@@ -40,6 +40,19 @@ export type SocialWords = {
     empty: string;
     status: (name: string, seen: boolean) => string;
   };
+  storyViewer: {
+    position: (current: string, total: string) => string;
+    previous: string;
+    next: string;
+    play: string;
+    pause: string;
+    reply: string;
+    send: string;
+    react: string;
+    close: string;
+    expired: string;
+    sent: string;
+  };
   event: {
     going: string;
     interested: string;
@@ -115,6 +128,19 @@ export const en = {
     own: "Your story",
     empty: "No stories yet",
     status: (name, seen) => (seen ? `${name}: seen story` : `${name}: new story`),
+  },
+  storyViewer: {
+    position: (current, total) => `Slide ${current} of ${total}`,
+    previous: "Previous slide",
+    next: "Next slide",
+    play: "Play story",
+    pause: "Pause story",
+    reply: "Reply to this slide",
+    send: "Send reply",
+    react: "React",
+    close: "Close story",
+    expired: "This story is no longer available.",
+    sent: "Reply sent.",
   },
   event: {
     going: "Going",
