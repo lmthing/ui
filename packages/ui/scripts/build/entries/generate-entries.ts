@@ -1,4 +1,5 @@
 import { dataExports, scanEntries } from "./scan-entries";
+import { generateDoors } from "./generate-doors";
 import { generatePackEntries } from "./generate-pack-entries";
 import { publishEntries } from "./publish-entries";
 
@@ -86,5 +87,5 @@ export async function generateEntries(root: string) {
       `}`,
     ],
   };
-  await publishEntries(root, outputs);
+  await publishEntries(root, outputs, await generateDoors(root, entries));
 }

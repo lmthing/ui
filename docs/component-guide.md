@@ -19,6 +19,22 @@ the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs
 
 ## The file, in order
 
+For a new catalog entry, start with `pnpm gen:component <pack|core> <Name>` from `packages/ui`
+(or `pnpm --filter @lmthing/ui gen:component <pack|core> <Name>` from the workspace root).
+It reads the named section of `docs/catalog/`, writes a `draft` component and test, and
+creates component-specific copy and English label keys. It leaves existing components,
+including their probes, alone. For a pack, it also wires the component through the pack door.
+Use explicit types (`text(n)`, `number`, `integer`, `boolean`, dates and references),
+backticked enum choices, and explicit array bounds (`items` of fields, `1–6`). Name
+shared axes in `Styles`, for example `density: comfortable, compact` with the values
+in backticks. Ambiguous shorthand, nested repeated collections, conditional schemas
+and custom runtime state names may need to be scaffolded by hand.
+
+Check the draft against the full entry before building the view: supply real examples,
+replace the probe prompts and check the read address, implement conditional actions and
+variant part changes, and move the label keys into the owning `lang/en.ts` dictionary.
+The generated view is only a placeholder, not evidence for the model or visual gates.
+
 1. **Imports.** Only `zod`, `../catalog` and `../kit`. Never `tamagui`, `react-native` or lucide
    directly: those live behind kit bases.
 2. **`meta`**: a plain object, `as const satisfies Meta`.
@@ -104,6 +120,24 @@ Choose only axes and values that visibly change this component. These are candid
 
 See `src/components/Card.tsx` for Card finish and content axes and `src/components/List.tsx` for
 List's grouped rows, peek disclosure, inherited trail and per-row tone and mark.
+
+## Reusing a core renderer in a pack
+
+A view may also import an internal renderer through its kit folder's `index.ts`, such as
+`src/kit/timeline`. Pass named, typed data slots, not a second component definition, arbitrary
+children or model-supplied layout. The adapter formats copy, resolves variants and state, and
+supplies the owner's existing part names and stamped row ids. A missing slot adds no addressed
+part; an all-day label is an explicit time slot, not the default for a missing time.
+
+Keep the parent screen/component context. For a bounded list inside an item, use that item's
+stamped id and one declared part per position (for example `r1/stop_2`), never a synthetic child
+component or item id. Bind actions with the ordinary kit bases to the parent's controller.
+The owner keeps fallback, reading, action metadata, live values, tier and host data; even fold
+state is resolved by the owner and passed into the renderer.
+
+Keep the strict Writer schema and existing recipes unchanged. Test legacy recipe replay, drawn
+parts and action verbs at the old addresses, including hidden or absent slots. The Timeline
+pilot shares event rows and date/rail layout without replacing Agenda or Itinerary on the wire.
 
 ## Words and language
 
