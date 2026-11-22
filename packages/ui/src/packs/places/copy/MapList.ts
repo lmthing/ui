@@ -62,12 +62,30 @@ export function mapListCopy<T extends Place>(places: readonly T[], data?: Device
   };
 }
 
-export function mapListReading(places: readonly Place[], data?: DeviceData, lang?: string) {
-  const { places: rows, more } = mapListCopy(places, data, lang);
+export function mapListReading(
+  {
+    places,
+    style,
+    rowsVisible = style !== "map",
+    activePlace,
+  }: {
+    places: readonly Place[];
+    style?: "split" | "map" | "list" | undefined;
+    rowsVisible?: boolean;
+    activePlace?: string;
+  },
+  data?: DeviceData,
+  lang?: string,
+) {
   const words = placesWordsFor(lang);
+  const labels =
+    style === undefined
+      ? [words.mapListMap, words.mapListList]
+      : [words.mapListSplit, words.mapListMapOnly, words.mapListListOnly];
+  if (!rowsVisible) return activePlace ? [...labels, JSON.stringify(activePlace)] : labels;
+  const { places: rows, more } = mapListCopy(places, data, lang);
   return [
-    words.mapListMap,
-    words.mapListList,
+    ...labels,
     ...rows.flatMap(({ name, distance }) =>
       distance === undefined ? [] : [words.mapListReading(name, distance)],
     ),
