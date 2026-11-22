@@ -135,32 +135,35 @@ type RenewalsProps = c.Props<typeof props, typeof meta>;
 type RenewalRow = RenewalsProps["items"][number];
 
 // prettier-ignore
-function RenewalItem({ row, density, surface, now, success }: {
-  row: RenewalRow; density: c.ThemeDensity; surface: "card" | "plain" | undefined; now: Date; success: boolean;
+function RenewalItem({ row, density, surface, now, success, status }: {
+  row: RenewalRow; density: c.ThemeDensity; surface?: "card" | undefined; now: Date;
+  success: boolean; status?: string | undefined;
 }) {
   const { lang, words: { renewals: words } } = kit.useWords(paperworkWordsFor);
   const loading = kit.useComponentState() === "loading", done = success || complete(row);
   const details = renewalDetails({ ...row, complete: done }, now, lang);
-  return <kit.KitRow item={row.id} part={null} label="" {...{ density, surface }}
-    leading={loading ? <kit.KitSkeleton shape="control" kind="quiet" /> :
-      <kit.KitCheck part="done" label={words.check(row.title)} done={done} />}
-    trailing={loading ? <>
-      {!done && <kit.KitSkeleton shape="control" kind="quiet" />}
-      <kit.KitSkeleton shape="control" kind="quiet" />
-    </> : <>
-      {!done && !success && <kit.KitAction kind="quiet" part="remind" icon="bell" a11y={words.remind(row.title)} />}
-      <kit.KitAction kind="quiet" part="remove" icon="close" a11y={words.remove(row.title)} />
-    </>}>
-    <kit.KitRow part={loading ? null : "root"} inline surface="plain" goto={loading ? undefined : row.goto}
-      label={loading ? "" : row.title} density={density}
-      trailing={row.goto && !loading ? <kit.KitIcon name="chevron_right" scale="sm" tone="muted" decorative /> : undefined}>
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }}
-        content={[["body", row.title], ["caption", row.for], ...details.map(({ line }): ["caption", string] => ["caption", line])]} /> : <>
-        <kit.KitText part="title" density={density}>{row.title}</kit.KitText>
-        {row.for && <kit.KitText part="for" role="caption" tone="muted">{row.for}</kit.KitText>}
-        {details.map(({ part, line, tone }) => <kit.KitText key={part} {...{ part, tone }} role="caption">{line}</kit.KitText>)}
-      </>}
-    </kit.KitRow>
+  return <kit.KitRow part={null} label="" inset={surface ? "md" : "none"} {...{ density, surface }}>
+    <kit.KitContent {...{ density }}>
+      {status && <kit.KitText part="success" role="label" tone="good" density={density}>{status}</kit.KitText>}
+      <kit.KitRow item={row.id} part={null} label="" inline surface="plain" {...{ density }}
+        leading={loading ? <kit.KitSkeleton shape="control" kind="quiet" /> :
+          <kit.KitCheck part="done" label={words.check(row.title)} done={done} />}
+        trailing={<>
+          {!done && (loading ? <kit.KitSkeleton shape="control" kind="quiet" /> :
+            <kit.KitAction kind="quiet" part="remind" icon="bell" a11y={words.remind(row.title)} />)}
+          {loading ? <kit.KitSkeleton shape="control" kind="quiet" /> :
+            <kit.KitAction kind="quiet" part="remove" icon="close" a11y={words.remove(row.title)} />}
+        </>}>
+        <kit.KitRow part={loading ? null : "root"} inline surface="plain" goto={loading ? undefined : row.goto}
+          label={loading ? "" : row.title} density={density}
+          trailing={row.goto && <kit.KitIcon name="chevron_right" scale="sm" decorative loading={loading} />}>
+          <kit.KitLayoutText line={{ part: "title", text: row.title }} {...{ density }} />
+          <kit.KitLayoutText line={{ part: "for", text: row.for, role: "caption", tone: "muted" }} {...{ density }} />
+          {details.map(({ part, line, tone }) => <kit.KitLayoutText key={part}
+            line={{ part, text: line, role: "caption", tone }} {...{ density }} />)}
+        </kit.KitRow>
+      </kit.KitRow>
+    </kit.KitContent>
   </kit.KitRow>;
 }
 
@@ -170,15 +173,12 @@ export function Renewals({ items, style }: RenewalsProps) {
   const density = kit.useKit().density;
   const state = kit.useComponentState(), { words } = kit.useWords(paperworkWordsFor);
   const success = state === "success", cards = style === "cards", now = new Date();
-  const loading = state === "loading";
-  return <kit.KitCard style={cards ? "cards" : "inset"} {...{ surface, density }}>
-    {state === "empty" ? <kit.KitEmpty part="empty" icon="calendar" decorativeIcon /> : <>
-      {!loading && (success || items.every(complete)) && <kit.KitRow part={null} label="" surface="plain">
-        <kit.KitText part="success" role="label" tone="good">{words.renewals.success}</kit.KitText>
-      </kit.KitRow>}
+  const allDone = state !== "loading" && (success || items.every(complete));
+  return <kit.KitCard style={cards ? "cards" : "inset"} padded={!cards && state !== "empty"} {...{ surface, density }}>
+    {state === "empty" ? <kit.KitEmpty part="empty" icon="calendar" decorativeIcon /> :
       <kit.KitGrid list arrange="rows" listRowGap={cards ? "cards" : undefined} density={density}>
-        {items.map((row) => <RenewalItem key={row.id} {...{ row, density, now, success }} surface={cards ? surface : undefined} />)}
-      </kit.KitGrid>
-    </>}
+        {items.map((row, index) => <RenewalItem key={row.id} {...{ row, density, now, success }}
+          surface={cards ? surface : undefined} status={index === 0 && allDone ? words.renewals.success : undefined} />)}
+      </kit.KitGrid>}
   </kit.KitCard>;
 }

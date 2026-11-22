@@ -122,20 +122,19 @@ function ReceiptItem({ row, density, surface, currency }: {
   const loading = kit.useComponentState() === "loading", canOpen = Boolean(row.file || row.goto);
   const [amount, ...details] = receiptDetails(row, currency, lang);
   const skeleton = <kit.KitSkeleton shape="control" kind="quiet" />;
-  const groups = [["date", "category"], ["allocation", "allocated_amount"], ["file"], ["tags"]]
-    .map((parts) => details.filter(({ part }) => parts.includes(part)));
+  const groups = [["date", "category"], ["allocation", "allocated_amount"], ["tags", "file"]]
+    .map((parts) => parts.flatMap((part) => details.filter((detail) => detail.part === part)));
   const draw = (group: (typeof groups)[number]) => {
     if (!group.length) return null;
-    if (loading) return <kit.KitSkeleton shape="figure" inset="none" density={density}
-      content={[["caption", c.clip(group.map(({ line }) => line).join(words.separator), row.payee.length)]]} />;
-    return <kit.KitText part={null} role="caption" tone="muted">
-      {group.map(({ part, line }, index) => <kit.KitText key={part} {...{ part }} role="caption" tone="muted">
+    const key = group[0]!.part;
+    if (loading) return <kit.KitLayoutText key={key} {...{ density }}
+      line={{ role: "caption", text: group.map(({ line }) => line).join(words.separator) }} />;
+    return <kit.KitText key={key} part={null} role="caption" tone="muted" density={density}>
+      {group.map(({ part, line }, index) => <kit.KitText key={part} {...{ part, density }} role="caption" tone="muted">
         {index ? words.separator : undefined}{line}
       </kit.KitText>)}
     </kit.KitText>;
   };
-  const [date, allocation, file, tags] = groups as [typeof details, typeof details, typeof details, typeof details];
-  const dot = <kit.KitSkeleton shape="figure" lead="dot" inset="none" content={[]} />;
   return <kit.KitRow item={row.id} part={null} label="" {...{ density, surface }}
     trailing={loading ? <>{skeleton}{skeleton}</> : <>
       <kit.KitCheck part="reviewed" label={words.review(row.payee)} done={row.reviewed} />
@@ -143,18 +142,16 @@ function ReceiptItem({ row, density, surface, currency }: {
     </>}>
     <kit.KitRow part={loading ? null : "root"} inline surface="plain" label={loading ? "" : row.payee}
       goto={loading ? undefined : row.goto} role={!loading && row.file ? "button" : "text"} density={density}
-      leading={loading ? dot
-        : <kit.KitContent lead={<kit.KitIcon name="file_text" tone="muted" decorative />} children={null} />}
-      trailing={canOpen ? loading ? dot : <kit.KitContent lead={<kit.KitIcon name="chevron_right" tone="muted" decorative />} children={null} /> : undefined}>
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
-        content={[["body", row.payee], ["number", amount?.line, "start", "compact"]]} /> : <>
-        <kit.KitText part="payee" density={density}>{row.payee}</kit.KitText>
-        <kit.KitText role="number" numberScale="compact" part="amount" tabular>{amount?.line}</kit.KitText>
-      </>}
-      <kit.KitContent density={density}>{draw(date)}{draw(allocation)}</kit.KitContent>
-      {(file.length > 0 || tags.length > 0) && <kit.KitContent group="response" density={density}>
-        {draw(file)}{draw(tags)}
-      </kit.KitContent>}
+      leading={<kit.KitIcon name={row.file ? "paperclip" : row.goto ? "chevron_right" : "file_text"}
+        tone={canOpen ? "accent" : "muted"} decorative loading={loading} />}>
+      <kit.KitContent density={density}>
+        <kit.KitGrid fitLast density={density}>
+          <kit.KitLayoutText line={{ part: "payee", text: row.payee }} {...{ density }} />
+          <kit.KitLayoutText line={{ part: "amount", text: amount?.line, role: "figure", compact: true, tabular: true }}
+            align="end" {...{ density }} />
+        </kit.KitGrid>
+        <kit.KitContent rhythm="flush" density={density}>{groups.map(draw)}</kit.KitContent>
+      </kit.KitContent>
     </kit.KitRow>
   </kit.KitRow>;
 }
