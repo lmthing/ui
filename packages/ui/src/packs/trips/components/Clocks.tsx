@@ -108,26 +108,57 @@ type ClockPlaceProps = {
   home: boolean;
 };
 
-// prettier-ignore
 function ClockPlace({ reading, density, inRows, home }: ClockPlaceProps) {
   const { label, time, offset, isDay } = reading;
   const tone = home ? "accent" : "text";
-  const place = <kit.KitText part="label" role="label" density="comfortable" tone={tone}>{label}</kit.KitText>;
-  const clock = <kit.KitFigure density="comfortable" value={{ part: "time", text: time, tone }} align={inRows ? "end" : "start"} />;
+  const place = (
+    <kit.KitText part="label" role="label" density="comfortable" tone={tone}>
+      {label}
+    </kit.KitText>
+  );
+  const clock = (
+    <kit.KitFigure
+      density="comfortable"
+      value={{ part: "time", text: time, tone }}
+      align={inRows ? "end" : "start"}
+    />
+  );
   const footer = (
-    <kit.KitContent density={density} leadingAlign="row"
-      lead={<kit.KitIcon part="daylight" name={isDay ? "sun" : "moon"} scale="sm" />}>
-      <kit.KitText part="offset" role="caption" tone={home ? tone : "muted"} density="comfortable">{offset}</kit.KitText>
+    <kit.KitContent
+      density={density}
+      leadingAlign="row"
+      lead={<kit.KitIcon part="daylight" name={isDay ? "sun" : "moon"} scale="sm" />}
+    >
+      <kit.KitText part="offset" role="caption" tone={home ? tone : "muted"} density="comfortable">
+        {offset}
+      </kit.KitText>
     </kit.KitContent>
   );
-  if (inRows) return (
-    <kit.KitGrid fitLast density={density}>
-      <kit.KitContent density={density}>{place}{footer}</kit.KitContent>
+  if (inRows)
+    return (
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitContent density={density}>
+          {place}
+          {footer}
+        </kit.KitContent>
+        {clock}
+      </kit.KitGrid>
+    );
+  if (density === "compact")
+    return (
+      <>
+        {place}
+        {clock}
+        {footer}
+      </>
+    );
+  return (
+    <kit.KitContent density={density}>
+      {place}
       {clock}
-    </kit.KitGrid>
+      {footer}
+    </kit.KitContent>
   );
-  if (density === "compact") return <>{place}{clock}{footer}</>;
-  return <kit.KitContent density={density}>{place}{clock}{footer}</kit.KitContent>;
 }
 
 export function Clocks(input: c.Props<typeof props, typeof meta>) {
