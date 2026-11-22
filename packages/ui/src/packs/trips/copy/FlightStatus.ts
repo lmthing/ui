@@ -1,4 +1,4 @@
-import { numberLine, percentLine } from "../../../catalog";
+import { numberLine, percentLine, timeOfDayLine } from "../../../catalog";
 import { tripsWordsFor, type TripsWords } from "../lang";
 
 type Flight = {
@@ -36,12 +36,12 @@ function estimate(
 ) {
   if (!time) return {};
   const delta = clockMinutes(time) - clockMinutes(scheduled);
+  // HH:MM has no day, so use the signed difference closest to the scheduled time.
   const later = ((delta + minutesPerDay * 1.5) % minutesPerDay) - minutesPerDay / 2;
   const delay = later > 0 ? numberLine(later, lang) : undefined;
   return {
-    estimated: delay ? words.later(time, delay) : words.estimated(time),
-    estimateTime: words.estimated(time),
-    scheduledNote: words.scheduledTime(scheduled, delay),
+    estimateTime: words.estimated(timeOfDayLine(time, lang)),
+    scheduledNote: words.scheduledTime(timeOfDayLine(scheduled, lang), delay),
   };
 }
 
@@ -64,7 +64,7 @@ export function flightView(flight: Flight, lang?: string) {
     {
       part: "departure",
       title: words.departure,
-      scheduled: scheduledDep,
+      scheduled: timeOfDayLine(scheduledDep, lang),
       ...estimate(scheduledDep, estimatedDep, words, lang),
       estimatePart: "estimated_departure",
     },
@@ -73,7 +73,7 @@ export function flightView(flight: Flight, lang?: string) {
           {
             part: "arrival",
             title: words.arrival,
-            scheduled: scheduledArr,
+            scheduled: timeOfDayLine(scheduledArr, lang),
             ...estimate(scheduledArr, estimatedArr, words, lang),
             estimatePart: "estimated_arrival",
           },
@@ -97,20 +97,18 @@ export function flightView(flight: Flight, lang?: string) {
 export function flightReading(flight: Flight, lang?: string) {
   const { flightStatus: words } = tripsWordsFor(lang);
   const view = flightView(flight, lang);
-  const route =
-    view.route &&
-    words.route(
-      words.airport(JSON.stringify(flight.origin), JSON.stringify(flight.originCity)),
-      words.airport(JSON.stringify(flight.destination), JSON.stringify(flight.destinationCity)),
-    );
   return [
     view.status,
-    ...(route ? [route] : []),
-    ...(route && view.progress ? [words.detail(words.ofRoute, view.progress)] : []),
-    ...view.times.flatMap(({ title, scheduled, estimated }) => [
-      words.detail(title, scheduled),
-      ...(estimated ? [estimated] : []),
+    ...(view.route
+      ? [view.route, flight.originCity, flight.destinationCity].map((line) => JSON.stringify(line))
+      : []),
+    ...(view.route && view.progress ? [words.detail(words.ofRoute, view.progress)] : []),
+    ...view.times.flatMap(({ title, scheduled, estimateTime, scheduledNote }) => [
+      words.detail(title, estimateTime ?? scheduled),
+      ...(scheduledNote ? [scheduledNote] : []),
     ]),
     ...view.details.map(({ label, value }) => words.detail(label, JSON.stringify(value))),
+    words.refresh,
+    ...(view.inbound ? [JSON.stringify(view.inbound)] : []),
   ];
 }

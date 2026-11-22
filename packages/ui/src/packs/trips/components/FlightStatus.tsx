@@ -51,20 +51,20 @@ export const props = z.strictObject({
   ...c.variantProps(meta.variants),
   flight: c.text(10),
   airline: c.text(24),
-  origin: c.text(4),
-  originCity: c.text(20),
-  destination: c.text(4),
-  destinationCity: c.text(20),
+  origin: c.text(4).meta({ kind: undefined }),
+  originCity: c.text(20).meta({ kind: undefined }),
+  destination: c.text(4).meta({ kind: undefined }),
+  destinationCity: c.text(20).meta({ kind: undefined }),
   scheduledDep: c.clock,
   estimatedDep: c.clock.optional(),
   scheduledArr: c.clock,
   estimatedArr: c.clock.optional(),
   status: z.enum(["scheduled", "on_time", "delayed", "boarding", "in_air", "landed", "cancelled"]),
   progress: z.number().min(0).max(1).optional(),
-  terminal: c.text(8).optional(),
+  terminal: c.text(8).meta({ kind: undefined }).optional(),
   gate: c.text(8).optional(),
-  baggage: c.text(12).optional(),
-  inboundFlight: c.text(10).optional(),
+  baggage: c.text(12).meta({ kind: undefined }).optional(),
+  inboundFlight: c.text(10).meta({ kind: undefined }).optional(),
   inboundGoto: c.screenId.optional(),
 }).refine(({ inboundGoto, inboundFlight }) => !inboundGoto || !!inboundFlight, { path: ["inboundGoto"] })
   .overwrite((input) => ({
@@ -124,11 +124,11 @@ type FlightView = ReturnType<typeof flightView>;
 // prettier-ignore
 function FlightTimes({ view, density }: { view: FlightView; density: FlightProps["density"] }) {
   return <kit.KitRowGroup density={density}>
-    {view.times.map(({ part, title, scheduled, estimated, estimatePart, estimateTime, scheduledNote }) =>
+    {view.times.map(({ part, title, scheduled, estimatePart, estimateTime, scheduledNote }) =>
       <kit.KitGrid key={part} density={density}>
         <kit.KitLayoutText line={{ text: title, role: "meta" }} density={density} />
         <kit.KitContent density={density}>
-          <kit.KitLayoutText line={{ text: estimateTime ?? scheduled, part: estimated ? estimatePart : part, role: "meta", strong: true, tabular: true }} align="end" density={density} />
+          <kit.KitLayoutText line={{ text: estimateTime ?? scheduled, part: estimateTime ? estimatePart : part, role: "meta", strong: true, tabular: true }} align="end" density={density} />
           <kit.KitLayoutText line={{ text: scheduledNote, part, role: "meta", tone: "muted", tabular: true }} align="end" density={density} />
         </kit.KitContent>
       </kit.KitGrid>)}
