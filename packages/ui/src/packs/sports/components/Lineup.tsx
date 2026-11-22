@@ -185,14 +185,14 @@ function PlayerList({ players, density }: { players: Player[]; density: c.ThemeD
   const { lang, words: { lineup } } = kit.useWords(sportsWordsFor);
   return <kit.KitRowGroup density={density}>{players.map((player) => {
     const shirt = c.numberLine(player.number, lang);
-    return <kit.KitRow key={player.id} item={player.id} role="button" density={density} inset="none"
+    return <kit.KitRow key={player.id} item={player.id} role="button" density={density} inset="none" leadingAlign="row"
       label={lineup.player(player.name, shirt)} leading={
-        <kit.KitLayoutText line={{ text: shirt, part: "number", role: "figure", compact: true, tabular: true }} />
+        <kit.KitTrail kind="value" part="number" value={shirt} density={density} />
       }>
       <kit.KitMetaLine title={{ text: player.name, part: "name" }} density={density} />
       {hasPlayerBadges(player) && <kit.KitActionFooter density={density}>
-        {playerBadges(player, lang).map(({ part, text }) =>
-          <kit.KitTrail key={part} part={part} kind="badge" value={text} density={density} />)}
+        {playerBadges(player, lang).map(({ part, text, tone }) =>
+          <kit.KitTrail key={part} part={part} kind="badge" value={text} tone={tone} density={density} />)}
       </kit.KitActionFooter>}
     </kit.KitRow>;
   })}</kit.KitRowGroup>;
@@ -201,10 +201,10 @@ function PlayerList({ players, density }: { players: Player[]; density: c.ThemeD
 // prettier-ignore
 function BadgedLineup({ players, density }: { players: Player[]; density: c.ThemeDensity }) {
   const { words: { lineup } } = kit.useWords(sportsWordsFor);
-  return <kit.KitCard part="formation" surface="plain" density={density}>
+  return <kit.KitCard part="formation" style="plain" density={density}>
     {playerGroups(players).map(([line, players]) => line === undefined ? (
-      <kit.KitCard key="bench" part="bench_list" surface="plain" density={density}>
-        <kit.KitHeader title={{ text: lineup.bench, part: "bench" }} density={density} />
+      <kit.KitCard key="bench" part="bench_list" style="plain" density={density}>
+        <kit.KitHeader title={{ text: lineup.bench, part: "bench", role: "meta", tone: "muted" }} density={density} />
         <PlayerList {...{ players, density }} />
       </kit.KitCard>
     ) : <PlayerList key={line} {...{ players, density }} />)}

@@ -174,23 +174,41 @@ function FixtureStatus({ row, density }: { row: Match; density: Density }) {
 
 // prettier-ignore
 function TickerRow({ row, density, loading }: { row: Match; density: Density; loading: boolean }) {
-  const { lang } = kit.useWords(sportsWordsFor);
+  const { lang, words } = kit.useWords(sportsWordsFor);
   const { date, time, side, score, result, initials } = fixtureCopy(row, lang);
   return <kit.KitRow item={row.id} label={row.opponent} goto={loading ? undefined : row.goto}
-    part={loading ? null : "root"} density={density} inset="none"
-    leading={loading ? <kit.KitSkeleton shape="control" /> :
-      <kit.KitPhoto shape="round" initials={initials} label={row.opponent} part="badge" />}
-    trailing={<kit.KitContent density={density}>
-      <kit.KitLayoutText align="end" line={{ text: score, part: "score", role: "figure", compact: true, tabular: true }} />
-      {result && !loading && <kit.KitTrail kind="badge" part="result" tone={result.tone} value={result.label} />}
-      {(row.live || row.clock) && <FixtureStatus {...{ row, density }} />}
-    </kit.KitContent>}>
-    <kit.KitMetaLine density={density} title={{ text: row.opponent, part: "opponent", role: "body", strong: true }}
-      meta={[
-        { text: date, part: "date", tabular: true }, { text: time, part: "time", tabular: true },
-        { text: side, part: "side" }, { text: row.venue, part: "venue" },
-      ]} />
+    part={loading ? null : "root"} density={density} inset="none">
+    <kit.KitGrid fitLast density={density}>
+      <kit.KitContent density={density} leadingAlign="row" lineRole="body"
+        lead={loading ? <kit.KitSkeleton shape="control" /> :
+          <kit.KitPhoto shape="round" initials={initials} label={row.opponent} part="badge" />}>
+        <kit.KitMetaLine density={density}
+          title={{ text: row.opponent, part: "opponent", role: "body", strong: true }}
+          meta={{ text: date, part: "date", tabular: true }} />
+        <FixtureKickoff {...{ time, side, density, loading }} separator={words.fixtureSeparator} />
+        <kit.KitLayoutText line={{ text: row.venue, part: "venue", role: "meta", tone: "muted" }} density={density} />
+      </kit.KitContent>
+      {(score || row.live || row.clock) && <kit.KitContent density={density} align="center">
+        <kit.KitFigure value={{ text: score, part: "score", compact: true }} density={density} align="end" />
+        {result && <kit.KitTrail kind="badge" part="result" tone={result.tone} value={result.label} density={density} />}
+        {(row.live || row.clock) && <FixtureStatus {...{ row, density }} />}
+      </kit.KitContent>}
+    </kit.KitGrid>
   </kit.KitRow>;
+}
+
+// prettier-ignore
+function FixtureKickoff({ venue, time, side, density, loading, separator }: {
+  venue?: string | undefined; time: string; side: string; density: Density; loading: boolean; separator: string;
+}) {
+  if (loading) return <kit.KitLayoutText density={density} line={{
+    text: [time, side, venue].filter(Boolean).join(separator), role: "meta",
+  }} />;
+  return <kit.KitText part={null} role="label" tone="muted" density={density}>
+    <kit.KitText part="time" role="label" tone="muted" density={density} tabular>{time}</kit.KitText>
+    {separator}<kit.KitText part="side" role="label" tone="muted" density={density}>{side}</kit.KitText>
+    {venue && <>{separator}<kit.KitText part="venue" role="label" tone="muted" density={density}>{venue}</kit.KitText></>}
+  </kit.KitText>;
 }
 
 // prettier-ignore
@@ -208,11 +226,7 @@ function MatchRow({ row, next, density, loading }: { row: Match; next: boolean; 
         : <>
           <kit.KitText part="opponent" role={role} density={density}>{row.opponent}</kit.KitText>
           <kit.KitText part="date" role="label" tone="muted" density={density} tabular>{date}</kit.KitText>
-          <kit.KitText part={null} role="label" tone="muted" density={density}>
-            <kit.KitText part="time" role="label" tone="muted" density={density} tabular>{time}</kit.KitText>
-            {words.fixtureSeparator}<kit.KitText part="side" role="label" tone="muted" density={density}>{side}</kit.KitText>
-            {row.venue && <>{words.fixtureSeparator}<kit.KitText part="venue" role="label" tone="muted" density={density}>{row.venue}</kit.KitText></>}
-          </kit.KitText>
+          <FixtureKickoff {...{ time, side, density, loading }} venue={row.venue} separator={words.fixtureSeparator} />
         </>}
     </kit.KitContent>
   );
@@ -247,7 +261,7 @@ export function Fixtures(input: FixturesProps) {
   const ticker = input.style === "scoreboard";
   const rows = next ? input.matches.slice(0, 1) : input.matches;
   const loading = state === "loading";
-  const content = ticker ? <kit.KitRowGroup density={density} leadingWidth="avatar">
+  const content = ticker ? <kit.KitRowGroup density={density}>
     {rows.map((row) => <TickerRow key={row.id} {...{ row, density, loading }} />)}
   </kit.KitRowGroup> :
     rows.map((row) => <MatchRow key={row.id} {...{ row, next, density, loading }} />);

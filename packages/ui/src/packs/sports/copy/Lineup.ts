@@ -15,14 +15,20 @@ export function hasPlayerBadges({ rating, cards, goals }: BadgeData) {
 
 export function playerBadges({ rating, cards, goals }: BadgeData, lang?: string) {
   const { lineup } = sportsWordsFor(lang);
-  const badges: { part: string; text: string }[] = [];
-  if (rating !== undefined) badges.push({ part: "rating", text: lineup.rating(numberLine(rating, lang)) });
-  if (cards)
-    badges.push({ part: "cards", text: cards.map((card) => lineup.cards[card]).join(lineup.badgeSeparator) });
+  const badges: { part: string; text: string; tone: "text" | "warn" | "bad" }[] = [];
   if (goals !== undefined)
     badges.push({
       part: "goals",
       text: lineup.goals(numberLine(goals, lang), pluralForm(goals, lang) === "one"),
+      tone: "text",
+    });
+  if (rating !== undefined)
+    badges.push({ part: "rating", text: lineup.rating(numberLine(rating, lang)), tone: "text" });
+  if (cards)
+    badges.push({
+      part: "cards",
+      text: cards.map((card) => lineup.cards[card]).join(lineup.badgeSeparator),
+      tone: cards.includes("red") ? "bad" : "warn",
     });
   return badges;
 }

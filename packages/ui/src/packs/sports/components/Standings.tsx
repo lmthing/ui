@@ -224,7 +224,7 @@ function StandingsTable({ input, density, showForm, loading }: {
     return { id: row.id, label: row.team, target: { item: row.id, part: "root" }, selected: row.mine,
       heading: <RankHeading {...{ row, density, loading, percentage }} />, cells };
   });
-  return <kit.KitTable part="table" columns={columns} rows={tableRows} separators={loading ? [] : cuts} loading={loading}
+  return <kit.KitTable part="table" columns={columns} rows={tableRows} separators={loading ? [] : cuts} loading={loading} fitColumns={percentage}
     corner={head(words.team)} />;
 }
 

@@ -182,6 +182,18 @@ describe("Standings divisions and win-percentage format", () => {
     expect(props.safeParse({ ...full, format: "wins" }).success).toBe(false);
     expect(readComponent(def, input, "s1", "loading").join("\n")).not.toContain("East Division");
   });
+
+  it("ranks a winless team above an unplayed team and leaves unplayed GB blank", () => {
+    const rows = [
+      { ...seed, won: 0, drawn: 0, lost: 0 },
+      { ...seed, won: 0, drawn: 0, lost: 3 },
+    ];
+    const parts = addressedElements(render({ ...input, rows }));
+    expect(parts.get(address("r2/position"))?.text).toEqual(["1"]);
+    expect(parts.get(address("r2/percentage"))?.text).toEqual(["0%"]);
+    expect(parts.get(address("r1/position"))?.text).toEqual(["2"]);
+    expect(parts.get(address("r1/games_behind"))?.text).toEqual(["–"]);
+  });
 });
 
 describe("Standings read and act", () => {

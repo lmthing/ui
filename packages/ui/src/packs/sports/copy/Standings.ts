@@ -43,7 +43,7 @@ export function standingsCopy({ rows, scoring, mine, lines, format }: StandingsI
     })
     .sort((a, b) =>
       format === "pct_gb"
-        ? b.ratio - a.ratio
+        ? Number(b.played > 0) - Number(a.played > 0) || b.ratio - a.ratio
         : b.points - a.points || b.difference - a.difference || b.for - a.for,
     );
   const leader = ranked[0];
@@ -64,7 +64,8 @@ export function standingsCopy({ rows, scoring, mine, lines, format }: StandingsI
         difference: numberLine(difference, lang),
         points: numberLine(points, lang),
         percentage: played ? percentage.format(ratio) : words.noForm,
-        games_behind: lead === won - lost ? words.noForm : numberLine((lead - won + lost) / 2, lang),
+        games_behind:
+          !played || lead === won - lost ? words.noForm : numberLine((lead - won + lost) / 2, lang),
       }),
     ),
   };

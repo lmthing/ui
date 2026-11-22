@@ -204,7 +204,7 @@ export const probes = [
   },
   read("Add a goal for Ledge Rovers, the home side", { address: "s1/home", action: "increment" }),
   read("Undo one goal for the away side", { address: "s1/away", action: "decrement" }),
-  read("Start, not stop, the match clock", { address: "s1/clock", action: "start" }),
+  read("The match clock is stopped. Start the clock now.", { address: "s1/clock", action: "start" }),
 ] satisfies c.Probe[];
 
 type ScoreView = c.Props<typeof props, typeof meta> & { elapsed?: number; running?: boolean };
@@ -253,7 +253,10 @@ function ScoreDetails({ input, density }: { input: ScoreView; density: c.ThemeDe
       )}
       {periods.length > 0 && (
         <kit.KitContent density={density}>
-          <kit.KitHeader title={{ text: words.scoreboard.periods, part: "periods" }} density={density} />
+          <kit.KitHeader
+            title={{ text: words.scoreboard.periods, part: "periods", role: "body", strong: true }}
+            density={density}
+          />
           <kit.KitRowGroup density={density}>
             {periods.map(({ label, score }, index) => (
               <kit.KitRow
