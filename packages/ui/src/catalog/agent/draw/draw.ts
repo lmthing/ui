@@ -2,6 +2,7 @@ import type { Meta } from "../../meta";
 import type { StateName } from "../../types";
 import { stampItemIds } from "../../lines";
 import type { Values } from "../index";
+import { drawBatch, initialDeck, type DeckDraw } from "./deck";
 import { drawPartition, partitionPlan } from "./partition";
 import { randomIndex, type RandomSource } from "./random";
 
@@ -9,7 +10,8 @@ export const drawKey = "$draw";
 export type DrawState =
   | { kind: "faces"; faces: readonly number[]; held: readonly boolean[] }
   | { kind: "pick"; index?: number; used: readonly number[]; remaining: number }
-  | { kind: "partition"; teams: readonly number[] };
+  | { kind: "partition"; teams: readonly number[] }
+  | DeckDraw;
 
 type Draw = NonNullable<Meta["draw"]>;
 type DrawRole = "draw" | "redraw" | "reset" | "hold";
@@ -28,6 +30,7 @@ function unstamp(value: unknown): unknown {
 
 function inputsFor(draw: Draw, props: Values): string {
   if (draw.kind === "faces") return JSON.stringify([props[draw.count], props[draw.sides]]);
+  if (draw.kind === "deck") return JSON.stringify(unstamp(props[draw.pool]));
   if (draw.kind === "pick")
     return JSON.stringify([
       unstamp(props[draw.pool]),
@@ -79,6 +82,7 @@ export function drawRole(meta: Meta, target: string, action: string): DrawRole |
   if (action !== "press") return;
   if (target === draw.press) return "draw";
   if (draw.kind === "pick" && target === draw.reset) return "reset";
+  if (draw.kind === "deck" && target === draw.reset) return "reset";
   if (draw.kind === "partition" && target === draw.redraw) return "redraw";
 }
 
@@ -89,6 +93,7 @@ export function drawState(meta: Meta, props: Values, get: Get): DrawState | unde
   const stored = matchingDraw(meta, props, get(drawKey));
   if (stored) return stored;
   if (draw.kind === "pick") return { kind: "pick", used: [], remaining: list(props[draw.pool]).length };
+  if (draw.kind === "deck") return initialDeck(list(props[draw.pool]).length);
   if (draw.kind === "faces") return { kind: "faces", faces: [], held: [] };
   return { kind: "partition", teams: [] };
 }
@@ -98,12 +103,15 @@ export function drawStatus(meta: Meta, props: Values, state: StateName, get: Get
   if (!draw || !["filled", "empty", "success"].includes(state)) return state;
   if (draw.kind === "partition" && !partition(draw, props)) return "error";
   const current = drawState(meta, props, get);
+  if (current?.kind === "deck")
+    return !hasResult(current) ? "empty" : current.remaining === 0 ? "success" : "filled";
   if (state === "empty" && current && hasResult(current)) return "filled";
   return state;
 }
 function hasResult(state: DrawState): boolean {
   if (state.kind === "faces") return state.faces.length > 0;
   if (state.kind === "partition") return state.teams.length > 0;
+  if (state.kind === "deck") return state.drawn.length > 0;
   return state.index !== undefined;
 }
 export function drawAvailable(meta: Meta, props: Values, get: Get, target: string, role: DrawRole) {
@@ -115,6 +123,7 @@ export function drawAvailable(meta: Meta, props: Values, get: Get, target: strin
   }
   if (draw.kind === "pick" && state.kind === "pick")
     return role === "reset" ? !repeats(draw, props) : state.remaining > 0;
+  if (state.kind === "deck") return role === "reset" ? state.discard.length > 0 : state.remaining > 0;
   return draw.kind === "partition" && (draw.redraw === undefined || (role === "redraw") === hasResult(state));
 }
 
@@ -164,5 +173,9 @@ export function performDraw(
   }
   if (draw.kind === "partition")
     return { kind: "partition", teams: drawPartition(partition(draw, props)!, random) };
+  if (draw.kind === "deck" && state.kind === "deck") {
+    const size = list(props[draw.pool]).length;
+    return role === "reset" ? initialDeck(size) : drawBatch(state, size, Number(props[draw.count]), random);
+  }
   return state;
 }

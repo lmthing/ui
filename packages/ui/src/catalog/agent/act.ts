@@ -6,6 +6,7 @@ import type { ScreenLike } from "./read";
 import {
   actionValueAddress,
   controlsAreValid,
+  expireProgress,
   findAction,
   localValues,
   type selectStep,
@@ -15,8 +16,8 @@ import {
   stageValue,
   validateStep,
 } from "./action-input";
-import { deviceRandom, drawKey, staleDraw, type RandomSource } from "./draw";
-import { sessionKey, staleSession } from "./session";
+import { deviceRandom, type RandomSource } from "./draw";
+import { monotonicNow } from "./buzz";
 import { clockChanges, clockControlDeclared } from "./clocks";
 import {
   captureDeviceTime,
@@ -75,23 +76,6 @@ function liveInput(def: Definition, input: Values, id: string, local: Values, da
   return liveProps(def.meta, parsed, id, local, true, data);
 }
 
-function expireProgress(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  values: Values,
-  data?: DeviceData,
-) {
-  for (const { id, c, state: _state, ...raw } of screen.components) {
-    const def = defs[c];
-    const draw = `${screen.id}/${id}/${drawKey}`;
-    const session = `${screen.id}/${id}/${sessionKey}`;
-    if (!def || (values[draw] === undefined && values[session] === undefined)) continue;
-    const props = liveInput(def, raw, id, localValues(screen.id, values), data);
-    if (def.meta.draw && staleDraw(def.meta, props, values[draw])) values[draw] = undefined;
-    if (staleSession(def.meta, props, values[session])) values[session] = undefined;
-  }
-}
-
 function stepProgress(
   screen: ScreenLike,
   defs: Record<string, Definition>,
@@ -101,13 +85,14 @@ function stepProgress(
   random: RandomSource | null,
   snapshot: DeviceData | undefined,
   now: number,
+  touchNow: () => number,
 ) {
   const record = stageRecord(screen, defs, next, step, snapshot, now);
   if (record !== undefined) return record ? "" : false;
   return (
     stageCredentialToggle(screen, defs, next, step) ??
     stageLinkedEdit(screen, defs, next, found, step.value) ??
-    stageProgress(screen, defs, step.address, step, next, random, snapshot)
+    stageProgress(screen, defs, step.address, step, next, random, snapshot, touchNow)
   );
 }
 
@@ -152,10 +137,11 @@ export function planAct(
   clockOwner: "planner" | "controller" = "planner",
   data?: DeviceData,
   now = deviceTimeOf(data) ?? Date.now(),
+  touchNow = monotonicNow,
 ): ActResult {
   data = captureDeviceTime(defs, data, now);
   if (random && steps.length > 1) {
-    const preview = planAct(input, defs, values, steps, null, clockOwner, data, now);
+    const preview = planAct(input, defs, values, steps, null, clockOwner, data, now, () => 0);
     if (!preview.ok) return preview;
   }
   const migrated = migrateScreen(input, { variantOnly: true });
@@ -181,7 +167,9 @@ export function planAct(
     const record = stageRecordAction(screen, defs, next, resolved, now, snapshot);
     if (record && "error" in record) return { ok: false, code: "invalid_value", at, hint: record.error };
     try {
-      const progress = record ? "" : stepProgress(screen, defs, next, resolved, found, random, snapshot, now);
+      const progress = record
+        ? ""
+        : stepProgress(screen, defs, next, resolved, found, random, snapshot, now, touchNow);
       if (progress === false)
         return { ok: false, code: "invalid_value", at, hint: "Invalid record mutation" };
       if (progress !== undefined) {

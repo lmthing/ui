@@ -1,8 +1,11 @@
 import {
+  buzzKey,
   drawKey,
   liveProps,
+  monotonicNow,
   stampItemIds,
   staleDraw,
+  staleBuzz,
   sessionKey,
   staleSession,
   migrateScreen,
@@ -40,6 +43,7 @@ export type ControllerOptions = {
   store?: InteractionStore | undefined;
   deviceData?: DeviceData | undefined;
   now?: (() => number) | undefined;
+  touchNow?: (() => number) | undefined;
   random?: RandomSource | undefined;
   onChange?: ((screen: ScreenLike, values: Values) => void) | undefined;
   onSend?: SendHandler | undefined;
@@ -72,7 +76,7 @@ function initialValues(screen: ScreenLike, defs: Record<string, Definition>, now
 function expiredProgress(screen: ScreenLike, defs: Record<string, Definition>, values: Values, now: number) {
   const expired: Values = {};
   const candidates = screen.components.filter(({ id }) =>
-    [drawKey, sessionKey].some((part) => values[valueKey(screen.id, id, part)] !== undefined),
+    [drawKey, sessionKey, buzzKey].some((part) => values[valueKey(screen.id, id, part)] !== undefined),
   );
   if (!candidates.length) return expired;
   const projected = projectScreen({ ...screen, components: candidates }, defs, values, now, undefined, true);
@@ -83,11 +87,13 @@ function expiredProgress(screen: ScreenLike, defs: Record<string, Definition>, v
     const def = defs[c];
     const draw = valueKey(screen.id, id, drawKey);
     const session = valueKey(screen.id, id, sessionKey);
+    const buzz = valueKey(screen.id, id, buzzKey);
     const props = def?.props.safeParse(input);
     if (!def || !props?.success) continue;
     const live = liveProps(def.meta, stampItemIds(def.meta, props.data as Values), id, local, true);
     if (staleDraw(def.meta, live, values[draw])) expired[draw] = undefined;
     if (staleSession(def.meta, live, values[session])) expired[session] = undefined;
+    if (staleBuzz(def.meta, live, values[buzz])) expired[buzz] = undefined;
   }
   return expired;
 }
@@ -125,16 +131,12 @@ function projectLive(options: ControllerOptions, screen: ScreenLike, standalone:
       : projected;
   };
 }
-function createClipboard(
-  { writeClipboard, resolveClipboardText }: ControllerOptions,
-  store: InteractionStore,
-  status: { disposed: boolean },
-) {
-  return clipboardRuntime(store, () => status.disposed, writeClipboard, resolveClipboardText);
+function createClipboard(options: ControllerOptions, store: InteractionStore, disposed: () => boolean) {
+  return clipboardRuntime(store, disposed, options.writeClipboard, options.resolveClipboardText);
 }
 type RuntimeOptions = ControllerOptions & { clipboard?: ReturnType<typeof clipboardRuntime> };
 export function createControllerContext(options: RuntimeOptions, standalone = false) {
-  const { defs, now = Date.now, store = createInteractionStore() } = options;
+  const { defs, now = Date.now, touchNow = monotonicNow, store = createInteractionStore() } = options;
   const screen = controllerScreen(options, standalone);
   const disabledParts = new Map<string, symbol>();
   let initial = standalone ? {} : initialValues(screen, defs, now);
@@ -158,8 +160,9 @@ export function createControllerContext(options: RuntimeOptions, standalone = fa
     screen,
     defs,
     now,
+    touchNow,
     store,
-    clipboard: createClipboard(options, store, status),
+    clipboard: createClipboard(options, store, () => status.disposed),
     status,
     valuesOf,
     liveScreen: projectLive(options, screen, standalone, now),
@@ -182,10 +185,8 @@ export function createControllerContext(options: RuntimeOptions, standalone = fa
     key: (id: string, part: string) => valueKey(screen.id, id, part),
     relative: (address: string) => relativeAddress(screen.id, address),
     sourceOf: (id: string) => screen.components.find((entry) => entry.id === id),
-    inputOf: (entry: ScreenComponent) => {
-      const { id: _id, c: _c, state: _state, ...input } = entry;
-      return defs[entry.c]!.props.parse(input) as Values;
-    },
+    inputOf: ({ id: _id, c, state: _state, ...input }: ScreenComponent) =>
+      defs[c]!.props.parse(input) as Values,
     notifyChange: () =>
       options.onChange?.(
         projectScreen(screen, defs, valuesOf(), now(), status.openSheet, true),

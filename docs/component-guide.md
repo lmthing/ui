@@ -140,6 +140,17 @@ Keep the strict Writer schema and existing recipes unchanged. Test legacy recipe
 parts and action verbs at the old addresses, including hidden or absent slots. The Timeline
 pilot shares event rows and date/rail layout without replacing Agenda or Itinerary on the wire.
 
+| Internal renderer | Owner supplies |
+| --- | --- |
+| `SeatPlan` | Grid sections, optional marker, badges, preview/total and footer; or tables and an unassigned guest tray. Grid targets select or toggle as declared by the owner; table and guest targets retain their separate press/move policies. |
+| `StageBoard` | Ordered lanes, localized headings/counts, stamped cards and optional move presentation. Terminal outcomes, locks and eligible destinations are owner policy. A read-only queue passes no move presentation. |
+| `FeedRow`, `DateRows` | Named author, timestamp, payload, hierarchy and accessory slots. Date groups preserve the caller's order and distinguish explicit time labels from missing time; independently addressed accessories are not nested in a row link. |
+
+Pass seat activation as `target.action` (`select` or `toggle`); the owner decides which seats
+receive a target and when to confirm. Lane destinations carry both their dispatched `value`
+and display `label`. To expose a seat or feed action's label or icon as separate parts, name
+them in `contentParts`; these recipes do not derive additional address names.
+
 ## Words and language
 
 `KitProvider` and `PhoneScreen` take the app's BCP-47 `lang`; the default is English.
@@ -289,6 +300,7 @@ Folder names below are under `src/kit/base/`; each has an `index.ts` door.
 | `helpers` | `KitTrail` | Pending switches retain their state without actions; status pills use the corresponding semantic foreground and soft fill. | `disabled?: boolean`, `tone?: TextTone`; both optional, existing defaults retained. |
 | `surface` | `KitCard` | Fixed swatch surface with a scoped readable foreground for child text, including muted text, without changing unswatched cards. | `swatch?: Swatch`; foreground uses existing black/white theme tokens and meets 4.5:1 contrast for every fixed swatch. |
 | `surface` | `KitTile` | Selected and disabled item tiles with caller-supplied detail; declared root actions and existing links use the shared controller. | `on?: boolean`, `disabled?: boolean`, `detail?: ReactNode`, `action?: "press" \| "toggle" \| "start" \| "stop"`. |
+| `surface` | `KitTile` | Timed pad uses the named item target instead of the root press. Pointer/touch start (or keyboard/accessibility activation) submits to the shared controller immediately. | `touchTarget?: "buzz"`; declare the item `buzz` press. Disabled and loading pads do not submit. Omit the option for the ordinary root press. |
 | `input` | `KitScaleTrack` | Compact readonly stars retain a single accessible rating without control-sized cells. | `compact` boolean (default false; applies only with `readonly` and `style="stars"`) |
 | `surface` | `KitRow` | Current-row outline and status tint without moving the row's slots. Dark inset rows soften the tint and add a narrow status rule. Use a padded card around individually surfaced rows; compose caller empty and loading content. | `selected?: boolean`, `tone?: TextTone`; `part` also accepts `null` to leave the row unaddressed. |
 | `surface` | `KitRow` | Shifts the leading and text slots one level without moving the row surface or trailing edge. | `indent?: 0 \| 1` (default 0). |
@@ -304,6 +316,11 @@ Folder names below are under `src/kit/base/`; each has an `index.ts` door.
 If the view needs something no base does, the task
 says which new base to add under `src/kit/base/` (or `helpers/`) and its exact props. Never draw it
 inside the component file. A new base is themed only through tokens, roles and `useKitStyle()`.
+
+| Opt-in runtime | Declaration | Live state and actions |
+| --- | --- | --- |
+| Finite deck | `meta.draw: { kind: "deck", pool, count, press, reset }` names the parsed array and integer (1–3) props and two component press parts. Offer the draw in `emptyActions`. | `$draw` has `drawn` (latest face-up indices), `discard` (all drawn indices, including that batch), and `remaining`. Each press takes up to `count` remaining cards without replacement and commits once to the instance store. A confirmed reset returns all discards and clears the reveal. Never put the runtime state in Writer props. |
+| Buzzer round | `meta.buzz: { press, reset }` names an item press part and a component reset press part. Offer both in `successActions` so players can still buzz after a winner is locked. | `$buzz` is absent before the first press, after reset, or after the roster changes. Otherwise it is `{ winner, deltas }`, keyed by stamped item ids (`winner` is the first id, its delta is zero). Later first presses retain their elapsed milliseconds. `touchNow` on the controller injects a monotonic millisecond clock, separate from the wall clock. Use `readSuccess: true` if the component's read summary describes the winner and deltas. |
 
 `KitPlayback` accepts an optional `overlay` of controls for an in-frame video toolbar. The toolbar
 remains visible when the host replaces the fallback artwork with its video. Browser media elements

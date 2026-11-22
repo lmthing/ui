@@ -1,5 +1,6 @@
 import {
   atDeviceTime,
+  buzzTarget,
   captureDeviceTime,
   driveTarget,
   isDeviceDataVisible,
@@ -48,7 +49,7 @@ export function visibleConfirmation(
   const values = valuesOf(at);
   if (!isDeviceDataVisible(meta, projectDeviceData(data, values))) return;
   const bound = meta.selectionBinding || meta.drives;
-  if (entry && (bound || meta.deviceDataFlags) && confirmation.step) {
+  if (entry && (bound || meta.deviceDataFlags || meta.draw?.kind === "deck") && confirmation.step) {
     const sourceScreen = bound ? screen : { ...screen, components: [entry] };
     const plan = planAct(
       sourceScreen,
@@ -67,7 +68,14 @@ export function visibleConfirmation(
 
 // Match quoted content as one token so a label cannot be mistaken for an affordance.
 const controlTokens =
-  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (type|set|increment|decrement)(?: = (?:"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?))?(?: !needs-[a-z]+)?\]/g;
+  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (type|set|increment|decrement|press)(?: = (?:"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?))?(?: !needs-[a-z]+)?\]/g;
+
+function isBuzzOffer(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
+  const [id, ...parts] = address.split("/");
+  const entry = screen.components.find((component) => component.id === id);
+  const meta = entry && defs[entry.c]?.meta;
+  return !!meta && Boolean(buzzTarget(meta, parts.join("/"), "press"));
+}
 
 function projectValue(input: Values, address: string, parts: readonly string[], values: Values): Values {
   for (const part of parts) {
@@ -128,9 +136,11 @@ export function readControls(
     ? readKeypads(migrated, defs, values, lang, deviceData, currency, canDrive)
     : readScreen(source, defs, values, lang, deviceData, currency, canDrive);
   return disabled?.size || privateMarks?.size
-    ? read.replace(controlTokens, (token, address, action) =>
-        disabled?.has(address) || (action === "set" && privateMarks?.has(address)) ? "" : token,
-      )
+    ? read.replace(controlTokens, (token, address, action) => {
+        if (action === "set" && privateMarks?.has(address)) return "";
+        if (disabled?.has(address) && (action !== "press" || isBuzzOffer(migrated, defs, address))) return "";
+        return token;
+      })
     : read;
 }
 
