@@ -109,8 +109,10 @@ it("gives all round seats the same orbital radius and retains their order", () =
     target: { part: "seat" },
   }));
   const html = render({ tables: [{ ...tables[0], seats }] });
-  const diagram = elementAt(html, "home/c1/root").children[0]!.children[0]!;
-  const diameter = Number(styleAt(html, diagram).match(/(?:^|;)max-width:(\d+)px/)?.[1]);
+  let diagram = elementAt(html, "home/c1/root").children[0]!;
+  while (diagram.children.length === 1) diagram = diagram.children[0]!;
+  expect(diagram.children[0]).toEqual(elementAt(html, "home/c1/r1/table"));
+  const diameter = Number(styleAt(html, diagram).match(/(?:^|;)width:(\d+)px/)?.[1]);
   const reach = (diameter - size.control.md) / 2;
   expect(reach - size.control.md / 2 - size.control.md).toBeGreaterThanOrEqual(space.xs);
   const ring = diagram.children[1]!;

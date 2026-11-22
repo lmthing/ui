@@ -23,13 +23,12 @@ it("lets a full-bleed card own the photo corners while retaining the crop and ad
   for (const loading of [false, true]) {
     const photo = <KitPhoto shape="wide" part="photo" loading={loading} />;
     const styled = (markup: string) => styleAt(markup, "home/c1/photo");
-    const edge = styled(
-      render(
-        <KitCard bleed="edge" clip>
-          {photo}
-        </KitCard>,
-      ),
+    const edgeMarkup = render(
+      <KitCard bleed="edge" clip>
+        {photo}
+      </KitCard>,
     );
+    const edge = styled(edgeMarkup);
     const inset = styled(
       render(
         <KitCard bleed="edge" padded>
@@ -39,6 +38,8 @@ it("lets a full-bleed card own the photo corners while retaining the crop and ad
     );
     for (const css of [edge, inset]) expect(css).toContain(`aspect-ratio:${variants.aspect.wide}`);
     expect(edge).toContain("border-top-left-radius:0px");
+    expect(styleAt(edgeMarkup, "home/c1/root")).toContain("padding-left:0px");
+    expect(styleAt(edgeMarkup, "home/c1/root")).toContain("padding-top:0px");
     expect(inset).toMatch(/border-top-left-radius:[1-9]\d*px/);
   }
 });

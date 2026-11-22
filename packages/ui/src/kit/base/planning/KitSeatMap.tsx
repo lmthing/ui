@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { LayoutGrid } from "@tamagui/lucide-icons";
-import { XStack, YStack } from "tamagui";
+import { isWeb, ScrollView, XStack, YStack } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
 import { usePart } from "../../part";
 import { useKitStyle } from "../../provider";
@@ -124,18 +124,10 @@ function TableTop({ table, loading }: { table: Table; loading: boolean }) {
   );
 }
 
-function RoundTable({ table, loading }: { table: Table; loading: boolean }) {
+function RoundDrawing({ table, loading, diameter }: { table: Table; loading: boolean; diameter: number }) {
   const { seats } = table;
-  const diameter = seats.length ? roundDiameter(seats.length) : seatEdge * 2;
   return (
-    <YStack
-      width="100%"
-      maxWidth={diameter}
-      aspectRatio={1}
-      alignSelf="center"
-      alignItems="center"
-      justifyContent="center"
-    >
+    <YStack width={diameter} height={diameter} alignSelf="center" alignItems="center" justifyContent="center">
       <TableTop table={table} loading={loading} />
       {seats.length > 0 && (
         <YStack fullscreen margin={seatEdge / 2} pointerEvents="box-none">
@@ -157,6 +149,26 @@ function RoundTable({ table, loading }: { table: Table; loading: boolean }) {
         </YStack>
       )}
     </YStack>
+  );
+}
+
+function RoundTable({ table, loading }: { table: Table; loading: boolean }) {
+  const [width, setWidth] = useState(0);
+  const diameter = table.seats.length ? roundDiameter(table.seats.length) : seatEdge * 2;
+  const overflowing = width > 0 && width < diameter;
+  return (
+    <ScrollView
+      horizontal
+      onLayout={({ nativeEvent }) => setWidth(nativeEvent.layout.width)}
+      contentContainerStyle={{ minWidth: "100%", justifyContent: "center" }}
+      showsHorizontalScrollIndicator={overflowing && !loading}
+      scrollEnabled={!loading}
+      {...(isWeb && overflowing && !loading
+        ? { role: "region", tabIndex: 0, "aria-label": table.label }
+        : {})}
+    >
+      <RoundDrawing {...{ table, loading, diameter }} />
+    </ScrollView>
   );
 }
 

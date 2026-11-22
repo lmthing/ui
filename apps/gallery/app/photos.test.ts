@@ -70,4 +70,9 @@ it("uses different subjects, not just different gradients, for gallery photos an
     expect(decode(theme, "lib:people_anna")).not.toBe(decode(theme, "lib:people_maya"));
     expect(decode(theme, "lib:plants")).not.toContain("<ellipse");
   }
+  const people = ["lib:anna", "lib:carla"].map((ref) =>
+    atob(resolvePhoto(ref, undefined, "People").split(",")[1]!),
+  );
+  expect(people.every((svg) => svg.includes("<ellipse"))).toBe(true);
+  expect(people[0]).not.toBe(people[1]);
 });

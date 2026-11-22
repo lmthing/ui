@@ -95,11 +95,25 @@ describe("KitLinePlot states", () => {
       svg(
         render({
           ...props,
-          series: [{ ...series[0]!, points: series[0]!.points.map((p) => ({ ...p, value: 100 })) }],
+          series: [
+            { ...series[0]!, points: series[0]!.points.map((p, index) => ({ ...p, value: 10 * index })) },
+          ],
           loading: true,
         }),
       ),
     );
+  });
+  it("keeps the loading axis and grid on the same rows for flat data", () => {
+    const flat = [{ ...series[0]!, points: series[0]!.points.map((p) => ({ ...p, value: 100 })) }];
+    const html = render({ series: flat, loading: true });
+    const [plot] = elementAt(html, "home/c1/root").children;
+    const [axis, drawing] = plot!.children;
+    const [svg] = drawing!.children;
+    expect(axis!.children).toHaveLength(1);
+    expect(svg!.children.map((node) => node.tag)).toEqual(["line", "line"]);
+    const yPositions = svg!.children.map((node) => node.attributes.match(/y1="([^"]+)"/)?.[1]);
+    expect(yPositions[0]).toBeDefined();
+    expect(yPositions[0]).toBe(yPositions[1]);
   });
   it("keeps drawings and target geometry while removing loading controls", () => {
     const props = { series, targets: [{ point: "p3", target: { part: "point" } }] };

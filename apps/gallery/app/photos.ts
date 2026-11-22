@@ -37,9 +37,16 @@ function portrait(seed: number): string {
   return `<path d="M48 85Q51 61 80 61T112 85"/><ellipse cx="80" cy="43" rx="${face}" ry="22"/><path d="M${80 - face} 41Q64 ${hair} 80 34Q90 39 ${80 + face} 42"/>`;
 }
 
-function subjectOf(ref: string, seed: number): string {
+function subjectOf(ref: string, seed: number, component?: ComponentName): string {
   const tag = ref.startsWith("lib:") ? ref.slice(4) : "";
-  if (/^(?:people|person|staff|avatar)(?:_|$)/.test(tag)) return portrait(seed);
+  if (
+    component === "People" ||
+    component === "StaffPicker" ||
+    component === "Turns" ||
+    component === "TeamPicker" ||
+    /^(?:people|person|staff|avatar)(?:_|$)/.test(tag)
+  )
+    return portrait(seed);
   if (tag === "dogs") return subjects.dog!;
   return Object.hasOwn(subjects, tag)
     ? subjects[tag]!
@@ -65,6 +72,6 @@ export function resolvePhoto(
     const cover = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 90" color="${roles.accent}"><rect width="120" height="90" fill="${from}"/><rect x="10" y="10" width="100" height="70" rx="4" fill="${to}"/>${motif}</svg>`;
     return `data:image/svg+xml;base64,${btoa(cover)}`;
   }
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 90"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/></linearGradient></defs><rect width="160" height="90" fill="url(#g)"/><g fill="none" stroke="${roles.muted}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${subjectOf(ref, value)}</g></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 90"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/></linearGradient></defs><rect width="160" height="90" fill="url(#g)"/><g fill="none" stroke="${roles.muted}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${subjectOf(ref, value, component)}</g></svg>`;
   return `data:image/svg+xml;base64,${btoa(svg)}`;
 }

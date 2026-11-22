@@ -116,7 +116,7 @@ function useCardFinish({ style, look, surface, tone, density, align, bleed, padd
   return {
     ...variantSurfaceOf(finish ?? "card", ks.surface, tone ?? "neutral"),
     borderRadius: shifted("md", ks.radiusShift),
-    padding: padded ? space.md : style === "inset" ? space.xs : component.base.none,
+    padding: padded ? space.md : style === "inset" && !gutter ? space.xs : component.base.none,
     ...(padded && inset === "none" ? { paddingHorizontal: component.base.none } : {}),
     gap: style === "cards" ? space[spacing.gap] : padded ? space[spacing.contentGap] : component.base.none,
     ...(align === "center" ? { alignItems: variants.align.center.content } : {}),
@@ -154,9 +154,7 @@ export function KitCard(props: CardProps) {
         >
           {swatch && isWeb && <style>{swatchCss(swatch, theme)}</style>}
           <CardGutterContext.Provider value={Boolean(props.padded && props.inset !== "none")}>
-            <EdgeMediaContext.Provider
-              value={props.bleed === "edge" && (!props.padded || props.inset === "none")}
-            >
+            <EdgeMediaContext.Provider value={props.bleed === "edge" && !props.padded}>
               <CardChildren loading={loading}>{children}</CardChildren>
             </EdgeMediaContext.Provider>
           </CardGutterContext.Provider>

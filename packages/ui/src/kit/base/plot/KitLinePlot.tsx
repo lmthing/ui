@@ -70,19 +70,22 @@ function PlotPoints({
 function PlotLoading({
   width,
   height,
-  frame: { left, top, yEnd },
-}: Pick<DrawingProps, "width" | "height" | "frame">) {
+  geometry,
+  frame: { left, top, yEnd, y },
+}: Pick<DrawingProps, "width" | "height" | "frame" | "geometry">) {
   const theme = useTheme();
+  const centre = (top + yEnd) / 2;
   return (
     <Svg width={width} height={height} aria-hidden>
-      {[top, (top + yEnd) / 2, yEnd].map((y) => (
-        <Line key={y} x1={left} x2={width - left} y1={y} y2={y} stroke={theme.line?.val} />
-      ))}
+      {geometry.ticks.map((tick, index) => {
+        const row = y(tick);
+        return <Line key={index} x1={left} x2={width - left} y1={row} y2={row} stroke={theme.line?.val} />;
+      })}
       <Line
         x1={width / 3}
         x2={(width / 3) * 2}
-        y1={height / 2}
-        y2={height / 2}
+        y1={centre}
+        y2={centre}
         stroke={theme.line?.val}
         strokeWidth={space.sm}
         strokeLinecap="round"
@@ -99,7 +102,7 @@ function PlotDrawing({ series, goal, baseline, geometry, ...props }: DrawingProp
     loading,
     frame: { x, y, left },
   } = props;
-  if (loading) return <PlotLoading {...props} />;
+  if (loading) return <PlotLoading {...props} geometry={geometry} />;
   const rule = { strokeWidth: component.base.borderWidth, stroke: theme.line?.val };
   return (
     <Svg width={width} height={height} aria-hidden>

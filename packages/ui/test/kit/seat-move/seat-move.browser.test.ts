@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, expect, it } from "vitest";
 import type { Browser } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
+import { size } from "@lmthing/ui/catalog";
 import { galleryConfig, launchChrome } from "../../../scripts/look";
 
 let server: ViteDevServer;
@@ -153,6 +154,40 @@ it("shows Gantt viewport continuation on the scrollable side without moving the 
     expect(
       await timeline.evaluate((element) => element.scrollWidth - element.clientWidth - element.scrollLeft),
     ).toBeLessThanOrEqual(1);
+  } finally {
+    await page.close();
+  }
+});
+
+it("keeps all sixteen round seats separated and reachable in a narrow phone", async () => {
+  const page = await browser.newPage({ viewport: { width: 320, height: 844 } });
+  await page.addInitScript("globalThis.process ??= { env: {} }; globalThis.__name = (fn) => fn");
+  try {
+    await page.goto(new URL(`${route}?full-round-table`, server.resolvedUrls!.local[0]).href);
+    const table = page.getByRole("region", { name: "Oak" });
+    await table.waitFor();
+    const sizes = await table.locator('[data-testid^="home/c1/r"]').evaluateAll((seats) =>
+      seats.map((seat) => {
+        const { x, y, width, height } = seat.getBoundingClientRect();
+        return { width, height, x: x + width / 2, y: y + height / 2 };
+      }),
+    );
+    expect(sizes).toHaveLength(16);
+    for (const [index, a] of sizes.entries()) {
+      expect(a.width).toBe(size.control.md);
+      expect(a.height).toBe(size.control.md);
+      const b = sizes[(index + 1) % sizes.length]!;
+      expect(Math.hypot(a.x - b.x, a.y - b.y)).toBeGreaterThan(size.control.md);
+    }
+    await table.press("ArrowRight");
+    await expect.poll(() => table.evaluate((node) => node.scrollLeft)).toBeGreaterThan(0);
+    await table.evaluate((node) => {
+      node.scrollLeft = node.scrollWidth;
+    });
+    const last = page.getByTestId("home/c1/r5/root");
+    const viewport = (await table.boundingBox())!;
+    const seat = (await last.boundingBox())!;
+    expect(seat.x + seat.width).toBeLessThanOrEqual(viewport.x + viewport.width + 1);
   } finally {
     await page.close();
   }
