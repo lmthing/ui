@@ -50,8 +50,8 @@ export function jobPostReading(input: JobDetails, currency?: AppCurrency, lang?:
   const copy = jobPostCopy(input, currency, lang);
   return [
     [copy.workplace, copy.contract].join(words.termSeparator),
-    ...(copy.pay === undefined ? [] : [copy.pay]),
     ...(copy.easyApply ? [copy.easyApply] : []),
+    ...(copy.pay === undefined ? [] : [copy.pay]),
     ...(copy.benefits.length ? [copy.benefitsLabel, ...copy.benefits] : []),
     words.requirements,
     ...copy.requirements,

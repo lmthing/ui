@@ -6,8 +6,8 @@ import { galleryConfig } from "../../../../../scripts/look";
 const route = "/hiring-options-test";
 const fixture = new URL("./HiringOptions.browser-fixture.tsx", import.meta.url).pathname;
 
-it("uses opt-in details and linked actions on a calm 390px phone", async () => {
-  const server = await createServer({
+function fixtureServer() {
+  return createServer({
     ...galleryConfig(0),
     plugins: [
       {
@@ -23,6 +23,10 @@ it("uses opt-in details and linked actions on a calm 390px phone", async () => {
       },
     ],
   });
+}
+
+it("uses opt-in details and linked actions on a calm 390px phone", async () => {
+  const server = await fixtureServer();
   try {
     await server.listen();
     const browser = await launchChrome();
@@ -47,7 +51,7 @@ it("uses opt-in details and linked actions on a calm 390px phone", async () => {
       await expect.poll(() => destination.textContent()).toBe("followup_reschedule");
       expect(await part("i1/prep").textContent()).toContain("Interview prep");
       expect(await part("j1/easy_apply").textContent()).toBe("Easy apply");
-      expect(await part("j1/benefit_4").textContent()).toBe("Paid time off");
+      expect(await part("j1/benefit_4").textContent()).toBe("Paid leave");
       await page.goto(new URL(`${route}?closed`, base).href);
       await part("j1/easy_apply").waitFor();
       expect(await part("j1/apply").count()).toBe(0);

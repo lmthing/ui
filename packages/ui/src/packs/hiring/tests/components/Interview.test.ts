@@ -77,7 +77,7 @@ describe("Interview contract and fallback", () => {
   });
 });
 
-describe("Interview parts, states, read and act", () => {
+describe("Interview prep and rescheduling options", () => {
   it("renders and reads bounded prep only for the checklist", () => {
     const input = examples[2]!;
     expect(parts(input).has("home/i1/prep")).toBe(true);
@@ -86,6 +86,7 @@ describe("Interview parts, states, read and act", () => {
     expect(parts({ ...input, style: undefined }).has("home/i1/prep")).toBe(false);
     expect(reading({ ...input, style: undefined })).not.toContain("Read the application notes");
     expect(parts(input, "loading").has("home/i1/prep")).toBe(false);
+    expect(props.safeParse({ ...input, prep: Array(6).fill("x".repeat(80)) }).success).toBe(true);
     for (const prep of [[], Array(7).fill("Step"), ["x".repeat(81)]])
       expect(props.safeParse({ ...input, prep }).success).toBe(false);
   });
@@ -114,6 +115,9 @@ describe("Interview parts, states, read and act", () => {
       expect(controller(unavailable).press("i1/reschedule").ok).toBe(false);
     }
   });
+});
+
+describe("Interview parts, states, read and act", () => {
   it("keeps the existing details and part addresses by default", () => {
     const drawn = parts();
     expect([...parts({ ...full }).keys()]).toEqual([...drawn.keys()]);

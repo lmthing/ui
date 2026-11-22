@@ -77,7 +77,9 @@ describe("hiring recipes and worked example", () => {
     };
     expect(scoreComposition(JSON.stringify(flat), layout, "hiring_roles", components).issues).toEqual([]);
   });
+});
 
+describe("hiring composition", () => {
   it("checks all ten recipes, neutral defaults and compose probes", () => {
     expect(checkPacks({ components, packs, packOf, packExamples, packArchetypes })).toEqual([]);
     expect(checkArchetypes({ components, packOf, packArchetypes, archetypes })).toEqual([]);

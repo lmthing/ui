@@ -69,7 +69,7 @@ describe("Candidate contract and fallback", () => {
   });
 });
 
-describe("Candidate parts, states and actions", () => {
+describe("Candidate panel and résumé options", () => {
   it("compares authored interviewer findings only in panel style and respects brief detail", () => {
     const panel = examples[2]!;
     const active = render(panel).get("home/c1/r1/panel");
@@ -87,6 +87,8 @@ describe("Candidate parts, states and actions", () => {
   });
   it("bounds panel findings without allowing numeric scores", () => {
     const entry = { interviewer: "Jo Ellis", finding: "meets" };
+    const panelFindings = Array(4).fill({ ...entry, interviewer: "x".repeat(24), evidence: "x".repeat(80) });
+    expect(props.safeParse({ ...full, criteria: [{ label: "Sample", panelFindings }] }).success).toBe(true);
     for (const panelFindings of [[entry], Array(5).fill(entry), [entry, { ...entry, score: 8 }]])
       expect(props.safeParse({ ...full, criteria: [{ label: "Sample", panelFindings }] }).success).toBe(
         false,
@@ -109,6 +111,9 @@ describe("Candidate parts, states and actions", () => {
     expect(onAction).toHaveBeenCalledExactlyOnceWith({ address: "home/c1/resume", action: "press" });
     expect(controller().press("c1/resume").ok).toBe(false);
   });
+});
+
+describe("Candidate parts, states and actions", () => {
   it("hides evidence in brief without renumbering criteria or deleting authored data", () => {
     const brief = { ...full, detail: "brief" } as const;
     const parts = [...render().keys()];

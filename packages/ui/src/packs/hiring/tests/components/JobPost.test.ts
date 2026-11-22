@@ -102,7 +102,7 @@ describe("JobPost bounds and fallback", () => {
   });
 });
 
-describe("JobPost states, parts and reading", () => {
+describe("JobPost optional benefits and Easy apply badge", () => {
   it("shows up to four passive benefits and the easy-apply badge only when supplied", () => {
     const input = examples[2]!;
     const drawn = parts(input);
@@ -118,10 +118,14 @@ describe("JobPost states, parts and reading", () => {
     expect(read(omitted)).toBe(read(full));
     expect(read({ ...input, closes: "2020-01-01" })).not.toContain("[j1/apply ");
     expect(read(input)).toContain("[j1/apply press→trainer_apply]");
+    expect(props.safeParse({ ...input, benefits: Array(4).fill("x".repeat(24)) }).success).toBe(true);
     expect(props.safeParse({ ...input, benefits: Array(5).fill("Benefit") }).success).toBe(false);
     expect(props.safeParse({ ...input, benefits: ["x".repeat(25)] }).success).toBe(false);
     expect(props.safeParse({ ...input, easyApply: "yes" }).success).toBe(false);
   });
+});
+
+describe("JobPost states, parts and reading", () => {
   it("only hides the description in brief view and reading", () => {
     const drawn = parts();
     expect([...drawn.keys()]).toEqual(

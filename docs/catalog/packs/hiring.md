@@ -78,7 +78,7 @@ Each criterion shows a reviewer's finding and supporting evidence, never an auto
   `finding` (`unreviewed`, `needs_evidence`, `meets`, `gap`, default `unreviewed`), `evidence` text(80) optional,
   `panelFindings` optional (2–4 entries of `interviewer` text(24), `finding` using the same enum, and
   `evidence` text(80) optional), 1–6 criteria;
-  `interviewGoto`, `offerGoto` (screen ids), `resumeGoto` (screen id) optional.
+  `interviewGoto`, `offerGoto` (screen ids), `resumeGoto` (screen id) optional, `style` optional.
 - Styles: detail: `full` (default), `brief` (hides evidence); optional `style: "panel"` compares
   the supplied interviewer findings side by side per criterion without averaging or scoring them.
 - Parts → actions: criteria `finding select`, criteria `evidence type`, `interview press`, `offer press`
@@ -101,7 +101,7 @@ and confirmation status, with edit and cancel. It records an agreed time, not av
   `time` HH:MM, `minutes` 5–240, `format` (`in_person`, `phone`, `video`), `place` text(36) optional,
   `link` (validated HTTPS URL, text(200)) optional, `interviewers` text(24) each 1–6,
   `status` (`proposed`, `confirmed`, `completed`, `cancelled`), `goto` (edit form),
-  `rescheduleGoto` (screen id) optional, `prep` text(80) each 1–6 optional.
+  `rescheduleGoto` (screen id) optional, `prep` text(80) each 1–6 optional, `style` optional.
 - Styles: regular meeting details by default; optional `style: "checklist"` adds the supplied read-only prep guide.
 - Parts → actions: `edit press`, `cancel press`, `complete press`, `invite send`, `join press`,
   `reschedule press` (only for proposed or confirmed interviews with `rescheduleGoto`); optional read-only `prep`.

@@ -590,6 +590,322 @@
       "ApplicantPipeline"
     ]
   },
+  "ApplicantPipeline%2Fchoose%2FFor%20one%20job%2C%20group%20applicants%20into%20counted%20stages%20from%20applied%20to%20offer.%20Let%20me%20move%20active%20applicants%20and%20take%20closed%20applications%20off%20the%20board./6f68a423e38ec87c/e35097a1034a0096": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- ApplicantPipeline: Move candidates between stage lanes on a recruiter's board for one opening. Pick: Use only when asked to show separate lanes keyed by hiring stage or let recruiters change a candidate's stage. Not a single collection of linked rows (List); a row's status alone does not qualify. Not a generic board (Board) or the job seeker's tracker (Applications).\n- Applications: Track my job applications and log the follow-ups I owe. Pick: A job seeker's own applications to multiple employers with dated next actions, follow-up logging and application history. Not employers reviewing people (ApplicantPipeline), one flat list with a static badge and link per row (List), or a simple checklist (Checklist).\n- Candidate: Review evidence for one job application and record a human hiring decision. Pick: One application with criterion-by-criterion findings and evidence, interview and offer links, and a human decision. Not identity alone (Profile), generic facts (KeyValue), a client summary (ClientCard), or a rating (Scale).\n- Interview: View and manage one job interview already arranged for an applicant. Pick: One arranged hiring interview with interviewers, time, format, link and confirmation or cancellation. Not a day's agenda (Timeline), available times (Slots), or a service appointment (Appointment).\n- JobFeed: Browse open jobs, compare their pay and workplace, and bookmark openings. Pick: Multiple open jobs with workplace mode, pay and bookmarks. Not short link rows (List), one full opening (JobPost), or tracking jobs already applied to (Applications).\n- JobPost: Read a vacancy's full employment terms at the destination and decide whether to apply. Pick: Use only when the current screen itself presents the employment terms or lets the person apply. Not a way to navigate to the vacancy page: a single linked teaser is Card, and an openings directory is List. Not an available shift (OpenShift) or goods for sale (Product).\n- Offer: Review proposed employment terms and manage the offer and its response. Pick: An employment offer with pay, hours, start date, conditions, response deadline and status. Not pay alone (Amount), a discount (Promo), a client agreement (Agreement) or a quote (Invoice).\n- ResumeProfile: Show a job seeker’s work history, education, skills and availability. Pick: A job seeker's structured CV with work history, education, skills and an optional attachment. For just a name, one supporting line and optional portrait, use Profile. Not employer applicant review (Candidate) or flat facts (KeyValue).\n\nNeed, in the person's words: \"For one job, group applicants into counted stages from applied to offer. Let me move active applicants and take closed applications off the board.\"\nReply with only the component id, nothing else.",
+    "reply": "ApplicantPipeline",
+    "replies": [
+      "ApplicantPipeline",
+      "ApplicantPipeline",
+      "ApplicantPipeline"
+    ]
+  },
+  "ApplicantPipeline%2Fchoose%2FI%20need%20a%20plain%20alphabetical%20directory%20of%20people%20who%20applied.%20Give%20each%20person%20one%20row%20with%20their%20name%2C%20a%20small%20status%20badge%20like%20Contacted%2C%20and%20a%20chevron%20to%20open%20their%20profile.%20No%20groups%2C%20counts%20or%20moving%20anyone./b1adc5a502be01ec/b6ab49b5828a7010": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- ApplicantPipeline: Move candidates between stage lanes on a recruiter's board for one opening. Pick: Use only when asked to show separate lanes keyed by hiring stage or let recruiters change a candidate's stage. Not a single collection of linked rows (List); a row's status alone does not qualify. Not a generic board (Board) or the job seeker's tracker (Applications).\n- Applications: Track my job applications and log the follow-ups I owe. Pick: A job seeker's own applications to multiple employers with dated next actions, follow-up logging and application history. Not employers reviewing people (ApplicantPipeline), one flat list with a static badge and link per row (List), or a simple checklist (Checklist).\n- Candidate: Review evidence for one job application and record a human hiring decision. Pick: One application with criterion-by-criterion findings and evidence, interview and offer links, and a human decision. Not identity alone (Profile), generic facts (KeyValue), a client summary (ClientCard), or a rating (Scale).\n- Interview: View and manage one job interview already arranged for an applicant. Pick: One arranged hiring interview with interviewers, time, format, link and confirmation or cancellation. Not a day's agenda (Timeline), available times (Slots), or a service appointment (Appointment).\n- JobFeed: Browse open jobs, compare their pay and workplace, and bookmark openings. Pick: Multiple open jobs with workplace mode, pay and bookmarks. Not short link rows (List), one full opening (JobPost), or tracking jobs already applied to (Applications).\n- JobPost: Read a vacancy's full employment terms at the destination and decide whether to apply. Pick: Use only when the current screen itself presents the employment terms or lets the person apply. Not a way to navigate to the vacancy page: a single linked teaser is Card, and an openings directory is List. Not an available shift (OpenShift) or goods for sale (Product).\n- Offer: Review proposed employment terms and manage the offer and its response. Pick: An employment offer with pay, hours, start date, conditions, response deadline and status. Not pay alone (Amount), a discount (Promo), a client agreement (Agreement) or a quote (Invoice).\n- ResumeProfile: Show a job seeker’s work history, education, skills and availability. Pick: A job seeker's structured CV with work history, education, skills and an optional attachment. For just a name, one supporting line and optional portrait, use Profile. Not employer applicant review (Candidate) or flat facts (KeyValue).\n\nNeed, in the person's words: \"I need a plain alphabetical directory of people who applied. Give each person one row with their name, a small status badge like Contacted, and a chevron to open their profile. No groups, counts or moving anyone.\"\nReply with only the component id, nothing else.",
+    "reply": "List",
+    "replies": [
+      "List",
+      "List",
+      "List"
+    ]
+  },
+  "ApplicantPipeline%2Fread%2FMove%20Sam%20Patel's%20card%20to%20Interview.%20Copy%20the%20card%20address%20and%20the%20action%20word%20after%20it%20from%20the%20move%20bracket%2C%20in%20separate%20fields.%20Do%20not%20include%20the%20destination%20value./d07d42d13652048b/bc2d6f921088f390": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 ApplicantPipeline Applied: 1 — Screening: 1 — Interview: 0 — Offer: 0 — Hired: 0 · Rejected: 0 · Withdrawn: 0 — No applicants — Move to — applied — screening — interview — offer — Sam Patel — Applied 6 Apr 2027 — Call about group walks — By 10 Apr 2027 — Imani Cole — Applied 7 Apr 2027 — Review references — \"Summer dog walker\"\n  r1 \"Sam Patel\" · \"Call about group walks\" [p1/r1 press→sam_review] [p1/r1 move = \"screening\"; choices [\"applied\",\"interview\",\"offer\"]]\n  r2 \"Imani Cole\" · \"Review references\" [p1/r2 press→imani_review] [p1/r2 move = \"applied\"; choices [\"screening\",\"interview\",\"offer\"]]\n\nTask: Move Sam Patel's card to Interview. Copy the card address and the action word after it from the move bracket, in separate fields. Do not include the destination value.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"p1/r1/move\", \"action\": \"move\"}",
+    "replies": [
+      "{\"address\": \"p1/r1/move\", \"action\": \"move\"}",
+      "{\"address\": \"p1/r1\", \"action\": \"move\"}",
+      "{\"address\": \"p1/r1\", \"action\": \"move\"}"
+    ]
+  },
+  "ApplicantPipeline%2Fread%2FOpen%20Sam%20Patel's%20application./b5e201affb911161/c28c4a3ee628477d": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 ApplicantPipeline Applied: 1 — Screening: 1 — Interview: 0 — Offer: 0 — Hired: 0 · Rejected: 0 · Withdrawn: 0 — No applicants — Move to — applied — screening — interview — offer — Sam Patel — Applied 6 Apr 2027 — Call about group walks — By 10 Apr 2027 — Imani Cole — Applied 7 Apr 2027 — Review references — \"Summer dog walker\"\n  r1 \"Sam Patel\" · \"Call about group walks\" [p1/r1 press→sam_review] [p1/r1 move = \"screening\"; choices [\"applied\",\"interview\",\"offer\"]]\n  r2 \"Imani Cole\" · \"Review references\" [p1/r2 press→imani_review] [p1/r2 move = \"applied\"; choices [\"screening\",\"interview\",\"offer\"]]\n\nTask: Open Sam Patel's application.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"p1/r1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"p1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"p1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"p1/r1\", \"action\": \"press\"}"
+    ]
+  },
+  "ApplicantPipeline%2Fwrite%2FFor%20the%20Morning%20baker%20hiring%20board%2C%20stack%20all%20hiring%20stages%20vertically%2C%20one%20under%20the%20other.%20Mara%20Kim%20applied%202027-05-01%2C%20is%20at%20Offer%20and%20still%20active.%20Link%20to%20her%20review./bbac50c06c9809ad/4b3c9cb45279218c": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nApplicantPipeline: Move candidates between stage lanes on a recruiter's board for one opening.\nprops: { arrange?: strip|rows=\"strip\", jobId: text≤32, title: text≤32, applicants: [1..20 { applicationId: text≤32, name: text≤24, stage: applied|screening|interview|offer, outcome: active|hired|rejected|withdrawn, applied: date YYYY-MM-DD, next?: text≤36, nextAt?: date YYYY-MM-DD, goto: id snake_case }] }\nRule: Write one record per applicant. Stage is the last active stage even for a terminal outcome; do not write stage counts, outcome counts or column objects.\nRule: Use arrange \"rows\" for stages stacked vertically, otherwise null.\nexample: {\"c\":\"ApplicantPipeline\",\"jobId\":\"walker\",\"title\":\"Summer dog walker\",\"applicants\":[{\"applicationId\":\"sam\",\"name\":\"Sam Patel\",\"stage\":\"screening\",\"outcome\":\"active\",\"applied\":\"2027-04-06\",\"next\":\"Call about group walks\",\"nextAt\":\"2027-04-10\",\"goto\":\"sam_review\"},{\"applicationId\":\"imani\",\"name\":\"Imani Cole\",\"stage\":\"applied\",\"outcome\":\"active\",\"applied\":\"2027-04-07\",\"next\":\"Review references\",\"goto\":\"imani_review\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: For the Morning baker hiring board, stack all hiring stages vertically, one under the other. Mara Kim applied 2027-05-01, is at Offer and still active. Link to her review.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "ApplicantPipeline",
+              "enum": [
+                "ApplicantPipeline"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "strip",
+                    "rows"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "jobId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "applicants": {
+              "minItems": 1,
+              "maxItems": 20,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "applicationId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "stage": {
+                    "type": "string",
+                    "enum": [
+                      "applied",
+                      "screening",
+                      "interview",
+                      "offer"
+                    ]
+                  },
+                  "outcome": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "hired",
+                      "rejected",
+                      "withdrawn"
+                    ]
+                  },
+                  "applied": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "next": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 36
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "nextAt": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "applicationId",
+                  "name",
+                  "stage",
+                  "outcome",
+                  "applied",
+                  "next",
+                  "nextAt",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "jobId",
+            "title",
+            "applicants"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"ApplicantPipeline\",\"arrange\":\"rows\",\"jobId\":\"morning_baker\",\"title\":\"Morning baker\",\"applicants\":[{\"applicationId\":\"mara\",\"name\":\"Mara Kim\",\"stage\":\"offer\",\"outcome\":\"active\",\"applied\":\"2027-05-01\",\"next\":null,\"nextAt\":null,\"goto\":\"mara_review\"}]}",
+    "replies": [
+      "{\"c\":\"ApplicantPipeline\",\"arrange\":\"rows\",\"jobId\":\"morning_baker\",\"title\":\"Morning baker\",\"applicants\":[{\"applicationId\":\"mara\",\"name\":\"Mara Kim\",\"stage\":\"offer\",\"outcome\":\"active\",\"applied\":\"2027-05-01\",\"next\":null,\"nextAt\":null,\"goto\":\"mara_review\"}]}",
+      "{\"c\":\"ApplicantPipeline\",\"arrange\":\"rows\",\"jobId\":\"morning_baker\",\"title\":\"Morning baker hiring board\",\"applicants\":[{\"applicationId\":\"mara_kim\",\"name\":\"Mara Kim\",\"stage\":\"offer\",\"outcome\":\"active\",\"applied\":\"2027-05-01\",\"next\":null,\"nextAt\":null,\"goto\":\"mara_review\"}]}",
+      "{\"c\":\"ApplicantPipeline\",\"arrange\":\"rows\",\"jobId\":\"morning_baker\",\"title\":\"Morning baker\",\"applicants\":[{\"applicationId\":\"mara\",\"name\":\"Mara Kim\",\"stage\":\"offer\",\"outcome\":\"active\",\"applied\":\"2027-05-01\",\"next\":null,\"nextAt\":null,\"goto\":\"mara_review\"}]}"
+    ]
+  },
+  "ApplicantPipeline%2Fwrite%2FMake%20a%20Summer%20dog%20walker%20hiring%20board.%20Sam%20Patel%20applied%202027-04-06%20and%20is%20active%20in%20screening%3B%20next%20is%20a%20call%20on%202027-04-10.%20Riley%20Chen%20applied%202027-04-05%20and%20withdrew%20at%20interview.%20Link%20to%20their%20reviews./e041f1dad0ef4662/16920af2c9f24913": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nApplicantPipeline: Move candidates between stage lanes on a recruiter's board for one opening.\nprops: { arrange?: strip|rows=\"strip\", jobId: text≤32, title: text≤32, applicants: [1..20 { applicationId: text≤32, name: text≤24, stage: applied|screening|interview|offer, outcome: active|hired|rejected|withdrawn, applied: date YYYY-MM-DD, next?: text≤36, nextAt?: date YYYY-MM-DD, goto: id snake_case }] }\nRule: Write one record per applicant. Stage is the last active stage even for a terminal outcome; do not write stage counts, outcome counts or column objects.\nRule: Use arrange \"rows\" for stages stacked vertically, otherwise null.\nexample: {\"c\":\"ApplicantPipeline\",\"jobId\":\"walker\",\"title\":\"Summer dog walker\",\"applicants\":[{\"applicationId\":\"sam\",\"name\":\"Sam Patel\",\"stage\":\"screening\",\"outcome\":\"active\",\"applied\":\"2027-04-06\",\"next\":\"Call about group walks\",\"nextAt\":\"2027-04-10\",\"goto\":\"sam_review\"},{\"applicationId\":\"imani\",\"name\":\"Imani Cole\",\"stage\":\"applied\",\"outcome\":\"active\",\"applied\":\"2027-04-07\",\"next\":\"Review references\",\"goto\":\"imani_review\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Make a Summer dog walker hiring board. Sam Patel applied 2027-04-06 and is active in screening; next is a call on 2027-04-10. Riley Chen applied 2027-04-05 and withdrew at interview. Link to their reviews.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "ApplicantPipeline",
+              "enum": [
+                "ApplicantPipeline"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "strip",
+                    "rows"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "jobId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "applicants": {
+              "minItems": 1,
+              "maxItems": 20,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "applicationId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "stage": {
+                    "type": "string",
+                    "enum": [
+                      "applied",
+                      "screening",
+                      "interview",
+                      "offer"
+                    ]
+                  },
+                  "outcome": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "hired",
+                      "rejected",
+                      "withdrawn"
+                    ]
+                  },
+                  "applied": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "next": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 36
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "nextAt": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "applicationId",
+                  "name",
+                  "stage",
+                  "outcome",
+                  "applied",
+                  "next",
+                  "nextAt",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "jobId",
+            "title",
+            "applicants"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"ApplicantPipeline\",\"arrange\":null,\"jobId\":\"walker\",\"title\":\"Summer dog walker\",\"applicants\":[{\"applicationId\":\"sam\",\"name\":\"Sam Patel\",\"stage\":\"screening\",\"outcome\":\"active\",\"applied\":\"2027-04-06\",\"next\":\"Call about group walks\",\"nextAt\":\"2027-04-10\",\"goto\":\"sam_review\"},{\"applicationId\":\"riley\",\"name\":\"Riley Chen\",\"stage\":\"interview\",\"outcome\":\"withdrawn\",\"applied\":\"2027-04-05\",\"next\":null,\"nextAt\":null,\"goto\":\"riley_review\"}]}",
+    "replies": [
+      "{\"c\":\"ApplicantPipeline\",\"arrange\":null,\"jobId\":\"walker\",\"title\":\"Summer dog walker\",\"applicants\":[{\"applicationId\":\"sam\",\"name\":\"Sam Patel\",\"stage\":\"screening\",\"outcome\":\"active\",\"applied\":\"2027-04-06\",\"next\":\"Call about group walks\",\"nextAt\":\"2027-04-10\",\"goto\":\"sam_review\"},{\"applicationId\":\"riley\",\"name\":\"Riley Chen\",\"stage\":\"interview\",\"outcome\":\"withdrawn\",\"applied\":\"2027-04-05\",\"next\":null,\"nextAt\":null,\"goto\":\"riley_review\"}]}",
+      "{\"c\":\"ApplicantPipeline\",\"arrange\":null,\"jobId\":\"walker\",\"title\":\"Summer dog walker\",\"applicants\":[{\"applicationId\":\"sam\",\"name\":\"Sam Patel\",\"stage\":\"screening\",\"outcome\":\"active\",\"applied\":\"2027-04-06\",\"next\":\"Call about group walks\",\"nextAt\":\"2027-04-10\",\"goto\":\"sam_review\"},{\"applicationId\":\"riley\",\"name\":\"Riley Chen\",\"stage\":\"interview\",\"outcome\":\"withdrawn\",\"applied\":\"2027-04-05\",\"next\":null,\"nextAt\":null,\"goto\":\"riley_review\"}]}",
+      "{\"c\":\"ApplicantPipeline\",\"arrange\":null,\"jobId\":\"walker\",\"title\":\"Summer dog walker\",\"applicants\":[{\"applicationId\":\"sam\",\"name\":\"Sam Patel\",\"stage\":\"screening\",\"outcome\":\"active\",\"applied\":\"2027-04-06\",\"next\":\"Call about group walks\",\"nextAt\":\"2027-04-10\",\"goto\":\"sam_review\"},{\"applicationId\":\"riley\",\"name\":\"Riley Chen\",\"stage\":\"interview\",\"outcome\":\"withdrawn\",\"applied\":\"2027-04-05\",\"next\":null,\"nextAt\":null,\"goto\":\"riley_review\"}]}"
+    ]
+  },
   "bb833367cf371bc8": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nApplicantPipeline: Move active applicants between counted hiring stages for one opening.\nprops: { density?: comfortable|compact, surface?: plain|outlined=\"plain\", arrange?: strip|rows=\"strip\", jobId: text≤32, title: text≤32, applicants: [1..20 { applicationId: text≤32, name: text≤24, stage: applied|screening|interview|offer, outcome: active|hired|rejected|withdrawn, applied: date YYYY-MM-DD, next?: text≤36, nextAt?: date YYYY-MM-DD, goto: id snake_case }] }\nRule: Write one record per applicant. Stage is the last active stage even for a terminal outcome; do not write stage counts, outcome counts or column objects.\nRule: Use arrange \"rows\" for stages stacked vertically, otherwise null. Leave density and surface null unless requested.\nexample: {\"c\":\"ApplicantPipeline\",\"jobId\":\"walker\",\"title\":\"Summer dog walker\",\"applicants\":[{\"applicationId\":\"sam\",\"name\":\"Sam Patel\",\"stage\":\"screening\",\"outcome\":\"active\",\"applied\":\"2027-04-06\",\"next\":\"Call about group walks\",\"nextAt\":\"2027-04-10\",\"goto\":\"sam_review\"},{\"applicationId\":\"riley\",\"name\":\"Riley Chen\",\"stage\":\"interview\",\"outcome\":\"withdrawn\",\"applied\":\"2027-04-05\",\"goto\":\"riley_review\"},{\"applicationId\":\"imani\",\"name\":\"Imani Cole\",\"stage\":\"applied\",\"outcome\":\"active\",\"applied\":\"2027-04-07\",\"next\":\"Review references\",\"goto\":\"imani_review\"}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Make a Summer dog walker hiring board. Sam Patel applied 2027-04-06 and is active in screening; next is a call on 2027-04-10. Riley Chen applied 2027-04-05 and withdrew at interview. Link to their reviews.",
     "format": {
@@ -1155,3 +1471,21 @@
     ]
   }
 }
+
+  },
+  "ApplicantPipeline%2Fread%2FMove%20Sam%20Patel's%20card%20to%20Interview.%20Copy%20the%20card%20address%20and%20the%20action%20word%20after%20it%20from%20the%20move%20bracket%2C%20in%20separate%20fields.%20Do%20not%20include%20the%20destination%20value./f4b51152dde386e3/b490993b601cc056": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 ApplicantPipeline Applied: 1 — Screening: 1 — Interview: 0 — Offer: 0 — Hired: 0 · Rejected: 0 · Withdrawn: 0 — No applicants — Move to — Applied — Screening — Interview — Offer — Sam Patel — Applied 6 Apr 2027 — Call about group walks — By 10 Apr 2027 — Imani Cole — Applied 7 Apr 2027 — Review references — \"Summer dog walker\"\n  r1 \"Sam Patel\" · \"Call about group walks\" [p1/r1 press→sam_review] [p1/r1 move = \"screening\"; choices [\"applied\",\"interview\",\"offer\"]]\n  r2 \"Imani Cole\" · \"Review references\" [p1/r2 press→imani_review] [p1/r2 move = \"applied\"; choices [\"screening\",\"interview\",\"offer\"]]\n\nTask: Move Sam Patel's card to Interview. Copy the card address and the action word after it from the move bracket, in separate fields. Do not include the destination value.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\":\"p1/r1\",\"action\":\"move\"}",
+    "replies": [
+      "{\"address\":\"p1/r1\",\"action\":\"move\"}",
+      "{\"address\": \"p1/r1\", \"action\": \"move\"}",
+      "{\"address\": \"p1/r1\", \"action\": \"move\"}"
+    ]
+  },
+  "ApplicantPipeline%2Fread%2FOpen%20Sam%20Patel's%20application./96f56c4b1bc9755e/89c191e5fc140e04": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 ApplicantPipeline Applied: 1 — Screening: 1 — Interview: 0 — Offer: 0 — Hired: 0 · Rejected: 0 · Withdrawn: 0 — No applicants — Move to — Applied — Screening — Interview — Offer — Sam Patel — Applied 6 Apr 2027 — Call about group walks — By 10 Apr 2027 — Imani Cole — Applied 7 Apr 2027 — Review references — \"Summer dog walker\"\n  r1 \"Sam Patel\" · \"Call about group walks\" [p1/r1 press→sam_review] [p1/r1 move = \"screening\"; choices [\"applied\",\"interview\",\"offer\"]]\n  r2 \"Imani Cole\" · \"Review references\" [p1/r2 press→imani_review] [p1/r2 move = \"applied\"; choices [\"screening\",\"interview\",\"offer\"]]\n\nTask: Open Sam Patel's application.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"p1/r1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"p1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"p1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"p1/r1\", \"action\": \"press\"}"

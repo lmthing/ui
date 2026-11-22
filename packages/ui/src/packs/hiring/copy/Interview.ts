@@ -60,11 +60,11 @@ export function interviewReading(input: InterviewDetails, lang?: string) {
     ? [
         ...details,
         actions.edit,
+        ...(input.rescheduleGoto ? [actions.reschedule] : []),
         actions.invite,
         actions.cancel,
         ...(joinable ? [actions.join] : []),
         ...(input.status === "confirmed" ? [actions.complete] : []),
-        ...(input.rescheduleGoto ? [actions.reschedule] : []),
       ]
     : details;
 }

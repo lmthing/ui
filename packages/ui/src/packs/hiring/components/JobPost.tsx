@@ -122,7 +122,7 @@ export const examples: z.input<typeof props>[] = [
     contract: "permanent",
     about: "Help deliver small-group training classes.",
     requirements: ["Experience working with dogs"],
-    benefits: ["Paid training", "Travel allowance", "Flexible hours", "Paid time off"],
+    benefits: ["Training", "Travel", "Flex time", "Paid leave"],
     easyApply: true,
     saved: false,
     goto: "trainer_apply",
@@ -186,22 +186,21 @@ function JobActions({ input, open, loading, density }: { input: Job; open: boole
 function JobBenefits({ copy, density }: { copy: ReturnType<typeof jobPostCopy>; density: Density }) {
   if (!copy.benefits.length) return null;
   return (
-    <kit.KitContent group="response" density={density}>
+    <kit.KitContent group="response" rhythm="flush" density={density}>
       <kit.KitLayoutText
         line={{ part: "benefits", text: copy.benefitsLabel, role: "meta", strong: true }}
         density={density}
       />
       <kit.KitTrack part="benefit_chips" label={copy.benefitsLabel}>
         {copy.benefits.map((label, index) => (
-          <kit.KitCard
+          <kit.KitTrail
             key={benefitParts[index]}
+            kind="badge"
             part={benefitParts[index]!}
-            surface="outlined"
+            tone="muted"
+            value={label}
             density={density}
-            padded
-          >
-            <kit.KitLayoutText line={{ text: label, role: "meta", tone: "muted" }} density={density} />
-          </kit.KitCard>
+          />
         ))}
       </kit.KitTrack>
     </kit.KitContent>
