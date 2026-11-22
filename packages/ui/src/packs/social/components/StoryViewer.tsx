@@ -24,14 +24,13 @@ export const meta = {
   variants: { aspect: ["tall", "square", "wide"], bleed: ["edge", "inset"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["reply", "send", "react"] } },
   parts: ["root", "progress", "position", "author", "avatar", "time", "photo", "caption", "prev", "next", "story", "sticker", "reply", "send", "react", "close", "status"],
-  items: { key: "slides", parts: [] },
   states: ["filled", "empty", "loading", "success"],
   actions: {
     parts: { prev: ["press"], next: ["press"], story: ["pause", "play"], sticker: ["press"], reply: ["type"], send: ["send"], react: ["press"], close: ["dismiss"] },
     when: { reply: { detail: "full" }, send: { detail: "full" }, react: { detail: "full" } },
   },
   emptyActions: ["close.dismiss"], loadingActions: ["close.dismiss"], successActions: ["close.dismiss"],
-  sequence: { cursor: "current", steps: { previous: "prev", next: "next" }, controls: { part: "story", intervalMs: slideIntervalMs, start: { prop: "paused", equals: false } } },
+  sequence: { cursor: "current", count: "slideCount", steps: { previous: "prev", next: "next" }, controls: { part: "story", intervalMs: slideIntervalMs, start: { prop: "paused", equals: false } } },
   live: { text: { reply: { prop: "replyDraft", max: maxReply } } },
   hostCommands: { parts: {
     "sticker.press": { kind: "command", name: "story.sticker", input: ({ props }) => {
@@ -62,8 +61,8 @@ const slide = z.strictObject({
 });
 
 const storyProps = z.strictObject({
-  author: c.text(24),
-  avatar: c.photo.optional(),
+  author: c.text(24).meta({ read: false }),
+  avatar: c.photo.optional().meta({ read: false }),
   slides: z.array(slide).min(1).max(maxSlides),
   current: z
     .int()
@@ -71,12 +70,13 @@ const storyProps = z.strictObject({
     .max(maxSlides - 1)
     .default(0),
   paused: z.boolean().default(false),
-  replyDraft: c.text(maxReply).optional(),
+  replyDraft: c.text(maxReply).optional().meta({ read: false }),
 });
 
 export const props = storyProps
   .extend(c.variantProps(meta.variants))
-  .refine(({ slides, current }) => current < slides.length, { path: ["current"] });
+  .refine(({ slides, current }) => current < slides.length, { path: ["current"] })
+  .overwrite((input) => ({ ...input, slideCount: input.slides.length }));
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);

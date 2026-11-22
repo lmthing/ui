@@ -77,11 +77,12 @@ describe("StoryViewer fallback and sequence", () => {
     const next = { address: "s1/next", action: "press" };
     const first = readScreen(screen, defs);
     expect(first).toContain("Slide 1 of 2");
-    expect(first).not.toContain("[s1/prev");
+    expect(first).not.toMatch(/\[s1\/prev|The next batch is ready/);
     const advanced = planAct(screen, defs, {}, [next]);
     if (!advanced.ok) throw new Error(advanced.code);
     const second = readScreen(screen, defs, advanced.values);
     expect(second).toContain("Slide 2 of 2");
+    expect(second).not.toMatch(/New fronds|Which cutting next/);
     expect(second).not.toMatch(/\[s1\/(?:next|sticker|react)\b/);
     expect(planAct(screen, defs, advanced.values, [next])).toMatchObject({ ok: false });
   });

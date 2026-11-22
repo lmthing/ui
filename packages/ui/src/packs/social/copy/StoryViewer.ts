@@ -4,6 +4,8 @@ import { socialWordsFor } from "../lang";
 type StoryReading = {
   author: string;
   current: number;
+  detail?: "full" | "brief";
+  replyDraft?: string;
   slides: readonly { time: string; caption?: string; sticker?: { label: string } }[];
 };
 
@@ -12,7 +14,7 @@ export function storyViewerReading(input: unknown, state: StateName, lang?: stri
   if (state === "empty") return [words.expired];
   if (state === "success") return [words.sent];
   if (state === "loading") return [];
-  const { author, current, slides } = input as StoryReading;
+  const { author, current, slides, detail, replyDraft } = input as StoryReading;
   const slide = slides[current];
   if (!slide) return [];
   return [
@@ -21,5 +23,6 @@ export function storyViewerReading(input: unknown, state: StateName, lang?: stri
     slide.time,
     ...(slide.caption ? [slide.caption] : []),
     ...(slide.sticker ? [slide.sticker.label] : []),
+    ...(detail !== "brief" && replyDraft ? [replyDraft] : []),
   ];
 }

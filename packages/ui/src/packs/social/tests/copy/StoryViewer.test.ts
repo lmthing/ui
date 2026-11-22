@@ -1,4 +1,5 @@
 import { expect, it } from "vitest";
+import { components, readScreen } from "@lmthing/ui/catalog";
 import { storyViewerReading } from "../../copy";
 
 it("reads only the selected slide and uses story-specific terminal copy", () => {
@@ -14,4 +15,15 @@ it("reads only the selected slide and uses story-specific terminal copy", () => 
   expect(storyViewerReading(input, "loading")).toEqual([]);
   expect(storyViewerReading(input, "empty")).toEqual(["This story is no longer available."]);
   expect(storyViewerReading(input, "success")).toEqual(["Reply sent."]);
+});
+
+it("keeps saved reply text out of read-only and terminal stories", () => {
+  const def = components.StoryViewer;
+  const entry = { ...def.examples[0]!, id: "s1", c: def.meta.id, replyDraft: "See you soon" };
+  const read = (patch: { detail?: "brief"; state?: "success" }) =>
+    readScreen({ id: "home", components: [{ ...entry, ...patch }] }, { StoryViewer: def });
+  expect(read({})).toContain("See you soon");
+  expect(read({ detail: "brief" })).not.toContain("See you soon");
+  expect(read({ state: "success" })).toContain("Reply sent.");
+  expect(read({ state: "success" })).not.toMatch(/See you soon|New fronds|Maya/);
 });
