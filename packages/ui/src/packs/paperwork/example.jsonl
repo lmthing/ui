@@ -43,3 +43,6 @@
 {"id":"h11","c":"Header","style":"back","title":"Assemble scans"}
 {"id":"n6","c":"Note","text":"Check the page order before saving."}
 {"id":"s7","c":"ScanBatch","title":"Trot permit packet","pages":[{"file":"lib:trot_permit","label":"Permit"},{"file":"lib:trot_cover","label":"Cover sheet"}],"captureGoto":"vault_capture"}
+{"id":"h12","c":"Header","style":"back","title":"Fill the access form"}
+{"id":"n7","c":"Note","text":"The original stays unchanged."}
+{"id":"f2","c":"FormFiller","title":"Trot office access form","document":"lib:trot_access","fields":[{"label":"Applicant name","kind":"text","value":"Alex Reed","required":true},{"label":"Access start date","kind":"date","required":true},{"label":"Badge count","kind":"number"}]}

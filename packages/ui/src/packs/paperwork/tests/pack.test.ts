@@ -20,7 +20,7 @@ import {
 } from "@lmthing/ui/catalog";
 import { describe, expect, it } from "vitest";
 
-const ids = ["Documents", "Renewals", "Receipts", "Signature", "TaxYear", "ScanBatch"] as const;
+const ids = ["Documents", "Renewals", "Receipts", "Signature", "TaxYear", "ScanBatch", "FormFiller"] as const;
 const core = createRegistry();
 const draft = createRegistry({ packs: ["paperwork"], includeDrafts: true });
 const definitions: Record<string, Definition> = components;
@@ -28,7 +28,7 @@ const cast = { things: [], items: [] };
 const layouts = {
   vault: ["vault_all", "vault_record", "vault_capture", "vault_batch"],
   due_soon: ["paperwork_due", "paperwork_renewal"],
-  sign: ["paperwork_sign", "paperwork_signed"],
+  sign: ["paperwork_sign", "paperwork_signed", "paperwork_fill"],
   tax_prep: ["tax_evidence", "tax_receipts", "tax_tasks"],
 };
 const exampleLayouts = [
@@ -43,6 +43,7 @@ const exampleLayouts = [
   ["vault", "vault_capture"],
   ["due_soon", "paperwork_renewal"],
   ["vault", "vault_batch"],
+  ["sign", "paperwork_fill"],
 ] as const;
 
 describe("paperwork scaffold", () => {

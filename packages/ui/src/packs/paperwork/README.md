@@ -7,7 +7,7 @@ Built in step U5 (drafts in U3), wave to be decided. Read `docs/catalog/packs/pa
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
-- `components/`: `Documents.tsx` `Renewals.tsx` `Receipts.tsx` `Signature.tsx` `TaxYear.tsx` `ScanBatch.tsx`
+- `components/`: `Documents.tsx` `Renewals.tsx` `Receipts.tsx` `Signature.tsx` `TaxYear.tsx` `ScanBatch.tsx` `FormFiller.tsx`
 - `archetypes/`: `vault.ts` `due_soon.ts` `sign.ts` `tax_prep.ts`
 
 Rules:
