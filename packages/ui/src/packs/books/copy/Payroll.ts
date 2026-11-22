@@ -1,6 +1,14 @@
 import { z } from "zod";
-// prettier-ignore
-import { appointmentDate, appCurrencySchema, defaultCurrency, moneyFractionDigits, moneyLine, numberLine, type DeviceData, type AppCurrency } from "../../../catalog";
+import {
+  appointmentDate,
+  appCurrencySchema,
+  defaultCurrency,
+  moneyFractionDigits,
+  moneyLine,
+  numberLine,
+  type DeviceData,
+  type AppCurrency,
+} from "../../../catalog";
 import { booksWordsFor } from "../lang";
 
 const configuration = z.object({
@@ -54,11 +62,16 @@ export function validGross(payee: Payee): boolean {
 const figureParts = ["net_pay", "gross", "deductions", "employer_cost"] as const;
 type Figures = Record<(typeof figureParts)[number], number>;
 
-// prettier-ignore
 export function frozenPayroll(payee: Payee, config: Config | undefined) {
   const { frozen, ruleRef } = payee;
-  if (!config || !frozen || frozen.ruleRef !== ruleRef || frozen.currency !== config.currency ||
-    !Object.hasOwn(config.rates, ruleRef)) return;
+  if (
+    !config ||
+    !frozen ||
+    frozen.ruleRef !== ruleRef ||
+    frozen.currency !== config.currency ||
+    !Object.hasOwn(config.rates, ruleRef)
+  )
+    return;
   const { gross, deductions, net_pay, employer_cost } = frozen.figures;
   return deductions <= gross && net_pay === gross - deductions && employer_cost >= gross
     ? frozen.figures
