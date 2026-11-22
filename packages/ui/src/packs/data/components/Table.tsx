@@ -1,8 +1,9 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { tableCell, tableChoices, tableCount, tableReading, tableRows } from "../copy";
+import { tableChoices, tableCount, tableReading, tableSummaryModes } from "../copy";
 import { dataWordsFor } from "../lang";
+import * as optionView from "../option-views";
 import { prompt } from "../../../entry/prompt-Table.generated";
 
 // Core first: List/rows cannot align typed fields across records or sort by a column.
@@ -15,15 +16,17 @@ export const meta = {
   writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "A query over records on the device.",
-  variants: { detail: ["full", "brief"] },
-  variantParts: { "detail.brief": { hides: ["count"] } },
-  parts: ["root", "header", "matrix", "count", "empty"],
-  items: { key: "rows", parts: ["root", "pick", "status_1", "status_2", "status_3", "status_4", "status_5", "status_6"] },
+  variants: { detail: ["full", "brief"], group: ["none", "sections"] },
+  variantParts: { "detail.brief": { hides: ["count"] }, "group.sections": { adds: ["group_heading"] } },
+  parts: ["root", "header", "matrix", "summary", "count", "empty", "export", "export_label", "export_status"],
+  items: { key: "rows", parts: ["root", "pick", "group_heading", "status_1", "status_2", "status_3", "status_4", "status_5", "status_6"] },
   states: ["filled", "empty", "loading"],
+  partTiers: { export: "service" },
   actions: {
-    parts: { header: ["select"] }, items: { root: ["press"], pick: ["check"] },
-    when: { "root.press": { linked: true }, pick: { selectable: true } },
+    parts: { header: ["select"], export: ["press"] }, items: { root: ["press"], pick: ["check"] },
+    when: { "root.press": { linked: true }, pick: { selectable: true }, export: { exportable: true } },
   },
+  hostCommands: { parts: { "export.press": { kind: "command", name: "data.exportTable" } } },
   live: { checks: { pick: "checked" } },
   select: { prop: "sort", choices: { header: { prop: "sort_options" } } },
   read: (input, state, lang): string[] => (state === "filled" ? tableReading(input as ViewProps, lang) : []),
@@ -39,10 +42,13 @@ export const props = z.strictObject({
     ...c.variantProps(meta.variants),
     columns: z.array(column).min(2).max(6), rows: z.array(row).min(1).max(20),
     sort: z.int().min(0).max(5).optional(), selectable: z.boolean(),
+    summaryRow: z.enum(tableSummaryModes).optional(), exportable: z.boolean().optional(),
   })
-  .superRefine(({ columns, rows, sort }, ctx) => {
+  .superRefine(({ columns, rows, sort, summaryRow }, ctx) => {
     if (sort !== undefined && sort >= columns.length)
       ctx.addIssue({ code: "custom", path: ["sort"], message: "Sort must name an existing column index" });
+    if (summaryRow && summaryRow !== "count" && !columns.some(({ kind }) => numericKind(kind)))
+      ctx.addIssue({ code: "custom", path: ["summaryRow"], message: "A sum or average requires a numeric or money column" });
     rows.forEach(({ cells }, r) => {
       if (cells.length !== columns.length)
         ctx.addIssue({ code: "custom", path: ["rows", r, "cells"], message: "Write one cell per column" });
@@ -90,6 +96,11 @@ export const examples = [
     columns: [{ label: "Route", kind: "text" }, { label: "Walks", kind: "number" }, { label: "Takings", kind: "money" }],
     rows: [{ cells: ["Canal loop", 8, 96] }, { cells: ["Hill circuit", 5, 75] }],
   },
+  {
+    group: "sections", summaryRow: "sum", exportable: true, selectable: true,
+    columns: [{ label: "Route", kind: "text" }, { label: "Status", kind: "status" }, { label: "Walks", kind: "number" }],
+    rows: [{ cells: ["Canal loop", "Booked", 8] }, { cells: ["Hill circuit", "Open", 5] }, { cells: ["Park loop", "Booked", 3] }],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Table");
@@ -103,94 +114,57 @@ export const probes = [
     variant: { axis: "detail", value: "brief" },
   },
   read("Tick the checkbox beside Boston fern.", { address: "s1/r1/pick", action: "check" }),
+  {
+    ...write("Show a table of route names and walk counts: Canal 8, Hill 5. No checkboxes. Tighten the spacing only; keep the standard row count footer and do not group the rows."),
+    variant: { axis: "detail", value: null },
+  },
+  {
+    ...write("Put Boston fern (Ready), Rubber plant (Review), and Aloe (Ready) in Plant and Status table columns, with no checkboxes. Group the entries into sections under status headings."),
+    variant: { axis: "group", value: "sections" },
+  },
+  {
+    ...write("Show routes Canal and Hill with 8 and 5 walks, no checkboxes. Add a footer row that computes the average of the walk counts."),
+    expectProps: { summaryRow: "avg" },
+  },
+  {
+    ...write("Show routes Canal and Hill with 8 and 5 walks, no checkboxes. Include the button to export the table."),
+    expectProps: { exportable: true },
+  },
 ] satisfies c.Probe[];
 
 type ViewProps = c.Props<typeof props, typeof meta>;
-const numericKind = (kind: Column["kind"]) => kind === "number" || kind === "money";
-type Row = ViewProps["rows"][number];
-type Column = ViewProps["columns"][number];
-// prettier-ignore
-function TableCell(cell: Row["cells"][number], { kind }: Column, index: number, density: c.ThemeDensity, loading: boolean, lang: string, part: "root" | null = null) {
-  const value = tableCell(cell, kind, lang);
-  const numeric = numericKind(kind), align = numeric ? "end" : kind === "status" ? "center" : "start";
-  if (loading && kind === "status") return <kit.KitSkeleton lead="none" inset="none" density={density}
-    items={[{ lines: [{ text: value, role: "body", align }] }]} />;
-  if (loading) return <kit.KitSkeleton shape="figure" inset="none" density={density}
-    content={[[numeric ? "number" : "label", value, align, "compact"]]} />;
-  if (kind === "status")
-    return <kit.KitTrail part={`status_${index + 1}`} kind="badge" value={value} tone="text" density={density} />;
-  const line = <kit.KitText part={part} role={numeric ? "number" : "body"} numberScale="compact"
-    align={align} tabular={numeric || kind === "date"} density={density}>{value}</kit.KitText>;
-  return numeric ? <kit.KitContent inset="md">{line}</kit.KitContent> : line;
-}
-
-// prettier-ignore
-function TableHeading(row: Row, column: Column, { selectable, density, loading, lang }: {selectable: boolean; density: c.ThemeDensity; loading: boolean; lang: string}) {
-  const cell = row.cells[0]!, label = tableCell(cell, column.kind, lang), inline = density === "compact";
-  if (selectable && loading) return <kit.KitSkeleton lead="box" inset="none" density={density} items={[{ title: label }]} />;
-  const wrap = !loading && (row.goto || selectable || !inline || column.kind === "status");
-  const value = TableCell(cell, column, 0, density, loading, lang, wrap ? null : "root");
-  if (!wrap) return !loading && column.kind === "text" ? <kit.KitContent inset="md">{value}</kit.KitContent> : value;
-  const link = <kit.KitRow inline={selectable || inline} inset="none" density={density} part="root"
-    goto={row.goto} label={label}>{value}</kit.KitRow>;
-  if (!selectable) return link;
-  const pick = <kit.KitCheck part="pick" done={false} label={dataWordsFor(lang).tablePick(label)} />;
-  return <kit.KitRow {...{ inline, density }} inset="none" leadingAlign="row" label={label} leading={pick}>{link}</kit.KitRow>;
-}
-
-// prettier-ignore
-function TableHeader(label: string, kind: Column["kind"], on: boolean, density: c.ThemeDensity, loading: boolean) {
-  const align = numericKind(kind) ? "end" : kind === "status" ? "center" : "start";
-  if (loading) return <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", label, align]]} />;
-  const chip = <kit.KitChip item={null} look="segment" role="radio" label={label} on={on} />;
-  if (align === "center") return chip;
-  if (align === "end") return <kit.KitGrid fitLast><kit.KitContent>{null}</kit.KitContent>{chip}</kit.KitGrid>;
-  return <kit.KitRow inline label={label} leadingAlign="row" leading={chip}>{null}</kit.KitRow>;
-}
-// prettier-ignore
-function TableMatrix({ input, density, loading, lang }: {
-  input: ViewProps; density: c.ThemeDensity; loading: boolean; lang: string;
-}) {
-  const { columns, rows, selectable, sort } = input;
-  const headers = tableChoices(columns).map(({ label, value }) => ({
-    id: String(value), label,
-    header: TableHeader(label, columns[value]!.kind, value === sort, density, loading),
-  }));
-  const drawing = tableRows(rows, columns, sort, lang).map((row) => {
-    return {
-      id: row.id, label: tableCell(row.cells[0]!, columns[0]!.kind, lang),
-      heading: TableHeading(row, columns[0]!, { selectable, density, loading, lang }),
-      cells: columns.slice(1).map((column, i) => ({
-        id: headers[i + 1]!.id, content: TableCell(row.cells[i + 1]!, column, i + 1, density, loading, lang),
-      })),
-    };
-  });
-  return <kit.KitTable part="matrix" corner={headers[0]!.header} columns={headers.slice(1)}
-    rows={drawing} fitColumns={fitTable(input, lang)} />;
-}
-
-// prettier-ignore
-function fitTable({ columns, rows }: ViewProps, lang: string) {
-  return columns.length <= 3 && columns.every(({ label }) => label.length <= 8) &&
-    rows.every(({ cells }) => cells.every((cell, at) => tableCell(cell, columns[at]!.kind, lang).length <= 12));
-}
+const numericKind = (kind: ViewProps["columns"][number]["kind"]) => kind === "number" || kind === "money";
 
 // prettier-ignore
 export function Table(input: ViewProps) {
+  const scope = kit.usePartContext();
   const state = kit.useComponentState();
   const { lang, words } = kit.useWords(dataWordsFor);
   const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const loading = state === "loading", count = tableCount(input.rows.length, lang);
-  if (state === "empty")
-    return <kit.KitCard padded density={density}><kit.KitEmpty part="empty" decorativeIcon /></kit.KitCard>;
-  return <kit.KitCard padded density={density}>
-    {loading ? <TableMatrix {...{ input, density, loading, lang }} /> :
+  const status = kit.useHostOperations().find(({ name }) => name === "data.exportTable")?.status;
+  const pending = status === "pending";
+  const feedback = status && status !== "pending" ? status : undefined;
+  const matrix = <optionView.TableMatrix {...{ input, density, loading, lang, pending }} />;
+  const body = <>
+    {loading ? matrix :
       <kit.KitTrack part="header" role="radiogroup" label={words.tableSort}>
-        <TableMatrix {...{ input, density, loading, lang }} />
+        {matrix}
       </kit.KitTrack>}
-    {detail === "full" && (loading ?
-      <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", count]]} /> :
-      <kit.KitText role="caption" tone="muted" part="count" density={density}>{count}</kit.KitText>)}
+    {detail === "full" && <kit.KitContent inset={input.group === "sections" ? "md" : "none"} density={density}>
+      <kit.KitLayoutText line={{ text: count, role: "caption", tone: "muted", part: "count" }} density={density} />
+    </kit.KitContent>}
+    {input.exportable && <kit.KitActionFooter density={density}>
+      <kit.KitAction part="export" action="press" label={pending ? words.tableExportPending : words.tableExport} kind="secondary"
+        contentParts={{ label: "export_label" }} />
+    </kit.KitActionFooter>}
+    {input.exportable && !loading && feedback &&
+      <kit.PartScope {...scope} state={feedback === "accepted" ? "success" : "error"}>
+        <kit.KitState retain part="export_status" message={words.tableExportResult[feedback]} density={density} />
+      </kit.PartScope>}
+  </>;
+  return <kit.KitCard padded density={density}>
+    <kit.KitState part="empty" loading={body} density={density}>{body}</kit.KitState>
   </kit.KitCard>;
 }

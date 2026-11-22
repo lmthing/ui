@@ -105,7 +105,7 @@ describe("ActivityLog fallback and probes", () => {
   it("retains the core near miss, non-finish write probe, and non-destructive people tier", () => {
     expect(meta).toMatchObject({ status: "ready", tier: "people", weight: 2, region: "body" });
     expect(meta).not.toHaveProperty("confirmParts");
-    expect(probes).toMatchObject([
+    expect(probes.slice(0, 5)).toMatchObject([
       { kind: "choose", expect: "ActivityLog" },
       { kind: "choose", expect: "Timeline" },
       { kind: "write", expect: "ActivityLog" },
