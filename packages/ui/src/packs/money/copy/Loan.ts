@@ -51,8 +51,38 @@ function loanStatus(
   return state === "error" ? { headline: labels.forecastError, notice: labels.forecastHelp } : {};
 }
 
-// prettier-ignore
-export function loanCopy(input: LoanInput, state: string, lang?: string, today = loanToday(), currency?: Currency) {
+function loanRate(rate: number, lang?: string) {
+  return new Intl.NumberFormat(localeOf(lang), {
+    style: "percent",
+    maximumFractionDigits: 3,
+  }).format(rate / 100);
+}
+
+function loanTerms(
+  input: LoanInput,
+  words: ReturnType<typeof moneyWordsFor>,
+  money: (amount: number) => string,
+  cadence: NonNullable<LoanInput["cadence"]>,
+  rate: string,
+) {
+  const labels = words.loanLabels;
+  return [
+    { part: "principal", text: words.loanField(labels.principal, money(input.principal)) },
+    { part: "rate", text: words.loanField(labels.rate, rate) },
+    {
+      part: "payment",
+      text: words.loanField(cadence === "monthly" ? labels.payment : labels[cadence], money(input.payment)),
+    },
+  ];
+}
+
+export function loanCopy(
+  input: LoanInput,
+  state: string,
+  lang?: string,
+  today = loanToday(),
+  currency?: Currency,
+) {
   const words = moneyWordsFor(lang);
   const labels = words.loanLabels;
   const { balance, rows, finish, status } = projectLoan(input, today, currency);
@@ -62,18 +92,11 @@ export function loanCopy(input: LoanInput, state: string, lang?: string, today =
       : moneyLine(amount, currency, undefined, lang);
   const date = loanDateFormatter(lang);
   const scheduleMoney = scheduleMoneyFormatter(currency, lang);
-  const rate = new Intl.NumberFormat(localeOf(lang), {
-    style: "percent",
-    maximumFractionDigits: 3,
-  }).format(input.rate / 100);
+  const rate = loanRate(input.rate, lang);
   const cadence = input.cadence ?? "monthly";
   const installments = input.style === "installments";
   const showSchedule = input.detail === "full" || installments;
-  const terms = [
-    { part: "principal", text: words.loanField(labels.principal, money(input.principal)) },
-    { part: "rate", text: words.loanField(labels.rate, rate) },
-    { part: "payment", text: words.loanField(cadence === "monthly" ? labels.payment : labels[cadence], money(input.payment)) },
-  ];
+  const terms = loanTerms(input, words, money, cadence, rate);
   const next = rows[0];
   const more = rows.length - rowLimit;
   const { headline, notice } = loanStatus(state, status, labels, cadence !== "monthly");
@@ -83,10 +106,13 @@ export function loanCopy(input: LoanInput, state: string, lang?: string, today =
     notice,
     installments,
     balance: balance === undefined || headline ? undefined : money(balance),
-    next: next && !installments ? {
-      headline: words.loanNext(labels.next, date(next.due), money(next.principal + next.interest)),
-      split: words.loanSplit(money(next.principal), money(next.interest)),
-    } : undefined,
+    next:
+      next && !installments
+        ? {
+            headline: words.loanNext(labels.next, date(next.due), money(next.principal + next.interest)),
+            split: words.loanSplit(money(next.principal), money(next.interest)),
+          }
+        : undefined,
     finish: finish ? words.loanField(labels.finish, date(finish)) : labels.unavailable,
     scheduleLabel: installments ? labels.installments : labels.schedule,
     schedule: showSchedule
