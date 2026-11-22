@@ -33,7 +33,7 @@ export const meta = {
   parts: ["root", "heading", "selector", "notice", "refresh", "refresh_error", "report", "report_error"],
   variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "plain"] },
   variantParts: { "detail.brief": {
-    hides: ["selector", "weight", "flight", "track", "next", ...scanParts], adds: ["latest"],
+    hides: ["selector", "weight", "flight", "track", "next", ...scanParts], adds: ["latest", "tag"],
   } },
   items: { key: "bags", parts: ["root", "label", "tag", "weight", "flight", "carousel", "track", "latest", "next", ...scanParts] },
   actions: {
