@@ -57,7 +57,7 @@ export const meta = {
 const track = c.text(16);
 const session = z
   .strictObject({
-    id: c.text(24),
+    id: c.text(24).meta({ read: false }),
     title: c.text(32),
     track,
     start: c.clock,
@@ -127,7 +127,7 @@ export const examples = [
     ],
   },
   {
-    style: "mine", density: "compact", surface: "outlined", selectedTrack: "Talks",
+    style: "mine", surface: "outlined", selectedTrack: "Talks",
     tracks: ["Talks", "Demos"],
     sessions: [
       { id: "lighting", title: "Lighting on location", track: "Talks", start: "13:00", end: "13:45", room: "Elm Room", speaker: "Hugo Wells", saved: true },
@@ -176,6 +176,7 @@ function TrackFilter({
           key={value}
           item={null}
           role="radio"
+          look="box"
           value={value}
           label={label}
           on={active === value}
@@ -189,69 +190,66 @@ function TrackFilter({
 function SessionDetails({ row, density }: { row: SessionRow; density: Density }) {
   const { lang, words } = kit.useWords(eventsWordsFor);
   const capacity = sessionCapacity(row, lang);
-  return (
-    <kit.KitContent density={density}>
-      <kit.KitLayoutText
+  const details = (
+    <kit.KitMetaLine
+      density={density}
+      title={{ part: "time", role: "figure", compact: true, tabular: true, text: sessionRange(row, lang) }}
+      meta={[
+        { part: "room", text: sessionLocation(row, lang) },
+        { part: "speaker", text: row.speaker },
+        { part: "conflict", text: row.conflict ? words.sessions.conflict : undefined, tone: "warn" },
+      ]}
+    />
+  );
+  return capacity ? (
+    <kit.KitGrid fitLast density={density}>
+      {details}
+      <kit.KitTrail
+        kind="badge"
+        value={capacity}
+        part="capacity"
+        tone={capacity === words.sessions.full ? "warn" : "muted"}
         density={density}
-        line={{
-          part: "time",
-          role: "meta",
-          tone: "muted",
-          tabular: true,
-          text: sessionRange(row, lang),
-        }}
       />
-      <kit.KitMetaLine
-        density={density}
-        title={{ part: "title", text: row.title, strong: true }}
-        meta={[
-          { part: "room", text: sessionLocation(row, lang) },
-          { part: "speaker", text: row.speaker },
-          { part: "conflict", text: row.conflict ? words.sessions.conflict : undefined, tone: "warn" },
-        ]}
-      />
-      {capacity && (
-        <kit.KitContent align="start" density={density}>
-          <kit.KitTrail
-            kind="badge"
-            value={capacity}
-            part="capacity"
-            tone={capacity === words.sessions.full ? "warn" : "muted"}
-            density={density}
-          />
-        </kit.KitContent>
-      )}
-    </kit.KitContent>
+    </kit.KitGrid>
+  ) : (
+    details
   );
 }
 
-function ScheduleRow({ row, density }: { row: SessionRow; density: Density }) {
+function SaveSession({ row }: { row: SessionRow }) {
   const { words } = kit.useWords(eventsWordsFor);
-  const loading = kit.useComponentState() === "loading";
-  const save = row.saved ? words.sessions.unsave(row.title) : words.sessions.save(row.title);
-  const control = (
+  return (
     <kit.KitAction
       part="save"
       action="toggle"
       contentParts={{}}
       icon={row.saved ? "check" : "bookmark"}
       kind={row.saved ? "secondary" : "quiet"}
-      a11y={save}
+      a11y={row.saved ? words.sessions.unsave(row.title) : words.sessions.save(row.title)}
     />
   );
+}
+
+function ScheduleRow({ row, density }: { row: SessionRow; density: Density }) {
+  const loading = kit.useComponentState() === "loading";
   return (
-    <kit.KitRow item={row.id} part={null} inset="none" density={density} label={row.title} trailing={control}>
-      <kit.KitRow
-        part={loading ? null : "root"}
-        inset="none"
-        inline
-        fitContent
-        density={density}
-        label={row.title}
-        goto={loading ? undefined : row.goto}
-      >
-        <SessionDetails row={row} density={density} />
-      </kit.KitRow>
+    <kit.KitRow item={row.id} part={null} inset="none" density={density} label={row.title}>
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitRow
+          part={loading ? null : "root"}
+          inset="none"
+          inline
+          density={density}
+          label={row.title}
+          goto={loading ? undefined : row.goto}
+          trailing={row.goto && <kit.KitIcon name="chevron_right" decorative loading={loading} />}
+        >
+          <kit.KitLayoutText line={{ part: "title", text: row.title, strong: true }} density={density} />
+        </kit.KitRow>
+        <SaveSession row={row} />
+      </kit.KitGrid>
+      <SessionDetails row={row} density={density} />
     </kit.KitRow>
   );
 }
@@ -266,7 +264,7 @@ export function Sessions(input: SessionsProps) {
   const mine = input.style === "mine";
   const empty = sessionEmpty(mine, lang);
   const agenda = (
-    <>
+    <kit.KitContent density={density} rhythm="flush">
       {mine && <kit.KitHeader title={{ text: words.sessions.agenda }} density={density} />}
       {rows.length ? (
         <kit.KitRowGroup density={density}>
@@ -286,7 +284,7 @@ export function Sessions(input: SessionsProps) {
           />
         )
       )}
-    </>
+    </kit.KitContent>
   );
   return (
     <kit.KitCard part="root" padded {...{ density, surface }}>
@@ -296,7 +294,7 @@ export function Sessions(input: SessionsProps) {
         retain
         density={density}
         part={state === "empty" ? "empty" : "feedback"}
-        message={state === "success" ? words.sessions.updated : undefined}
+        message={state === "empty" ? empty : state === "success" ? words.sessions.updated : undefined}
         icon={state === "empty" ? (mine ? "bookmark" : "clock") : undefined}
       >
         {agenda}

@@ -1,4 +1,4 @@
-import { numberLine, timeOfDayLine, type StateName } from "../../../catalog";
+import { numberLine, pluralForm, timeOfDayLine, type StateName } from "../../../catalog";
 import { eventsWordsFor } from "../lang";
 
 type Row = {
@@ -84,14 +84,17 @@ export function sessionEmpty(mine: boolean, lang?: string) {
 export function sessionCapacity(row: Pick<Row, "booked" | "capacity">, lang?: string) {
   const words = eventsWordsFor(lang).sessions;
   if (row.capacity === undefined) return undefined;
-  if (row.booked === undefined && row.capacity !== 0) return words.capacity(numberLine(row.capacity, lang));
+  if (row.booked === undefined && row.capacity !== 0)
+    return words.capacity(numberLine(row.capacity, lang), pluralForm(row.capacity, lang) === "one");
   const remaining = row.capacity - (row.booked ?? 0);
   return remaining <= 0 ? words.full : words.remaining(numberLine(remaining, lang));
 }
 
 export function sessionsReading(input: unknown, state: StateName, lang?: string) {
+  const { style } = input as Pick<Schedule, "style">;
+  if (state === "empty") return [sessionEmpty(style === "mine", lang)];
   if (state !== "filled" && state !== "success") return [];
-  const { style, tracks, sessions } = input as Omit<Schedule, "sessions"> & {
+  const { tracks, sessions } = input as Omit<Schedule, "sessions"> & {
     sessions: (Row & { visible: boolean; conflict: boolean })[];
   };
   const words = eventsWordsFor(lang).sessions;

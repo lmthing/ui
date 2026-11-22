@@ -15,8 +15,20 @@ it("labels available, sold-out and unknown capacities without making up availabi
   expect(sessionCapacity({ booked: 3, capacity: 5 }, "ar-u-nu-arab")).toBe("٢ left");
   expect(sessionCapacity({ booked: 5, capacity: 5 })).toBe("Full");
   expect(sessionCapacity({ capacity: 0 })).toBe("Full");
+  expect(sessionCapacity({ capacity: 1 })).toBe("1 seat");
   expect(sessionCapacity({ capacity: 5 })).toBe("5 seats");
   expect(sessionCapacity({ booked: 3 })).toBeUndefined();
+});
+
+it("falls back to the authored selection if a prior track has been removed", () => {
+  expect(
+    projectSessions({
+      tracks: ["Talks", "Other"],
+      selectedTrack: "Talks",
+      activeTrack: "track:Removed",
+      sessions: [row],
+    }),
+  ).toMatchObject({ activeTrack: "track:Talks", sessions: [{ visible: true }] });
 });
 
 it("keeps the all-tracks filter distinct from a track whose authored label matches it", () => {

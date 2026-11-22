@@ -114,6 +114,7 @@ describe("Sessions read and act", () => {
     const initial = readScreen(source, defs);
     expect(initial).toContain('[s1/track select = "Workshops"');
     expect(initial).toContain("[s1/r2/save toggle:on]");
+    expect(initial).not.toContain('"r2"');
     expect(initial).not.toContain("Opening keynote");
     expect(planAct(source, defs, {}, [save("r1")])).toMatchObject({ ok: false, code: "not_actionable" });
     expect(planAct(source, defs, {}, [open("r1")])).toMatchObject({ ok: false, code: "not_actionable" });
@@ -134,7 +135,9 @@ describe("Sessions read and act", () => {
     expect(reading).not.toContain("Meet the crew");
     expect(readScreen(screen(example, "loading"), defs)).not.toContain("[s1/");
   });
+});
 
+describe("Sessions bookmark projection", () => {
   it("keeps wire props intact across repeated bookmarks and does not navigate until the linked row is pressed", () => {
     const source = screen();
     const links: string[] = [];
@@ -219,7 +222,10 @@ describe("Sessions rendering", () => {
       "No sessions in this view",
     ]);
     const empty = addressedElements(render(example, "empty"));
-    expect(empty.has("home/s1/empty")).toBe(true);
+    expect(partText(empty.get("home/s1/empty"))).toEqual(["No sessions in this view"]);
+    expect(partText(addressedElements(render(agenda, "empty")).get("home/s1/empty"))).toEqual([
+      "No bookmarked sessions yet",
+    ]);
     expect(empty.has("home/s1/r1/save")).toBe(false);
     expect(empty.has("home/s1/track")).toBe(true);
     expect(planAct(screen(example, "empty"), defs, {}, [filter("Workshops")]).ok).toBe(true);

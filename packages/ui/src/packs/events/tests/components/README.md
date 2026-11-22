@@ -7,5 +7,6 @@
 - `RSVP.test.ts`: invitation bounds, conditional controls, reply confirmation and live drafts.
 - `Seating.test.ts`: seating bounds, addressed table disclosure and capacity-aware guest moves.
 - `Sessions.test.ts`: schedule bounds, fallbacks, addressed track filtering, bookmark projection and conflict states.
+- `Sessions.browser.test.ts`: mounted track choices, independent bookmark and navigation targets, and agenda updates.
 - `Ticket.test.ts`: admission pass props, fallbacks, parts, states and read/act.
 - `Vendors.test.ts`: supplier props, fallbacks, rendering and actions.

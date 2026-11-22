@@ -106,7 +106,7 @@ export const en = {
     conflict: "Time conflict",
     full: "Full",
     remaining: (count: string) => `${count} left`,
-    capacity: (count: string) => `${count} seats`,
+    capacity: (count: string, singular: boolean) => `${count} ${singular ? "seat" : "seats"}`,
     range: (start: string, end: string) => `${start}–${end}`,
     line: (fields: readonly (string | undefined)[]) => fields.filter(Boolean).join(" · "),
     save: (title: string) => `Bookmark ${title}`,
