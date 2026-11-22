@@ -29,6 +29,7 @@ const ids = [
   "Clocks",
   "FlightStatus",
   "BagTracker",
+  "CabinSeats",
 ];
 const packLayouts = {
   "trips_all/list": ["Header", "List", "Button"],
