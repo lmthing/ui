@@ -1,12 +1,16 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import { FeedRow, type FeedRowData } from "../../../kit/renderers";
+import { jobFeedCopy, jobFeedReading } from "../copy";
+import { hiringWordsFor } from "../lang";
 import { payPeriods, seedDate, seedGoto, seedRows } from "../seeds";
 
 // Core first: List with a badge trail can link short vacancy rows, but cannot show structured pay,
 // workplace, posted age, local bookmarks and easy apply together per opening.
 export const meta = {
   id: "JobFeed",
-  status: "draft",
+  status: "ready",
   group: "content",
   region: "body",
   weight: 2,
@@ -25,6 +29,7 @@ export const meta = {
     key: "jobs",
     parts: [
       "root",
+      "card",
       "title",
       "employer",
       "place",
@@ -46,10 +51,26 @@ export const meta = {
   states: ["filled", "empty", "loading", "success", "error"],
   readSuccess: true,
   successActions: ["root.press", "save.toggle", "apply.press"],
+  live: {
+    derive: (value) =>
+      value.detail === "brief"
+        ? {
+            jobs: (value.jobs as z.output<typeof job>[]).map((row) => ({
+              ...row,
+              place: undefined,
+              posted: undefined,
+            })),
+          }
+        : {},
+  },
+  read: (input, state, lang, _data, currency): string[] => {
+    const content = jobFeedReading((input as z.output<typeof props>).jobs, currency, lang);
+    return state === "success" ? [hiringWordsFor(lang).jobFeed.success, ...content] : content;
+  },
   writeHints: [
     "Write one to six open jobs. Give each a distinct jobId, its original posted date and a link to details.",
     "Pay numbers are optional with min at most max; never write a currency, formatted pay, or calculated age.",
-    'Use style "cards" only if individual cards are requested. Use detail "brief" only if asked to hide posting dates and locations.',
+    'Use style "cards" only if individual cards are requested. Use detail "brief" only if asked to hide posting dates and locations. In both cases keep density and surface null unless the request separately asks for a finish; never fill in the default surface.',
   ],
 } as const satisfies c.Meta;
 
@@ -79,7 +100,7 @@ export const props = z.strictObject({
     .min(1)
     .max(6)
     .refine((rows) => new Set(rows.map(({ jobId }) => jobId)).size === rows.length, "Use unique job IDs"),
-  style: z.enum(["rows", "cards"]).default("rows"),
+  style: z.literal("cards").optional(),
 });
 
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
@@ -122,7 +143,11 @@ const openings = [
   },
 ] satisfies z.input<typeof job>[];
 
-export const examples: z.input<typeof props>[] = [{ jobs: openings }, { jobs: openings, style: "cards" }];
+export const examples: z.input<typeof props>[] = [
+  { jobs: openings },
+  { jobs: openings, style: "cards" },
+  { jobs: openings, density: "compact", surface: "outlined", detail: "brief" },
+];
 
 const { choose, write, read } = c.probesFor("JobFeed");
 export const probes = [
@@ -140,5 +165,128 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
-  read("Bookmark the Summer dog walker opening.", { address: "j1/r1/save", action: "toggle" }),
+  // Use the brief fixture so relative posting ages do not invalidate replay each day.
+  read("Bookmark the Summer dog walker opening.", { address: "j1/r1/save", action: "toggle" }, 2),
 ] satisfies c.Probe[];
+
+type Feed = c.Props<typeof props, typeof meta>;
+type Job = Feed["jobs"][number];
+type JobWords = ReturnType<typeof hiringWordsFor>["jobFeed"];
+type Copy = ReturnType<typeof jobFeedCopy>;
+
+function jobActions(job: Job, copy: Copy, words: JobWords) {
+  return [
+    {
+      part: "save",
+      action: "toggle",
+      label: copy.save,
+      a11y: (job.saved ? words.unsaveJob : words.saveJob)(job.title),
+      icon: job.saved ? "check" : "bookmark",
+      kind: "quiet",
+    } as const,
+    ...(copy.apply
+      ? [{ part: "apply", label: copy.apply, a11y: words.applyFor(job.title), kind: "secondary" } as const]
+      : []),
+  ];
+}
+
+function JobBadges({ copy, density }: { copy: Copy; density: c.ThemeDensity }) {
+  return (
+    <kit.KitContent density={density} rhythm="flush">
+      <kit.KitTrail kind="badge" part="workplace" value={copy.workplace} tone="muted" density={density} />
+      {copy.easyApply && (
+        <kit.KitTrail kind="badge" part="easy_apply" value={copy.easyApply} tone="muted" density={density} />
+      )}
+    </kit.KitContent>
+  );
+}
+
+function JobEntry({
+  job,
+  density,
+  surface,
+  cards,
+  brief,
+}: {
+  job: Job;
+  density: c.ThemeDensity;
+  surface: c.AxisValue<"surface">;
+  cards: boolean;
+  brief: boolean;
+}) {
+  const context = kit.usePartContext();
+  const {
+    lang,
+    words: { jobFeed: words },
+  } = kit.useWords(hiringWordsFor);
+  const address = c.formatAddress({ ...context, item: job.id, part: "save" });
+  const saved = kit.useControlValue(address, job.saved);
+  const copy = jobFeedCopy({ ...job, saved }, kit.useAppCurrency(), lang);
+  const row: FeedRowData = {
+    item: job.id,
+    label: job.title,
+    goto: job.goto,
+    // Lead with the role in the feed's first text slot, then show its employer.
+    author: { part: "title", role: "title", text: job.title },
+    time: { part: "employer", role: "meta", text: job.employer, tone: "muted" },
+    ...(!brief && {
+      title: { part: "posted", role: "meta", tone: "muted", text: copy.posted },
+      status: { part: "place", role: "meta", tone: "muted", text: copy.place },
+    }),
+    body: { part: "pay", role: "figure", compact: true, tabular: true, text: copy.pay, tone: "muted" },
+    accessories: jobActions({ ...job, saved }, copy, words),
+  };
+  const content = (
+    <kit.KitGrid fitLast density={density}>
+      <FeedRow row={row} density={density} />
+      <JobBadges {...{ copy, density }} />
+    </kit.KitGrid>
+  );
+  return (
+    <kit.PartContext.Provider value={{ ...context, item: job.id }}>
+      {cards ? (
+        <kit.KitCard part="card" padded {...{ surface, density }}>
+          {content}
+        </kit.KitCard>
+      ) : (
+        content
+      )}
+    </kit.PartContext.Provider>
+  );
+}
+
+export function JobFeed({ jobs, style, density: requested, surface: finish, detail }: Feed) {
+  const state = kit.useComponentState();
+  const density = kit.useVariant("density", meta.variants.density, requested);
+  const surface = kit.useVariant("surface", meta.variants.surface, finish);
+  const brief = kit.useVariant("detail", meta.variants.detail, detail) === "brief";
+  const {
+    lang,
+    words: { jobFeed: words },
+  } = kit.useWords(hiringWordsFor);
+  const thing = kit.useEmptyThing();
+  const cards = style === "cards";
+  const content = (
+    <kit.KitRowGroup density={density} separators={!cards} spacing="groups">
+      {jobs.map((job) => (
+        <JobEntry key={job.id} {...{ job, density, surface, cards, brief }} />
+      ))}
+    </kit.KitRowGroup>
+  );
+  const part = state === "empty" || state === "success" || state === "error" ? state : undefined;
+  const message = state === "empty" && thing ? c.emptyLine(thing, lang) : part ? words[part] : undefined;
+  return (
+    <kit.KitCard part="root" style={cards ? "cards" : "inset"} padded={!cards} {...{ density, surface }}>
+      <kit.KitState
+        part={part ?? null}
+        message={message}
+        {...(state === "empty" && { icon: "briefcase" as const })}
+        loading={content}
+        retain={state === "success"}
+        density={density}
+      >
+        {content}
+      </kit.KitState>
+    </kit.KitCard>
+  );
+}
