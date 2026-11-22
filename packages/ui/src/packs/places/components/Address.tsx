@@ -87,31 +87,6 @@ export const probes = [
   read("Call the nursery", { address: "a1/call", action: "press" }),
 ] satisfies c.Probe[];
 
-function AddressAction({
-  part,
-  label,
-  density,
-}: {
-  part: "directions" | "copy" | "call";
-  label: string;
-  density: c.ThemeDensity;
-}) {
-  const primary = part === "directions";
-  return (
-    <kit.KitRow part={part} role="button" label={label} density={density} tone={primary ? "text" : undefined}>
-      <kit.KitText
-        role="label"
-        tone="accent"
-        emphasis={primary ? "strong" : "normal"}
-        part={null}
-        density={density}
-      >
-        {label}
-      </kit.KitText>
-    </kit.KitRow>
-  );
-}
-
 export function Address(input: c.Props<typeof props, typeof meta>) {
   const { lines, phone, note } = input;
   const density = kit.useKit().density;
@@ -142,9 +117,16 @@ export function Address(input: c.Props<typeof props, typeof meta>) {
         <kit.KitGrid fitLast density={density}>
           <kit.KitMapTile part="map" pins={[{ ...previewPin, label: words.addressMapPreview }]} />
           <kit.KitContent density={density}>
-            <AddressAction part="directions" label={words.addressDirections} density={density} />
-            <AddressAction part="copy" label={words.addressCopy} density={density} />
-            {callLabel && <AddressAction part="call" label={callLabel} density={density} />}
+            <kit.KitAction
+              action="press"
+              part="directions"
+              kind="secondary"
+              label={words.addressDirections}
+            />
+            <kit.KitAction action="press" part="copy" kind="quiet" label={words.addressCopy} />
+            {callLabel && (
+              <kit.KitAction action="press" part="call" kind="quiet" label={callLabel} contentParts={{}} />
+            )}
           </kit.KitContent>
         </kit.KitGrid>
       </kit.KitContent>
