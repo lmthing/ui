@@ -63,6 +63,9 @@ it("does not offer payment on settled, legacy or inactive tenant rows", () => {
   }
   const withoutAutopay = { ...tenant, autopay: undefined };
   expect(renderInstance("RentRoll", withoutAutopay, "filled", theme)).not.toContain("Autopay");
+  const success = renderInstance("RentRoll", tenant, "success", theme);
+  expect(success).toContain("Rent payment received");
+  expect(readComponent(RentRoll, tenant, "c1", "success").join("\n")).toContain("Rent payment received");
 });
 
 it("updates dispute comments by stable check address and gates co-signing on that check alone", () => {
@@ -102,6 +105,11 @@ it("retains co-sign evidence without any check edits after co-signing or finalis
   const read = readComponent(Inspections, finalised, "c1").join("\n");
   expect(read).not.toMatch(/\/(?:sign press|dispute type)/);
   expect(read).toContain("Tenant co-signed");
+  expect(read).toContain("Tenant co-sign pending");
+  expect(parts.get("home/c1/r3/co_signed")?.text).toEqual(["Tenant co-sign pending"]);
+  const loading = renderInstance("Inspections", finalised, "loading", theme);
+  expect(loading).not.toContain("There is a crack behind the door.");
+  expect(addressedElements(loading).has("home/c1/r3/dispute")).toBe(false);
   expect(
     Inspections.props.safeParse({
       ...signed,

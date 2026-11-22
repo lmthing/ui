@@ -20,7 +20,12 @@ type Let = {
   per: Period;
   cancelled: boolean;
 };
-type Snapshot = { units: readonly Unit[]; lets: readonly Let[]; on: string; style?: "vacancies" | undefined };
+type Snapshot = {
+  units: readonly Unit[];
+  lets: readonly Let[];
+  on: string;
+  style?: "register" | "vacancies" | undefined;
+};
 
 export function exclusiveLets(lets: readonly Let[]) {
   const active = lets.filter(({ cancelled }) => !cancelled);
@@ -92,9 +97,12 @@ export function unitReading(
     const { status, occupant, rent } = unitSnapshot(unit, lets, on, lang, currency);
     return words.unitReading(
       unit.id ?? `r${index + 1}`,
-      [unit.title, notice ? words.notice : words.status[status], occupant, rent].filter(
-        (value) => value !== undefined,
-      ),
+      [
+        unit.title,
+        notice ? words.notice : (style === "vacancies" ? words.statusBadge : words.status)[status],
+        occupant,
+        rent,
+      ].filter((value) => value !== undefined),
     );
   });
   return [

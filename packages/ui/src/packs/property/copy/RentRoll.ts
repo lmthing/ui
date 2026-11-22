@@ -89,9 +89,9 @@ type ReadInput = Omit<Reconciled, "lines"> & {
 
 export function rentReading(input: unknown, state: string, lang?: string): string[] {
   const words = propertyWordsFor(lang).rentRoll;
-  if (state !== "filled") return state === "success" ? [words.success] : [];
   const { figures, lines, totals, style, autopay } = input as ReadInput;
   const tenant = style === "tenant";
+  if (state !== "filled") return state === "success" ? [tenant ? words.paymentReceived : words.success] : [];
   const autopayStatus = tenant ? autopayLabel(autopay, lang) : undefined;
   const copy = rentCopy(figures, lang);
   const groups = rentGroups(lines);

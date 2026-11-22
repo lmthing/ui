@@ -143,7 +143,7 @@ function InspectionReport({ input, density, state, lang }: { input: InspectionPr
     <kit.KitContent {...{ density }}>
       <kit.KitHeader title={{ text: input.unit, part: "unit" }}
         meta={[{ text: kind, part: "kind" }, { text: date, part: "date" }]} {...{ density }} />
-      <kit.KitFigure value={{ text: completion, part: "completion", compact: true }} {...{ density }} />
+      <kit.KitLayoutText line={{ text: completion, part: "completion", role: "body", strong: true, tabular: true }} {...{ density }} />
       <kit.KitLayoutText line={{ text: signed, part: "signed", role: "meta", tone: "good" }} {...{ density }} />
       <kit.KitLayoutText line={{ text: previous, part: "previous", role: "meta", tone: "muted" }} {...{ density }} />
     </kit.KitContent>
@@ -153,9 +153,11 @@ function InspectionReport({ input, density, state, lang }: { input: InspectionPr
       <kit.KitContent key={room.id} group={selector ? "content" : "response"} {...{ density }}>
         {!selector && (loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", room.title]]} /> :
           <kit.KitText item={room.id} part="root" role="label" tone="muted" {...{ density }}><kit.KitText item={room.id} part="title" role="label" tone="muted" {...{ density }}>{room.title}</kit.KitText></kit.KitText>)}
-        {visible.filter((row): row is Check => row.entryKind === "check" && row.roomRef === room.roomRef).map((row) =>
-          <kit.KitRow key={row.id} item={row.id} part={loading ? null : "root"} label={row.title} inline {...{ density }}>
-            <evidence.CheckDetails {...{ row, density, loading }} edit={edit && row.editable} /></kit.KitRow>)}
+        <kit.KitRowGroup {...{ density }} spacing="groups">
+          {visible.filter((row): row is Check => row.entryKind === "check" && row.roomRef === room.roomRef).map((row, index) =>
+            <kit.KitRow key={row.id} item={row.id} part={loading ? null : "root"} label={row.title} inline inset="none" {...{ density }}>
+              <evidence.CheckDetails {...{ row, density, loading }} separated={index > 0} edit={edit && row.editable} /></kit.KitRow>)}
+        </kit.KitRowGroup>
       </kit.KitContent>)}
     {edit && input.canFinalise && <kit.KitActionFooter {...{ density }}>{loading ?
       <kit.KitSkeleton shape="control" kind="primary" label={words.finalise} full /> :

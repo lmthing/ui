@@ -5,7 +5,7 @@ import { autopayLabel, rentCopy, rentGroups, rentReading } from "../copy";
 import { propertyWordsFor } from "../lang";
 import { ledgerRows } from "../ledger";
 import { distinct, ref, seedDate, seedLabels } from "../seeds";
-import * as rent from "./rent-figure";
+import * as rent from "./rent-roll-rows";
 // Core first: Amount/total cannot reconcile rent charges and allocated receipts across units or periods.
 // prettier-ignore
 export const meta = {
@@ -132,51 +132,6 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type RollProps = c.Props<typeof props, typeof meta>;
-type Line = RollProps["lines"][number];
-// prettier-ignore
-type Finish = { density: c.ThemeDensity; copy: ReturnType<typeof rentCopy>; words: ReturnType<typeof propertyWordsFor>["rentRoll"]; loading: boolean; tenant: boolean };
-// prettier-ignore
-function RentAction({ loading, kind, label, part, goto }: { loading: boolean; kind: kit.ActionKind; label: string; part: string; goto?: string }) {
-  return loading ? <kit.KitSkeleton shape="control" {...{ kind, label }} /> : <kit.KitAction {...{ kind, label, part, goto }} />;
-}
-// prettier-ignore
-function ChargeRow({ line, density, copy, words, loading, tenant }: Finish & { line: Extract<Line, { kind: "charge" }> }) {
-  const { due, fields } = copy.charge(line);
-  return <kit.KitRow item={line.id} part={loading ? null : "root"} inline label={line.unit} {...{ density }}>
-    <kit.KitContent {...{ density }}>
-      <rent.Datum part="unit" role="body" text={line.unit} {...{ density }} />
-      <rent.Datum part="occupant" role="body" tone="muted" text={line.occupant} {...{ density }} />
-      <rent.Datum part="due" role="caption" tone="muted" text={due} {...{ density }} />
-      <kit.KitContent group="response" {...{ density }}>
-        <kit.KitGrid columns={3} {...{ density }}>{fields.map((field) => <rent.Metric key={field.part} {...field} {...{ density }} />)}</kit.KitGrid>
-      </kit.KitContent>
-      {tenant ? (line.unpaid && <kit.KitActionFooter {...{ density }}>
-        <RentAction part="pay" label={words.pay} kind="primary" {...{ loading }} />
-      </kit.KitActionFooter>) : <kit.KitContent group="response" {...{ density }}>
-        <kit.KitGrid fitLast {...{ density }}>
-          <RentAction part="record" label={words.record} goto={line.record.goto} kind="secondary" {...{ loading }} />
-          {line.unpaid && <RentAction part="remind" label={words.remind} kind="quiet" {...{ loading }} />}
-        </kit.KitGrid>
-      </kit.KitContent>}
-    </kit.KitContent>
-  </kit.KitRow>;
-}
-// prettier-ignore
-function ReceiptRow({ line, density, copy, words, loading, tenant }: Finish & { line: Extract<Line, { kind: "receipt" }> }) {
-  const { date, method, value } = copy.receipt(line);
-  return <kit.KitRow item={line.id} part={loading ? null : "root"} inline label={line.unit} {...{ density }}>
-    <kit.KitGrid fitLast {...{ density }}>
-      <kit.KitContent {...{ density }}>
-        <rent.Datum part="unit" role="body" text={line.unit} {...{ density }} />
-        <rent.Datum part="amount" role="number" strike={line.voided} text={value} {...{ density }} />
-        <rent.Datum part="date" role="caption" tone="muted" text={date} {...{ density }} />
-        <rent.Datum part="method" role="caption" tone="muted" text={method} {...{ density }} />
-      </kit.KitContent>
-      {line.voided && !loading ? <kit.KitTrail part="voided" kind="badge" tone="muted" value={words.voided} {...{ density }} /> :
-        !tenant && <RentAction part="void" label={line.voided ? words.voided : words.void} kind="danger" {...{ loading }} />}
-    </kit.KitGrid>
-  </kit.KitRow>;
-}
 // prettier-ignore
 export function RentRoll(input: RollProps) {
   const { totals, lines } = input;
@@ -187,25 +142,27 @@ export function RentRoll(input: RollProps) {
   const tenant = input.style === "tenant", autopay = tenant ? autopayLabel(input.autopay, lang) : undefined;
   const copy = rentCopy(figures, lang), groups = rentGroups(lines), finish = { density, copy, words, loading, tenant };
   const content = <>
-    {tenant ? <kit.KitHeader title={{ text: words.tenant, part: "tenant" }}
-      meta={{ text: copy.month(totals.month), part: "month" }} {...{ density }} /> :
-      <rent.Datum part="month" role="title" text={copy.month(totals.month)} {...{ density }} />}
-    {autopay && (loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["caption", autopay]]} /> :
-      <kit.KitTrail part="autopay" kind="badge" value={autopay} tone={input.autopay ? "good" : "muted"} {...{ density }} />)}
+    {tenant ? <kit.KitRow part={null} inline inset="none" label={words.tenant} {...{ density }} trailing={
+      autopay && (loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["caption", autopay]]} /> :
+        <kit.KitTrail part="autopay" kind="badge" value={autopay} tone={input.autopay ? "good" : "muted"} {...{ density }} />)
+    }><kit.KitHeader title={{ text: words.tenant, part: "tenant" }}
+      meta={{ text: copy.month(totals.month), part: "month" }} {...{ density }} /></kit.KitRow> :
+      <kit.KitHeader title={{ text: copy.month(totals.month), part: "month" }} />}
     <kit.KitGrid {...{ density }}>{copy.summary(totals).map((field) =>
-      <rent.Metric key={field.part} {...field} {...{ density }} focal={field.part === "outstanding"} />)}</kit.KitGrid>
+      <rent.Metric key={field.part} {...field} {...{ density }} focal={field.part === "outstanding"} alignEnd />)}</kit.KitGrid>
     {!groups.length && !loading && <kit.KitEmpty part="notice" title={words.noCharges} decorativeIcon />}
     {groups.map(({ charge, receipts }) => <kit.KitContent key={charge.id} group="response" {...{ density }}>
-      <ChargeRow line={charge} {...finish} />
-      {receipts.length > 0 && <kit.KitContent group="response" {...{ density }}>
+      <rent.ChargeRow line={charge} {...finish} />
+      {receipts.length > 0 && <kit.KitContent group="response" rhythm="flush" {...{ density }}>
         <rent.Datum part={null} role="caption" tone="muted" text={words.receipts} {...{ density }} />
-        {tenant ? <kit.KitRowGroup {...{ density }}>{receipts.map((line) => <ReceiptRow key={line.id} {...{ line }} {...finish} />)}</kit.KitRowGroup> :
-          receipts.map((line) => <ReceiptRow key={line.id} {...{ line }} {...finish} />)}
+        <kit.KitRowGroup separators={tenant} spacing="groups" {...{ density }}>
+          {receipts.map((line) => <rent.ReceiptRow key={line.id} {...{ line }} {...finish} />)}
+        </kit.KitRowGroup>
       </kit.KitContent>}
     </kit.KitContent>)}
   </>;
   return <kit.KitCard part="root" padded {...{ density }}>
     <kit.KitState part="notice" loading={content}
-      message={state === "success" ? words.success : state === "error" ? words.error : undefined} {...{ density }}>{content}</kit.KitState>
+      message={state === "success" ? tenant ? words.paymentReceived : words.success : state === "error" ? words.error : undefined} {...{ density }}>{content}</kit.KitState>
   </kit.KitCard>;
 }

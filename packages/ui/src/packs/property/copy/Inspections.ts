@@ -131,6 +131,9 @@ export function readInspection(raw: unknown, state: StateName, lang?: string): s
             row.note,
             ...row.photos,
             row.tenantSignoff === "signed" && words.coSigned,
+            row.tenantSignoff === "pending" &&
+              (state === "success" || !row.canDispute) &&
+              words.coSignPending,
             row.disputeComment && words.disputeReading(row.disputeComment),
             state === "filled" && row.editable && row.canAddPhoto && words.addPhoto,
             state === "filled" && row.editable && row.hasPhoto && words.removePhoto,

@@ -1,7 +1,8 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 // prettier-ignore
-import { KitCard, KitContent, KitGrid, KitHeader, KitInput, KitLayoutText, KitPhoto, KitRow, KitRowGroup, KitSkeleton, KitState, KitTrail, useAppCurrency, useComponentState, useLiveControls, useVariant, useWords } from "../../../kit";
+import { KitCard, KitContent, KitGrid, KitHeader, KitInput, KitLayoutText, KitRowGroup, KitSkeleton, KitState, useAppCurrency, useComponentState, useLiveControls, useVariant, useWords } from "../../../kit";
+import * as unitView from "./unit-row";
 import { exclusiveLets, unitDisplay, unitReading, unitSnapshot } from "../copy";
 import { propertyWordsFor } from "../lang";
 import { distinct, ref, seedDate, seedLabels } from "../seeds";
@@ -17,7 +18,8 @@ export const meta = {
     "Use snake_case references. Every let must reference a unit in this line. Active lets for one unit must not overlap; the end date is exclusive, and cancelled lets do not count.",
     'A stay requires an end date and per "night"; a tenancy uses "week" or "month". Supply askingRent and askingPer together, or omit both. Do not write occupancy or totals.',
     'Do not copy unrequested photos, addresses or links from the example. A requested thumbnail sets only media to "thumb". Usual, regular or default spacing and surface mean null for density and surface, never explicit defaults.',
-    'Use style "vacancies" for a vacancy list. Keep all units and lets for date changes; write noticeGivenOn only for explicitly given notice on a tenancy with a later end date.',
+    'For a Vacancies view (vacant and notice-given units), set style to "vacancies". Otherwise set style to "register". Always write every supplied unit and let, even in the Vacancies view: the view, not the Writer, filters their visibility.',
+    "For a tenancy described as on notice, write the given notice date in noticeGivenOn. Its end must be later than notice. Do not use a scheduled end alone as notice.",
   ],
   region: "body",
   weight: 3,
@@ -86,7 +88,7 @@ export const props = z
     units: z.array(unit).min(1).max(12),
     lets: z.array(letRecord).min(0).max(48),
     on: c.isoDate,
-    style: z.literal("vacancies").optional(),
+    style: z.enum(["register", "vacancies"]).optional(),
   })
   .refine(({ units }) => distinct(units, (unit) => unit.unitRef), { path: ["units"] })
   .refine(
@@ -138,52 +140,18 @@ const { choose, write, read } = c.probesFor("Units");
 export const probes = [
   choose("On any date, see which rental flats are occupied, reserved or vacant from the agreed lets and see each flat's current rent"),
   choose("Show a plain tenant directory of names linked to their profiles, with no occupancy or date calculations", "List"),
-  write("On 2026-11-18 show Willow Flat (flat_a) occupied under Asha’s monthly tenancy (asha_let) from 2026-10-01 for 900. Add vacant Cedar Flat (flat_b), asking 1050 per month."),
+  { ...write("On 2026-11-18 show Willow Flat (flat_a) occupied under Asha’s monthly tenancy (asha_let) from 2026-10-01 for 900. Add vacant Cedar Flat (flat_b), asking 1050 per month."),
+    expectProps: { style: "register" } },
   { ...write("Show North Cabin (north_cabin) on 2026-11-18 with thumbnail photo lib:home; there are no agreed lets. Keep the usual row surface and spacing."),
-    variant: { axis: "media", value: "thumb" } },
+    variant: { axis: "media", value: "thumb" }, expectProps: { style: "register" } },
   read("Open Willow Flat’s details", { address: "u1/r1", action: "press" }),
-  { ...write("Show only vacant units and tenancies on notice as of 2026-11-18. Willow Flat (flat_a) is let to Asha (asha_let) at 900 monthly from 2026-10-01 to 2026-12-01, with notice given 2026-11-10. Cedar Flat (flat_b) has no lets."),
-    expectProps: { style: "vacancies", lets: [{ letRef: "asha_let", noticeGivenOn: "2026-11-10" }] } },
+  { ...write("Use the Vacancies view on 2026-11-18. Include both Willow Flat (flat_a) and Cedar Flat (flat_b) in the underlying register for date changes. Store Asha's tenancy asha_let for Willow Flat, 900 monthly from 2026-10-01 to 2026-12-01. Asha already gave notice on 2026-11-10; retain that exact notice date on the tenancy. Cedar Flat has no lets."),
+    expectProps: { style: "vacancies", units: [{ unitRef: "flat_a" }, { unitRef: "flat_b" }], lets: [{ letRef: "asha_let", noticeGivenOn: "2026-11-10" }] } },
 ] satisfies c.Probe[];
 
 type UnitsProps = c.Props<typeof props, typeof meta>;
 type Unit = UnitsProps["units"][number];
 type VisibleUnits = Omit<UnitsProps, "units"> & { units: (Unit & { visible: boolean; notice: boolean })[] };
-const statusTone = { occupied: "good", reserved: "warn", vacant: "muted" } as const;
-// prettier-ignore
-function UnitRow({ unit, snapshot, media, density, loading, notice }: {
-  unit: Unit;
-  snapshot: ReturnType<typeof unitSnapshot>;
-  media: UnitsProps["media"];
-  density: NonNullable<UnitsProps["density"]>;
-  loading: boolean;
-  notice: boolean;
-}) {
-  const { words } = useWords(propertyWordsFor);
-  const { status, occupant, rent } = snapshot;
-  const photo = media === "thumb" && unit.photo;
-  const lines = [
-    { part: "title", text: unit.title, role: "body", tone: unit.goto ? "accent" : "text" },
-    { part: "address", text: unit.address, role: "caption", tone: "muted" },
-    { part: "occupant", text: occupant, role: "body", tone: "text" },
-    { part: "rent", text: rent, role: "figure", tone: "text" },
-  ] as const;
-  return (
-    <KitRow item={unit.id} label={loading ? "" : unit.title} goto={loading ? undefined : unit.goto} density={density}
-      part={loading ? null : "root"} inset="none" leadingAlign="row" lineRole="heading"
-      leading={photo ? loading ? <KitSkeleton shape="figure" inset="none" lead="box" density={density} />
-        : <KitPhoto photo={photo} label={unit.title} part="photo" /> : undefined}
-    >
-      <KitGrid fitLast density={density}>
-        <KitGrid arrange="rows">
-          {lines.map(({ part, text, role, tone }) => <KitLayoutText key={part} density={density}
-            line={{ part, text, role, tone, strong: part === "title", compact: true, tabular: role === "figure" }} />)}
-        </KitGrid>
-        <KitTrail kind="badge" part="occupancy" value={notice ? words.units.notice : words.units.status[status]} tone={notice ? "warn" : statusTone[status]} density={density} />
-      </KitGrid>
-    </KitRow>
-  );
-}
 // prettier-ignore
 export function Units(input: UnitsProps) {
   const { units, lets, on, style } = useLiveControls(meta, input) as VisibleUnits;
@@ -194,20 +162,22 @@ export function Units(input: UnitsProps) {
   const density = useVariant("density", meta.variants.density, input.density);
   const surface = useVariant("surface", meta.variants.surface, input.surface);
   const media = useVariant("media", meta.variants.media, input.media);
-  const rows = units.filter(({ visible }) => visible).map((unit) => <UnitRow key={unit.id} notice={unit.notice}
+  const rows = units.filter(({ visible }) => visible).map((unit) => <unitView.UnitRow key={unit.id} notice={unit.notice}
     snapshot={unitSnapshot(unit, lets, on, lang, currency)} {...{ unit, media, density, loading }} />);
   const content = <>
     <KitContent {...{ density }}>
-      {style === "vacancies" && <KitHeader title={{ text: words.units.vacancies, part: "vacancies" }} {...{ density }} />}
       <KitLayoutText line={{ role: "meta", text: words.units.date, tone: "muted" }} {...{ density }} />
       {loading ? <KitSkeleton shape="control" kind="secondary" label={words.units.date} full /> :
         <KitInput part="date" kind="date" icon="calendar" action="set" label={words.units.date} hint={words.units.dateFormat} value={on} projected />}
     </KitContent>
-    {style === "vacancies" ? <KitRowGroup {...{ density }}>{rows}</KitRowGroup> :
+    {style === "vacancies" ? <KitContent {...{ density }}>
+      <KitHeader title={{ text: words.units.vacancies, part: "vacancies" }} {...{ density }} />
+      <KitRowGroup {...{ density }}>{rows}</KitRowGroup>
+    </KitContent> :
       <KitGrid arrange="rows" list={!loading} {...{ density }}>{rows}</KitGrid>}
     {!rows.length && !loading && <KitLayoutText line={{ text: words.units.noVacancies, part: "message", tone: "muted" }} {...{ density }} />}
   </>;
-  return <KitCard part="root" padded surface={state === "filled" ? surface : "card"} {...{ density }}>
+  return <KitCard part="root" padded surface={state === "filled" || loading ? surface : "card"} {...{ density }}>
     <KitState part="message" icon={state === "error" ? "alert" : "home"}
       message={state === "error" ? words.units.error : undefined} loading={content} {...{ density }}>{content}</KitState>
   </KitCard>;

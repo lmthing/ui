@@ -82,7 +82,9 @@ export const en = {
     previous: "Previous report referenced",
     coSign: "Co-sign check",
     coSigned: "Tenant co-signed",
+    coSignPending: "Tenant co-sign pending",
     dispute: "Tenant dispute",
+    disputeHint: "Describe what you disagree with",
     disputeReading: (comment: string) => `Tenant dispute: ${comment}`,
     error: "Couldn’t update the report",
     errorDetail: "Review conditions and photos.",
@@ -105,6 +107,7 @@ export const en = {
     tenant: "Your rent",
     autopay: { on: "Autopay on", off: "Autopay off" },
     pay: "Pay rent",
+    paymentReceived: "Rent payment received",
     success: "Receipt recorded",
     error: "Rent ledger update failed",
     noCharges: "No charges for this view",
@@ -139,6 +142,7 @@ export const en = {
     unitReading: (id: string, fields: readonly string[]) => [id, ...fields].join(" · "),
     error: "Invalid or overlapping let dates",
     status: { occupied: "occupied", reserved: "reserved", vacant: "vacant" },
+    statusBadge: { occupied: "Occupied", reserved: "Reserved", vacant: "Vacant" },
   },
   viewings: {
     statuses: {

@@ -21,38 +21,44 @@ const conditionTone = {
 function TenantReview({ row, edit, density, loading }: { row: Check; edit: boolean; density: Density; loading: boolean }) {
   const { words: { inspections: words } } = kit.useWords(propertyWordsFor);
   if (!row.tenantSignoff && !row.disputeComment) return null;
+  const canDispute = edit && row.canDispute;
+  const status = row.tenantSignoff === "signed" ? words.coSigned :
+    row.tenantSignoff === "pending" && !canDispute ? words.coSignPending : undefined;
   return <>
-    {row.tenantSignoff === "signed" && <kit.KitLayoutText line={{ text: words.coSigned, part: "co_signed", role: "meta", tone: "good" }} {...{ density }} />}
-    {edit && row.canDispute ? (loading ? <kit.KitSkeleton shape="control" kind="quiet" label={words.dispute} full /> :
-      <kit.KitTextArea lines={1} part="dispute" value={row.disputeComment ?? ""} hint={words.dispute}
-        label={words.dispute} maxLength={inspectionNoteLimit} />) :
-      row.disputeComment && <kit.KitLayoutText line={{ text: words.disputeReading(row.disputeComment), part: "dispute", role: "body" }} {...{ density }} />}
-    {edit && row.canSign && <kit.KitActionFooter {...{ density }}>{loading ?
+    <kit.KitLayoutText line={{ text: status, part: "co_signed", role: "meta", tone: row.tenantSignoff === "signed" ? "good" : "muted" }} {...{ density }} />
+    {(canDispute || row.disputeComment) && (loading ?
+      <kit.KitSkeleton shape="control" kind="quiet" label={words.dispute} full /> : canDispute ?
+      <kit.KitContent group="response" {...{ density }}><kit.KitLayoutText line={{ text: words.dispute, role: "meta" }} {...{ density }} />
+        <kit.KitTextArea lines={1} part="dispute" value={row.disputeComment ?? ""} hint={words.disputeHint}
+          label={words.dispute} maxLength={inspectionNoteLimit} /></kit.KitContent> :
+      <kit.KitLayoutText line={{ text: words.disputeReading(row.disputeComment!), part: "dispute", role: "body" }} {...{ density }} />)}
+    {edit && row.canSign && <kit.KitContent group="response" {...{ density }}><kit.KitActionFooter {...{ density }}>{loading ?
       <kit.KitSkeleton shape="control" kind="secondary" label={words.coSign} full /> :
-      <kit.KitAction part="sign" kind="secondary" label={words.coSign} full />}</kit.KitActionFooter>}
+      <kit.KitAction part="sign" kind="secondary" label={words.coSign} full />}</kit.KitActionFooter></kit.KitContent>}
   </>;
 }
 // prettier-ignore
-export function CheckDetails({ row, edit, density, loading }: { row: Check; edit: boolean; density: Density; loading: boolean }) {
+export function CheckDetails({ row, edit, density, loading, separated }: {
+  row: Check; edit: boolean; density: Density; loading: boolean; separated: boolean;
+}) {
   const { lang, words: { inspections: words } } = kit.useWords(propertyWordsFor);
-  const chips = inspectionConditions.map((value) => <kit.KitContent key={value} align="center">
-    <kit.KitChip item={null} role="radio" disabled={false} value={value} on={value === row.condition} label={words.condition[value]} /></kit.KitContent>);
-  const choices = <><kit.KitGrid columns={3} {...{ density }}>{chips.slice(0, 3)}</kit.KitGrid>
-    <kit.KitGrid columns={2} {...{ density }}>{chips.slice(3)}</kit.KitGrid></>;
-  const photo = (reference: string, index: number, shape: "thumb" | "square") => loading ?
-    (shape === "thumb" ? <kit.KitSkeleton rows={1} inset="none" items={[{ photo: reference }]} /> :
-      <kit.KitSkeleton key={index} shape="media" aspect="square" lines={[]} />) :
-    <kit.KitPhoto key={index} part={inspectionPhotoParts[index]!} photo={reference} shape={shape} label={words.photoFor(row.title, c.numberLine(index + 1, lang))} />;
-  const actions = <>{row.canAddPhoto && (loading ? <kit.KitSkeleton shape="control" kind="secondary" label={words.addPhoto} full /> :
+  const chips = inspectionConditions.map((value) => <kit.KitChip key={value} item={null} role="radio" disabled={false}
+    value={value} on={value === row.condition} label={words.condition[value]} />);
+  const photo = (reference: string, index: number, shape: "thumb" | "square") =>
+    <kit.KitPhoto key={index} part={loading ? null : inspectionPhotoParts[index]!} photo={reference} {...{ shape, loading }}
+      label={words.photoFor(row.title, c.numberLine(index + 1, lang))} />;
+  const actions = <kit.KitContent {...{ density }}>{row.canAddPhoto && (loading ? <kit.KitSkeleton shape="control" kind="secondary" label={words.addPhoto} full /> :
     <kit.KitAction part="photo" label={words.addPhoto} kind="secondary" full />)}
     {row.hasPhoto && (loading ? <kit.KitSkeleton shape="control" kind="danger" label={words.removePhoto} full /> :
-    <kit.KitAction part="remove_photo" label={words.removePhoto} kind="danger" full />)}</>;
+    <kit.KitAction part="remove_photo" label={words.removePhoto} kind="danger" full />)}</kit.KitContent>;
   const paired = edit && row.photos.length === 1;
-  return <kit.KitContent {...{ density }}>{loading ?
+  return <kit.KitContent group={separated ? "response" : "content"} {...{ density }}>{loading ?
     <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["body", row.title], ["body", edit ? undefined : words.condition[row.condition]], ["label", edit ? undefined : row.note]]} /> :
     <kit.KitText part="title" role="body" emphasis="strong" {...{ density }}>{row.title}</kit.KitText>}
-    {edit ? <>{loading ? choices : <kit.KitTrack part="condition" role="radiogroup" label={words.conditionFor(row.title)}>{choices}</kit.KitTrack>}
-      {loading ? <kit.KitRow part={null} label={words.note} tone="muted" inset="none" {...{ density }}><kit.KitSkeleton shape="control" kind="quiet" label={words.note} full /></kit.KitRow> :
+    {edit ? <>{loading ? <kit.KitActionFooter {...{ density }}>{chips}</kit.KitActionFooter> :
+      <kit.KitTrack part="condition" role="radiogroup" label={words.conditionFor(row.title)}>{chips}</kit.KitTrack>}
+      {loading ? <kit.KitRow part={null} label={words.note} tone="muted" inset="none" {...{ density }}>
+        <kit.KitSkeleton shape="figure" inset="md" content={[["body", words.note]]} {...{ density }} /></kit.KitRow> :
         <kit.KitTextArea lines={1} part="note" value={row.note} hint={words.note} label={words.noteFor(row.title)} maxLength={inspectionNoteLimit} />}</> :
       !loading && <><kit.KitText part="condition" role="body" tone={conditionTone[row.condition]} {...{ density }}>{words.condition[row.condition]}</kit.KitText>
         {row.note && <kit.KitText part="note" role="body" tone="muted" {...{ density }}>{row.note}</kit.KitText>}</>}
