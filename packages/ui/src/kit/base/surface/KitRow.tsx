@@ -86,8 +86,8 @@ export function Row(props: RowProps) {
   const { children, leading, trailing, goto, label, role, expanded, selected } = props;
   const { tone, rowTone, surface, mark, density, emphasis, lineRole = "body" } = props;
   const { leadingAlign = "line", inline = false, addressed = true } = props;
-  const groupLead = useContext(RowGroupLead),
-    leadingWidth = props.leadingWidth ?? groupLead;
+  const groupLead = useContext(RowGroupLead);
+  const leadingWidth = props.leadingWidth ?? groupLead;
   const { part = "root", inset = "md", indent } = props;
   const line = typography[useTextStep({ density, emphasis })(lineRole)].lineHeight;
   const ks = useKitStyle();
