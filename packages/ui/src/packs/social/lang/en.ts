@@ -44,6 +44,7 @@ export type SocialWords = {
   };
   storyViewer: {
     position: (current: string, total: string) => string;
+    photo: (position: string) => string;
     previous: string;
     next: string;
     play: string;
@@ -54,6 +55,8 @@ export type SocialWords = {
     close: string;
     expired: string;
     sent: string;
+    sending: string;
+    notSent: string;
   };
   event: {
     going: string;
@@ -134,6 +137,7 @@ export const en = {
   },
   storyViewer: {
     position: (current, total) => `Slide ${current} of ${total}`,
+    photo: (position) => `Story photo, ${position}`,
     previous: "Previous slide",
     next: "Next slide",
     play: "Play story",
@@ -144,6 +148,8 @@ export const en = {
     close: "Close story",
     expired: "This story is no longer available.",
     sent: "Reply sent.",
+    sending: "Sending reply…",
+    notSent: "Couldn’t send the reply.",
   },
   event: {
     going: "Going",

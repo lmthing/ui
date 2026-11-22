@@ -1,6 +1,8 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
 import { storyViewerReading } from "../copy";
+import { socialWordsFor } from "../lang";
 
 const maxSlides = 8;
 const maxReply = 120;
@@ -9,24 +11,24 @@ const slideIntervalMs = 5000;
 // Core first: Gallery/carousel browses static photos, not timed stories with slide replies or stickers.
 // prettier-ignore
 export const meta = {
-  id: "StoryViewer", status: "draft", group: "content",
+  id: "StoryViewer", status: "ready", group: "content",
   purpose: "Watch a person’s short-lived story and respond to the current slide.",
   pick: "Watch one person’s temporary multi-slide story with timed progress, stickers or quick replies. Not a static photo carousel (Gallery), a row of people’s stories (Stories), or a permanent Post.",
   writeHints: [
     'Each slide needs its own photo and time; current is a zero-based index into slides. For a read-only viewer use detail "brief"; leave detail null otherwise.',
-    'A link sticker can have a goto; a poll sticker has two options. Use null for unrequested variant axes.',
+    'A link sticker can have a goto; a poll sticker can have up to two options. Use null for unrequested variant axes, including aspect and bleed.',
   ],
   region: "body", weight: 3, dense: true, tier: "people",
   partTiers: { prev: "phone", next: "phone", story: "phone", close: "phone" },
   realPath: "Stories expire after 24 hours in a shared app; replies go to the author’s message thread.",
   variants: { aspect: ["tall", "square", "wide"], bleed: ["edge", "inset"], detail: ["full", "brief"] },
-  variantParts: { "detail.brief": { hides: ["reply", "react"] } },
-  parts: ["root", "progress", "author", "avatar", "time", "photo", "caption", "prev", "next", "story", "sticker", "reply", "react", "close", "status"],
+  variantParts: { "detail.brief": { hides: ["reply", "send", "react"] } },
+  parts: ["root", "progress", "position", "author", "avatar", "time", "photo", "caption", "prev", "next", "story", "sticker", "reply", "send", "react", "close", "status"],
   items: { key: "slides", parts: [] },
   states: ["filled", "empty", "loading", "success"],
   actions: {
-    parts: { prev: ["press"], next: ["press"], story: ["pause", "play"], sticker: ["press"], reply: ["type", "send"], react: ["press"], close: ["dismiss"] },
-    when: { reply: { detail: "full" }, react: { detail: "full" } },
+    parts: { prev: ["press"], next: ["press"], story: ["pause", "play"], sticker: ["press"], reply: ["type"], send: ["send"], react: ["press"], close: ["dismiss"] },
+    when: { reply: { detail: "full" }, send: { detail: "full" }, react: { detail: "full" } },
   },
   emptyActions: ["close.dismiss"], loadingActions: ["close.dismiss"], successActions: ["close.dismiss"],
   sequence: { cursor: "current", steps: { previous: "prev", next: "next" }, controls: { part: "story", intervalMs: slideIntervalMs, start: { prop: "paused", equals: false } } },
@@ -34,15 +36,16 @@ export const meta = {
   hostCommands: { parts: {
     "sticker.press": { kind: "command", name: "story.sticker", input: ({ props }) => {
       const { slides, current } = props as z.output<typeof storyProps>;
-      return slides[current]?.sticker ? { slide: current } : undefined;
+      const sticker = slides[current]?.sticker;
+      return sticker ? { slide: current, kind: sticker.kind, ...(sticker.kind === "link" && sticker.goto ? { destination: sticker.goto } : {}) } : undefined;
     } },
-    "reply.send": { kind: "command", name: "story.reply", input: ({ props }) => {
+    "send.send": { kind: "command", name: "story.reply", input: ({ props }) => {
       const { replyDraft, current } = props as z.output<typeof storyProps>;
       return replyDraft?.trim() ? { slide: current, text: replyDraft.trim() } : undefined;
     } },
     "react.press": { kind: "command", name: "story.react", input: ({ props }) => ({ slide: Number(props.current) }) },
   } },
-  read: storyViewerReading,
+  readSuccess: true, read: storyViewerReading,
 } as const satisfies c.Meta;
 
 const sticker = z.strictObject({
@@ -92,11 +95,11 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
 // prettier-ignore
 export const examples = [
   { author: "Maya", avatar: "lib:people_maya", slides: [
-    { photo: "lib:fern", time: "4 min ago", caption: "New fronds on the greenhouse fern." },
-    { photo: "lib:plants", time: "2 min ago", caption: "Help pick the next cutting.",
+    { photo: "lib:fern", time: "4 min ago", caption: "New fronds on the greenhouse fern.",
       sticker: { kind: "poll", label: "Which cutting next?", options: ["Pothos", "Fern"] } },
+    { photo: "lib:plants", time: "2 min ago", caption: "The next batch is ready to share." },
   ] },
-  { author: "Anna", aspect: "wide", bleed: "inset", detail: "brief", paused: true, current: 1, replyDraft: "See you there!", slides: [
+  { author: "Anna", aspect: "wide", paused: true, current: 1, replyDraft: "See you there!", slides: [
     { photo: "lib:dogs", time: "1 hr ago" },
     { photo: "lib:park", time: "45 min ago", sticker: { kind: "link", label: "See the walking route", goto: "park_walk" } },
   ] },
@@ -108,7 +111,7 @@ export const probes = [
     "Open Maya’s temporary update: show one timed photo slide at a time with progress across the top and a quick reply to the current slide.",
   ),
   choose(
-    "Let me swipe through four permanent photos from my garden, one picture at a time. No timer, replies, or stickers.",
+    "Browse four saved garden photos in a plain photo carousel with previous and next arrows. Keep every photo in the album; no sorting or dismissing cards, timer, replies, or stickers.",
     "Gallery",
   ),
   write(
@@ -116,9 +119,78 @@ export const probes = [
   ),
   {
     ...write(
-      "Open Maya’s temporary story with two timed fern photos from today, but make the viewer read-only: hide quick replies and reactions.",
+      "Open Maya’s temporary story with two timed fern photos from today. Hide quick replies and reactions. Keep the crop and edge treatment at their defaults: leave aspect and bleed unset.",
     ),
     variant: { axis: "detail", value: "brief" },
   },
   read("Go to the next slide in Maya’s story.", { address: "s1/next", action: "press" }),
 ] satisfies c.Probe[];
+
+type StoryProps = c.Props<typeof props, typeof meta>;
+type StoryWords = ReturnType<typeof socialWordsFor>["storyViewer"];
+
+// prettier-ignore
+function StoryNavigation({ current, count, playing, position, words }: {
+  current: number; count: number; playing: boolean; position: string; words: StoryWords;
+}) {
+  return <kit.KitRow part={null} label={position} inline trailing={<>
+      <kit.KitAction part="prev" icon="chevron_left" kind="quiet" action="press" a11y={words.previous} disabled={current === 0} contentParts={{}} />
+      <kit.KitAction part="story" icon={playing ? "pause" : "play"} kind="quiet" action={playing ? "pause" : "play"} a11y={playing ? words.pause : words.play} contentParts={{}} />
+      <kit.KitAction part="next" icon="chevron_right" kind="quiet" action="press" a11y={words.next} disabled={current === count - 1} contentParts={{}} />
+    </>}>
+    <kit.KitLayoutText line={{ role: "figure", compact: true, text: position, part: "position" }} />
+  </kit.KitRow>;
+}
+
+// prettier-ignore
+function StoryReply({ words, draft }: { words: StoryWords; draft: string | undefined }) {
+  const status = kit.useHostOperations().find(({ name }) => name === "story.reply")?.status;
+  return <kit.KitContent group="response"><kit.KitGrid fitLast>
+    <kit.KitInput part="reply" hint={words.reply} value={draft} action="type" projected compact />
+    <kit.KitRow part={null} label={words.reply} inline trailing={<>
+      <kit.KitAction part="send" icon="send" a11y={words.send} action="send" disabled={!draft?.trim()} contentParts={{}} />
+      <kit.KitAction part="react" icon="heart" kind="quiet" a11y={words.react} action="press" contentParts={{}} />
+    </>}>{null}</kit.KitRow>
+  </kit.KitGrid>
+    {status === "accepted" && <kit.KitLayoutText line={{ part: "status", role: "meta", tone: "good", text: words.sent }} />}
+    {status === "pending" && <kit.KitLayoutText line={{ part: "status", role: "meta", tone: "muted", text: words.sending }} />}
+    {status === "rejected" && <kit.KitLayoutText line={{ part: "status", role: "meta", tone: "bad", text: words.notSent }} />}
+  </kit.KitContent>;
+}
+
+// prettier-ignore
+export function StoryViewer(input: StoryProps) {
+  const state = kit.useComponentState();
+  const { lang, words: { storyViewer: words } } = kit.useWords(socialWordsFor);
+  const { current, slides, replyDraft, sequencePlaying } = kit.useLiveControls(meta, input) as StoryProps & { sequencePlaying?: boolean };
+  const aspect = kit.useVariant("aspect", meta.variants.aspect, input.aspect), bleed = kit.useVariant("bleed", meta.variants.bleed, input.bleed);
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  const slide = slides[current], loading = state === "loading";
+  const position = words.position(c.numberLine(current + 1, lang), c.numberLine(slides.length, lang));
+  const close = <kit.KitAction part="close" icon="close" a11y={words.close} action="dismiss" kind="quiet" contentParts={{}} />;
+  const controls = <kit.KitContent inset="md">
+    <StoryNavigation {...{ current, position, words }} count={slides.length} playing={sequencePlaying ?? !input.paused} />
+    <kit.KitLayoutText line={{ text: slide?.caption, part: "caption" }} />
+    {slide?.sticker && <kit.KitAction part="sticker" kind="secondary" action="press" label={slide.sticker.label}
+      icon={slide.sticker.kind === "link" ? "link" : "bar_chart"} contentParts={{}} />}
+    {detail === "full" && <StoryReply words={words} draft={replyDraft} />}
+  </kit.KitContent>;
+  const header = slide && <kit.KitContent inset="md">
+      <kit.KitStepsTrack style={loading ? "bar" : "numbered"} part="progress" count={slides.length} at={loading ? 0 : current + 1} />
+      <kit.KitGrid fitLast>
+        <kit.KitContent leadingAlign="row" lead={<kit.KitPhoto part="avatar" photo={input.avatar} shape="round" label={input.author}
+          initials={input.author.slice(0, 1)} loading={loading} />}>
+          <kit.KitMetaLine title={{ role: "body", strong: true, part: "author", text: input.author }} meta={{ part: "time", text: slide.time }} />
+        </kit.KitContent>
+        {close}
+      </kit.KitGrid></kit.KitContent>;
+  const body = slide && <>
+    <kit.KitContent inset={bleed === "inset" ? "md" : "none"}>
+      <kit.KitPhoto part="photo" photo={slide.photo} aspect={aspect} label={slide.caption ?? words.photo(position)} loading={loading} />
+    </kit.KitContent>{controls}</>;
+  return <kit.KitCard bleed={bleed} part="root" padded inset="none" clip>
+    {state === "filled" || loading ? header : <kit.KitContent inset="md"><kit.KitGrid fitLast><>{null}</>{close}</kit.KitGrid></kit.KitContent>}
+    <kit.KitState part="status" icon={state === "empty" ? "clock" : undefined}
+      message={state === "success" ? words.sent : words.expired} loading={body}>{body}</kit.KitState>
+  </kit.KitCard>;
+}
