@@ -17,7 +17,7 @@ log, period and cycle tracker, physio exercise plan, step and activity goals.
 
 ## What the core already covers
 
-- One goal for today (steps, water, minutes): `Progress[ring]`; a count (glasses of water): `Counter`.
+- One goal for today (steps, water, minutes): `Ring`; a count (glasses of water): `Counter`.
 - A habit kept day after day: `Streak`; today's health jobs: `Checklist`.
 - Minutes by day: `Bars`; a few numbers: `Stats`; one latest value with a short trend: `Sparkline`.
 - Timing a run or a rest: `Timer`; an exercise video: `Player` style `video`.
@@ -107,7 +107,7 @@ severity from one to five and an optional note.
 A menstrual cycle as a ring of days: today's day number and phase in the middle, period days, the predicted
 next period and the fertile window marked, with "Log period" below. It says plainly that it is not a method
 of contraception.
-- Pick: following a menstrual cycle. Not progress toward a goal (`Progress[ring]`), not days with something marked
+- Pick: following a menstrual cycle. Not progress toward a goal (`Ring`), not days with something marked
   (`Calendar`).
 - Writes: `start` date (the last period's first day), `length` 21–40 (average cycle), `period` 2–10 (days).
   Today's day, the phase, the next period and the fertile window are computed.
@@ -118,7 +118,7 @@ of contraception.
 ### `ActivityRings` · planned · data · phone
 Two or three concentric rings for the day's goals (move, exercise, stand; steps, minutes, water), each in
 its own tone, with the values listed beside them.
-- Pick: two or three daily goals at once. Not one goal (`Progress[ring]`), not targets shown as bars (`Progress`).
+- Pick: two or three daily goals at once. Not one goal (`Ring`), not targets shown as bars (`Progress`).
 - Writes: `rings` of `label` text(16), `value` number, `of` number, `unit` text(8), 2–3.
 - States: filled, loading. · Signature: `ring_fill`.
 - Real path: totals from the device, or from the phone's health store (`ok`).

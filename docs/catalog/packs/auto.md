@@ -22,7 +22,7 @@ Autotrader, Cars.com, Carvana).
 
 ## What the core already covers
 
-- Driving safety scores or eco-driving targets: `Progress[ring]` paired with `Stats`; daily driving streaks: `Streak`.
+- Driving safety scores or eco-driving targets: `Ring` paired with `Stats`; daily driving streaks: `Streak`.
 - One vehicle's static registration or spec sheet: `Profile` with `KeyValue`; vehicle photos or damage
   shots: `Gallery` and `Camera`.
 - Car marketplace search filtering: `FilterBar` with `Search` and `Chips`; dealer or shop reviews: `Review`;

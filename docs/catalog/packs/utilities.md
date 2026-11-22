@@ -34,7 +34,7 @@ history tape over `KitCalcPad`, distinct from `money/AmountPad` and step-by-step
 (`trips/Converter`). `Translator` pairs two-language split panes, transliteration, TTS, and `KitMicCapture`
 dual-mic conversation mode; `QrStudio` generates payloads with `KitCode` and maps decoded scans to smart
 actions (unlike event `events/Ticket` or membership `PassCard`); `SpeedGauge` measures live Mbps and ping
-over `KitDialGauge` (not static goals in `Progress[ring]` or tunnels in `security/VpnTunnel`); and `FileBrowser`
+over `KitDialGauge` (not static goals in `Ring` or tunnels in `security/VpnTunnel`); and `FileBrowser`
 navigates local phone storage separately from cloud drives (`workspace/DriveTree`) and private IDs
 (`paperwork/Documents`). These packs are neighbours, never dependencies.
 
@@ -123,7 +123,7 @@ confirm-remove saved codes.
 A live network bandwidth and latency diagnostic featuring a `KitDialGauge` radial speedometer. During a
 run it steps through ping, download, and upload phases while reporting Mbps, ping, jitter, and
 packet-loss metrics. Users can switch test servers, start or stop tests, and inspect past run summaries.
-- Pick: running and inspecting live network speed and latency tests. Not displaying a static goal (`Progress[ring]`)
+- Pick: running and inspecting live network speed and latency tests. Not displaying a static goal (`Ring`)
   or toggling an encrypted tunnel (`security/VpnTunnel`).
 - Writes: `server` text(32), `servers` of `id` text(24), `name` text(32), `distance` text(12), 1–6,
   `phase` (`idle`, `ping`, `download`, `upload`, `complete`), `downloadMbps` number ≥ 0 optional,

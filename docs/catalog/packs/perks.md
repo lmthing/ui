@@ -78,7 +78,7 @@ bar toward the selected redemption threshold, and 1–6 selectable payout tiers 
 `$10 PayPal`, `$25 Visa`) with a confirmed Redeem trigger. Redeem remains disabled until available points
 meet or exceed the chosen tier's threshold.
 - Pick: converting earned points into cash value and redeeming against payout threshold tiers. Not personal
-  savings goals (`Progress[ring]` + `Amount`), stock dividends (`invest/Dividends`), or restaurant points catalogs
+  savings goals (`Ring` + `Amount`), stock dividends (`invest/Dividends`), or restaurant points catalogs
   (`dining/RewardsWallet`).
 - Writes: `pointsLabel` text(12) (default `"pts"`), `availablePoints` int 0–1000000, `pendingPoints` int
   0–1000000, `pointsPerUnit` int 1–10000, `tiers` of `tierId` text(24), `label` text(24), `pointsNeeded` int

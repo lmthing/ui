@@ -227,7 +227,7 @@ core `Camera[scan]`. In `sec_vault/security_items`, unlocking `CredentialVault` 
 `security_gen` where `PasswordGen` rolls a 20-character CSPRNG password, and `security_recovery` marks
 spent MFA backup codes in `RecoveryCodes`. For travel Wi-Fi, `sec_vpn/security_status` connects
 `VpnTunnel[shield]`, while `sec_audit/security_health` shows the computed `SecurityAudit` score and
-`security_device` checks OS encryption in `DeviceTrust`. Signature: `ring_fill` on an optional core `Progress[ring]`
+`security_device` checks OS encryption in `DeviceTrust`. Signature: `ring_fill` on an optional core `Ring`
 mirroring the security score, or `count_up` on `Stats`; no new signature proposed.
 
 ## Tiers

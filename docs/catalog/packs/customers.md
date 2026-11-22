@@ -91,7 +91,7 @@ reviews (stars, name, date, text, and the business's reply).
 A stamp card: four to twelve circles with the earned ones stamped, the reward written under it ("Your 10th
 coffee is free"), and redeem when full.
 - Pick: rewarding repeat clients with a count to a free thing. Not a habit streak (`Streak`), not a goal of
-  one's own (`Progress[ring]`).
+  one's own (`Ring`).
 - Writes: `stamps` number, `of` 4–12, `reward` text(40), `name` text(24) optional.
 - Parts → actions: `stamp press` (the business adds one), `redeem press` (when full).
 - States: filled, success (reward earned). · Real path: a count per client on the device.
