@@ -141,16 +141,17 @@ export function RentRoll(input: RollProps) {
     {tenant ? <kit.KitRow part={null} inline inset="none" label={words.tenant} {...{ density }} trailing={
       autopay && (loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["caption", autopay]]} /> :
         <kit.KitTrail part="autopay" kind="badge" value={autopay} tone={input.autopay ? "good" : "muted"} {...{ density }} />)
-    }><kit.KitHeader title={{ text: words.tenant, part: "tenant" }}
-      meta={{ text: copy.month(totals.month), part: "month" }} {...{ density }} /></kit.KitRow> :
+    }><kit.KitContent rhythm="flush" {...{ density }}>
+      <kit.KitLayoutText line={{ text: words.tenant, part: "tenant", strong: true }} {...{ density }} />
+      <kit.KitLayoutText line={{ text: copy.month(totals.month), part: "month", role: "meta", tone: "muted" }} {...{ density }} />
+    </kit.KitContent></kit.KitRow> :
       <kit.KitHeader title={{ text: copy.month(totals.month), part: "month" }} />}
-    <kit.KitGrid {...{ density }}>{copy.summary(totals).map((field) =>
-      <rent.Metric key={field.part} {...field} {...{ density }} focal={field.part === "outstanding"} />)}</kit.KitGrid>
+    <rent.RentSummary fields={copy.summary(totals)} {...{ density, tenant }} />
     {!groups.length && !loading && <kit.KitEmpty part="notice" title={words.noCharges} decorativeIcon />}
     {groups.map(({ charge, receipts }) => <kit.KitContent key={charge.id} group="response" {...{ density }}>
       <rent.ChargeRow line={charge} {...finish} />
       {receipts.length > 0 && <kit.KitContent group="response" rhythm="flush" {...{ density }}>
-        <rent.Datum part={null} role="caption" tone="muted" text={words.receipts} {...{ density }} />
+        <kit.KitLayoutText line={{ text: words.receipts, role: "meta", tone: "muted" }} {...{ density }} />
         <kit.KitRowGroup separators={tenant} spacing="groups" {...{ density }}>
           {receipts.map((line) => <rent.ReceiptRow key={line.id} {...{ line }} {...finish} />)}
         </kit.KitRowGroup>

@@ -133,6 +133,12 @@ describe("RentRoll states and parts", () => {
     expect(parts(outstanding).has("home/c1/r2/voided")).toBe(true);
     expect(parts(outstanding).has("home/c1/r2/void")).toBe(false);
   });
+  it("groups receipt dates with their unit before the amount and control", () => {
+    const drawn = [...parts(ledger).keys()].filter((key) => key.startsWith("home/c1/r2/"));
+    expect(drawn.slice(0, 6)).toEqual(
+      ["root", "unit", "date", "method", "amount", "void"].map((part) => `home/c1/r2/${part}`),
+    );
+  });
   it("keeps partial payments and older arrears separate and excludes future charges", () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     try {

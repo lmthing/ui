@@ -42,10 +42,7 @@ function ConditionChoices({ row, density, loading }: { row: Check; density: Dens
   const { words: { inspections: words } } = kit.useWords(propertyWordsFor);
   const chips = inspectionConditions.map((value) => <kit.KitChip key={value} item={null} role="radio" look="box"
     value={value} on={value === row.condition} label={words.condition[value]} />);
-  const choices = <>
-    <kit.KitGrid columns={3} {...{ density }}>{chips.slice(0, 3)}</kit.KitGrid>
-    <kit.KitGrid columns={2} {...{ density }}>{chips.slice(3)}</kit.KitGrid>
-  </>;
+  const choices = <kit.KitGrid columns={2} {...{ density }}>{chips}</kit.KitGrid>;
   return loading ? <kit.KitContent {...{ density }}>{choices}</kit.KitContent> :
     <kit.KitTrack part="condition" role="radiogroup" label={words.conditionFor(row.title)}>
     {choices}
@@ -56,14 +53,14 @@ export function CheckDetails({ row, edit, density, loading, separated }: {
   row: Check; edit: boolean; density: Density; loading: boolean; separated: boolean;
 }) {
   const { lang, words: { inspections: words } } = kit.useWords(propertyWordsFor);
-  const photo = (reference: string, index: number, shape: "thumb" | "square") =>
-    <kit.KitPhoto key={index} part={loading ? null : inspectionPhotoParts[index]!} photo={reference} {...{ shape, loading }}
+  const photo = (reference: string, index: number) =>
+    <kit.KitPhoto key={index} part={loading ? null : inspectionPhotoParts[index]!} photo={reference}
+      shape={row.photos.length === 1 ? "wide" : "square"} {...{ loading }}
       label={words.photoFor(row.title, c.numberLine(index + 1, lang))} />;
   const actions = <kit.KitContent {...{ density }}>{row.canAddPhoto && (loading ? <kit.KitSkeleton shape="control" kind="secondary" label={words.addPhoto} full /> :
     <kit.KitAction part="photo" label={words.addPhoto} kind="secondary" full />)}
     {row.hasPhoto && (loading ? <kit.KitSkeleton shape="control" kind="danger" label={words.removePhoto} full /> :
     <kit.KitAction part="remove_photo" label={words.removePhoto} kind="danger" full />)}</kit.KitContent>;
-  const paired = edit && row.photos.length === 1;
   return <kit.KitContent group={separated ? "response" : "content"} {...{ density }}>{loading ?
     <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["body", row.title], ["label", edit ? undefined : words.condition[row.condition]], ["label", edit ? undefined : row.note]]} /> :
     <kit.KitText part="title" role="body" emphasis="strong" {...{ density }}>{row.title}</kit.KitText>}
@@ -74,8 +71,9 @@ export function CheckDetails({ row, edit, density, loading, separated }: {
       !loading && <><kit.KitText part="condition" role="label" tone={conditionTone[row.condition]} {...{ density }}>{words.condition[row.condition]}</kit.KitText>
         {row.note && <kit.KitText part="note" role="label" tone="muted" {...{ density }}>{row.note}</kit.KitText>}</>}
     {(row.hasPhoto || edit) && <kit.KitContent group="response" {...{ density }}>
-      {paired ? <kit.KitRow part={null} inline label={words.addPhoto} leadingWidth="avatar" leading={photo(row.photos[0]!, 0, "thumb")} leadingAlign="row" {...{ density }}>{actions}</kit.KitRow> :
-        <>{row.hasPhoto && <kit.KitGrid columns={3} {...{ density }}>{row.photos.map((ref, i) => photo(ref, i, "square"))}</kit.KitGrid>}{edit && actions}</>}
+      {row.photos.length === 1 ? photo(row.photos[0]!, 0) :
+        row.hasPhoto && <kit.KitGrid columns={row.photos.length === 2 ? 2 : 3} {...{ density }}>{row.photos.map(photo)}</kit.KitGrid>}
+      {edit && actions}
     </kit.KitContent>}
     <TenantReview {...{ row, edit, density, loading }} />
   </kit.KitContent>;
