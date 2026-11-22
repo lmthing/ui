@@ -24,4 +24,6 @@ it("reads every observation and uses the same selected summary as the view", () 
   expect(brief).not.toContain("Latest valuation");
   expect(brief).toContain("Portfolio value Unknown");
   expect(brief).toContain(point.at);
+  expect(performanceReading({ samples: [point] }, "en-GB", "GBP")).toContain("GBP");
+  expect(performanceReading({ samples: [{ ...point, contributed: null }] })).not.toContain("USD");
 });

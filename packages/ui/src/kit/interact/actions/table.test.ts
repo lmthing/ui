@@ -21,6 +21,7 @@ it("dispatches all existing action names and safely handles unknown names", () =
     "send",
     "dismiss",
     "swipe",
+    "copy",
   ]);
   for (const name of Object.keys(actionTable)) expect(handlerFor(name)).toBe(actionTable[name]);
   expect(typeof handlerFor("toString")).toBe("function");

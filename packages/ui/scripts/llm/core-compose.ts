@@ -1,6 +1,6 @@
-import type { CallModel, WriterFormat } from "@lmthing/ui/catalog";
+import type { WriterFormat } from "@lmthing/ui/catalog";
 import type { ProbeModel } from "./llm.config";
-import { keyOf, readBook, writeBook, replayCall } from "./recordings";
+import { recordingCall, readBook, writeBook, replayCall } from "./recordings";
 import type * as Catalog from "@lmthing/ui/catalog";
 import type { CastLike } from "@lmthing/ui/catalog";
 const { archetypes, components, runComposeProbes } = (await import(
@@ -14,16 +14,9 @@ export async function checkCoreComposition(
   only: readonly string[] = [],
 ) {
   const book = readBook("Archetypes", model.id);
-  const call: CallModel = replay
+  const call = replay
     ? replayCall("Archetypes", model.id)
-    : async (prompt, sample = 0, format) => {
-        const reply = await liveCall(prompt, format),
-          key = keyOf(model.id, prompt, format);
-        const replies = sample === 0 ? [] : [...(book[key]?.replies ?? [])];
-        replies[sample] = reply;
-        book[key] = { prompt, ...(format ? { format } : {}), reply: replies[0]!, replies };
-        return reply;
-      };
+    : recordingCall(model.id, book, (prompt, _sample, format) => liveCall(prompt, format));
   const results = await runComposeProbes({
     archetypes: Object.values(archetypes).map((def) => def.meta),
     defs: components,

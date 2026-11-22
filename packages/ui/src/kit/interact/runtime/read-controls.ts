@@ -1,13 +1,18 @@
 import {
   atDeviceTime,
+  buzzTarget,
   captureDeviceTime,
   driveTarget,
+  hostActionPolicy,
   isDeviceDataVisible,
+  isLocalAnchorAction,
   migrateScreen,
+  parseAddress,
   planAct,
   projectDeviceData,
   readComponent,
   readScreen,
+  redactPrivateMarks,
   selectionBindingFor,
   withDisabledSelectionChecks,
   withRecordScreen,
@@ -18,7 +23,17 @@ import {
   type ScreenLike,
   type Values,
 } from "../../../catalog";
-import type { Confirmation } from "./context";
+import type { Confirmation, ControllerContext } from "./context";
+import type { PrivateMarks } from "../../../catalog/agent/action-input";
+import { commandForConfirmation } from "./host";
+import { matchesMediaConfirmation } from "./media";
+
+export function isKeypad(ctx: ControllerContext, full: string) {
+  const address = parseAddress(full);
+  const entry = address?.component && ctx.sourceOf(address.component);
+  const parts = entry ? ctx.defs[entry.c]?.props.meta()?.keypadParts : undefined;
+  return Array.isArray(parts) && parts.includes(address?.part ?? "root");
+}
 
 export function visibleConfirmation(
   screen: ScreenLike,
@@ -29,16 +44,28 @@ export function visibleConfirmation(
   valuesOf: (at: number) => Values,
 ): Confirmation | undefined {
   if (!confirmation) return;
+  if (confirmation.host && !commandForConfirmation(confirmation)) return;
+  const policy = screen[hostActionPolicy];
+  if (confirmation.goto && policy?.allowsLink?.(confirmation.goto) === false) return;
   const source = confirmation.source.startsWith(`${screen.id}/`)
     ? confirmation.source.slice(screen.id.length + 1)
     : confirmation.source;
   const entry = screen.components.find(({ id }) => id === source.split("/")[0]);
   const meta = entry && defs[entry.c]?.meta;
-  if (!meta) return confirmation;
+  if (!meta) return confirmation.mediaBound ? undefined : confirmation;
   const values = valuesOf(at);
   if (!isDeviceDataVisible(meta, projectDeviceData(data, values))) return;
   const bound = meta.selectionBinding || meta.drives;
-  if (entry && (bound || meta.deviceDataFlags) && confirmation.step) {
+  if (
+    entry &&
+    (bound ||
+      meta.deviceDataFlags ||
+      meta.media ||
+      meta.items?.media ||
+      meta.sequence ||
+      meta.draw?.kind === "deck") &&
+    confirmation.step
+  ) {
     const sourceScreen = bound ? screen : { ...screen, components: [entry] };
     const plan = planAct(
       sourceScreen,
@@ -50,14 +77,21 @@ export function visibleConfirmation(
       atDeviceTime(data, at),
       at,
     );
-    if (!plan.ok) return;
+    if (!plan.ok || !matchesMediaConfirmation(confirmation, plan.media?.[0])) return;
   }
   return confirmation;
 }
 
 // Match quoted content as one token so a label cannot be mistaken for an affordance.
 const controlTokens =
-  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (?:type(?: = "(?:\\.|[^"\\])*")?|increment|decrement)(?: !needs-[a-z]+)?\]/g;
+  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (?:(type|set|increment|decrement|focus|jump|press)(?: = (?:"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?))?(?:; (?:min|max|step) [-+\de.]+(?:, (?:min|max|step) [-+\de.]+)*)?(?:; range [01]\.\.\d+)?|(?:press|scan):(?:(?:pick|scan|preview|export)(?::(?:pending|ready|error))?|next|previous)|(?:play|pause|stop):(?:playing|paused|stopped|error)|seek(?::\d+| = \d+; range [01]\.\.\d+))(?: !needs-[a-z]+)?\]/g;
+
+function isBuzzOffer(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
+  const [id, ...parts] = address.split("/");
+  const entry = screen.components.find((component) => component.id === id);
+  const meta = entry && defs[entry.c]?.meta;
+  return !!meta && Boolean(buzzTarget(meta, parts.join("/"), "press"));
+}
 
 function projectValue(input: Values, address: string, parts: readonly string[], values: Values): Values {
   for (const part of parts) {
@@ -105,10 +139,11 @@ export function readControls(
   defs: Record<string, Definition>,
   values: Values,
   lang?: string,
-  disabled?: ReadonlyMap<string, symbol>,
+  disabled?: ReadonlyMap<string, unknown>,
   deviceData?: DeviceData,
   currency?: AppCurrency,
   canDrive?: CanDrive,
+  privateMarks?: PrivateMarks,
 ): string {
   const source = withDisabledSelectionChecks(screen, disabled);
   const migrated = migrateScreen(source, { variantOnly: true });
@@ -116,8 +151,13 @@ export function readControls(
   const read = hasKeypads
     ? readKeypads(migrated, defs, values, lang, deviceData, currency, canDrive)
     : readScreen(source, defs, values, lang, deviceData, currency, canDrive);
-  return disabled?.size
-    ? read.replace(controlTokens, (token, address) => (disabled.has(address) ? "" : token))
+  return disabled?.size || privateMarks?.size || canDrive
+    ? read.replace(controlTokens, (token, address, action) => {
+        if (action === "set" && privateMarks?.has(address)) return "";
+        if (disabled?.has(address) && (action !== "press" || isBuzzOffer(migrated, defs, address))) return "";
+        if (isLocalAnchorAction(action) && canDrive?.(address, undefined, action) === false) return "";
+        return token;
+      })
     : read;
 }
 
@@ -131,20 +171,21 @@ function readKeypads(
   canDrive?: CanDrive,
 ) {
   deviceData = withRecordScreen(captureDeviceTime(defs, deviceData), screen);
-  const snapshot = projectDeviceData(deviceData, values);
+  const snapshot = projectDeviceData(deviceData, redactPrivateMarks(values).values);
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
   const header = readScreen({ ...screen, components: [] }, defs, values, lang);
+  const { values: safe, addresses } = redactPrivateMarks(local);
   return [
     header,
     ...screen.components.flatMap(({ id, c, state, ...props }) => {
       const def = defs[c];
       if (!def) return [`${id} ${c} (unknown)`];
-      const selection = selectionBindingFor(screen, defs, def.meta, id, local, snapshot);
-      const target = driveTarget(def.meta, screen, defs, local, snapshot, canDrive);
+      const selection = selectionBindingFor(screen, defs, def.meta, id, safe, snapshot, addresses);
+      const target = driveTarget(def.meta, screen, defs, safe, snapshot, canDrive, addresses);
       return readComponent(
-        withKeypadDrafts(def, id, local),
+        withKeypadDrafts(def, id, safe),
         props,
         id,
         state,
@@ -154,6 +195,7 @@ function readKeypads(
         currency,
         selection?.view,
         target,
+        screen[hostActionPolicy],
       );
     }),
   ].join("\n");

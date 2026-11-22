@@ -1,5 +1,5 @@
 import { useSignatureProgress } from "../../motion";
-import { YStack } from "tamagui";
+import { YStack, isWeb } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
 import { useKit } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
@@ -13,11 +13,15 @@ function Day({
   selected,
   mark,
   name,
+  disabled,
+  inSpan,
 }: {
   label: string;
   selected: boolean;
   mark?: Tone | undefined;
   name: string;
+  disabled?: boolean;
+  inSpan?: boolean;
 }) {
   const kit = useKit();
   const progress = useSignatureProgress("calendar_sweep");
@@ -35,15 +39,18 @@ function Day({
       borderRadius={radius.pill}
       borderWidth={component.base.strongBorder}
       borderColor={selected ? "$accent" : "transparent"}
+      backgroundColor={inSpan ? "$accentSoft" : undefined}
       accessibilityRole="button"
+      aria-disabled={disabled || undefined}
+      {...(!isWeb && disabled ? { accessibilityState: { disabled: true } } : {})}
       {...({ "data-dense": true } as object)}
       aria-pressed={selected}
       accessibilityLabel={name}
-      {...(kit.interactive && kit.controller
+      {...(kit.interactive && kit.controller && !disabled
         ? { cursor: "pointer", onPress: () => kit.controller!.press(address.testID) }
         : {})}
     >
-      <KitText role="body" tone={selected ? "accent" : "text"} part="label" tabular>
+      <KitText role="body" tone={disabled ? "muted" : selected ? "accent" : "text"} part="label" tabular>
         {label}
       </KitText>
       <YStack
@@ -74,6 +81,8 @@ export function KitDay({
   name: string;
   selected: boolean;
   mark?: Tone | undefined;
+  disabled?: boolean;
+  inSpan?: boolean;
 }) {
   const context = usePartContext();
   return (

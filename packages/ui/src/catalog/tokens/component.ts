@@ -54,6 +54,7 @@ export const component = {
     sparkHeight: 48,
     emptyMinHeight: 200,
   },
+  codeFont: { web: "monospace", ios: "Menlo", android: "monospace" },
   // Dots use this fixed outline for contrast on light and dark surfaces.
   swatchBorder: "#808080",
   swatch: {

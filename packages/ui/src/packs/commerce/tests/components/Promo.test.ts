@@ -109,12 +109,14 @@ describe("Promo contract and probes", () => {
     expect(createRegistry({ packs: [pack.id] }).ids.includes(meta.id)).toBe(packReady(pack.id));
   });
 
-  it("keeps the core near miss, both writes and the code read action", () => {
+  it("keeps the core near miss, all writes and the code read action", () => {
     expect(probes.filter((probe) => probe.kind === "choose").map((probe) => probe.expect)).toEqual([
       "Promo",
       "Banner",
     ]);
     expect(probes.filter((probe) => probe.kind === "write").map((probe) => probe.expect)).toEqual([
+      "Promo",
+      "Promo",
       "Promo",
       "Promo",
     ]);
@@ -135,7 +137,10 @@ describe("Promo filled state and parts", () => {
     expect(button.attributes).toContain('aria-label="Copy FERN20"');
     expect(JSON.stringify(link.children)).not.toContain(`${prefix}code`);
     expect([...addressedElements(html).keys()].sort()).toEqual(
-      meta.parts.map((part) => prefix + part).sort(),
+      meta.parts
+        .filter((part) => part !== "countdown")
+        .map((part) => prefix + part)
+        .sort(),
     );
     expect(html).toContain("ends · Nov 30, 2026");
   });

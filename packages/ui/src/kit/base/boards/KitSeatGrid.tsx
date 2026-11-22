@@ -1,0 +1,129 @@
+import { XStack, YStack, isWeb } from "tamagui";
+import { component, radius, size, space } from "../../../catalog";
+import { usePart } from "../../part";
+import { useKitStyle } from "../../provider";
+import { KitText } from "../text";
+import { BoardGlyph, type BoardMark } from "./board-mark";
+import { BoardGrid } from "./board-navigation";
+import { SeatHeading } from "./seat-heading";
+import { SeatTile, type Seat } from "./seat-tile";
+
+type Section = {
+  id: string;
+  label: string;
+  rows: readonly { label: string; mark?: BoardMark; seats: readonly Seat[] }[];
+};
+type SeatGridProps = {
+  part?: string | null;
+  loading?: boolean;
+  screenLabel?: string;
+  sections: readonly Section[];
+};
+
+const skeletonSections: readonly Section[] = [
+  {
+    id: "loading",
+    label: "",
+    rows: Array.from({ length: 2 }, () => ({
+      label: "",
+      seats: Array.from({ length: 5 }, (_, col) => ({
+        id: String(col),
+        label: "",
+        kind: col === 2 ? "aisle" : "free",
+      })),
+    })),
+  },
+];
+
+function SeatRow({
+  row,
+  index,
+  columns,
+  loading,
+}: {
+  row: Section["rows"][number];
+  index: number;
+  columns: readonly number[];
+  loading: boolean;
+}) {
+  return (
+    <XStack gap={space.xs} alignItems="center" {...(isWeb && !loading ? { role: "row" } : {})}>
+      <YStack
+        width={size.control.md}
+        height={size.control.md}
+        justifyContent="center"
+        aria-label={!loading && row.mark ? `${row.label}, ${row.mark.label}` : undefined}
+        accessibilityLabel={!loading && row.mark ? `${row.label}, ${row.mark.label}` : undefined}
+        accessible={!loading && row.mark ? true : undefined}
+        {...(isWeb && !loading ? { role: "rowheader", "aria-colindex": 1 } : {})}
+      >
+        {loading ? (
+          <YStack width={space.lg} height={space.sm} borderRadius={radius.pill} backgroundColor="$line" />
+        ) : (
+          <KitText part={null} role="label" tone="muted" lines={1}>
+            {row.label}
+          </KitText>
+        )}
+        {!loading && row.mark && <BoardGlyph mark={row.mark} />}
+      </YStack>
+      {columns.map((width, col) => {
+        const seat = row.seats[col];
+        return seat && seat.kind !== "aisle" ? (
+          <SeatTile key={seat.id} seat={seat} row={index} col={col + 1} loading={loading} />
+        ) : (
+          <YStack key={col} width={width} aria-hidden />
+        );
+      })}
+    </XStack>
+  );
+}
+
+function SeatSection({ section, loading }: { section: Section; loading: boolean }) {
+  const cols = Math.max(0, ...section.rows.map(({ seats }) => seats.length));
+  const columns = Array.from({ length: cols }, (_, col) =>
+    section.rows.some(({ seats }) => seats[col] && seats[col].kind !== "aisle") ? size.control.md : space.lg,
+  );
+  const positions = section.rows.flatMap(({ seats }, row) =>
+    seats.flatMap(({ kind }, col) => (kind === "aisle" ? [] : [{ row, col: col + 1 }])),
+  );
+  return (
+    <YStack gap={space.sm}>
+      <SeatHeading label={section.label} loading={loading} />
+      {!!section.rows.length && (
+        <BoardGrid
+          rows={section.rows.length}
+          cols={cols + 1}
+          positions={positions}
+          label={section.label}
+          loading={loading}
+          gap={space.xs}
+        >
+          {section.rows.map((row, index) => (
+            <SeatRow key={index} row={row} index={index} columns={columns} loading={loading} />
+          ))}
+        </BoardGrid>
+      )}
+    </YStack>
+  );
+}
+
+/** Seat labels and availability are caller-owned; a section is one keyboard grid. */
+export function KitSeatGrid({ part = "root", loading = false, screenLabel, sections }: SeatGridProps) {
+  const ks = useKitStyle();
+  const address = usePart(part ?? undefined, part !== null);
+  const drawings = loading && !sections.length ? skeletonSections : sections;
+  return (
+    <YStack
+      {...(part === null ? {} : address)}
+      width="100%"
+      minWidth={component.base.none}
+      gap={space[ks.density.gap]}
+      aria-busy={loading || undefined}
+    >
+      {screenLabel && drawings.length > 0 && <SeatHeading label={screenLabel} loading={loading} screen />}
+      {drawings.map((section) => (
+        <SeatSection key={section.id} section={section} loading={loading} />
+      ))}
+    </YStack>
+  );
+}

@@ -18,9 +18,10 @@
   "scripts": {
     "build": "pnpm build:catalog && tsx scripts/build/build-kit.ts",
     "build:entries": "tsx scripts/build/build-entries.ts",
+    "gen:component": "tsx scripts/build/build-entries.ts --cached && tsx scripts/codegen/run.ts",
     "kit:themes": "tsx scripts/build/build-themes.ts",
     "build:catalog": "pnpm build:entries && tsx scripts/build/bundle-check.ts && pnpm kit:themes",
-    "catalog:bundle-check": "tsx scripts/build/bundle-check.ts",
+    "catalog:bundle-check": "tsx scripts/build/build-entries.ts --cached && tsx scripts/build/bundle-check.ts",
     "typecheck": "tsx scripts/build/build-entries.ts --cached && tsc -p tsconfig.json --incremental",
     "test": "tsx scripts/build/build-entries.ts && tsx scripts/build/build-themes.ts && tsx scripts/build/check.ts",
     "test:browser": "tsx scripts/build/build-entries.ts && tsx scripts/build/build-themes.ts && tsx scripts/build/check.ts --browser",

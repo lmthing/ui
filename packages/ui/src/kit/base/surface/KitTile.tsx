@@ -6,6 +6,7 @@ import { PartContext, useComponentState, usePart, usePartContext } from "../../p
 import { KitIcon } from "../text";
 import { KitText } from "../text";
 import { shifted } from "../text";
+import { useTileBuzz } from "./tile-buzz";
 
 const Badge = styled(YStack, {
   width: size.avatar.md,
@@ -20,11 +21,16 @@ type TileProps = {
   item: string;
   icon: IconName;
   label: string;
+  /** Label address; null leaves the visible label unaddressed. */
+  labelPart?: string | null;
+  /** Badge treatment independent of selection and availability. */
+  badgeTone?: "accent" | "muted";
   goto?: string | undefined;
   on?: boolean;
   disabled?: boolean;
   detail?: ReactNode;
   action?: "press" | "toggle" | "start" | "stop";
+  touchTarget?: "buzz";
   density?: ThemeDensity | undefined;
   /** Reserve space for the selected border and use a neutral badge when off. */
   distinctSelection?: boolean;
@@ -58,24 +64,30 @@ function TileLine({ loading, children }: { loading: boolean; children: ReactNode
 function TileContent({
   icon,
   label,
+  labelPart = "label",
+  badgeTone,
   detail,
   disabled,
   loading,
   on,
   distinctSelection,
-}: Pick<TileProps, "icon" | "label" | "detail" | "disabled" | "on" | "distinctSelection"> & {
+}: Pick<
+  TileProps,
+  "icon" | "label" | "labelPart" | "badgeTone" | "detail" | "disabled" | "on" | "distinctSelection"
+> & {
   loading: boolean;
 }) {
   const ks = useKitStyle();
-  const neutral = disabled || (distinctSelection && !on);
+  const neutral = disabled || (badgeTone ? badgeTone === "muted" : distinctSelection && !on);
+  const stretch = distinctSelection || detail != null;
   return (
     <>
       <Badge backgroundColor={loading ? "$line" : neutral ? "$raised" : "$accentSoft"}>
         {!loading && <KitIcon name={icon} tone={neutral ? "muted" : "accent"} scale="lg" />}
       </Badge>
       <YStack
-        alignSelf={distinctSelection ? "stretch" : undefined}
-        alignItems={distinctSelection ? "stretch" : "center"}
+        alignSelf={stretch ? "stretch" : undefined}
+        alignItems={stretch ? "stretch" : "center"}
         gap={space.xs}
         aria-hidden={loading || undefined}
         borderRadius={shifted("sm", ks.radiusShift)}
@@ -85,7 +97,7 @@ function TileContent({
             role="label"
             align="center"
             tone={disabled ? "muted" : "text"}
-            part={loading ? null : "label"}
+            part={loading ? null : labelPart}
             lines={2}
           >
             {label}
@@ -97,11 +109,13 @@ function TileContent({
   );
 }
 
-function useTileFinish({ density, distinctSelection, on }: Omit<TileProps, "item">) {
+function useTileFinish({ density, detail, distinctSelection, on }: Omit<TileProps, "item">) {
   const { rowPad, contentGap } = useVariantDensity(density);
+  const compact = density === "compact";
+  const vertical = detail != null ? (compact ? "xs" : "sm") : compact ? rowPad : "md";
   return {
-    gap: density === "compact" ? space[contentGap] : space.sm,
-    paddingVertical: density === "compact" ? space[rowPad] : space.md,
+    gap: compact ? space[contentGap] : space.sm,
+    paddingVertical: space[vertical],
     ...(on || distinctSelection
       ? { borderWidth: component.base.strongBorder, borderColor: on ? "$accent" : "transparent" }
       : {}),
@@ -109,11 +123,12 @@ function useTileFinish({ density, distinctSelection, on }: Omit<TileProps, "item
 }
 
 function Tile(props: Omit<TileProps, "item">) {
-  const { label, goto, on, disabled = false, action } = props;
+  const { label, goto, on, disabled = false, action, touchTarget } = props;
   const kit = useKit();
   const ks = useKitStyle();
-  const part = usePart();
+  const part = usePart(touchTarget);
   const loading = useComponentState() === "loading";
+  const timed = useTileBuzz(part.testID, touchTarget !== undefined, disabled || loading);
   const finish = useTileFinish(props);
   const press = () => {
     if (kit.controller)
@@ -131,15 +146,18 @@ function Tile(props: Omit<TileProps, "item">) {
       minHeight={size.control.lg}
       borderRadius={shifted("md", ks.radiusShift)}
       backgroundColor={on ? "$accentSoft" : undefined}
-      accessibilityRole={loading ? undefined : goto && !action ? "link" : "button"}
+      {...(!isWeb && touchTarget && !loading ? { accessible: true } : {})}
+      accessibilityRole={loading ? undefined : goto && !action && !touchTarget ? "link" : "button"}
       accessibilityLabel={loading ? undefined : label}
       aria-pressed={on}
       aria-disabled={disabled || undefined}
       aria-busy={loading || undefined}
       {...(disabled || loading
         ? { tabIndex: -1, ...(!isWeb ? { accessibilityState: { disabled: true } } : {}) }
-        : {})}
-      {...((kit.interactive && !disabled && !loading && (kit.controller || goto)
+        : touchTarget && isWeb && kit.interactive && kit.controller
+          ? { tabIndex: 0 }
+          : {})}
+      {...((!touchTarget && kit.interactive && !disabled && !loading && (kit.controller || goto)
         ? {
             onPress: press,
             onKeyDown: (event: { key: string; preventDefault(): void }) => {
@@ -150,6 +168,7 @@ function Tile(props: Omit<TileProps, "item">) {
             },
           }
         : {}) as object)}
+      {...(timed as object)}
     >
       <TileContent {...props} {...{ disabled, loading }} />
     </YStack>
@@ -158,7 +177,7 @@ function Tile(props: Omit<TileProps, "item">) {
 
 /**
  * One pressable item tile: an icon in a soft round badge over a centred label, the whole tile one
- * address (`<item>/root`, with `icon` and `label` parts). For quick-action grids (`Actions`).
+ * address (`<item>/root` or the optional `<item>/buzz`, with `icon` and `label` parts).
  */
 export function KitTile({ item, ...props }: TileProps) {
   const context = usePartContext();

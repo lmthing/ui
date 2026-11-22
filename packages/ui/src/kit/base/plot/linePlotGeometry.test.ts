@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { plotGeometry, plotPaths, type Point } from "./linePlotGeometry";
+import { bandPath, plotGeometry, plotPaths, type Point } from "./linePlotGeometry";
 
 const points: Point[] = [
   { id: "a", x: 10, value: -5, label: "First" },
@@ -61,4 +61,45 @@ describe("line plot geometry", () => {
       expect(geometry.ticks.every(Number.isFinite)).toBe(true);
     }
   });
+});
+describe("reference overlays", () => {
+  it("scales the first series grid, the band, and a zero baseline together", () => {
+    const series = [{ id: "one", label: "One", points: points.map((p) => ({ ...p, value: 5 })) }];
+    const geometry = plotGeometry(series, undefined, { low: [1, 2, 3], high: [8, 10, 12] }, 0);
+    expect(geometry.ticks).toEqual([12, 6, 0]);
+    expect(geometry.y(0)).toBe(1);
+    expect(
+      bandPath(
+        geometry.bands[0]!,
+        (x) => x,
+        (y) => y,
+      ),
+    ).toBe("M10,8 L20,10 L30,12 L30,3 L20,2 L10,1 Z");
+    expect(plotGeometry(series, undefined, undefined, NaN).ticks).toEqual([5]);
+  });
+  it("does not bridge missing, inverted, or nonfinite bounds", () => {
+    const expanded = Array.from({ length: 9 }, (_, i) => ({
+      id: `${i}`,
+      label: `${i}`,
+      x: i,
+      value: i ? null : 0,
+    }));
+    const geometry = plotGeometry([{ id: "one", label: "One", points: expanded }], undefined, {
+      low: [0, 1, NaN, 3, 4, 6, 6, 7, 8],
+      high: [2, 3, 4, 5, 6, 5, 7, 8],
+    });
+    expect(geometry.bands.map((run) => run.map(({ x }) => x))).toEqual([
+      [0, 1],
+      [3, 4],
+      [6, 7],
+    ]);
+    expect(geometry.ticks).toEqual([8, 4, 0]);
+  });
+});
+
+it("does not scale to an isolated band sample that cannot draw an area", () => {
+  const series = [{ id: "one", label: "One", points }];
+  const partial = plotGeometry(series, undefined, { low: [NaN, -1000], high: [NaN, 1000] });
+  expect(partial.bands).toEqual([]);
+  expect(partial.ticks).toEqual(plotGeometry(series).ticks);
 });

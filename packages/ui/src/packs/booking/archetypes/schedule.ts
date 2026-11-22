@@ -23,19 +23,22 @@ export const schedule = {
       ],
     },
     class: {
-      writeHints: ['The capacity bars use Progress with density "compact"; leave figures null.'],
+      writeHints: [
+        'The capacity bars use Progress with density "compact"; leave figures null.',
+        "Each attendee needs its booking-record id in ClassRoster; these are data references, not UI item addresses.",
+      ],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
         { allow: ["KeyValue"], required: true },
         { allow: ["Progress"], required: true },
-        { allow: ["People"], required: true, variant: "stack" },
+        { allow: ["ClassRoster"], required: true },
         { allow: ["Waitlist"], required: true },
       ],
       defaults: [
         { id: "h1", c: "Header", style: "back" },
         { id: "k1", c: "KeyValue" },
         { id: "p1", c: "Progress", density: "compact" },
-        { id: "p2", c: "People", style: "stack" },
+        { id: "c1", c: "ClassRoster" },
         { id: "w1", c: "Waitlist" },
       ],
     },

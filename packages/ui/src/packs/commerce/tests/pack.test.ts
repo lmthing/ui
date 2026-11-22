@@ -29,6 +29,8 @@ const ids = [
   "OrderSummary",
   "OrderStatus",
   "Promo",
+  "SizeGuide",
+  "SavedList",
 ] as const;
 const core = createRegistry();
 const draft = createRegistry({ packs: ["commerce"], includeDrafts: true });
@@ -42,8 +44,8 @@ const casts: CastLike[] = [
   { things: [], items: [{ id: "bad", type: "product", sample: true, name: 99, detail: "   " }] },
 ];
 const cases = [
-  [commerce.shop, commerce.shopProbes, ["grid", "menu"]],
-  [commerce.product, commerce.productProbes, ["simple", "variants"]],
+  [commerce.shop, commerce.shopProbes, ["grid", "menu", "saved"]],
+  [commerce.product, commerce.productProbes, ["simple", "variants", "sizing"]],
   [commerce.cart, commerce.cartProbes, ["simple"]],
   [commerce.checkout, commerce.checkoutProbes, ["pay", "status"]],
   [commerce.orders, commerce.ordersProbes, ["today", "order"]],

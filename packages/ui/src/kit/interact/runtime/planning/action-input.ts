@@ -2,6 +2,14 @@ import { parseControlProps, projectAdjustments, type Values } from "../../../../
 import type { ControllerContext, ScreenComponent } from "../index";
 
 export function actionInput(ctx: ControllerContext, entry: ScreenComponent, values: Values) {
+  try {
+    return parseActionInput(ctx, entry, values);
+  } catch {
+    return undefined;
+  }
+}
+
+function parseActionInput(ctx: ControllerContext, entry: ScreenComponent, values: Values) {
   const def = ctx.defs[entry.c]!;
   const get = (part: string) => values[ctx.key(entry.id, part)];
   if (ctx.standalone) {
@@ -9,8 +17,9 @@ export function actionInput(ctx: ControllerContext, entry: ScreenComponent, valu
     const { id: _id, c: _c, state: _state, ...raw } = entry;
     const { session, successActions, errorActions, live } = meta;
     const useParsed =
-      meta.confirmParts?.length &&
-      (session || successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits);
+      meta.items?.reset ||
+      (meta.confirmParts?.length &&
+        (session || successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits));
     return useParsed ? parseControlProps(def, raw, get) : raw;
   }
   const input = ctx.inputOf(entry);

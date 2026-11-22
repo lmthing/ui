@@ -153,13 +153,17 @@ export function MapList(input: MapListProps) {
   }));
   return (
     <kit.KitCard part="root" style="inset" padded {...{ density, surface }}>
-      {state === "empty" ? <kit.KitEmpty icon="pin" part="empty" decorativeIcon /> : <>
+      {state === "empty" ? <kit.KitEmpty icon="pin" part="empty" decorativeIcon /> : <kit.KitContent density={density}>
         <kit.KitTrack part="view" look="segments" role="radiogroup" label={words.mapListView}>
-          <kit.KitChip item={null} look="segment" role="radio" value="map" label={words.mapListMap} on={!listOnly} disabled={loading || undefined} />
-          <kit.KitChip item={null} look="segment" role="radio" value="list" label={words.mapListList} on={listOnly} disabled={loading || undefined} />
+          <kit.KitGrid density={density}>
+            <kit.KitChip item={null} look="segment" role="radio" value="map" label={words.mapListMap} on={!listOnly} disabled={loading || undefined} />
+            <kit.KitChip item={null} look="segment" role="radio" value="list" label={words.mapListList} on={listOnly} disabled={loading || undefined} />
+          </kit.KitGrid>
         </kit.KitTrack>
-        <kit.KitContent density={density}>
-          {!listOnly && <kit.KitMapTile pins={pins} part="map" />}
+        <kit.KitContent density={density} group="response">
+          {!listOnly && (loading ? <kit.KitCard part="map" style="plain">
+            <kit.KitSkeleton shape="media" inset="none" content={[]} />
+          </kit.KitCard> : <kit.KitMapTile pins={pins} part="map" />)}
           <kit.KitContent density={density} group={listOnly ? "content" : "response"}>
             {loading ? <kit.KitSkeleton rows={places.length} lead="none" inset="md" density={density}
               items={places.map(({ name, meta, distance }) => ({ title: name, meta: detail === "full" ? meta : undefined, trail: distance ? "value" : "chevron" }))} /> : <>
@@ -170,7 +174,7 @@ export function MapList(input: MapListProps) {
             </>}
           </kit.KitContent>
         </kit.KitContent>
-      </>}
+      </kit.KitContent>}
     </kit.KitCard>
   );
 }

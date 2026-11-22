@@ -13,6 +13,8 @@ type Ingredient = {
   amount?: number | undefined;
   unit: Unit;
   note?: string | undefined;
+  allergens?: readonly string[] | undefined;
+  swap?: string | undefined;
 };
 const millilitres = { tsp: 4.92892159375, tbsp: 14.78676478125, cup: 236.5882365 } as const;
 
@@ -58,7 +60,7 @@ export function ingredientsReading(
   },
   lang?: string,
 ): string[] {
-  const { ingredientsLabels, ingredientServings } = kitchenWordsFor(lang);
+  const { ingredientsLabels, ingredientServings, ingredientSwap, nutritionFacts } = kitchenWordsFor(lang);
   const shown = input.servingsShown ?? input.servings;
   let index = 0;
   return [
@@ -72,7 +74,15 @@ export function ingredientsReading(
         const quantity = ingredientAmount(item, shown / input.servings, input.system, lang);
         return kitchenItemLine(
           index++,
-          [item.name, quantity.amount, quantity.unit, input.detail !== "brief" && item.note]
+          [
+            item.name,
+            quantity.amount,
+            quantity.unit,
+            input.detail !== "brief" && item.note,
+            item.allergens?.length &&
+              nutritionFacts.line(nutritionFacts.allergens, nutritionFacts.list(item.allergens)),
+            item.swap && ingredientSwap(item.swap),
+          ]
             .filter(Boolean)
             .join(" "),
         );

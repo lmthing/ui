@@ -1,5 +1,12 @@
 import { expect, it } from "vitest";
-import { advanceRound, roundAvailable, roundState, type RoundProgress, type Rounds } from "./rounds";
+import {
+  advanceRound,
+  roundAvailable,
+  roundEvent,
+  roundState,
+  type RoundProgress,
+  type Rounds,
+} from "./rounds";
 
 it("lets a declared answer reducer accumulate a response and clears it on next", () => {
   const session: Rounds = {
@@ -41,4 +48,21 @@ it("lets a declared answer reducer accumulate a response and clears it on next",
     item: {},
     assessment: { answers: {}, ready: false, score: { right: 1, of: 2 } },
   });
+});
+
+it("completes a single private round on hide, not on reveal or a recall flip", () => {
+  const session: Rounds = { kind: "rounds", items: "rows", hidden: ["secret"], reveal: "show", hide: "veil" };
+  const initial: RoundProgress = { kind: "rounds", index: 0, revealed: false };
+  const items = [{ name: "First", secret: "Private text" }];
+  expect(roundEvent(session, "show", "flip")).toBeUndefined();
+  expect(roundEvent(session, "show", "start")).toBe("reveal");
+  expect(roundEvent(session, "show", "stop")).toBe("hide");
+  expect(roundEvent(session, "veil", "press")).toBe("hide");
+  expect(roundAvailable(roundState(session, initial, items), "hide")).toBe(false);
+  const revealed = advanceRound(session, initial, items, "reveal");
+  expect(roundState(session, revealed, items)).toMatchObject({ complete: false, item: items[0] });
+  const hidden = advanceRound(session, revealed, items, "hide");
+  const complete = roundState(session, hidden, items);
+  expect(complete).toMatchObject({ index: 0, complete: true, revealed: false, item: {} });
+  expect(roundAvailable(complete, "reveal")).toBe(false);
 });

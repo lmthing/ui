@@ -15,12 +15,12 @@ describe("receipt copy", () => {
     expect(receiptLine(line, "full")).toEqual({
       name: "Item one",
       qty: "Qty 3",
-      price: "$0.10 / each",
+      price: "$0.10 each",
       extended: "$0.30",
     });
     expect(receiptCopy(input)).toMatchObject({ mode: "At table", total: "$1.00" });
     expect(receiptLine({ ...line, qty: 2, price: 12 }, "full")).toMatchObject({
-      price: "$12.00 / each",
+      price: "$12.00 each",
       extended: "$24.00",
     });
   });
@@ -39,6 +39,7 @@ describe("receipt copy", () => {
       extended: "0,30\u00a0$",
       price: undefined,
     });
+    expect(receiptLine(line, "full", lang).price).toBe("0,10\u00a0$ each");
   });
 
   it("reads the brief receipt without unit prices and never reads loading content", () => {

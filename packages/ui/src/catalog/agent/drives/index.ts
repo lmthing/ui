@@ -1,13 +1,6 @@
 import type { Meta } from "../../meta";
 import type { Definition } from "../../probes";
-import type { StateName } from "../../types";
 import {
-  affordancesOf,
-  isDeviceDataVisible,
-  liveProps,
-  parseControlProps,
-  projectSelectionBinding,
-  selectionBindingFor,
   validateActionValue,
   type ActStep,
   type Affordance,
@@ -17,12 +10,17 @@ import {
 } from "../index";
 import { addressedItems } from "../visibility";
 import { driveSeekPart } from "./declaration";
+import { observePlayback, routeBinding } from "./bindings";
+import { resolveTarget, type CanDrive, type DriveContext } from "./target";
 export { checkDriveDeclaration } from "./declaration";
+export type { CanDrive } from "./target";
 
 type DriveTarget = { address: string; screen: string; seconds: unknown };
-export type CanDrive = (address: string) => boolean;
+type DriveResolution = DriveTarget | DriveContext;
+export const isLocalAnchorAction = (action: string): action is "focus" | "jump" =>
+  action === "focus" || action === "jump";
 
-/** The first same-screen instance offering its declared seek, in screen order. */
+/** Legacy chapter drives keep the first matching seek in screen order. Typed drives resolve per part. */
 export function driveTarget(
   meta: Meta,
   screen: ScreenLike,
@@ -30,33 +28,30 @@ export function driveTarget(
   values: Values,
   data?: DeviceData,
   canDrive?: CanDrive,
-): DriveTarget | undefined {
-  if (meta.drives === undefined || meta.drives === meta.id || !Object.hasOwn(defs, meta.drives)) return;
+  privateAddresses?: ReadonlySet<string>,
+): DriveResolution | undefined {
+  if (meta.drives === undefined) return;
+  const context = { screen, defs, values, data, canDrive, privateAddresses };
+  if (typeof meta.drives !== "string") return context;
+  if (meta.drives === meta.id || !Object.hasOwn(defs, meta.drives)) return;
   const def = defs[meta.drives];
-  if (!def || def.meta.id !== meta.drives || !isDeviceDataVisible(def.meta, data)) return;
-  const part = driveSeekPart(def.meta);
+  const part = def && driveSeekPart(def.meta);
   if (!part) return;
-  for (const { id, c, state, ...input } of screen.components) {
-    if (c !== meta.drives || values[`${id}/$dismissed`]) continue;
-    const address = part === "root" ? id : `${id}/${part}`;
-    const live = liveProps(
-      def.meta,
-      parseControlProps(def, input, (key) => values[`${id}/${key}`]),
-      id,
-      values,
-      true,
-      data,
-    );
-    const selection = selectionBindingFor(screen, defs, def.meta, id, values, data);
-    const props = projectSelectionBinding(def.meta, live, selection?.view);
-    const offered = affordancesOf(def.meta, props, id, values, (props.state as StateName) ?? state, false, {
-      data,
-    });
-    if (offered.some((a) => a.address === address && a.action === "seek"))
-      return !canDrive || canDrive(address)
-        ? { address, screen: screen.id, seconds: props.seconds }
-        : undefined;
+  for (const entry of screen.components) {
+    if (entry.c !== meta.drives) continue;
+    const target = resolveTarget(context, entry, part, "seek", "legacy");
+    if (target)
+      return canDrive?.(target.address) === false
+        ? undefined
+        : { address: target.address, screen: screen.id, seconds: target.props.seconds };
   }
+}
+
+export function projectDriveObservation(meta: Meta, props: Values, id: string, resolved?: DriveResolution) {
+  const observation = typeof meta.drives === "object" && meta.drives.observe;
+  return observation && resolved && "defs" in resolved
+    ? observePlayback(resolved, observation, id, props)
+    : props;
 }
 
 /** Keep the source address; attach the validated destination step instead of a link. */
@@ -65,17 +60,34 @@ export function driveAffordances(
   props: Values,
   id: string,
   offered: Affordance[],
-  target?: DriveTarget,
+  target?: DriveResolution,
 ): (Affordance & { drive?: ActStep })[] {
   if (meta.drives === undefined) return offered;
+  if (typeof meta.drives === "object") {
+    const { drives } = meta;
+    return offered.flatMap((offer) => {
+      if (offer.hostIntent || offer.hostReveal) return [offer];
+      if (target && "defs" in target) {
+        const routed = routeBinding(target, meta, drives, props, id, offer);
+        return routed ? [routed] : [];
+      }
+      const isItem = offer.address !== (offer.part === "root" ? id : `${id}/${offer.part}`);
+      return offer.action === "press" &&
+        drives.commands?.some(({ scope, part }) => part === offer.part && (scope === "item") === isItem)
+        ? []
+        : [offer];
+    });
+  }
+  const legacy = target && "address" in target ? target : undefined;
   const rows = new Map(addressedItems(meta, props).map((row) => [`${id}/${String(row.id)}`, row]));
   return offered.flatMap((a) => {
+    if (a.hostIntent || a.hostReveal) return [a];
     const row = a.action === "press" && a.part === "root" && rows.get(a.address);
     if (!row) return [a];
     const value = row.at;
-    if (!target || typeof value !== "number" || validateActionValue("seek", value)) return [];
-    if (typeof target.seconds === "number" && value > target.seconds) return [];
-    const readAddress = id === target.screen ? `${target.screen}/${a.address}` : a.address;
-    return [{ ...a, readAddress, detail: "", drive: { address: target.address, action: "seek", value } }];
+    if (!legacy || typeof value !== "number" || validateActionValue("seek", value)) return [];
+    if (typeof legacy.seconds === "number" && value > legacy.seconds) return [];
+    const readAddress = id === legacy.screen ? `${legacy.screen}/${a.address}` : a.address;
+    return [{ ...a, readAddress, detail: "", drive: { address: legacy.address, action: "seek", value } }];
   });
 }
