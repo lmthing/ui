@@ -1,10 +1,12 @@
 import type { LDMLPluralRule } from "../../../catalog";
 import { liveRoomWords } from "./live-room";
+import { postOptionWords } from "./post-options";
 
 type CountCopy = { before?: string; after?: string };
 
 export type SocialWords = {
   liveRoom: typeof liveRoomWords;
+  postOptions: typeof postOptionWords;
   feed: {
     likes: (form: LDMLPluralRule) => CountCopy;
     comments: (form: LDMLPluralRule) => CountCopy;
@@ -40,6 +42,10 @@ export type SocialWords = {
     rail: string;
     own: string;
     empty: string;
+    notes: string;
+    emptyNotes: string;
+    noteStatus: (name: string, seen: boolean) => string;
+    noteLink: (status: string, note: string) => string;
     status: (name: string, seen: boolean) => string;
   };
   storyViewer: {
@@ -86,12 +92,14 @@ export type SocialWords = {
     copy: string;
     share: string;
     qr: string;
+    members: string;
     joined: (count: string, form: LDMLPluralRule) => string;
   };
 };
 
 export const en = {
   liveRoom: liveRoomWords,
+  postOptions: postOptionWords,
   feed: {
     likes: (form) => ({ after: form === "one" ? " like" : " likes" }),
     comments: (form) => ({ after: form === "one" ? " comment" : " comments" }),
@@ -133,6 +141,10 @@ export const en = {
     rail: "Stories",
     own: "Your story",
     empty: "No stories yet",
+    notes: "Notes",
+    emptyNotes: "No notes yet",
+    noteStatus: (name, seen) => (seen ? `${name}: seen note` : `${name}: new note`),
+    noteLink: (status, note) => `${status} · ${note}`,
     status: (name, seen) => (seen ? `${name}: seen story` : `${name}: new story`),
   },
   storyViewer: {
@@ -179,6 +191,7 @@ export const en = {
     copy: "Copy code",
     share: "Share invite",
     qr: "Invite QR code",
+    members: "People to discover",
     joined: (count, form) => `${count} ${form === "one" ? "person" : "people"} joined`,
   },
 } satisfies SocialWords;

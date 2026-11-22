@@ -9,9 +9,10 @@ export const meta = {
   id: "Invite",
   status: "ready",
   group: "action",
-  purpose: "Bring new members in with a code they can share or scan.",
-  pick: "Invite people to join an app or group using a copyable, shareable code and optional QR. Not sharing a post (Post) or listing existing members (People).",
+  purpose: "Bring new members in with a code or a shareable starter pack.",
+  pick: "Invite people to join an app or group using a copyable code, optional QR, or a starter pack of people to discover. Not sharing a post (Post) or listing existing members (People).",
   writeHints: [
+    'Use style "starter_pack" with members for a curated invitation to discover people. Each member has a name and may have a photo. Retain the join code. Use style null for ordinary code invites.',
     'If the brief says to keep the number who joined without displaying it, write both fields: "joined":3,"detail":"brief" (use the supplied number, not necessarily 3). A null detail shows the count, so use null only when hiding the count was not requested.',
     "The joined field is null only if the count is unknown. Set qr to true for a scannable version of code. Leave density, surface and align null unless requested.",
   ],
@@ -26,19 +27,42 @@ export const meta = {
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["joined"] } },
-  parts: ["root", "title", "code", "qr", "joined", "copy", "copy_label", "share", "share_label"],
+  parts: [
+    "root",
+    "title",
+    "code",
+    "qr",
+    "joined",
+    "copy",
+    "copy_label",
+    "share",
+    "share_label",
+    "members_title",
+  ],
+  items: { key: "members", parts: ["name", "photo"], addressedWhen: { style: "starter_pack" } },
   states: ["filled"],
   actions: { parts: { copy: ["press"], share: ["press"] } },
   read: inviteReading,
 } as const satisfies c.Meta;
 
-export const props = z.strictObject({
-  ...c.variantProps(meta.variants),
-  title: c.text(32),
-  code: c.text(12),
-  joined: z.int().min(0).max(999999).optional(),
-  qr: z.boolean(),
-});
+export const props = z
+  .strictObject({
+    ...c.variantProps(meta.variants),
+    style: z.enum(["code", "starter_pack"]).optional(),
+    members: z
+      .array(z.strictObject({ name: c.text(24), photo: c.photo.optional() }))
+      .min(1)
+      .max(4)
+      .optional(),
+    title: c.text(32),
+    code: c.text(12),
+    joined: z.int().min(0).max(999999).optional(),
+    qr: z.boolean(),
+  })
+  .refine(({ style, members }) => (style === "starter_pack") === Boolean(members), {
+    path: ["members"],
+    message: "Members are required only for a starter pack",
+  });
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);
@@ -53,6 +77,13 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
 export const examples = [
   { title: "Invite to Fernpost", code: "FERN28", joined: 6, qr: true },
   { title: "Invite a walking buddy", code: "TROT9", qr: false },
+  {
+    style: "starter_pack",
+    title: "Fernpost starter pack",
+    code: "FERN28",
+    qr: false,
+    members: [{ name: "Maya", photo: "lib:people_maya" }, { name: "Sam" }],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Invite");
@@ -72,6 +103,17 @@ export const probes = [
       "Invite Trot walkers with code TROT9 and a scannable QR. Three people have already joined using it. Keep their count in the data without displaying it. Leave spacing, framing and alignment at their defaults.",
     ),
     variant: { axis: "detail", value: "brief" },
+  },
+  {
+    ...write(
+      'Invite people with the title "Fernpost starter pack" and code FERN28. Make this a shareable starter pack of two people to discover, Maya then Sam, without a QR.',
+    ),
+    expectProps: {
+      style: "starter_pack",
+      members: [{ name: "Maya" }, { name: "Sam" }],
+      code: "FERN28",
+      qr: false,
+    },
   },
   read("Copy the Fernpost invite code.", { address: "i1/copy", action: "press" }),
   read("Share the Fernpost invite code.", { address: "i1/share", action: "press" }),
@@ -110,6 +152,9 @@ export function Invite(input: InviteProps) {
           </kit.KitText>
         )}
       </kit.KitContent>
+      {input.style === "starter_pack" && input.members && (
+        <InviteMembers members={input.members} density={density} />
+      )}
       {qr && (
         <kit.KitContent {...{ group, density }}>
           <kit.KitCode part="qr" value={code} label={words.invite.qr} />
@@ -123,4 +168,19 @@ export function Invite(input: InviteProps) {
       </kit.KitContent>
     </kit.KitCard>
   );
+}
+
+// prettier-ignore
+function InviteMembers({ members, density }: { members: NonNullable<InviteProps["members"]>; density: c.ThemeDensity }) {
+  const { words: { invite } } = kit.useWords(socialWordsFor);
+  return <kit.KitContent group="response" density={density}>
+    <kit.KitHeader title={{ text: invite.members, part: "members_title", role: "meta", strong: true }} density={density} />
+    <kit.KitRowGroup leadingWidth="avatar" density={density}>
+      {members.map(({ id, name, photo }) =>
+        <kit.KitRow key={id} item={id} part={null} inset="none" label={name} leadingAlign="row" density={density}
+          leading={photo && <kit.KitPhoto photo={photo} part="photo" label={name} shape="round" />}>
+          <kit.KitLayoutText line={{ text: name, part: "name" }} density={density} />
+        </kit.KitRow>)}
+    </kit.KitRowGroup>
+  </kit.KitContent>;
 }

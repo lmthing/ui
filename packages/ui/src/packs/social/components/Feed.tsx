@@ -3,6 +3,19 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { feedCountParts, feedReading } from "../copy";
 import { socialWordsFor } from "../lang";
+import {
+  FeedRecipe,
+  FeedLoading,
+  FeedPreview,
+  postOptionActions,
+  postOptionFlags,
+  postOptionHints,
+  postOptionParts,
+  postOptionProbes,
+  postOptionProps,
+  postOptionWhen,
+  postPlayback,
+} from "../post-options";
 
 // Core first: List/cards cannot show authored excerpts with avatars and an inline like control.
 export const meta = {
@@ -13,6 +26,7 @@ export const meta = {
   pick: "Several community posts to scroll, with authors, short excerpts and reactions. Not one full post (Post), ordinary tappable rows (List), a private journal (Entries), or chat messages (Bubbles).",
   writeHints: [
     'For "hide attached post pictures", set media to "none" and keep the author avatars. Do not change the finish: write density null and surface null unless the person explicitly asks for compact spacing or outlined cards.',
+    ...postOptionHints,
     "Put the newest post first. Keep the full excerpt even if it clips on screen. Each post needs an avatar (use lib:people if unspecified), time, excerpt and destination. Use zero for unknown counts and false for unknown liked state.",
   ],
   region: "body",
@@ -20,19 +34,33 @@ export const meta = {
   dense: true,
   tier: "people",
   realPath: "Posts in a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["thumb", "none"] },
-  variantParts: { "media.none": { hides: ["image"] } },
+  variants: {
+    density: ["comfortable", "compact"],
+    surface: ["card", "outlined"],
+    media: ["thumb", "none"],
+    arrange: ["rows", "grid"],
+  },
+  variantParts: { "media.none": { hides: ["image", "video", "video_poster", "video_error"] } },
   parts: ["root", "empty"],
   // prettier-ignore
   items: { key: "posts", parts: [
-    "root", "card", "name", "photo", "time", "text", "image", "like", "like_icon", "likes", "comments",
-  ] },
+    "root", "card", "name", "photo", "time", "text", "image", "like", "like_icon", "likes", "comments", ...postOptionParts,
+  ], media: postPlayback, toggles: { repost: "reposted", save: "saved" } },
   states: ["filled", "empty", "loading"],
-  actions: { items: { root: ["press"], like: ["toggle"] } },
+  actions: { items: { root: ["press"], like: ["toggle"], ...postOptionActions }, when: postOptionWhen },
+  live: {
+    derive: (input) => ({
+      posts: (input.posts as Record<string, unknown>[]).map((row) => ({
+        ...row,
+        ...postOptionFlags(row, input.media !== "none"),
+      })),
+    }),
+  },
   read: feedReading,
 } as const satisfies c.Meta;
 
 const post = z.strictObject({
+  ...postOptionProps,
   name: c.text(24),
   photo: c.photo,
   time: c.text(12),
@@ -51,7 +79,10 @@ export const props = z
   })
   .overwrite((value) => ({
     ...value,
-    posts: value.media === "none" ? value.posts.map((row) => ({ ...row, image: undefined })) : value.posts,
+    posts:
+      value.media === "none"
+        ? value.posts.map((row) => ({ ...row, image: undefined, video: undefined }))
+        : value.posts,
   }));
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
@@ -78,6 +109,11 @@ export const examples = [
     { name: "Anna", photo: "lib:people_anna", time: "Just now", text: "Clover loved the river walk.", likes: 4, comments: 0, liked: false, goto: "river_post" },
     { name: "Ben", photo: "lib:people_ben", time: "Yesterday", text: "The south gate is open again.", likes: 6, comments: 1, liked: true, goto: "gate_post" },
   ] },
+  { arrange: "grid", posts: [
+    { name: "Maya", photo: "lib:people_maya", time: "Now", text: "First leaf of spring.", image: "lib:fern", likes: 7, comments: 2, liked: false, goto: "fern_post" },
+    { name: "Sam", photo: "lib:people_sam", time: "1 hr ago", text: "Basil on the sill.", image: "lib:basil", likes: 3, comments: 1, liked: false, goto: "basil_post" },
+  ] },
+  { posts: [{ name: "Anna", photo: "lib:people_anna", time: "Just now", text: "A quieter route for morning walks.", video: "lib:dog", likes: 4, comments: 1, liked: false, goto: "river_post", tags: ["Walks", "Trail news"], radiusKm: 3, alertTag: "Trail closure", quote: "Use the riverside path.", reposts: 7, reposted: false, saved: true, vote: "down" }] },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Feed");
@@ -90,6 +126,15 @@ export const probes = [
     ...write("List Maya’s and Sam’s latest plant swap posts with their author avatars and excerpts, but hide attached post pictures."),
     variant: { axis: "media", value: "none" },
   },
+  {
+    ...write("Show two posts from Maya and Sam as a two-column profile grid, both with photos."),
+    variant: { axis: "arrange", value: "grid" },
+  },
+  {
+    ...write("Show Maya’s and Sam’s newest posts with unusually tight spacing but keep the normal single column."),
+    variant: { axis: "density", value: "compact" },
+  },
+  ...postOptionProbes("Feed"),
   read("Like Maya’s update about her new fern frond.", { address: "f1/r1/like", action: "toggle" }),
 ] satisfies c.Probe[];
 
@@ -116,78 +161,23 @@ function FeedReactions({ post, density }: { post: FeedPost; density: c.ThemeDens
 }
 
 // prettier-ignore
-function FeedPreview({ post, density }: { post: FeedPost; density: c.ThemeDensity }) {
-  const { words: { feed } } = kit.useWords(socialWordsFor);
-  const { name, photo, time, text, image, goto } = post;
-  const excerpt = <kit.KitText part="text" lines={3} density={density}>{text}</kit.KitText>;
-  return <kit.KitRow part="root" inline surface="plain" label={feed.open(name)} goto={goto} density={density}>
-    <kit.KitContent density={density}>
-      <kit.KitRow part={null} inline label="" lineRole="label" density={density}
-        trailing={<kit.KitIcon name="chevron_right" tone="muted" decorative />}>
-        <kit.KitContent density={density} leadingAlign="row"
-          lead={<kit.KitPhoto photo={photo} part="photo" shape="round" label={name} />}>
-          <kit.KitText part="name" role="label" tone="muted" lines={1} density={density}>{name}</kit.KitText>
-          <kit.KitText part="time" role="caption" tone="muted" lines={1} density={density}>{time}</kit.KitText>
-        </kit.KitContent>
-      </kit.KitRow>
-      <kit.KitContent group="response" density={density}>
-        {image ? <kit.KitGrid fitLast density={density}>
-          {excerpt}
-          <kit.KitContent density={density} leadingAlign="row"
-            lead={<kit.KitPhoto part="image" photo={image} shape="thumb" label={feed.image} />}>{null}</kit.KitContent>
-        </kit.KitGrid> : excerpt}
-      </kit.KitContent>
-    </kit.KitContent>
-  </kit.KitRow>;
-}
-
-// prettier-ignore
-function FeedLoading({ post, density }: { post: FeedPost; density: c.ThemeDensity }) {
-  const { words: { feed } } = kit.useWords(socialWordsFor);
-  const skeleton = feed.skeleton;
-  const excerpt = <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["body", skeleton.excerpt]]} />;
-  return <>
-    <kit.KitContent density={density} leadingAlign="row" lead={<kit.KitSkeleton shape="control" kind="secondary" />}>
-      <kit.KitSkeleton shape="figure" inset="none" density={density}
-        content={[["label", skeleton.author], ["caption", skeleton.time]]} />
-    </kit.KitContent>
-    <kit.KitContent group="response" density={density}>
-      {post.image ? <kit.KitContent group="response" density={density}>
-        <kit.KitGrid fitLast density={density}>
-          {excerpt}
-          <kit.KitSkeleton shape="figure" lead="box" inset="none" content={[]} density={density} />
-        </kit.KitGrid>
-      </kit.KitContent> : excerpt}
-    </kit.KitContent>
-    <kit.KitContent group={post.image ? "response" : "content"} density={density}>
-      <kit.KitContent group="response" density={density} leadingAlign="row" lead={<kit.KitSkeleton shape="control" kind="secondary" />}>
-        <kit.KitRow part={null} label="" inline density={density}>
-          <kit.KitContent density={density} leadingAlign="row" lead={
-            <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", skeleton.likes]]} />}>
-            <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", skeleton.comments]]} />
-          </kit.KitContent>
-        </kit.KitRow>
-      </kit.KitContent>
-    </kit.KitContent>
-  </>;
-}
-
-// prettier-ignore
 export function Feed(input: FeedProps) {
   const state = kit.useComponentState();
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const media = kit.useVariant("media", meta.variants.media, input.media);
+  const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   if (state === "empty") return <kit.KitCard part="root" {...{ density, surface }}>
     <kit.KitEmpty part="empty" icon="message" decorativeIcon />
   </kit.KitCard>;
   return <kit.KitCard part="root" style="cards" density={density}>
-    <kit.KitGrid list arrange="rows" listRowGap="cards" density={density}>
+    <kit.KitGrid list arrange={arrange} listRowGap="cards" density={density}>
       {input.posts.map((source) => {
-        const post = media === "none" ? { ...source, image: undefined } : source;
+        const post = media === "none" ? { ...source, image: undefined, video: undefined } : source;
         return <kit.KitRow key={post.id} item={post.id} part={null} inline surface="plain" role="text" label="">
           <kit.KitCard part="card" padded {...{ surface, density }}>
-            {state === "loading" ? <FeedLoading {...{ post, density }} /> : <>
+            {arrange === "grid" || postOptionPartsPresent(post) ? <FeedRecipe {...{ post, density }} grid={arrange === "grid"} response={<FeedReactions {...{ post, density }} />} /> :
+              state === "loading" ? <FeedLoading {...{ post, density }} /> : <>
               <FeedPreview {...{ post, density }} />
               <FeedReactions {...{ post, density }} />
             </>}
@@ -196,4 +186,8 @@ export function Feed(input: FeedProps) {
       })}
     </kit.KitGrid>
   </kit.KitCard>;
+}
+
+function postOptionPartsPresent(post: FeedPost) {
+  return Object.keys(postOptionProps).some((key) => post[key as keyof typeof postOptionProps] !== undefined);
 }
