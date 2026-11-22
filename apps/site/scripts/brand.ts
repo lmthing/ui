@@ -1,21 +1,16 @@
 // The apple-touch icon (180) and the Open Graph image (1200x630), drawn from the same logo data and a real line.
+import { calm, moss, themeRoles } from "../../../packages/ui/src/catalog/themes";
 import { launchChrome } from "../../../packages/ui/scripts/look/launch-chrome";
 import { markSvg, wordSvg } from "../src/brand/paths";
 import type { SiteData } from "./site-types";
 
 const fonts =
   "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,700&family=IBM+Plex+Mono:wght@400;500&display=swap";
+const roles = themeRoles(calm, moss, "light");
 
 function ogHtml(data: SiteData): string {
-  const roles = data.themeVars["calm_moss_light"] ?? {};
   const line = data.items.find((i) => i.id === "Header")?.line.replace('"id":"x1"', '"id":"h1"') ?? "";
-  const {
-    bg = "#f4f5f1",
-    text = "#1b221e",
-    muted = "#5a665e",
-    line: rule = "#d2d9cc",
-    accent = "#3e6d30",
-  } = roles;
+  const { bg, text, muted, line: rule, accent } = roles;
   return `<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="${fonts}"><style>
   body{margin:0;width:1200px;height:630px;background:${bg};color:${text};display:grid;grid-template-columns:1fr 430px;font-family:'Bricolage Grotesque',system-ui,sans-serif}
   .l{padding:64px 0 64px 72px;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid ${rule}}
@@ -30,7 +25,6 @@ function ogHtml(data: SiteData): string {
 export async function writeBrand(out: string, data: SiteData): Promise<void> {
   const browser = await launchChrome();
   try {
-    const roles = data.themeVars["calm_moss_light"] ?? {};
     const og = await browser.newPage({ viewport: { width: 1200, height: 630 } });
     await og.setContent(ogHtml(data), { waitUntil: "networkidle" }).catch(() => undefined);
     await og.evaluate(() =>
@@ -41,9 +35,8 @@ export async function writeBrand(out: string, data: SiteData): Promise<void> {
     );
     await og.screenshot({ path: `${out}/og.png` });
     const icon = await browser.newPage({ viewport: { width: 180, height: 180 } });
-    const ink = roles.text ?? "#1b221e";
     await icon.setContent(
-      `<body style="margin:0;background:${roles.bg ?? "#f4f5f1"};display:grid;place-items:center;height:180px">${markSvg(ink, roles.accent ?? "#3e6d30", 120)}</body>`,
+      `<body style="margin:0;background:${roles.bg};display:grid;place-items:center;height:180px">${markSvg(roles.text, roles.accent, 120)}</body>`,
     );
     await icon.screenshot({ path: `${out}/apple-touch-icon.png` });
   } finally {

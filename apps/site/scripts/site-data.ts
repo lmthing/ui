@@ -4,7 +4,7 @@ import type * as Catalog from "@lmthing/ui/catalog";
 import { readPackTable } from "./pack-table";
 import { readPlanned, readWaves } from "./plan-docs";
 import { readReadProbes, readScreens } from "./recordings";
-import type { Accent, Item, ItemState, Pack, Preset, RecordedData, SiteData, Stats } from "./site-types";
+import type { Item, ItemState, Pack, RecordedData, SiteData, Stats } from "./site-types";
 import { workedRecords } from "./worked-records";
 
 const repoRoot = new URL("../../../", import.meta.url).pathname;
@@ -102,11 +102,14 @@ export function loadSiteData(): SiteData & RecordedData {
     };
   });
   const core = items.filter((item) => !item.pack);
-  const presets = catalog.presets.map((p) => ({ ...p, roles: p.roles })) as unknown as Preset[];
-  const accents = catalog.accents.map((a) => ({
-    id: a.id,
-    roles: { light: a.light, dark: a.dark },
-  })) as Accent[];
+  const presets = catalog.presets.map(({ id, mood, shape, font, density }) => ({
+    id,
+    mood,
+    shape,
+    font,
+    density,
+  }));
+  const accents = catalog.accents.map(({ id }) => ({ id }));
   const recordings = `${repoRoot}packages/ui/test/recordings`;
   return {
     repo: process.env.GITHUB_REPOSITORY ?? "lmthing/ui",
@@ -120,7 +123,6 @@ export function loadSiteData(): SiteData & RecordedData {
     waves: waves.map(({ wave, why, packs: ids }) => ({ wave, why, packs: ids })),
     screens: readScreens(recordings),
     readProbes: readReadProbes(recordings),
-    themeVars: themeVars(),
   };
 }
 
@@ -129,21 +131,4 @@ function packIsReady(id: Catalog.PackId): boolean {
   const registry = catalog.createRegistry({ packs: [id] });
   const packOf = registry.packOf as Record<string, string | undefined>;
   return registry.defs.some((def) => packOf[def.meta.id] === id);
-}
-
-/** Every colour role of every built theme, keyed `<preset>_<accent>_<mode>`, for the page's CSS variables. */
-function themeVars(): Record<string, Record<string, string>> {
-  const out: Record<string, Record<string, string>> = {};
-  for (const preset of catalog.presets) {
-    for (const accent of catalog.accents) {
-      for (const mode of ["light", "dark"] as const) {
-        out[`${preset.id}_${accent.id}_${mode}`] = catalog.themeRoles(
-          preset,
-          accent,
-          mode,
-        ) as unknown as Record<string, string>;
-      }
-    }
-  }
-  return out;
 }

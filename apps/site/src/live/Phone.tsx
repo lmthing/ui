@@ -1,11 +1,17 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { TamaguiProvider } from "tamagui";
-import type { ActStep, DeviceData, ScreenLike } from "@lmthing/ui/catalog";
+import {
+  themeName,
+  type ActStep,
+  type DeviceData,
+  type ScreenLike,
+  type ThemeChoice,
+} from "@lmthing/ui/catalog";
 import { PhoneScreen, type PhoneScreenProps } from "@lmthing/ui/kit";
-import { config, galleryParts } from "../../../gallery";
+import { config, galleryParts, registerTheme } from "../../../gallery";
 import { placeholderFor } from "./placeholder";
 import "../../../gallery/app/fonts";
-import { useTheme, type ThemeState } from "../theme/ThemeContext";
+import { resolveSiteTheme, useTheme, type ThemeState } from "../theme/ThemeContext";
 
 export type PhoneProps = {
   screen: ScreenLike;
@@ -44,6 +50,22 @@ function findPart(root: HTMLElement, address: string): Element | null {
   return null;
 }
 
+function usePhoneTheme(overrides?: Partial<ThemeState>) {
+  const page = useTheme();
+  const preset = overrides?.preset ?? page.preset;
+  const accent = overrides?.accent ?? page.accent;
+  const mode = overrides?.mode ?? page.mode;
+  const [applied, setApplied] = useState<ThemeChoice>();
+  // Keep the previous palette and screen mounted until the new theme is registered before paint.
+  useLayoutEffect(() => {
+    const selected = resolveSiteTheme({ preset, accent, mode });
+    const choice = { preset: selected.preset.id, accent: selected.accent.id, mode: selected.mode };
+    registerTheme(themeName(choice));
+    setApplied(choice);
+  }, [preset, accent, mode]);
+  return applied;
+}
+
 /** A live kit screen in a phone frame. The frame's width is one of the shared phone widths. */
 export function Phone({
   screen,
@@ -59,17 +81,14 @@ export function Phone({
   onChange,
   label,
 }: PhoneProps) {
-  const page = useTheme();
-  const choice = {
-    preset: theme?.preset ?? page.preset,
-    accent: theme?.accent ?? page.accent,
-    mode: theme?.mode ?? page.mode,
-  };
+  const choice = usePhoneTheme(theme);
   const frame = useRef<HTMLDivElement>(null);
-  const look = `${choice.preset}/${choice.accent}/${choice.mode}`;
+  const look = choice && themeName(choice);
+  const ready = !!choice;
   const first = useRef(true);
   useEffect(() => {
     // A theme switch cross-fades the screen instead of snapping, unless motion is reduced.
+    if (!look) return;
     if (first.current) return void (first.current = false);
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     frame.current?.animate([{ opacity: 0.45 }, { opacity: 1 }], { duration: 520, easing: "ease-out" });
@@ -79,7 +98,7 @@ export function Phone({
     if (!root) return;
     root.querySelectorAll(".addr-hit").forEach((n) => n.classList.remove("addr-hit"));
     if (highlight) findPart(root, `${screen.id}/${highlight}`)?.classList.add("addr-hit");
-  }, [highlight, screen]);
+  }, [highlight, screen, ready]);
   return (
     <figure className="phone" style={{ width: width + 16, maxWidth: "100%" }} aria-label={label}>
       <div
@@ -91,15 +110,17 @@ export function Phone({
       >
         <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss" disableRootThemeClass>
           <div style={{ width, maxWidth: "100%" }}>
-            <PhoneScreen
-              screen={screen}
-              deviceData={deviceData}
-              theme={choice as never}
-              parts={galleryParts}
-              resolvePhoto={(ref) => placeholderFor(ref, choice)}
-              onAction={onAction}
-              onChange={onChange}
-            />
+            {choice && (
+              <PhoneScreen
+                screen={screen}
+                deviceData={deviceData}
+                theme={choice}
+                parts={galleryParts}
+                resolvePhoto={(ref) => placeholderFor(ref, choice)}
+                onAction={onAction}
+                onChange={onChange}
+              />
+            )}
           </div>
         </TamaguiProvider>
       </div>

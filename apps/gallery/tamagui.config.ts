@@ -52,10 +52,11 @@ export const config = createTamagui({
   },
 });
 
+export function registerTheme(name: KitThemeName) {
+  if (!Object.hasOwn(config.themes, name)) addTheme({ name, theme: themeFor(name) });
+}
+
 export function registerGridThemes() {
   // An overview starts with one preview theme. Register the others before an expansion renders.
-  for (const choice of gridThemes()) {
-    const name = themeName(choice);
-    if (!Object.hasOwn(config.themes, name)) addTheme({ name, theme: themeFor(name) });
-  }
+  for (const choice of gridThemes()) registerTheme(themeName(choice));
 }
