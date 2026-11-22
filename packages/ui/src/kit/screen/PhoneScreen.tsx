@@ -28,6 +28,7 @@ import {
   type SendHandler,
 } from "../interact";
 import type { PartRegistry } from "../registry";
+import type { MicCaptureAdapter } from "../interact/runtime";
 import { Screen, type RendererMap } from "./Screen";
 
 type AgentAccess = ReturnType<typeof createAgentAccess>;
@@ -54,6 +55,7 @@ export type PhoneScreenProps = {
   resolvePhoto?: ((reference: string) => string | undefined) | undefined;
   resolveMedia?: ((reference: string) => string | undefined) | undefined;
   media?: MediaAdapter | undefined;
+  micCapture?: MicCaptureAdapter | undefined;
   resolvePlayback?: PlaybackResolver | undefined;
   attachments?: AttachmentHost | undefined;
   onReady?: ((agent: AgentAccess) => void) | undefined;
