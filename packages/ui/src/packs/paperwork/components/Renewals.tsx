@@ -142,7 +142,7 @@ function RenewalItem({ row, density, surface, now, success, status }: {
   const { lang, words: { renewals: words } } = kit.useWords(paperworkWordsFor);
   const loading = kit.useComponentState() === "loading", done = success || complete(row);
   const details = renewalDetails({ ...row, complete: done }, now, lang);
-  return <kit.KitRow part={null} label="" inset={surface ? "md" : "none"} {...{ density, surface }}>
+  return <kit.KitRow part={null} label="" inline={!surface} {...{ density, surface }}>
     <kit.KitContent {...{ density }}>
       {status && <kit.KitText part="success" role="label" tone="good" density={density}>{status}</kit.KitText>}
       <kit.KitRow item={row.id} part={null} label="" inline surface="plain" {...{ density }}
@@ -176,7 +176,7 @@ export function Renewals({ items, style }: RenewalsProps) {
   const allDone = state !== "loading" && (success || items.every(complete));
   return <kit.KitCard style={cards ? "cards" : "inset"} padded={!cards && state !== "empty"} {...{ surface, density }}>
     {state === "empty" ? <kit.KitEmpty part="empty" icon="calendar" decorativeIcon /> :
-      <kit.KitGrid list arrange="rows" listRowGap={cards ? "cards" : undefined} density={density}>
+      <kit.KitGrid list arrange="rows" listRowGap="cards" density={density}>
         {items.map((row, index) => <RenewalItem key={row.id} {...{ row, density, now, success }}
           surface={cards ? surface : undefined} status={index === 0 && allDone ? words.renewals.success : undefined} />)}
       </kit.KitGrid>}
