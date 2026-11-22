@@ -106,27 +106,26 @@ type Density = c.ThemeDensity;
 const nameRole = (density: Density) => (density === "compact" ? "title" : "heading");
 // prettier-ignore
 function VenueDetail({ input, copy, density, thumb }: { input: PlaceCardProps; copy: PlaceCopy; density: Density; thumb?: string | undefined }) {
-  const { name, category, rating, badge } = input;
-  const { opening, price, distance } = copy;
-  const heading = <kit.KitContent density={density}>
-    <kit.KitText role={nameRole(density)} part="name" density={density}>{name}</kit.KitText>
-    <kit.KitText part="category" tone="muted" density={density}>{category}</kit.KitText>
-  </kit.KitContent>;
+  const { name, category, badge } = input;
+  const { ratingReading, opening, price, distance } = copy;
+  const lineRole = nameRole(density);
+  const chevron = <kit.KitIcon name="chevron_right" scale="sm" decorative />;
+  const trailer = badge ? <kit.KitRow part={null} inline fitContent label={name} {...{ lineRole, density }}
+    leading={<kit.KitTrail kind="badge" part="badge" tone="good" value={badge} density={density} />}
+    trailing={chevron}>{null}</kit.KitRow> : chevron;
   return <kit.KitContent density={density}>
-      <kit.KitGrid fitLast density={density}>
-        {badge ? <kit.KitGrid fitLast density={density}>{heading}
-          <kit.KitTrail kind="badge" part="badge" tone="good" value={badge} density={density} /></kit.KitGrid> : heading}
-        <kit.KitContent density={density} leadingAlign="row" lead={thumb && <kit.KitPhoto part="photo" shape="thumb" photo={thumb} label={name} />}>
-          <kit.KitIcon name="chevron_right" decorative />
+      <kit.KitRow part={null} inline fitContent label={name} {...{ lineRole, density }}
+        leading={thumb && <kit.KitPhoto part="photo" shape="thumb" photo={thumb} label={name} />}
+        leadingAlign="row" trailing={trailer}>
+        <kit.KitContent density={density} rhythm="flush">
+          <kit.KitText role={lineRole} part="name" density={density}>{name}</kit.KitText>
+          <kit.KitText part="category" tone="muted" density={density}>{category}</kit.KitText>
         </kit.KitContent>
-      </kit.KitGrid>
-      {(rating !== undefined || price || opening || distance) && (
+      </kit.KitRow>
+      {(ratingReading || price || opening || distance) && <kit.KitContent group="response" density={density}>
         <kit.KitGrid density={density}>
           <kit.KitContent density={density}>
-            {rating !== undefined && <kit.KitContent lineRole="body" density={density}
-              lead={<kit.KitText role="number" numberScale="compact" part="rating" tabular lines={1} density={density}>{copy.rating}</kit.KitText>}>
-              <kit.KitScaleTrack style="stars" value={rating} labels={copy.ratingLabels} readonly compact />
-            </kit.KitContent>}
+            {ratingReading && <kit.KitText role="label" tone="muted" part="rating" tabular density={density}>{ratingReading}</kit.KitText>}
             {price && <kit.KitText role="label" tone="muted" part="price_level" density={density}>{price}</kit.KitText>}
           </kit.KitContent>
           <kit.KitContent density={density}>
@@ -134,25 +133,24 @@ function VenueDetail({ input, copy, density, thumb }: { input: PlaceCardProps; c
             {distance && <kit.KitText role="label" tone="muted" part="distance" density={density}>{distance}</kit.KitText>}
           </kit.KitContent>
         </kit.KitGrid>
-      )}
+      </kit.KitContent>}
     </kit.KitContent>;
 }
 
 // prettier-ignore
 function VenueLoading({ input, copy, density, thumb }: { input: PlaceCardProps; copy: PlaceCopy; density: Density; thumb?: string | undefined }) {
-  const { words } = kit.useWords(placesWordsFor);
   const heading = <kit.KitSkeleton shape="figure" inset="none" density={density}
     content={[[nameRole(density), input.name], ["body", input.category]]} />;
   return <kit.KitContent density={density}>
     {thumb ? <kit.KitGrid fitLast density={density}>
       {heading}<kit.KitSkeleton shape="figure" inset="none" density={density} lead="box" content={[]} />
     </kit.KitGrid> : heading}
-    {(copy.rating || copy.price || copy.opening || copy.distance || input.badge) && <kit.KitGrid density={density}>
+    {(copy.ratingReading || copy.price || copy.opening || copy.distance || input.badge) && <kit.KitContent group="response" density={density}><kit.KitGrid density={density}>
       <kit.KitSkeleton shape="figure" inset="none" density={density}
-        content={[["number", copy.rating && words.ratingSkeleton(copy.rating), "start", "compact"], ["label", copy.price]]} />
+        content={[["label", copy.ratingReading], ["label", copy.price]]} />
       <kit.KitSkeleton shape="figure" inset="none" density={density}
         content={[["label", copy.opening?.text], ["label", copy.distance], ["label", input.badge]]} />
-    </kit.KitGrid>}
+    </kit.KitGrid></kit.KitContent>}
   </kit.KitContent>;
 }
 
