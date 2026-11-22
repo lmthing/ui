@@ -6,7 +6,8 @@ Built in step U7 (drafts in U3), wave 4 of the catalog plan. Read `docs/catalog/
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
-- `components/`: `Article.tsx` `Library.tsx` `Collection.tsx` `Playlist.tsx` `ChapterList.tsx` `MiniPlayer.tsx` `Highlights.tsx`
+- `components/`: `Library.tsx` `Collection.tsx` `Playlist.tsx` `ChapterList.tsx` `MiniPlayer.tsx` `Highlights.tsx`
+- The worked example and archetypes also use core `Article` (no pack-owned export).
 - `archetypes/`: `library.ts` `collection.ts` `reader.ts`
 
 Rules:

@@ -25,7 +25,11 @@ function isBuzz(ctx: ControllerContext, { address, action }: ActStep): boolean {
   return !!meta && Boolean(buzzTarget(meta, parts.join("/") || "root", action));
 }
 
-function snapshotPlanning(ctx: ControllerContext, touchNow: () => number): ControllerContext {
+function snapshotPlanning(
+  ctx: ControllerContext,
+  touchNow: () => number,
+  holdApproval?: symbol,
+): ControllerContext {
   const at = ctx.now();
   const values = ctx.valuesOf(at);
   const data = atDeviceTime(ctx.options.deviceData, at);
@@ -43,6 +47,7 @@ function snapshotPlanning(ctx: ControllerContext, touchNow: () => number): Contr
     valuesOf: () => values,
     status: { ...ctx.status, confirmation: ctx.confirmationFor(data, at) },
     mounted: new Map(ctx.mounted),
+    hold: { parts: new Map(ctx.hold.parts), approval: holdApproval },
     disabledParts,
     liveScreen: (next, sheet, covered) =>
       withDisabledSelectionChecks(ctx.liveScreen(next, sheet, covered, at), disabledParts),
@@ -84,11 +89,18 @@ function commitSteps(
   ctx.hosts.commit(state.values);
   ctx.store.setMany({ ...media, ...state.values });
   ctx.hosts.prune();
+  for (const step of result.performed)
+    if (step.action === "stop") ctx.micCapture.release(step.address, "stop");
   for (const effect of effects) effect();
 }
 
 export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleClock: () => void) {
-  return function act(steps: ActStep | ActStep[], opts: ActOptions = {}, markToken?: symbol): ActReply {
+  return function act(
+    steps: ActStep | ActStep[],
+    opts: ActOptions = {},
+    markToken?: symbol,
+    holdApproval?: symbol,
+  ): ActReply {
     if (ctx.status.disposed) return actionFailure(0, "not_actionable", "This screen is no longer mounted");
     if (ctx.options.interactive === false)
       return actionFailure(0, "not_interactive", "This screen is a preview");
@@ -101,7 +113,7 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
     let touchTime = opts.dryRun ? 0 : list.some((step) => isBuzz(ctx, step)) ? ctx.touchNow() : undefined;
     // A host snapshot change invalidates the confirmation independently of this action's result.
     if (!opts.dryRun) discardHiddenConfirmation(ctx);
-    const planning = snapshotPlanning(ctx, () => (touchTime ??= ctx.touchNow()));
+    const planning = snapshotPlanning(ctx, () => (touchTime ??= ctx.touchNow()), holdApproval);
     const preview = planSteps(list, planning, media, null, markToken, opts.agent);
     if (preview.error) return preview.error;
     if (opts.dryRun)

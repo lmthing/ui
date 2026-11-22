@@ -1,11 +1,11 @@
-import { numberLine, pluralForm } from "../../../catalog";
-import { dataWordsFor } from "../lang";
+import { numberLine, pluralForm } from "../../format";
+import { wordsFor } from "../../lang";
 
 type Filter = { id?: string; label: string; options: readonly string[]; value?: string | undefined };
 
 export function filterCount(filters: readonly Filter[], lang?: string) {
   const count = filters.filter(({ value }) => value !== undefined).length;
-  return dataWordsFor(lang).filterCount(numberLine(count, lang), pluralForm(count, lang));
+  return wordsFor(lang).filterCount(numberLine(count, lang), pluralForm(count, lang));
 }
 
 export function filterReading(
@@ -16,7 +16,7 @@ export function filterReading(
   }: { filters: readonly Filter[]; detail: "full" | "brief"; sort?: string | undefined },
   lang?: string,
 ) {
-  const words = dataWordsFor(lang);
+  const words = wordsFor(lang);
   return [
     ...(detail === "brief" ? [] : [filterCount(filters, lang)]),
     ...(sort === undefined ? [] : [words.filterSort(sort)]),

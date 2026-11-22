@@ -109,11 +109,11 @@ async function expectCompactTypes(root: string) {
   );
 }
 
-it("keeps all generated files and doors bounded with 45 core components and all registered packs", async () => {
+it("keeps all generated files and doors bounded with 50 core components and all registered packs", async () => {
   const root = await mkdtemp(resolve(".entries-scale-test-"));
   roots.push(root);
   await put(root, "catalog/index.ts", `export * from ${JSON.stringify(resolve("src/catalog/index.ts"))};`);
-  const coreNames = Array.from({ length: 45 }, (_, i) => `Core${i + 1}`).sort();
+  const coreNames = Array.from({ length: 50 }, (_, i) => `Core${i + 1}`).sort();
   for (const name of coreNames) await put(root, `components/${name}.tsx`, component(name));
   const names: string[] = [];
   for (const id of [...packIds].sort()) names.push(...(await scaffold(root, id)));

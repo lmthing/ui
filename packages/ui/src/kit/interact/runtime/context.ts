@@ -22,6 +22,7 @@ import type {
 } from "../index";
 import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
+import { createMicCapture, type MicCaptureAdapter } from "./capture";
 import { visibleConfirmation } from "./read-controls";
 import { createPrivateMarks } from "./private-mark";
 import { createHostProjection, type HostCommandAdapter, type ParentGate } from "./host";
@@ -44,6 +45,7 @@ export type ControllerOptions = {
   defs: Record<string, Definition>;
   lang?: string | undefined;
   media?: MediaAdapter | undefined;
+  micCapture?: MicCaptureAdapter | undefined;
   resolvePlayback?: PlaybackResolver | undefined;
   attachments?: AttachmentHost | undefined;
   store?: InteractionStore | undefined;
@@ -156,6 +158,7 @@ export function createControllerContext(options: RuntimeOptions, standalone = fa
     now,
     touchNow,
     store,
+    micCapture: createMicCapture(options.micCapture, (address) => relativeAddress(screen.id, address)),
     clipboard: createClipboard(options, store, () => status.disposed),
     status,
     valuesOf,
@@ -167,6 +170,7 @@ export function createControllerContext(options: RuntimeOptions, standalone = fa
     expiredProgress: (values: Values, at = now()) => expiredProgress(screen, defs, values, at),
     resetValues,
     mounted: new Map<string, symbol>(),
+    hold: { parts: new Map<string, symbol>(), approval: undefined as symbol | undefined },
     anchors: new Map<string, (action: "focus" | "jump") => void>(),
     disabledParts,
     attachmentEntries,
@@ -177,18 +181,10 @@ export function createControllerContext(options: RuntimeOptions, standalone = fa
     sourceOf: (id: string) => screen.components.find((entry) => entry.id === id),
     inputOf: (entry: ScreenComponent) => entryInput(defs, entry),
     notifyChange() {
-      if (!options.onChange || !host.admitted()) return;
-      const updated = projectScreen(
-        screen,
-        defs,
-        valuesOf(),
-        now(),
-        status.openSheet,
-        true,
-        true,
-        options.deviceData,
-      );
-      options.onChange(updated, store.snapshot());
+      const { onChange, deviceData: data } = options;
+      if (!onChange || !host.admitted()) return;
+      const updated = projectScreen(screen, defs, valuesOf(), now(), status.openSheet, true, true, data);
+      onChange(updated, store.snapshot());
     },
   };
 }
