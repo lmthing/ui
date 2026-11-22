@@ -122,7 +122,7 @@ export const props = z
     path: ["items"],
     message: "Use one level of same-project subtasks and acyclic prerequisites",
   })
-  .overwrite((value) => ({ ...value, items: projectTasks(value.items, [], value.style === "today" ? taskToday() : undefined) }));
+  .overwrite((value) => ({ ...value, items: projectTasks(value.items) }));
 
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
   return {
@@ -191,11 +191,13 @@ export const probes = [
 type View = c.Props<typeof props, typeof meta>;
 type ViewRow = View["items"][number] & ReturnType<typeof projectTasks>[number];
 // prettier-ignore
-function TaskRow({ row, density, lang, indent, loading, choices }: {
-  row: ViewRow; density: View["density"]; lang: string; indent: boolean; loading: boolean; choices: readonly string[];
+function TaskRow({ row, density, lang, indent, loading, choices, today }: {
+  row: ViewRow; density: View["density"]; lang: string; indent: boolean; loading: boolean; choices: readonly string[]; today?: boolean;
 }) {
   const words = projectsWordsFor(lang).tasks, { state, due, overdue, priority, blockers, repeat, tags } = taskCopy(row, lang);
-  const controls = loading ? row.done !== undefined && <kit.KitSkeleton shape="control" kind="quiet" /> :
+  const loadingCheck = today ? <kit.KitSkeleton shape="control" kind="quiet" /> :
+    <kit.KitSkeleton lead="box" inset="none" items={[{}]} density={density} />;
+  const controls = loading ? row.done !== undefined && loadingCheck :
     (row.done !== undefined || row.checked) && <kit.KitCheck part="done" readonly={row.done === undefined} done={!!row.checked} label={words.done(row.title)} />;
   const captions = [due, [state, row.assignee, priority].filter(Boolean).join(words.separator), blockers];
   return <kit.KitRow item={row.id} part={null} label={row.title} trailing={controls} lineRole={due || blockers ? "body" : "heading"}
@@ -234,7 +236,7 @@ export function Tasks(input: View) {
           {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.project(project)]]} /> :
             <kit.KitText role="label" tone="muted" item={tasks[0]?.id} part="project">{words.project(project)}</kit.KitText>}
         </kit.KitContent>}{today ? <kit.KitRowGroup density={density}>
-          {tasks.map((row) => <TaskRow key={row.id} {...{ row, lang, loading, density }}
+          {tasks.map((row) => <TaskRow key={row.id} {...{ row, lang, loading, density, today }}
             indent={Boolean(project && row.parentRef)} choices={assigneeChoices} />)}
         </kit.KitRowGroup> : <kit.KitGrid arrange="rows" list density={density}>
           {tasks.map((row, index) => <kit.KitContent key={row.id} group={!row.parentRef && project && tasks[index - 1]?.parentRef ? "response" : "content"}><TaskRow {...{ row, lang, loading }}

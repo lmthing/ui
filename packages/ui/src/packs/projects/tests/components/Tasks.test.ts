@@ -156,6 +156,7 @@ it("shows today's due rows at their original addresses without ignoring hidden b
         { ...first.items[0]!, taskRef: "ready", due: "2026-11-21", state: "done", goto: "ready" },
       ],
     };
+    const parsed = props.parse(input);
     const drawn = render(input);
     expect(drawn.get(part("today"))?.text).toEqual(["Due today"]);
     expect(drawn.has(part("r1/root"))).toBe(false);
@@ -174,6 +175,8 @@ it("shows today's due rows at their original addresses without ignoring hidden b
     expect(planAct(todayScreen, defs, {}, [check("r2")]).ok).toBe(false);
     expect(planAct(todayScreen, defs, {}, [check("r3")]).ok).toBe(true);
     vi.setSystemTime(new Date(2026, 10, 22, 12));
+    expect(props.parse(input)).toEqual(parsed);
+    expect(planAct(todayScreen, defs, {}, [check("r3")]).ok).toBe(false);
     expect(render(input).get(part("empty"))?.text).toContain("No tasks due today");
     expect(readComponent(definition, input, "t1").join("\n")).toContain("No tasks due today");
   } finally {

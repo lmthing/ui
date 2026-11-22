@@ -145,7 +145,7 @@ type Words = ReturnType<typeof projectsWordsFor>["timeLog"];
 function Entry({ copy, density, w, loading }: { copy: Row; density: Input["density"]; w: Words; loading: boolean }) {
   const { row, start, end, duration, billable, note } = copy, scope = kit.usePartContext();
   const remove = <kit.PartScope {...scope} item={row.id}>
-    <kit.KitAction part="remove" kind="danger" icon="trash" a11y={w.remove(row.title)} />
+    <kit.KitAction part="remove" kind="quiet" icon="trash" a11y={w.remove(row.title)} />
   </kit.PartScope>;
   return <kit.KitRow part={null} label={row.title} density={density} inset="none" trailing={remove}>
     <kit.KitRow {...(loading ? { part: null } : { item: row.id, goto: row.goto })} label={row.title} density={density} inline>
@@ -155,12 +155,12 @@ function Entry({ copy, density, w, loading }: { copy: Row; density: Input["densi
           <kit.KitText part="title" role="body" emphasis="strong">{row.title}</kit.KitText>
         </kit.KitContent>}
       <kit.KitGrid columns={3} density={density}>{loading ? [`${start}${w.range}${end}`, duration, billable].map((value, index) =>
-          <kit.KitSkeleton key={index} shape="figure" inset="none" density={density} content={[["label", value, index === 1 ? "end" : "start"]]} />) : [
+          <kit.KitSkeleton key={index} shape="figure" inset="none" density={density} content={[["label", value]]} />) : [
       <kit.KitText key="range" role="label" tone="muted" tabular part={null}>
         <kit.KitText part="start" role="label" tone="muted" tabular>{start}</kit.KitText>{w.range}
         <kit.KitText part="end" role="label" tone="muted" tabular>{end}</kit.KitText>
       </kit.KitText>,
-      <kit.KitText key="duration" part="duration" role="label" align="end" emphasis="strong" tabular>{duration}</kit.KitText>,
+      <kit.KitText key="duration" part="duration" role="label" emphasis="strong" tabular>{duration}</kit.KitText>,
       <kit.KitText key="billable" part="billable" role="label" tone={row.billable ? "good" : "muted"}>{billable}</kit.KitText>,
       ]}</kit.KitGrid>
       {note && (loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", note]]} /> :
@@ -212,7 +212,7 @@ function LogFooter({ input, copy, w, density, empty }: { input: View; copy: { ti
   const footer = <>
     {(input.projectRef || copy.timer) && <kit.KitAction part="timer" action={copy.timer ? "stop" : "start"}
       label={copy.timer ? w.stop : w.start} kind={empty || copy.timer ? "primary" : "secondary"} full />}
-    {copy.timer && <kit.KitAction part="discard" kind="danger" label={w.discard} full />}
+    {copy.timer && <kit.KitAction part="discard" kind={input.style === "summary" ? "danger" : "quiet"} label={w.discard} full />}
     {(input.addGoto || exportable) && <kit.KitGrid density={density} arrange={input.addGoto && exportable ? "grid" : "rows"}>
       {input.addGoto && <kit.KitAction part="add" goto={input.addGoto} label={w.add} kind={empty ? "secondary" : "quiet"} full />}
       {exportable && <kit.KitAction part="export" label={w.export} kind="quiet" full />}
