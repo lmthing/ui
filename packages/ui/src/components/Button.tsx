@@ -17,7 +17,8 @@ import { prompt } from "../entry/prompt-Button.generated";
 export const meta = {
   id: "Button",
   group: "action",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "bottom",
   weight: 1,
   tier: "phone",
@@ -27,6 +28,7 @@ export const meta = {
     media: ["icon", "none"],
   },
   variantParts: { "media.none": { hides: ["root_icon"] } },
+  writeHints: prompt.writeHints,
   parts: ["root", "root_icon"],
   states: ["filled"],
   actions: { parts: { root: ["press"] } },

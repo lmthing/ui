@@ -71,7 +71,10 @@ it("splits legacy prompt text and dictionary values once", async () => {
 it("moves edits from a pre-split branch after it merges the split", async () => {
   const { root, get, put } = await fixture();
   await splitSources(root);
-  await put(component, (await get(component)).replace("...prompt,", '...prompt, pick: "Changed pick.",'));
+  await put(
+    component,
+    (await get(component)).replace("pick: prompt.pick,", 'pick: prompt.pick, pick: "Changed pick.",'),
+  );
   await put(
     en,
     (await get(en)).replace(
@@ -85,7 +88,7 @@ it("moves edits from a pre-split branch after it merges the split", async () => 
     pick: "Changed pick.",
     writeHints: ['Keep "time" null.', "Preserve \u00a0."],
   });
-  expect((await get(component)).match(/\.\.\.prompt/g)).toHaveLength(1);
+  expect((await get(component)).match(/pick: prompt\.pick/g)).toHaveLength(1);
   expect((await get(en)).match(/\.\.\.SlotsWords/g)).toHaveLength(1);
   expect(await get(slotWords)).toContain('slotLabel: "Changed label"');
   expect(await get(slotWords)).toContain('slotsEmpty: "Empty"');

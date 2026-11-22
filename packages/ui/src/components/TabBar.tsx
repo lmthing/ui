@@ -22,7 +22,8 @@ const trails = ["badge", "none"] as const;
 export const meta = {
   id: "TabBar",
   group: "structure",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "bottom",
   weight: 1,
   tier: "phone",

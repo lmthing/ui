@@ -12,9 +12,11 @@ const stepLimit = 10;
 // prettier-ignore
 export const meta = {
   id: "WorkedSolution", status: "ready", group: "content", tier: "phone",
-  ...prompt,
+  pick: prompt.pick,
+  purpose: prompt.purpose,
   region: "body", weight: 3, dense: true,
   realPath: "Pre-authored derivations run on the device or an external solver generates them on request.",
+  writeHints: prompt.writeHints,
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["cover", "none"], overflow: ["page", "all"] },
   variantParts: {
     "media.none": { hides: ["photo"] },

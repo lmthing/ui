@@ -13,7 +13,8 @@ export const meta = {
   id: "Candidate",
   status: "ready",
   group: "content",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 2,
   tier: "phone",
@@ -55,6 +56,7 @@ export const meta = {
   },
   read: (input, state, lang): string[] =>
     state === "filled" ? candidateReading(input as z.output<typeof props>, lang) : [],
+  writeHints: prompt.writeHints,
 } as const satisfies c.Meta;
 
 // prettier-ignore

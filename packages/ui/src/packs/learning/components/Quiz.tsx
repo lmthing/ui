@@ -15,7 +15,9 @@ import { prompt } from "../../../entry/prompt-Quiz.generated";
 // prettier-ignore
 export const meta = {
   id: "Quiz", status: "ready", group: "input",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath: "Questions are stored with the app and answers are checked on the device.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["thumb", "none"] },

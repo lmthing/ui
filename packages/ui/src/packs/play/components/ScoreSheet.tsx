@@ -20,7 +20,9 @@ const roundKey = (index: number) => String(index + 1);
 // prettier-ignore
 export const meta = {
   id: "ScoreSheet", status: "ready", group: "input",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "phone",
   partTiers: { share: "people" }, confirmParts: ["reset"], clearItems: { reset: "score" },
   realPath: "Round scores are saved on the device; sharing publishes a versioned snapshot to a shared app.",

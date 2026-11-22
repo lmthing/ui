@@ -14,7 +14,9 @@ const decisionParts = ["waitlist", "approve", "decline", "note"] as const;
 // prettier-ignore
 export const meta = {
   id: "RentalApplication", status: "ready", group: "input", tier: "phone",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2,
   realPath: "Decisions and entered screening records stay on the manager’s device; pulling reports or notifying an applicant requires a separate host.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },

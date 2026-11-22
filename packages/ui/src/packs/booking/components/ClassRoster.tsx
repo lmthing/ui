@@ -9,9 +9,11 @@ import { prompt } from "../../../entry/prompt-ClassRoster.generated";
 // prettier-ignore
 export const meta = {
   id: "ClassRoster", status: "ready", group: "action",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body", weight: 3, dense: true, tier: "people",
   realPath: "A shared class roster synced across instructor and front-desk devices.",
+  writeHints: prompt.writeHints,
   parts: ["root", "title", "at", "attendance", "spaces", "waiting", "feedback", "empty", "walkin", "promote"],
   items: { key: "attendees", parts: ["root", "name", "photo", "status", "paid", "checkin", "noshow"] },
   states: ["filled", "empty", "loading", "success", "error"],

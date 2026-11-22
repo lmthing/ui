@@ -1,3 +1,5 @@
+<!-- replay-literals: d d ind -->
+
 ## Purpose
 
 Return to a nonempty basket from a shopping screen.

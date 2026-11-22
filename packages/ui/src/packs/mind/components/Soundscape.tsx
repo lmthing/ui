@@ -14,10 +14,12 @@ const levelSet = { prop: "level", min: 0, max: volumeMax, integer: true } as con
 // prettier-ignore
 export const meta = {
   id: "Soundscape", status: "ready", group: "input",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body", weight: 2, tier: "phone",
   realPath: "Bundled sound loops are mixed and played on the device.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], arrange: ["grid", "rows"] },
+  writeHints: prompt.writeHints,
   parts: ["root", "mix", "mix_label", "mix_icon", "timer", "timer_label", "presets"],
   items: {
     key: "sounds",

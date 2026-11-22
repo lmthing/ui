@@ -21,7 +21,9 @@ export const meta = {
   status: "ready",
   group: "data",
   tier: "service",
-  ...prompt,
+  pick: prompt.pick,
+  purpose: prompt.purpose,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   realPath:

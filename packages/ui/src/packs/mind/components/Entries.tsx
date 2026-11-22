@@ -10,7 +10,8 @@ export const meta = {
   id: "Entries",
   status: "ready",
   group: "content",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   dense: true,
@@ -30,6 +31,7 @@ export const meta = {
   // prettier-ignore
   live: { derive: ({ entries, media }) => media === "none" && Array.isArray(entries)
     ? { entries: entries.map((row: Record<string, unknown>) => ({ ...row, photo: undefined })) } : {} },
+  writeHints: prompt.writeHints,
   read: (input, state, lang): string[] => {
     if (state !== "filled") return [];
     const { entries, detail } = input as z.output<typeof props>;

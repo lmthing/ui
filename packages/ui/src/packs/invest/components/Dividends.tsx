@@ -11,7 +11,9 @@ import { prompt } from "../../../entry/prompt-Dividends.generated";
 // prettier-ignore
 export const meta = {
   id: "Dividends", status: "ready", group: "data",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath:
     "Device records freeze ledger entitlement at the entitlement time; actual receipt credits cash once per distribution, and void reverses that receipt without deleting the distribution.",

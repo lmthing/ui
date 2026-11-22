@@ -24,7 +24,9 @@ import { prompt } from "../entry/prompt-Timeline.generated";
 export const meta = {
   id: "Timeline",
   group: "data",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   weightByStyle: { hours: 3 },

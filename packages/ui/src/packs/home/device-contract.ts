@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { screenId, text, variantProps } from "../../catalog";
+import { prompt } from "../../entry/prompt-Devices.generated";
 
 const variants = { group: ["sections", "none"], surface: ["card", "outlined"] } as const;
 
@@ -169,6 +170,8 @@ const deviceActions = {
 
 export const deviceControls = {
   group: "input",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   dense: true,

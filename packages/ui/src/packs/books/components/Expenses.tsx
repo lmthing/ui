@@ -10,8 +10,9 @@ import { prompt } from "../../../entry/prompt-Expenses.generated";
 // Core first: Field/number cannot split receipt costs by category, VAT code and business-use fraction.
 // prettier-ignore
 export const meta = {
-  id: "Expenses", status: "ready", group: "input", ...prompt,
-   region: "body", weight: 3, dense: true, tier: "phone",
+  id: "Expenses", status: "ready", group: "input", purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints, region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Receipts are local; the core Camera captures evidence with consent and OCR guesses never post automatically.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["deductible_cost", "recoverable_vat"] } },

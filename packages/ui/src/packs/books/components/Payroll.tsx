@@ -11,7 +11,9 @@ import { prompt } from "../../../entry/prompt-Payroll.generated";
 // prettier-ignore
 export const meta = {
   id: "Payroll", status: "ready", group: "data",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Payroll uses local pay records and rules; sending payslips needs messaging, not a bank.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },

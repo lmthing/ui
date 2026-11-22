@@ -1,3 +1,5 @@
+<!-- replay-literals: d d ins -->
+
 ## Purpose
 
 Switch between two to four views of the same screen.

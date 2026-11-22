@@ -19,7 +19,9 @@ import { prompt } from "../entry/prompt-Actions.generated";
 export const meta = {
   id: "Actions",
   group: "action",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

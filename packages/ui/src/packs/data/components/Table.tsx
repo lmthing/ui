@@ -10,7 +10,9 @@ import { prompt } from "../../../entry/prompt-Table.generated";
 export const meta = {
   id: "Table",
   status: "ready", group: "data",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "A query over records on the device.",
   variants: { density: ["compact", "comfortable"], detail: ["full", "brief"] },

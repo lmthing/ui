@@ -13,7 +13,9 @@ const maxReason = 120,
 // prettier-ignore
 export const meta = {
   id: "RequestResolution", status: "ready", group: "action",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   partTiers: { accept: "people", reopen: "people" }, confirmParts: ["resolve"],
   realPath: "A resolution is saved on the operator's device; acceptance and reopening need a shared app.",

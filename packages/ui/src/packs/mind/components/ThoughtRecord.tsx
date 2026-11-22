@@ -16,7 +16,8 @@ export const meta = {
   id: "ThoughtRecord",
   status: "ready",
   group: "input",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 2,
   tier: "phone",
@@ -51,6 +52,7 @@ export const meta = {
   live: { text: reflectionFields, derive: reflectionView },
   recordRuntime: reflectionRecord(),
   read: (input, state, lang): string[] => readReflection(input as z.output<typeof props>, state, lang),
+  writeHints: prompt.writeHints,
 } as const satisfies c.Meta;
 
 // prettier-ignore

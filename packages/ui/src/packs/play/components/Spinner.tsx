@@ -9,7 +9,9 @@ import { prompt } from "../../../entry/prompt-Spinner.generated";
 // prettier-ignore
 export const meta = {
   id: "Spinner", status: "ready", group: "action",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   confirmParts: ["reset"],
   realPath: "Equal-probability draws are stored on the device; without repeats each option is used once.",

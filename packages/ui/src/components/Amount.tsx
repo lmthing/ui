@@ -6,7 +6,9 @@ import { prompt } from "../entry/prompt-Amount.generated";
 export const meta = {
   id: "Amount",
   group: "data",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

@@ -11,7 +11,9 @@ export const meta = {
   id: "TaxYear",
   status: "ready",
   group: "data",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   // prettier-ignore
   region: "body",
   weight: 3,

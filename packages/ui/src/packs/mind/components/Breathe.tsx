@@ -17,7 +17,8 @@ export const meta = {
   id: "Breathe",
   status: "ready",
   group: "action",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 2,
   tier: "phone",
@@ -45,6 +46,7 @@ export const meta = {
       zero: { state: "success" },
     },
   ],
+  writeHints: prompt.writeHints,
   // prettier-ignore
   read: (input, state, lang): string[] => {
     if (state !== "filled" && state !== "success") return [];

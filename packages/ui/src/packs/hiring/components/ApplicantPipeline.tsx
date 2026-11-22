@@ -8,7 +8,8 @@ export const meta = {
   id: "ApplicantPipeline",
   status: "draft",
   group: "data",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   dense: true,
@@ -24,6 +25,7 @@ export const meta = {
   },
   states: ["filled", "empty", "loading", "error"],
   actions: { items: { root: ["press", "move"] }, when: { root: { outcome: "active" } } },
+  writeHints: prompt.writeHints,
   read: (input, state): string[] => {
     const { applicants } = input as z.output<typeof props>;
     return state === "filled"

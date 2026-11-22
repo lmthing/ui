@@ -1,3 +1,5 @@
+<!-- replay-literals: d d mcsss -->
+
 ## Purpose
 
 See how many prepaid sessions are left, redeem one or renew the bundle.

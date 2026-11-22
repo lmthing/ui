@@ -17,12 +17,14 @@ import { prompt } from "../entry/prompt-Canvas.generated";
 export const meta = {
   id: "Canvas",
   group: "escape",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   tier: "phone",
   realPath: "A custom on-device interaction not represented by the catalog, recorded by the host as a miss.",
   variants: { surface: ["outlined", "plain"] },
+  writeHints: prompt.writeHints,
   parts: ["root", "caption"],
   states: ["filled"],
 } as const satisfies Meta;

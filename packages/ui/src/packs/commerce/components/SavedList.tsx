@@ -11,7 +11,9 @@ const price = z.number().min(0).max(maxPrice).multipleOf(0.01);
 // prettier-ignore
 export const meta = {
   id: "SavedList", status: "ready", group: "content",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "phone",
   partTiers: { claim: "people" },
   confirmParts: ["remove"],

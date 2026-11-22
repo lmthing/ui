@@ -11,7 +11,9 @@ import { prompt } from "../../../entry/prompt-InvestmentActivity.generated";
 // prettier-ignore
 export const meta = {
   id: "InvestmentActivity", status: "ready", group: "data",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Device records fold after the opening statement, with linked dividend receipts and corrections retained; an action never sends a broker order.",
   variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },

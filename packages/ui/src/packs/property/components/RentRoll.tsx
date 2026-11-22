@@ -11,7 +11,9 @@ import { prompt } from "../../../entry/prompt-RentRoll.generated";
 // prettier-ignore
 export const meta = {
   id: "RentRoll", status: "ready", group: "data",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Recording a receipt never moves money. The host scopes the tenant ledger to the signed-in resident; reminders and tenant payments need outside services.",
   variants: { density: ["comfortable", "compact"], figures: ["exact", "short"] },

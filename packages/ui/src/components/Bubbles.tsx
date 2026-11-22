@@ -32,7 +32,9 @@ import { prompt } from "../entry/prompt-Bubbles.generated";
 export const meta = {
   id: "Bubbles", status: "ready",
   group: "content",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",

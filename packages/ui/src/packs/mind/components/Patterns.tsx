@@ -10,7 +10,8 @@ export const meta = {
   id: "Patterns",
   status: "ready",
   group: "data",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 2,
   tier: "phone",
@@ -24,6 +25,7 @@ export const meta = {
   parts: ["root", "title", "days_left", "empty"],
   items: { key: "findings", parts: ["root", "finding", "with", "without"] },
   states: ["filled", "empty"],
+  writeHints: prompt.writeHints,
   deviceData: ["journal_entries"],
   previewDeviceData: ({ input, state }): c.DeviceData => ({
     journal_entries: seededJournal(props.parse(input), state),

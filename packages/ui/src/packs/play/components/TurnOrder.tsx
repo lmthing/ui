@@ -12,7 +12,9 @@ import { prompt } from "../../../entry/prompt-TurnOrder.generated";
 // prettier-ignore
 export const meta = {
   id: "TurnOrder", status: "ready", group: "data",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   confirmParts: ["restart"],
   realPath: "An ordered roster and turn events live on one device without accounts or remote replies.",

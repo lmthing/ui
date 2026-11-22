@@ -20,7 +20,9 @@ import { prompt } from "../entry/prompt-Counter.generated";
 export const meta = {
   id: "Counter",
   group: "data",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

@@ -1,3 +1,5 @@
+<!-- replay-literals: d d ins -->
+
 ## Purpose
 
 An idea no existing component can express, such as a game or a drawing tool.

@@ -44,7 +44,7 @@ when it finds a matching prompt or word fragment. Run `pnpm build:entries` to re
 1. **Imports.** Use `zod`, the catalog and kit doors, and the generated prompt module. Never `tamagui`, `react-native` or lucide
    directly: those live behind kit bases.
 2. **`meta`**: a plain object, `as const satisfies Meta`.
-   - Spread `prompt` from the generated `entry/prompt-<Id>.generated` module. Edit `<Id>.prompt.md`, never the generated module.
+   - Use `prompt.purpose`, `prompt.pick`, and, when present, `prompt.writeHints` from the generated `entry/prompt-<Id>.generated` module. Edit `<Id>.prompt.md`, never the generated module. Keep migrated fields in place and leave any `replay-literals` comment alone; they preserve the existing replay identity.
    - `## Purpose`: one line, ≤ 16 words, about the person's need, not the widget.
    - `## Pick`: one line on when to choose it, then "Not …" naming the nearest wrong component(s) by id.
    - Optional `## Writer`: one `- ` bullet per hint, with valid examples for cross-field rules the compact schema omits.

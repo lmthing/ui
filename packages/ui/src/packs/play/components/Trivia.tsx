@@ -18,7 +18,9 @@ import { prompt } from "../../../entry/prompt-Trivia.generated";
 // prettier-ignore
 export const meta = {
   id: "Trivia", status: "ready", group: "content",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   confirmParts: ["restart"],
   realPath: "A local deck uses host-controlled reveals; awarded points are recorded separately.",

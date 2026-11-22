@@ -20,7 +20,9 @@ import { prompt } from "../entry/prompt-Banner.generated";
 export const meta = {
   id: "Banner",
   group: "content",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "top",
   weight: 2,
   tier: "phone",

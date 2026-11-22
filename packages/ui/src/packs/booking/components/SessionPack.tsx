@@ -9,9 +9,11 @@ import { prompt } from "../../../entry/prompt-SessionPack.generated";
 // prettier-ignore
 export const meta = {
   id: "SessionPack", status: "ready", group: "data",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body", weight: 2, tier: "phone",
   realPath: "Prepaid session balances live on the provider's device; online top-up uses a payment service.",
+  writeHints: prompt.writeHints,
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": {
     hides: ["service", "label", "amount", "redeem", "redeem_label", "renew", "renew_label",

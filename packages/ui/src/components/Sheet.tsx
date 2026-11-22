@@ -22,7 +22,9 @@ import { prompt } from "../entry/prompt-Sheet.generated";
 export const meta = {
   id: "Sheet",
   group: "action",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "overlay",
   weight: 0,
   tier: "phone",

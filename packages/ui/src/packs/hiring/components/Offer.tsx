@@ -8,7 +8,8 @@ export const meta = {
   id: "Offer",
   status: "draft",
   group: "content",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 2,
   tier: "phone",
@@ -46,6 +47,7 @@ export const meta = {
     },
     noGoto: { parts: ["accept", "decline", "withdraw"] },
   },
+  writeHints: prompt.writeHints,
 } as const satisfies c.Meta;
 
 export const props = z.strictObject({

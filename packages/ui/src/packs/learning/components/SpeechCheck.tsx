@@ -12,9 +12,11 @@ const commandInput = ({ props }: { props: c.Values }) => ({ phrase: String(props
 // prettier-ignore
 export const meta = {
   id: "SpeechCheck", status: "ready", group: "input", tier: "ok",
-  ...prompt,
+  pick: prompt.pick,
+  purpose: prompt.purpose,
   region: "body", weight: 2,
   realPath: "The host records speech with permission and can submit a completed recording to a speech evaluation service.",
+  writeHints: prompt.writeHints,
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["phonetic", "translation"] } },
   parts: ["root", "label", "phrase", "phonetic", "translation", "instruction", "listen", "mic", "evaluate",

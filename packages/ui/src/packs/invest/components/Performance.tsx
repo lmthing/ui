@@ -17,7 +17,9 @@ import { prompt } from "../../../entry/prompt-Performance.generated";
 // prettier-ignore
 export const meta = {
   id: "Performance", status: "ready", group: "data",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath: "The device replays the opening statement, trades, cash flows and receipts for each observation, valuing positions from stored quotes without a market service.",
   variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },

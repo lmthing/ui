@@ -13,7 +13,9 @@ const recordRef = ref.meta({ kind: "id" });
 // prettier-ignore
 export const meta = {
   id: "LeaseRenewal", status: "ready", group: "input", tier: "people",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2,
   realPath: "A shared app delivers the proposal and response between tenant and landlord; a counter does not amend the lease.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },

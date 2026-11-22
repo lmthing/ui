@@ -18,7 +18,9 @@ import { prompt } from "../entry/prompt-SectionTitle.generated";
 export const meta = {
   id: "SectionTitle",
   group: "structure",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 1,
   tier: "phone",

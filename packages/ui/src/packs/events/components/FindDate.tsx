@@ -19,7 +19,9 @@ const maxDates = 6;
 // prettier-ignore
 export const meta = {
   id: "FindDate", status: "ready", group: "input",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "people",
   realPath: "Availability is collected through a shared app or link.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },

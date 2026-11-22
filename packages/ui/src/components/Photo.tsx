@@ -18,7 +18,9 @@ import { prompt } from "../entry/prompt-Photo.generated";
 export const meta = {
   id: "Photo",
   group: "content",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

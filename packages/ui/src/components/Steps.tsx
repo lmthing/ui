@@ -15,7 +15,9 @@ import { prompt } from "../entry/prompt-Steps.generated";
 export const meta = {
   id: "Steps",
   group: "structure",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "top",
   weight: 1,
   tier: "phone",

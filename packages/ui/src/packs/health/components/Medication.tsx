@@ -34,13 +34,15 @@ export const meta = {
   id: "Medication",
   status: "ready",
   group: "input",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath:
     "Doses stored on the device; reminders need notification permission, and this log is not medical advice.",
+  writeHints: prompt.writeHints,
   variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["left"] } },
   items: {

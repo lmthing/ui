@@ -19,7 +19,9 @@ import { prompt } from "../entry/prompt-Header.generated";
 export const meta = {
   id: "Header",
   group: "structure",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "top",
   weight: 1,
   tier: "phone",

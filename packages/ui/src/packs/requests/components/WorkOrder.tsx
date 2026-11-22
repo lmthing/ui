@@ -10,7 +10,8 @@ const blocker = z.enum(["information", "access", "parts", "other"]), maxNote = 1
 // prettier-ignore
 export const meta = {
   id: "WorkOrder", status: "ready", group: "input",
-  ...prompt,
+  purpose: prompt.purpose, pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Work records and clock events live on the technician's device without changing stock or payments.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },

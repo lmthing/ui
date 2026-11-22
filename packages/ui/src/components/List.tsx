@@ -7,7 +7,9 @@ const trailPart = { adds: ["trail"] } as const;
 // prettier-ignore
 export const meta = {
   id: "List", group: "content", status: "ready",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath: "A query over one thing in the on-device database.",
   variants: {

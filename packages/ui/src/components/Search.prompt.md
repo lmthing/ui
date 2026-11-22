@@ -1,3 +1,5 @@
+<!-- replay-literals: d d ins -->
+
 ## Purpose
 
 Find one thing among many by typing words from its name.

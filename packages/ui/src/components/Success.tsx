@@ -18,7 +18,9 @@ import { prompt } from "../entry/prompt-Success.generated";
 export const meta = {
   id: "Success",
   group: "action",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

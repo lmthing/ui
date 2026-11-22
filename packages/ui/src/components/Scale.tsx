@@ -20,7 +20,9 @@ import { prompt } from "../entry/prompt-Scale.generated";
 export const meta = {
   id: "Scale",
   group: "input",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

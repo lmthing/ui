@@ -10,7 +10,8 @@ import { prompt } from "../../../entry/prompt-SleepLog.generated";
 // prettier-ignore
 export const meta = {
   id: "SleepLog", status: "ready", group: "data",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body", weight: 2, tier: "phone",
   partTiers: { import: "ok" },
   realPath: "Sleep times are typed in or read from the phone's sleep data with permission.",
@@ -21,6 +22,7 @@ export const meta = {
   states: ["filled", "empty"],
   actions: { parts: { edit: ["press"] } },
   emptyActions: ["edit.press"],
+  writeHints: prompt.writeHints,
   read: (input, state, lang): string[] => {
     if (state === "empty") return [JSON.stringify(mindWordsFor(lang).sleep.log)];
     if (state !== "filled") return [];

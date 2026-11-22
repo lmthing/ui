@@ -19,7 +19,9 @@ import { prompt } from "../entry/prompt-Sparkline.generated";
 export const meta = {
   id: "Sparkline",
   group: "data",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 1,
   tier: "phone",

@@ -31,7 +31,9 @@ import { prompt } from "../entry/prompt-Profile.generated";
 export const meta = {
   id: "Profile",
   group: "content",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "top",
   weight: 2,
   tier: "phone",

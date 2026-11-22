@@ -8,7 +8,8 @@ export const meta = {
   id: "JobPost",
   status: "draft",
   group: "content",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 2,
   tier: "phone",
@@ -44,6 +45,7 @@ export const meta = {
       return { acceptingApplications: typeof closes !== "string" || closes >= today };
     },
   },
+  writeHints: prompt.writeHints,
 } as const satisfies c.Meta;
 
 export const props = z.strictObject({

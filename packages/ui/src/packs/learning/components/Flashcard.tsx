@@ -12,7 +12,9 @@ import { prompt } from "../../../entry/prompt-Flashcard.generated";
 // prettier-ignore
 export const meta = {
   id: "Flashcard", status: "ready", group: "input",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath: "Cards and their review dates are stored on the device.",
   variants: { surface: ["card", "outlined"], align: ["center", "start"], density: ["comfortable", "compact"], media: ["thumb", "cover"] },

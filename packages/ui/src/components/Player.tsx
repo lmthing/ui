@@ -38,7 +38,9 @@ import { prompt } from "../entry/prompt-Player.generated";
 export const meta = {
   id: "Player", status: "ready",
   group: "content",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   tier: "phone",

@@ -13,7 +13,8 @@ export const meta = {
   id: "Feelings",
   status: "ready",
   group: "input",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   dense: true,
@@ -43,6 +44,7 @@ export const meta = {
     word_5: ["toggle"], word_6: ["toggle"], word_7: ["toggle"], word_8: ["toggle"],
   } },
   select: { prop: "family", value: "index" },
+  writeHints: prompt.writeHints,
   read: (input, state, lang): string[] => {
     if (state !== "filled") return [];
     const { families, detail, family = 0 } = input as z.output<typeof props> & { family?: number };

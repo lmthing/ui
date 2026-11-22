@@ -1,3 +1,5 @@
+<!-- replay-literals: d d mcdssds -->
+
 ## Purpose
 
 Practise one question at a time and get feedback after checking each answer.

@@ -13,7 +13,9 @@ const maxChoices = 6, maxReason = 120;
 // prettier-ignore
 export const meta = {
   id: "RequestTriage", status: "ready", group: "input",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath: "A routing decision saved with the request on the operator's device.",
   variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },

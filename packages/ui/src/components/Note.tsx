@@ -19,7 +19,9 @@ import { prompt } from "../entry/prompt-Note.generated";
 export const meta = {
   id: "Note",
   group: "content",
-  ...prompt,
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 1,
   tier: "phone",

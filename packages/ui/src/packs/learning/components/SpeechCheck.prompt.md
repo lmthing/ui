@@ -1,3 +1,5 @@
+<!-- replay-literals: d d mcsss -->
+
 ## Purpose
 
 Practise saying a phrase aloud and see which words need another try.
