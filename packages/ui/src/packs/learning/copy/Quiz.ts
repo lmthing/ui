@@ -1,6 +1,6 @@
-import { clipKey, numberLine, sessionKey, type Meta, type SessionState, type Values } from "../../../catalog";
+import { numberLine, sessionKey, type Meta, type SessionState, type Values } from "../../../catalog";
 import { learningWordsFor } from "../lang";
-import { roundAudioPart } from "./Flashcard";
+import { readPromptAudio } from "./Flashcard";
 import { mappingOf, quizKey, quizWordOrder, rightOrder, wordKey, type QuizItem } from "./quiz-answers";
 
 export { quizWordOrder, wordBankLimit, wordKey, type QuizItem } from "./quiz-answers";
@@ -70,16 +70,11 @@ export function quizProgress(round: QuizRound, lang?: string) {
 export const readQuiz: NonNullable<Meta["read"]> = (input, _state, lang, _data, _currency, control) => {
   const round = (input as { [sessionKey]?: QuizRound })[sessionKey];
   if (!round?.assessment) return [];
-  const { quiz, promptAudio } = learningWordsFor(lang);
+  const { quiz } = learningWordsFor(lang);
   const item = round.item as QuizItem;
   const { progress } = quizProgress(round, lang);
   if (round.revealed) return [progress, ...(round.complete ? [] : [quiz.next])];
-  const intro = [
-    progress,
-    ...(item.media && control?.(clipKey(roundAudioPart(round.index))) === "error"
-      ? [promptAudio.unavailable]
-      : []),
-  ];
+  const intro = [progress, ...(item.media ? readPromptAudio(round.index, lang, control) : [])];
   if (item.kind === "type") return [...intro, quiz.type, quiz.check];
   if (item.kind === "order") {
     const { draft, tiles } = quizOrderCopy(item, round.assessment.answers, lang);

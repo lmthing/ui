@@ -28,8 +28,18 @@ export function cardsLeft(count: number, lang?: string): string {
   return learningWordsFor(lang).flashcard.left(numberLine(count, lang), pluralForm(count, lang));
 }
 
+export function readPromptAudio(index: number, lang?: string, control?: (part: string) => unknown) {
+  const { promptAudio } = learningWordsFor(lang);
+  const status = control?.(clipKey(roundAudioPart(index)));
+  return status === true
+    ? [promptAudio.pause]
+    : status === "error"
+      ? [promptAudio.play, promptAudio.unavailable]
+      : [promptAudio.play];
+}
+
 export const readFlashcard: NonNullable<Meta["read"]> = (input, state, lang, _data, _currency, control) => {
-  const { flashcard, promptAudio } = learningWordsFor(lang);
+  const { flashcard } = learningWordsFor(lang);
   const { style, [sessionKey]: current } = input as { style?: string; [sessionKey]?: SessionState };
   if (state === "success") return [flashcard.complete];
   if (state === "empty") return [flashcard.empty];
@@ -37,10 +47,6 @@ export const readFlashcard: NonNullable<Meta["read"]> = (input, state, lang, _da
   return [
     cardsLeft(current.recall.remaining, lang),
     ...(style === "binary" && current.revealed ? [flashcard.stillLearning, flashcard.know] : []),
-    ...(!current.revealed &&
-    current.item.audio &&
-    control?.(clipKey(roundAudioPart(current.index))) === "error"
-      ? [promptAudio.unavailable]
-      : []),
+    ...(!current.revealed && current.item.audio ? readPromptAudio(current.index, lang, control) : []),
   ];
 };
