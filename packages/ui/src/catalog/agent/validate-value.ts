@@ -7,6 +7,7 @@ import { itemEditAt } from "./report-edits";
 import { pickerAt } from "./live-inputs";
 import { numericError } from "./clocks";
 import { validateSequenceSeek, type SeekLimits } from "./media";
+import { resolveTextKeypad, type KeypadProfile } from "./keypad-profile";
 export type ValueError = { code: "invalid_value"; hint: string };
 type SetSpec = NonNullable<Meta["set"]>[string];
 type StringLimits =
@@ -40,7 +41,9 @@ export function resolveKeypadValue(
   value: unknown,
   current: unknown,
   limits: { max?: unknown; decimals?: unknown },
+  profile?: KeypadProfile,
 ): { value: string } | ValueError {
+  if (profile) return resolveTextKeypad(value, current, profile);
   const before = typeof current === "number" ? decimalText(current) : String(current ?? "");
   let text: string;
   if (typeof value === "string") text = value;

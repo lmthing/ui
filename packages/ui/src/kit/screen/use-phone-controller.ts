@@ -9,7 +9,13 @@ import type { PhoneScreenProps } from "./PhoneScreen";
 
 type HostSnapshot = Pick<
   PhoneScreenProps,
-  "deviceData" | "hostCommands" | "authenticateReveal" | "attachments" | "resolvePlayback"
+  | "deviceData"
+  | "hostCommands"
+  | "authenticateReveal"
+  | "attachments"
+  | "resolvePlayback"
+  | "privateValues"
+  | "resolveClipboardText"
 >;
 function useCommittedHost(
   source: { controller: ScreenController; committed: { snapshot: HostSnapshot } },
@@ -27,9 +33,42 @@ function useCommittedHost(
   }, [source, snapshot]);
 }
 
+function createCommittedController(
+  options: Parameters<typeof createScreenController>[0],
+  committed: { snapshot: HostSnapshot },
+  callbacks: { current: PhoneScreenProps },
+) {
+  return createScreenController({
+    ...options,
+    ...phoneCallbacks(callbacks),
+    get lang() {
+      return callbacks.current.lang;
+    },
+    get deviceData() {
+      return committed.snapshot.deviceData;
+    },
+    get hostCommands() {
+      return committed.snapshot.hostCommands;
+    },
+    get authenticateReveal() {
+      return committed.snapshot.authenticateReveal;
+    },
+    get privateValues() {
+      return committed.snapshot.privateValues;
+    },
+    get attachments() {
+      return committed.snapshot.attachments;
+    },
+    get resolvePlayback() {
+      return committed.snapshot.resolvePlayback;
+    },
+    resolveClipboardText: (address: string) => committed.snapshot.resolveClipboardText?.(address),
+  });
+}
+
 export function usePhoneController(props: PhoneScreenProps) {
   const { screen, defs, interaction, interactive = true, media } = props;
-  const { requestPhoto, deviceData, hostCommands, parentGate, authenticateReveal } = props;
+  const { requestPhoto, parentGate, writeClipboard } = props;
   const { attachments, resolvePlayback } = props;
   const callbacks = useRef(props);
   callbacks.current = props;
@@ -39,38 +78,21 @@ export function usePhoneController(props: PhoneScreenProps) {
   const snapshot = useHostSnapshot(props);
   const source = useMemo(() => {
     const committed = { snapshot };
-    const controller = createScreenController({
+    const options = {
       screen,
       defs,
-      get lang() {
-        return callbacks.current.lang;
-      },
-      get deviceData() {
-        return committed.snapshot.deviceData;
-      },
-      get hostCommands() {
-        return committed.snapshot.hostCommands;
-      },
-      get authenticateReveal() {
-        return committed.snapshot.authenticateReveal;
-      },
+      writeClipboard,
       store,
       parentGate,
       interactive,
       requireMounted: true,
-      ...phoneCallbacks(callbacks),
-      get attachments() {
-        return committed.snapshot.attachments;
-      },
-      get resolvePlayback() {
-        return committed.snapshot.resolvePlayback;
-      },
       media:
         media ??
         (hasMediaResolver
           ? browserMediaAdapter((reference) => callbacks.current.resolveMedia?.(reference))
           : undefined),
-    });
+    };
+    const controller = createCommittedController(options, committed, callbacks);
     return { controller, committed };
   }, [
     screen,
@@ -82,6 +104,7 @@ export function usePhoneController(props: PhoneScreenProps) {
     store,
     interactive,
     Boolean(requestPhoto),
+    writeClipboard,
     parentGate,
   ]);
   useCommittedHost(source, snapshot);
@@ -117,9 +140,27 @@ function useHostSnapshot({
   authenticateReveal,
   attachments,
   resolvePlayback,
+  privateValues,
+  resolveClipboardText,
 }: PhoneScreenProps) {
   return useMemo(
-    () => ({ deviceData, hostCommands, authenticateReveal, attachments, resolvePlayback }),
-    [deviceData, hostCommands, authenticateReveal, attachments, resolvePlayback],
+    () => ({
+      deviceData,
+      hostCommands,
+      authenticateReveal,
+      attachments,
+      resolvePlayback,
+      privateValues,
+      resolveClipboardText,
+    }),
+    [
+      deviceData,
+      hostCommands,
+      authenticateReveal,
+      attachments,
+      resolvePlayback,
+      privateValues,
+      resolveClipboardText,
+    ],
   );
 }

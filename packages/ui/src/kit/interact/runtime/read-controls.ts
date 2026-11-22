@@ -5,6 +5,7 @@ import {
   driveTarget,
   hostActionPolicy,
   isDeviceDataVisible,
+  isKeypadPart,
   isLocalAnchorAction,
   migrateScreen,
   parseAddress,
@@ -31,8 +32,7 @@ import { matchesMediaConfirmation } from "./media";
 export function isKeypad(ctx: ControllerContext, full: string) {
   const address = parseAddress(full);
   const entry = address?.component && ctx.sourceOf(address.component);
-  const parts = entry ? ctx.defs[entry.c]?.props.meta()?.keypadParts : undefined;
-  return Array.isArray(parts) && parts.includes(address?.part ?? "root");
+  return isKeypadPart(entry ? ctx.defs[entry.c]?.props : undefined, address?.part ?? "root");
 }
 
 export function visibleConfirmation(
@@ -84,7 +84,7 @@ export function visibleConfirmation(
 
 // Match quoted content as one token so a label cannot be mistaken for an affordance.
 const controlTokens =
-  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (?:(type|set|increment|decrement|focus|jump|press)(?: = (?:"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?))?(?:; (?:min|max|step) [-+\de.]+(?:, (?:min|max|step) [-+\de.]+)*)?(?:; range [01]\.\.\d+)?|(?:press|scan):(?:(?:pick|scan|preview|export)(?::(?:pending|ready|error))?|next|previous)|(?:play|pause|stop):(?:playing|paused|stopped|error)|seek(?::\d+| = \d+; range [01]\.\.\d+))(?: !needs-[a-z]+)?\]/g;
+  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (?:(type|set|increment|decrement|focus|jump|press|copy)(?: = (?:"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?))?(?:; (?:min|max|step) [-+\de.]+(?:, (?:min|max|step) [-+\de.]+)*)?(?:; range [01]\.\.\d+)?(?:; chars "(?:\\.|[^"\\])*"; length \d+)?|(?:press|scan):(?:(?:pick|scan|preview|export)(?::(?:pending|ready|error))?|next|previous)|(?:play|pause|stop):(?:playing|paused|stopped|error)|seek(?::\d+| = \d+; range [01]\.\.\d+))(?: !needs-[a-z]+)?\]/g;
 
 function isBuzzOffer(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
   const [id, ...parts] = address.split("/");
@@ -104,19 +104,20 @@ function projectValue(input: Values, address: string, parts: readonly string[], 
 /** Project exact keypad drafts only into `meta.read`, not into numeric wire props. */
 function withKeypadDrafts(def: Definition, address: string, values: Values): Definition {
   const read = def.meta.read;
-  const parts = def.props.meta()?.keypadParts;
-  if (!read || !Array.isArray(parts)) return def;
+  const keypad = (part: string) =>
+    isKeypadPart(def.props, part) && !Object.hasOwn(def.meta.actions?.privateInput ?? {}, part);
+  if (!read) return def;
   return {
     ...def,
     meta: {
       ...def.meta,
-      read: (input, state, lang, deviceData, currency) => {
-        const own = Object.keys(def.meta.actions?.parts ?? {}).filter((part) => parts.includes(part));
+      read: (input, state, lang, deviceData, currency, get) => {
+        const own = Object.keys(def.meta.actions?.parts ?? {}).filter(keypad);
         const projected = projectValue(input as Values, address, own, values);
         const items = def.meta.items?.key;
         const rows = items && projected[items];
-        if (!items || !Array.isArray(rows)) return read(projected, state, lang, deviceData, currency);
-        const itemParts = Object.keys(def.meta.actions?.items ?? {}).filter((part) => parts.includes(part));
+        if (!items || !Array.isArray(rows)) return read(projected, state, lang, deviceData, currency, get);
+        const itemParts = Object.keys(def.meta.actions?.items ?? {}).filter(keypad);
         return read(
           {
             ...projected,
@@ -128,6 +129,7 @@ function withKeypadDrafts(def: Definition, address: string, values: Values): Def
           lang,
           deviceData,
           currency,
+          get,
         );
       },
     },
@@ -147,14 +149,23 @@ export function readControls(
 ): string {
   const source = withDisabledSelectionChecks(screen, disabled);
   const migrated = migrateScreen(source, { variantOnly: true });
-  const hasKeypads = migrated.components.some(({ c }) => Array.isArray(defs[c]?.props.meta()?.keypadParts));
+  const hasKeypads = migrated.components.some(({ c }) => {
+    const schema = defs[c]?.props.meta();
+    return Array.isArray(schema?.keypadParts) || Boolean(schema?.keypadProfiles);
+  });
   const read = hasKeypads
     ? readKeypads(migrated, defs, values, lang, deviceData, currency, canDrive)
     : readScreen(source, defs, values, lang, deviceData, currency, canDrive);
   return disabled?.size || privateMarks?.size || canDrive
     ? read.replace(controlTokens, (token, address, action) => {
         if (action === "set" && privateMarks?.has(address)) return "";
-        if (disabled?.has(address) && (action !== "press" || isBuzzOffer(migrated, defs, address))) return "";
+        if (
+          disabled?.has(address) &&
+          (action === "copy"
+            ? token.endsWith(" !needs-ok]")
+            : action !== "press" || isBuzzOffer(migrated, defs, address))
+        )
+          return "";
         if (isLocalAnchorAction(action) && canDrive?.(address, undefined, action) === false) return "";
         return token;
       })

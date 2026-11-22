@@ -7,6 +7,7 @@ import {
   createAct,
   createAccess,
   createReveal,
+  createPrivateValues,
   privateMarkRegistration,
   discardHiddenConfirmation,
   bindParentGatePart,
@@ -84,6 +85,27 @@ function hostCommandsAt(ctx: ControllerContext, component: string, part: string,
   );
 }
 
+function privateLifecycle(
+  reveal: ReturnType<typeof createReveal>,
+  values: ReturnType<typeof createPrivateValues>,
+) {
+  return {
+    reconcile() {
+      reveal.reconcile();
+      values.reconcile();
+    },
+    clear() {
+      reveal.clear();
+      values.clear();
+    },
+    revoke(address: string) {
+      reveal.revoke(address);
+      values.revoke(address);
+    },
+    dispose: values.dispose,
+  };
+}
+
 /** One dispatcher for human taps and agent steps. Hidden sheets and covered controls are not actionable. */
 export function createScreenController(options: ControllerOptions & { currency?: AppCurrency | undefined }) {
   const currency = parseAppCurrency(options.currency);
@@ -91,11 +113,13 @@ export function createScreenController(options: ControllerOptions & { currency?:
   const clock = createClock(ctx, () => discardHiddenConfirmation(ctx));
   const media = createMediaRuntime(ctx);
   const reveal = createReveal(ctx);
+  const privateValues = createPrivateValues(ctx);
   const sequence = createSequenceClock(ctx);
-  const lifecycle = controllerLifecycle(ctx, clock, media, reveal, sequence);
+  const secrets = privateLifecycle(reveal, privateValues);
+  const lifecycle = controllerLifecycle(ctx, clock, media, secrets, sequence);
   const dispatch = createAct(ctx, media, lifecycle.schedule);
-  const act = reveal.dispatch(dispatch);
-  const access = createAccess(ctx, act, currency, reveal.revoke);
+  const act = privateValues.dispatch(reveal.dispatch(dispatch));
+  const access = createAccess(ctx, act, currency, secrets.revoke);
   return {
     defs: ctx.defs,
     store: ctx.store,
@@ -122,6 +146,7 @@ export function createScreenController(options: ControllerOptions & { currency?:
     registerPart: lifecycle.registerPart(access.registerPart),
     registerPrivateMarkPart: privateMarkRegistration(ctx, dispatch),
     ...reveal.view,
+    ...privateValues.view,
     deviceDataFor: (component: string, data = options.deviceData) => deviceDataFor(ctx, component, data),
     get deviceData() {
       return options.deviceData;

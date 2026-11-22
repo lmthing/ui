@@ -25,6 +25,7 @@ export {
   type PrivateMarks,
 } from "./host-actions";
 import { storeLiveInput } from "../live-inputs";
+import { isKeypadPart } from "../keypad-profile";
 import {
   controlValueKey,
   nestedAt,
@@ -59,7 +60,7 @@ export function validateStep(
     : (edit?.set?.spec ?? nestedSpec(screen, defs, found.address));
   const keypad = step.action === "type" ? keypadInput(screen, defs, found, values) : undefined;
   let result = keypad
-    ? resolveKeypadValue(step.value, values[key] ?? keypad.value, keypad)
+    ? resolveKeypadValue(step.value, values[key] ?? keypad.value, keypad, found.keypadProfile)
     : (validateActionValue(step.action, step.value, limits) ?? { value: step.value });
   if (!("code" in result)) {
     const max = found.input?.kind === "text" ? found.input.max : undefined;
@@ -129,8 +130,7 @@ export function keypadInput(
   const entry = screen.components.find((entry) => entry.id === id)!;
   const { id: _id, c, state: _state, ...raw } = entry;
   const def = defs[c]!;
-  const keypadParts = def.props.meta()?.keypadParts;
-  if (!Array.isArray(keypadParts) || !keypadParts.includes(found.part)) return undefined;
+  if (!isKeypadPart(def.props, found.part)) return undefined;
   const get = (target: string) => values[`${screen.id}/${id}/${target}`];
   const parsed = parseControlProps(def, raw, get);
   const input = def.meta.items?.set ? projectAdjustments(def.meta, parsed, get) : parsed;

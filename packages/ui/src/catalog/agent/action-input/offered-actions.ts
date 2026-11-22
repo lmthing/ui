@@ -33,6 +33,8 @@ export function findAction(
     : original.address.replace(new RegExp(`^${screen.id}/`), "").replace(/\/root$/, "");
   const offered = affordancesOfScreen(screen, defs, next, data, now, hostCapture ? original : undefined);
   const found = offered.find((a) => a.address === address && a.action === original.action);
+  if (found?.hostSecret)
+    return { error: { ok: false, code: "not_actionable", at, hint: "Use the local control" } as const };
   if (found?.hostReveal)
     return {
       error: { ok: false, code: "not_actionable", at, hint: "Reveal requires a local press" } as const,
@@ -51,7 +53,7 @@ export function findAction(
   const invalid = validateActionValue(original.action, original.value);
   if (invalid) return { error: { ok: false, at, ...invalid } as const };
   const destination = offered.find((a) => a.address === drive.address && a.action === drive.action);
-  if (!destination || destination.hostReveal || destination.hostIntent)
+  if (!destination || destination.hostReveal || destination.hostIntent || destination.hostSecret)
     return { error: { ok: false, code: "not_actionable", at } as const };
   const driven =
     offeredSelection(destination, drive) ?? selectStep(screen, defs, drive, drive.address, next, data, now);

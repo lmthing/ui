@@ -1,5 +1,11 @@
 export { createScreenController, type ScreenController } from "./controller";
-export { type AuthenticateReveal } from "./runtime";
+export {
+  type AuthenticateReveal,
+  type PrivateValuesHost,
+  type PrivateResult,
+  type PrivateStatus,
+} from "./runtime";
+export { usePrivateStatus, usePrivateStatusAt } from "./use-private-status";
 export { clipboardRuntime, useCopyFeedback, type ClipboardText, type ClipboardWriter } from "./clipboard";
 export {
   browserMediaAdapter,

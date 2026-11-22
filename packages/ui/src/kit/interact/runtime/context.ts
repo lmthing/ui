@@ -26,6 +26,7 @@ import { visibleConfirmation } from "./read-controls";
 import { createPrivateMarks } from "./private-mark";
 import { createHostProjection, type HostCommandAdapter, type ParentGate } from "./host";
 import type { AuthenticateReveal } from "./reveal";
+import type { PrivateValuesHost } from "./private-values";
 import { expiredProgress } from "./expired-progress";
 import { mediaHostGate, type AttachmentEntries } from "./media";
 import { createDisabledParts } from "./part-registration";
@@ -57,6 +58,7 @@ export type ControllerOptions = {
   resolveClipboardText?: ClipboardText | undefined;
   requestPhoto?: ((address: string) => Promise<string | undefined>) | undefined;
   authenticateReveal?: AuthenticateReveal | undefined;
+  privateValues?: PrivateValuesHost | undefined;
   interactive?: boolean | undefined;
   requireMounted?: boolean | undefined;
   onLink?: ((goto: string, address: string) => void) | undefined;

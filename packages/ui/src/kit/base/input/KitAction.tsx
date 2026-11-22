@@ -1,5 +1,5 @@
 import { XStack, styled, isWeb } from "tamagui";
-import { useCopyFeedback, useRevealControl } from "../../interact";
+import { useCopyFeedback, usePrivateStatusAt, useRevealControl } from "../../interact";
 import {
   component,
   layoutType,
@@ -66,7 +66,18 @@ type ActionProps = {
   value?: string | number | boolean;
   disabled?: boolean;
   copiedLabel?: string;
+  /** Copy from the host binding, not a rendered `value`. */
+  hostCopy?: boolean;
 };
+
+function useCopyState(address: string | undefined, value: unknown, hostCopy: boolean, disabled: boolean) {
+  const local = useCopyFeedback(hostCopy ? undefined : address, value, disabled);
+  const host = usePrivateStatusAt(hostCopy ? address : undefined, "copy", disabled);
+  return {
+    missing: Boolean(address && !hostCopy && (typeof value !== "string" || !value.length)),
+    copied: local || host === "approved",
+  };
+}
 function ActionContent({
   label,
   icon,
@@ -134,17 +145,22 @@ export function KitAction({
   value,
   disabled = false,
   copiedLabel,
+  hostCopy = false,
 }: ActionProps) {
   const ks = useKitStyle();
   const address = usePart(part ?? undefined, part !== null);
   const { loading, inactive: unavailable } = useActionAvailability(address.testID, part, action, disabled);
   const tone = kind === "quiet" && icon === "close" ? "muted" : toneOf[kind];
   const copy = action === "copy";
-  const noCopyValue = copy && (typeof value !== "string" || value.length === 0);
   const reveal = useRevealControl(address.testID, part === null ? "none" : action, disabled || loading);
-  const inactive = part === null || unavailable || noCopyValue;
-  const copyAddress = action === "copy" && part !== null ? address.testID : undefined;
-  const copied = useCopyFeedback(copyAddress, value, loading || disabled) && !inactive;
+  const feedback = useCopyState(
+    copy && part !== null ? address.testID : undefined,
+    value,
+    hostCopy,
+    loading || disabled,
+  );
+  const inactive = part === null || unavailable || feedback.missing;
+  const copied = feedback.copied && !inactive;
   const inactiveTone = kind === "primary" ? "text" : kind === "danger" ? "bad" : "muted";
   const captionTone = loading ? "text" : inactive ? inactiveTone : copied ? "good" : tone;
   const fill = loading ? (kind === "quiet" ? "transparent" : "$line") : inactiveSurface[kind];

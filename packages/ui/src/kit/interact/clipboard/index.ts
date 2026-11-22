@@ -37,9 +37,13 @@ export function clipboardRuntime(
       const writer = host ?? browserWriter();
       if (!writer) return;
       const key = copyStatusKey(address);
-      const target = targets.get(key),
-        text = target?.text ?? resolveText?.(normalize(address));
-      if (text) return () => commitWrite(store, key, disposed, writer, text, target?.receipt);
+      const target = targets.get(key);
+      try {
+        const text = target?.text ?? resolveText?.(normalize(address));
+        if (text) return () => commitWrite(store, key, disposed, writer, text, target?.receipt);
+      } catch {
+        // Host errors may include private clipboard content.
+      }
     },
   };
 }
