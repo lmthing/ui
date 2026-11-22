@@ -1,11 +1,11 @@
 import type * as Catalog from "@lmthing/ui/catalog";
-import type { CallModel, PackId } from "@lmthing/ui/catalog";
+import type { ProbeCall, PackId } from "@lmthing/ui/catalog";
 
 const { createRegistry, packs, packOf, packComposeProbes, runProbes, runPackProbes, runComposeProbes } =
-  (await import(new URL("../../../dist/catalog.js", import.meta.url).href)) as typeof Catalog;
+  (await import(new URL("../../dist/catalog.js", import.meta.url).href)) as typeof Catalog;
 
 /** Every layout and every component uses core plus its own pack, including drafts. */
-export async function packProbes(id: PackId, callModel: CallModel, samples: number) {
+export async function packProbes(id: PackId, callModel: ProbeCall, samples: number) {
   if (!(id in packs)) throw new Error(`Unknown pack: ${id}`);
   const registry = createRegistry({ packs: [id], includeDrafts: true });
   const chosen = registry.ids.filter((name) => (packOf as Record<string, string>)[name] === id);
