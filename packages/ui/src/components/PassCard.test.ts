@@ -38,8 +38,8 @@ describe("PassCard schema", () => {
     { memberName: "a".repeat(25) },
     { memberId: "a".repeat(25) },
     { code: "a".repeat(65) },
-    { codeKind: "barcode" },
-    { bright: true },
+    { codeKind: "code128" },
+    { bright: "yes" },
     { balance: Infinity },
     { pointsLabel: "a".repeat(21) },
     { expiresAt: "2027-02-29" },
@@ -117,6 +117,39 @@ describe("PassCard actions and states", () => {
   });
 });
 
+describe("PassCard barcode and scanner opt-in", () => {
+  it("draws a barcode at the established code address and keeps the exact payload private", () => {
+    const input = { ...seed, codeKind: "barcode", code: " 05120 ", bright: true };
+    const html = renderInstance("PassCard", input, "filled", theme);
+    const parts = addressedElements(html);
+    expect(parts.get("home/c1/qr")?.attributes).toContain('aria-label="Pass barcode"');
+    expect(html).toContain('viewBox="0 0 132 48"');
+    expect(parts.get("home/c1/bright")?.attributes).toContain('aria-pressed="false"');
+    const read = readComponent(def, input, "c1").join("\n");
+    expect(read).toContain("Scanner view");
+    expect(read).toContain("[c1/bright toggle !needs-ok]");
+    expect(read).not.toMatch(/05120|DEMO-0642/);
+    expect(props.parse(input).code).toBe(input.code);
+  });
+
+  it("gates brightness on explicit opt-in and an actually drawable, unused code", () => {
+    const input = { ...seed, codeKind: "barcode", code: "01234567890123456789", bright: true };
+    expect(actions(input)).toContain("bright");
+    expect(actions({ ...input, code: "A".repeat(10) })).toContain("bright");
+    expect(actions({ ...input, bright: false })).not.toContain("bright");
+    for (const patch of [{ code: undefined }, { used: true }]) {
+      expect(actions({ ...input, ...patch })).not.toContain("bright");
+      expect(draw({ ...input, ...patch }).has("home/c1/qr")).toBe(false);
+    }
+    for (const code of ["é", "    ", "A".repeat(11), "1".repeat(22)]) {
+      expect(actions({ ...input, code })).toEqual([]);
+      expect(draw({ ...input, code }).get("home/c1/message")?.text).toEqual(["This code can’t be read"]);
+    }
+    for (const state of ["loading", "empty", "error"] as const)
+      expect(draw(input, state).has("home/c1/bright")).toBe(false);
+  });
+});
+
 describe("PassCard credential replacement", () => {
   it("never reveals a replacement member ID at the same screen address or serializes the grant", () => {
     const store = createInteractionStore();
@@ -154,6 +187,12 @@ describe("PassCard probes", () => {
       "KeyValue",
     ]);
     expect(probes.some((probe) => probe.kind === "write")).toBe(true);
+    expect(probes).toContainEqual(
+      expect.objectContaining({
+        kind: "write",
+        expectProps: { code: "05120764", codeKind: "barcode", bright: true },
+      }),
+    );
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       expect: { address: "c1/code", action: "copy" },
     });

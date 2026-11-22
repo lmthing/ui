@@ -55,7 +55,7 @@ export function Preview({ cell, preset, mode, responsive = false, label = true, 
         theme={theme}
         parts={galleryParts}
         resolvePhoto={(ref) => resolvePhoto(ref, theme)}
-        interactive={Boolean(def.meta.actions?.reveal)}
+        interactive={Boolean(def.meta.actions?.reveal || controller?.scannerBrightnessAvailable())}
         {...(controller ? { controller, environment: drawPreviewEnvironment } : {})}
       >
         <YStack

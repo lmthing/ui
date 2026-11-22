@@ -20,14 +20,21 @@ export const meta = {
   parts: [
     "root", "frame", "issuer", "title", "member_name", "member_id", "reveal", "reveal_icon", "reveal_label",
     "balance", "expiry", "status", "code", "code_icon", "code_label", "qr", "message",
+    "bright", "bright_label", "bright_status",
   ],
   items: { key: "facts", parts: ["root", "label", "value"], visibleWhen: { detail: "full" } },
   states: ["filled", "empty", "loading", "error"],
   actions: {
-    parts: { root: ["press"], reveal: ["toggle"], code: ["copy"] },
-    when: { reveal: { canReveal: true }, code: { scannable: true } },
+    parts: { root: ["press"], reveal: ["toggle"], code: ["copy"], bright: ["toggle"] },
+    when: {
+      reveal: { canReveal: true },
+      code: { scannable: true },
+      bright: { scannable: true, bright: true },
+    },
     credentialToggles: { reveal: "memberId" },
+    scannerBrightness: ["bright"],
   },
+  partTiers: { bright: "ok" },
   read: (value, _state, lang): string[] => {
     const input = value as z.output<typeof props>;
     const { balance, pointsLabel, expiresAt, style, used, memberId } = input;
@@ -38,7 +45,10 @@ export const meta = {
       ...(expiresAt ? [c.passExpiryLine(expiresAt, lang)] : []),
       ...(used ? [words.used] : style === "transit" && scannable ? [words.ready] : []),
       ...(canReveal && memberId ? [c.maskedPassId(memberId, lang), words.reveal] : []),
-      ...(scannable ? [`${words.copy} (copy the QR payload to the clipboard)`] : []),
+      ...(scannable
+        ? [input.codeKind === "barcode" ? words.copy : `${words.copy} (copy the QR payload to the clipboard)`]
+        : []),
+      ...(scannable && input.bright ? [words.scanner] : []),
     ];
   },
 } as const satisfies c.Meta;
@@ -48,7 +58,8 @@ export const props = z.strictObject({
   ...c.variantProps(meta.variants),
   issuer: c.text(28), title: c.text(32), memberName: c.text(24).optional(),
   memberId: c.text(24).meta({ kind: "secret", max: 24 }).optional(), masked: z.boolean().default(true),
-  code: c.secret(64).min(1).meta({ kind: "secret", max: 64 }).optional(), codeKind: z.enum(["qr"]).default("qr"),
+  code: c.secret(64).min(1).meta({ kind: "secret", max: 64 }).optional(), codeKind: z.enum(["qr", "barcode"]).default("qr"),
+  bright: z.boolean().optional(),
   balance: z.number().optional(), pointsLabel: c.text(20).optional(),
   facts: z.array(z.strictObject({ label: c.text(16), value: c.text(24) })).min(0).max(4).default([]),
   expiresAt: c.isoDate.optional(), used: z.boolean().default(false),
@@ -60,8 +71,10 @@ export const props = z.strictObject({
 }));
 
 // prettier-ignore
-function passControls({ code, used, masked, memberId }: Pick<PassProps, "code" | "used" | "masked" | "memberId">) {
-  const invalid = code !== undefined && !used && (!code.trim() || /[\uD800-\uDFFF]/u.test(code));
+function passControls({ code, codeKind, used, masked, memberId }: Pick<PassProps, "code" | "codeKind" | "used" | "masked" | "memberId">) {
+  const barcode = codeKind === "barcode" ? c.barcodeModules(code) : undefined;
+  const invalid = code !== undefined && !used && (!code.trim() ||
+    (codeKind === "barcode" ? !barcode || barcode.side > c.component.base.ringLg : /[\uD800-\uDFFF]/u.test(code)));
   return {
     canReveal: masked && !!memberId,
     scannable: !!code && !used && !invalid,
@@ -114,6 +127,14 @@ export const examples = [
     code: "DEMO:LEDGE-USED",
     used: true,
   },
+  {
+    issuer: "Ledge Seed Library",
+    title: "Seed kit pickup",
+    style: "code",
+    code: "05120764",
+    codeKind: "barcode",
+    bright: true,
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("PassCard");
@@ -132,6 +153,12 @@ export const probes = [
     variant: { axis: "detail", value: "brief" },
   },
   read("Copy the QR payload to my clipboard.", { address: "c1/code", action: "copy" }),
+  {
+    ...write(
+      "Show a demo Pine Nursery pickup pass called Seed Kit. Use the supplied one-dimensional barcode 05120764 (including the leading zero), and offer a bright scanner view.",
+    ),
+    expectProps: { code: "05120764", codeKind: "barcode", bright: true },
+  },
 ] satisfies c.Probe[];
 
 type PassProps = c.Props<typeof props, typeof meta>;
@@ -311,15 +338,60 @@ function PassSkeleton(input: PassProps, layout: Layout, scannable: boolean, word
       <PassDetails input={input} layout={layout} revealed={false} />
       {scannable && (
         <>
-          <kit.KitCode part={null} loading label={words.qr} />
+          <kit.KitCode
+            part={null}
+            loading
+            label={input.codeKind === "barcode" ? words.barcode : words.qr}
+            kind={input.codeKind}
+          />
           <kit.KitSkeleton
             shape="control"
             kind="quiet"
             {...(align === "center" && { label: words.copy, full: true })}
           />
+          {input.bright && <kit.KitSkeleton shape="control" kind="quiet" label={words.scanner} />}
         </>
       )}
     </kit.KitCard>
+  );
+}
+
+function PassCode({ input, layout, words }: { input: PassProps; layout: Layout; words: PassWords }) {
+  const scanner = kit.useScannerBrightness("bright");
+  const active = input.bright === true && scanner.status === "on";
+  return (
+    <kit.KitContent group="response" align="center" density={layout.density}>
+      <kit.KitCode
+        part="qr"
+        value={input.code!}
+        label={input.codeKind === "barcode" ? words.barcode : words.qr}
+        kind={input.codeKind}
+        scale={active ? "scanner" : "standard"}
+      />
+      <kit.KitAction
+        part="code"
+        action="copy"
+        value={input.code!}
+        copiedLabel={words.copied}
+        kind="quiet"
+        {...(layout.align === "center"
+          ? { label: words.copy, full: true }
+          : { icon: "clipboard", a11y: words.copy })}
+      />
+      {input.bright && (
+        <kit.KitScannerToggle
+          part="bright"
+          label={words.scanner}
+          pressed={active}
+          disabled={!scanner.available}
+        />
+      )}
+      {input.bright && scanner.status === "failed" && (
+        <kit.KitText part="bright_status" role="label" tone="muted" align="center">
+          {words.scannerUnavailable}
+        </kit.KitText>
+      )}
+    </kit.KitContent>
   );
 }
 
@@ -362,21 +434,7 @@ export function PassCard(input: PassProps) {
         </kit.KitText>
       </kit.KitRow>
       <PassDetails input={input} layout={layout} revealed={c.credentialToggleOn(reveal, input.memberId)} />
-      {scannable && (
-        <kit.KitContent group="response" align="center" density={density}>
-          <kit.KitCode part="qr" value={input.code!} label={words.qr} />
-          <kit.KitAction
-            part="code"
-            action="copy"
-            value={input.code!}
-            copiedLabel={words.copied}
-            kind="quiet"
-            {...(align === "center"
-              ? { label: words.copy, full: true }
-              : { icon: "clipboard", a11y: words.copy })}
-          />
-        </kit.KitContent>
-      )}
+      {scannable && <PassCode input={input} layout={layout} words={words} />}
     </kit.KitCard>
   );
 }

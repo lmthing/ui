@@ -84,3 +84,15 @@ it("uses its rectangular barcode plate only for a drawable, available payload", 
     expect(render({ ...barcode, ...options })).not.toContain(`fill="${component.swatch.black}"`);
   }
 });
+
+it.each([
+  { ...input, kind: "qr" },
+  { ...input, value: "TEST-042", kind: "barcode" },
+] as const)("enlarges a $kind without changing its encoded geometry", (props) => {
+  const normal = render(props);
+  const scanner = render({ ...props, scale: "scanner" });
+  for (const pattern of [/viewBox="[^"]+"/, /<path d="[^"]+"/])
+    expect(scanner.match(pattern)?.[0]).toBe(normal.match(pattern)?.[0]);
+  expect(scanner).toContain(`width="${component.base.codeScanner}"`);
+  expect(normal).not.toContain(`width="${component.base.codeScanner}"`);
+});
