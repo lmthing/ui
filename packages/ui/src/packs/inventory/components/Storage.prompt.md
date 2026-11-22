@@ -10,3 +10,4 @@ Browse nested physical storage with a breadcrumb, child locations and contents k
 
 - Path is ancestor labels in outer-to-inner order. Ancestor screen ids must match their labels in lowercase snake_case (Potting bench → potting_bench). Prefix numeric or reserved ids with "spot_".
 - Spots are child locations; here lists what is kept in the current location. Never write counts. To hide counts use detail "brief", density null and surface null. For the default view leave all three axes null.
+- Code, fragile and status describe the current box, not its ancestors or child spots. Use only supplied box labels and moving details.

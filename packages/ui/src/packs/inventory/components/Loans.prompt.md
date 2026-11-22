@@ -10,3 +10,4 @@ Physical things lent to or borrowed from people, with due-back dates, returns or
 
 - Use lent for my item with someone else and borrowed for someone else's item with me. YYYY-MM-DD dates only; never write overdue.
 - Use detail "brief" only when asked to hide the dates loans started; still write since. For that request use density:null and surface:null. Otherwise leave all unrequested axes null.
+- Use conditionOut for condition at checkout and conditionIn for condition on return. Copy only given notes; either can be present without the other.

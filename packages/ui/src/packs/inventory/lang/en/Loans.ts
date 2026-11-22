@@ -3,6 +3,8 @@ export const words = {
     way: { lent: "Lent to ", borrowed: "Borrowed from " },
     since: (date: string) => `Since ${date}`,
     due: (date: string) => `Due back ${date}`,
+    conditionOut: (note: string) => `At checkout: ${note}`,
+    conditionIn: (note: string) => `On return: ${note}`,
     overdue: "Overdue",
     dueGap: "\u00a0\u00a0\u00a0",
     returned: "Mark returned",

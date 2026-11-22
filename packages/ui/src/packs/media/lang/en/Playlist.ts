@@ -1,5 +1,6 @@
 export const words = {
   playlist: {
+    upNext: "Up next",
     download: (title: string) => `Download ${title}`,
     nowPlaying: (title: string) => `Now playing: ${title}`,
     completed: "Played",

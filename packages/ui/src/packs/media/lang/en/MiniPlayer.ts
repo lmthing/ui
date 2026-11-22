@@ -6,6 +6,6 @@ export const words = {
     pause: "Pause",
     playing: "Playing",
     paused: "Paused",
-    timing: (elapsed: string, remaining: string) => `${elapsed} · ${remaining}`,
+    timing: (elapsed: string, remaining: string) => `${elapsed} · ${remaining} left`,
   },
 };

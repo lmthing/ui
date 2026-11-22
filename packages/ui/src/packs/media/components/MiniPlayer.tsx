@@ -104,13 +104,17 @@ export function MiniPlayer(input: c.Props<typeof props, typeof meta>) {
             leadingAlign="row"
             lead={<kit.KitPhoto part="photo" photo={photo} label={copy.artwork} />}
           >
-            <kit.KitText part="title" role="body" lines={1} density={density}>
-              {title}
-            </kit.KitText>
+            <kit.KitMetaLine title={{ text: title, part: "title", lines: 1 }} density={density} />
             <kit.KitStepsTrack style="bar" count={1} at={at / seconds} part="progress" />
-            <kit.KitText part="time" role="caption" tone="muted" tabular>
-              {miniPlayerTiming(input, lang)}
-            </kit.KitText>
+            <kit.KitFigure
+              density={density}
+              value={{
+                text: miniPlayerTiming(input, lang),
+                part: "time",
+                compact: true,
+                tone: "muted",
+              }}
+            />
           </kit.KitContent>
         </kit.KitRow>
         <kit.KitAction part="play" kind="secondary" action={action} icon={action} a11y={copy[action]} />
