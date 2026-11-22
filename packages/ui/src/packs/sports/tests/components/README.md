@@ -9,3 +9,4 @@
 - `Scoreboard.test.ts` covers score bounds, display and keeper states, and clock controls.
 - `Scoreboard.record.test.tsx` checks both views before and after goal confirmation and cancellation.
 - `MatchStats.test.ts` covers the draft metric schema, period selection and fallback.
+- `BoxScore.test.ts` covers line scores, player tables, states, roster switching and profile links.

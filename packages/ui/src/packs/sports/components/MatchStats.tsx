@@ -27,7 +27,7 @@ export const meta = {
   realPath:
     "match stat totals aggregated from recorded match events on the device or fetched from a sports data service.",
   dense: true,
-  variants: { density: ["comfortable", "compact"] },
+  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
   parts: ["root", "period"],
   select: { prop: "periodAt", choices: { period: { prop: "periodOptions" } } },
   actions: { parts: { period: ["select"] }, when: { period: { hasPeriods: true } } },
@@ -51,7 +51,6 @@ export const props = z
       )
       .min(2)
       .max(10),
-    style: z.enum(["mirrored", "rows"]).default("mirrored"),
   })
   .refine(({ periods, periodAt }) => periodAt < Math.max(1, periods.length), {
     path: ["periodAt"],
@@ -96,7 +95,7 @@ export const examples = [
     home: "Oakfield",
     away: "Fern House",
     periods: [],
-    style: "rows",
+    detail: "brief",
     density: "compact",
     metrics: [
       { label: "Shots on target", homeValue: 4, awayValue: 6 },
@@ -117,7 +116,7 @@ export const probes = [
   write(
     "Compare Sunday Kickers and River Rovers for the whole match: possession 58% to 42% and shots 13 to 8. There are no period filters.",
   ),
-  read("Switch the comparison to the first half.", { address: "c1/period", action: "select", value: 1 }),
+  read("Switch the comparison to the first half.", { address: "c1/period", action: "select" }),
 ] satisfies Probe[];
 
 export function MatchStats(_input: Props<typeof props, typeof meta>) {

@@ -1,19 +1,21 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
-import { boxScoreTotals } from "../copy";
+import * as kit from "../../../kit";
+import { boxScoreReading, boxScoreTotals } from "../copy";
 import { sportsWordsFor } from "../lang";
 
 // Core first: Stats/default gives independent figures, not a period line score and switchable player tables.
 const sides = ["home", "away"] as const;
 export const meta = {
   id: "BoxScore",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "Compare period scores and inspect the players' match statistics for either team.",
   pick: "Per-player match statistics together with a period-by-period team line score. Not independent headline numbers (Stats), league standings (Standings), one player's profile (Profile), or a live scorekeeper (Scoreboard).",
   writeHints: [
     "Each player's stats follow the shared columns in order, with exactly one short text value per column. Never write team totals; the periods supply them.",
     'Use style "linescore" for the period scores alone. In the full view use detail "brief" only to hide player positions while still drawing the player table.',
+    "Leave density and surface null unless explicitly requested, including when detail is brief.",
   ],
   region: "body",
   weight: 3,
@@ -27,15 +29,24 @@ export const meta = {
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["position"] } },
-  parts: ["root", "title", "line_score", "team", "players", "empty"],
-  items: { key: "players", parts: ["root", "name", "position"], visibleWhen: { visible: true } },
+  parts: ["root", "title", "total", "line_score", "team", "players", "empty"],
+  items: {
+    key: "players",
+    parts: ["root", "name", "position"],
+    addressedWhen: { hasPlayers: true },
+    visibleWhen: { visible: true },
+  },
   states: ["filled", "empty", "loading"],
   select: { prop: "team", choices: { team: { prop: "teamChoices" } } },
   actions: {
     parts: { team: ["select"] },
     items: { root: ["press"] },
-    when: { team: { style: "full" }, root: { linked: true } },
+    when: { team: { hasPlayers: true }, root: { linked: true } },
   },
+  read: (input, state, lang): string[] =>
+    state === "empty"
+      ? [sportsWordsFor(lang).boxScore.empty]
+      : boxScoreReading(input as Parameters<typeof boxScoreReading>[0], lang),
 } as const satisfies c.Meta;
 
 const periodScore = z.number().min(0).max(999);
@@ -59,7 +70,7 @@ const schema = z
     homePlayers: players,
     awayPlayers: players,
     team: z.enum(sides).default("home"),
-    style: z.enum(["full", "linescore"]).default("full"),
+    style: z.literal("linescore").optional(),
   })
   .refine(
     ({ columns, homePlayers, awayPlayers }) =>
@@ -68,14 +79,17 @@ const schema = z
   );
 
 function withPlayers(input: z.output<typeof schema>) {
+  const hasPlayers = input.style !== "linescore";
   const rows = (side: (typeof sides)[number]) =>
     (side === "home" ? input.homePlayers : input.awayPlayers).map((row) => ({
       ...row,
+      pos: input.detail === "brief" ? undefined : row.pos,
       linked: !!row.goto,
-      visible: input.style === "full" && input.team === side,
+      visible: hasPlayers && input.team === side,
     }));
   return {
     ...input,
+    hasPlayers,
     totals: boxScoreTotals(input.periods),
     teamChoices: sides.map((value) => ({ value, label: input[value] })),
     players: sides.flatMap(rows),
@@ -112,13 +126,13 @@ export const examples = [
       { label: "Q3", home: 26, away: 19 },
       { label: "Q4", home: 18, away: 16 },
     ],
-    columns: ["MIN", "PTS", "REB", "AST", "STL"],
+    columns: ["MIN", "PTS", "REB", "AST"],
     homePlayers: [
-      { name: "Amara Field", pos: "PG", stats: ["34", "23", "4", "8", "2"], goto: "amara_field" },
-      { name: "Noah Reed", pos: "C", stats: ["29", "16", "11", "2", "1"] },
-      { name: "Ella Woods", pos: "SG", stats: ["27", "14", "3", "4", "1"] },
+      { name: "Amara Field", pos: "PG", stats: ["34", "23", "4", "8"], goto: "amara_field" },
+      { name: "Noah Reed", pos: "C", stats: ["29", "16", "11", "2"] },
+      { name: "Ella Woods", pos: "SG", stats: ["27", "14", "3", "4"] },
     ],
-    awayPlayers: [{ name: "Sam Banks", pos: "SF", stats: ["36", "26", "8", "5", "3"], goto: "sam_banks" }],
+    awayPlayers: [{ name: "Sam Banks", pos: "SF", stats: ["36", "26", "8", "5"], goto: "sam_banks" }],
   },
   {
     home: "Trot Town",
@@ -153,10 +167,159 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
-  read("Switch the player table to Fern House.", { address: "c1/team", action: "select", value: "away" }),
+  read("Switch the player table to Fern House.", { address: "c1/team", action: "select" }),
   read("Open Amara Field's player profile.", { address: "c1/r1", action: "press" }),
 ] satisfies c.Probe[];
 
-export function BoxScore(_input: c.Props<typeof props, typeof meta>) {
-  return null;
+type BoxScoreProps = c.Props<typeof props, typeof meta>;
+type BoxScoreView = { input: BoxScoreProps; density: c.AxisValue<"density">; loading: boolean };
+
+function TableHeader(text: string, index: number, density: BoxScoreView["density"]) {
+  return {
+    id: String(index),
+    label: text,
+    header: <kit.KitLayoutText line={{ text, role: "meta", tone: "muted" }} align="end" density={density} />,
+  };
+}
+
+function LineScore({ input, density }: Omit<BoxScoreView, "loading">) {
+  const {
+    words: { boxScore: words },
+    lang,
+  } = kit.useWords(sportsWordsFor);
+  const columns = input.periods.map(({ label }, index) => TableHeader(label, index, density));
+  const rows = sides.map((side) => ({
+    id: side,
+    label: input[side],
+    heading: <kit.KitLayoutText line={{ text: input[side] }} density={density} />,
+    cells: input.periods.map((period, index) => ({
+      id: String(index),
+      content: (
+        <kit.KitLayoutText
+          line={{ text: c.numberLine(period[side], lang), tabular: true }}
+          align="end"
+          density={density}
+        />
+      ),
+    })),
+  }));
+  return (
+    <kit.KitTable
+      part="line_score"
+      fitColumns
+      {...{ rows, columns }}
+      corner={
+        <kit.KitLayoutText line={{ text: words.team, role: "meta", tone: "muted" }} density={density} />
+      }
+    />
+  );
+}
+
+function PlayerTable({ input, density, loading }: BoxScoreView) {
+  const {
+    words: { boxScore: words },
+  } = kit.useWords(sportsWordsFor);
+  const columns = input.columns.map((label, index) => TableHeader(label, index, density));
+  const rows = input.players
+    .filter((row) => row.visible)
+    .map((row) => ({
+      id: row.id,
+      label: row.name,
+      ...(row.linked && !loading ? { target: { item: row.id, part: "root" } } : {}),
+      heading: (
+        <>
+          <kit.KitLayoutText
+            line={{ text: row.name, part: row.linked ? "name" : "root" }}
+            density={density}
+          />
+          <kit.KitLayoutText
+            line={{ text: row.pos, part: "position", role: "caption", tone: "muted" }}
+            density={density}
+          />
+        </>
+      ),
+      cells: row.stats.map((stat, index) => ({
+        id: String(index),
+        content: <kit.KitLayoutText line={{ text: stat, tabular: true }} align="end" density={density} />,
+      })),
+    }));
+  return (
+    <kit.KitTable
+      part="players"
+      fitColumns
+      {...{ rows, columns }}
+      corner={
+        <kit.KitLayoutText line={{ text: words.players, role: "meta", tone: "muted" }} density={density} />
+      }
+    />
+  );
+}
+
+function ScoreHeader({ input, density }: Omit<BoxScoreView, "loading">) {
+  const {
+    words: { boxScore: words },
+    lang,
+  } = kit.useWords(sportsWordsFor);
+  const score = words.scorePair(c.numberLine(input.totals.home, lang), c.numberLine(input.totals.away, lang));
+  return (
+    <kit.KitContent density={density}>
+      <kit.KitHeader
+        title={{ text: words.title, part: "title", role: "meta", tone: "muted" }}
+        density={density}
+      />
+      <kit.KitFigure
+        value={{ text: score, part: "total" }}
+        caption={
+          <kit.KitLayoutText
+            line={{ text: words.teams(input.home, input.away), role: "meta" }}
+            density={density}
+          />
+        }
+        density={density}
+      />
+    </kit.KitContent>
+  );
+}
+
+export function BoxScore(input: BoxScoreProps) {
+  const {
+    words: { boxScore: words },
+  } = kit.useWords(sportsWordsFor);
+  const state = kit.useComponentState();
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const loading = state === "loading";
+  const view = { input, density, loading };
+  const body = (
+    <>
+      <ScoreHeader {...view} />
+      <LineScore {...view} />
+      {input.hasPlayers && (
+        <kit.KitContent group="response" density={density}>
+          <kit.KitTrack part="team" role="radiogroup" look="segments" label={words.switchTeam}>
+            {input.teamChoices.map(({ value, label }) => (
+              <kit.KitChip
+                key={value}
+                item={null}
+                role="radio"
+                look="segment"
+                label={label}
+                value={value}
+                on={input.team === value}
+                disabled={loading ? false : undefined}
+              />
+            ))}
+          </kit.KitTrack>
+          <PlayerTable {...view} />
+        </kit.KitContent>
+      )}
+    </>
+  );
+  return (
+    <kit.KitCard part="root" padded clip density={density} surface={surface}>
+      <kit.KitState part="empty" message={words.empty} density={density} loading={body}>
+        {body}
+      </kit.KitState>
+    </kit.KitCard>
+  );
 }

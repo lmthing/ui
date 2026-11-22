@@ -1,0 +1,1158 @@
+{
+  "BoxScore%2Fchoose%2FGive%20me%20both%20teams'%20points%20in%20each%20basketball%20quarter%20and%20a%20switch%20between%20their%20players'%20minutes%2C%20points%2C%20rebounds%20and%20assists./21c933fd91f90ce0/9c0e19c8f9ba22e7": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- BoxScore: Compare period scores and inspect the players' match statistics for either team. Pick: Per-player match statistics together with a period-by-period team line score. Not independent headline numbers (Stats), league standings (Standings), one player's profile (Profile), or a live scorekeeper (Scoreboard).\n- Bracket: Follow knockout ties and see who advances to the next round. Pick: A knockout cup as paired teams per round, with winners advancing. Only use it for actual head-to-head ties; a top-scorers ranking is List, even in a cup. Not a league table (Standings) or a sequence of matches (Fixtures).\n- Fixtures: See who we play next and how recent matches ended. Pick: A team’s fixture schedule and results: opponents, venues and home or away, or one next-match card with meet time and kit. Not dates alone (Calendar), live scoring (Scoreboard), an appointment (Appointment) or a community event (EventCard).\n- Lineup: See where the starters play and who is on the bench. Pick: Starters arranged in their playing lines on a pitch or grouped by position, with a separate substitutes bench. Not an ordinary list of people (People), player availability (Squad) or a staff rota (Roster).\n- MatchFeed: See each side's match incidents and record a new one. Pick: Home and away incidents within one match by minute: goals, cards, substitutions and notes. Not a one-sided history or daily plan (Timeline) or community posts (Feed).\n- MatchStats: Compare how two teams performed on the same measurable aspects of one match. Pick: Compare two teams' statistical totals side by side in one match. Not match events (MatchFeed), player statistics (BoxScore), or a single series (Bars).\n- Scoreboard: Follow the current score or keep score for both sides. Pick: The score and match clock for one contest between a home side and an away side. Not a practice result (Result), one adjustable count (Counter) or a standalone clock (Timer).\n- Squad: See who can play and let the coach pick the side. Pick: Players' availability for one upcoming match: yes, maybe or no, an optional reason, and coach selection. Not an ordinary player directory (People), who plays where (Lineup), guest RSVPs (GuestList), or staff shifts (Roster).\n- Standings: Compare teams in a league and see our place in the season. Pick: A league table with played, wins, draws, losses, goal difference, points and recent form. Not a ranking on one value (List) or a general records table (Table).\n\nNeed, in the person's words: \"Give me both teams' points in each basketball quarter and a switch between their players' minutes, points, rebounds and assists.\"\nReply with only the component id, nothing else.",
+    "reply": "BoxScore",
+    "replies": [
+      "BoxScore",
+      "BoxScore",
+      "BoxScore"
+    ]
+  },
+  "BoxScore%2Fchoose%2FGive%20me%20both%20teams'%20points%20in%20each%20basketball%20quarter%20and%20a%20switch%20between%20their%20players'%20minutes%2C%20points%2C%20rebounds%20and%20assists./8bee755b19f698c0/9c0e19c8f9ba22e7": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- BoxScore: Compare period scores and inspect the players' match statistics for either team. Pick: Per-player match statistics together with a period-by-period team line score. Not independent headline numbers (Stats), league standings (Standings), one player's profile (Profile), or a live scorekeeper (Scoreboard).\n- Bracket: Follow knockout ties and see who advances to the next round. Pick: A knockout cup as paired teams per round, with winners advancing. Only use it for actual head-to-head ties; a top-scorers ranking is List, even in a cup. Not a league table (Standings) or a sequence of matches (Fixtures).\n- Fixtures: See who we play next and how recent matches ended. Pick: A team’s fixture schedule and results: opponents, venues and home or away, or one next-match card with meet time and kit. Not dates alone (Calendar), live scoring (Scoreboard), an appointment (Appointment) or a community event (EventCard).\n- Lineup: See where the starters play and who is on the bench. Pick: Starters arranged in their playing lines on a pitch or grouped by position, with a separate substitutes bench. Not an ordinary list of people (People), player availability (Squad) or a staff rota (Roster).\n- MatchFeed: See each side's match incidents and record a new one. Pick: Home and away incidents within one match by minute: goals, cards, substitutions and notes. Not a one-sided history or daily plan (Timeline) or community posts (Feed).\n- MatchStats: Compare how two teams performed on the same measurable aspects of one match. Pick: Compare two teams' statistical totals side by side in one match. Not match events (MatchFeed), player statistics (BoxScore), or a single series (Bars).\n- Scoreboard: Follow the current score or keep score for both sides. Pick: The score and match clock for one contest between a home side and an away side. Not a practice result (Result), one adjustable count (Counter) or a standalone clock (Timer).\n- Squad: See who can play and let the coach pick the side. Pick: Players' availability for one upcoming match: yes, maybe or no, an optional reason, and coach selection. Not an ordinary player directory (People), who plays where (Lineup), guest RSVPs (GuestList), or staff shifts (Roster).\n- Standings: Compare teams in a league and see our place in the season. Pick: A league table with played, wins, draws, losses, goal difference, points and recent form. Not a ranking on one value (List) or a general records table (Table).\n\nNeed, in the person's words: \"Give me both teams' points in each basketball quarter and a switch between their players' minutes, points, rebounds and assists.\"\nReply with only the component id, nothing else.",
+    "reply": "BoxScore",
+    "replies": [
+      "BoxScore",
+      "BoxScore",
+      "BoxScore"
+    ]
+  },
+  "BoxScore%2Fchoose%2FPut%20three%20independent%20headline%20figures%20side%20by%20side%3A%20total%20walks%2C%20active%20clients%20and%20new%20enquiries.%20No%20time%20breakdown%20or%20individual%20rows./52aeb51af48f27cb/77b977ef1b133bce": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- BoxScore: Compare period scores and inspect the players' match statistics for either team. Pick: Per-player match statistics together with a period-by-period team line score. Not independent headline numbers (Stats), league standings (Standings), one player's profile (Profile), or a live scorekeeper (Scoreboard).\n- Bracket: Follow knockout ties and see who advances to the next round. Pick: A knockout cup as paired teams per round, with winners advancing. Only use it for actual head-to-head ties; a top-scorers ranking is List, even in a cup. Not a league table (Standings) or a sequence of matches (Fixtures).\n- Fixtures: See who we play next and how recent matches ended. Pick: A team’s fixture schedule and results: opponents, venues and home or away, or one next-match card with meet time and kit. Not dates alone (Calendar), live scoring (Scoreboard), an appointment (Appointment) or a community event (EventCard).\n- Lineup: See where the starters play and who is on the bench. Pick: Starters arranged in their playing lines on a pitch or grouped by position, with a separate substitutes bench. Not an ordinary list of people (People), player availability (Squad) or a staff rota (Roster).\n- MatchFeed: See each side's match incidents and record a new one. Pick: Home and away incidents within one match by minute: goals, cards, substitutions and notes. Not a one-sided history or daily plan (Timeline) or community posts (Feed).\n- MatchStats: Compare how two teams performed on the same measurable aspects of one match. Pick: Compare two teams' statistical totals side by side in one match. Not match events (MatchFeed), player statistics (BoxScore), or a single series (Bars).\n- Scoreboard: Follow the current score or keep score for both sides. Pick: The score and match clock for one contest between a home side and an away side. Not a practice result (Result), one adjustable count (Counter) or a standalone clock (Timer).\n- Squad: See who can play and let the coach pick the side. Pick: Players' availability for one upcoming match: yes, maybe or no, an optional reason, and coach selection. Not an ordinary player directory (People), who plays where (Lineup), guest RSVPs (GuestList), or staff shifts (Roster).\n- Standings: Compare teams in a league and see our place in the season. Pick: A league table with played, wins, draws, losses, goal difference, points and recent form. Not a ranking on one value (List) or a general records table (Table).\n\nNeed, in the person's words: \"Put three independent headline figures side by side: total walks, active clients and new enquiries. No time breakdown or individual rows.\"\nReply with only the component id, nothing else.",
+    "reply": "Stats",
+    "replies": [
+      "Stats",
+      "Stats",
+      "Stats"
+    ]
+  },
+  "BoxScore%2Fchoose%2FPut%20three%20independent%20headline%20figures%20side%20by%20side%3A%20total%20walks%2C%20active%20clients%20and%20new%20enquiries.%20No%20time%20breakdown%20or%20individual%20rows./56794012a6c0aaa9/77b977ef1b133bce": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- BoxScore: Compare period scores and inspect the players' match statistics for either team. Pick: Per-player match statistics together with a period-by-period team line score. Not independent headline numbers (Stats), league standings (Standings), one player's profile (Profile), or a live scorekeeper (Scoreboard).\n- Bracket: Follow knockout ties and see who advances to the next round. Pick: A knockout cup as paired teams per round, with winners advancing. Only use it for actual head-to-head ties; a top-scorers ranking is List, even in a cup. Not a league table (Standings) or a sequence of matches (Fixtures).\n- Fixtures: See who we play next and how recent matches ended. Pick: A team’s fixture schedule and results: opponents, venues and home or away, or one next-match card with meet time and kit. Not dates alone (Calendar), live scoring (Scoreboard), an appointment (Appointment) or a community event (EventCard).\n- Lineup: See where the starters play and who is on the bench. Pick: Starters arranged in their playing lines on a pitch or grouped by position, with a separate substitutes bench. Not an ordinary list of people (People), player availability (Squad) or a staff rota (Roster).\n- MatchFeed: See each side's match incidents and record a new one. Pick: Home and away incidents within one match by minute: goals, cards, substitutions and notes. Not a one-sided history or daily plan (Timeline) or community posts (Feed).\n- MatchStats: Compare how two teams performed on the same measurable aspects of one match. Pick: Compare two teams' statistical totals side by side in one match. Not match events (MatchFeed), player statistics (BoxScore), or a single series (Bars).\n- Scoreboard: Follow the current score or keep score for both sides. Pick: The score and match clock for one contest between a home side and an away side. Not a practice result (Result), one adjustable count (Counter) or a standalone clock (Timer).\n- Squad: See who can play and let the coach pick the side. Pick: Players' availability for one upcoming match: yes, maybe or no, an optional reason, and coach selection. Not an ordinary player directory (People), who plays where (Lineup), guest RSVPs (GuestList), or staff shifts (Roster).\n- Standings: Compare teams in a league and see our place in the season. Pick: A league table with played, wins, draws, losses, goal difference, points and recent form. Not a ranking on one value (List) or a general records table (Table).\n\nNeed, in the person's words: \"Put three independent headline figures side by side: total walks, active clients and new enquiries. No time breakdown or individual rows.\"\nReply with only the component id, nothing else.",
+    "reply": "Stats",
+    "replies": [
+      "Stats",
+      "Stats",
+      "Stats"
+    ]
+  },
+  "BoxScore%2Fread%2FOpen%20Amara%20Field's%20player%20profile./17a23ca83b39625b/2ad5821d2814a5c5": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 BoxScore Box score — Total: Ledge Lions 81, Fern House 77 — Q1: Ledge Lions 20, Fern House 18 — Q2: Ledge Lions 17, Fern House 24 — Q3: Ledge Lions 26, Fern House 19 — Q4: Ledge Lions 18, Fern House 16 — Player statistics: Ledge Lions — r1: Amara Field (PG) · MIN 34, PTS 23, REB 4, AST 8 — r2: Noah Reed (C) · MIN 29, PTS 16, REB 11, AST 2 — r3: Ella Woods (SG) · MIN 27, PTS 14, REB 3, AST 4 — \"Ledge Lions\" — \"Fern House\" [c1/team select = \"Ledge Lions\"; choices [\"Ledge Lions\",\"Fern House\"]]\n  r1 [c1/r1 press→amara_field]\n  r2\n  r3\n\nTask: Open Amara Field's player profile.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"c1/r1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"c1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"c1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"c1/r1\", \"action\": \"press\"}"
+    ]
+  },
+  "BoxScore%2Fread%2FOpen%20Amara%20Field's%20player%20profile./3fd72f4aefc90834/191303be7652d541": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 BoxScore Box score — 81–77 — Ledge Lions · Fern House — Team — Total: Ledge Lions 81, Fern House 77 — Q1: Ledge Lions 20, Fern House 18 — Q2: Ledge Lions 17, Fern House 24 — Q3: Ledge Lions 26, Fern House 19 — Q4: Ledge Lions 18, Fern House 16 — Player statistics: Ledge Lions — MIN — PTS — REB — AST — r1: Amara Field (PG) · MIN 34, PTS 23, REB 4, AST 8 — r2: Noah Reed (C) · MIN 29, PTS 16, REB 11, AST 2 — r3: Ella Woods (SG) · MIN 27, PTS 14, REB 3, AST 4 — \"Ledge Lions\" — \"Fern House\" [c1/team select = \"Ledge Lions\"; choices [\"Ledge Lions\",\"Fern House\"]]\n  r1 [c1/r1 press→amara_field]\n  r2\n  r3\n\nTask: Open Amara Field's player profile.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"c1/r1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"c1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"c1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"c1/r1\", \"action\": \"press\"}"
+    ]
+  },
+  "BoxScore%2Fread%2FSwitch%20the%20player%20table%20to%20Fern%20House./0ca15430260c2617/f20197c2136a4824": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 BoxScore Box score — 81–77 — Ledge Lions · Fern House — Team — Total: Ledge Lions 81, Fern House 77 — Q1: Ledge Lions 20, Fern House 18 — Q2: Ledge Lions 17, Fern House 24 — Q3: Ledge Lions 26, Fern House 19 — Q4: Ledge Lions 18, Fern House 16 — Player statistics: Ledge Lions — MIN — PTS — REB — AST — r1: Amara Field (PG) · MIN 34, PTS 23, REB 4, AST 8 — r2: Noah Reed (C) · MIN 29, PTS 16, REB 11, AST 2 — r3: Ella Woods (SG) · MIN 27, PTS 14, REB 3, AST 4 — \"Ledge Lions\" — \"Fern House\" [c1/team select = \"Ledge Lions\"; choices [\"Ledge Lions\",\"Fern House\"]]\n  r1 [c1/r1 press→amara_field]\n  r2\n  r3\n\nTask: Switch the player table to Fern House.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"c1/team\", \"action\": \"select\"}",
+    "replies": [
+      "{\"address\": \"c1/team\", \"action\": \"select\"}",
+      "{\"address\": \"c1/team\", \"action\": \"select\"}",
+      "{\"address\": \"c1/team select\", \"action\": \"select\"}"
+    ]
+  },
+  "BoxScore%2Fread%2FSwitch%20the%20player%20table%20to%20Fern%20House./a81cfe4f50d934c0/e366a3fabc5fe531": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 BoxScore Box score — Total: Ledge Lions 81, Fern House 77 — Q1: Ledge Lions 20, Fern House 18 — Q2: Ledge Lions 17, Fern House 24 — Q3: Ledge Lions 26, Fern House 19 — Q4: Ledge Lions 18, Fern House 16 — Player statistics: Ledge Lions — r1: Amara Field (PG) · MIN 34, PTS 23, REB 4, AST 8 — r2: Noah Reed (C) · MIN 29, PTS 16, REB 11, AST 2 — r3: Ella Woods (SG) · MIN 27, PTS 14, REB 3, AST 4 — \"Ledge Lions\" — \"Fern House\" [c1/team select = \"Ledge Lions\"; choices [\"Ledge Lions\",\"Fern House\"]]\n  r1 [c1/r1 press→amara_field]\n  r2\n  r3\n\nTask: Switch the player table to Fern House.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"c1/team\", \"action\": \"select\"}",
+    "replies": [
+      "{\"address\": \"c1/team\", \"action\": \"select\"}",
+      "{\"address\": \"c1/team select\", \"action\": \"select\"}",
+      "{\"address\": \"c1/team\", \"action\": \"select\"}"
+    ]
+  },
+  "BoxScore%2Fwrite%2FShow%20a%20basketball%20line%20score%3A%20Lions%20vs%20Fern%2C%20first%20quarter%2018%E2%80%9320%2C%20second%2022%E2%80%9319.%20Below%20it%20let%20me%20switch%20the%20two%20teams'%20player%20tables.%20Use%20PTS%2C%20REB%2C%20AST%3A%20Lions'%20Amara%20Field%2012%2C%204%2C%203%3B%20Fern's%20Sam%20Banks%2010%2C%205%2C%201./0e7a40b4df08f024/6d7cc7ea107ca997": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nBoxScore: Compare period scores and inspect the players' match statistics for either team.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", home: text≤20, away: text≤20, periods: [1..9 { label: text≤6, home: num 0..999, away: num 0..999 }], columns: [3..8 text≤8], homePlayers: [1..16 { name: text≤20, pos?: text≤4, stats: [3..8 text≤8], goto?: id snake_case }], awayPlayers: [1..16 { name: text≤20, pos?: text≤4, stats: [3..8 text≤8], goto?: id snake_case }], team?: home|away=\"home\", style?: text≤? }\nRule: Each player's stats follow the shared columns in order, with exactly one short text value per column. Never write team totals; the periods supply them.\nRule: Use style \"linescore\" for the period scores alone. In the full view use detail \"brief\" only to hide player positions while still drawing the player table.\nexample: {\"c\":\"BoxScore\",\"home\":\"Ledge Lions\",\"away\":\"Fern House\",\"periods\":[{\"label\":\"Q1\",\"home\":20,\"away\":18},{\"label\":\"Q2\",\"home\":17,\"away\":24},{\"label\":\"Q3\",\"home\":26,\"away\":19},{\"label\":\"Q4\",\"home\":18,\"away\":16}],\"columns\":[\"MIN\",\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":\"PG\",\"stats\":[\"34\",\"23\",\"4\",\"8\"],\"goto\":\"amara_field\"},{\"name\":\"Noah Reed\",\"pos\":\"C\",\"stats\":[\"29\",\"16\",\"11\",\"2\"]},{\"name\":\"Ella Woods\",\"pos\":\"SG\",\"stats\":[\"27\",\"14\",\"3\",\"4\"]}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":\"SF\",\"stats\":[\"36\",\"26\",\"8\",\"5\"],\"goto\":\"sam_banks\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show a basketball line score: Lions vs Fern, first quarter 18–20, second 22–19. Below it let me switch the two teams' player tables. Use PTS, REB, AST: Lions' Amara Field 12, 4, 3; Fern's Sam Banks 10, 5, 1.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "BoxScore",
+              "enum": [
+                "BoxScore"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "home": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "away": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "periods": {
+              "minItems": 1,
+              "maxItems": 9,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 6
+                  },
+                  "home": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 999
+                  },
+                  "away": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 999
+                  }
+                },
+                "required": [
+                  "label",
+                  "home",
+                  "away"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "columns": {
+              "minItems": 3,
+              "maxItems": 8,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8
+              }
+            },
+            "homePlayers": {
+              "minItems": 1,
+              "maxItems": 16,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "pos": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "stats": {
+                    "minItems": 3,
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 8
+                    }
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "pos",
+                  "stats",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "awayPlayers": {
+              "minItems": 1,
+              "maxItems": 16,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "pos": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "stats": {
+                    "minItems": 3,
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 8
+                    }
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "pos",
+                  "stats",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "team": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "home",
+                    "away"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "linescore"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "home",
+            "away",
+            "periods",
+            "columns",
+            "homePlayers",
+            "awayPlayers",
+            "team",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"BoxScore\",\"density\":null,\"surface\":\"card\",\"detail\":\"brief\",\"home\":\"Lions\",\"away\":\"Fern\",\"periods\":[{\"label\":\"Q1\",\"home\":18,\"away\":20},{\"label\":\"Q2\",\"home\":22,\"away\":19}],\"columns\":[\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":null,\"stats\":[\"12\",\"4\",\"3\"],\"goto\":\"amara_field\"}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":null,\"stats\":[\"10\",\"5\",\"1\"],\"goto\":\"sam_banks\"}],\"team\":\"home\",\"style\":\"linescore\"}",
+    "replies": [
+      "{\"c\":\"BoxScore\",\"density\":null,\"surface\":\"card\",\"detail\":\"brief\",\"home\":\"Lions\",\"away\":\"Fern\",\"periods\":[{\"label\":\"Q1\",\"home\":18,\"away\":20},{\"label\":\"Q2\",\"home\":22,\"away\":19}],\"columns\":[\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":null,\"stats\":[\"12\",\"4\",\"3\"],\"goto\":\"amara_field\"}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":null,\"stats\":[\"10\",\"5\",\"1\"],\"goto\":\"sam_banks\"}],\"team\":\"home\",\"style\":\"linescore\"}",
+      "{\"c\":\"BoxScore\",\"density\":null,\"surface\":\"card\",\"detail\":null,\"home\":\"Lions\",\"away\":\"Fern\",\"periods\":[{\"label\":\"Q1\",\"home\":18,\"away\":20},{\"label\":\"Q2\",\"home\":22,\"away\":19}],\"columns\":[\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":null,\"stats\":[\"12\",\"4\",\"3\"] ,\"goto\":null}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":null,\"stats\":[\"10\",\"5\",\"1\"],\"goto\":null}],\"team\":\"home\",\"style\":\"linescore\"}",
+      "{\"c\":\"BoxScore\",\"density\":null,\"surface\":null,\"detail\":null,\"home\":\"Lions\",\"away\":\"Fern\",\"periods\":[{\"label\":\"Q1\",\"home\":20,\"away\":18},{\"label\":\"Q2\",\"home\":19,\"away\":22}],\"columns\":[\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":null,\"stats\":[\"12\",\"4\",\"3\"],\"goto\":null}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":null,\"stats\":[\"10\",\"5\",\"1\"],\"goto\":null}],\"team\":null,\"style\":null}"
+    ]
+  },
+  "BoxScore%2Fwrite%2FShow%20a%20basketball%20line%20score%3A%20Lions%20vs%20Fern%2C%20first%20quarter%2018%E2%80%9320%2C%20second%2022%E2%80%9319.%20Below%20it%20let%20me%20switch%20the%20two%20teams'%20player%20tables.%20Use%20PTS%2C%20REB%2C%20AST%3A%20Lions'%20Amara%20Field%2012%2C%204%2C%203%3B%20Fern's%20Sam%20Banks%2010%2C%205%2C%201./24d9cd59f1455feb/f737a13447f22a06": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nBoxScore: Compare period scores and inspect the players' match statistics for either team.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", home: text≤20, away: text≤20, periods: [1..9 { label: text≤6, home: num 0..999, away: num 0..999 }], columns: [3..8 text≤8], homePlayers: [1..16 { name: text≤20, pos?: text≤4, stats: [3..8 text≤8], goto?: id snake_case }], awayPlayers: [1..16 { name: text≤20, pos?: text≤4, stats: [3..8 text≤8], goto?: id snake_case }], team?: home|away=\"home\", style?: text≤? }\nRule: Each player's stats follow the shared columns in order, with exactly one short text value per column. Never write team totals; the periods supply them.\nRule: Use style \"linescore\" for the period scores alone. In the full view use detail \"brief\" only to hide player positions while still drawing the player table.\nRule: Leave density and surface null unless explicitly requested, including when detail is brief.\nexample: {\"c\":\"BoxScore\",\"home\":\"Ledge Lions\",\"away\":\"Fern House\",\"periods\":[{\"label\":\"Q1\",\"home\":20,\"away\":18},{\"label\":\"Q2\",\"home\":17,\"away\":24},{\"label\":\"Q3\",\"home\":26,\"away\":19},{\"label\":\"Q4\",\"home\":18,\"away\":16}],\"columns\":[\"MIN\",\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":\"PG\",\"stats\":[\"34\",\"23\",\"4\",\"8\"],\"goto\":\"amara_field\"},{\"name\":\"Noah Reed\",\"pos\":\"C\",\"stats\":[\"29\",\"16\",\"11\",\"2\"]},{\"name\":\"Ella Woods\",\"pos\":\"SG\",\"stats\":[\"27\",\"14\",\"3\",\"4\"]}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":\"SF\",\"stats\":[\"36\",\"26\",\"8\",\"5\"],\"goto\":\"sam_banks\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show a basketball line score: Lions vs Fern, first quarter 18–20, second 22–19. Below it let me switch the two teams' player tables. Use PTS, REB, AST: Lions' Amara Field 12, 4, 3; Fern's Sam Banks 10, 5, 1.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "BoxScore",
+              "enum": [
+                "BoxScore"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "home": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "away": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "periods": {
+              "minItems": 1,
+              "maxItems": 9,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 6
+                  },
+                  "home": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 999
+                  },
+                  "away": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 999
+                  }
+                },
+                "required": [
+                  "label",
+                  "home",
+                  "away"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "columns": {
+              "minItems": 3,
+              "maxItems": 8,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8
+              }
+            },
+            "homePlayers": {
+              "minItems": 1,
+              "maxItems": 16,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "pos": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "stats": {
+                    "minItems": 3,
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 8
+                    }
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "pos",
+                  "stats",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "awayPlayers": {
+              "minItems": 1,
+              "maxItems": 16,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "pos": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "stats": {
+                    "minItems": 3,
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 8
+                    }
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "pos",
+                  "stats",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "team": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "home",
+                    "away"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "linescore"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "home",
+            "away",
+            "periods",
+            "columns",
+            "homePlayers",
+            "awayPlayers",
+            "team",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"BoxScore\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"home\":\"Ledge Lions\",\"away\":\"Fern House\",\"periods\":[{\"label\":\"Q1\",\"home\":18,\"away\":20},{\"label\":\"Q2\",\"home\":22,\"away\":19}],\"columns\":[\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":null,\"stats\":[\"12\",\"4\",\"3\"],\"goto\":null}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":null,\"stats\":[\"10\",\"5\",\"1\"],\"goto\":null}],\"team\":\"home\",\"style\":\"linescore\"}",
+    "replies": [
+      "{\"c\":\"BoxScore\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"home\":\"Ledge Lions\",\"away\":\"Fern House\",\"periods\":[{\"label\":\"Q1\",\"home\":18,\"away\":20},{\"label\":\"Q2\",\"home\":22,\"away\":19}],\"columns\":[\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":null,\"stats\":[\"12\",\"4\",\"3\"],\"goto\":null}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":null,\"stats\":[\"10\",\"5\",\"1\"],\"goto\":null}],\"team\":\"home\",\"style\":\"linescore\"}",
+      "{\"c\":\"BoxScore\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"home\":\"Ledge Lions\",\"away\":\"Fern House\",\"periods\":[{\"label\":\"Q1\",\"home\":18,\"away\":20},{\"label\":\"Q2\",\"home\":22,\"away\":19}],\"columns\":[\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":\"PG\",\"stats\":[\"12\",\"4\",\"3\"],\"goto\":\"amara_field\"}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":\"SF\",\"stats\":[\"10\",\"5\",\"1\"],\"goto\":\"sam_banks\"}],\"team\":\"home\",\"style\":\"linescore\"}",
+      "{\"c\":\"BoxScore\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"home\":\"Lions\",\"away\":\"Fern\",\"periods\":[{\"label\":\"Q1\",\"home\":18,\"away\":20},{\"label\":\"Q2\",\"home\":22,\"away\":19}],\"columns\":[\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":null,\"stats\":[\"12\",\"4\",\"3\"],\"goto\":null}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":null,\"stats\":[\"10\",\"5\",\"1\"],\"goto\":null}],\"team\":null,\"style\":\"linescore\"}"
+    ]
+  },
+  "BoxScore%2Fwrite%2FShow%20Lions%20vs%20Fern%2C%20first%20quarter%2018%E2%80%9320%20and%20second%2022%E2%80%9319.%20Keep%20the%20switchable%20tables%20with%20PTS%2C%20REB%2C%20AST%3A%20Lions'%20guard%20Amara%20Field%2012%2C%204%2C%203%3B%20Fern's%20forward%20Sam%20Banks%2010%2C%205%2C%201.%20Keep%20the%20positions%20in%20the%20data%20but%20hide%20the%20positions%20in%20the%20display./22a6b2172bb6de68/180ecefc114b5f2c": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nBoxScore: Compare period scores and inspect the players' match statistics for either team.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", home: text≤20, away: text≤20, periods: [1..9 { label: text≤6, home: num 0..999, away: num 0..999 }], columns: [3..8 text≤8], homePlayers: [1..16 { name: text≤20, pos?: text≤4, stats: [3..8 text≤8], goto?: id snake_case }], awayPlayers: [1..16 { name: text≤20, pos?: text≤4, stats: [3..8 text≤8], goto?: id snake_case }], team?: home|away=\"home\", style?: text≤? }\nRule: Each player's stats follow the shared columns in order, with exactly one short text value per column. Never write team totals; the periods supply them.\nRule: Use style \"linescore\" for the period scores alone. In the full view use detail \"brief\" only to hide player positions while still drawing the player table.\nRule: Leave density and surface null unless explicitly requested, including when detail is brief.\nexample: {\"c\":\"BoxScore\",\"home\":\"Ledge Lions\",\"away\":\"Fern House\",\"periods\":[{\"label\":\"Q1\",\"home\":20,\"away\":18},{\"label\":\"Q2\",\"home\":17,\"away\":24},{\"label\":\"Q3\",\"home\":26,\"away\":19},{\"label\":\"Q4\",\"home\":18,\"away\":16}],\"columns\":[\"MIN\",\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":\"PG\",\"stats\":[\"34\",\"23\",\"4\",\"8\"],\"goto\":\"amara_field\"},{\"name\":\"Noah Reed\",\"pos\":\"C\",\"stats\":[\"29\",\"16\",\"11\",\"2\"]},{\"name\":\"Ella Woods\",\"pos\":\"SG\",\"stats\":[\"27\",\"14\",\"3\",\"4\"]}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":\"SF\",\"stats\":[\"36\",\"26\",\"8\",\"5\"],\"goto\":\"sam_banks\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show Lions vs Fern, first quarter 18–20 and second 22–19. Keep the switchable tables with PTS, REB, AST: Lions' guard Amara Field 12, 4, 3; Fern's forward Sam Banks 10, 5, 1. Keep the positions in the data but hide the positions in the display.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "BoxScore",
+              "enum": [
+                "BoxScore"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "home": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "away": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "periods": {
+              "minItems": 1,
+              "maxItems": 9,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 6
+                  },
+                  "home": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 999
+                  },
+                  "away": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 999
+                  }
+                },
+                "required": [
+                  "label",
+                  "home",
+                  "away"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "columns": {
+              "minItems": 3,
+              "maxItems": 8,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8
+              }
+            },
+            "homePlayers": {
+              "minItems": 1,
+              "maxItems": 16,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "pos": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "stats": {
+                    "minItems": 3,
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 8
+                    }
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "pos",
+                  "stats",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "awayPlayers": {
+              "minItems": 1,
+              "maxItems": 16,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "pos": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "stats": {
+                    "minItems": 3,
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 8
+                    }
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "pos",
+                  "stats",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "team": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "home",
+                    "away"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "linescore"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "home",
+            "away",
+            "periods",
+            "columns",
+            "homePlayers",
+            "awayPlayers",
+            "team",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"BoxScore\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"home\":\"Lions\",\"away\":\"Fern\",\"periods\":[{\"label\":\"Q1\",\"home\":18,\"away\":20},{\"label\":\"Q2\",\"home\":22,\"away\":19}],\"columns\":[\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":\"PG\",\"stats\":[\"12\",\"4\",\"3\"],\"goto\":null}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":\"SF\",\"stats\":[\"10\",\"5\",\"1\"],\"goto\":null}],\"team\":null,\"style\":\"linescore\"}",
+    "replies": [
+      "{\"c\":\"BoxScore\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"home\":\"Lions\",\"away\":\"Fern\",\"periods\":[{\"label\":\"Q1\",\"home\":18,\"away\":20},{\"label\":\"Q2\",\"home\":22,\"away\":19}],\"columns\":[\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":\"PG\",\"stats\":[\"12\",\"4\",\"3\"],\"goto\":null}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":\"SF\",\"stats\":[\"10\",\"5\",\"1\"],\"goto\":null}],\"team\":null,\"style\":\"linescore\"}",
+      "{\"c\":\"BoxScore\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"home\":\"Lions\",\"away\":\"Fern\",\"periods\":[{\"label\":\"Q1\",\"home\":18,\"away\":20},{\"label\":\"Q2\",\"home\":22,\"away\":19}],\"columns\":[\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":\"PG\",\"stats\":[\"12\",\"4\",\"3\"] ,\"goto\":null}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":\"SF\",\"stats\":[\"10\",\"5\",\"1\"],\"goto\":null}],\"team\":null,\"style\":null}",
+      "{\"c\":\"BoxScore\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"home\":\"Lions\",\"away\":\"Fern\",\"periods\":[{\"label\":\"Q1\",\"home\":18,\"away\":20},{\"label\":\"Q2\",\"home\":22,\"away\":19}],\"columns\":[\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":\"PG\",\"stats\":[\"12\",\"4\",\"3\"] ,\"goto\":null}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":\"SF\",\"stats\":[\"10\",\"5\",\"1\"],\"goto\":null}],\"team\":\"home\",\"style\":null}"
+    ]
+  },
+  "BoxScore%2Fwrite%2FShow%20Lions%20vs%20Fern%2C%20first%20quarter%2018%E2%80%9320%20and%20second%2022%E2%80%9319.%20Keep%20the%20switchable%20tables%20with%20PTS%2C%20REB%2C%20AST%3A%20Lions'%20guard%20Amara%20Field%2012%2C%204%2C%203%3B%20Fern's%20forward%20Sam%20Banks%2010%2C%205%2C%201.%20Keep%20the%20positions%20in%20the%20data%20but%20hide%20the%20positions%20in%20the%20display./c6241fc2b64fa812/5296f6dbbc8f70d2": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nBoxScore: Compare period scores and inspect the players' match statistics for either team.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", home: text≤20, away: text≤20, periods: [1..9 { label: text≤6, home: num 0..999, away: num 0..999 }], columns: [3..8 text≤8], homePlayers: [1..16 { name: text≤20, pos?: text≤4, stats: [3..8 text≤8], goto?: id snake_case }], awayPlayers: [1..16 { name: text≤20, pos?: text≤4, stats: [3..8 text≤8], goto?: id snake_case }], team?: home|away=\"home\", style?: text≤? }\nRule: Each player's stats follow the shared columns in order, with exactly one short text value per column. Never write team totals; the periods supply them.\nRule: Use style \"linescore\" for the period scores alone. In the full view use detail \"brief\" only to hide player positions while still drawing the player table.\nexample: {\"c\":\"BoxScore\",\"home\":\"Ledge Lions\",\"away\":\"Fern House\",\"periods\":[{\"label\":\"Q1\",\"home\":20,\"away\":18},{\"label\":\"Q2\",\"home\":17,\"away\":24},{\"label\":\"Q3\",\"home\":26,\"away\":19},{\"label\":\"Q4\",\"home\":18,\"away\":16}],\"columns\":[\"MIN\",\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":\"PG\",\"stats\":[\"34\",\"23\",\"4\",\"8\"],\"goto\":\"amara_field\"},{\"name\":\"Noah Reed\",\"pos\":\"C\",\"stats\":[\"29\",\"16\",\"11\",\"2\"]},{\"name\":\"Ella Woods\",\"pos\":\"SG\",\"stats\":[\"27\",\"14\",\"3\",\"4\"]}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":\"SF\",\"stats\":[\"36\",\"26\",\"8\",\"5\"],\"goto\":\"sam_banks\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show Lions vs Fern, first quarter 18–20 and second 22–19. Keep the switchable tables with PTS, REB, AST: Lions' guard Amara Field 12, 4, 3; Fern's forward Sam Banks 10, 5, 1. Keep the positions in the data but hide the positions in the display.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "BoxScore",
+              "enum": [
+                "BoxScore"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "home": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "away": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "periods": {
+              "minItems": 1,
+              "maxItems": 9,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 6
+                  },
+                  "home": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 999
+                  },
+                  "away": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 999
+                  }
+                },
+                "required": [
+                  "label",
+                  "home",
+                  "away"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "columns": {
+              "minItems": 3,
+              "maxItems": 8,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8
+              }
+            },
+            "homePlayers": {
+              "minItems": 1,
+              "maxItems": 16,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "pos": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "stats": {
+                    "minItems": 3,
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 8
+                    }
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "pos",
+                  "stats",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "awayPlayers": {
+              "minItems": 1,
+              "maxItems": 16,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "pos": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "stats": {
+                    "minItems": 3,
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 8
+                    }
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "pos",
+                  "stats",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "team": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "home",
+                    "away"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "linescore"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "home",
+            "away",
+            "periods",
+            "columns",
+            "homePlayers",
+            "awayPlayers",
+            "team",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"BoxScore\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"home\":\"Lions\",\"away\":\"Fern\",\"periods\":[{\"label\":\"Q1\",\"home\":20,\"away\":18},{\"label\":\"Q2\",\"home\":19,\"away\":22}],\"columns\":[\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":\"PG\",\"stats\":[\"12\",\"4\",\"3\"],\"goto\":null}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":\"SF\",\"stats\":[\"10\",\"5\",\"1\"],\"goto\":null}],\"team\":\"home\",\"style\":null}",
+    "replies": [
+      "{\"c\":\"BoxScore\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"home\":\"Lions\",\"away\":\"Fern\",\"periods\":[{\"label\":\"Q1\",\"home\":20,\"away\":18},{\"label\":\"Q2\",\"home\":19,\"away\":22}],\"columns\":[\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":\"PG\",\"stats\":[\"12\",\"4\",\"3\"],\"goto\":null}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":\"SF\",\"stats\":[\"10\",\"5\",\"1\"],\"goto\":null}],\"team\":\"home\",\"style\":null}",
+      "{\"c\":\"BoxScore\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"home\":\"Lions\",\"away\":\"Fern\",\"periods\":[{\"label\":\"Q1\",\"home\":20,\"away\":18},{\"label\":\"Q2\",\"home\":19,\"away\":22}],\"columns\":[\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":\"PG\",\"stats\":[\"12\",\"4\",\"3\"] ,\"goto\":null}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":\"SF\",\"stats\":[\"10\",\"5\",\"1\"],\"goto\":null}],\"team\":\"home\",\"style\":null}",
+      "{\"c\":\"BoxScore\",\"density\":null,\"surface\":\"card\",\"detail\":\"brief\",\"home\":\"Lions\",\"away\":\"Fern\",\"periods\":[{\"label\":\"Q1\",\"home\":18,\"away\":20},{\"label\":\"Q2\",\"home\":22,\"away\":19}],\"columns\":[\"PTS\",\"REB\",\"AST\"],\"homePlayers\":[{\"name\":\"Amara Field\",\"pos\":\"PG\",\"stats\":[\"12\",\"4\",\"3\"],\"goto\":null}],\"awayPlayers\":[{\"name\":\"Sam Banks\",\"pos\":\"SF\",\"stats\":[\"10\",\"5\",\"1\"],\"goto\":null}],\"team\":\"home\",\"style\":null}"
+    ]
+  }
+}
