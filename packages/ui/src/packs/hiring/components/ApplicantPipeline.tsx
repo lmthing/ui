@@ -166,21 +166,23 @@ export function ApplicantPipeline({ title, applicants, arrange }: ViewProps) {
   const layout = kit.useVariant("arrange", meta.variants.arrange, arrange);
   const thing = kit.useEmptyThing(), { lang, words: { pipeline } } = kit.useWords(hiringWordsFor);
   const { columns, active, outcomeLines, outcomes: summary } = pipelineCopy(applicants, pipelineOutcomes(applicants), lang);
+  const stageByButton = new Map(columns.map(({ moveLabel }) => [pipeline.moveButton(moveLabel), moveLabel]));
   return <kit.KitCard style="inset" padded density={density}>
     {state === "empty" ? <kit.KitEmpty part="title" icon="briefcase" title={c.emptyLine(thing ?? pipeline.thing, lang)} decorativeIcon /> :
       state === "error" ? <kit.KitEmpty part="title" icon="info" title={pipeline.error} decorativeIcon /> : <>
-        {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["title", title], ["caption", summary]]} /> :
-          <kit.KitContent {...{ density }}><kit.KitText part="title" role="title" {...{ density }}>{title}</kit.KitText>
+        {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["heading", title], ["caption", summary]]} /> :
+          <kit.KitContent {...{ density }}><kit.KitText part="title" role="heading" emphasis="strong" {...{ density }}>{title}</kit.KitText>
             <kit.KitText part="outcomes" role="caption" tone="muted" {...{ density }}>{outcomeLines.map(({ id, label, count }, i) =>
               <kit.KitText key={id} part={null} role="caption" tone="muted">{i > 0 && pipeline.separator}{label}<kit.KitText part={null}
                 role="number" numberScale="compact" emphasis="strong" tabular {...{ density }}>{count}</kit.KitText></kit.KitText>
             )}</kit.KitText></kit.KitContent>}
         <kit.KitColumns part="stages" {...{ loading }} style={layout === "rows" ? "stack" : "columns"}
           columns={columns.map(({ id, label, moveLabel, count, empty }) => ({
-            id, label, count, countPart: id, moveValue: id, moveLabel, headingRole: "body",
+            id, label, count, countPart: id, moveValue: id, moveLabel: pipeline.moveButton(moveLabel), headingRole: "body",
             summary: empty && <kit.KitText part={null} role="caption" tone="muted">{pipeline.emptyStage}</kit.KitText>,
           }))}
-          move={{ caption: pipeline.move, label: pipeline.destination, reserveTargets: true, inlineCards: true, cards: active.map((row) => ({
+          move={{ caption: "", label: (button, name) => pipeline.destination(stageByButton.get(button) ?? button, name),
+            reserveTargets: true, cards: active.map((row) => ({
             id: row.id, column: activeStages.indexOf(row.stage), label: row.name, goto: row.goto,
             children: ApplicantText(row, density, lang),
           })) }}

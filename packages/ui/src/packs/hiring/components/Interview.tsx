@@ -201,31 +201,28 @@ function MeetingActions({
         full
       />
     );
-  const main = joinable ? action("join", "primary") : action("edit", "primary", input.goto);
+  const edit = action("edit", "secondary", input.goto);
   return (
     <kit.KitContent group="response" {...{ density }}>
       <kit.KitGrid arrange="rows" list listRowGap="cards" {...{ density }}>
+        {joinable && action("join", "primary")}
         {input.rescheduleGoto ? (
           <kit.KitGrid density={density}>
-            {main}
+            {edit}
             {action("reschedule", "secondary", input.rescheduleGoto)}
           </kit.KitGrid>
-        ) : (
-          main
-        )}
+        ) : null}
         <kit.KitGrid {...{ density }}>
+          {!input.rescheduleGoto && edit}
           {action("invite", "secondary")}
-          {joinable ? action("edit", "secondary", input.goto) : action("cancel", "danger")}
+          {input.rescheduleGoto && action("cancel", "danger")}
         </kit.KitGrid>
-        {input.status === "confirmed" &&
-          (joinable ? (
-            <kit.KitGrid {...{ density }}>
-              {action("complete", "quiet")}
-              {action("cancel", "danger")}
-            </kit.KitGrid>
-          ) : (
-            action("complete", "quiet")
-          ))}
+        {(!input.rescheduleGoto || input.status === "confirmed") && (
+          <kit.KitGrid {...{ density }}>
+            {!input.rescheduleGoto && action("cancel", "danger")}
+            {input.status === "confirmed" && action("complete", "quiet")}
+          </kit.KitGrid>
+        )}
       </kit.KitGrid>
     </kit.KitContent>
   );
@@ -260,6 +257,44 @@ function PrepGuide({ input, density }: { input: Meeting; density: c.ThemeDensity
   );
 }
 
+function MeetingDetails({
+  input,
+  density,
+  copy,
+}: {
+  input: Meeting;
+  density: c.ThemeDensity;
+  copy: ReturnType<typeof interviewCopy>;
+}) {
+  return (
+    <kit.KitContent group="response" density={density}>
+      <kit.KitGrid density={density}>
+        <kit.KitContent density={density}>
+          <kit.KitLayoutText line={{ part: "date", text: copy.date }} density={density} />
+          <kit.KitFigure value={{ part: "time", text: copy.time, compact: true }} density={density} />
+          <kit.KitLayoutText
+            line={{ part: "duration", text: copy.duration, role: "meta", tone: "muted" }}
+            density={density}
+          />
+          <kit.KitLayoutText
+            line={{ part: "past", text: copy.past, role: "meta", tone: "muted" }}
+            density={density}
+          />
+        </kit.KitContent>
+        <kit.KitContent density={density}>
+          <kit.KitLayoutText line={{ part: "format", text: copy.format }} density={density} />
+          <kit.KitLayoutText line={{ part: "place", text: input.place, role: "meta" }} density={density} />
+          <kit.KitLayoutText
+            line={{ part: "link", text: copy.link, role: "meta", tone: "muted" }}
+            density={density}
+          />
+        </kit.KitContent>
+      </kit.KitGrid>
+      <kit.KitLayoutText line={{ part: "interviewers", text: copy.interviewers }} density={density} />
+    </kit.KitContent>
+  );
+}
+
 function MeetingBody({ input, density }: { input: Meeting; density: c.ThemeDensity }) {
   const { lang } = kit.useWords(hiringWordsFor);
   const loading = kit.useComponentState() === "loading";
@@ -274,32 +309,7 @@ function MeetingBody({ input, density }: { input: Meeting; density: c.ThemeDensi
         ]}
         density={density}
       />
-      <kit.KitContent group="response" density={density}>
-        <kit.KitLayoutText line={{ part: "date", text: copy.date }} density={density} />
-        <kit.KitFigure
-          value={{ part: "time", text: copy.time, compact: true }}
-          caption={
-            <kit.KitLayoutText
-              line={{ part: "duration", text: copy.duration, role: "meta", tone: "muted" }}
-              density={density}
-            />
-          }
-          density={density}
-        />
-        <kit.KitLayoutText
-          line={{ part: "past", text: copy.past, role: "meta", tone: "muted" }}
-          density={density}
-        />
-      </kit.KitContent>
-      <kit.KitContent group="response" density={density}>
-        <kit.KitLayoutText line={{ part: "format", text: copy.format, role: "meta" }} density={density} />
-        <kit.KitLayoutText line={{ part: "place", text: input.place }} density={density} />
-        <kit.KitLayoutText
-          line={{ part: "link", text: copy.link, role: "meta", tone: "muted" }}
-          density={density}
-        />
-        <kit.KitLayoutText line={{ part: "interviewers", text: copy.interviewers }} density={density} />
-      </kit.KitContent>
+      <MeetingDetails {...{ input, copy, density }} />
       <PrepGuide {...{ input, density }} />
       <MeetingActions {...{ input, density, loading }} />
     </>

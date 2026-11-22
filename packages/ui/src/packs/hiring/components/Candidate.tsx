@@ -264,10 +264,16 @@ function Criterion({
         line={{ part: "label", text: row.label, role: "body", strong: true }}
         density={density}
       />
-      {comparison && <PanelFindings {...{ row, detail, density, lang }} />}
-      <kit.KitContent group={comparison ? "response" : "content"} density={density}>
+      {comparison ? (
+        <kit.KitRowGroup spacing="groups" density={density}>
+          <PanelFindings {...{ row, detail, density, lang }} />
+          <kit.KitContent group="response" density={density}>
+            <FindingChoices {...{ row, density, loading }} />
+          </kit.KitContent>
+        </kit.KitRowGroup>
+      ) : (
         <FindingChoices {...{ row, density, loading }} />
-      </kit.KitContent>
+      )}
       {detail === "full" && (
         <kit.KitContent group="response" density={density}>
           <kit.KitInput
@@ -342,7 +348,7 @@ function ReviewActions({
     );
   };
   return (
-    <kit.KitContent group="response" {...{ density }}>
+    <kit.KitContent {...{ density }}>
       <kit.KitGrid arrange="rows" list listRowGap="cards" {...{ density }}>
         {input.resumeGoto && action("resume", "quiet", input.resumeGoto)}
         <kit.KitGrid {...{ density }}>

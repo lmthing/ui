@@ -49,12 +49,17 @@ it("uses opt-in details and linked actions on a calm 390px phone", async () => {
       expect(await part("c1/r1/panel").textContent()).toContain("Ari Lane");
       await part("i1/reschedule").click();
       await expect.poll(() => destination.textContent()).toBe("followup_reschedule");
+      await part("i1/edit").click();
+      await expect.poll(() => destination.textContent()).toBe("followup_edit");
       expect(await part("i1/prep").textContent()).toContain("Interview prep");
       expect(await part("j1/easy_apply").textContent()).toBe("Easy apply");
       expect(await part("j1/benefit_4").textContent()).toBe("Paid leave");
+      expect(await part("j1/publish").count()).toBe(1);
       await page.goto(new URL(`${route}?closed`, base).href);
       await part("j1/easy_apply").waitFor();
       expect(await part("j1/apply").count()).toBe(0);
+      expect(await part("j1/publish").count()).toBe(0);
+      await part("j1/save").waitFor();
       expect(await part("i1/reschedule").count()).toBe(0);
       await page.goto(new URL(`${route}?default`, base).href);
       await part("j1/title").waitFor();
