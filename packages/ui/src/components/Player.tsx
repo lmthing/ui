@@ -34,9 +34,9 @@ import {
 } from "../catalog";
 import { prompt } from "../entry/prompt-Player.generated";
 
+// prettier-ignore
 export const meta = {
-  id: "Player",
-  status: "ready",
+  id: "Player", status: "ready",
   group: "content",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -47,42 +47,18 @@ export const meta = {
   realPath: "A file stored on or bundled with the app, played by the device's media player.",
   variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["artwork"] } },
-  parts: [
-    "root",
-    "artwork",
-    "title",
-    "sub",
-    "scrubber",
-    "elapsed",
-    "remaining",
-    "back",
-    "play",
-    "forward",
-    "options",
-  ],
+  parts: ["root", "artwork", "title", "sub", "scrubber", "elapsed", "remaining", "back", "play", "forward", "options"],
   states: ["filled", "loading"],
   actions: {
     parts: { scrubber: ["seek"], back: ["press"], play: ["play", "pause"], forward: ["press"] },
   },
   read: (input, state, lang, _data, _currency, live): string[] => {
     if (state !== "filled") return [];
-    const { at, seconds } = input as z.output<typeof props>,
-      clock = live?.("scrubber"),
-      playing = live?.("play");
-    const here = typeof clock === "number" ? clock : (at ?? 0),
-      w = wordsFor(lang).playbackOptions;
-    const status =
-      typeof playing === "boolean" || live?.("$runtime") === true
-        ? playing
-          ? w.playing
-          : w.paused
-        : undefined;
-    return [
-      clockLine(here, lang),
-      remainingLine(seconds - here, lang),
-      status,
-      optionLines(input as PlayerProps, lang).join(" · "),
-    ].filter((line): line is string => Boolean(line));
+    const { at, seconds } = input as z.output<typeof props>, clock = live?.("scrubber"), playing = live?.("play");
+    const here = typeof clock === "number" ? clock : (at ?? 0), w = wordsFor(lang).playbackOptions;
+    const status = typeof playing === "boolean" || live?.("$runtime") === true ? (playing ? w.playing : w.paused) : undefined;
+    return [clockLine(here, lang), remainingLine(seconds - here, lang), status, optionLines(input as PlayerProps, lang).join(" · ")]
+      .filter((line): line is string => Boolean(line));
   },
 } as const satisfies Meta;
 export const props = z
@@ -187,14 +163,12 @@ export const probes = [
 
 type PlayerProps = Props<typeof props, typeof meta>;
 
+// prettier-ignore
 function optionLines({ mode, speed, liked, shuffle, repeat, loop }: PlayerProps, lang?: string) {
   const w = wordsFor(lang).playbackOptions;
   return [
-    mode && w.mode[mode],
-    speed !== undefined && w.speed(numberLine(speed, lang)),
-    liked && w.liked,
-    shuffle && w.shuffle,
-    (loop ?? repeat) && w.loop,
+    mode && w.mode[mode], speed !== undefined && w.speed(numberLine(speed, lang)),
+    liked && w.liked, shuffle && w.shuffle, (loop ?? repeat) && w.loop,
   ].filter((line): line is string => typeof line === "string");
 }
 
@@ -214,7 +188,7 @@ type PlayerTitles = Pick<PlayerProps, "title" | "sub" | "density"> & {
   lines: ReturnType<typeof playerLines>;
 };
 
-function playerTitles({ title, sub, info, loading, compact, artwork, density, lines }: PlayerTitles) {
+function PlayerTitles({ title, sub, info, loading, compact, artwork, density, lines }: PlayerTitles) {
   return loading ? (
     compact ? (
       <KitSkeleton
@@ -251,11 +225,11 @@ function playerTitles({ title, sub, info, loading, compact, artwork, density, li
 
 type PlayerPosition = Pick<PlayerProps, "title" | "seconds" | "style"> & {
   here: number;
-  lang: ReturnType<typeof useWords>["lang"];
+  lang: string;
   loading: boolean;
 };
 
-function playerPosition({ title, here, seconds, lang, loading, style }: PlayerPosition) {
+function PlayerPosition({ title, here, seconds, lang, loading, style }: PlayerPosition) {
   return loading ? (
     <>
       <KitSkeleton shape="control" kind="quiet" full label={title} />
@@ -281,7 +255,7 @@ function playerPosition({ title, here, seconds, lang, loading, style }: PlayerPo
   );
 }
 
-function playerCover(
+function PlayerCover(
   title: string,
   artwork: PlayerProps["photo"],
   aspect: "wide" | "square",
@@ -294,8 +268,8 @@ function playerCover(
   );
 }
 
-function playerAudioSkeleton(
-  density: PlayerProps["density"],
+function PlayerAudioSkeleton(
+  density: NonNullable<PlayerProps["density"]>,
   artwork: PlayerProps["photo"],
   lines: PlayerTitles["lines"],
 ) {
@@ -326,11 +300,11 @@ export function Player(input: PlayerProps) {
   const here = at ?? 0;
   const info = optionLines(input, lang).join(" · ");
   const lines = playerLines(title, sub, info);
-  if (loading && style === "audio") return playerAudioSkeleton(density, artwork, lines);
+  if (loading && style === "audio") return PlayerAudioSkeleton(density, artwork, lines);
   const controls = <KitMediaControls labels={mediaLabels} compact={compact} />;
-  const titles = playerTitles({ title, sub, info, loading, compact, artwork, density, lines });
-  const position = playerPosition({ title, here, seconds, lang, loading, style });
-  const cover = playerCover(title, artwork, aspect, loading, compact);
+  const titles = PlayerTitles({ title, sub, info, loading, compact, artwork, density, lines });
+  const position = PlayerPosition({ title, here, seconds, lang, loading, style });
+  const cover = PlayerCover(title, artwork, aspect, loading, compact);
   const playback = { style, speed, loop: loop ?? repeat, loading };
   return (
     <KitCard style="inset" part="root" padded density={density}>

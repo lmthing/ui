@@ -241,7 +241,7 @@ export function Composer(input: ViewProps) {
         <KitState message={composer.sent} part="sent" />
       ) : (
         <>
-          {composerHeading(label, replyingTo, composer)}
+          {ComposerHeading(label, replyingTo, composer)}
           {state === "empty" && <KitState />}
           <KitTextArea
             hint={hint}
@@ -274,7 +274,7 @@ export function Composer(input: ViewProps) {
   );
 }
 
-function composerHeading(
+function ComposerHeading(
   label: ViewProps["label"],
   replyingTo: ViewProps["replyingTo"],
   composer: ReturnType<typeof wordsFor>["composer"],

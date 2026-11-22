@@ -62,36 +62,22 @@ const item = z.strictObject({
   ...itemVariantProps(meta.items.variants),
 });
 
-export const props = z
-  .strictObject({
-    ...variantProps(meta.variants),
-    style: z.enum(["detail", "picker", "menu"]).default("detail"),
-    title: text(40),
-    sub: text(100).optional(),
-    items: z.array(item).min(1).max(12),
-    at: z.int().min(0).optional(),
-    action: z.strictObject({ label: text(24), goto: screenId.optional() }).optional(),
-  })
-  .refine(
-    ({ style, items }) => style !== "detail" || (items.length <= 6 && items.every((row) => row.value)),
-    { path: ["items"], message: "Detail takes one to six facts, each with a value" },
-  )
-  .refine(({ style, items }) => style !== "picker" || items.length >= 6, {
-    path: ["items"],
-    message: "A picker is for six or more options; use a choice for fewer",
-  })
-  .refine(({ style, items }) => style !== "menu" || (items.length >= 2 && items.length <= 6), {
-    path: ["items"],
-    message: "A menu takes two to six items",
-  })
-  .refine(({ style, at, items }) => at === undefined || (style === "picker" && at < items.length), {
-    path: ["at"],
-    message: "At is the chosen option of a picker",
-  })
-  .refine(({ style, action }) => action === undefined || style === "detail", {
-    path: ["action"],
-    message: "Only a detail has an action",
-  })
+// prettier-ignore
+export const props = z.strictObject({
+  ...variantProps(meta.variants), style: z.enum(["detail", "picker", "menu"]).default("detail"),
+  title: text(40), sub: text(100).optional(), items: z.array(item).min(1).max(12),
+  at: z.int().min(0).optional(), action: z.strictObject({ label: text(24), goto: screenId.optional() }).optional(),
+})
+  .refine(({ style, items }) => style !== "detail" || (items.length <= 6 && items.every((row) => row.value)),
+    { path: ["items"], message: "Detail takes one to six facts, each with a value" })
+  .refine(({ style, items }) => style !== "picker" || items.length >= 6,
+    { path: ["items"], message: "A picker is for six or more options; use a choice for fewer" })
+  .refine(({ style, items }) => style !== "menu" || (items.length >= 2 && items.length <= 6),
+    { path: ["items"], message: "A menu takes two to six items" })
+  .refine(({ style, at, items }) => at === undefined || (style === "picker" && at < items.length),
+    { path: ["at"], message: "At is the chosen option of a picker" })
+  .refine(({ style, action }) => action === undefined || style === "detail",
+    { path: ["action"], message: "Only a detail has an action" })
   // `root` says what an item does: a picker option is chosen, a menu item pressed, a fact only read.
   .overwrite((value) => ({
     ...value,

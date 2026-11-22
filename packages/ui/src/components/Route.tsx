@@ -176,7 +176,7 @@ export function Route({ stops, distance, detail, mode, duration }: ViewProps) {
             {header ? (
               <KitGrid columns={2}>
                 {content}
-                {routeDistance(distance, measure, detail === "brief" || hasSummary)}
+                {RouteDistance(distance, measure, detail === "brief" || hasSummary)}
               </KitGrid>
             ) : (
               content
@@ -195,7 +195,7 @@ export function Route({ stops, distance, detail, mode, duration }: ViewProps) {
   );
 }
 
-function routeDistance(distance: string, measure: RegExpMatchArray | null | undefined, compact: boolean) {
+function RouteDistance(distance: string, measure: RegExpMatchArray | null | undefined, compact: boolean) {
   return (
     <KitText
       role={measure ? "number" : "body"}

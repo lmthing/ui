@@ -28,9 +28,9 @@ import {
 } from "../kit";
 import { prompt } from "../entry/prompt-Bubbles.generated";
 
+// prettier-ignore
 export const meta = {
-  id: "Bubbles",
-  status: "ready",
+  id: "Bubbles", status: "ready",
   group: "content",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -39,62 +39,28 @@ export const meta = {
   weight: 2,
   tier: "people",
   realPath: "Messages exchanged with another person through a shared messaging service.",
-  items: {
-    key: "messages",
-    parts: [
-      "root",
-      "text",
-      "sender",
-      "avatar",
-      "time",
-      "status",
-      "reply",
-      "attachment",
-      "attachment_photo",
-      "reactions",
-    ],
-  },
+  items: { key: "messages", parts: ["root", "text", "sender", "avatar", "time", "status", "reply", "attachment", "attachment_photo", "reactions"] },
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["with"] } },
   parts: ["root", "with", "broadcast"],
   states: ["filled", "empty"],
-  read: (input, state, lang): string[] =>
-    state === "filled" ? messageDetails(input as BubblesProps, lang) : [],
+  read: (input, state, lang): string[] => state === "filled" ? messageDetails(input as BubblesProps, lang) : [],
 } as const satisfies Meta;
 
-export const props = z
-  .strictObject({
-    ...variantProps(meta.variants),
-    style: z.enum(["direct", "group", "broadcast"]).optional(),
-    messages: z
-      .array(
-        z.strictObject({
-          from: z.enum(["me", "them"]),
-          text: text(120),
-          sender: text(24).optional(),
-          avatar: photo.optional(),
-          time: text(16).optional(),
-          status: z.enum(["sent", "delivered", "read"]).optional(),
-          replyTo: text(80).optional(),
-          attachment: z
-            .strictObject({
-              kind: z.enum(["photo", "voice", "file"]),
-              label: text(32).optional(),
-              photo: photo.optional(),
-            })
-            .refine(({ kind, photo }) => (kind === "photo") === Boolean(photo), {
-              path: ["photo"],
-              message: "Only photo attachments use a photo reference",
-            })
-            .optional(),
-          reactions: z.array(text(12)).min(1).max(4).optional(),
-        }),
-      )
-      .min(1)
-      .max(6),
-    with: text(24).optional(),
-  })
-  .overwrite((value) => (value.detail === "brief" ? { ...value, with: undefined } : value));
+// prettier-ignore
+export const props = z.strictObject({
+  ...variantProps(meta.variants),
+  style: z.enum(["direct", "group", "broadcast"]).optional(),
+  messages: z.array(z.strictObject({
+    from: z.enum(["me", "them"]), text: text(120),
+    sender: text(24).optional(), avatar: photo.optional(), time: text(16).optional(),
+    status: z.enum(["sent", "delivered", "read"]).optional(), replyTo: text(80).optional(),
+    attachment: z.strictObject({ kind: z.enum(["photo", "voice", "file"]), label: text(32).optional(), photo: photo.optional() })
+      .refine(({ kind, photo }) => (kind === "photo") === Boolean(photo), { path: ["photo"], message: "Only photo attachments use a photo reference" }).optional(),
+    reactions: z.array(text(12)).min(1).max(4).optional(),
+  })).min(1).max(6),
+  with: text(24).optional(),
+}).overwrite((value) => (value.detail === "brief" ? { ...value, with: undefined } : value));
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const { placeholderDetail } = wordsFor(lang);
@@ -187,15 +153,12 @@ export const probes = [
 type BubblesProps = Props<typeof props, typeof meta>;
 type Message = BubblesProps["messages"][number];
 
+// prettier-ignore
 function messageDetails({ messages, style }: BubblesProps, lang?: string): string[] {
   const w = wordsFor(lang).bubbleLabels;
   const lines = messages.flatMap(({ id, status, attachment, reactions, replyTo }, index) => {
-    const shown = [
-      status && w.status[status],
-      attachment && (attachment.label ?? w.attachment[attachment.kind]),
-      reactions?.join(" · "),
-      replyTo && w.reply(replyTo),
-    ].filter(Boolean);
+    const shown = [status && w.status[status], attachment && (attachment.label ?? w.attachment[attachment.kind]),
+      reactions?.join(" · "), replyTo && w.reply(replyTo)].filter(Boolean);
     return shown.length ? [`${id ?? `r${index + 1}`} ${shown.join(" · ")}`] : [];
   });
   return style === "broadcast" ? [w.broadcast, ...lines] : lines;
@@ -207,7 +170,7 @@ function MessageDetails({ message, after }: { message: Message; after?: boolean 
   const { id, from, sender, avatar, time, status, attachment, replyTo, reactions } = message;
   const align = from === "me" ? "end" : "start";
   if (after ? !(time || status || reactions || attachment) : !(sender || avatar || replyTo)) return null;
-  const { image, file } = attachmentDetails(attachment, align, w.attachment);
+  const { image, file } = AttachmentDetails(attachment, align, w.attachment);
   const name = sender && (
     <KitText role="label" part="sender" align={align}>
       {sender}
@@ -249,7 +212,7 @@ function MessageDetails({ message, after }: { message: Message; after?: boolean 
   );
 }
 
-function attachmentDetails(
+function AttachmentDetails(
   attachment: Message["attachment"],
   align: "end" | "start",
   labels: ReturnType<typeof wordsFor>["bubbleLabels"]["attachment"],

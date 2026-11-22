@@ -71,44 +71,23 @@ export const meta = {
   },
 } as const satisfies Meta;
 
-export const props = z
-  .strictObject({
-    ...variantProps(meta.variants),
-    style: z.enum(["columns", "share"]).default("columns"),
-    title: text(32),
-    unit: text(8).optional(),
-    points: z
-      .array(
-        z
-          .strictObject({
-            label: text(16),
-            value: z.number().min(0),
-            icon: icon.optional(),
-            goto: screenId.optional(),
-          })
-          .transform((point) => ({ ...point, ...(point.goto && { pressable: true }) })),
-      )
-      .min(2)
-      .max(7),
-    active: z.int().min(0).max(6).optional(),
-    status: text(40).optional(),
-  })
-  .refine(({ style, points }) => style === "share" || points.every((point) => point.label.length <= 4), {
-    path: ["points"],
-    message: "Columns take labels of four characters or fewer",
-  })
-  .refine(({ style, points }) => style === "columns" || points.length <= 6, {
-    path: ["points"],
-    message: "A share holds at most six parts",
-  })
-  .refine(
-    ({ style, points, active, status }) =>
-      style === "share"
-        ? active === undefined && status === undefined
-        : (active === undefined || active < points.length) &&
-          points.every((point) => !point.icon && !point.goto),
-    { message: "Columns use active/status; share points use icons and links" },
-  )
+// prettier-ignore
+export const props = z.strictObject({
+  ...variantProps(meta.variants),
+  style: z.enum(["columns", "share"]).default("columns"),
+  title: text(32), unit: text(8).optional(),
+  points: z.array(z.strictObject({ label: text(16), value: z.number().min(0), icon: icon.optional(), goto: screenId.optional() })
+    .transform((point) => ({ ...point, ...(point.goto && { pressable: true }) }))).min(2).max(7),
+  active: z.int().min(0).max(6).optional(), status: text(40).optional(),
+})
+  .refine(({ style, points }) => style === "share" || points.every((point) => point.label.length <= 4),
+    { path: ["points"], message: "Columns take labels of four characters or fewer" })
+  .refine(({ style, points }) => style === "columns" || points.length <= 6,
+    { path: ["points"], message: "A share holds at most six parts" })
+  .refine(({ style, points, active, status }) => style === "share"
+    ? active === undefined && status === undefined
+    : (active === undefined || active < points.length) && points.every((point) => !point.icon && !point.goto),
+    { message: "Columns use active/status; share points use icons and links" })
   .overwrite((value) => (value.detail === "brief" ? { ...value, unit: undefined } : value));
 
 function largestFirst<T extends { value: number }>(points: readonly T[]) {

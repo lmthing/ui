@@ -171,7 +171,7 @@ function FileRow({ row, density, cards, removable, showPages }: FileRowProps) {
   const loading = kit.useComponentState() === "loading";
   const { format, size, pages, status } = fileCopy(row, showPages, lang);
   const ready = row.status === "ready";
-  const controls = fileControls(row.name, ready, removable, loading, words);
+  const controls = FileControls(row.name, ready, removable, loading, words);
   const preview = (
     <kit.KitRow
       part={loading ? null : "root"}
@@ -216,7 +216,7 @@ function FileRow({ row, density, cards, removable, showPages }: FileRowProps) {
   );
 }
 
-function fileControls(
+function FileControls(
   name: string,
   ready: boolean,
   removable: boolean,

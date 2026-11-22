@@ -42,6 +42,7 @@ import {
 } from "../catalog";
 import { prompt } from "../entry/prompt-Review.generated";
 // Core first: Scale/stars records one person's rating, not client reviews, replies or an aggregate breakdown.
+// prettier-ignore
 export const meta = {
   id: "Review",
   status: "ready",
@@ -55,35 +56,16 @@ export const meta = {
   realPath: "Reviews left by clients in a shared app.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["bars", "response"] } },
-  items: {
-    key: "reviews",
-    parts: [
-      "root",
-      "stars",
-      "name",
-      "date",
-      "text",
-      "response",
-      "reply",
-      "reply_label",
-      "verified",
-      "fit",
-      "spoiler_label",
-      "photo_1",
-      "photo_2",
-      "photo_3",
-    ],
-  },
+  items: { key: "reviews", parts: [
+    "root", "stars", "name", "date", "text", "response", "reply", "reply_label",
+    "verified", "fit", "spoiler_label", "photo_1", "photo_2", "photo_3",
+  ] },
   parts: ["root", "average", "count", "bars"],
   partTiers: { root: "phone" },
   states: ["filled", "empty"],
-  actions: {
-    items: { root: ["toggle"], reply: ["press"] },
-    when: { root: { spoiler: true }, reply: { style: "list" } },
-  },
+  actions: { items: { root: ["toggle"], reply: ["press"] }, when: { root: { spoiler: true }, reply: { style: "list" } } },
   select: { prop: "expanded", value: "index", mode: "flags", runtime: true },
-  read: (input, state, lang): string[] =>
-    state === "filled" ? reviewReading(input as ReviewProps, lang) : [],
+  read: (input, state, lang): string[] => (state === "filled" ? reviewReading(input as ReviewProps, lang) : []),
 } as const satisfies Meta;
 const review = z.strictObject({
   stars: z.int().min(1).max(5),
@@ -96,35 +78,21 @@ const review = z.strictObject({
   spoiler: z.boolean().optional(),
   verified: z.boolean().optional(),
 });
-export const props = z
-  .strictObject({
-    ...variantProps(meta.variants),
-    style: z.enum(["summary", "list"]).default("summary"),
-    average: z.number().min(0).max(5).optional(),
-    count: z.int().min(0).optional(),
-    bars: z.array(z.number().min(0)).min(5).max(5).optional(),
-    reviews: z.array(review).min(1).max(5).optional(),
-  })
-  .refine(
-    ({ style, average, count, bars, reviews }) =>
-      style === "summary"
-        ? average !== undefined && count !== undefined && bars !== undefined
-        : reviews !== undefined,
-    { message: "Supply the active style's fields" },
-  )
-  .overwrite(({ average, count, bars, reviews, ...value }) => ({
-    ...value,
-    average: value.style === "summary" ? average : undefined,
-    count: value.style === "summary" ? count : undefined,
-    bars: value.style === "summary" ? bars : undefined,
-    reviews:
-      value.style === "list"
-        ? (reviews ?? []).map(({ reply, ...row }) => ({
-            ...row,
-            ...(reply && value.detail === "full" ? { reply } : {}),
-          }))
-        : [],
-  }));
+// prettier-ignore
+export const props = z.strictObject({
+  ...variantProps(meta.variants), style: z.enum(["summary", "list"]).default("summary"),
+  average: z.number().min(0).max(5).optional(), count: z.int().min(0).optional(),
+  bars: z.array(z.number().min(0)).min(5).max(5).optional(), reviews: z.array(review).min(1).max(5).optional(),
+}).refine(({ style, average, count, bars, reviews }) =>
+  style === "summary" ? average !== undefined && count !== undefined && bars !== undefined : reviews !== undefined,
+  { message: "Supply the active style's fields" },
+).overwrite(({ average, count, bars, reviews, ...value }) => ({
+  ...value, average: value.style === "summary" ? average : undefined, count: value.style === "summary" ? count : undefined,
+  bars: value.style === "summary" ? bars : undefined,
+  reviews: value.style === "list"
+    ? (reviews ?? []).map(({ reply, ...row }) => ({ ...row, ...(reply && value.detail === "full" ? { reply } : {}) }))
+    : [],
+}));
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const [item] = itemsOf(cast, 1);
   const thing = thingOf(cast);
@@ -276,7 +244,7 @@ function ReviewEntry({ review, density }: { review: ReviewItem; density: ReviewV
       {...{ density }}
     >
       <KitContent {...{ density }}>
-        {reviewAuthor(review, density, words.verified)}
+        {ReviewAuthor(review, density, words.verified)}
         <KitContent
           lineRole="body"
           {...{ density }}
@@ -316,7 +284,7 @@ function ReviewEntry({ review, density }: { review: ReviewItem; density: ReviewV
   );
 }
 
-function reviewAuthor(review: ReviewItem, density: ReviewView["density"], verified: string) {
+function ReviewAuthor(review: ReviewItem, density: ReviewView["density"], verified: string) {
   return (
     <KitRow
       inline

@@ -4,126 +4,75 @@ import * as kit from "../kit";
 import { prompt } from "../entry/prompt-List.generated";
 const trails = ["chevron", "none", "value", "badge", "toggle", "check"] as const;
 const trailPart = { adds: ["trail"] } as const;
+// prettier-ignore
 export const meta = {
-  id: "List",
-  group: "content",
-  status: "ready",
+  id: "List", group: "content", status: "ready",
   purpose: prompt.purpose,
   pick: prompt.pick,
   writeHints: prompt.writeHints,
-  region: "body",
-  weight: 2,
-  tier: "phone",
+  region: "body", weight: 2, tier: "phone",
   realPath: "A query over one thing in the on-device database.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "plain", "outlined"],
-    detail: ["full", "brief"],
-    aspect: ["wide", "square", "tall"],
-    arrange: ["rows", "grid"],
-    group: ["none", "sections"],
-    overflow: ["all", "peek"],
-    lead: ["icon", "none", "thumb", "number"],
-    trail: trails,
+    density: ["comfortable", "compact"], surface: ["card", "plain", "outlined"],
+    detail: ["full", "brief"], aspect: ["wide", "square", "tall"], arrange: ["rows", "grid"],
+    group: ["none", "sections"], overflow: ["all", "peek"],
+    lead: ["icon", "none", "thumb", "number"], trail: trails,
   },
   parts: ["root", "more", "more_label", "count"],
   items: {
     key: "rows",
     parts: ["root", "title", "meta", "icon", "trail", "body", "rank", "badge", "unread", "pinned"],
-    variants: {
-      trail: trails,
-      tone: ["neutral", "good", "warn", "bad"],
-      mark: ["none", "highlight", "muted", "new"],
-    },
+    variants: { trail: trails, tone: ["neutral", "good", "warn", "bad"], mark: ["none", "highlight", "muted", "new"] },
   },
   variantParts: {
-    "detail.brief": { hides: ["meta"] },
-    "overflow.peek": { adds: ["more", "more_label", "count"] },
-    "lead.none": { hides: ["icon"] },
-    "lead.thumb": { hides: ["icon"] },
-    "lead.number": { hides: ["icon"], adds: ["rank"] },
-    "trail.none": { hides: ["trail"] },
-    "trail.chevron": trailPart,
-    "trail.value": trailPart,
-    "trail.badge": trailPart,
-    "trail.toggle": trailPart,
-    "trail.check": trailPart,
+    "detail.brief": { hides: ["meta"] }, "overflow.peek": { adds: ["more", "more_label", "count"] },
+    "lead.none": { hides: ["icon"] }, "lead.thumb": { hides: ["icon"] }, "lead.number": { hides: ["icon"], adds: ["rank"] },
+    "trail.none": { hides: ["trail"] }, "trail.chevron": trailPart, "trail.value": trailPart,
+    "trail.badge": trailPart, "trail.toggle": trailPart, "trail.check": trailPart,
   },
-  states: ["filled", "empty", "loading"],
-  read: (input, state, lang, _data, _currency, live): string[] => {
+  states: ["filled", "empty", "loading"], read: (input, state, lang, _data, _currency, live): string[] => {
     const { rows, overflow } = input as { rows: Parameters<typeof c.listDetailLines>[0]; overflow?: string };
-    return state === "filled"
-      ? c.listDetailLines(
-          overflow === "peek" && live?.("more") !== true ? rows.slice(0, c.peekLimit) : rows,
-          lang,
-        )
-      : [];
+    return state === "filled" ? c.listDetailLines(overflow === "peek" && live?.("more") !== true ? rows.slice(0, c.peekLimit) : rows, lang) : [];
   },
-  actions: {
-    parts: { more: ["toggle"] },
-    items: { root: ["press", "toggle"], trail: ["toggle"] },
-    when: { trail: { trail: "toggle" }, "root.press": { root: "press" }, "root.toggle": { root: "toggle" } },
-  },
+  actions: { parts: { more: ["toggle"] }, items: { root: ["press", "toggle"], trail: ["toggle"] },
+    when: { trail: { trail: "toggle" }, "root.press": { root: "press" }, "root.toggle": { root: "toggle" } } },
 } as const satisfies c.Meta;
+// prettier-ignore
 const rowProps = z.strictObject({
-  title: c.text(28),
-  meta: c.text(36).optional(),
-  icon: c.icon.optional(),
-  photo: c.photo.optional(),
+  title: c.text(28), meta: c.text(36).optional(), icon: c.icon.optional(), photo: c.photo.optional(),
   ...c.itemVariantProps(meta.items.variants, { inheritTrail: true }),
-  value: c.text(10).optional(),
-  goto: c.screenId.optional(),
-  body: c.text(200).optional(),
-  me: z.boolean().optional(),
-  section: c.text(24).optional(),
-  progress: z.number().min(0).max(1).optional(),
-  badge: c.text(12).optional(),
-  unread: z.boolean().optional(),
-  pinned: z.boolean().optional(),
+  value: c.text(10).optional(), goto: c.screenId.optional(), body: c.text(200).optional(),
+  me: z.boolean().optional(), section: c.text(24).optional(),
+  progress: z.number().min(0).max(1).optional(), badge: c.text(12).optional(),
+  unread: z.boolean().optional(), pinned: z.boolean().optional(),
 });
-export const props = z
-  .strictObject({
-    ...c.variantProps(meta.variants),
-    style: z.enum(["cards", "shelf", "expand"]).optional(),
-    rows: z.array(rowProps).min(1).max(6),
-  })
-  .refine(
-    ({ style, group, rows }) =>
-      (style !== "shelf" || (rows.length >= 2 && rows.every((row) => row.photo))) &&
-      (style !== "expand" || rows.every((row) => row.body)) &&
-      ((style === "shelf" && !rows.some((row) => row.body)) ||
-        rows.every((row) => row.progress === undefined && row.badge === undefined)) &&
-      (group !== "sections" || rows.every((row) => row.section)) &&
-      rows.filter((row) => row.me).length <= 1,
-    {
-      path: ["rows"],
-      message:
-        "Shelf needs two photo rows and alone allows progress/badges; expand needs bodies, sections need labels, at most one me",
-    },
-  )
-  .overwrite((value) => {
-    const { rows, group, detail, lead, trail, overflow } = value;
-    const style = rows.some((row) => row.body) ? "expand" : value.style;
-    const quiet = style === "expand" || style === "shelf";
-    return {
-      ...value,
-      style,
-      more: overflow === "peek" && rows.length > c.peekLimit ? "peek" : undefined,
-      rows: rows.map((row) => ({
-        ...(row.unread !== undefined || row.pinned !== undefined ? { on: row.me === true } : {}),
-        ...row,
-        trail: row.trail ?? (quiet && trail === "chevron" ? "none" : trail),
-        root: style === "expand" ? "toggle" : row.goto ? "press" : undefined,
-        ...(detail === "brief" ? { meta: undefined } : {}),
-        ...(group !== "sections" ? { section: undefined } : {}),
-        ...(lead === "number" || lead === "none"
-          ? { icon: undefined, photo: undefined }
-          : lead === "icon" && row.icon && style !== "shelf"
-            ? { photo: undefined }
-            : {}),
-      })),
-    };
-  });
+// prettier-ignore
+export const props = z.strictObject({
+  ...c.variantProps(meta.variants), style: z.enum(["cards", "shelf", "expand"]).optional(),
+  rows: z.array(rowProps).min(1).max(6),
+}).refine(({ style, group, rows }) =>
+  (style !== "shelf" || (rows.length >= 2 && rows.every((row) => row.photo))) &&
+  (style !== "expand" || rows.every((row) => row.body)) &&
+  ((style === "shelf" && !rows.some((row) => row.body)) || rows.every((row) => row.progress === undefined && row.badge === undefined)) &&
+  (group !== "sections" || rows.every((row) => row.section)) &&
+  rows.filter((row) => row.me).length <= 1,
+  { path: ["rows"], message: "Shelf needs two photo rows and alone allows progress/badges; expand needs bodies, sections need labels, at most one me" },
+).overwrite((value) => {
+  const { rows, group, detail, lead, trail, overflow } = value;
+  const style = rows.some((row) => row.body) ? "expand" : value.style;
+  const quiet = style === "expand" || style === "shelf";
+  return {
+    ...value, style, more: overflow === "peek" && rows.length > c.peekLimit ? "peek" : undefined,
+    rows: rows.map((row) => ({
+      ...(row.unread !== undefined || row.pinned !== undefined ? { on: row.me === true } : {}),
+      ...row, trail: row.trail ?? (quiet && trail === "chevron" ? "none" : trail),
+      root: style === "expand" ? "toggle" : row.goto ? "press" : undefined,
+      ...(detail === "brief" ? { meta: undefined } : {}),
+      ...(group !== "sections" ? { section: undefined } : {}),
+      ...(lead === "number" || lead === "none" ? { icon: undefined, photo: undefined } : lead === "icon" && row.icon && style !== "shelf" ? { photo: undefined } : {}),
+    })),
+  };
+});
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);
   const rows = c.itemsOf(cast, 3).flatMap((item) => {
@@ -269,7 +218,7 @@ function CardDetails({ row, aspect, density, lead, index, grid }: CardDetailProp
   } = kit.useWords();
   const mark = row.unread && row.mark === "none" ? "new" : row.mark;
   const sideTrail = grid && row.trail === "chevron";
-  const { badge, unread, pinned, progress } = cardExtras(row, listLabels, lang);
+  const { badge, unread, pinned, progress } = CardExtras(row, listLabels, lang);
   const leading =
     lead === "number" ? (
       <kit.KitRank place={index + 1} part="rank" density={density} />
@@ -329,7 +278,7 @@ type CardDetailProps = Pick<ListProps, "aspect" | "density"> & {
   grid?: ListProps["surface"];
 };
 
-function cardExtras(row: ListRow, listLabels: c.Words["listLabels"], lang?: string) {
+function CardExtras(row: ListRow, listLabels: c.Words["listLabels"], lang?: string) {
   return {
     badge: row.badge && (
       <kit.KitContent leadingAlign="row" lead={<kit.KitTrail kind="badge" value={row.badge} part="badge" />}>
@@ -365,7 +314,7 @@ type ListRowLayout = Pick<ListProps, "style" | "surface" | "density" | "lead" | 
   pinned: string;
 };
 
-function listRow(row: ListRow, index: number, layout: ListRowLayout) {
+function ListRow(row: ListRow, index: number, layout: ListRowLayout) {
   const { style, surface, density, lead, trail, aspect, pending, grid, unread, pinned } = layout;
   if (pending)
     return style === "shelf" ? (
@@ -432,7 +381,7 @@ function ListRows(input: ListProps & { pending?: boolean }) {
   const layout = style === "shelf" ? (rows.length <= 2 ? "grid" : "strip") : grid ? "grid" : "rows";
   const listRowGap = group === "sections" ? "group" : style === "cards" ? "cards" : undefined;
   const children = rows.map((row, index) =>
-    listRow(row, index, { style, surface, density, lead, trail, aspect, pending, grid, unread, pinned }),
+    ListRow(row, index, { style, surface, density, lead, trail, aspect, pending, grid, unread, pinned }),
   );
   const groups: { id: string; heading: string; children: typeof children }[] = [];
   const draw = (items: typeof children) => (

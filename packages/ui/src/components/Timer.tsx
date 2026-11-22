@@ -156,7 +156,7 @@ export const probes = [
 
 type TimerProps = Props<typeof props, typeof meta>;
 
-function timerReadout(input: TimerProps, density: TimerProps["density"], lang?: string) {
+function TimerReadout(input: TimerProps, density: TimerProps["density"], lang?: string) {
   const { style, label, figures, goal } = input;
   const controls = style !== "until";
   const value = controls ? timerLine(input, lang) : leftLine(untilMs(input), lang);
@@ -191,7 +191,7 @@ export function Timer(input: TimerProps) {
   const { lang, words } = useWords();
   const { timerLabels } = words;
   const controls = style !== "until";
-  const readout = timerReadout(input, density, lang);
+  const readout = TimerReadout(input, density, lang);
   const start = (
     <KitAction
       label={timerLabels.start}

@@ -72,49 +72,25 @@ export const meta = {
   },
 } as const satisfies Meta;
 
-export const props = z
-  .strictObject({
-    ...variantProps(meta.variants),
-    style: z.enum(["week", "month"]).default("week"),
-    month: text(16),
-    marked: z
-      .array(
-        z
-          .strictObject({ day: z.int().min(1).max(31), ...itemVariantProps(meta.items.variants) })
-          .transform(
-            (
-              day,
-            ): typeof day & { mark?: typeof day.tone | undefined; date?: string; available?: boolean } => ({
-              ...day,
-              mark: day.tone,
-            }),
-          ),
-      )
-      .min(0)
-      .max(12),
-    selected: z.int().min(1).max(31).optional(),
-    start: z.int().min(1).max(7).default(1),
-    days: z.int().min(28).max(31).default(30),
-    range: z.boolean().optional(),
-    yearMonth: text(7)
-      .refine((month) => isoDate.safeParse(`${month}-01`).success)
-      .meta({ kind: "text", max: 7, read: false })
-      .optional(),
-    checkIn: isoDate.optional(),
-    checkOut: isoDate.optional(),
-    unavailable: z.array(z.int().min(1).max(31)).min(0).max(31).optional(),
-  })
-  .refine(
-    ({ marked, selected, days, range, yearMonth }) => {
-      const count = range && yearMonth ? monthGeometry(yearMonth).days : days;
-      return marked.every((mark) => mark.day <= count) && (selected ?? 1) <= count;
-    },
-    { message: "Dates must exist in this month" },
-  )
-  .refine(({ marked }) => new Set(marked.map((mark) => mark.day)).size === marked.length, {
-    path: ["marked"],
-    message: "Mark each date only once",
-  })
+// prettier-ignore
+export const props = z.strictObject({
+  ...variantProps(meta.variants),
+  style: z.enum(["week", "month"]).default("week"), month: text(16),
+  marked: z.array(z.strictObject({ day: z.int().min(1).max(31), ...itemVariantProps(meta.items.variants) })
+    .transform((day): typeof day & { mark?: typeof day.tone | undefined; date?: string; available?: boolean } =>
+      ({ ...day, mark: day.tone }))).min(0).max(12),
+  selected: z.int().min(1).max(31).optional(), start: z.int().min(1).max(7).default(1),
+  days: z.int().min(28).max(31).default(30), range: z.boolean().optional(),
+  yearMonth: text(7).refine((month) => isoDate.safeParse(`${month}-01`).success).meta({ kind: "text", max: 7, read: false }).optional(),
+  checkIn: isoDate.optional(), checkOut: isoDate.optional(),
+  unavailable: z.array(z.int().min(1).max(31)).min(0).max(31).optional(),
+})
+  .refine(({ marked, selected, days, range, yearMonth }) => {
+    const count = range && yearMonth ? monthGeometry(yearMonth).days : days;
+    return marked.every((mark) => mark.day <= count) && (selected ?? 1) <= count;
+  }, { message: "Dates must exist in this month" })
+  .refine(({ marked }) => new Set(marked.map((mark) => mark.day)).size === marked.length,
+    { path: ["marked"], message: "Mark each date only once" })
   .refine(validRange, { message: "Range needs an ISO month and an available ordered span within that month" })
   .overwrite((wire) => {
     const yearMonth = wire.range ? wire.yearMonth : undefined;
@@ -122,40 +98,20 @@ export const props = z
     const anchor = value.selected ?? value.marked[0]?.day ?? 1;
     const week = Math.floor((value.start + anchor - 2) / 7);
     const first = value.style === "month" ? 1 : Math.max(1, week * 7 - value.start + 2);
-    const last =
-      value.style === "month" ? value.days : Math.min(value.days, (week + 1) * 7 - value.start + 1);
-    return {
-      ...value,
-      marked: Array.from({ length: last - first + 1 }, (_, index) => {
-        const day = first + index;
-        const source = value.marked.find((mark) => mark.day === day);
-        return {
-          day,
-          tone: source?.tone ?? "neutral",
-          mark: source?.mark,
-          ...(yearMonth && {
-            date: `${yearMonth}-${String(day).padStart(2, "0")}`,
-            available: !value.unavailable?.includes(day),
-          }),
-        };
-      }),
-    };
+    const last = value.style === "month" ? value.days : Math.min(value.days, (week + 1) * 7 - value.start + 1);
+    return { ...value, marked: Array.from({ length: last - first + 1 }, (_, index) => {
+      const day = first + index;
+      const source = value.marked.find((mark) => mark.day === day);
+      return { day, tone: source?.tone ?? "neutral", mark: source?.mark, ...(yearMonth && {
+        date: `${yearMonth}-${String(day).padStart(2, "0")}`, available: !value.unavailable?.includes(day),
+      }) };
+    }) };
   });
 
-function validRange({
-  range,
-  yearMonth,
-  checkIn,
-  checkOut,
-  selected,
-  unavailable,
-}: {
-  range?: boolean | undefined;
-  yearMonth?: string | undefined;
-  checkIn?: string | undefined;
-  checkOut?: string | undefined;
-  selected?: number | undefined;
-  unavailable?: number[] | undefined;
+// prettier-ignore
+function validRange({ range, yearMonth, checkIn, checkOut, selected, unavailable }: {
+  range?: boolean | undefined; yearMonth?: string | undefined; checkIn?: string | undefined;
+  checkOut?: string | undefined; selected?: number | undefined; unavailable?: number[] | undefined;
 }) {
   if (!range)
     return (
@@ -240,7 +196,7 @@ function spanLines(
 
 type CalendarProps = Props<typeof props, typeof meta>;
 
-function calendarCells(
+function CalendarCells(
   live: CalendarProps,
   copy: ReturnType<typeof wordsFor>["calendarRange"],
   lang?: string,
@@ -290,7 +246,7 @@ export function Calendar(input: CalendarProps) {
     words: { calendarRange: copy },
   } = useWords();
   const [arrival, departure] = range ? spanLines(copy, checkIn, checkOut, lang) : [];
-  const cells = calendarCells(live, copy, lang);
+  const cells = CalendarCells(live, copy, lang);
   return (
     <KitCard style={range ? "inset" : "plain"} padded={range === true} part="root">
       <KitContent lineRole="heading" emphasis={emphasis}>

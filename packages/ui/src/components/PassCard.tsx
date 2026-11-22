@@ -16,24 +16,10 @@ export const meta = {
   realPath: "An issuer-supplied pass saved on the device, not a way to issue credentials.",
   variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["root", "label", "value"] } },
+  // prettier-ignore
   parts: [
-    "root",
-    "frame",
-    "issuer",
-    "title",
-    "member_name",
-    "member_id",
-    "reveal",
-    "reveal_icon",
-    "reveal_label",
-    "balance",
-    "expiry",
-    "status",
-    "code",
-    "code_icon",
-    "code_label",
-    "qr",
-    "message",
+    "root", "frame", "issuer", "title", "member_name", "member_id", "reveal", "reveal_icon", "reveal_label",
+    "balance", "expiry", "status", "code", "code_icon", "code_label", "qr", "message",
   ],
   items: { key: "facts", parts: ["root", "label", "value"], visibleWhen: { detail: "full" } },
   states: ["filled", "empty", "loading", "error"],
@@ -57,40 +43,24 @@ export const meta = {
   },
 } as const satisfies c.Meta;
 
-export const props = z
-  .strictObject({
-    ...c.variantProps(meta.variants),
-    issuer: c.text(28),
-    title: c.text(32),
-    memberName: c.text(24).optional(),
-    memberId: c.text(24).meta({ kind: "secret", max: 24 }).optional(),
-    masked: z.boolean().default(true),
-    code: c.secret(64).min(1).meta({ kind: "secret", max: 64 }).optional(),
-    codeKind: z.enum(["qr"]).default("qr"),
-    balance: z.number().optional(),
-    pointsLabel: c.text(20).optional(),
-    facts: z
-      .array(z.strictObject({ label: c.text(16), value: c.text(24) }))
-      .min(0)
-      .max(4)
-      .default([]),
-    expiresAt: c.isoDate.optional(),
-    used: z.boolean().default(false),
-    style: z.enum(["card", "coupon", "code", "transit"]).default("card"),
-  })
-  .overwrite((value) => ({
-    ...value,
-    ...passControls(value),
-    reveal: { value: "off" },
-    pointsLabel: value.balance === undefined ? undefined : value.pointsLabel,
-  }));
+// prettier-ignore
+export const props = z.strictObject({
+  ...c.variantProps(meta.variants),
+  issuer: c.text(28), title: c.text(32), memberName: c.text(24).optional(),
+  memberId: c.text(24).meta({ kind: "secret", max: 24 }).optional(), masked: z.boolean().default(true),
+  code: c.secret(64).min(1).meta({ kind: "secret", max: 64 }).optional(), codeKind: z.enum(["qr"]).default("qr"),
+  balance: z.number().optional(), pointsLabel: c.text(20).optional(),
+  facts: z.array(z.strictObject({ label: c.text(16), value: c.text(24) })).min(0).max(4).default([]),
+  expiresAt: c.isoDate.optional(), used: z.boolean().default(false),
+  style: z.enum(["card", "coupon", "code", "transit"]).default("card"),
+}).overwrite((value) => ({
+  ...value, ...passControls(value),
+  reveal: { value: "off" },
+  pointsLabel: value.balance === undefined ? undefined : value.pointsLabel,
+}));
 
-function passControls({
-  code,
-  used,
-  masked,
-  memberId,
-}: Pick<PassProps, "code" | "used" | "masked" | "memberId">) {
+// prettier-ignore
+function passControls({ code, used, masked, memberId }: Pick<PassProps, "code" | "used" | "masked" | "memberId">) {
   const invalid = code !== undefined && !used && (!code.trim() || /[\uD800-\uDFFF]/u.test(code));
   return {
     canReveal: masked && !!memberId,
@@ -175,9 +145,9 @@ function PassDetails({ input, layout, revealed }: { input: PassProps; layout: La
   const { canReveal, scannable } = passControls(input);
   return (
     <>
-      {passMember({ input, layout, revealed, loading, canReveal, lang, words })}
-      {passBalance({ input, layout, loading, scannable, lang, words })}
-      {passFacts(input, layout, loading)}
+      {PassMember({ input, layout, revealed, loading, canReveal, lang, words })}
+      {PassBalance({ input, layout, loading, scannable, lang, words })}
+      {PassFacts(input, layout, loading)}
     </>
   );
 }
@@ -185,7 +155,7 @@ function PassDetails({ input, layout, revealed }: { input: PassProps; layout: La
 type PassWords = c.Words["passCard"];
 type PassSection = { input: PassProps; layout: Layout; loading: boolean; lang?: string; words: PassWords };
 
-function passMember({
+function PassMember({
   input,
   layout,
   revealed,
@@ -240,7 +210,7 @@ function passMember({
   );
 }
 
-function passBalance({
+function PassBalance({
   input,
   layout,
   loading,
@@ -288,7 +258,7 @@ function passBalance({
   );
 }
 
-function passFacts(input: PassProps, layout: Layout, loading: boolean) {
+function PassFacts(input: PassProps, layout: Layout, loading: boolean) {
   const { facts } = input;
   return (
     input.detail === "full" &&
@@ -324,7 +294,7 @@ function passFacts(input: PassProps, layout: Layout, loading: boolean) {
   );
 }
 
-function passSkeleton(input: PassProps, layout: Layout, scannable: boolean, words: PassWords) {
+function PassSkeleton(input: PassProps, layout: Layout, scannable: boolean, words: PassWords) {
   const { align, density } = layout;
   return (
     <kit.KitCard padded part="root" density={density}>
@@ -375,7 +345,7 @@ export function PassCard(input: PassProps) {
         />
       </kit.KitCard>
     );
-  if (state === "loading") return passSkeleton(input, layout, scannable, words);
+  if (state === "loading") return PassSkeleton(input, layout, scannable, words);
   return (
     <kit.KitCard
       part="frame"

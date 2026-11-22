@@ -31,10 +31,9 @@ import { prompt } from "../entry/prompt-Field.generated";
 
 const endpoint = z.int().min(-1000000).max(1000000);
 // Use a local event instead of Field's legacy single-value set handler.
+// prettier-ignore
 const rangeState = defineLocalState({
-  schema: z
-    .strictObject({ min: endpoint, max: endpoint, lower: endpoint, upper: endpoint })
-    .refine(fitsRange),
+  schema: z.strictObject({ min: endpoint, max: endpoint, lower: endpoint, upper: endpoint }).refine(fitsRange),
   events: ["lower.set", "upper.set"],
   initial: ({ min, max, lower, upper }) => ({ min, max, lower, upper }) as Record<keyof Endpoints, number>,
   reduce: (state, { part, value }) => ({ state: { ...state, [part]: value } }),
@@ -58,21 +57,17 @@ export const meta = {
   partTiersBy: { field: { prop: "kind", tiers: { photo: "ok" } } },
   localState: rangeState,
   states: ["filled"],
+  // prettier-ignore
   actions: {
     parts: {
       field: ["type", "select", "toggle", "set", "press"],
-      lower: ["set"],
-      upper: ["set"],
-      voice: ["start", "stop"],
+      lower: ["set"], upper: ["set"], voice: ["start", "stop"],
     },
     when: {
-      "field.type": { mode: "input" },
-      "field.select": { mode: "choice" },
+      "field.type": { mode: "input" }, "field.select": { mode: "choice" },
       "field.toggle": { kind: "toggle" },
-      "field.set": { kind: "slider" },
-      "field.press": { kind: "photo" },
-      lower: { kind: "range" },
-      upper: { kind: "range" },
+      "field.set": { kind: "slider" }, "field.press": { kind: "photo" },
+      lower: { kind: "range" }, upper: { kind: "range" },
       voice: { kind: "voice" },
     },
   },
@@ -107,87 +102,41 @@ type Endpoints = {
   lower?: number | undefined;
   upper?: number | undefined;
 };
+// prettier-ignore
 function fitsRange({ min, max, lower, upper }: Endpoints) {
-  return (
-    min !== undefined &&
-    max !== undefined &&
-    lower !== undefined &&
-    upper !== undefined &&
-    min < max &&
-    min <= lower &&
-    lower <= upper &&
-    upper <= max
-  );
+  return (min !== undefined && max !== undefined && lower !== undefined && upper !== undefined &&
+    min < max && min <= lower && lower <= upper && upper <= max);
 }
 
-export const props = z
-  .strictObject({
-    ...variantProps(meta.variants),
-    kind: z
-      .enum([
-        "text",
-        "number",
-        "date",
-        "time",
-        "choice",
-        "repeat",
-        "toggle",
-        "slider",
-        "photo",
-        "range",
-        "voice",
-      ])
-      .default("text"),
-    label: text(24),
-    value: text(40)
-      .refine((value) => !/[\r\n]/.test(value), "A field is one line")
-      .optional(),
-    repeat: z.enum(repeatOptions).optional(),
-    hint: text(60).optional(),
-    options: z.array(text(16)).min(2).max(4).optional(),
-    min: endpoint.optional(),
-    max: endpoint.optional(),
-    lower: endpoint.optional(),
-    upper: endpoint.optional(),
-  })
-  .refine(
-    ({ kind, min, max, lower, upper, value }) =>
-      kind === "range"
-        ? value === undefined && fitsRange({ min, max, lower, upper })
-        : [min, max, lower, upper].every((point) => point === undefined) &&
-          (kind !== "voice" || value === undefined),
-    { message: "Use ordered numeric endpoints only for range and no text value for range or voice" },
-  )
-  .refine(({ kind, options }) => (kind === "choice") === (options !== undefined), {
-    path: ["options"],
-    message: "Options are required only for choice",
-  })
-  .refine(
-    ({ options, value }) =>
-      !options ||
-      (new Set(options).size === options.length && (value === undefined || options.includes(value))),
-    { path: ["value"], message: "Choice needs distinct options and an available value" },
-  )
-  .refine(({ kind, value }) => value === undefined || fits(kind, value), {
-    path: ["value"],
-    message: "Value must fit the kind: on or off, or a finite number",
-  })
-  .refine(({ kind, value }) => kind !== "repeat" || value === undefined, {
-    path: ["value"],
-    message: "A repeat uses repeat, not value",
-  })
-  .refine(({ kind, repeat }) => repeat === undefined || kind === "repeat", {
-    path: ["repeat"],
-    message: "Repeat is only for the repeat kind",
-  })
+// prettier-ignore
+export const props = z.strictObject({
+  ...variantProps(meta.variants),
+  kind: z.enum(["text", "number", "date", "time", "choice", "repeat", "toggle", "slider", "photo", "range", "voice"]).default("text"),
+  label: text(24),
+  value: text(40).refine((value) => !/[\r\n]/.test(value), "A field is one line").optional(),
+  repeat: z.enum(repeatOptions).optional(), hint: text(60).optional(),
+  options: z.array(text(16)).min(2).max(4).optional(),
+  min: endpoint.optional(), max: endpoint.optional(), lower: endpoint.optional(), upper: endpoint.optional(),
+})
+  .refine(({ kind, min, max, lower, upper, value }) => kind === "range"
+    ? value === undefined && fitsRange({ min, max, lower, upper })
+    : [min, max, lower, upper].every((point) => point === undefined) && (kind !== "voice" || value === undefined),
+    { message: "Use ordered numeric endpoints only for range and no text value for range or voice" })
+  .refine(({ kind, options }) => (kind === "choice") === (options !== undefined),
+    { path: ["options"], message: "Options are required only for choice" })
+  .refine(({ options, value }) => !options || (new Set(options).size === options.length && (value === undefined || options.includes(value))),
+    { path: ["value"], message: "Choice needs distinct options and an available value" })
+  .refine(({ kind, value }) => value === undefined || fits(kind, value),
+    { path: ["value"], message: "Value must fit the kind: on or off, or a finite number" })
+  .refine(({ kind, value }) => kind !== "repeat" || value === undefined,
+    { path: ["value"], message: "A repeat uses repeat, not value" })
+  .refine(({ kind, repeat }) => repeat === undefined || kind === "repeat",
+    { path: ["repeat"], message: "Repeat is only for the repeat kind" })
   .overwrite((value) => ({
     ...value,
     ...(value.detail === "brief" ? { hint: undefined } : {}),
-    mode: ["text", "number", "date", "time"].includes(value.kind)
-      ? "input"
-      : value.kind === "choice" || value.kind === "repeat"
-        ? "choice"
-        : "other",
+    mode: ["text", "number", "date", "time"].includes(value.kind) ? "input" :
+      value.kind === "choice" || value.kind === "repeat" ? "choice" : "other",
   }));
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const { placeholderDetail } = wordsFor(lang);

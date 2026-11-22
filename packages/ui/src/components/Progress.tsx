@@ -44,12 +44,8 @@ export const meta = {
   tier: "phone",
   realPath: "Amounts summed from records on the device, each compared with a stored target.",
   signatureByStyle: { ring: "ring_fill" },
-  variants: {
-    density: ["comfortable", "compact"],
-    figures: ["exact", "short"],
-    emphasis: ["normal", "hero"],
-    detail: ["full", "brief"],
-  },
+  // prettier-ignore
+  variants: { density: ["comfortable", "compact"], figures: ["exact", "short"], emphasis: ["normal", "hero"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["sub"] } },
   items: {
     key: "bars",
@@ -85,19 +81,11 @@ export const props = z
   .strictObject({
     ...variantProps(meta.variants),
     style: z.enum(["bars", "ring"]).default("bars"),
-    bars: z
-      .array(
-        z.strictObject({
-          label: text(24),
-          value: z.number().min(0),
-          of: z.number().positive(),
-          unit: text(8).optional(),
-          ...itemVariantProps(meta.items.variants),
-          goto: screenId.optional(),
-        }),
-      )
-      .min(1)
-      .max(5),
+    // prettier-ignore
+    bars: z.array(z.strictObject({
+      label: text(24), value: z.number().min(0), of: z.number().positive(),
+      unit: text(8).optional(), ...itemVariantProps(meta.items.variants), goto: screenId.optional(),
+    })).min(1).max(5),
     sub: text(48).optional().meta({ read: false }),
   })
   .superRefine((input, ctx) => {
