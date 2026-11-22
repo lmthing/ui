@@ -25,33 +25,9 @@
   },
   {
     "file": "test/probes.test.ts",
-    "test": "pack probes on deepseek-flash > data passes selection, component and composition probes",
-    "reason": "Missing current pack recording.",
-    "owner": "ui-refresh-pack-data"
-  },
-  {
-    "file": "test/probes.test.ts",
     "test": "pack probes on deepseek-flash > events passes selection, component and composition probes",
     "reason": "Missing current pack recording.",
     "owner": "ui-refresh-pack-events"
-  },
-  {
-    "file": "test/probes.test.ts",
-    "test": "pack probes on deepseek-flash > health passes selection, component and composition probes",
-    "reason": "Missing current pack recording.",
-    "owner": "ui-refresh-pack-health"
-  },
-  {
-    "file": "test/probes.test.ts",
-    "test": "pack probes on deepseek-flash > hiring passes selection, component and composition probes",
-    "reason": "Missing current pack recording.",
-    "owner": "ui-refresh-pack-hiring"
-  },
-  {
-    "file": "test/probes.test.ts",
-    "test": "pack probes on deepseek-flash > home passes selection, component and composition probes",
-    "reason": "Missing current pack recording.",
-    "owner": "ui-refresh-pack-home"
   },
   {
     "file": "test/probes.test.ts",
@@ -85,18 +61,6 @@
   },
   {
     "file": "test/probes.test.ts",
-    "test": "pack probes on deepseek-flash > mind passes selection, component and composition probes",
-    "reason": "Missing current pack recording.",
-    "owner": "ui-refresh-pack-mind"
-  },
-  {
-    "file": "test/probes.test.ts",
-    "test": "pack probes on deepseek-flash > money passes selection, component and composition probes",
-    "reason": "Missing current pack recording.",
-    "owner": "ui-refresh-pack-money"
-  },
-  {
-    "file": "test/probes.test.ts",
     "test": "pack probes on deepseek-flash > paperwork passes selection, component and composition probes",
     "reason": "Missing current pack recording.",
     "owner": "ui-refresh-pack-paperwork"
@@ -106,12 +70,6 @@
     "test": "pack probes on deepseek-flash > play passes selection, component and composition probes",
     "reason": "Missing current pack recording.",
     "owner": "ui-refresh-pack-play"
-  },
-  {
-    "file": "test/probes.test.ts",
-    "test": "pack probes on deepseek-flash > property passes selection, component and composition probes",
-    "reason": "Two recorded pack selections add inventory to property, and component replay lacks a recording.",
-    "owner": "ui-refresh-pack-property"
   },
   {
     "file": "test/probes.test.ts",
