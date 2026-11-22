@@ -14,7 +14,7 @@ const mode = query.get("mode");
 
 export function Gallery() {
   if (query.has("motion")) return <MotionPreview name={query.get("motion") as SignatureName} />;
-  if (query.has("controls")) return <Controls kind={query.get("controls") ?? "form"} />;
+  if (query.has("controls")) return <Controls kind={query.get("controls") ?? "form"} query={query} />;
   if (query.has("runtime")) return <Runtime />;
   if (only && query.has("variant-sheet")) {
     return (

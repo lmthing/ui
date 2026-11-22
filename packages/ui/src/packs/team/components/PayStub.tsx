@@ -107,14 +107,31 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
-// prettier-ignore
 export const examples = [
-  { employee: "Rae", periodFrom: "2026-11-01", periodTo: "2026-11-14", payDate: "2026-11-20",
-    earnings: [{ label: "Regular hours", hours: 72, rate: 16, amount: 1152 }, { label: "Extra hours", hours: 4, rate: 24, amount: 96 }],
-    deductions: [{ label: "Income tax", amount: 153.6 }, { label: "Pension", amount: 49.92 }],
-    ytdGross: 24208, ytdNet: 20114.20 },
-  { employee: "Sam", periodFrom: "2026-11-01", periodTo: "2026-11-07", payDate: "2026-11-13",
-    earnings: [{ label: "Route cover", amount: 620 }], deductions: [] },
+  {
+    employee: "Rae",
+    periodFrom: "2026-11-01",
+    periodTo: "2026-11-14",
+    payDate: "2026-11-20",
+    earnings: [
+      { label: "Regular hours", hours: 72, rate: 16, amount: 1152 },
+      { label: "Extra hours", hours: 4, rate: 24, amount: 96 },
+    ],
+    deductions: [
+      { label: "Income tax", amount: 153.6 },
+      { label: "Pension", amount: 49.92 },
+    ],
+    ytdGross: 24208,
+    ytdNet: 20114.2,
+  },
+  {
+    employee: "Sam",
+    periodFrom: "2026-11-01",
+    periodTo: "2026-11-07",
+    payDate: "2026-11-13",
+    earnings: [{ label: "Route cover", amount: 620 }],
+    deductions: [],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("PayStub");
@@ -145,14 +162,17 @@ type ViewProps = Props<typeof props, typeof meta>;
 type Display = ReturnType<typeof payStubDisplay>;
 type Entry = Display["earnings"][number];
 
-// prettier-ignore
 function PayLine({ row, density }: { row: Entry; density: ThemeDensity }) {
   return (
     <kit.KitRow label={row.label} inset="none" inline fitContent density={density}>
       <kit.KitContent rhythm="flush" density={density}>
         <kit.KitGrid fitLast density={density}>
           <kit.KitLayoutText line={{ text: row.label, role: "body" }} density={density} />
-          <kit.KitLayoutText line={{ text: row.amount, part: row.part ?? null, role: "figure", compact: true, tabular: true }} align="end" density={density} />
+          <kit.KitLayoutText
+            line={{ text: row.amount, part: row.part ?? null, role: "figure", compact: true, tabular: true }}
+            align="end"
+            density={density}
+          />
         </kit.KitGrid>
         <kit.KitLayoutText line={{ text: row.note, role: "meta", tone: "muted" }} density={density} />
       </kit.KitContent>
@@ -160,37 +180,59 @@ function PayLine({ row, density }: { row: Entry; density: ThemeDensity }) {
   );
 }
 
-// prettier-ignore
-function PaySection({ title, part, rows, density }: {
-  title: string; part?: string; rows: Entry[]; density: ThemeDensity;
+function PaySection({
+  title,
+  part,
+  rows,
+  density,
+}: {
+  title: string;
+  part?: string;
+  rows: Entry[];
+  density: ThemeDensity;
 }) {
   return (
     <kit.KitContent density={density}>
       {part && <kit.KitHeader title={{ text: title, part, role: "body", strong: true }} density={density} />}
       <kit.KitRowGroup separators={false} spacing={part === "earnings" ? "groups" : "rows"} density={density}>
-        {rows.map((row, index) => <PayLine key={index} {...{ row, density }} />)}
+        {rows.map((row, index) => (
+          <PayLine key={index} {...{ row, density }} />
+        ))}
       </kit.KitRowGroup>
     </kit.KitContent>
   );
 }
 
-// prettier-ignore
 function StatementBody({ data, brief, density }: { data: Display; brief: boolean; density: ThemeDensity }) {
-  const { words: { payStub: words } } = kit.useWords(teamWordsFor);
+  const {
+    words: { payStub: words },
+  } = kit.useWords(teamWordsFor);
   return (
     <>
-      <kit.KitHeader title={{ text: words.title, part: "title", role: "body" }} meta={[
-        { text: brief ? undefined : data.employee, part: "employee" },
-        { text: brief ? undefined : data.period, part: "period" },
-        { text: data.paid, part: "paid" },
-      ]} density={density} />
-      <kit.KitFigure value={{ text: data.net, part: "net" }} unit={{ text: words.net, role: "meta" }} density={density} />
+      <kit.KitHeader
+        title={{ text: words.title, part: "title", role: "body" }}
+        meta={[
+          { text: brief ? undefined : data.employee, part: "employee" },
+          { text: brief ? undefined : data.period, part: "period" },
+          { text: data.paid, part: "paid" },
+        ]}
+        density={density}
+      />
+      <kit.KitFigure
+        value={{ text: data.net, part: "net" }}
+        unit={{ text: words.net, role: "meta" }}
+        density={density}
+      />
       <PaySection title={words.title} rows={data.totals} density={density} />
-      {!brief && <>
-        <PaySection title={words.earnings} part="earnings" rows={data.earnings} density={density} />
-        {data.deductions.length > 0 && <PaySection title={words.deductions} part="deductions" rows={data.deductions} density={density} />}
-        {data.ytd.length > 0 && <PaySection title={words.title} rows={data.ytd} density={density} />}
-      </>}
+      {!brief && (
+        <>
+          <PaySection title={words.earnings} part="earnings" rows={data.earnings} density={density} />
+          {data.deductions.length > 0 && (
+            <PaySection title={words.deductions} part="deductions" rows={data.deductions} density={density} />
+          )}
+          {data.ytd.length > 0 && <PaySection title={words.title} rows={data.ytd} density={density} />}
+        </>
+      )}
       <kit.KitActionFooter density={density}>
         <kit.KitAction part="export" label={words.export} contentParts={{}} kind="secondary" />
       </kit.KitActionFooter>
@@ -198,10 +240,12 @@ function StatementBody({ data, brief, density }: { data: Display; brief: boolean
   );
 }
 
-// prettier-ignore
 export function PayStub(input: ViewProps) {
   const state = kit.useComponentState();
-  const { lang, words: { payStub: words } } = kit.useWords(teamWordsFor);
+  const {
+    lang,
+    words: { payStub: words },
+  } = kit.useWords(teamWordsFor);
   const currency = kit.useAppCurrency();
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const density = kit.useKit().density;
@@ -210,8 +254,13 @@ export function PayStub(input: ViewProps) {
   const content = <StatementBody data={data} brief={detail === "brief"} density={density} />;
   return (
     <kit.KitCard part="root" style="inset" padded {...{ density, surface }}>
-      <kit.KitState message={state === "error" ? words.error : words.empty} icon={state === "error" ? "alert" : "file_text"}
-        part="message" {...{ density }} loading={content}>
+      <kit.KitState
+        message={state === "error" ? words.error : words.empty}
+        icon={state === "error" ? "alert" : "file_text"}
+        part="message"
+        {...{ density }}
+        loading={content}
+      >
         {content}
       </kit.KitState>
     </kit.KitCard>

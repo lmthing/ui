@@ -63,14 +63,26 @@ createRoot(document.getElementById("root")!).render(
       controller={controller}
     >
       <PartScope screen="test" component="pads" rev={1} state="filled">
-        <KitTile item="r1" icon="check" label="First" touchTarget="buzz" />
+        <KitTile
+          item="r1"
+          icon="check"
+          label="First"
+          touchTarget="buzz"
+          detail={<span>Tap to answer</span>}
+        />
         <KitTile item="r2" icon="check" label="Second" touchTarget="buzz" />
         <KitTile item="r3" icon="check" label="Disabled" touchTarget="buzz" disabled />
         <KitTile item="r5" icon="check" label="Ordinary" />
         <KitAction part="reset" label="Reset" action="press" />
       </PartScope>
       <PartScope screen="test" component="pads" rev={1} state="loading">
-        <KitTile item="r4" icon="check" label="Loading" touchTarget="buzz" />
+        <KitTile
+          item="r4"
+          icon="check"
+          label="Loading"
+          touchTarget="buzz"
+          detail={<span>Tap to answer</span>}
+        />
       </PartScope>
     </KitProvider>
   </TamaguiProvider>,

@@ -3,10 +3,12 @@ export type BaseRoles = Record<
   string
 >;
 export type AccentRoles = Record<"accent" | "accentSoft" | "onAccent", string>;
+type PresetFont = "humanist" | "grotesk" | "rounded" | "serif";
 export type PresetMeta = {
   id: string;
   mood: string;
-  font: "humanist" | "grotesk" | "rounded" | "serif";
+  font: PresetFont;
+  heading?: PresetFont;
   numbers: "regular" | "condensed";
   /** `strong` sets every text role one step heavier (bold preset). */
   weight: "regular" | "strong";

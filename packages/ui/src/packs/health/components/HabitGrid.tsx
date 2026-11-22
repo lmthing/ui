@@ -97,7 +97,6 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
     })),
   };
 }
-// prettier-ignore
 export const examples = [
   {
     habits: [
@@ -146,16 +145,18 @@ function HabitStreak({ habit, today }: { habit: Habit; today: number }) {
     </KitText>
   );
 }
-// prettier-ignore
 function WeekDays() {
   const { weekdayNames } = useWords().words;
   return weekdayNames.map((label, index) => ({
     id: `day_${index + 1}`,
     label,
-    header: <KitText role="caption" tone="muted" part={null}>{label}</KitText>,
+    header: (
+      <KitText role="caption" tone="muted" part={null}>
+        {label}
+      </KitText>
+    ),
   }));
 }
-// prettier-ignore
 export function HabitGrid({ habits, lead }: Props<typeof props, typeof meta>) {
   const surface = "card";
   const state = useComponentState();
@@ -163,14 +164,24 @@ export function HabitGrid({ habits, lead }: Props<typeof props, typeof meta>) {
   const today = (new Date().getDay() + 6) % 7;
   const days = WeekDays();
   if (state === "empty")
-    return <KitCard part="root" surface={surface}><KitEmpty part="grid" decorativeIcon /></KitCard>;
+    return (
+      <KitCard part="root" surface={surface}>
+        <KitEmpty part="grid" decorativeIcon />
+      </KitCard>
+    );
   const rows = habits.map((habit) => ({
     id: habit.id,
     label: habit.name,
     heading: (
-      <KitRow item={habit.id} label={habit.name} inline
-        leading={showIcon && <KitIcon name={habit.icon} part="icon" />}>
-        <KitText role="body" part="name" lines={2}>{habit.name}</KitText>
+      <KitRow
+        item={habit.id}
+        label={habit.name}
+        inline
+        leading={showIcon && <KitIcon name={habit.icon} part="icon" />}
+      >
+        <KitText role="body" part="name" lines={2}>
+          {habit.name}
+        </KitText>
       </KitRow>
     ),
     cells: days.map((day, index) => ({
@@ -183,7 +194,10 @@ export function HabitGrid({ habits, lead }: Props<typeof props, typeof meta>) {
   return (
     <KitCard part="root" surface={surface}>
       <KitWeekMatrix
-        part="grid" {...{ days, rows }} corner={null} today={days[today]!.id}
+        part="grid"
+        {...{ days, rows }}
+        corner={null}
+        today={days[today]!.id}
         trailing={habits.map((habit) => ({
           row: habit.id,
           content: (

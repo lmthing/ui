@@ -40,6 +40,9 @@ describe("themeRoles control labels", () => {
   );
   it.each(cases)("$preset.id / $accent.id / $mode", ({ preset, accent, mode }) => {
     const roles = themeRoles(preset, accent, mode);
+    expect(contrast(roles.text, roles.bg)).toBeGreaterThanOrEqual(7);
+    expect(contrast(roles.muted, roles.bg)).toBeGreaterThanOrEqual(4.5);
+    expect(roles.onAccent).toBe(accent[mode].onAccent);
     // Primary button, selected pill, and count badge share the solid pair.
     expect(contrast(roles.onAccent, roles.accent)).toBeGreaterThanOrEqual(4.5);
     // Secondary button and accent badge/selected custom chip use the soft fill.
@@ -57,5 +60,11 @@ describe("themeRoles control labels", () => {
     const resolved = themeRoles(preset, darkOnDark, "light");
     expect(resolved.onAccent).not.toBe(darkOnDark.light.onAccent);
     expect(contrast(resolved.onAccent, resolved.accent)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it.each(["fresh", "playful", "soft"] as const)("separates dark Moss controls from %s cards", (id) => {
+    const preset = presets.find((preset) => preset.id === id)!;
+    const roles = themeRoles(preset, accents[0], "dark");
+    expect(contrast(roles.accentSoft, roles.surface)).toBeGreaterThanOrEqual(1.4);
   });
 });

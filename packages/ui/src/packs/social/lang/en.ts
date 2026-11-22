@@ -1,3 +1,4 @@
+import { words as StoryViewerWords } from "./en/StoryViewer";
 import { words as FeedWords } from "./en/Feed";
 import { words as PostWords } from "./en/Post";
 import { words as CommentsWords } from "./en/Comments";
@@ -6,11 +7,15 @@ import { words as StoriesWords } from "./en/Stories";
 import { words as EventCardWords } from "./en/EventCard";
 import { words as ChallengeWords } from "./en/Challenge";
 import { words as InviteWords } from "./en/Invite";
+import { liveRoomWords, words as LiveRoomWords } from "./en/LiveRoom";
+import { postOptionWords } from "./en/Post";
 import type { LDMLPluralRule } from "../../../catalog";
 
 type CountCopy = { before?: string; after?: string };
 
 export type SocialWords = {
+  liveRoom: typeof liveRoomWords;
+  postOptions: typeof postOptionWords;
   feed: {
     likes: (form: LDMLPluralRule) => CountCopy;
     comments: (form: LDMLPluralRule) => CountCopy;
@@ -46,7 +51,30 @@ export type SocialWords = {
     rail: string;
     own: string;
     empty: string;
+    notes: string;
+    emptyNotes: string;
+    noteStatus: (name: string, seen: boolean) => string;
+    noteLink: (status: string, note: string) => string;
     status: (name: string, seen: boolean) => string;
+  };
+  storyViewer: {
+    position: (current: string, total: string) => string;
+    photo: (position: string) => string;
+    previous: string;
+    next: string;
+    playback: string;
+    play: string;
+    pause: string;
+    playing: string;
+    paused: string;
+    reply: string;
+    send: string;
+    react: string;
+    close: string;
+    expired: string;
+    sent: string;
+    sending: string;
+    notSent: string;
   };
   event: {
     going: string;
@@ -76,6 +104,7 @@ export type SocialWords = {
     copy: string;
     share: string;
     qr: string;
+    members: string;
     joined: (count: string, form: LDMLPluralRule) => string;
   };
 };
@@ -86,7 +115,9 @@ export const en = {
   ...CommentsWords,
   ...PollWords,
   ...StoriesWords,
+  ...StoryViewerWords,
   ...EventCardWords,
   ...ChallengeWords,
   ...InviteWords,
+  ...LiveRoomWords,
 } satisfies SocialWords;

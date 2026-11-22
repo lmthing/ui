@@ -102,17 +102,35 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
-// prettier-ignore
 export const examples = [
-  { departments: ["Greenhouse", "Dispatch"], members: [
-    { name: "Rae Price", role: "Grower", department: "Greenhouse", manager: "Anna Cole", availability: "on_shift", goto: "rae" },
-    { name: "Anna Cole", role: "Grow lead", department: "Greenhouse", availability: "break" },
-    { name: "Lee Park", role: "Dispatcher", department: "Dispatch", availability: "pto" },
-  ] },
-  { departments: ["Walks"], members: [
-    { name: "Sam Ortiz", role: "Route lead", department: "Walks", availability: "off" },
-    { name: "Mina Chen", role: "Walker", department: "Walks", manager: "Sam Ortiz", availability: "on_shift" },
-  ] },
+  {
+    departments: ["Greenhouse", "Dispatch"],
+    members: [
+      {
+        name: "Rae Price",
+        role: "Grower",
+        department: "Greenhouse",
+        manager: "Anna Cole",
+        availability: "on_shift",
+        goto: "rae",
+      },
+      { name: "Anna Cole", role: "Grow lead", department: "Greenhouse", availability: "break" },
+      { name: "Lee Park", role: "Dispatcher", department: "Dispatch", availability: "pto" },
+    ],
+  },
+  {
+    departments: ["Walks"],
+    members: [
+      { name: "Sam Ortiz", role: "Route lead", department: "Walks", availability: "off" },
+      {
+        name: "Mina Chen",
+        role: "Walker",
+        department: "Walks",
+        manager: "Sam Ortiz",
+        availability: "on_shift",
+      },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("TeamDirectory");
@@ -141,52 +159,119 @@ type Member = ViewProps["members"][number];
 
 const statusTone = { on_shift: "good", break: "warn", pto: "muted", off: "muted" } as const;
 
-// prettier-ignore
-function MemberRow({ row, brief, density }: { row: Member; brief: boolean; density: ThemeDensity }) {
-  const context = kit.usePartContext();
-  const { words: { teamDirectory: words } } = kit.useWords(teamWordsFor);
-  const loading = context.state === "loading";
-  const identity = (
-    <kit.KitRow item={row.id} part={loading ? null : "root"} label={row.name} role={!loading && !row.goto ? "button" : "group"}
-      goto={loading ? undefined : row.goto} inset="none" density={density} leadingAlign="row"
-      leading={<kit.KitPhoto part={loading ? null : "photo"} shape="round" photo={row.photo}
-        label={row.name} initials={directoryInitials(row.name)} loading={loading} />}>
-      <kit.KitMetaLine title={{ text: row.name, part: "name", role: "body", strong: true }}
-        meta={[{ text: row.role, part: "role" }, { text: row.manager && words.manager(row.manager), part: "manager" }]}
-        density={density} />
+function MemberIdentity(
+  row: Member,
+  density: ThemeDensity,
+  loading: boolean,
+  words: ReturnType<typeof teamWordsFor>["teamDirectory"],
+) {
+  return (
+    <kit.KitRow
+      item={row.id}
+      part={loading ? null : "root"}
+      label={row.name}
+      role={!loading && !row.goto ? "button" : "group"}
+      goto={loading ? undefined : row.goto}
+      inset="none"
+      density={density}
+      leadingAlign="row"
+      leading={
+        <kit.KitPhoto
+          part={loading ? null : "photo"}
+          shape="round"
+          photo={row.photo}
+          label={row.name}
+          initials={directoryInitials(row.name)}
+          loading={loading}
+        />
+      }
+    >
+      <kit.KitMetaLine
+        title={{ text: row.name, part: "name", role: "body", strong: true }}
+        meta={[
+          { text: row.role, part: "role" },
+          { text: row.manager && words.manager(row.manager), part: "manager" },
+        ]}
+        density={density}
+      />
     </kit.KitRow>
   );
+}
+
+function MemberRow({ row, brief, density }: { row: Member; brief: boolean; density: ThemeDensity }) {
+  const context = kit.usePartContext();
+  const {
+    words: { teamDirectory: words },
+  } = kit.useWords(teamWordsFor);
+  const loading = context.state === "loading";
+  const identity = MemberIdentity(row, density, loading, words);
   return (
     <kit.KitGrid fitLast density={density}>
       {identity}
       <kit.PartScope {...context} item={row.id}>
         <kit.KitContent density={density}>
-          <kit.KitRow part={null} label={words.status[row.availability]} inline fitContent inset="none" density={density}
-            trailing={<kit.KitTrail kind="badge" value={words.status[row.availability]} tone={statusTone[row.availability]} part="availability" density={density} />}>
+          <kit.KitRow
+            part={null}
+            label={words.status[row.availability]}
+            inline
+            fitContent
+            inset="none"
+            density={density}
+            trailing={
+              <kit.KitTrail
+                kind="badge"
+                value={words.status[row.availability]}
+                tone={statusTone[row.availability]}
+                part="availability"
+                density={density}
+              />
+            }
+          >
             {null}
           </kit.KitRow>
-          {!brief && <kit.KitActionFooter align="end" density={density}>
-            <kit.KitAction part="message" icon="message" a11y={words.messagePerson(row.name)} kind="quiet" contentParts={{}} />
-            <kit.KitAction part="call" icon="phone" a11y={words.callPerson(row.name)} kind="quiet" contentParts={{}} />
-          </kit.KitActionFooter>}
+          {!brief && (
+            <kit.KitActionFooter align="end" density={density}>
+              <kit.KitAction
+                part="message"
+                icon="message"
+                a11y={words.messagePerson(row.name)}
+                kind="quiet"
+                contentParts={{}}
+              />
+              <kit.KitAction
+                part="call"
+                icon="phone"
+                a11y={words.callPerson(row.name)}
+                kind="quiet"
+                contentParts={{}}
+              />
+            </kit.KitActionFooter>
+          )}
         </kit.KitContent>
       </kit.PartScope>
     </kit.KitGrid>
   );
 }
 
-// prettier-ignore
 function DirectoryRows({ input, density }: { input: ViewProps; density: ThemeDensity }) {
-  const { lang, words: { teamDirectory: words } } = kit.useWords(teamWordsFor);
+  const {
+    lang,
+    words: { teamDirectory: words },
+  } = kit.useWords(teamWordsFor);
   const groups = directoryGroups(input, lang);
-  if (groups.length === 0) return <kit.KitEmpty part="empty" title={words.empty} icon="search" decorativeIcon prominence="body" />;
+  if (groups.length === 0)
+    return <kit.KitEmpty part="empty" title={words.empty} icon="search" decorativeIcon prominence="body" />;
   return (
     <kit.KitRowGroup separators={false} spacing="groups" density={density}>
       {groups.map(({ department, members }) => (
         <kit.KitContent key={department ?? ""} density={density}>
-          {department && <kit.KitHeader title={{ text: department, role: "meta", strong: true }} density={density} />}
+          {department && (
+            <kit.KitHeader title={{ text: department, role: "meta", strong: true }} density={density} />
+          )}
           <kit.KitRowGroup density={density} spacing="groups" separators={false}>
-            {members.map((row) => <MemberRow key={row.id} row={row} brief={input.detail === "brief"} density={density} />)}
+            {members.map((row) => (
+              <MemberRow key={row.id} row={row} brief={input.detail === "brief"} density={density} />
+            ))}
           </kit.KitRowGroup>
         </kit.KitContent>
       ))}
@@ -194,9 +279,10 @@ function DirectoryRows({ input, density }: { input: ViewProps; density: ThemeDen
   );
 }
 
-// prettier-ignore
 export function TeamDirectory(input: ViewProps) {
-  const { words: { teamDirectory: words } } = kit.useWords(teamWordsFor);
+  const {
+    words: { teamDirectory: words },
+  } = kit.useWords(teamWordsFor);
   const context = kit.usePartContext();
   const density = kit.useKit().density;
   const surface = "card";
@@ -208,14 +294,31 @@ export function TeamDirectory(input: ViewProps) {
   const header = <kit.KitHeader title={{ text: words.title, part: "title" }} density={density} />;
   return (
     <kit.KitCard part="root" style="inset" padded {...{ density, surface }}>
-      {context.state === "loading" ? <kit.KitState density={density} loading={<kit.KitContent density={density}>
-        {header}{search}<DirectoryRows input={{ ...input, detail }} density={density} />
-      </kit.KitContent>} /> : <kit.KitContent density={density}>
-        {header}{search}
-        <kit.KitState message={query.trim() ? words.empty : words.unassigned} icon="search" density={density} part="empty">
-          {rows}
-        </kit.KitState>
-      </kit.KitContent>}
+      {context.state === "loading" ? (
+        <kit.KitState
+          density={density}
+          loading={
+            <kit.KitContent density={density}>
+              {header}
+              {search}
+              <DirectoryRows input={{ ...input, detail }} density={density} />
+            </kit.KitContent>
+          }
+        />
+      ) : (
+        <kit.KitContent density={density}>
+          {header}
+          {search}
+          <kit.KitState
+            message={query.trim() ? words.empty : words.unassigned}
+            icon="search"
+            density={density}
+            part="empty"
+          >
+            {rows}
+          </kit.KitState>
+        </kit.KitContent>
+      )}
     </kit.KitCard>
   );
 }

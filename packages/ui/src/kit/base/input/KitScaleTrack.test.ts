@@ -74,11 +74,24 @@ describe("compact readonly stars", () => {
       expect(styleAt(html, target)).toContain(`height:${size.control.md}px`);
     }
   });
-  it.each(["mood", "stars", "dots"] as const)("keeps default readonly %s geometry", (style) => {
+});
+describe("readonly defaults", () => {
+  it("defaults to compact readonly stars without introducing editable addresses", () => {
+    const props = { style: "stars", value: 4.5, labels, readonly: true } as const;
+    const html = render(props);
+    expect(html).toBe(render({ ...props, compact: true }));
+    expect(html).toContain('aria-label="4.5 stars"');
+    expect(html).not.toContain('role="radio"');
+    expect(html).not.toContain('data-testid="home/c1/r1/l');
+    const wide = render({ ...props, compact: false });
+    for (const cell of elementAt(wide, "base").children[0]!.children)
+      expect(styleAt(wide, cell)).toContain(`min-width:${size.control.md}px`);
+  });
+  it.each(["mood", "dots"] as const)("keeps default readonly %s geometry", (style) => {
     const props = { style, value: 3, labels, readonly: true };
     const html = render(props);
     expect(html).toBe(render({ ...props, compact: false }));
-    if (style !== "stars") expect(html).toBe(render({ ...props, compact: true }));
+    expect(html).toBe(render({ ...props, compact: true }));
     for (const cell of elementAt(html, "base").children[0]!.children)
       expect(styleAt(html, cell)).toContain(`min-width:${size.control.md}px`);
   });

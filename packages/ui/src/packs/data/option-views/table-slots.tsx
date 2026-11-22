@@ -11,6 +11,7 @@ type ViewProps = {
   rows: Row[];
   selectable: boolean;
   sort?: number | undefined;
+  sort_options?: ReturnType<typeof tableChoices>;
   group: "none" | "sections";
   summaryRow?: (typeof tableSummaryModes)[number] | undefined;
 };
@@ -57,12 +58,12 @@ function TableHeading(row: Row, column: Column, { selectable, density, loading, 
 }
 
 // prettier-ignore
-function TableHeader(label: string, kind: Column["kind"], on: boolean, loading: boolean, pending: boolean, density: c.ThemeDensity) {
+function TableHeader({ label, value }: { label: string; value: string }, kind: Column["kind"], on: boolean, loading: boolean, pending: boolean, density: c.ThemeDensity) {
   const align = numericKind(kind) ? "end" : kind === "status" ? "center" : "start";
   if (loading) return <kit.KitContent inset="md">
     <kit.KitLayoutText line={{ text: label, role: "meta" }} {...{ align, density }} />
   </kit.KitContent>;
-  const chip = <kit.KitChip item={null} look="segment" role="radio" label={label} on={on} disabled={pending} />;
+  const chip = <kit.KitChip item={null} look="segment" role="radio" label={label} value={value} on={on} disabled={pending} />;
   if (align === "center") return chip;
   if (align === "end") return <kit.KitGrid fitLast><kit.KitContent>{null}</kit.KitContent>{chip}</kit.KitGrid>;
   return <kit.KitRow inline fitContent part={null} label={label} leadingAlign="row" leading={chip}>{null}</kit.KitRow>;
@@ -98,9 +99,10 @@ export function TableMatrix({ input, density, loading, lang, pending }: {
 }) {
   const { columns, rows, selectable, sort, group, summaryRow } = input;
   const scope = kit.usePartContext();
-  const headers = tableChoices(columns).map(({ label, value }) => ({
+  const headers = tableChoices(columns, lang).map(({ label, value }) => ({
     id: String(value), label,
-    header: TableHeader(label, columns[value]!.kind, value === sort, loading, pending, density),
+    header: TableHeader({ label, value: input.sort_options?.[value]?.label ?? label },
+      columns[value]!.kind, value === sort, loading, pending, density),
   }));
   const drawing = tableSections(rows, columns, group, sort, lang).flatMap(({ label, rows }, section) => {
     // A heading that may wrap needs its own measured row; the short slot uses one label line.
