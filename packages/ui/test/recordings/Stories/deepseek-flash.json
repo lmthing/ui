@@ -715,5 +715,461 @@
       "{\"c\":\"Stories\",\"density\":\"compact\",\"surface\":\"plain\",\"detail\":\"brief\",\"people\":[{\"name\":\"Me\",\"photo\":\"local:1\",\"seen\":false,\"goto\":\"my_story_add\"},{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\"}],\"mine\":true}",
       "{\"c\":\"Stories\",\"density\":\"comfortable\",\"surface\":\"plain\",\"detail\":\"brief\",\"people\":[{\"name\":\"Me\",\"photo\":\"local:1\",\"seen\":false,\"goto\":\"my_story\"},{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\"}],\"mine\":true}"
     ]
+  },
+  "Stories%2Fchoose%2FShow%20a%20row%20of%20people%E2%80%99s%20temporary%20updates%20that%20disappear%20after%20a%20day%2C%20with%20rings%20for%20new%20ones%20and%20my%20add%20button%20first./67d91a150587964b/8af990fa3ec8eb19": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Challenge: Join a shared goal and track the group’s and your own progress. Pick: A group challenge with a shared goal, deadline, group total, personal contribution and up to three leaders. Not a personal goal (Progress) or a full leaderboard (List).\n- Comments: Read and respond to replies under a shared post. Pick: Public replies beneath a post, with author avatars, like and reply controls, and one level of indentation. Not a two-person private conversation (Bubbles) or a business review (Review).\n- EventCard: See a community event and say whether you’re going or interested. Pick: An event to join in a community, with its date block, attendees and Going or Interested controls. Not organising one's own gathering (events), a provider booking (Appointment), or a featured preview without RSVPs (Card).\n- Feed: Browse recent posts shared by several people. Pick: Several community posts to scroll, with authors, short excerpts and reactions. Not one full post (Post), ordinary tappable rows (List), a private journal (Entries), or chat messages (Bubbles).\n- Invite: Bring new members in with a code or a shareable starter pack. Pick: Invite people to join an app or group using a copyable code, optional QR, or a starter pack of people to discover. Not sharing a post (Post) or listing existing members (People).\n- LiveRoom: Join a live audio conversation, see who’s speaking, and ask to speak. Pick: Join or host a live multi-speaker audio room with an audience, a hand-raise queue, and stage controls. Not a recording (Player), a private call (ActiveCall), or asynchronous posts (Feed).\n- Poll: Ask a group to vote and see how everyone voted. Pick: A shared question with voting options and group results. Not a choice for oneself (Choice), a quiz with right answers (Quiz), or coordinating a date via availability (FindDate).\n- Post: Read and react to one community post in full. Pick: One community post in full, with author, long text, optional photo carousel and like, comment and share controls. Not several posts (Feed), an article (Article), or one featured thing preview (Card).\n- Stories: Tap through people’s short-lived updates and add one of your own. Pick: Short-lived stories from people or a row of short avatar notes, with an optional add button first. Not a member roster (People) or a photo collection (Gallery).\n- StoryViewer: Watch a person’s short-lived story and respond to the current slide. Pick: Watch one person’s temporary multi-slide story with timed progress, stickers or quick replies. Not a static photo carousel (Gallery), a row of people’s stories (Stories), or a permanent Post.\n\nNeed, in the person's words: \"Show a row of people’s temporary updates that disappear after a day, with rings for new ones and my add button first.\"\nReply with only the component id, nothing else.",
+    "reply": "Stories",
+    "replies": [
+      "Stories",
+      "Stories",
+      "Stories"
+    ]
+  },
+  "Stories%2Fchoose%2FShow%20an%20ordinary%20member%20roster%20with%20names%2C%20profile%20pictures%20and%20club%20roles.%20No%20temporary%20updates./d93d3ece3b5766ba/9bff4d3e969bcdfe": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Challenge: Join a shared goal and track the group’s and your own progress. Pick: A group challenge with a shared goal, deadline, group total, personal contribution and up to three leaders. Not a personal goal (Progress) or a full leaderboard (List).\n- Comments: Read and respond to replies under a shared post. Pick: Public replies beneath a post, with author avatars, like and reply controls, and one level of indentation. Not a two-person private conversation (Bubbles) or a business review (Review).\n- EventCard: See a community event and say whether you’re going or interested. Pick: An event to join in a community, with its date block, attendees and Going or Interested controls. Not organising one's own gathering (events), a provider booking (Appointment), or a featured preview without RSVPs (Card).\n- Feed: Browse recent posts shared by several people. Pick: Several community posts to scroll, with authors, short excerpts and reactions. Not one full post (Post), ordinary tappable rows (List), a private journal (Entries), or chat messages (Bubbles).\n- Invite: Bring new members in with a code or a shareable starter pack. Pick: Invite people to join an app or group using a copyable code, optional QR, or a starter pack of people to discover. Not sharing a post (Post) or listing existing members (People).\n- LiveRoom: Join a live audio conversation, see who’s speaking, and ask to speak. Pick: Join or host a live multi-speaker audio room with an audience, a hand-raise queue, and stage controls. Not a recording (Player), a private call (ActiveCall), or asynchronous posts (Feed).\n- Poll: Ask a group to vote and see how everyone voted. Pick: A shared question with voting options and group results. Not a choice for oneself (Choice), a quiz with right answers (Quiz), or coordinating a date via availability (FindDate).\n- Post: Read and react to one community post in full. Pick: One community post in full, with author, long text, optional photo carousel and like, comment and share controls. Not several posts (Feed), an article (Article), or one featured thing preview (Card).\n- Stories: Tap through people’s short-lived updates and add one of your own. Pick: Short-lived stories from people or a row of short avatar notes, with an optional add button first. Not a member roster (People) or a photo collection (Gallery).\n- StoryViewer: Watch a person’s short-lived story and respond to the current slide. Pick: Watch one person’s temporary multi-slide story with timed progress, stickers or quick replies. Not a static photo carousel (Gallery), a row of people’s stories (Stories), or a permanent Post.\n\nNeed, in the person's words: \"Show an ordinary member roster with names, profile pictures and club roles. No temporary updates.\"\nReply with only the component id, nothing else.",
+    "reply": "People",
+    "replies": [
+      "People",
+      "People",
+      "People"
+    ]
+  },
+  "Stories%2Fread%2FOpen%20the%20camera%20to%20add%20my%20own%20story./0df4d3c3116ac323/c50533a82f0a777f": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 Stories Add your story — Your story — Maya: new story — Sam: seen story [s1/add press !needs-ok]\n  r1 \"Maya\" · photo:people_maya [s1/r1 press→fern_story !needs-people]\n  r2 \"Sam\" · photo:people_sam [s1/r2 press→basil_story !needs-people]\n\nTask: Open the camera to add my own story.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/add\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1/add\", \"action\": \"press\"}",
+      "{\"address\": \"s1/add\", \"action\": \"press\"}",
+      "{\"address\": \"s1/add\", \"action\": \"press\"}"
+    ]
+  },
+  "Stories%2Fwrite%2FMake%20a%20row%20of%20today%E2%80%99s%20plant%20stories%3A%20Maya%E2%80%99s%20fern%20update%20is%20unseen%2C%20Sam%E2%80%99s%20basil%20update%20is%20seen%2C%20and%20I%20can%20add%20my%20own%20from%20the%20first%20spot./f3a53ef1f979ab2e/a4b76fb9aa0200e4": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nStories: Tap through people’s short-lived updates and add one of your own.\nprops: { density?: comfortable|compact, surface?: plain|card=\"plain\", detail?: full|brief=\"full\", style?: stories|notes, people: [1..10 { name: text≤12, photo: photo lib:<tag>|local:<n>, seen: boolean, goto: id snake_case, note?: text≤28 }], mine: boolean }\nRule: Use style \"notes\" for short text in avatar bubbles and write that text in each person’s note. Use null for style for ordinary stories.\nRule: For an add button set \"mine\":true. Never insert an add entry or a \"Me\" story in people: the button renders separately. List only the existing stories from the brief, in order, with their goto links and seen flags.\nRule: For explicitly hiding captions write \"detail\":\"brief\" and preserve the names. Otherwise write \"detail\":null. If no density or surface is requested, write \"density\":null and \"surface\":null.\nexample: {\"c\":\"Stories\",\"mine\":true,\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Make a row of today’s plant stories: Maya’s fern update is unseen, Sam’s basil update is seen, and I can add my own from the first spot.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Stories",
+              "enum": [
+                "Stories"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "plain",
+                    "card"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "stories",
+                    "notes"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "people": {
+              "minItems": 1,
+              "maxItems": 10,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 12
+                  },
+                  "photo": {
+                    "type": "string",
+                    "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                  },
+                  "seen": {
+                    "type": "boolean"
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  },
+                  "note": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "photo",
+                  "seen",
+                  "goto",
+                  "note"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "mine": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "style",
+            "people",
+            "mine"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\",\"note\":null},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\",\"note\":null}],\"mine\":true}",
+    "replies": [
+      "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\",\"note\":null},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\",\"note\":null}],\"mine\":true}",
+      "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\",\"note\":null},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\",\"note\":null}],\"mine\":true}",
+      "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\",\"note\":null},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\",\"note\":null}],\"mine\":true}"
+    ]
+  },
+  "Stories%2Fwrite%2FShow%20just%20Maya%E2%80%99s%20and%20Sam%E2%80%99s%20short%20avatar%20notes%2C%20not%20stories%2C%20with%20no%20add%20button.%20Maya%E2%80%99s%20note%20is%20%22Cuttings%20are%20ready!%22%20and%20Sam%E2%80%99s%20is%20%22Watered%20the%20basil%22./febe1051e608d2da/58cc1aabd3c57107": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nStories: Tap through people’s short-lived updates and add one of your own.\nprops: { density?: comfortable|compact, surface?: plain|card=\"plain\", detail?: full|brief=\"full\", style?: stories|notes, people: [1..10 { name: text≤12, photo: photo lib:<tag>|local:<n>, seen: boolean, goto: id snake_case, note?: text≤28 }], mine: boolean }\nRule: Use style \"notes\" for short text in avatar bubbles and write that text in each person’s note. Use null for style for ordinary stories.\nRule: For an add button set \"mine\":true. Never insert an add entry or a \"Me\" story in people: the button renders separately. List only the existing stories from the brief, in order, with their goto links and seen flags.\nRule: For explicitly hiding captions write \"detail\":\"brief\" and preserve the names. Otherwise write \"detail\":null. If no density or surface is requested, write \"density\":null and \"surface\":null.\nexample: {\"c\":\"Stories\",\"mine\":true,\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show just Maya’s and Sam’s short avatar notes, not stories, with no add button. Maya’s note is \"Cuttings are ready!\" and Sam’s is \"Watered the basil\".",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Stories",
+              "enum": [
+                "Stories"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "plain",
+                    "card"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "stories",
+                    "notes"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "people": {
+              "minItems": 1,
+              "maxItems": 10,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 12
+                  },
+                  "photo": {
+                    "type": "string",
+                    "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                  },
+                  "seen": {
+                    "type": "boolean"
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  },
+                  "note": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "photo",
+                  "seen",
+                  "goto",
+                  "note"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "mine": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "style",
+            "people",
+            "mine"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":\"notes\",\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\",\"note\":\"Cuttings are ready!\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\",\"note\":\"Watered the basil\"}],\"mine\":false}",
+    "replies": [
+      "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":\"notes\",\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\",\"note\":\"Cuttings are ready!\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\",\"note\":\"Watered the basil\"}],\"mine\":false}",
+      "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":\"notes\",\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\",\"note\":\"Cuttings are ready!\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\",\"note\":\"Watered the basil\"}],\"mine\":false}",
+      "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":\"notes\",\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\",\"note\":\"Cuttings are ready!\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\",\"note\":\"Watered the basil\"}],\"mine\":false}"
+    ]
+  },
+  "Stories%2Fwrite%2FShow%20Maya%E2%80%99s%20new%20fern%20story%20and%20Sam%E2%80%99s%20already%20seen%20basil%20story%2C%20with%20my%20add%20button%20first.%20Show%20only%20the%20circles%3A%20hide%20the%20captions%20under%20them%2C%20but%20remember%20their%20names./0306a368963f7876/b9db7bcf3b60d5a2": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nStories: Tap through people’s short-lived updates and add one of your own.\nprops: { density?: comfortable|compact, surface?: plain|card=\"plain\", detail?: full|brief=\"full\", style?: stories|notes, people: [1..10 { name: text≤12, photo: photo lib:<tag>|local:<n>, seen: boolean, goto: id snake_case, note?: text≤28 }], mine: boolean }\nRule: Use style \"notes\" for short text in avatar bubbles and write that text in each person’s note. Use null for style for ordinary stories.\nRule: For an add button set \"mine\":true. Never insert an add entry or a \"Me\" story in people: the button renders separately. List only the existing stories from the brief, in order, with their goto links and seen flags.\nRule: For explicitly hiding captions write \"detail\":\"brief\" and preserve the names. Otherwise write \"detail\":null. If no density or surface is requested, write \"density\":null and \"surface\":null.\nexample: {\"c\":\"Stories\",\"mine\":true,\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show Maya’s new fern story and Sam’s already seen basil story, with my add button first. Show only the circles: hide the captions under them, but remember their names.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Stories",
+              "enum": [
+                "Stories"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "plain",
+                    "card"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "stories",
+                    "notes"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "people": {
+              "minItems": 1,
+              "maxItems": 10,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 12
+                  },
+                  "photo": {
+                    "type": "string",
+                    "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                  },
+                  "seen": {
+                    "type": "boolean"
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  },
+                  "note": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "photo",
+                  "seen",
+                  "goto",
+                  "note"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "mine": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "style",
+            "people",
+            "mine"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\",\"note\":null},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\",\"note\":null}],\"mine\":true}",
+    "replies": [
+      "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\",\"note\":null},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\",\"note\":null}],\"mine\":true}",
+      "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\",\"note\":null},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\",\"note\":null}],\"mine\":true}",
+      "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\",\"note\":null},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\",\"note\":null}],\"mine\":true}"
+    ]
   }
 }

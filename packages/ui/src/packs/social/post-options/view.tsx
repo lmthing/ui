@@ -96,7 +96,14 @@ function ExtraToggle({ part, on }: { part: "repost" | "save"; on: boolean }) {
   if (part === "repost") {
     const label = postOptions.repost(active);
     return (
-      <kit.KitRow part={loading ? null : part} role={loading ? "text" : "button"} label={label} inline>
+      <kit.KitRow
+        part={loading ? null : part}
+        role={loading ? "text" : "button"}
+        label={label}
+        leadingAlign="row"
+        leading={<kit.KitIcon name={active ? "undo" : "share"} decorative tone="muted" loading={loading} />}
+        inline
+      >
         <kit.KitLayoutText
           line={{ text: label, role: "meta", tone: active ? "muted" : "text", strong: true }}
         />
