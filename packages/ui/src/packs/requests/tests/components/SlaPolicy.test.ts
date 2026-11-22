@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { z } from "zod";
 import {
   atDeviceTime,
   components,
@@ -16,7 +17,7 @@ const def = components.SlaPolicy;
 const [ongoing, complete] = def.examples;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const definition = { SlaPolicy: def };
-const screen = (input = ongoing!, state: StateName = "filled") => ({
+const screen = (input: z.input<typeof def.props> = ongoing!, state: StateName = "filled") => ({
   id: "home",
   components: [{ ...input, id: "sl", c: "SlaPolicy", state }],
 });

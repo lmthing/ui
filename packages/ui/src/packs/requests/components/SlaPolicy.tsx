@@ -13,7 +13,7 @@ export const meta = {
   realPath: "The host calculates contractual deadlines from the request's policy and timestamps or syncs them from a shared service desk.",
   writeHints: [
     "Use ISO date-times with seconds and a UTC offset (Z for UTC). Order the opening, response deadline and resolution deadline chronologically. Only set an event timestamp when that event has happened. Never write the computed statuses or countdown.",
-    'For one compact SLA badge/countdown row set only detail to "brief"; keep every timestamp. Use null for unrequested axes, including surface and density for a one-line row.',
+    'When both targets should be visible, output detail null; the default is the full tracker. Only if the brief explicitly asks for a single badge/countdown row, set detail to "brief". Keep every timestamp. Set surface and density to null unless separately requested.',
   ],
   variants: { detail: ["full", "brief"], surface: ["card", "outlined"], density: ["comfortable", "compact"] },
   variantParts: { "detail.brief": { hides: ["request", "response", "meter"] } },
@@ -73,7 +73,7 @@ const { choose, write, read } = c.probesFor("SlaPolicy");
 export const probes = [
   choose("For one repair ticket, show the service agreement tier, whether we met the first reply deadline, and the time left to resolve it. Flag either deadline if missed."),
   choose("Just count down to Friday at 4 PM. I only need a timer until that moment.", "Timer"),
-  write("Track the service deadlines for LG-41, Priority repair. Opened at 00:00 UTC on Nov 22, 2026; first response due 04:00, sent at 02:15. Resolve by 12:00 the same day, still open. Link the SLA rules to service_rules."),
+  { ...write("Track the service deadlines for LG-41, Priority repair. Opened at 00:00 UTC on Nov 22, 2026; first response due 04:00, sent at 02:15. Resolve by 12:00 the same day, still open. Keep both targets visible, with the response status row and resolution bar. Link the SLA rules to service_rules."), variant: { axis: "detail", value: null } },
   { ...write("Show only a one-line SLA badge and remaining time for TR-08, Standard 24h. Preserve the timestamps: opened Nov 21, 2026 at 08:00 UTC; response due at 12:00 UTC that day; resolution due Nov 22 at 08:00 UTC. No reply or resolution yet."), variant: { axis: "detail", value: "brief" } },
   { ...read("Open the SLA rules for the priority repair", { address: "s1/policy", action: "press" }), at: Date.parse("2026-11-22T06:00:00Z") },
 ] satisfies c.Probe[];
