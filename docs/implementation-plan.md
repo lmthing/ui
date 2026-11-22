@@ -521,6 +521,20 @@ There is no `meta.aliases`, alias lookup step, `R2.alias`, `R2.off_pack` or alia
 `registry.resolve` tries exact id, case/separator-insensitive id, then migration aliases through
 `legacyTarget`, restricted to the scope. Migration aliases for renamed/merged components stay.
 
+**Renderer reuse for packs.** A pack may use a core component's internal kit renderer without
+adding a catalog entry. The owning component adapts parsed and projected view data to a typed
+slot map (such as date, time, title, byline and status). The renderer uses the owning component's
+part context and the supplied stamped item ids and part names. Nested targets are finite named
+parts derived from the owner's bounded arrays; they do not create another level of item ids.
+The owner alone defines fallback, reading, actions, live state, tiers and host data. The renderer
+draws those values and binds existing targets through kit bases; it does not register a component
+or own another controller or store.
+
+Writer lines remain flat. Neither renderer slots nor nested component JSON appear in the Writer
+schema. The first adapters are Agenda's dated event list and Itinerary's foldable day rails over
+Timeline's event renderer. Keep their legacy ids, parts, action verbs and recipes, including the
+distinction between all-day events and untimed stops. Renderer adoption does not retire an id.
+
 ### 4.7 Lookups for repairs
 
 **Pending:** `nearestIcon(name)` (edit distance and synonyms, else neutral `dot`),
@@ -565,8 +579,8 @@ writerFormat(registry) // strict line schema, the 2026-11-18 design (4.6)
 70-token cap. Choice blocks include purpose and pick, not schemas.
 
 Ordinary blocks sort by group then id; the pack index sorts by id. Code-owned components are
-excluded. Live choose prompts preserve definition order to keep existing recording keys. They use
-the same choice prose, not the same sorted block.
+excluded. Live choose prompts preserve definition order. They use the same choice prose, not the
+same sorted block.
 
 The implemented gates use `ceil(codePoints / 4)`, not an o200k tokenizer:
 
@@ -576,7 +590,7 @@ The implemented gates use `ceil(codePoints / 4)`, not an o200k tokenizer:
 
 Tests snapshot the real core and pack-index fixtures, and assert recorded write-entry parity. Synthetic packs copy core prose;
 they are not real-pack coverage. **Pending:** real pack blocks/snapshots, tokenizer measurements and
-reports for every entry/block, and cache-order unification once recordings can be refreshed.
+reports for every entry/block.
 
 ### 4.10 Checks
 
@@ -717,8 +731,20 @@ across a full app belongs to harness evals. Visual craft requires screenshots, n
 **Live and replay.** `scripts/llm.config.ts` is the only model routing table: one required light model,
 `deepseek-flash`, with three samples. Direct Azure REST uses environment credentials, not a provider
 SDK. Transient transport failures retry at most four attempts with exponential backoff; these are
-not extra sampled model answers. Recordings key a hash of model id and prompt, storing the prompt,
-first reply and sample replies. Replay is deterministic.
+not extra sampled model answers. Offline replay keys each model's evidence by probe id and a
+fingerprint of the probe and its own definition (schema, metadata and model-facing text), not the
+shared catalog listing. The definition includes local validation rules not expressible in JSON
+Schema, but not the draft/ready flag. Replay prefers a complete recording of the exact prompt and
+reports prompt drift once per probe when it uses evidence from a different listing. A changed
+probe or own definition still needs new evidence. Recordings retain the exact prompt, sent format
+and all sample replies. A fixed offline index binds compatible legacy evidence without rewriting
+the books. It verifies component definitions and exact evidence at the recording commits, and a
+legacy alias stops working if its samples are replaced. Live calls and exact-request pack
+resumption are unchanged.
+
+When a merge brings in refreshed legacy books, run `pnpm build:catalog` first, then
+`pnpm --filter @lmthing/ui exec tsx scripts/llm/migration/index.ts --refresh`. Review the index
+diff and replay the probes. The migration does not edit the books or call models.
 
 | Command                           | Gate                                                                              |
 | --------------------------------- | --------------------------------------------------------------------------------- |

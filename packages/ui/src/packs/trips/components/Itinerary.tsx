@@ -5,13 +5,14 @@ import {
   text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props,
 } from "../../../catalog";
 import * as kit from "../../../kit";
+import { TimelineRail, type TimelineRailRow } from "../../../kit/timeline";
 import { initialItineraryDay, itineraryDate, itineraryStopCopy, readItinerary } from "../copy";
 import { tripsWordsFor } from "../lang";
 
-const maxStops = 6;
-const stopParts = Array.from({ length: maxStops }, (_, i) => `stop_${i + 1}`);
-const durationParts = Array.from({ length: maxStops }, (_, i) => `duration_${i + 1}`);
-const timeParts = stopParts.map((part) => `${part}_time`);
+const positions = [1, 2, 3, 4, 5, 6] as const;
+const stopParts = positions.map((n) => `stop_${n}` as const);
+const durationParts = positions.map((n) => `duration_${n}` as const);
+const timeParts = stopParts.map((part) => `${part}_time` as const);
 const stopActions = Object.fromEntries(stopParts.map((part) => [part, ["press"] as const]));
 const icons = { stop: "pin", travel: "train", meal: "utensils", stay: "bed" } as const;
 
@@ -58,7 +59,7 @@ const day = z
   .strictObject({
     date: isoDate,
     place: text(24),
-    stops: z.array(stop).min(1).max(maxStops),
+    stops: z.array(stop).min(1).max(positions.length),
   })
   .overwrite((value) => ({
     ...value,
@@ -153,26 +154,19 @@ function ItineraryDay({ day, initial, density, detail }: DayProps & { day: Itine
   const open = !controller || initial !== toggled;
   const { lang, words } = kit.useWords(tripsWordsFor);
   const date = itineraryDate(day.date, lang);
-  return (
-    <kit.KitContent density={density}>
-      <kit.KitRow item={day.id} part="root" label={words.itinerary.dayLabel(date, day.place)}
-        role="button" expanded={open} density="comfortable" lineRole="heading" tone="muted"
-        trailing={<kit.KitIcon name={open ? "minus" : "plus"} decorative />}>
-        <kit.KitText part="place" role="heading" density="comfortable">{day.place}</kit.KitText>
-        <kit.KitText part="date" role="label" tone="muted" density="comfortable">{date}</kit.KitText>
-      </kit.KitRow>
-      {open && <kit.KitGrid arrange="rows" list listRowGap={density === "compact" ? undefined : "group"} density={density}>{day.stops.map((stop, index) => {
-        const part = stopParts[index]!;
-        const { time, duration } = itineraryStopCopy(stop, detail !== "brief", lang);
-        return <kit.KitRow key={part} item={day.id} {...{ part, density }} goto={stop.goto} label={stop.title}
-          leading={<kit.KitIcon name={icons[stop.kind]} decorative />}
-          trailing={<kit.KitText part={timeParts[index]!} role="label" tone="muted" tabular density="comfortable">{time ?? words.itinerary.untimed}</kit.KitText>}>
-          <kit.KitText density="comfortable" part={null}>{stop.title}</kit.KitText>
-          {duration && <kit.KitText part={durationParts[index]!} role="label" tone="muted" density="comfortable">{duration}</kit.KitText>}
-        </kit.KitRow>;
-      })}</kit.KitGrid>}
-    </kit.KitContent>
-  );
+  const rows = open ? day.stops.map((stop, index): TimelineRailRow<(typeof stopParts)[number]> => {
+    const { time, duration } = itineraryStopCopy(stop, detail !== "brief", lang);
+    return {
+      kind: "rail", part: stopParts[index]!, goto: stop.goto,
+      slots: {
+        title: { part: null, text: stop.title }, icon: icons[stop.kind],
+        time: { part: timeParts[index]!, text: time ?? words.itinerary.untimed },
+        ...(duration ? { detail: { part: durationParts[index]!, text: duration } } : {}),
+      },
+    };
+  }) : [];
+  return <TimelineRail item={day.id} label={words.itinerary.dayLabel(date, day.place)} {...{ density, open, rows }}
+    title={{ part: "place", text: day.place }} date={{ part: "date", text: date }} />;
 }
 
 // prettier-ignore
