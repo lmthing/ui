@@ -16,14 +16,18 @@ it("renders venue options only when supplied and keeps the controls outside the 
   const parts = draw(options);
   expect(parts.get("home/c1/distance")?.text).toEqual(["1 mi away"]);
   expect(parts.has("home/c1/badge")).toBe(true);
-  expect(parts.get("home/c1/save")?.attributes).toContain('aria-label="Save"');
+  expect(parts.get("home/c1/save")?.attributes).toContain('aria-label="Save place"');
+  expect(parts.get("home/c1/save")?.attributes).toContain('aria-checked="false"');
+  const saved = draw({ ...options, saved: true }).get("home/c1/save")?.attributes;
+  expect(saved).toContain('role="switch"');
+  expect(saved).toContain('aria-checked="true"');
   expect(parts.get("home/c1/unit")?.attributes).toContain('role="radiogroup"');
   expect(
     parts
       .get("home/c1/root")
       ?.children.map(({ text }) => text)
       .flat(),
-  ).not.toContain("Save");
+  ).not.toContain("Save place");
   expect([...draw(options, "loading").keys()]).toEqual(["home/c1/root"]);
   for (const invalid of [{ badge: "x".repeat(15) }, { saved: "true" }, { unit: "yards" }])
     expect(props.safeParse({ ...venue, ...invalid }).success).toBe(false);
@@ -51,6 +55,8 @@ it("switches venue units and save state without following goto, and disables omi
   expect(second).toMatchObject({ ok: true, links: [] });
   if (!second.ok) throw Error("Venue controls rejected on repeat");
   expect(readScreen(optedIn, defs, second.values, "en", deviceData)).toContain("p1/save toggle:off");
+  const fromSaved = planAct(screen({ saved: true }), defs, {}, [save]);
+  expect(fromSaved).toMatchObject({ ok: true, links: [], values: { "home/p1/save": false } });
   for (const action of [save, unit]) {
     expect(planAct(screen(), defs, second.values, [action])).toMatchObject(inactive);
     expect(planAct(screen({ saved: true, unit: "mi" }, "loading"), defs, {}, [action])).toMatchObject(
@@ -77,6 +83,9 @@ it("gates pins and row links against the current layout without renumbering them
   expect(mapped).not.toMatch(/Indoor plants|m1\/r2 press/);
   expect(planAct(start, defs, {}, [row])).toMatchObject(inactive);
   expect(planAct(screen("list"), defs, {}, [pin])).toMatchObject(inactive);
+  const selected = planAct(start, defs, {}, [pin]);
+  if (!selected.ok) throw Error("Pin selection rejected");
+  expect(readScreen(start, defs, selected.values).split("\n")[1]).toContain('"Greenhouse Shop"');
   const explored = planAct(start, defs, {}, [pin, view("list")]);
   expect(explored).toMatchObject({ ok: true, links: [], values: { "home/m1/$activePin": 2 } });
   if (!explored.ok) throw Error("Map view rejected");
@@ -91,6 +100,9 @@ it("gates pins and row links against the current layout without renumbering them
     expect(parts.has("home/c1/map")).toBe(style !== "list");
     expect(parts.has("home/c1/r2/root")).toBe(style !== "map");
     expect(parts.has("home/c1/view")).toBe(true);
+    expect(parts.get("home/c1/active_place")?.text).toEqual(
+      style === "map" ? ["Riverside Nursery"] : undefined,
+    );
   }
 });
 

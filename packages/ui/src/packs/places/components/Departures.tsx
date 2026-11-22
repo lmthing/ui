@@ -13,7 +13,7 @@ export const meta = {
   pick: "Next live buses, trains or ferries from one stop, with line badges, destinations, minutes and delays. Not a day's events (Timeline) or a journey's ordered stops (Route).",
   writeHints: [
     "Write the stop and rows of line and destination. Never write minutes, delay, or total; the transit service supplies them.",
-    "Include alerts and each row's crowding only when supplied. Put line-wide notices in alerts, not in destinations.",
+    "Include alerts and each row's crowding only when supplied. Put line-wide notices in alerts, not destinations; a warning is severity warn, not info.",
     'Use detail "brief" only when asked to keep the late indicator but hide how many minutes late. Otherwise leave detail null. Leave density and surface null unless requested.',
   ],
   region: "body",
@@ -122,7 +122,7 @@ export const probes = [
   },
   read("Open bus 24A to Botanic Gardens", { address: "d1/r2", action: "press" }),
   {
-    ...write("At Alder Park show line 9 to Riverside and add a warning for line 9: Use the stop across the street."),
+    ...write('At Alder Park show line 9 to Riverside. Add a line 9 service alert at the warning (warn) level, not info or critical, with this exact text: "Use the stop across the street"'),
     expectProps: { alerts: [{ line: "9", severity: "warn", text: "Use the stop across the street" }] },
   },
   {
@@ -134,24 +134,22 @@ export const probes = [
 type DeparturesProps = c.Props<typeof props, typeof meta>;
 type DepartureCopy = ReturnType<typeof departuresCopy<DeparturesProps["rows"][number]>>;
 type Density = c.ThemeDensity;
-
 // prettier-ignore
 function DepartureRows({ rows, density, loading }: { rows: DepartureCopy["rows"]; density: Density; loading: boolean }) {
   return <kit.KitRowGroup density={density} leadingWidth="avatar">
-    {rows.map(({ id, line, to, label, minutes, late, delay, tone, countdown, crowd }) => (
-      <kit.KitRow key={id} item={id} {...(loading ? { part: null } : { role: "button" as const })}
+    {rows.map(({ id, line, to, label, minutes, late, delay, tone, countdown, crowd }) => {
+      const next = loading
+        ? <kit.KitLayoutText density={density} align="end" line={{ text: countdown, role: "figure", compact: true, tabular: true, lines: 1 }} />
+        : <kit.KitText role="number" numberScale="compact" tabular part="minutes" tone={tone}
+            density={density}>{minutes}{late && <kit.KitText part={null} role="label" tone="warn" density={density}>{late}</kit.KitText>}</kit.KitText>;
+      return <kit.KitRow key={id} item={id} {...(loading ? { part: null } : { role: "button" as const })}
         label={label} inset="none" density={density}
         leading={<kit.KitTrail kind="badge" part="line" value={line} tone="text" density={density} />}
-        trailing={loading
-          ? <kit.KitLayoutText density={density} align="end" line={{ text: countdown, role: "figure", compact: true, tabular: true, lines: 1 }} />
-          : <kit.KitText role="number" numberScale="compact" tabular part="minutes" tone={tone}
-              density={density}>{minutes}{late && <kit.KitText part={null} role="label" tone="warn" density={density}>{late}</kit.KitText>}</kit.KitText>}>
-        <kit.KitMetaLine density={density} title={{ text: to, part: "to" }}
-          meta={{ text: delay, part: "delay", tone: "warn" }} />
-        {crowd && <kit.KitContent leadingAlign="row"
-          lead={<kit.KitTrail kind="badge" part="crowding" tone={crowd.tone} value={crowd.text} density={density} />}>{null}</kit.KitContent>}
-      </kit.KitRow>
-    ))}
+        trailing={crowd ? <kit.KitContent density={density} lineRole="body"
+          lead={<kit.KitTrail kind="badge" part="crowding" tone={crowd.tone} value={crowd.text} density={density} />}>{next}</kit.KitContent> : next}>
+        <kit.KitMetaLine density={density} title={{ text: to, part: "to" }} meta={{ text: delay, part: "delay", tone: "warn" }} />
+      </kit.KitRow>;
+    })}
   </kit.KitRowGroup>;
 }
 
@@ -186,8 +184,8 @@ export function Departures(input: DeparturesProps) {
   const loading = state === "loading";
   const content = <>
     <DepartureRows {...{ rows, density, loading }} />
-    <kit.KitLayoutText density={density} line={{ text: more, part: "more", role: "meta", tone: "muted" }} />
     {!loading && <DepartureAlerts {...{ alerts, density }} />}
+    <kit.KitLayoutText density={density} line={{ text: more, part: "more", role: "meta", tone: "muted" }} />
   </>;
   return (
     <kit.KitCard part="root" padded {...{ density, surface }}>

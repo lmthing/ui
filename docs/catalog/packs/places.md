@@ -76,11 +76,12 @@ switches to list only.
 - Writes: `places` of `name` text(28), `meta` text(32), `goto`, 1–6, `style` (`split`, `map`, `list`) optional.
   Distances and the count beyond these rows come
   from the person's location.
-- Parts → actions: `root`, `map`, `view select`, `more`, `empty`, places `root press`, places `pin select`,
+- Parts → actions: `root`, `map`, `view select`, `more`, `empty`, `active_place`, places `root press`, places `pin select`,
   places `name`, places `meta`, places `distance`.
 - States: filled, empty, loading.
 - With a supplied `style`, start with map and rows (`split`), pins only (`map`), or rows only (`list`);
-  the view selector can switch among all three. Omit `style` to keep the original two-way selector.
+  the view selector can switch among all three. Pins-only shows the selected place's name below the map.
+  Omit `style` to keep the original two-way selector.
 - Real path: a map service draws the map and places.
 
 ### `Departures` · planned · data · service
@@ -89,7 +90,7 @@ The next departures from one stop: line badge, destination, minutes to go (live 
 - Pick: when the next bus, train or ferry leaves. Not a day's plan (`Timeline`), not a journey's stops
   (`Route`).
 - Writes: `stop` text(32), `rows` of `line` text(6), `to` text(28), `crowding` (`low`, `medium`, `high`)
-  optional, 1–6; `alerts` (`line` text(6), `severity` (`info`, `warn`, `critical`), `text` text(60))
+  optional, 1–6; `alerts` (line text(6), severity (`info`, `warn`, `critical`), text text(60))
   each 0–3 optional. Minutes and delays come from the transit service.
 - Parts → actions: `root`, `stop`, `more`, `empty`, `alerts`, rows `root press`, rows `line`, rows `to`,
   rows `minutes`, rows `delay`, rows `crowding`.

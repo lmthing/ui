@@ -67,10 +67,12 @@ export function mapListReading(
     places,
     style,
     rowsVisible = style !== "map",
+    activePlace,
   }: {
     places: readonly Place[];
     style?: "split" | "map" | "list" | undefined;
     rowsVisible?: boolean;
+    activePlace?: string;
   },
   data?: DeviceData,
   lang?: string,
@@ -81,7 +83,7 @@ export function mapListReading(
     style === undefined
       ? [words.mapListMap, words.mapListList]
       : [words.mapListSplit, words.mapListMapOnly, words.mapListListOnly];
-  if (!rowsVisible) return labels;
+  if (!rowsVisible) return activePlace ? [...labels, JSON.stringify(activePlace)] : labels;
   return [
     ...labels,
     ...rows.flatMap(({ name, distance }) =>

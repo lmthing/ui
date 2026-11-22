@@ -27,24 +27,23 @@ export const meta = {
   },
   variantParts: { "detail.brief": { hides: ["meta"] } },
   items: { key: "places", parts: ["root", "pin", "name", "meta", "distance"] },
-  parts: ["root", "map", "view", "more", "empty"],
+  parts: ["root", "map", "view", "more", "empty", "active_place"],
   states: ["filled", "empty", "loading"],
   select: { prop: "activePin", value: "position" },
   selections: { view: { prop: "view", choices: { prop: "viewChoices" }, runtime: true } },
   live: {
-    derive: ({ view, style, detail, places }) => {
+    // prettier-ignore
+    derive: ({ view, style, detail, places, activePin }) => {
       const options = style !== undefined;
       const viewChoices = options ? ["split", "map", "list"] : ["map", "list"];
       const activeView = typeof view === "string" && viewChoices.includes(view) ? view : (style ?? "map");
       const rowsVisible = !options || activeView !== "map";
+      const rows = Array.isArray(places) ? places as c.Values[] : undefined;
       return {
-        activeView,
-        ...(options && { view: activeView }),
-        viewChoices,
-        mapVisible: activeView !== "list",
-        rowsVisible,
-        ...((detail === "brief" || !rowsVisible) && Array.isArray(places)
-          ? { places: (places as c.Values[]).map((place) => ({ ...place, meta: undefined })) }
+        activeView, ...(options && { view: activeView }), viewChoices, mapVisible: activeView !== "list", rowsVisible,
+        activePlace: !rowsVisible ? rows?.[typeof activePin === "number" ? activePin - 1 : 0]?.name : undefined,
+        ...((detail === "brief" || !rowsVisible) && rows
+          ? { places: rows.map((place) => ({ ...place, meta: undefined })) }
           : {}),
       };
     },
@@ -58,9 +57,7 @@ export const meta = {
   previewDeviceData: ({ input, state }): c.DeviceData =>
     state === "empty" ? {} : mapListPreview((input as z.output<typeof props>).places),
   read: (input, state, lang, data): string[] =>
-    state === "filled"
-      ? mapListReading(input as z.output<typeof props> & { rowsVisible?: boolean }, data, lang)
-      : [],
+    state === "filled" ? mapListReading(input as Parameters<typeof mapListReading>[0], data, lang) : [],
 } as const satisfies c.Meta;
 
 const placeProps = z.strictObject({ name: c.text(28), meta: c.text(32), goto: c.screenId });
@@ -184,6 +181,8 @@ export function MapList(input: MapListProps) {
           {!listOnly && (loading ? <kit.KitCard part="map" style="plain">
             <kit.KitSkeleton shape="media" inset="none" content={[]} />
           </kit.KitCard> : <kit.KitMapTile pins={pins} part="map" />)}
+          {typeof live.activePlace === "string" && <kit.KitLayoutText density={density}
+            line={{ text: live.activePlace, part: "active_place", role: "meta", strong: true }} />}
           {live.rowsVisible !== false && <kit.KitContent density={density} group={listOnly ? "content" : "response"}>
             {loading ? <kit.KitSkeleton rows={places.length} lead="none" inset="md" density={density}
               items={places.map(({ name, meta, distance }) => ({ title: name, meta: detail === "full" ? meta : undefined, trail: distance ? "value" : "chevron" }))} /> : <>

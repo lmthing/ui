@@ -89,7 +89,7 @@ const { choose, write, read } = c.probesFor("PlaceCard");
 // prettier-ignore
 export const probes = [
   choose("Show one café to visit with its star rating, price level, distance and whether it's open now"),
-  choose("Preview one saved community announcement in the middle of the screen, with a thumbnail and short blurb. Tap to open the full announcement.", "Card"),
+  choose("Feature one community announcement with a headline and short teaser. Tap the whole preview to open the full announcement. No photos, video, or audio.", "Card"),
   write("Feature Riverside Nursery, a garden centre rated 4.7 at price level 2, open 09:00 to 18:00. Tap to open nursery."),
   {
     ...write("Riverside Nursery is a garden centre. Keep lib:plants as its photo reference, but do not show the photo. Tap to open nursery."),
@@ -111,17 +111,19 @@ const nameRole = (density: Density) => (density === "compact" ? "title" : "headi
 function VenueDetail({ input, copy, density, thumb }: { input: PlaceCardProps; copy: PlaceCopy; density: Density; thumb?: string | undefined }) {
   const { name, category, rating, badge } = input;
   const { opening, price, distance } = copy;
+  const heading = <kit.KitContent density={density}>
+    <kit.KitText role={nameRole(density)} part="name" density={density}>{name}</kit.KitText>
+    <kit.KitText part="category" tone="muted" density={density}>{category}</kit.KitText>
+  </kit.KitContent>;
   return <kit.KitContent density={density}>
       <kit.KitGrid fitLast density={density}>
-        <kit.KitContent density={density}>
-          <kit.KitText role={nameRole(density)} part="name" density={density}>{name}</kit.KitText>
-          <kit.KitText part="category" tone="muted" density={density}>{category}</kit.KitText>
-        </kit.KitContent>
+        {badge ? <kit.KitGrid fitLast density={density}>{heading}
+          <kit.KitTrail kind="badge" part="badge" tone="good" value={badge} density={density} /></kit.KitGrid> : heading}
         <kit.KitContent density={density} leadingAlign="row" lead={thumb && <kit.KitPhoto part="photo" shape="thumb" photo={thumb} label={name} />}>
           <kit.KitIcon name="chevron_right" decorative />
         </kit.KitContent>
       </kit.KitGrid>
-      {(rating !== undefined || price || opening || distance || badge) && (
+      {(rating !== undefined || price || opening || distance) && (
         <kit.KitGrid density={density}>
           <kit.KitContent density={density}>
             {rating !== undefined && <kit.KitContent lineRole="body" density={density}
@@ -133,7 +135,6 @@ function VenueDetail({ input, copy, density, thumb }: { input: PlaceCardProps; c
           <kit.KitContent density={density}>
             {opening && <kit.KitText role="label" tone={opening.tone} part="open_state" density={density}>{opening.text}</kit.KitText>}
             {distance && <kit.KitText role="label" tone="muted" part="distance" density={density}>{distance}</kit.KitText>}
-            {badge && <kit.KitContent lead={<kit.KitTrail kind="badge" part="badge" tone="good" value={badge} density={density} />} leadingAlign="row">{null}</kit.KitContent>}
           </kit.KitContent>
         </kit.KitGrid>
       )}
@@ -161,23 +162,22 @@ function VenueLoading({ input, copy, density, thumb }: { input: PlaceCardProps; 
 // prettier-ignore
 function VenueActions({ live, density, saved }: { live: c.Values; density: Density; saved: boolean | undefined }) {
   const { words } = kit.useWords(placesWordsFor);
-  const { screen, component } = kit.usePartContext();
-  const marked = kit.useControlValue(`${screen}/${component}/save`, saved);
   const unit = live.distanceUnit;
-  return <kit.KitActionFooter density={density}>
-    {saved !== undefined && <kit.KitAction part="save" action="toggle" kind="quiet"
-      icon={marked ? "check" : "bookmark"} label={marked ? words.placeUnsave : words.placeSave} contentParts={{}} />}
-    {live.unitEnabled === true && <kit.KitTrack part="unit" look="segments" role="radiogroup" label={words.placeUnits}>
+  return <kit.KitContent inset="md" density={density}><kit.KitActionFooter density={density}><kit.KitGrid density={density}>
+    <kit.KitContent density={density}>{saved !== undefined && <kit.KitGrid fitLast density={density}>
+      <kit.KitLayoutText density={density} line={{ text: words.placeSave, role: "meta" }} />
+      <kit.KitTrail part="save" kind="toggle" label={words.placeSave} on={saved} />
+    </kit.KitGrid>}</kit.KitContent>{live.unitEnabled === true &&
+    <kit.KitTrack part="unit" look="segments" role="radiogroup" label={words.placeUnits}>
       <kit.KitChip item={null} look="segment" role="radio" value="km" label={words.placeKm} on={unit === "km"} />
       <kit.KitChip item={null} look="segment" role="radio" value="mi" label={words.placeMi} on={unit === "mi"} />
     </kit.KitTrack>}
-  </kit.KitActionFooter>;
+  </kit.KitGrid></kit.KitActionFooter></kit.KitContent>;
 }
 
 // prettier-ignore
 export function PlaceCard(input: PlaceCardProps) {
-  const { name, goto, saved } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const { name, goto, saved } = input, density = kit.useVariant("density", meta.variants.density, input.density);
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const loading = kit.useComponentState() === "loading";
   const { resolvePhoto } = kit.useKit();

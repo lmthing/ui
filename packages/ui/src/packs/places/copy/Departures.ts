@@ -95,7 +95,7 @@ export function departuresReading(input: Board<Row>, data?: DeviceData, lang?: s
     ...rows.map(({ line, to, countdown, delay, crowd }) =>
       words.departureReading(line, to, countdown, delay, crowd?.text),
     ),
-    ...(more ? [more] : []),
     ...alerts.map(({ title, text }) => words.departureAlertReading(title, text)),
+    ...(more ? [more] : []),
   ];
 }
