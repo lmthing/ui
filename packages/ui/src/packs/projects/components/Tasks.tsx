@@ -22,9 +22,10 @@ export const meta = {
   purpose: "Track assigned project tasks, their subtasks, due dates and blockers.",
   pick: "Assigned deliverable work with subtasks or dependencies. Not independent jobs (Checklist), operational columns (Board), or graded coursework (Assignments).",
   writeHints: [
+    'For normal task lists write "style": null. Set "style": "today" ONLY when asked to show only tasks due today, and keep all supplied task rows and due dates. A due date, tags, recurrence or grouping alone never requests this filter.',
     'Use only supplied record refs. Include state "todo", "doing" or "done" on leaves; omit it on parents with children. Each subtask is directly under a parent in the same project. Use after for prerequisite task refs, not parentRef.',
     'Use group "sections" to group by project and indent children; leave group null otherwise. Always write density null unless tighter rows are requested, even when group is set. Do not write blocker, overdue or completion summaries.',
-    'For a view filtered to tasks due today, use style "today" and retain all supplied task rows and due dates; otherwise leave style null. Write repeat only if a cadence is specified and tags only for up to two requested short labels.',
+    "Write repeat only if a cadence is specified and tags only for up to two requested short labels.",
   ],
   region: "body",
   weight: 2,
@@ -116,7 +117,7 @@ export function bindTasks(choicesFor: (instance: string) => readonly string[]): 
 export const props = z
   .strictObject({
     ...c.variantProps(meta.variants), items: z.array(task).min(1).max(6),
-    style: z.enum(["today"]).optional(),
+    style: z.enum(["today"]).nullish(),
   })
   .refine(({ items }) => validTasks(items), {
     path: ["items"],
@@ -168,18 +169,21 @@ const { choose, write, read } = c.probesFor("Tasks");
 export const probes = [
   choose("Assign work for a launch, give jobs due dates and subtasks, and block design until the research job is done."),
   choose("Give me a short list of separate errands I can tick off independently, with no links between them.", "Checklist"),
-  write("For project garden, list assigned task survey, Check balcony light, for Inez, due 2026-11-20, high priority and still to do. Make task planting, Plan the balcony planting, still to do and blocked by survey."),
+  {
+    ...write("For project garden, list assigned task survey, Check balcony light, for Inez, due 2026-11-20, high priority and still to do. Make task planting, Plan the balcony planting, still to do and blocked by survey."),
+    expectProps: { style: null },
+  },
   {
     ...write("Group assigned work by project. For project route_guide, show Prepare route guide (guide) with its child Map the park route (map), which is done. Show that child indented under the parent."),
     variant: { axis: "group", value: "sections" },
   },
   {
     ...write("For project garden, show the unfinished task survey, Check balcony light. It repeats weekly."),
-    expectProps: { items: [{ taskRef: "survey", repeat: "weekly" }] },
+    expectProps: { style: null, items: [{ taskRef: "survey", repeat: "weekly" }] },
   },
   {
     ...write("For project garden, show the unfinished task survey, Check balcony light. Tag it Balcony and Planning, in that order."),
-    expectProps: { items: [{ taskRef: "survey", tags: ["Balcony", "Planning"] }] },
+    expectProps: { style: null, items: [{ taskRef: "survey", tags: ["Balcony", "Planning"] }] },
   },
   {
     ...write("Show only tasks due today on screen. Keep both records: garden task survey, Check balcony light, due 2026-11-20, and garden task planting, Plan planting, due 2026-11-21 after survey. Both are to do."),

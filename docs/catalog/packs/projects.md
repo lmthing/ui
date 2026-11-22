@@ -42,7 +42,7 @@ each task. Checking a task updates the project record; a blocked task cannot be 
   `done`) optional, `parentRef` text(32) optional, `after` task refs text(32) each 0–3, `goto` optional,
   `repeat` (`never`, `daily`, `weekly`, `monthly`) optional, `tags` text(20) each 0–2 optional, 1–6;
   `style` optional. Parent tasks omit `state`: code derives it from their children. Overdue and blockers are computed.
-- Styles: omit for ordinary rows; `today` (only tasks due on the device's local date; hidden tasks still count
+- Styles: omit or use `null` for ordinary rows; `today` (only tasks due on the device's local date; hidden tasks still count
   toward dependencies). Shared axes: density: `comfortable`, `compact`; group: `none`, `sections`
   (by project, with subtasks indented).
   The `today` empty view says no tasks are due today.

@@ -143,6 +143,7 @@ it("validates optional recurrence and two bounded tags without changing legacy r
     expect(drawn.has(part("r1/repeat"))).toBe(false);
     expect(drawn.has(part("r1/tags"))).toBe(false);
   }
+  expect(render({ ...first, style: null })).toEqual(render(first));
 });
 
 it("shows today's due rows at their original addresses without ignoring hidden blockers", () => {
