@@ -147,7 +147,7 @@ describe("Fixtures navigation", () => {
   it("presses only the visible fixture roots and does not edit data", () => {
     const matches = [...next.matches, first];
     const input = { ...next, matches };
-    const act = (part: string, style: "list" | "next", state: StateName = "filled") =>
+    const act = (part: string, style: "list" | "next" | "scoreboard", state: StateName = "filled") =>
       planAct(
         { id: "home", components: [{ ...input, style, state, c: "Fixtures", id: "f1" }] },
         components,
@@ -167,8 +167,38 @@ describe("Fixtures navigation", () => {
       links: [{ address: address("r2"), goto: "fern_match" }],
     });
     expect(act("r2/root", "next")).toMatchObject({ ok: false });
+    expect(act("r2/root", "scoreboard")).toMatchObject({
+      ok: true,
+      links: [{ address: address("r2"), goto: "fern_match" }],
+    });
     expect(act("r1/opponent", "next")).toMatchObject({ ok: false });
     expect(act("r1/root", "next", "empty")).toMatchObject({ ok: false });
     expect(act("r1/root", "next", "loading")).toMatchObject({ ok: false });
+  });
+});
+
+describe("Fixtures scoreboard options", () => {
+  const row = { ...first, live: true, clock: "Q3 04:12" };
+
+  it.each(["list", "next", "scoreboard"])("draws the live score and game clock in %s", (style) => {
+    const input = { style, matches: [row, { ...first, live: false }] };
+    const parts = addressedElements(render(input));
+    expect(JSON.stringify(parts.get(address("r1/live")))).toContain("Live");
+    expect(parts.get(address("r1/clock"))?.text).toEqual(["Q3 04:12"]);
+    expect(parts.get(address("r1/score"))?.text).toEqual(["3–1"]);
+    expect(parts.get(address("r1/time"))?.text).toEqual(["10:00"]);
+    expect(parts.has(address("r1/result"))).toBe(false);
+    expect(parts.has(address("r2/result"))).toBe(style !== "next");
+    expect(readComponent(def, input, "f1").join("\n")).toContain("3–1 · Live · Q3 04:12");
+    expect(addressedElements(render(input, "loading")).get(address("r1/live"))?.attributes).toContain(
+      'aria-hidden="true"',
+    );
+  });
+
+  it("accepts live matches without a score and rejects invalid clock data", () => {
+    const input = { ...row, us: undefined, them: undefined };
+    expect(props.safeParse({ matches: [input] }).success).toBe(true);
+    for (const patch of [{ live: "true" }, { clock: " " }, { clock: "a".repeat(13) }])
+      expect(props.safeParse({ matches: [{ ...input, ...patch }] }).success).toBe(false);
   });
 });

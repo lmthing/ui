@@ -99,8 +99,9 @@ describe("Standings fallback and metadata", () => {
 describe("Standings parts, states and reading", () => {
   it("keeps addresses and selection from the input order while drawing the computed ranks", () => {
     const parts = addressedElements(render(sorted));
-    for (const part of meta.parts) expect(parts.has(address(part))).toBe(true);
-    for (const part of meta.items.parts) expect(parts.has(address(`r3/${part}`))).toBe(true);
+    for (const part of meta.parts) expect(parts.has(address(part))).toBe(part !== "group");
+    for (const part of meta.items.parts)
+      expect(parts.has(address(`r3/${part}`))).toBe(part !== "percentage" && part !== "games_behind");
     expect(parts.get(address("r3/root"))?.attributes).toContain('role="button"');
     expect(parts.get(address("r2/root"))?.attributes).toContain('aria-pressed="true"');
     expect(parts.get(address("r3/position"))?.text).toEqual(["1"]);
@@ -138,6 +139,48 @@ describe("Standings parts, states and reading", () => {
     const reading = readComponent(def, full, "s1", "loading").join("\n");
     expect(reading).not.toContain("Fern House");
     expect(reading).not.toContain("press");
+  });
+});
+
+describe("Standings divisions and win-percentage format", () => {
+  const input = {
+    ...full,
+    group: "East Division",
+    format: "pct_gb",
+    mine: 0,
+    lines: [1],
+    rows: [
+      { ...seed, team: "More losses", won: 7, drawn: 0, lost: 4 },
+      { ...seed, team: "Leader", won: 8, drawn: 0, lost: 2 },
+      { ...seed, team: "One tie", won: 5, drawn: 1, lost: 4 },
+      { ...seed, team: "No games", won: 0, drawn: 0, lost: 0 },
+    ],
+  };
+
+  it("orders by percentage with half wins for ties and keeps the original row addresses", () => {
+    const parts = addressedElements(render(input));
+    expect(parts.get(address("group"))?.text).toEqual(["East Division"]);
+    expect(parts.get(address("r2/position"))?.text).toEqual(["1"]);
+    expect(parts.get(address("r2/percentage"))?.text).toEqual(["80%"]);
+    expect(parts.get(address("r1/games_behind"))?.text).toEqual(["1.5"]);
+    expect(parts.get(address("r1/root"))?.attributes).toContain('aria-pressed="true"');
+    expect(parts.get(address("r3/percentage"))?.text).toEqual(["55%"]);
+    expect(parts.get(address("r4/percentage"))?.text).toEqual(["–"]);
+    expect(parts.has(address("r1/points"))).toBe(false);
+    expect(parts.has(address("r1/difference"))).toBe(false);
+    const reading = readComponent(def, input, "s1").join("\n");
+    expect(reading).toContain("r1: More losses · 2 · 11 · 7 · 0 · 4 · 63.6% · 1.5");
+    expect(reading).toContain("East Division");
+    expect(reading).toContain("[s1/r1 press");
+  });
+
+  it("keeps football points as the default and validates the new options", () => {
+    expect(addressedElements(render({ ...full, format: "football_pts" }))).toEqual(
+      addressedElements(render(full)),
+    );
+    expect(props.safeParse({ ...full, group: "x".repeat(17) }).success).toBe(false);
+    expect(props.safeParse({ ...full, format: "wins" }).success).toBe(false);
+    expect(readComponent(def, input, "s1", "loading").join("\n")).not.toContain("East Division");
   });
 });
 

@@ -1,7 +1,14 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { formationLabel, lineupReading, pitchLines } from "../copy";
+import {
+  formationLabel,
+  hasPlayerBadges,
+  lineupReading,
+  pitchLines,
+  playerBadges,
+  playerGroups,
+} from "../copy";
 import { sportsWordsFor } from "../lang";
 
 // Core first: People/stack shows who is there, not the formation, shirt numbers and substitutes.
@@ -14,6 +21,7 @@ export const meta = {
   writeHints: [
     "Write lines from the back of the pitch to the front. Put only starters in lines; put substitutes in subs.",
     'For the formation without the count beside the title, write "detail":"brief" and keep the lines and subs. Otherwise write "detail":null. The ordinary layout, including a request to keep it unchanged, is "density":null and "surface":null, never "surface":"card".',
+    'For per-player badges use style "list". Ratings are 0–10, cards is a list of "yellow" or "red", and goals is an optional nonnegative integer.',
   ],
   region: "body",
   weight: 3,
@@ -27,23 +35,40 @@ export const meta = {
   },
   variantParts: { "detail.brief": { hides: ["shape"] } },
   parts: ["root", "title", "shape", "formation", "bench", "bench_list"],
-  items: { key: "players", parts: ["root", "number", "name"] },
+  items: { key: "players", parts: ["root", "number", "name", "rating", "cards", "goals"] },
   states: ["filled", "empty"],
   actions: { items: { root: ["press"] } },
   emptyActions: [],
   read: (input, _state, lang): string[] => lineupReading(input as LineupProps, lang),
 } as const satisfies c.Meta;
 
-const player = z.strictObject({ number: z.int().min(0).max(99), name: c.text(16) });
-const schema = z.strictObject({
-  ...c.variantProps(meta.variants),
-  lines: z
-    .array(z.strictObject({ players: z.array(player).min(1).max(6) }))
+const player = z.strictObject({
+  number: z.int().min(0).max(99),
+  name: c.text(16),
+  rating: z.number().min(0).max(10).optional(),
+  cards: z
+    .array(z.enum(["yellow", "red"]))
     .min(1)
-    .max(5),
-  subs: z.array(player).min(0).max(7).default([]),
-  style: z.enum(["pitch", "list"]).default("pitch"),
+    .max(3)
+    .optional(),
+  goals: z.int().min(0).max(99).optional(),
 });
+const schema = z
+  .strictObject({
+    ...c.variantProps(meta.variants),
+    lines: z
+      .array(z.strictObject({ players: z.array(player).min(1).max(6) }))
+      .min(1)
+      .max(5),
+    subs: z.array(player).min(0).max(7).default([]),
+    style: z.enum(["pitch", "list"]).default("pitch"),
+  })
+  .refine(
+    ({ style, lines, subs }) =>
+      style === "list" ||
+      (!subs.some(hasPlayerBadges) && lines.every(({ players }) => !players.some(hasPlayerBadges))),
+    { path: ["style"], message: "Player badges require the list layout." },
+  );
 
 // The nested wire formation stays intact; repeated player parts have one flat address space.
 function withPlayers(input: z.output<typeof schema>) {
@@ -103,6 +128,14 @@ export const examples = [
     ],
     subs: [{ number: 17, name: "Rivers" }],
   },
+  {
+    style: "list",
+    lines: [
+      { players: [{ number: 1, name: "Porter", rating: 8.5 }] },
+      { players: [{ number: 5, name: "Banks", cards: ["yellow"], goals: 2 }] },
+    ],
+    subs: [{ number: 17, name: "Rivers", goals: 0 }],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Lineup");
@@ -123,10 +156,60 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
+  {
+    ...write(
+      "List the starters by position: keeper 1 Porter, then defender 5 Banks. Show Porter's match rating of 8.5 out of 10.",
+    ),
+    expectProps: { style: "list", lines: [{ players: [{ rating: 8.5 }] }, { players: [{}] }] },
+  },
+  {
+    ...write(
+      "List the starters by position: goalkeeper 1 Porter, then defender 5 Banks, who got a yellow card. Show that card beside Banks.",
+    ),
+    expectProps: { style: "list", lines: [{ players: [{}] }, { players: [{ cards: ["yellow"] }] }] },
+  },
+  {
+    ...write(
+      "List the starting players by position: keeper 1 Porter and forward 5 Banks. Show Banks's two goals beside his name.",
+    ),
+    expectProps: { style: "list", lines: [{ players: [{}] }, { players: [{ goals: 2 }] }] },
+  },
   read("Open Green, the defender in shirt 4", { address: "l1/r2", action: "press" }),
 ] satisfies c.Probe[];
 
 type LineupProps = c.Props<typeof props, typeof meta>;
+type Player = LineupProps["players"][number];
+
+// prettier-ignore
+function PlayerList({ players, density }: { players: Player[]; density: c.ThemeDensity }) {
+  const { lang, words: { lineup } } = kit.useWords(sportsWordsFor);
+  return <kit.KitRowGroup density={density}>{players.map((player) => {
+    const shirt = c.numberLine(player.number, lang);
+    return <kit.KitRow key={player.id} item={player.id} role="button" density={density} inset="none"
+      label={lineup.player(player.name, shirt)} leading={
+        <kit.KitLayoutText line={{ text: shirt, part: "number", role: "figure", compact: true, tabular: true }} />
+      }>
+      <kit.KitMetaLine title={{ text: player.name, part: "name" }} density={density} />
+      {hasPlayerBadges(player) && <kit.KitActionFooter density={density}>
+        {playerBadges(player, lang).map(({ part, text }) =>
+          <kit.KitTrail key={part} part={part} kind="badge" value={text} density={density} />)}
+      </kit.KitActionFooter>}
+    </kit.KitRow>;
+  })}</kit.KitRowGroup>;
+}
+
+// prettier-ignore
+function BadgedLineup({ players, density }: { players: Player[]; density: c.ThemeDensity }) {
+  const { words: { lineup } } = kit.useWords(sportsWordsFor);
+  return <kit.KitCard part="formation" surface="plain" density={density}>
+    {playerGroups(players).map(([line, players]) => line === undefined ? (
+      <kit.KitCard key="bench" part="bench_list" surface="plain" density={density}>
+        <kit.KitHeader title={{ text: lineup.bench, part: "bench" }} density={density} />
+        <PlayerList {...{ players, density }} />
+      </kit.KitCard>
+    ) : <PlayerList key={line} {...{ players, density }} />)}
+  </kit.KitCard>;
+}
 
 // prettier-ignore
 function Bench({ players, density, style }: {
@@ -169,8 +252,11 @@ export function Lineup(input: LineupProps) {
   </kit.KitGrid>;
   return <kit.KitCard part="root" padded {...{ density, surface }}>
     {titleRow}
-    {state === "empty" ? <kit.KitEmpty part="formation" icon="users" decorativeIcon /> :
-      <kit.KitPitch part="formation" style={input.style} lines={pitchLines(input.players, lang)}
-        substitutes={<Bench players={input.players.filter(({ line }) => line === undefined)} {...{ density }} style={input.style} />} />}
+    <kit.KitState part="formation" icon="users" density={density}>
+      {input.style === "list" && input.players.some(hasPlayerBadges) ?
+        <BadgedLineup players={input.players} density={density} /> :
+        <kit.KitPitch part="formation" style={input.style} lines={pitchLines(input.players, lang)}
+          substitutes={<Bench players={input.players.filter(({ line }) => line === undefined)} {...{ density }} style={input.style} />} />}
+    </kit.KitState>
   </kit.KitCard>;
 }

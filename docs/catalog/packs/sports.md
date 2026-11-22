@@ -33,9 +33,12 @@ time and kit.
   (booking `Appointment`), not a community event (social `EventCard`).
 - Writes: `matches` of `date`, `time` HH:MM, `opponent` text(24), `home` boolean, `venue` text(28)
   optional, `us` number optional, `them` number optional, `meet` HH:MM optional, `kit` text(16) optional,
-  `goto`, 1–6; `style`. Results pills are computed from the scores.
-- Styles: `list` (default), `next` (the first match as a large card).
-- Parts → actions: items `root press`. · States: filled, empty, loading.
+  `goto`, `live` boolean optional, `clock` text(12) optional, 1–6; `style`. Results pills are computed
+  from the scores and not shown for live fixtures. The clock is game time, not kickoff time.
+- Styles: `list` (default), `next` (the first match as a large card), `scoreboard` (all matches in a score ticker).
+  Axes: density `comfortable`, `compact`; detail `full`, `brief` (hides venue, meet and kit).
+- Parts → actions: `root`, `message`; items `root press`, `date`, `time`, `opponent`, `badge`, `side`,
+  `venue`, `score`, `result`, `meet`, `kit`, `live`, `clock`. · States: filled, empty, loading.
 - Real path: fixtures entered on the captain's phone; teammates following them is `people` (`partTiers`).
 
 ### `Scoreboard` · planned · data · phone
@@ -44,9 +47,16 @@ time, full time); in `keeper` style each side has plus and minus buttons for the
 - Pick: the score of one match now. Not a practice result (learning `Result`), not a count of one thing
   (`Counter`).
 - Writes: `home` text(20), `away` text(20), `homeScore` number, `awayScore` number, `period` text(12)
-  optional, `status` (`upcoming`, `live`, `break`, `final`), `style`.
-- Styles: `display` (default), `keeper`. · Parts → actions: `home increment`, `home decrement`, `away
-  increment`, `away decrement`, `clock start`, `clock stop` (keeper). · States: filled, loading.
+  optional, `status` (`upcoming`, `live`, `break`, `final`), `style`, `sport` (`football`, `basketball`,
+  `baseball`, `tennis`, `hockey`, `generic`) optional; `periods` of `label` text(12), `home` and `away`
+  nonnegative integers, 1–12, optional; `possession` (`home`, `away`) optional. For baseball or softball
+  set `sport` to `baseball`; optional `outs` integer 0–2, `balls` integer 0–3, `strikes` integer 0–2,
+  and `bases` of `first`, `second`, `third`, 0–3 unique values. An empty bases array means no runners.
+- Styles: `display` (default), `keeper`. Axes: density `comfortable`, `compact`; emphasis `normal`, `quiet`;
+  detail `full`, `brief` (hides period). · Parts → actions: `root`, `scores`, `home increment`,
+  `home decrement`, `away increment`, `away decrement`, `home_score`, `away_score`, `clock start`,
+  `clock stop`, `clock_icon`, `clock_value`, `period`, `status`, `sport`, `periods`, `possession`,
+  `outs`, `balls`, `strikes`, `bases` (actions only in keeper). · States: filled, loading.
 - The host keeps one match record: a keeper's increment adds a goal to it, and `Scoreboard` and
   `MatchFeed` both read it, so seeded scores must equal seeded goals (a screen check). · Kit: `KitScore`.
 - Real path: the score kept on one phone; following it live elsewhere is `people` (`partTiers`).
@@ -57,18 +67,27 @@ pills; the person's team tinted; promotion and relegation places marked by a lin
 - Pick: a league table of teams with several columns. Not a ranking by one value (`List` style `ranked`),
   not a general table of records (data `Table`).
 - Writes: `rows` of `team` text(20), `won`, `drawn`, `lost`, `for`, `against` numbers, `form` (`w`, `d`,
-  `l`) each 0–5 (seed: the last five results), 2–20; `mine` index optional; `lines` indexes 0–2. Played,
-  points, difference and order are computed. · Dense.
-- Parts → actions: rows `root press`. · States: filled, loading. · Kit: `KitTable`.
+  `l`) each 0–5 (seed: the last five results), 2–20; `mine` index 0–19 optional; `lines` of one-based
+  cut positions 1–19, 0–2 (default empty); `scoring` of `win` and `draw` integers 0–99 (defaults 3
+  and 1); `group` text(16) optional, `format` (`football_pts`, `pct_gb`) optional. The default points
+  table computes played, points, difference and order. `pct_gb` ranks by win percentage (a tie is
+  half a win) and shows games behind the leader instead of goal difference and points. · Dense.
+- Axes: density `comfortable`, `compact`; detail `full`, `brief` (hides form).
+- Parts → actions: `root`, `title`, `group`, `hint`, `table`; rows `root press`, `position`, `team`,
+  `played`, `won`, `drawn`, `lost`, `difference`, `points`, `form`, `percentage`, `games_behind`.
+  · States: filled, loading. · Kit: `KitTable`.
 - Real path: results entered on the organiser's phone; a league shared across clubs is `people`.
 
 ### `Lineup` · planned · data · phone
 The starting players on a drawn pitch in their lines (keeper, defence, midfield, attack), each as a numbered
 circle with a surname, and the substitutes in a row below; or as a plain list by position.
 - Pick: who plays where in one match. Not who is available (`Squad`), not a staff rota (team `Roster`).
-- Writes: `lines` of `players` of `number` 0–99, `name` text(16), 1–6, 1–5 (from the back); `subs` of
-  `number`, `name`, 0–7; `style`.
-- Styles: `pitch` (default), `list`. · Parts → actions: players `root press`. · States: filled, empty.
+- Writes: `lines` of `players` of `number` integer 0–99, `name` text(16), 1–6, 1–5 (from the back);
+  `subs` of the same player fields, 0–7 (default empty); `style`. In `list`, each player can also have
+  `rating` number 0–10, `cards` of `yellow` or `red`, 1–3, and `goals` integer 0–99, all optional.
+- Styles: `pitch` (default), `list`. Axes: density `comfortable`, `compact`; surface `card`, `outlined`;
+  detail `full`, `brief` (hides shape). · Parts → actions: `root`, `title`, `shape`, `formation`, `bench`,
+  `bench_list`; players `root press`, `number`, `name`, `rating`, `cards`, `goals`. · States: filled, empty.
 - Real path: the coach's selection in a shared app.
 
 ### `MatchFeed` · planned · data · phone

@@ -17,6 +17,8 @@ it("localizes both scores and the elapsed time but keeps the authored names and 
     away: "٣",
     status: "Half time",
     clock: "٤٥:٠٠",
+    facts: [],
+    periods: [],
   });
   expect(scoreboardReading(score, "filled", "ar-EG")).toEqual([
     "Orchard ١٢–٣ Rivers",
