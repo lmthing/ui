@@ -1,5 +1,5 @@
 import { quote, splitTop } from "./doc-section";
-import { arrayShape, count, objectShape, requireUnique, type Field, type Shape } from "./shape";
+import { arrayShape, count, indexShape, objectShape, requireUnique, type Field, type Shape } from "./shape";
 import { enumValues } from "./styles";
 
 const bound = "-?\\d+(?:\\.\\d+)?";
@@ -58,13 +58,13 @@ function numeric(type: string): Shape | undefined {
 }
 
 function scalar(name: string, type: string, styles: Record<string, string[]>): Shape & { omit?: boolean } {
-  const text = /^text\(([1-9]\d*)\)$/.exec(type);
-  if (text) {
-    const length = Number(text[1]);
+  const string = /^(text|secret)\(([1-9]\d*)\)$/.exec(type);
+  if (string) {
+    const [helper, length] = [string[1]!, Number(string[2])];
     return {
-      schema: `text(${length})`,
-      seed: `castTitle(${length}, index)`,
-      helpers: ["text"],
+      schema: `${helper}(${length})`,
+      seed: helper === "secret" ? '""' : `castTitle(${length}, index)`,
+      helpers: [helper],
       invalid: [`"x".repeat(${length + 1})`],
     };
   }
@@ -88,10 +88,7 @@ function scalar(name: string, type: string, styles: Record<string, string[]>): S
     const inner = type.slice(1, -1);
     if (inner === "from the `swatch` vocabulary") return scalar(name, "swatch", styles);
     if (/^(?:`[\w-]+`|-?\d+|default\b)(?:[,|\s]|$)/.test(inner)) return literalShape(enumValues(inner));
-    return objectShape(
-      splitTop(inner, ",;").map((member) => field(member, {})),
-      "index",
-    );
+    return objectShape(readMembers(splitTop(inner, ",;")), "index");
   }
   const known = type.replaceAll("`", "").toLowerCase();
   if (known === "iso datetime with offset")
@@ -115,7 +112,7 @@ function scalar(name: string, type: string, styles: Record<string, string[]>): S
   throw new Error(`Unsupported field \`${name}\`${type ? ` ${type}` : ""}`);
 }
 
-function field(source: string, styles: Record<string, string[]>): Field {
+function field(source: string, styles: Record<string, string[]>, prior: Field[]): Field {
   const match = /^(?:`([a-zA-Z][a-zA-Z0-9_]*)`|([a-zA-Z][a-zA-Z0-9_]*))(\??)(?:\s+(.*))?$/.exec(source);
   if (!match) throw new Error(`Unsupported field declaration: ${source}`);
   const name = (match[1] ?? match[2])!;
@@ -135,7 +132,11 @@ function field(source: string, styles: Record<string, string[]>): Field {
   const limit =
     repeated && count.exec(repeated[2]!) ? count.exec(repeated[2]!) : repeated && count.exec(repeated[1]!);
   const item = repeated && limit ? (/each/.test(type) ? repeated[1]! : repeated[2]!.slice(0, -1)) : undefined;
-  const shape = item ? arrayShape(scalar(name, item, {}), limit!) : scalar(name, type, styles);
+  const shape = item
+    ? arrayShape(scalar(name, item, {}), limit!)
+    : type === "index"
+      ? indexShape(name, prior)
+      : scalar(name, type, styles);
   return {
     name,
     ...shape,
@@ -145,17 +146,17 @@ function field(source: string, styles: Record<string, string[]>): Field {
   };
 }
 
+function readMembers(members: string[]) {
+  const fields: Field[] = [];
+  for (const member of members) fields.push(field(member, {}, fields));
+  return fields;
+}
+
 function collection(name: string, members: string[], limit: RegExpExecArray): Field {
   return {
     name,
     collection: true,
-    ...arrayShape(
-      objectShape(
-        members.map((member) => field(member, {})),
-        "index",
-      ),
-      limit,
-    ),
+    ...arrayShape(objectShape(readMembers(members), "index"), limit),
   };
 }
 
@@ -175,10 +176,10 @@ export function readFields(writes: string, styles: Record<string, string[]>, axe
         collection(repeated[1]!, [repeated[2]!, ...entries.slice(i + 1, end)], count.exec(entries[end]!)!),
       );
       i = end;
-    } else if (!Object.hasOwn(axes, entry.replaceAll("`", ""))) fields.push(field(entry, styles));
+    } else if (!Object.hasOwn(axes, entry.replaceAll("`", ""))) fields.push(field(entry, styles, fields));
   }
   for (const key of Object.keys(styles))
-    if (!fields.some(({ name }) => name === key)) fields.push(field(key, styles));
+    if (!fields.some(({ name }) => name === key)) fields.push(field(key, styles, fields));
   requireUnique(fields);
   return fields;
 }

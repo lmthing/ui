@@ -1,8 +1,9 @@
 import { quote } from "./doc-section";
-import { seedObject, type Field } from "./shape";
+import { indexChecks, seedObject, type Field } from "./shape";
 import type { readMeta } from "./metadata";
+import type { RowGroup } from "./parts";
 
-type Metadata = ReturnType<typeof readMeta>;
+type Metadata = ReturnType<typeof readMeta>["meta"];
 
 function fallback(fields: Field[]) {
   const seed = seedObject(fields, "0");
@@ -52,9 +53,20 @@ function probeCode(meta: Metadata, near: string | undefined) {
   ];
 }
 
+function rowProjection(key: string, groups: RowGroup[]) {
+  if (!groups.length) return "";
+  const rows = groups.map(({ key, scalar, flags }) => {
+    const row = scalar ? "value" : "...row";
+    const guards = Object.keys(flags).map((flag) => `${quote(flag)}: true`);
+    return `...(input.${key} ?? []).map((${scalar ? "value" : "row"}) => ({ ${[row, ...guards].join(", ")} }))`;
+  });
+  return `.overwrite((input) => ({ ...input, ${quote(key)}: [${rows.join(", ")}] }))`;
+}
+
 export function componentSource(
   meta: Metadata,
   fields: Field[],
+  rowGroups: RowGroup[],
   catalog: string,
   near: string | undefined,
   pack: boolean,
@@ -80,7 +92,7 @@ export function componentSource(
 import { ${[...helpers, "type FallbackInput", "type Meta", "type Probe", "type Props"].join(", ")} } from ${quote(catalog)};
 
 ${pack ? `// Core first: ${meta.pick}\n` : ""}export const meta = ${quote(meta)} as const satisfies Meta;
-export const props = z.strictObject({ ${schema.join("\n")} });
+export const props = z.strictObject({ ${schema.join("\n")} })${indexChecks(fields)}${rowProjection(meta.items?.key ?? "", rowGroups)};
 ${seed.code}
 
 // TODO: Replace the neutral seed with two real examples covering styles and optional fields.
