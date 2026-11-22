@@ -16,7 +16,7 @@ const hostRecord = z.object({
 });
 
 type Claim = z.output<typeof signUpClaim>;
-type Slot = { id: string; slotId: string; capacity: number; expanded?: boolean };
+type Slot = { id: string; slotId: string; title: string; capacity: number; expanded?: boolean };
 type Sheet = { slots: Slot[]; claims: Claim[]; detail: "full" | "brief" };
 export type SignUpRow = Slot & {
   claimants: string[];
@@ -146,6 +146,14 @@ export function signUpReading(input: unknown, state: c.StateName, lang?: string)
   const { slots, detail } = input as { slots: SignUpRow[]; detail: Sheet["detail"] };
   const words = communityWordsFor(lang).signUp;
   const status = signUpStatus(state, lang);
+  if (state === "error")
+    return [
+      status!,
+      ...slots.flatMap((row) => {
+        const { retry } = signUpRowCopy(row, detail, lang);
+        return retry ? [`${row.id}: ${row.title}${words.separator}${words[retry]}`] : [];
+      }),
+    ];
   if (state !== "filled" && state !== "success") return status ? [status] : [];
   return [
     ...(status ? [status] : []),

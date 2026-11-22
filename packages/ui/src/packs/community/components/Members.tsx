@@ -154,7 +154,7 @@ export const probes = [
   },
   {
     ...write(
-      "Register Ana Reed as the sole member, joined 2024-03-12, with voting rights. Put Events in her committee tag.",
+      "Register Ana Reed as the sole member, joined 2024-03-12, with voting rights. She serves on the committee named Events. Record Events as the committee name, not a badge or a role.",
     ),
     expectProps: { members: [{ committee: "Events" }] },
   },
@@ -185,7 +185,7 @@ function MemberRow({ row, density, loading }: { row: Row; density: Density; load
         <kit.KitLayoutText density={density} line={{ text: row.name, part: "name", strong: true }} />
         {Object.entries(fields).map(([part, text]) => <kit.KitLayoutText key={part} density={density}
           line={{ text, part, role: "meta", tone: "muted" }} />)}
-        {badge && <kit.KitLayoutText density={density} line={{ text: badge, part: "badge", role: "meta", strong: true }} />}
+        {badge && <kit.KitLayoutText density={density} line={{ text: badge, part: "badge", role: "meta", tone: "muted" }} />}
       </kit.KitContent>
     </kit.KitRow>
     {row.can_end && <kit.KitActionFooter density={density}>

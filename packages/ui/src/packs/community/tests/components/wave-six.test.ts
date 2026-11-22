@@ -24,14 +24,15 @@ describe("optional community fields", () => {
     for (const [part, copy] of [
       ["cadence", "Monthly dues"],
       ["r1/household", "Household: River lane"],
-      ["r2/status", "Waived"],
       ["r2/credit", "$10 credit"],
       ["r3/household", "Individual assessments"],
       ["assessed", "$50"],
       ["outstanding", "$40"],
       ["collected", "$20"],
     ] as const)
-      expect(parts.get(prefix + part)?.text).toEqual([copy]);
+      expect(parts.get(prefix + part)?.text, part).toEqual([copy]);
+    expect(parts.has(prefix + "r2/status")).toBe(true);
+    expect(readComponent(Dues, raw, "c1").join("\n")).toMatch(/r2:.*Waived/);
     expect([...parts.keys()].indexOf(prefix + "r5/root")).toBeLessThan(
       [...parts.keys()].indexOf(prefix + "r3/root"),
     );
@@ -109,6 +110,7 @@ describe("trusted Community actions", () => {
             ...input,
             viewer,
             chair: "ana",
+            cancelled: false,
             eligible: ["cal", "ana"],
             ballots: [...input.ballots, { memberId: "ana", choice: ["ana", "lee"] }],
           },
@@ -124,7 +126,8 @@ describe("trusted Community actions", () => {
       try {
         expect(runtime.press("c1/for").ok).toBe(false);
         expect(runtime.act({ address: "c1/r2", action: "select", value: "jo" }).ok).toBe(false);
-        expect(runtime.press("c1/r3").ok).toBe(viewer === "cal" && !limit);
+        const third = runtime.press("c1/r3");
+        expect(third.ok, JSON.stringify({ third, reading: runtime.read() })).toBe(viewer === "cal" && !limit);
         if (viewer === "cal")
           expect(actions).toHaveBeenLastCalledWith({ address: "home/c1/r3", action: "select", value: "jo" });
         expect(runtime.press("c1/r1").ok).toBe(viewer !== "outside");
@@ -158,6 +161,9 @@ describe("trusted Community actions", () => {
     const options = { screen: screen("SignUpSheet", { ...input, state: "error" }), defs: { SignUpSheet } };
     const runtime = createScreenController({ ...options, onAction, deviceData });
     try {
+      expect(runtime.read()).toContain("[c1/r2/retry_release press !needs-people]");
+      expect(runtime.read()).toContain("r2: Bring the welcome sign · Retry release");
+      expect(runtime.read()).not.toMatch(/\/(?:claim|release) press/);
       expect(runtime.press("c1/r1/retry_claim").ok).toBe(false);
       expect(runtime.press("c1/r2/release").ok).toBe(false);
       expect(runtime.press("c1/r2/retry_release").ok).toBe(true);

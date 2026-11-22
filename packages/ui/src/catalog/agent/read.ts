@@ -78,9 +78,17 @@ export function readComponent(
   const operations = readHostOperations(meta, props, instance, host, get("more") === true);
   const affordances = readAffordances(offered, values, def, props, instance, session);
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
+  const errorSummary =
+    state === "error" && meta.readError
+      ? (meta.read?.(props, state, lang, deviceData, currency, get) ?? [])
+      : [];
   if (state !== "filled" && !feedback && !(state === "success" && (draw || session || meta.readSuccess)))
     return [
-      [head, ...(state === "empty" ? readDraw(draw) : []), ...affordances.map(formatAffordance)].join(" "),
+      [
+        head,
+        ...(state === "empty" ? readDraw(draw) : errorSummary),
+        ...affordances.map(formatAffordance),
+      ].join(" "),
       ...operations,
     ];
   const content = { props, validated, instance, values, state, session, draw };

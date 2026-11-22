@@ -155,11 +155,11 @@ function Entry({ row, density }: { row: MinutesRow; density: Density }) {
   const loading = kit.useComponentState() === "loading";
   const trailing = row.kind === "action" ? (loading ? <kit.KitSkeleton shape="control" kind="quiet" />
     : <kit.KitCheck part="done" done={row.done} label={"status" in copy ? copy.status : copy.title} readonly={!row.can_check} />)
-    : row.linked && (loading ? <kit.KitIcon name="chevron_right" decorative /> : <kit.KitTrail kind="chevron" part="chevron" />);
+    : row.linked && (loading ? <kit.KitIcon name="chevron_right" decorative loading /> : <kit.KitTrail kind="chevron" part="chevron" />);
   const fields: [string, string | false | undefined][] = "action" in copy ?
     [["text", copy.text], ["motion", copy.action]] : [["decision", copy.decision], ["owner", copy.owner], ["due", copy.due]];
   return <kit.KitRow item={row.id} part={loading ? null : "root"} label={loading ? "" : copy.title}
-    inset="none" goto={!loading && row.kind === "decision" ? row.goto : undefined} {...{ density, trailing }}>
+    inline fitContent goto={!loading && row.kind === "decision" ? row.goto : undefined} {...{ density, trailing }}>
     <kit.KitContent density={density} rhythm="flush">
       <kit.KitLayoutText density={density} line={{ text: copy.title, part: "title", role: "body", strong: true }} />
       {fields.map(([part, text]) => text && <kit.KitLayoutText key={part} density={density} line={{ text, part, role: "meta",
@@ -175,18 +175,22 @@ export function Minutes(input: View) {
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const { lang, words: { minutes: w } } = kit.useWords(communityWordsFor);
   const { entries, can_approve } = kit.useLiveControls(meta, input) as { entries: MinutesRow[]; can_approve: boolean };
-  const header = minutesHeader(input, lang, kit.useDeviceData());
+  const { present, apologies, ...header } = minutesHeader(input, lang, kit.useDeviceData());
   const sections = ["decision", "action"] as const;
   const content = <>
-    <kit.KitHeader density={density} title={{ text: input.title, part: "title", role: "body", strong: true }}
+    <kit.KitHeader density={density} title={{ text: input.title, part: "title" }}
       meta={Object.entries(header).map(([part, text]) => ({ part, text,
         tone: part === "approval" && input.approvedAt ? "good" : "muted" }))} />
+    {present && <kit.KitContent group="response" rhythm="flush" density={density}>
+      <kit.KitLayoutText density={density} line={{ text: present, part: "present", role: "meta", tone: "muted" }} />
+      <kit.KitLayoutText density={density} line={{ text: apologies, part: "apologies", role: "meta", tone: "muted" }} />
+    </kit.KitContent>}
     {sections.map((kind) => {
       const rows = entries.filter((row) => row.kind === kind && row.visible);
       const title = kind === "decision" ? w.decisions : w.actions;
       return rows.length > 0 && <kit.KitContent key={kind} group="response" density={density}>
         <kit.KitLayoutText density={density} line={{ text: title, role: "meta", tone: "muted", strong: true }} />
-        <kit.KitRowGroup density={density}>
+        <kit.KitRowGroup density={density} spacing="groups" separators={false}>
           {rows.map((row) => <Entry key={row.id} {...{ row, density }} />)}
         </kit.KitRowGroup>
       </kit.KitContent>;

@@ -138,7 +138,7 @@ export const probes = [
   choose("Reconcile our club's annual subscriptions per member, with individual assessments, partial receipts and amounts still owed."),
   choose("Show one prominent money figure for the 25 membership fee, no members or receipts.", "Amount"),
   write("Show the treasurer's 2026 subscriptions: assessment ana_2026 for member ana, 25 due 2026-04-01, and cash receipt receipt_1 for ana_2026, 10 on 2026-03-10."),
-  { ...write('Record monthly dues for April: assessment ana_april for member ana, 25 due 2026-04-01. No receipts.'), expectProps: { cadence: "monthly" } },
+  { ...write("Our dues recur every month. Set the ledger's cadence to monthly. For April, record assessment ana_april for member ana, 25 due 2026-04-01. No receipts."), expectProps: { cadence: "monthly" } },
   { ...write('Record exactly one assessment, ana_april for member ana, normally 25 due 2026-04-01, but the treasurer explicitly waived it. No receipts.'), expectProps: { assessments: [{ amount: 25, waived: true }] } },
   { ...write('Record exactly two assessments, ana_april for member ana and lee_april for member lee, both 25 due 2026-04-01. They belong to the same household, river_lane. Group the assessments under that household. No receipts.'), expectProps: { assessments: [{ householdId: "river_lane" }, { householdId: "river_lane" }] } },
   read("Void Ana's cash receipt without deleting it.", { address: "d1/r3/void", action: "press" }),
@@ -159,19 +159,20 @@ function LedgerRow({ row, density, ledger }: {
   const tone = !assessment || row.status === "waived" ? "muted" :
     row.status === "paid" ? "good" : row.status === "overdue" ? "bad" : "warn";
   return <kit.KitRow item={row.id} part={loading ? null : "root"} label={loading ? "" : title} density={density} inset="none">
-    <kit.KitGrid fitLast density={density}>
+    <kit.KitGrid density={density}>
       <kit.KitMetaLine density={density} title={{ text: title, part: "member", strong: true }}
         meta={fields.flat().map(([part, text]) => ({ part, text }))} />
       <kit.KitContent density={density}>
         <kit.KitLayoutText density={density} align="end" line={{ text: amount, part: "amount", role: "figure", compact: true, tabular: true }} />
-        {badge && <kit.KitTrail part={assessment ? "status" : "voided"} kind="badge" value={badge} tone={tone} />}
+        {badge && <kit.KitLayoutText density={density} align="end"
+          line={{ text: badge, part: assessment ? "status" : "voided", role: "meta", tone }} />}
+        <kit.KitActionFooter align="end" density={density}>
+          {controls.map((part) => part && <kit.KitAction key={part} part={loading ? null : part} action="press" label={w[part]}
+            {...(part === "void" ? { kind: "quiet", icon: "close", contentParts: { label: "void_label" } } as const
+              : { kind: part === "pay" ? "primary" : "secondary" } as const)} />)}
+        </kit.KitActionFooter>
       </kit.KitContent>
     </kit.KitGrid>
-    <kit.KitActionFooter density={density}>
-      {controls.map((part) => part && <kit.KitAction key={part} part={loading ? null : part} action="press" label={w[part]}
-        {...(part === "void" ? { kind: "quiet", icon: "close", contentParts: { label: "void_label" } } as const
-          : { kind: part === "pay" ? "primary" : "secondary" } as const)} />)}
-    </kit.KitActionFooter>
   </kit.KitRow>;
 }
 
@@ -185,7 +186,7 @@ export function Dues(input: View) {
   const rows = entries.filter((entry) => entry.visible);
   const summary = ledgerTotals(rows);
   const content = <>
-    <kit.KitHeader density={density} title={{ text: input.period, part: "period", role: "body", strong: true }}
+    <kit.KitHeader density={density} title={{ text: input.period, part: "period" }}
       meta={{ text: input.cadence && w.cadence[input.cadence], part: "cadence" }} />
     <kit.KitContent group="response" density={density}><kit.KitGrid columns={3} density={density}>
       {totals.map((key) => <kit.KitFigure key={key} density={density} align="end"
