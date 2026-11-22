@@ -46,20 +46,26 @@ it.each([
     ...components.Header,
     meta: {
       ...customReader,
-      actions: { parts: { reveal: ["toggle"] }, credentialToggles: { reveal: "idValue" } },
+      actions: {
+        parts: { reveal: ["toggle"], other: ["toggle"] },
+        credentialToggles: { reveal: "idValue", other: "pairedId" },
+      },
     },
     props: z.strictObject({
       idValue: secret(32).optional(),
+      pairedId: z.intersection(secret(32), secret(32)),
       payload: secret(32),
       row: z.strictObject({ idValue: secret(32) }),
     }),
   } satisfies Definition;
   const lines = readComponent(
     def,
-    { idValue: fixture, payload: "fixture-copy", row: { idValue: "fixture-nested" } },
+    { idValue: fixture, pairedId: fixture, payload: "fixture-copy", row: { idValue: "fixture-nested" } },
     "f1",
   ).join("\n");
-  expect(lines).toContain(`{"idValue":"${mask}","payload":"(secret)","row":{"idValue":"(secret)"}}`);
+  expect(lines).toContain(
+    `{"idValue":"${mask}","pairedId":"${mask}","payload":"(secret)","row":{"idValue":"(secret)"}}`,
+  );
   expect(lines).not.toMatch(/fixture-|"0642"/);
 });
 

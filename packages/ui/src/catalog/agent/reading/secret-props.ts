@@ -4,7 +4,7 @@ import type { SessionState } from "../session";
 import type { ReadSchema } from "./index";
 
 export const secretPlaceholder = "(secret)";
-type Mask = (value: string) => string;
+type CredentialMasks = { fields: ReadonlySet<string>; lang: string | undefined };
 
 function matchesLiterals(schema: ReadSchema, value: unknown) {
   if (Object.hasOwn(schema, "const") && schema.const !== value) return false;
@@ -16,11 +16,9 @@ function matchesLiterals(schema: ReadSchema, value: unknown) {
   );
 }
 
-function redact(schema: ReadSchema, value: unknown, mask?: Mask): unknown {
-  if (schema.kind === "secret" && typeof value === "string") {
-    if (mask && value) return mask(value);
-    if (value.trim()) return secretPlaceholder;
-  }
+function redact(schema: ReadSchema, value: unknown, mask?: string): unknown {
+  if (schema.kind === "secret" && typeof value === "string" && (mask !== undefined || value.trim()))
+    return mask ?? secretPlaceholder;
   if (Array.isArray(value) && schema.items) {
     const before = value;
     const rows = before.map((item) => redact(schema.items!, item));
@@ -39,12 +37,18 @@ function redact(schema: ReadSchema, value: unknown, mask?: Mask): unknown {
 export function redactSecretProps(
   schema: ReadSchema,
   props: Record<string, unknown>,
-  maskFor?: (key: string) => Mask | undefined,
+  masks?: CredentialMasks,
 ) {
   let safe = props;
   for (const [key, field] of Object.entries(schema.properties ?? {})) {
-    const value = redact(field, props[key], maskFor?.(key));
-    if (value !== props[key]) {
+    const original = props[key];
+    // Compute the mask from the original once, even if several schema branches redact this field.
+    const mask =
+      masks?.fields.has(key) && typeof original === "string" && original
+        ? maskedPassId(original, masks.lang)
+        : undefined;
+    const value = redact(field, original, mask);
+    if (value !== original) {
       if (safe === props) safe = { ...props };
       safe[key] = value;
     }
@@ -61,9 +65,7 @@ export function redactCustomReadProps(
 ) {
   const toggles = meta.actions?.credentialToggles;
   if (!toggles) return redactSecretProps(schema, props);
-  const fields = new Set(Object.values(toggles));
-  const mask: Mask = (value) => maskedPassId(value, lang);
-  return redactSecretProps(schema, props, (key) => (fields.has(key) ? mask : undefined));
+  return redactSecretProps(schema, props, { fields: new Set(Object.values(toggles)), lang });
 }
 
 export const roundHide = (meta: Meta) => meta.session?.kind === "rounds" && meta.session.hide !== undefined;
