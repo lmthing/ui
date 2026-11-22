@@ -50,13 +50,16 @@ export function KitPhoto(props: PhotoProps) {
   const { label, initials, ring = "none", loading = false } = props;
   const inheritedBleed = useContext(EdgeMediaContext);
   const edge = props.bleed === undefined ? inheritedBleed : props.bleed === "edge";
-  const { layer, ready } = usePhotoLayer(loading ? undefined : photo);
+  const { layer } = usePhotoLayer(loading ? undefined : photo);
   const ks = useKitStyle();
   const addressed = part !== null;
   const address = usePart(part ?? undefined, addressed);
-  const fullWidth = fallbackShape === "wide" || fallbackShape === "square" || fallbackShape === "tall";
   const shape =
-    aspect !== "auto" ? aspect : !photo && fallbackShape !== "avatar" && !fullWidth ? "round" : fallbackShape;
+    aspect !== "auto"
+      ? aspect
+      : !photo && !edge && !loading && fallbackShape !== "avatar"
+        ? "round"
+        : fallbackShape;
   const circle = shape === "round" || shape === "avatar";
   const corners =
     edge && shape !== "thumb"
@@ -66,7 +69,7 @@ export function KitPhoto(props: PhotoProps) {
     <Frame
       {...(addressed ? address : {})}
       shape={shape}
-      {...(loading ? { backgroundColor: "$line" } : !ready ? { backgroundColor: "$raised" } : {})}
+      {...(loading ? { backgroundColor: "$line" } : !layer ? { backgroundColor: "$raised" } : {})}
       {...(circle ? {} : { borderRadius: corners })}
       aria-hidden={loading || undefined}
       accessibilityRole={loading ? undefined : "image"}
@@ -82,7 +85,7 @@ export function KitPhoto(props: PhotoProps) {
       alignItems="center"
       justifyContent="center"
     >
-      {!loading && !ready && initials && (
+      {!loading && !layer && initials && (
         <KitText
           role={shape === "avatar" ? "heading" : "label"}
           tone="text"

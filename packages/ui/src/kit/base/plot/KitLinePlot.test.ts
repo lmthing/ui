@@ -115,6 +115,22 @@ describe("KitLinePlot states", () => {
     expect(yPositions[0]).toBeDefined();
     expect(yPositions[0]).toBe(yPositions[1]);
   });
+});
+
+describe("KitLinePlot layout", () => {
+  it("shows distinct synthetic bars for multiple series without using observed coordinates", () => {
+    const sample = series[0]!;
+    const other = { ...sample, id: "two", label: "Other" };
+    const paths = (inputs: typeof series) =>
+      [...render({ series: inputs, loading: true }).matchAll(/<path[^>]* d="([^"]+)"/g)].map((m) => m[1]);
+    const bars = paths([sample, other]);
+    expect(bars).toHaveLength(2);
+    expect(new Set(bars).size).toBe(2);
+    expect(
+      paths([sample, { ...other, points: other.points.map((p) => ({ ...p, x: p.x * 4, value: 100 })) }]),
+    ).toEqual(bars);
+  });
+
   it("keeps drawings and target geometry while removing loading controls", () => {
     const props = { series, targets: [{ point: "p3", target: { part: "point" } }] };
     const filled = render(props),

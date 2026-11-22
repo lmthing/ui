@@ -32,7 +32,7 @@ it("lets a full-bleed card own the photo corners while retaining the crop and ad
     const inset = styled(
       render(
         <KitCard bleed="edge" padded>
-          {photo}
+          <KitPhoto photo="lib:unresolved" shape="wide" part="photo" loading={loading} />
         </KitCard>,
       ),
     );

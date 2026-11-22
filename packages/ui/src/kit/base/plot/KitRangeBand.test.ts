@@ -168,7 +168,9 @@ describe("KitRangeBand zones", () => {
     expect(drawing(html).children[0]!.children).toHaveLength(1);
     expect(html).not.toMatch(/Invalid|Out of scale|Reversed|NaN/);
   });
+});
 
+describe("KitRangeBand zone layout", () => {
   it("separates adjacent zones with identical tones and identifies them by bounds", () => {
     const html = render({
       ...zonesInput,

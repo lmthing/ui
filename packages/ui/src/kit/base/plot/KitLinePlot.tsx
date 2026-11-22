@@ -70,9 +70,10 @@ function PlotPoints({
 function PlotLoading({
   width,
   height,
+  series,
   geometry,
   frame: { left, top, yEnd, y },
-}: Pick<DrawingProps, "width" | "height" | "frame" | "geometry">) {
+}: Pick<DrawingProps, "width" | "height" | "frame" | "geometry" | "series">) {
   const theme = useTheme();
   const centre = (top + yEnd) / 2;
   return (
@@ -81,17 +82,41 @@ function PlotLoading({
         const row = y(tick);
         return <Line key={index} x1={left} x2={width - left} y1={row} y2={row} stroke={theme.line?.val} />;
       })}
-      <Line
-        x1={width / 3}
-        x2={(width / 3) * 2}
-        y1={centre}
-        y2={centre}
-        stroke={theme.line?.val}
-        strokeWidth={space.sm}
-        strokeLinecap="round"
-      />
+      {series.length < 2 ? (
+        <Line
+          x1={width / 3}
+          x2={(width / 3) * 2}
+          y1={centre}
+          y2={centre}
+          stroke={theme.line?.val}
+          strokeWidth={space.sm}
+          strokeLinecap="round"
+        />
+      ) : (
+        series.map((line, index) => {
+          const row = top + (yEnd - top) * ((index + 1) / (series.length + 1));
+          return (
+            <Path
+              key={line.id}
+              d={loadingPath(line.points.length, left, width - left, row)}
+              fill="none"
+              stroke={theme.line?.val}
+              strokeWidth={space.xs}
+              strokeLinecap="round"
+            />
+          );
+        })
+      )}
     </Svg>
   );
+}
+
+function loadingPath(count: number, start: number, end: number, row: number) {
+  // Use only the number of slots, never the caller's x or y readings.
+  return Array.from(
+    { length: count },
+    (_, index) => `${index ? "L" : "M"}${start + ((end - start) * index) / Math.max(1, count - 1)},${row}`,
+  ).join(" ");
 }
 
 function PlotDrawing({ series, goal, baseline, geometry, ...props }: DrawingProps) {
@@ -102,7 +127,7 @@ function PlotDrawing({ series, goal, baseline, geometry, ...props }: DrawingProp
     loading,
     frame: { x, y, left },
   } = props;
-  if (loading) return <PlotLoading {...props} geometry={geometry} />;
+  if (loading) return <PlotLoading {...props} {...{ series, geometry }} />;
   const rule = { strokeWidth: component.base.borderWidth, stroke: theme.line?.val };
   return (
     <Svg width={width} height={height} aria-hidden>

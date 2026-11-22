@@ -63,6 +63,9 @@ describe("KitWheel", () => {
     expect(placeholders).not.toContain("Nothing here yet");
     expect(placeholders).not.toContain("NaN");
   });
+});
+
+describe("KitWheel positioning", () => {
   it("aligns every settled selection with the pointer despite stale caller rotation", () => {
     for (const option of options)
       for (const rotation of [0, 0.25, 19.7]) {
