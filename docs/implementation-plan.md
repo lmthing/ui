@@ -798,7 +798,7 @@ examples. Strict output removes component alias/off-pack repairs, not property v
 
 ```ts
 parseLine(text): { line?: unknown; codes: string[] };
-readComponent(line, registry, ctx: { cast }): { component?: Component; codes: string[] };
+repairComponent(line, registry, ctx: { cast }): { component?: Component; codes: string[] };
 stampIds(components): Component[];
 assembleScreen(lines, registry, ctx): { screen: ScreenLike; codes: string[] };
 ```
@@ -806,8 +806,7 @@ assembleScreen(lines, registry, ctx): { screen: ScreenLike; codes: string[] };
 R1 strips fences, trailing commas, single quotes and closes brackets, else drops input. R2 validates
 exact/scoped ids, strips unknown fields, fills required values from fallback, snaps enums/icons/photo
 tags, clamps text/arrays and applies migration aliases. It has no `R2.alias` or `R2.off_pack`.
-The advertised repair `readComponent` is not the built text-reader export of the same name; public
-naming needs reconciliation before implementation.
+The repair is named `repairComponent`. The existing `readComponent` export remains the text reader.
 
 Only positional `stampItemIds` exists. Persistent component/item counters and `assembleScreen` are
 not built. Repair codes live in one future `lines/codes.ts`, with fixture tables for real bad inputs.
