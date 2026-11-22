@@ -1,7 +1,13 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { liveRoomActiveSpeaker, liveRoomListenerUnit, liveRoomReading, liveRoomSpeakerStatus } from "../copy";
+import {
+  liveRoomActiveSpeaker,
+  liveRoomListenerUnit,
+  liveRoomReading,
+  liveRoomSpeakerInitials,
+  liveRoomSpeakerStatus,
+} from "../copy";
 import { socialWordsFor } from "../lang";
 import {
   listenerCount,
@@ -132,7 +138,7 @@ function SpeakerTile({ speaker, density, detail }: Finish & { speaker: Speaker }
   const { lang, words: { liveRoom: words } } = kit.useWords(socialWordsFor);
   const status = liveRoomSpeakerStatus(speaker, lang);
   const active = speaker.speaking && !speaker.muted;
-  const initials = speaker.name.split(/\s+/).slice(0, 2).map((word) => Array.from(word)[0]).join("");
+  const initials = liveRoomSpeakerInitials(speaker.name);
   return <kit.KitRow item={speaker.id} label={speaker.name} inline fitContent density={density}>
     <kit.KitContent align="center" density={density}>
       <kit.KitPhoto part="photo" shape="avatar" ring={active ? "accent" : "none"} photo={speaker.photo} initials={initials} label={speaker.name} loading={loading} />

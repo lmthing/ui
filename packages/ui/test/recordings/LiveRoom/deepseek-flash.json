@@ -53,6 +53,15 @@
       "{\"address\": \"l1/react\", \"action\": \"press\"}"
     ]
   },
+  "LiveRoom%2Fread%2FOpen%20the%20reaction%20tray%20without%20sending%20a%20reaction./cb431fd7b1a02b83/abbb84b336ae3fc4": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nl1 LiveRoom 24 listeners — MC — Host — Maya Chen: Speaking — SR — Co-host — JP — Speaker — Jo Park: Muted — Raise hand — Leave — End room — \"Greenhouse after hours\" — \"Plant swap\" [l1/react press]\n  r1 \"Maya Chen\"\n  r2 \"Sam Rivera\"\n  r3 \"Jo Park\"\n\nTask: Open the reaction tray without sending a reaction.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"l1/react\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"l1/react\", \"action\": \"press\"}",
+      "{\"address\": \"l1/react\", \"action\": \"press\"}",
+      "{\"address\": \"l1/react\", \"action\": \"press\"}"
+    ]
+  },
   "LiveRoom%2Fread%2FOpen%20the%20reaction%20tray%20without%20sending%20a%20reaction./f76e5a762b953a50/34badbd7ce4e8d07": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nl1 LiveRoom 24 listeners — Maya Chen: Speaking — Jo Park: Muted — \"Greenhouse after hours\" — \"Plant swap\" [l1/react press]\n  r1 \"Maya Chen\"\n  r2 \"Sam Rivera\"\n  r3 \"Jo Park\"\n\nTask: Open the reaction tray without sending a reaction.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"l1/react\", \"action\": \"press\"}",
@@ -1065,11 +1074,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"LiveRoom\",\"density\":null,\"surface\":\"card\",\"detail\":null,\"title\":\"Greenhouse after hours\",\"topic\":\"Plant swap\",\"speakers\":[{\"name\":\"Maya Chen\",\"photo\":null,\"role\":\"host\",\"speaking\":true,\"muted\":false},{\"name\":\"Sam Rivera\",\"photo\":null,\"role\":\"cohost\",\"speaking\":false,\"muted\":false},{\"name\":\"Jo Park\",\"photo\":null,\"role\":\"speaker\",\"speaking\":false,\"muted\":true}],\"listenersCount\":24,\"handRaised\":false,\"isHost\":false,\"style\":null}",
+    "reply": "{\"c\":\"LiveRoom\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Greenhouse after hours\",\"topic\":\"Plant swap\",\"speakers\":[{\"name\":\"Maya Chen\",\"photo\":null,\"role\":\"host\",\"speaking\":true,\"muted\":false},{\"name\":\"Sam Rivera\",\"photo\":null,\"role\":\"cohost\",\"speaking\":false,\"muted\":false},{\"name\":\"Jo Park\",\"photo\":null,\"role\":\"speaker\",\"speaking\":false,\"muted\":true}],\"listenersCount\":24,\"handRaised\":false,\"isHost\":false,\"style\":null}",
     "replies": [
-      "{\"c\":\"LiveRoom\",\"density\":null,\"surface\":\"card\",\"detail\":null,\"title\":\"Greenhouse after hours\",\"topic\":\"Plant swap\",\"speakers\":[{\"name\":\"Maya Chen\",\"photo\":null,\"role\":\"host\",\"speaking\":true,\"muted\":false},{\"name\":\"Sam Rivera\",\"photo\":null,\"role\":\"cohost\",\"speaking\":false,\"muted\":false},{\"name\":\"Jo Park\",\"photo\":null,\"role\":\"speaker\",\"speaking\":false,\"muted\":true}],\"listenersCount\":24,\"handRaised\":false,\"isHost\":false,\"style\":null}",
       "{\"c\":\"LiveRoom\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Greenhouse after hours\",\"topic\":\"Plant swap\",\"speakers\":[{\"name\":\"Maya Chen\",\"photo\":null,\"role\":\"host\",\"speaking\":true,\"muted\":false},{\"name\":\"Sam Rivera\",\"photo\":null,\"role\":\"cohost\",\"speaking\":false,\"muted\":false},{\"name\":\"Jo Park\",\"photo\":null,\"role\":\"speaker\",\"speaking\":false,\"muted\":true}],\"listenersCount\":24,\"handRaised\":false,\"isHost\":false,\"style\":null}",
-      "{\"c\":\"LiveRoom\",\"density\":null,\"surface\":\"card\",\"detail\":null,\"title\":\"Greenhouse after hours\",\"topic\":\"Plant swap\",\"speakers\":[{\"name\":\"Maya Chen\",\"photo\":null,\"role\":\"host\",\"speaking\":true,\"muted\":false},{\"name\":\"Sam Rivera\",\"photo\":null,\"role\":\"cohost\",\"speaking\":false,\"muted\":false},{\"name\":\"Jo Park\",\"photo\":null,\"role\":\"speaker\",\"speaking\":false,\"muted\":true}],\"listenersCount\":24,\"handRaised\":false,\"isHost\":true,\"style\":null}"
+      "{\"c\":\"LiveRoom\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Greenhouse after hours\",\"topic\":\"Plant swap\",\"speakers\":[{\"name\":\"Maya Chen\",\"photo\":null,\"role\":\"host\",\"speaking\":true,\"muted\":false},{\"name\":\"Sam Rivera\",\"photo\":null,\"role\":\"cohost\",\"speaking\":false,\"muted\":false},{\"name\":\"Jo Park\",\"photo\":null,\"role\":\"speaker\",\"speaking\":false,\"muted\":true}],\"listenersCount\":24,\"handRaised\":false,\"isHost\":false,\"style\":null}",
+      "{\"c\":\"LiveRoom\",\"density\":null,\"surface\":\"card\",\"detail\":null,\"title\":\"Greenhouse after hours\",\"topic\":\"Plant swap\",\"speakers\":[{\"name\":\"Maya Chen\",\"photo\":null,\"role\":\"host\",\"speaking\":true,\"muted\":false},{\"name\":\"Sam Rivera\",\"photo\":null,\"role\":\"cohost\",\"speaking\":false,\"muted\":false},{\"name\":\"Jo Park\",\"photo\":null,\"role\":\"speaker\",\"speaking\":false,\"muted\":true}],\"listenersCount\":24,\"handRaised\":false,\"isHost\":false,\"style\":null}"
     ]
   }
 }
