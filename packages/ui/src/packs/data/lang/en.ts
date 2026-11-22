@@ -8,8 +8,6 @@ import { words as HeatmapWords } from "./en/Heatmap";
 import { words as TableWords } from "./en/Table";
 import type { LDMLPluralRule } from "../../../catalog";
 
-const funnelOverall = "Overall conversion";
-
 export type DataWords = {
   activityLabel: (who: string, text: string, time: string, diff?: string) => string;
   activityDiff: (old: string, next: string) => string;
