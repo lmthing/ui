@@ -19,8 +19,8 @@ export type HourBlock = { id: string; start: string; end: string; title: string;
 function Block({ block, top, height }: { block: HourBlock; top: number; height: number }) {
   const kit = useKit();
   const { lang, words } = useWords();
-  const start = timeOfDayLine(block.start, lang),
-    end = timeOfDayLine(block.end, lang);
+  const start = timeOfDayLine(block.start, lang);
+  const end = timeOfDayLine(block.end, lang);
   const part = usePart();
   const tone = block.tone ?? "neutral";
   const progress = useSignatureProgress("day_unfold");

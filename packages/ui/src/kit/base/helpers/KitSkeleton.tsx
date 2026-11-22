@@ -1,17 +1,22 @@
-import { useWords, useVariantDensity } from "../../provider";
+import { useWords, useKitStyle, useVariantDensity } from "../../provider";
 import { XStack, YStack, styled } from "tamagui";
 import { component, radius, size, space, type as typography } from "../../../catalog";
-import { KitContent, useTextStep } from "../text";
-import { SkeletonContent, SkeletonText, skeletonInset, linesOf, type ShapeProps } from "./skeleton-content";
-import { SkeletonOptions, SkeletonControl } from "./skeleton-options";
+import { KitContent, KitText, shifted, surfaceOf, useTextStep } from "../text";
+import {
+  SkeletonContent,
+  SkeletonText,
+  skeletonInset,
+  linesOf,
+  type ShapeProps,
+  type SkeletonItem,
+} from "./skeleton-content";
+import { Bar, SkeletonBars, SkeletonTrend, SkeletonRing, SkeletonMedia } from "./skeleton-shapes";
 
 const Line = styled(YStack, { justifyContent: "center" });
 
 // Fractions of the row width, varied so it reads as content, not as stripes.
 const titles = ["72%", "58%", "66%", "50%", "62%", "54%"] as const;
 const details = ["44%", "36%", "40%", "30%", "38%", "34%"] as const;
-
-import { Bar, SkeletonBars, SkeletonTrend, SkeletonRing, SkeletonMedia } from "./skeleton-shapes";
 
 type SkeletonProps = ShapeProps & {
   rows?: number;
@@ -139,6 +144,118 @@ function SkeletonFigure({ lines, centered, split, inset, lead = "none", density,
           ))}
         </KitContent>
       )}
+    </YStack>
+  );
+}
+
+function SkeletonOption({
+  item,
+  look,
+  reserveIcon,
+}: {
+  item: SkeletonItem;
+  look: "cards" | "list";
+  reserveIcon: boolean;
+}) {
+  const ks = useKitStyle();
+  return (
+    <YStack
+      minHeight={size.control.md}
+      paddingVertical={space[ks.density.rowPad]}
+      paddingHorizontal={space.md}
+      borderRadius={shifted("md", ks.radiusShift)}
+      {...(look === "cards" ? surfaceOf(ks.surface) : {})}
+    >
+      <XStack gap={space.md} alignItems="flex-start">
+        {reserveIcon && (
+          <YStack width={size.icon.lg} height={typography.body.lineHeight} justifyContent="center">
+            {item.icon && <Bar width={size.icon.lg} height={size.icon.lg} />}
+          </YStack>
+        )}
+        <YStack flex={1}>
+          <SkeletonText text={item.title ?? ""} role="body" />
+        </YStack>
+        <XStack gap={space.sm} height={typography.body.lineHeight} alignItems="center">
+          {item.value && <SkeletonText text={item.value} role="body" />}
+          {(look === "list" || item.on) && (
+            <Bar
+              width={size.icon.md}
+              height={size.icon.md}
+              borderRadius={look === "list" ? radius.pill : radius.sm}
+            />
+          )}
+        </XStack>
+      </XStack>
+      {(item.badge || item.sub) && (
+        <YStack gap={space.xs} paddingLeft={reserveIcon ? component.base.optionLead : component.base.none}>
+          {item.badge && <SkeletonText text={item.badge} role="caption" />}
+          {item.sub && <SkeletonText text={item.sub} role="caption" />}
+        </YStack>
+      )}
+    </YStack>
+  );
+}
+
+function SkeletonOptions({ items = [], question, look = "cards" }: ShapeProps) {
+  const { loadingLabel } = useWords().words;
+  const reserveIcon = items.some((item) => item.icon !== undefined);
+  return (
+    <YStack accessibilityLabel={loadingLabel} aria-busy gap={space.sm}>
+      {question && <SkeletonText text={question} role="heading" />}
+      {items.map((item, index) => (
+        <SkeletonOption key={index} item={item} look={look} reserveIcon={reserveIcon} />
+      ))}
+    </YStack>
+  );
+}
+
+function SkeletonControl({ label, kind = "primary", full = false }: ShapeProps) {
+  const { loadingLabel } = useWords().words;
+  const ks = useKitStyle();
+  return (
+    <YStack
+      accessibilityLabel={loadingLabel}
+      aria-busy
+      minHeight={size.control.md}
+      minWidth={size.control.md}
+      paddingHorizontal={label ? space.lg : space.xs}
+      alignSelf={full ? "stretch" : "flex-start"}
+      justifyContent="center"
+      alignItems="center"
+      backgroundColor="transparent"
+      borderRadius={label ? shifted("md", ks.radiusShift) : radius.pill}
+      {...(kind === "danger" ? { borderWidth: component.base.borderWidth, borderColor: "$line" } : {})}
+    >
+      {kind !== "quiet" && (
+        <Bar
+          position="absolute"
+          top={component.base.none}
+          bottom={component.base.none}
+          left={component.base.none}
+          right={component.base.none}
+          borderRadius={label ? shifted("md", ks.radiusShift) : radius.pill}
+          aria-hidden
+        />
+      )}
+      {label && (
+        <YStack position="relative" aria-hidden>
+          <YStack opacity={component.base.none}>
+            <KitText role="label" part={null}>
+              {label}
+            </KitText>
+          </YStack>
+          {kind === "quiet" && (
+            <Bar
+              position="absolute"
+              width="100%"
+              height={typography.label.size * 0.6}
+              alignSelf="center"
+              top={(typography.label.lineHeight - typography.label.size * 0.6) / 2}
+            />
+          )}
+        </YStack>
+      )}
+      {!label && kind === "quiet" && <Bar width={size.icon.md} height={size.icon.md} />}
     </YStack>
   );
 }

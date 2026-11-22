@@ -70,8 +70,8 @@ export function MatrixScroll({
         const target = event.target as HTMLElement;
         if (!node || !target.getBoundingClientRect) kit.nativeHost?.ensureVisible?.(event.target);
         else {
-          const box = target.getBoundingClientRect(),
-            view = node.getBoundingClientRect();
+          const box = target.getBoundingClientRect();
+          const view = node.getBoundingClientRect();
           node.scrollBy({
             left: box.right > view.right ? box.right - view.right : Math.min(0, box.left - view.left),
           });

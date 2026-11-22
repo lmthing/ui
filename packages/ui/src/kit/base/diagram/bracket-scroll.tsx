@@ -1,41 +1,8 @@
 import { useState, type ReactNode } from "react";
-import { Path, Svg } from "react-native-svg";
-import { isWeb, ScrollView, YStack, useTheme } from "tamagui";
+import { isWeb, ScrollView, YStack } from "tamagui";
 import { component, space } from "../../../catalog";
 import { useKit } from "../../provider";
-import { bracketHeadingHeight, type BracketWindow, type bracketLayout } from "./bracket-layout";
-
-export function BracketLinks({
-  layout,
-  loading,
-}: {
-  layout: ReturnType<typeof bracketLayout>;
-  loading: boolean;
-}) {
-  const theme = useTheme();
-  if (!layout.paths.length) return null;
-  return (
-    <YStack
-      fullscreen
-      top={bracketHeadingHeight}
-      aria-hidden
-      accessibilityElementsHidden
-      pointerEvents="none"
-    >
-      <Svg width={layout.width} height={layout.height}>
-        {layout.paths.map(({ d, decided }, index) => (
-          <Path
-            key={index}
-            d={d}
-            fill="none"
-            stroke={theme[!loading && decided ? "accent" : loading ? "line" : "muted"]?.val}
-            strokeWidth={component.base.strongBorder}
-          />
-        ))}
-      </Svg>
-    </YStack>
-  );
-}
+import type { BracketWindow } from "./bracket-layout";
 
 function scrollKey(
   offsets: number[],

@@ -89,11 +89,14 @@ function fontOf(role: TextRole, fonts: ReturnType<typeof useKitStyle>["fonts"]) 
 }
 
 const LoadingRuns = createContext(false);
+const barCap = "radial-gradient(circle closest-side, var(--line), var(--line) 90%, transparent)";
+const barFill = "linear-gradient(var(--line), var(--line))";
+const barCapSize = `${space.sm}px ${space.sm}px`;
+const barFillSize = `calc(100% - ${space.sm}px) ${space.sm}px`;
 const bar = isWeb
   ? {
-      backgroundImage:
-        "radial-gradient(circle closest-side, var(--line), var(--line) 90%, transparent), radial-gradient(circle closest-side, var(--line), var(--line) 90%, transparent), linear-gradient(var(--line), var(--line))",
-      backgroundSize: `${space.sm}px ${space.sm}px, ${space.sm}px ${space.sm}px, calc(100% - ${space.sm}px) ${space.sm}px`,
+      backgroundImage: `${barCap}, ${barCap}, ${barFill}`,
+      backgroundSize: `${barCapSize}, ${barCapSize}, ${barFillSize}`,
       backgroundPosition: "left center, right center, center",
       backgroundRepeat: "no-repeat",
     }

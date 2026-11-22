@@ -14,8 +14,8 @@ type RadialTrackProps = { part?: string; loading?: boolean } & (
       children?: ReactNode;
     }
 );
-const box = component.base.ringLg + space.xl * 2,
-  stroke = space.sm;
+const box = component.base.ringLg + space.xl * 2;
+const stroke = space.sm;
 
 function RingDrawing({ rings, loading }: Extract<RadialTrackProps, { style: "rings" }>) {
   const theme = useTheme();
@@ -76,10 +76,10 @@ function DayDrawing({ segments, loading }: Extract<RadialTrackProps, { style: "d
         />
       )}
       {segments.map((segment, index) => {
-        const from = index * angle + gap,
-          to = (index + 1) * angle - gap;
-        const start = at(radius, from),
-          end = at(radius, to);
+        const from = index * angle + gap;
+        const to = (index + 1) * angle - gap;
+        const start = at(radius, from);
+        const end = at(radius, to);
         const current = at(box / 2 - space.xs, (index + 0.5) * angle);
         return (
           <Svg key={segment.id} width={box} height={box}>
