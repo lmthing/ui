@@ -184,14 +184,15 @@ export function ActivityLog(input: LogProps) {
       ...(avatar ? { photo } : {}), trail: true,
       lines: [{ role: "body", text: who }, { role: "body", text }, { role: "caption", text: time }],
     }))} />;
-  const feed = <kit.KitRowGroup density={density} leadingWidth={avatar ? "avatar" : undefined}>{rows}</kit.KitRowGroup>;
+  const feed = <kit.KitRowGroup density={density} separators={upgraded}
+    leadingWidth={upgraded && avatar ? "avatar" : undefined}>{rows}</kit.KitRowGroup>;
   return <kit.KitCard part="root" surface={surface} density={density} padded={upgraded}>
     <kit.KitState icon="clipboard_list" part="title" loading={upgraded ? feed : legacyLoading} density={density}>
       {options.length > 0 && <kit.KitTrack part="kind" role="radiogroup" label={words.activityKind}>
         {options.map((kind) => <kit.KitChip key={kind} item={null} role="radio"
           label={words.activityKinds[kind]} value={kind} on={live.kind === kind} />)}
       </kit.KitTrack>}
-      {upgraded ? feed : rows}
+      {feed}
     </kit.KitState>
   </kit.KitCard>;
 }

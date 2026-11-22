@@ -104,6 +104,7 @@ export const examples = [
     ],
   },
   {
+    arrange: "rows",
     columns: [{ label: "New" }, { label: "Booked" }],
     cards: [
       { title: "Milo's weekday walks", column: 0, swimlane: "Recurring", goto: "milo" },

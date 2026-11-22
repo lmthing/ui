@@ -67,12 +67,24 @@ export function tableSections<T extends Row>(
 }
 
 function aggregate(values: readonly number[], average: boolean) {
-  const total = values.reduce((sum, value) => sum + value, 0);
+  const total = compensatedTotal(values);
   if (Number.isFinite(total)) return average ? total / values.length : total;
   // Scale only when needed to recover a finite average or a sum with cancellation.
   const scale = Math.max(...values.map(Math.abs));
-  const sum = values.reduce((sum, value) => sum + value / scale, 0);
+  const sum = compensatedTotal(values.map((value) => value / scale));
   return (average ? sum / values.length : sum) * scale;
+}
+
+function compensatedTotal(values: readonly number[]) {
+  let sum = 0;
+  let correction = 0;
+  for (const value of values) {
+    const next = sum + value;
+    if (!Number.isFinite(next)) return next;
+    correction += Math.abs(sum) >= Math.abs(value) ? sum - next + value : value - next + sum;
+    sum = next;
+  }
+  return sum + correction;
 }
 
 export function tableSummary(columns: readonly Column[], rows: readonly Row[], mode: Summary, lang?: string) {

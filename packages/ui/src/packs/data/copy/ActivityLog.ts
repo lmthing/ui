@@ -21,12 +21,12 @@ export function activityLive({
   lead,
 }: Record<string, unknown>): Record<string, unknown> {
   const entries = rows as ActivityEntry[];
-  const kindOptions = activityChoices(entries);
-  const active = kindOptions.find((option) => option === kind) ?? "all";
+  const options = activityChoices(entries);
+  const active = options.find((option) => option === kind) ?? "all";
   return {
-    kind: kindOptions.length ? active : undefined,
-    kindOptions,
-    hasKinds: Boolean(kindOptions.length),
+    kind: options.length ? active : undefined,
+    kindOptions: options.map((value) => ({ value, label: dataWordsFor().activityKinds[value] })),
+    hasKinds: Boolean(options.length),
     entries: entries.map((entry) => {
       const { photo: _photo, ...withoutPhoto } = entry;
       return {

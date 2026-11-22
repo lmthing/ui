@@ -52,6 +52,8 @@ export type DataWords = {
   tablePick: (label: string) => string;
   tableSort: string;
   tableExport: string;
+  tableExportPending: string;
+  tableExportResult: Record<"accepted" | "rejected" | "cancelled", string>;
   tableSummary: Record<"sum" | "avg" | "count", string>;
   tableUnavailable: string;
 };
@@ -110,6 +112,12 @@ export const en = {
   tablePick: (label) => `Select ${label}`,
   tableSort: "Sort by column",
   tableExport: "Export table",
+  tableExportPending: "Exporting table…",
+  tableExportResult: {
+    accepted: "Table exported",
+    rejected: "Could not export the table",
+    cancelled: "Table export cancelled",
+  },
   tableSummary: { sum: "Total", avg: "Average", count: "Record count" },
   tableUnavailable: "Not available",
 } satisfies DataWords;

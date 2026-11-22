@@ -31,7 +31,7 @@ function TableCell(cell: Row["cells"][number], { kind }: Column, index: number, 
 }
 
 // prettier-ignore
-function TableHeading(row: Row, column: Column, { selectable, density, loading, lang }: {selectable: boolean; density: c.ThemeDensity; loading: boolean; lang: string}) {
+function TableHeading(row: Row, column: Column, { selectable, density, loading, lang, grouped }: {selectable: boolean; density: c.ThemeDensity; loading: boolean; lang: string; grouped: boolean}) {
   const cell = row.cells[0]!, label = tableCell(cell, column.kind, lang), inline = density === "compact";
   if (selectable && loading) return <kit.KitSkeleton lead="box" inset="none" density={density} items={[{ title: label }]} />;
   const wrap = !loading && (row.goto || selectable || !inline || column.kind === "status");
@@ -41,27 +41,28 @@ function TableHeading(row: Row, column: Column, { selectable, density, loading, 
     goto={row.goto} label={label}>{value}</kit.KitRow>;
   if (!selectable) return link;
   const pick = <kit.KitCheck part="pick" done={false} label={dataWordsFor(lang).tablePick(label)} />;
-  return <kit.KitRow {...{ inline, density }} inset="none" leadingAlign="row" label={label} leading={pick}>{link}</kit.KitRow>;
+  return <kit.KitRow inline={inline || grouped} density={density} inset="none"
+    leadingAlign="row" label={label} leading={pick}>{link}</kit.KitRow>;
 }
 
 // prettier-ignore
-function TableHeader(label: string, kind: Column["kind"], on: boolean, density: c.ThemeDensity, loading: boolean) {
+function TableHeader(label: string, kind: Column["kind"], on: boolean, density: c.ThemeDensity, loading: boolean, pending: boolean) {
   const align = numericKind(kind) ? "end" : kind === "status" ? "center" : "start";
   if (loading) return <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", label, align]]} />;
-  const chip = <kit.KitChip item={null} look="segment" role="radio" label={label} on={on} />;
+  const chip = <kit.KitChip item={null} look="segment" role="radio" label={label} on={on} disabled={pending || undefined} />;
   if (align === "center") return chip;
   if (align === "end") return <kit.KitGrid fitLast><kit.KitContent>{null}</kit.KitContent>{chip}</kit.KitGrid>;
   return <kit.KitRow inline label={label} leadingAlign="row" leading={chip}>{null}</kit.KitRow>;
 }
 // prettier-ignore
-export function TableMatrix({ input, density, loading, lang }: {
-  input: ViewProps; density: c.ThemeDensity; loading: boolean; lang: string;
+export function TableMatrix({ input, density, loading, lang, pending }: {
+  input: ViewProps; density: c.ThemeDensity; loading: boolean; lang: string; pending: boolean;
 }) {
   const { columns, rows, selectable, sort, group, summaryRow } = input;
   const scope = kit.usePartContext();
   const headers = tableChoices(columns).map(({ label, value }) => ({
     id: String(value), label,
-    header: TableHeader(label, columns[value]!.kind, value === sort, density, loading),
+    header: TableHeader(label, columns[value]!.kind, value === sort, density, loading, pending),
   }));
   const separators: string[] = [];
   const drawing = tableSections(rows, columns, group, sort, lang).flatMap(({ label, rows }, section, all) => {
@@ -70,7 +71,7 @@ export function TableMatrix({ input, density, loading, lang }: {
       id: row.id, label: tableCell(row.cells[0]!, columns[0]!.kind, lang),
       heading: <>{index === 0 && label && <kit.KitMetaLine density={density}
         title={{ text: label, part: "group_heading", role: "meta", strong: true }} />}
-        {TableHeading(row, columns[0]!, { selectable, density, loading, lang })}</>,
+        {TableHeading(row, columns[0]!, { selectable, density, loading, lang, grouped: group === "sections" })}</>,
       cells: columns.slice(1).map((column, i) => ({
         id: headers[i + 1]!.id, content: TableCell(row.cells[i + 1]!, column, i + 1, density, loading, lang),
       })),

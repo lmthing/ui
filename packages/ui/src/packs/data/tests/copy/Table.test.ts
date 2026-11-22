@@ -48,5 +48,8 @@ describe("Table copy", () => {
     const large = [{ cells: [Number.MAX_VALUE, "Ready"] }, { cells: [Number.MAX_VALUE, "Ready"] }];
     expect(tableSummary(columns, large, "sum").cells[0]).toBe("Not available");
     expect(tableSummary(columns, large, "avg").cells[0]).toBe(tableCell(Number.MAX_VALUE, "number"));
+    const cancelled = [1e16, 1, -1e16].map((value) => ({ cells: [value, "Ready"] }));
+    expect(tableSummary(columns, cancelled, "sum").cells[0]).toBe("1");
+    expect(tableSummary(columns, cancelled, "avg").cells[0]).toBe(tableCell(1 / 3, "number"));
   });
 });

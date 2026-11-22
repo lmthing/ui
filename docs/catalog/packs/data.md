@@ -42,13 +42,14 @@ sideways when wider than the phone.
   detail: `full` (default), `brief`. Migrate `style: "compact"` to compact density, and `style: "grouped"`
   to group sections. Group by the first status column (first column if none); sort within groups.
 - Parts → actions: `matrix`, `header select`, `summary`, `count` (full detail), `empty`,
-  `export press` (with `exportable` and an available host command), `export_label`;
+  `export press` (with `exportable` and an available host command), `export_label`, `export_status`;
   rows `root press` (when linked), rows `pick check` (with `selectable`), rows `group_heading`
   (first row of a section), rows `status_1` through `status_6` (status cells).
 - States: filled, empty, loading. · Real path: a query over records on the device. · Kit: `KitTable`.
 - Wave 6 options: `summaryRow` computes `sum` or `avg` for every numeric and money column (requires
   at least one), or `count` for all records. The footer is independent of the row count in full detail.
-  `export press` requests the host command `data.exportTable` at service tier.
+  `export press` requests the host command `data.exportTable` at service tier. Sorting waits while
+  the export is pending; selection and record links remain usable.
 
 ### `Board` · planned · data · phone
 Columns of cards for stages (To do, Doing, Done; New, Quoted, Won), each card with a title, a tag, a person

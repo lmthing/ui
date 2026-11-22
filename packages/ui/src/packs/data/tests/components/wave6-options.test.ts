@@ -40,11 +40,12 @@ describe("ActivityLog Wave 6", () => {
       expect(controller.read()).not.toContain("[c1/r1 press");
       expect(controller.press("c1/r1").ok).toBe(false);
       expect(select("deleted").ok).toBe(false);
-      expect(select("created").ok).toBe(true);
+      expect(controller.read()).toContain("All changes");
+      expect(select("Created").ok).toBe(true);
       expect(controller.read()).not.toContain("Hall → Study");
       expect(controller.press("c1/r1").ok).toBe(true);
       expect(onLink).toHaveBeenCalledWith("fern", "home/c1/r1");
-      expect(select("all").ok).toBe(true);
+      expect(select("All changes").ok).toBe(true);
       expect(controller.read()).toContain("[c1/r2 press");
       expect(controller.read()).toContain("[c1/r1 press");
       expect(controller.snapshotScreen()).toEqual(seed);
@@ -100,6 +101,7 @@ describe("Table Wave 6", () => {
   const input = Table.examples[2]!;
 
   it("migrates compact and grouped options without overriding explicit axes", () => {
+    const { density: _density, ...legacy } = Table.examples[0]!;
     for (const [style, props, expected] of [
       ["compact", {}, { density: "compact" }],
       ["compact", { density: "comfortable" }, { density: "comfortable" }],
@@ -107,7 +109,7 @@ describe("Table Wave 6", () => {
       ["grouped", { group: "none" }, { group: "none" }],
     ] as const) {
       const { c, id, ...wire } = migrateLine({
-        ...Table.examples[0]!,
+        ...legacy,
         ...props,
         c: "Table",
         id: "t1",
@@ -133,7 +135,14 @@ describe("Table Wave 6", () => {
   });
 
   it("routes export only to an admitted service host, not to a screen link", async () => {
-    const run = vi.fn(() => ({ status: "accepted" as const }));
+    let rejectExport!: () => void;
+    const response = new Promise<{ status: "rejected" }>((resolve) => {
+      rejectExport = () => resolve({ status: "rejected" });
+    });
+    const run = vi
+      .fn()
+      .mockImplementationOnce(() => response)
+      .mockReturnValueOnce({ status: "accepted" as const });
     const onLink = vi.fn();
     const seed = screen("Table", input);
     const offline = createScreenController({ screen: seed, defs: { Table } });
@@ -150,6 +159,15 @@ describe("Table Wave 6", () => {
       expect(online.act({ address: "c1/export", action: "press" }).ok).toBe(true);
       expect(run.mock.calls.length).toBe(1);
       expect(onLink).not.toHaveBeenCalled();
+      expect(online.read()).toContain("c1 operation data.exportTable pending");
+      expect(online.read()).not.toContain("[c1/header select");
+      expect(online.read()).toContain("[c1/r1/pick check");
+      expect(online.press("c1/export").ok).toBe(false);
+      rejectExport();
+      await Promise.resolve();
+      expect(online.read()).toContain("c1 operation data.exportTable rejected");
+      expect(online.read()).toContain("[c1/header select");
+      expect(online.press("c1/export").ok).toBe(true);
       await Promise.resolve();
       expect(online.read()).toContain("c1 operation data.exportTable accepted");
       expect(online.snapshotScreen()).toEqual(seed);

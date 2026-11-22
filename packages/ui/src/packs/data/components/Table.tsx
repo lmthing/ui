@@ -23,7 +23,7 @@ export const meta = {
   realPath: "A query over records on the device.",
   variants: { density: ["compact", "comfortable"], detail: ["full", "brief"], group: ["none", "sections"] },
   variantParts: { "detail.brief": { hides: ["count"] }, "group.sections": { adds: ["group_heading"] } },
-  parts: ["root", "header", "matrix", "summary", "count", "empty", "export", "export_label"],
+  parts: ["root", "header", "matrix", "summary", "count", "empty", "export", "export_label", "export_status"],
   items: { key: "rows", parts: ["root", "pick", "group_heading", "status_1", "status_2", "status_3", "status_4", "status_5", "status_6"] },
   states: ["filled", "empty", "loading"],
   partTiers: { export: "service" },
@@ -142,21 +142,30 @@ const numericKind = (kind: ViewProps["columns"][number]["kind"]) => kind === "nu
 
 // prettier-ignore
 export function Table(input: ViewProps) {
+  const scope = kit.usePartContext();
   const state = kit.useComponentState();
   const { lang, words } = kit.useWords(dataWordsFor);
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const loading = state === "loading", count = tableCount(input.rows.length, lang);
+  const status = kit.useHostOperations().find(({ name }) => name === "data.exportTable")?.status;
+  const pending = status === "pending";
+  const feedback = status && status !== "pending" ? status : undefined;
+  const matrix = <TableMatrix {...{ input, density, loading, lang, pending }} />;
   const body = <>
-    {loading ? <TableMatrix {...{ input, density, loading, lang }} /> :
+    {loading ? matrix :
       <kit.KitTrack part="header" role="radiogroup" label={words.tableSort}>
-        <TableMatrix {...{ input, density, loading, lang }} />
+        {matrix}
       </kit.KitTrack>}
     {detail === "full" && <kit.KitLayoutText line={{ text: count, role: "caption", tone: "muted", part: "count" }} density={density} />}
     {input.exportable && <kit.KitActionFooter density={density}>
-      <kit.KitAction part="export" action="press" label={words.tableExport} kind="secondary"
+      <kit.KitAction part="export" action="press" label={pending ? words.tableExportPending : words.tableExport} kind="secondary"
         contentParts={{ label: "export_label" }} />
     </kit.KitActionFooter>}
+    {input.exportable && !loading && feedback &&
+      <kit.PartScope {...scope} state={feedback === "accepted" ? "success" : "error"}>
+        <kit.KitState retain part="export_status" message={words.tableExportResult[feedback]} density={density} />
+      </kit.PartScope>}
   </>;
   return <kit.KitCard padded density={density}>
     <kit.KitState part="empty" loading={body} density={density}>{body}</kit.KitState>
