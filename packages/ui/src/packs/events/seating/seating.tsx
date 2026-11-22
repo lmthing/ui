@@ -1,7 +1,8 @@
-import type { Props } from "../../../catalog";
+import { numberLine, type Props } from "../../../catalog";
 import { KitCard, KitState, useComponentState, useVariant, useWords } from "../../../kit";
 import { SeatPlan, type SeatPlanProps } from "../../../kit/renderers";
 import { Seating } from "../components";
+import { seatingCount } from "../copy";
 import { eventsWordsFor } from "../lang";
 
 type Input = Props<typeof Seating.props, typeof Seating.meta>;
@@ -23,7 +24,7 @@ function guestSeat(guest: Guest, words: Words, moves: Moves | undefined) {
       .map((word) => Array.from(word)[0])
       .join(""),
     target: { item: id, part: "root" },
-    move: { destinations: moves?.[id] ?? [], label: (table: string) => words.move(name, table) },
+    move: { destinations: moves?.[id] ?? [], label: words.move },
   };
 }
 
@@ -45,12 +46,12 @@ function tablePlan(
         shape: table.shape,
         target: { item: table.id, part: "root" },
         labelPart: "label",
-        count: { part: "seats", text: words.count(guests.length, table.seats, lang) },
+        count: { part: "seats", text: seatingCount(guests.length, table.seats, lang) },
         seats: [
           ...guests,
           ...Array.from({ length: Math.max(0, table.seats - guests.length) }, (_, at) => ({
             id: `vacancy-${at}`,
-            label: words.available,
+            label: words.freeSeat,
           })),
         ],
       },
@@ -80,7 +81,7 @@ export function SeatingPlan({
       part={null}
       loading={loading}
       tables={tablePlan(entries, words, lang, moves)}
-      tray={{ part: "tray", text: words.tray, role: "meta" }}
+      tray={{ part: "tray", text: words.tray(numberLine(trayGuests.length, lang)), role: "meta" }}
       trayGuests={trayGuests}
     />
   );

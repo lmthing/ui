@@ -718,5 +718,2201 @@
       "KeyValue",
       "KeyValue"
     ]
+  },
+  "Ticket%2Fchoose%2FShow%20my%20issued%20admission%20pass%20for%20a%20benefit%20gala%3A%20my%20name%2C%20ticket%20type%2C%20venue%20and%20a%20big%20scannable%20code%20for%20entry./a3877c7b6307622a/1019254fd67334c1": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Door: Admit people by scanning tickets or finding names, and track arrivals. Pick: Admission at an event entrance: scan tickets to check people in, look up a guest for manual check-in and see arrivals. Not a standalone photo or code capture (Camera), a guest's own pass (Ticket) or pre-event replies (GuestList).\n- FindDate: Compare people's availability and find the best date for a gathering. Pick: A date-finding matrix: dates as columns and people as rows with yes, maybe or no per date, and the best date computed. Not a calendar to pick a day (Calendar) or a general poll (Poll).\n- GuestList: Track who is invited, who is coming and what each party needs. Pick: An event's invitation roster with party groups, RSVP statuses, plus-ones and dietary needs. Not a plain roster of people (People), a guest sending their own reply (RSVP), clients (ClientCard) or a squad's availability (Squad).\n- RSVP: Reply to an event invitation with attendance, companions and a meal choice. Pick: A guest answers one invitation: yes or no, plus-ones, meal, note and send. Not a standalone choice with explanations (Choice), a poll (Poll), booking a time (Slots), or tracking all replies (GuestList).\n- Registry: Share a gift list and keep guests from choosing the same gift. Pick: A shared event gift list with gift prices, where to buy, and who claimed a gift for hosts. Not a checklist for personal tasks (Checklist), shopping (ProductGrid) or a personal wishlist (Wishlist).\n- Seating: Arrange guests at tables and see who still needs a seat. Pick: A seating plan of round or long tables with guest initials, available seats and a tray of unseated guests. Not locations on a geographic map (MapPins), an invitation roster (GuestList) or a staff rota (Roster).\n- Sessions: Find sessions across an event's tracks and bookmark a personal agenda. Pick: Multi-room or multi-stage sessions at one event, with track filters, capacity and personal bookmarks. Not a single-track day (Timeline), a holiday itinerary (Itinerary) or weekly classes (Timetable).\n- Ticket: Show the holder's admission pass and code for one event. Pick: One issued event admission pass with holder, ticket type, venue and scannable ticket number. Not ordinary label/value facts (KeyValue), a travel confirmation (Reservation), a discount code (Promo) or the door scanner (Door).\n- Vendors: Keep track of event suppliers, bookings, payments and what is still owed. Pick: Suppliers for one event with roles, bookings, amounts agreed and paid, due dates and phone calls. Not a general directory (List), the business's own clients (ClientCard) or personal bills (Bills).\n\nNeed, in the person's words: \"Show my issued admission pass for a benefit gala: my name, ticket type, venue and a big scannable code for entry.\"\nReply with only the component id, nothing else.",
+    "reply": "Ticket",
+    "replies": [
+      "Ticket",
+      "Ticket",
+      "Ticket"
+    ]
+  },
+  "Ticket%2Fchoose%2FShow%20plain%20label%2Fvalue%20facts%20about%20the%20hall%3A%20address%2C%20dress%20code%20and%20closing%20time.%20No%20issued%20pass%20or%20code./b1c05f9d0dcab108/da6c2a2950d9657a": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Door: Admit people by scanning tickets or finding names, and track arrivals. Pick: Admission at an event entrance: scan tickets to check people in, look up a guest for manual check-in and see arrivals. Not a standalone photo or code capture (Camera), a guest's own pass (Ticket) or pre-event replies (GuestList).\n- FindDate: Compare people's availability and find the best date for a gathering. Pick: A date-finding matrix: dates as columns and people as rows with yes, maybe or no per date, and the best date computed. Not a calendar to pick a day (Calendar) or a general poll (Poll).\n- GuestList: Track who is invited, who is coming and what each party needs. Pick: An event's invitation roster with party groups, RSVP statuses, plus-ones and dietary needs. Not a plain roster of people (People), a guest sending their own reply (RSVP), clients (ClientCard) or a squad's availability (Squad).\n- RSVP: Reply to an event invitation with attendance, companions and a meal choice. Pick: A guest answers one invitation: yes or no, plus-ones, meal, note and send. Not a standalone choice with explanations (Choice), a poll (Poll), booking a time (Slots), or tracking all replies (GuestList).\n- Registry: Share a gift list and keep guests from choosing the same gift. Pick: A shared event gift list with gift prices, where to buy, and who claimed a gift for hosts. Not a checklist for personal tasks (Checklist), shopping (ProductGrid) or a personal wishlist (Wishlist).\n- Seating: Arrange guests at tables and see who still needs a seat. Pick: A seating plan of round or long tables with guest initials, available seats and a tray of unseated guests. Not locations on a geographic map (MapPins), an invitation roster (GuestList) or a staff rota (Roster).\n- Sessions: Find sessions across an event's tracks and bookmark a personal agenda. Pick: Multi-room or multi-stage sessions at one event, with track filters, capacity and personal bookmarks. Not a single-track day (Timeline), a holiday itinerary (Itinerary) or weekly classes (Timetable).\n- Ticket: Show the holder's admission pass and code for one event. Pick: One issued event admission pass with holder, ticket type, venue and scannable ticket number. Not ordinary label/value facts (KeyValue), a travel confirmation (Reservation), a discount code (Promo) or the door scanner (Door).\n- Vendors: Keep track of event suppliers, bookings, payments and what is still owed. Pick: Suppliers for one event with roles, bookings, amounts agreed and paid, due dates and phone calls. Not a general directory (List), the business's own clients (ClientCard) or personal bills (Bills).\n\nNeed, in the person's words: \"Show plain label/value facts about the hall: address, dress code and closing time. No issued pass or code.\"\nReply with only the component id, nothing else.",
+    "reply": "KeyValue",
+    "replies": [
+      "KeyValue",
+      "KeyValue",
+      "KeyValue"
+    ]
+  },
+  "Ticket%2Fwrite%2FHarbour%20Benefit%2C%20at%20Harbour%20Hall%20on%202027-04-09%20at%2018%3A30.%20Adult%20ticket%20HB0142%20for%20Imani%20Cole.%20Format%20the%20admission%20ticket%20as%20a%20badge./d380c8f9b5280cc8/5eb6e7acd9d0d90f": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nTicket: Show the holder's admission pass and code for one event.\nprops: { density?: comfortable|compact, align?: start|center=\"start\", detail?: full|brief=\"full\", style?: badge|pass, event: text≤32, date: date YYYY-MM-DD, time: time HH:MM, place: text≤32, type: text≤16, holder: text≤24, number: text≤12, section?: text≤16, row?: text≤12, seat?: text≤12, status?: valid|transferred|used, transfer?: boolean }\nRule: For an ordinary admission pass use {\"detail\":null,\"align\":null,\"density\":null}. Only set detail to \"brief\" if the person explicitly says to omit the scan instruction. Never output \"start\" or \"comfortable\" just to set a default.\nRule: Set style only for an explicitly requested badge or pass format. Include only the supplied section, row and seat. Set status only when supplied; used or transferred tickets no longer display an admission QR.\nRule: Enable transfer (true) only if explicitly requested and the ticket is still eligible for admission.\nexample: {\"c\":\"Ticket\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Harbour Benefit, at Harbour Hall on 2027-04-09 at 18:30. Adult ticket HB0142 for Imani Cole. Format the admission ticket as a badge.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Ticket",
+              "enum": [
+                "Ticket"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "align": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "start",
+                    "center"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "badge",
+                    "pass"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "event": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "time": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "place": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "type": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16
+            },
+            "holder": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "number": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 12
+            },
+            "section": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "row": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "seat": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "valid",
+                    "transferred",
+                    "used"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "transfer": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "align",
+            "detail",
+            "style",
+            "event",
+            "date",
+            "time",
+            "place",
+            "type",
+            "holder",
+            "number",
+            "section",
+            "row",
+            "seat",
+            "status",
+            "transfer"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":\"badge\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}",
+    "replies": [
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":\"badge\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":\"badge\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":\"badge\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}"
+    ]
+  },
+  "Ticket%2Fwrite%2FHarbour%20Benefit%2C%20at%20Harbour%20Hall%20on%202027-04-09%20at%2018%3A30.%20Adult%20ticket%20HB0142%20for%20Imani%20Cole.%20Give%20Imani%20a%20button%20to%20transfer%20this%20unused%20ticket%20to%20somebody%20else./cc81f3a1a7b3d236/a31ec55d69104f98": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nTicket: Show the holder's admission pass and code for one event.\nprops: { density?: comfortable|compact, align?: start|center=\"start\", detail?: full|brief=\"full\", style?: badge|pass, event: text≤32, date: date YYYY-MM-DD, time: time HH:MM, place: text≤32, type: text≤16, holder: text≤24, number: text≤12, section?: text≤16, row?: text≤12, seat?: text≤12, status?: valid|transferred|used, transfer?: boolean }\nRule: For an ordinary admission pass use {\"detail\":null,\"align\":null,\"density\":null}. Only set detail to \"brief\" if the person explicitly says to omit the scan instruction. Never output \"start\" or \"comfortable\" just to set a default.\nRule: Set style only for an explicitly requested badge or pass format. Include only the supplied section, row and seat. Set status only when supplied; used or transferred tickets no longer display an admission QR.\nRule: Enable transfer (true) only if explicitly requested and the ticket is still eligible for admission.\nexample: {\"c\":\"Ticket\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Harbour Benefit, at Harbour Hall on 2027-04-09 at 18:30. Adult ticket HB0142 for Imani Cole. Give Imani a button to transfer this unused ticket to somebody else.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Ticket",
+              "enum": [
+                "Ticket"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "align": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "start",
+                    "center"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "badge",
+                    "pass"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "event": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "time": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "place": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "type": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16
+            },
+            "holder": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "number": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 12
+            },
+            "section": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "row": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "seat": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "valid",
+                    "transferred",
+                    "used"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "transfer": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "align",
+            "detail",
+            "style",
+            "event",
+            "date",
+            "time",
+            "place",
+            "type",
+            "holder",
+            "number",
+            "section",
+            "row",
+            "seat",
+            "status",
+            "transfer"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":null,\"transfer\":true}",
+    "replies": [
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":null,\"transfer\":true}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":\"valid\",\"transfer\":true}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":null,\"transfer\":true}"
+    ]
+  },
+  "Ticket%2Fwrite%2FHarbour%20Benefit%2C%20at%20Harbour%20Hall%20on%202027-04-09%20at%2018%3A30.%20Adult%20ticket%20HB0142%20for%20Imani%20Cole.%20Show%20the%20ticket's%20assigned%20row%2C%20G./51182bbad9927db0/d4d1ebdb12009203": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nTicket: Show the holder's admission pass and code for one event.\nprops: { density?: comfortable|compact, align?: start|center=\"start\", detail?: full|brief=\"full\", style?: badge|pass, event: text≤32, date: date YYYY-MM-DD, time: time HH:MM, place: text≤32, type: text≤16, holder: text≤24, number: text≤12, section?: text≤16, row?: text≤12, seat?: text≤12, status?: valid|transferred|used, transfer?: boolean }\nRule: For an ordinary admission pass use {\"detail\":null,\"align\":null,\"density\":null}. Only set detail to \"brief\" if the person explicitly says to omit the scan instruction. Never output \"start\" or \"comfortable\" just to set a default.\nRule: Set style only for an explicitly requested badge or pass format. Include only the supplied section, row and seat. Set status only when supplied; used or transferred tickets no longer display an admission QR.\nRule: Enable transfer (true) only if explicitly requested and the ticket is still eligible for admission.\nexample: {\"c\":\"Ticket\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Harbour Benefit, at Harbour Hall on 2027-04-09 at 18:30. Adult ticket HB0142 for Imani Cole. Show the ticket's assigned row, G.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Ticket",
+              "enum": [
+                "Ticket"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "align": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "start",
+                    "center"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "badge",
+                    "pass"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "event": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "time": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "place": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "type": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16
+            },
+            "holder": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "number": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 12
+            },
+            "section": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "row": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "seat": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "valid",
+                    "transferred",
+                    "used"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "transfer": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "align",
+            "detail",
+            "style",
+            "event",
+            "date",
+            "time",
+            "place",
+            "type",
+            "holder",
+            "number",
+            "section",
+            "row",
+            "seat",
+            "status",
+            "transfer"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":\"G\",\"seat\":null,\"status\":null,\"transfer\":null}",
+    "replies": [
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":\"G\",\"seat\":null,\"status\":null,\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":\"G\",\"seat\":null,\"status\":null,\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":\"G\",\"seat\":null,\"status\":null,\"transfer\":null}"
+    ]
+  },
+  "Ticket%2Fwrite%2FHarbour%20Benefit%2C%20at%20Harbour%20Hall%20on%202027-04-09%20at%2018%3A30.%20Adult%20ticket%20HB0142%20for%20Imani%20Cole.%20Show%20the%20ticket's%20assigned%20seat%2C%2012./4f28d1a2e4fdbd6a/df20197e723c575b": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nTicket: Show the holder's admission pass and code for one event.\nprops: { density?: comfortable|compact, align?: start|center=\"start\", detail?: full|brief=\"full\", style?: badge|pass, event: text≤32, date: date YYYY-MM-DD, time: time HH:MM, place: text≤32, type: text≤16, holder: text≤24, number: text≤12, section?: text≤16, row?: text≤12, seat?: text≤12, status?: valid|transferred|used, transfer?: boolean }\nRule: For an ordinary admission pass use {\"detail\":null,\"align\":null,\"density\":null}. Only set detail to \"brief\" if the person explicitly says to omit the scan instruction. Never output \"start\" or \"comfortable\" just to set a default.\nRule: Set style only for an explicitly requested badge or pass format. Include only the supplied section, row and seat. Set status only when supplied; used or transferred tickets no longer display an admission QR.\nRule: Enable transfer (true) only if explicitly requested and the ticket is still eligible for admission.\nexample: {\"c\":\"Ticket\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Harbour Benefit, at Harbour Hall on 2027-04-09 at 18:30. Adult ticket HB0142 for Imani Cole. Show the ticket's assigned seat, 12.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Ticket",
+              "enum": [
+                "Ticket"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "align": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "start",
+                    "center"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "badge",
+                    "pass"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "event": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "time": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "place": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "type": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16
+            },
+            "holder": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "number": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 12
+            },
+            "section": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "row": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "seat": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "valid",
+                    "transferred",
+                    "used"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "transfer": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "align",
+            "detail",
+            "style",
+            "event",
+            "date",
+            "time",
+            "place",
+            "type",
+            "holder",
+            "number",
+            "section",
+            "row",
+            "seat",
+            "status",
+            "transfer"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":\"12\",\"status\":null,\"transfer\":null}",
+    "replies": [
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":\"12\",\"status\":null,\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":\"12\",\"status\":null,\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":\"12\",\"status\":null,\"transfer\":null}"
+    ]
+  },
+  "Ticket%2Fwrite%2FHarbour%20Benefit%2C%20at%20Harbour%20Hall%20on%202027-04-09%20at%2018%3A30.%20Adult%20ticket%20HB0142%20for%20Imani%20Cole.%20Show%20the%20ticket's%20assigned%20section%2C%20Balcony./5a6a62693ab6750b/502293ec251166d5": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nTicket: Show the holder's admission pass and code for one event.\nprops: { density?: comfortable|compact, align?: start|center=\"start\", detail?: full|brief=\"full\", style?: badge|pass, event: text≤32, date: date YYYY-MM-DD, time: time HH:MM, place: text≤32, type: text≤16, holder: text≤24, number: text≤12, section?: text≤16, row?: text≤12, seat?: text≤12, status?: valid|transferred|used, transfer?: boolean }\nRule: For an ordinary admission pass use {\"detail\":null,\"align\":null,\"density\":null}. Only set detail to \"brief\" if the person explicitly says to omit the scan instruction. Never output \"start\" or \"comfortable\" just to set a default.\nRule: Set style only for an explicitly requested badge or pass format. Include only the supplied section, row and seat. Set status only when supplied; used or transferred tickets no longer display an admission QR.\nRule: Enable transfer (true) only if explicitly requested and the ticket is still eligible for admission.\nexample: {\"c\":\"Ticket\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Harbour Benefit, at Harbour Hall on 2027-04-09 at 18:30. Adult ticket HB0142 for Imani Cole. Show the ticket's assigned section, Balcony.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Ticket",
+              "enum": [
+                "Ticket"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "align": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "start",
+                    "center"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "badge",
+                    "pass"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "event": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "time": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "place": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "type": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16
+            },
+            "holder": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "number": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 12
+            },
+            "section": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "row": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "seat": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "valid",
+                    "transferred",
+                    "used"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "transfer": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "align",
+            "detail",
+            "style",
+            "event",
+            "date",
+            "time",
+            "place",
+            "type",
+            "holder",
+            "number",
+            "section",
+            "row",
+            "seat",
+            "status",
+            "transfer"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":\"Balcony\",\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}",
+    "replies": [
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":\"Balcony\",\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":\"Balcony\",\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":\"Balcony\",\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}"
+    ]
+  },
+  "Ticket%2Fwrite%2FHarbour%20Benefit%2C%20at%20Harbour%20Hall%20on%202027-04-09%20at%2018%3A30.%20Adult%20ticket%20HB0142%20for%20Imani%20Cole.%20The%20ticket%20has%20already%20been%20transferred%20to%20someone%20else./545f42b1d63a8e28/da1b3abe1a7e2b15": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nTicket: Show the holder's admission pass and code for one event.\nprops: { density?: comfortable|compact, align?: start|center=\"start\", detail?: full|brief=\"full\", style?: badge|pass, event: text≤32, date: date YYYY-MM-DD, time: time HH:MM, place: text≤32, type: text≤16, holder: text≤24, number: text≤12, section?: text≤16, row?: text≤12, seat?: text≤12, status?: valid|transferred|used, transfer?: boolean }\nRule: For an ordinary admission pass use {\"detail\":null,\"align\":null,\"density\":null}. Only set detail to \"brief\" if the person explicitly says to omit the scan instruction. Never output \"start\" or \"comfortable\" just to set a default.\nRule: Set style only for an explicitly requested badge or pass format. Include only the supplied section, row and seat. Set status only when supplied; used or transferred tickets no longer display an admission QR.\nRule: Enable transfer (true) only if explicitly requested and the ticket is still eligible for admission.\nexample: {\"c\":\"Ticket\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Harbour Benefit, at Harbour Hall on 2027-04-09 at 18:30. Adult ticket HB0142 for Imani Cole. The ticket has already been transferred to someone else.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Ticket",
+              "enum": [
+                "Ticket"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "align": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "start",
+                    "center"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "badge",
+                    "pass"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "event": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "time": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "place": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "type": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16
+            },
+            "holder": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "number": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 12
+            },
+            "section": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "row": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "seat": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "valid",
+                    "transferred",
+                    "used"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "transfer": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "align",
+            "detail",
+            "style",
+            "event",
+            "date",
+            "time",
+            "place",
+            "type",
+            "holder",
+            "number",
+            "section",
+            "row",
+            "seat",
+            "status",
+            "transfer"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":\"transferred\",\"transfer\":null}",
+    "replies": [
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":\"transferred\",\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":\"transferred\",\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":\"transferred\",\"transfer\":null}"
+    ]
+  },
+  "Ticket%2Fwrite%2FHarbour%20Benefit%2C%20at%20Harbour%20Hall%20on%202027-04-09%20at%2018%3A30.%20Adult%20ticket%20HB0142%20for%20Imani%20Cole.%20The%20ticket%20is%20already%20used./fadf47dae6d4b233/94a09a284096c104": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nTicket: Show the holder's admission pass and code for one event.\nprops: { density?: comfortable|compact, align?: start|center=\"start\", detail?: full|brief=\"full\", style?: badge|pass, event: text≤32, date: date YYYY-MM-DD, time: time HH:MM, place: text≤32, type: text≤16, holder: text≤24, number: text≤12, section?: text≤16, row?: text≤12, seat?: text≤12, status?: valid|transferred|used, transfer?: boolean }\nRule: For an ordinary admission pass use {\"detail\":null,\"align\":null,\"density\":null}. Only set detail to \"brief\" if the person explicitly says to omit the scan instruction. Never output \"start\" or \"comfortable\" just to set a default.\nRule: Set style only for an explicitly requested badge or pass format. Include only the supplied section, row and seat. Set status only when supplied; used or transferred tickets no longer display an admission QR.\nRule: Enable transfer (true) only if explicitly requested and the ticket is still eligible for admission.\nexample: {\"c\":\"Ticket\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Harbour Benefit, at Harbour Hall on 2027-04-09 at 18:30. Adult ticket HB0142 for Imani Cole. The ticket is already used.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Ticket",
+              "enum": [
+                "Ticket"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "align": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "start",
+                    "center"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "badge",
+                    "pass"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "event": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "time": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "place": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "type": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16
+            },
+            "holder": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "number": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 12
+            },
+            "section": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "row": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "seat": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "valid",
+                    "transferred",
+                    "used"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "transfer": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "align",
+            "detail",
+            "style",
+            "event",
+            "date",
+            "time",
+            "place",
+            "type",
+            "holder",
+            "number",
+            "section",
+            "row",
+            "seat",
+            "status",
+            "transfer"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":\"used\",\"transfer\":null}",
+    "replies": [
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":\"used\",\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":\"used\",\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":\"used\",\"transfer\":null}"
+    ]
+  },
+  "Ticket%2Fwrite%2FHarbour%20Benefit%2C%20at%20Harbour%20Hall%20on%202027-04-09%20at%2018%3A30.%20Adult%20ticket%20HB0142%20for%20Imani%20Cole.%20The%20ticket%20is%20explicitly%20marked%20valid./37c80bfa408d4355/ea3b9a314a8aee67": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nTicket: Show the holder's admission pass and code for one event.\nprops: { density?: comfortable|compact, align?: start|center=\"start\", detail?: full|brief=\"full\", style?: badge|pass, event: text≤32, date: date YYYY-MM-DD, time: time HH:MM, place: text≤32, type: text≤16, holder: text≤24, number: text≤12, section?: text≤16, row?: text≤12, seat?: text≤12, status?: valid|transferred|used, transfer?: boolean }\nRule: For an ordinary admission pass use {\"detail\":null,\"align\":null,\"density\":null}. Only set detail to \"brief\" if the person explicitly says to omit the scan instruction. Never output \"start\" or \"comfortable\" just to set a default.\nRule: Set style only for an explicitly requested badge or pass format. Include only the supplied section, row and seat. Set status only when supplied; used or transferred tickets no longer display an admission QR.\nRule: Enable transfer (true) only if explicitly requested and the ticket is still eligible for admission.\nexample: {\"c\":\"Ticket\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Harbour Benefit, at Harbour Hall on 2027-04-09 at 18:30. Adult ticket HB0142 for Imani Cole. The ticket is explicitly marked valid.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Ticket",
+              "enum": [
+                "Ticket"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "align": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "start",
+                    "center"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "badge",
+                    "pass"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "event": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "time": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "place": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "type": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16
+            },
+            "holder": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "number": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 12
+            },
+            "section": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "row": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "seat": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "valid",
+                    "transferred",
+                    "used"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "transfer": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "align",
+            "detail",
+            "style",
+            "event",
+            "date",
+            "time",
+            "place",
+            "type",
+            "holder",
+            "number",
+            "section",
+            "row",
+            "seat",
+            "status",
+            "transfer"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":\"valid\",\"transfer\":null}",
+    "replies": [
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":\"valid\",\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":\"valid\",\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":\"pass\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":\"valid\",\"transfer\":null}"
+    ]
+  },
+  "Ticket%2Fwrite%2FHarbour%20Benefit%2C%20at%20Harbour%20Hall%20on%202027-04-09%20at%2018%3A30.%20Adult%20ticket%20HB0142%20for%20Imani%20Cole.%20Use%20a%20centered%20event%20pass%20format%2C%20not%20an%20admission%20badge./d84b9c564e6b4456/5e8840d56232a899": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nTicket: Show the holder's admission pass and code for one event.\nprops: { density?: comfortable|compact, align?: start|center=\"start\", detail?: full|brief=\"full\", style?: badge|pass, event: text≤32, date: date YYYY-MM-DD, time: time HH:MM, place: text≤32, type: text≤16, holder: text≤24, number: text≤12, section?: text≤16, row?: text≤12, seat?: text≤12, status?: valid|transferred|used, transfer?: boolean }\nRule: For an ordinary admission pass use {\"detail\":null,\"align\":null,\"density\":null}. Only set detail to \"brief\" if the person explicitly says to omit the scan instruction. Never output \"start\" or \"comfortable\" just to set a default.\nRule: Set style only for an explicitly requested badge or pass format. Include only the supplied section, row and seat. Set status only when supplied; used or transferred tickets no longer display an admission QR.\nRule: Enable transfer (true) only if explicitly requested and the ticket is still eligible for admission.\nexample: {\"c\":\"Ticket\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Harbour Benefit, at Harbour Hall on 2027-04-09 at 18:30. Adult ticket HB0142 for Imani Cole. Use a centered event pass format, not an admission badge.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Ticket",
+              "enum": [
+                "Ticket"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "align": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "start",
+                    "center"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "badge",
+                    "pass"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "event": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "time": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "place": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "type": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16
+            },
+            "holder": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "number": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 12
+            },
+            "section": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "row": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "seat": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "valid",
+                    "transferred",
+                    "used"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "transfer": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "align",
+            "detail",
+            "style",
+            "event",
+            "date",
+            "time",
+            "place",
+            "type",
+            "holder",
+            "number",
+            "section",
+            "row",
+            "seat",
+            "status",
+            "transfer"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":\"pass\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}",
+    "replies": [
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":\"pass\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":\"center\",\"detail\":null,\"style\":\"pass\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":\"center\",\"detail\":null,\"style\":\"pass\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}"
+    ]
+  },
+  "Ticket%2Fwrite%2FMake%20a%20Studio%20Open%20Night%20admission%20pass%20for%20Hugo%20Wells%20at%20Riverside%20Studio%20on%202027-05-15%20at%2019%3A00%2C%20Member%20ticket%20SO0081.%20Show%20the%20QR%20and%20ticket%20details%2C%20but%20leave%20off%20the%20scan%20instruction./a6e682c56cf8832f/16ceee5053566785": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nTicket: Show the holder's admission pass and code for one event.\nprops: { density?: comfortable|compact, align?: start|center=\"start\", detail?: full|brief=\"full\", style?: badge|pass, event: text≤32, date: date YYYY-MM-DD, time: time HH:MM, place: text≤32, type: text≤16, holder: text≤24, number: text≤12, section?: text≤16, row?: text≤12, seat?: text≤12, status?: valid|transferred|used, transfer?: boolean }\nRule: For an ordinary admission pass use {\"detail\":null,\"align\":null,\"density\":null}. Only set detail to \"brief\" if the person explicitly says to omit the scan instruction. Never output \"start\" or \"comfortable\" just to set a default.\nRule: Set style only for an explicitly requested badge or pass format. Include only the supplied section, row and seat. Set status only when supplied; used or transferred tickets no longer display an admission QR.\nRule: Enable transfer (true) only if explicitly requested and the ticket is still eligible for admission.\nexample: {\"c\":\"Ticket\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Make a Studio Open Night admission pass for Hugo Wells at Riverside Studio on 2027-05-15 at 19:00, Member ticket SO0081. Show the QR and ticket details, but leave off the scan instruction.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Ticket",
+              "enum": [
+                "Ticket"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "align": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "start",
+                    "center"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "badge",
+                    "pass"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "event": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "time": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "place": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "type": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16
+            },
+            "holder": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "number": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 12
+            },
+            "section": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "row": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "seat": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "valid",
+                    "transferred",
+                    "used"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "transfer": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "align",
+            "detail",
+            "style",
+            "event",
+            "date",
+            "time",
+            "place",
+            "type",
+            "holder",
+            "number",
+            "section",
+            "row",
+            "seat",
+            "status",
+            "transfer"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"style\":null,\"event\":\"Studio Open Night\",\"date\":\"2027-05-15\",\"time\":\"19:00\",\"place\":\"Riverside Studio\",\"type\":\"Member\",\"holder\":\"Hugo Wells\",\"number\":\"SO0081\",\"section\":null,\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}",
+    "replies": [
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"style\":null,\"event\":\"Studio Open Night\",\"date\":\"2027-05-15\",\"time\":\"19:00\",\"place\":\"Riverside Studio\",\"type\":\"Member\",\"holder\":\"Hugo Wells\",\"number\":\"SO0081\",\"section\":null,\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"style\":null,\"event\":\"Studio Open Night\",\"date\":\"2027-05-15\",\"time\":\"19:00\",\"place\":\"Riverside Studio\",\"type\":\"Member\",\"holder\":\"Hugo Wells\",\"number\":\"SO0081\",\"section\":null,\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"style\":null,\"event\":\"Studio Open Night\",\"date\":\"2027-05-15\",\"time\":\"19:00\",\"place\":\"Riverside Studio\",\"type\":\"Member\",\"holder\":\"Hugo Wells\",\"number\":\"SO0081\",\"section\":null,\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}"
+    ]
+  },
+  "Ticket%2Fwrite%2FWrite%20my%20Adult%20admission%20pass%20for%20Harbour%20Benefit%20at%20Harbour%20Hall%2C%202027-04-09%20at%2018%3A30.%20Holder%20Imani%20Cole%2C%20ticket%20number%20HB0142./84b41647a9bea15a/0567a1cec07709fd": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nTicket: Show the holder's admission pass and code for one event.\nprops: { density?: comfortable|compact, align?: start|center=\"start\", detail?: full|brief=\"full\", style?: badge|pass, event: text≤32, date: date YYYY-MM-DD, time: time HH:MM, place: text≤32, type: text≤16, holder: text≤24, number: text≤12, section?: text≤16, row?: text≤12, seat?: text≤12, status?: valid|transferred|used, transfer?: boolean }\nRule: For an ordinary admission pass use {\"detail\":null,\"align\":null,\"density\":null}. Only set detail to \"brief\" if the person explicitly says to omit the scan instruction. Never output \"start\" or \"comfortable\" just to set a default.\nRule: Set style only for an explicitly requested badge or pass format. Include only the supplied section, row and seat. Set status only when supplied; used or transferred tickets no longer display an admission QR.\nRule: Enable transfer (true) only if explicitly requested and the ticket is still eligible for admission.\nexample: {\"c\":\"Ticket\",\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Write my Adult admission pass for Harbour Benefit at Harbour Hall, 2027-04-09 at 18:30. Holder Imani Cole, ticket number HB0142.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Ticket",
+              "enum": [
+                "Ticket"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "align": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "start",
+                    "center"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "badge",
+                    "pass"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "event": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "time": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "place": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "type": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16
+            },
+            "holder": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "number": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 12
+            },
+            "section": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "row": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "seat": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "valid",
+                    "transferred",
+                    "used"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "transfer": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "align",
+            "detail",
+            "style",
+            "event",
+            "date",
+            "time",
+            "place",
+            "type",
+            "holder",
+            "number",
+            "section",
+            "row",
+            "seat",
+            "status",
+            "transfer"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}",
+    "replies": [
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}",
+      "{\"c\":\"Ticket\",\"density\":null,\"align\":null,\"detail\":null,\"style\":null,\"event\":\"Harbour Benefit\",\"date\":\"2027-04-09\",\"time\":\"18:30\",\"place\":\"Harbour Hall\",\"type\":\"Adult\",\"holder\":\"Imani Cole\",\"number\":\"HB0142\",\"section\":null,\"row\":null,\"seat\":null,\"status\":null,\"transfer\":null}"
+    ]
   }
 }

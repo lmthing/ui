@@ -1,15 +1,6 @@
 export type EventsWords = typeof en;
 
 export const en = {
-  seating: {
-    tray: "Unseated guests",
-    available: "Available seat",
-    count: (occupied: number, capacity: number, lang: string) => {
-      const format = new Intl.NumberFormat(lang);
-      return `${format.format(occupied)} / ${format.format(capacity)}`;
-    },
-    move: (guest: string, table: string) => `Move ${guest} to ${table}`,
-  },
   door: {
     arrivals: "Arrivals",
     count: (arrived: string, expected: string) => `${arrived} of ${expected}`,
@@ -43,10 +34,19 @@ export const en = {
   guestList: {
     counts: "RSVP totals",
     empty: "No guests yet",
-    status: { yes: "Coming", no: "Declined", maybe: "Maybe", waiting: "Waiting" },
+    status: {
+      yes: "Coming",
+      no: "Declined",
+      maybe: "Maybe",
+      waiting: "Waiting",
+      pending_approval: "Pending approval",
+      waitlisted: "Waitlisted",
+    },
     stat: (count: string, label: string) => `${count} ${label}`,
     plus: (count: string) => `+${count}`,
     remind: "Remind waiting guests",
+    approve: "Approve",
+    decline: "Decline",
     separator: " · ",
     party: (name: string, guests: string[]) => `${name}: ${guests.join("; ")}`,
     guest: (name: string, plus: string | undefined, status: string, diet: string | undefined) =>
@@ -108,6 +108,11 @@ export const en = {
     code: (number: string) => `Admission QR code for ticket ${number}`,
     hint: "Show this code at the door",
     scanned: "Scanned in",
+    status: { valid: "Valid", transferred: "Transferred", used: "Used" },
+    section: (value: string) => `Section ${value}`,
+    row: (value: string) => `Row ${value}`,
+    seat: (value: string) => `Seat ${value}`,
+    transfer: "Transfer ticket",
   },
   vendors: {
     roles: {

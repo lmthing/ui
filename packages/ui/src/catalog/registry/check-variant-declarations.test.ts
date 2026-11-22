@@ -162,6 +162,7 @@ it("rejects duplicate style vocabulary outside the temporary existing-component 
     "tall",
     "grid",
     "strip",
+    "badge",
   ]) {
     const bad = {
       ...fixture,

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
+import { SeatPlan } from "../../../kit/renderers";
 import {
   groupSeating,
   seatInitials,
@@ -141,10 +142,10 @@ type View = c.Props<typeof props, typeof meta>;
 function TableGuests({ table, lang }: { table: ReturnType<typeof groupSeating>["tables"][number]; lang: string }) {
   const { seating: words } = eventsWordsFor(lang);
   return <kit.KitContent group="response" inset="md">
-    <kit.KitText part="label" item={table.id} role="heading">{table.label}</kit.KitText>
-    <kit.KitText part="seats" item={table.id} role="caption" tone="muted">
-      {seatingCount(table.guests.length, table.seats, lang)}
-    </kit.KitText>
+    <kit.KitRow item={table.id} part={null} label={table.label} inline fitContent>
+      <kit.KitHeader title={{ part: "label", text: table.label }}
+        meta={{ part: "seats", text: seatingCount(table.guests.length, table.seats, lang) }} />
+    </kit.KitRow>
     {table.guests.length ? table.guests.map(({ id, name }) =>
       <kit.KitText key={id} item={id} part="name" role="body">{name}</kit.KitText>,
     ) : <kit.KitText part={null} role="body" tone="muted">{words.noGuests}</kit.KitText>}
@@ -161,7 +162,7 @@ export function Seating(input: View) {
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const live = kit.useLiveControls(meta, input) as View;
   if (state === "empty") return <kit.KitCard part="root" {...{ density, surface }}>
-    <kit.KitEmpty part="empty" icon="users" decorativeIcon />
+    <kit.KitState part="empty" icon="users" density={density} />
   </kit.KitCard>;
   const { tables, unseated } = groupSeating(live.entries);
   const table = tables.find(({ id }) => id === open);
@@ -171,14 +172,13 @@ export function Seating(input: View) {
   });
   return <kit.KitCard part="root" padded {...{ density, surface }}>
     <kit.KitContent density={density} align="center">
-      <kit.KitText role="heading" part={null}>{words.title}</kit.KitText>
-      {detail === "full" && <kit.KitText part="summary" role="number" numberScale="compact" tabular>
-        {seatingFigures(...seatingTotals(tables), lang)}{" "}
-        <kit.KitText role="caption" tone="muted" part={null}>{words.filled}</kit.KitText>
-      </kit.KitText>}
+      <kit.KitHeader title={{ text: words.title }} align="center" density={density} />
+      {detail === "full" && <kit.KitFigure align="center" density={density}
+        value={{ part: "summary", text: seatingFigures(...seatingTotals(tables), lang), compact: true }}
+        unit={{ text: words.filled }} />}
     </kit.KitContent>
     {table && <TableGuests table={table} lang={lang} />}
-    <kit.KitSeatMap part="map" tables={tables.map(({ id, label, shape, seats, guests }) => ({
+    <SeatPlan kind="tables" part="map" tables={tables.map(({ id, label, shape, seats, guests }) => ({
       id, label, shape, target: { part: "root" },
       seats: Array.from({ length: seats }, (_, index) => {
         const row = guests[index];
@@ -186,8 +186,7 @@ export function Seating(input: View) {
           ? { ...guest(row), initials: seatInitials(row.name, lang) }
           : { id: `${id}-${index}`, label: words.freeSeat };
       }),
-    }))} tray={<kit.KitContent inset="md"><kit.KitText part="tray" role="label" tone="muted" density={density}>
-      {words.tray(c.numberLine(unseated.length, lang))}
-    </kit.KitText></kit.KitContent>} trayGuests={unseated.map(guest)} />
+    }))} tray={{ part: "tray", text: words.tray(c.numberLine(unseated.length, lang)), role: "meta", tone: "muted" }}
+      trayGuests={unseated.map(guest)} />
   </kit.KitCard>;
 }
