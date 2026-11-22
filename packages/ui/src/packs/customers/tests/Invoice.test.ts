@@ -143,7 +143,19 @@ describe("Invoice states, parts and read/act", () => {
 describe("Invoice document parts", () => {
   it("addresses every document and line part, optional omission and eight dense lines", () => {
     const full = renderInstance("Invoice", seed, "filled", theme);
-    for (const part of meta.parts.filter((part) => part !== "accept" && part !== "decline"))
+    for (const part of [
+      "root",
+      "number",
+      "to",
+      "date",
+      "due",
+      "subtotal",
+      "tax",
+      "total",
+      "status",
+      "note",
+      "send",
+    ])
       expect(elementAt(full, `home/c1/${part}`)).toBeDefined();
     const { due: _due, tax: _tax, note: _note, ...input } = seed;
     const html = renderInstance(

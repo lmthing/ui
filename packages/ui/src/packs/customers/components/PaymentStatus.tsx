@@ -1,28 +1,12 @@
-import {
-  useWords,
-  KitAction,
-  KitCard,
-  KitContent,
-  KitGrid,
-  KitText,
-  useComponentState,
-  useVariant,
-} from "../../../kit";
+// prettier-ignore
+import { useWords, KitAction, KitActionFooter, KitCard, KitCode, KitContent, KitFigure, KitGrid, KitHeader, KitLayoutText, KitRow, KitRowGroup, KitState, useComponentState, useVariant } from "../../../kit";
 import { customersWordsFor } from "../lang";
 import { z } from "zod";
-import {
-  isoDate,
-  probesFor,
-  text,
-  variantProps,
-  type CastLike,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import { paymentAmountLine, paymentDetails, paymentFallback, paymentReading, paymentStatus } from "../copy";
+// prettier-ignore
+import { compactMoneyLine, isoDate, probesFor, text, variantProps, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
+// prettier-ignore
+import { installmentLine, installmentTotal, paymentDetails, paymentFallback, paymentPaid, paymentReading, paymentStatus } from "../copy";
 
-// Core first: Amount/large cannot derive one client payment's settlement and expose mark/remind actions.
 export const meta = {
   id: "PaymentStatus",
   status: "ready",
@@ -32,6 +16,7 @@ export const meta = {
   writeHints: [
     "Write amount and optional paid amount, not a status or balance. Code derives paid, due, overdue or part paid from paid, amount and due.",
     'If asked only to hide the payment method, use {"density":null,"surface":null,"detail":"brief"} and keep the method in the data. Otherwise detail is null.',
+    'Use style "link" only with a supplied HTTPS paymentLink; never invent a link. For received installments, write their date and amount in installments. If paid is supplied, it is the full amount received and already includes these rows; otherwise code sums the rows.',
   ],
   region: "body",
   weight: 2,
@@ -39,15 +24,21 @@ export const meta = {
   realPath: "A payment flag stored on the device; card payments need a payment service.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["method"] } },
-  parts: ["root", "status", "amount", "paid", "date", "due", "method", "mark", "remind", "confirmation"],
-  partTiers: { remind: "service" },
+  // prettier-ignore
+  parts: ["root", "status", "amount", "paid", "date", "due", "method", "mark", "remind", "confirmation",
+    "code", "copy", "share", "installments"],
+  items: { key: "installments", parts: ["root", "date", "amount"] },
+  partTiers: { remind: "service", copy: "service", share: "service" },
   states: ["filled", "success"],
+  emptyActions: [], // Use the displayed state when planning detached actions.
   actions: {
-    parts: { mark: ["press"], remind: ["press"] },
-    when: { mark: { outstanding: true }, remind: { outstanding: true } },
+    parts: { mark: ["press"], remind: ["press"], copy: ["copy"], share: ["press"] },
+    // prettier-ignore
+    when: { mark: { outstanding: true }, remind: { outstanding: true }, copy: { showLink: true }, share: { showLink: true } },
   },
   read: (input, _state, lang?: string): string[] => paymentReading(input as z.output<typeof props>, lang),
 } as const satisfies Meta;
+// prettier-ignore
 export const props = z
   .strictObject({
     ...variantProps(meta.variants),
@@ -56,23 +47,46 @@ export const props = z
     date: isoDate,
     due: isoDate.optional(),
     method: text(16).optional(),
+    style: z.enum(["status", "link"]).optional(),
+    paymentLink: text(180)
+      .refine((link) => {
+        try {
+          const url = new URL(link);
+          return /^https:\/\/[^/\s\\][^\s\\]*$/i.test(link) && !/[\uD800-\uDFFF]/u.test(link)
+            && !!url.hostname && !url.username && !url.password;
+        } catch {
+          return false;
+        }
+      })
+      .meta({ kind: "secret", max: 180 })
+      .optional(),
+    installments: z.array(z.strictObject({ date: isoDate, amount: z.number().positive().multipleOf(0.01) })).max(6).default([]),
   })
+  .refine((value) => (value.style === "link") === (value.paymentLink !== undefined), { path: ["paymentLink"] })
+  .refine(({ installments, paid }) => {
+    const total = installmentTotal(installments);
+    return total === undefined || (Number.isFinite(total) && (paid === undefined || paid >= total));
+  }, { path: ["installments"] })
   // Code-owned action presence, never a Writer-supplied status or balance.
-  .overwrite((value) => ({
-    ...value,
-    ...(value.detail === "brief" ? { method: undefined } : {}),
-    outstanding: (value.paid ?? 0) < value.amount,
-  }));
+  .overwrite((value) => {
+    const outstanding = (paymentPaid(value) ?? 0) < value.amount;
+    return {
+      ...value,
+      ...(value.detail === "brief" ? { method: undefined } : {}),
+      outstanding,
+      ...(value.style === "link" ? { showLink: outstanding } : {}),
+    };
+  });
 export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   return paymentFallback(cast);
 }
-const variantExample = {
-  amount: 25,
-  paid: 0,
-  date: "2026-11-18",
-  due: "2026-12-02",
-  method: "Cash",
-} satisfies z.input<typeof props>;
+// prettier-ignore
+const variantExample = { amount: 25, paid: 0, date: "2026-11-18", due: "2026-12-02", method: "Cash" } satisfies z.input<typeof props>;
+const exampleLink = "https://example.com/pay/trot";
+const exampleInstallments = [
+  { date: "2026-11-17", amount: 10 },
+  { date: "2026-11-18", amount: 15 },
+];
 export const examples = [
   { amount: 60, paid: 20, date: "2026-11-18", due: "2026-12-02", method: "Bank transfer" },
   { amount: 120, paid: 120, date: "2026-11-17", method: "Cash" },
@@ -80,8 +94,11 @@ export const examples = [
   { ...variantExample, density: "compact" },
   { ...variantExample, surface: "outlined" },
   { ...variantExample, detail: "brief" },
+  { amount: 60, date: "2026-11-18", style: "link", paymentLink: exampleLink },
+  { amount: 60, date: "2026-11-18", installments: exampleInstallments },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("PaymentStatus");
+// prettier-ignore
 export const probes = [
   choose("Track one client's payment, how much arrived, its due date and a button to mark paid or remind"),
   choose("Show my own current balance as one large money figure without payment tracking", "Amount"),
@@ -94,18 +111,15 @@ export const probes = [
   },
   read("Mark this payment as paid", { address: "p1/mark", action: "press" }),
   read("Send a reminder for this payment", { address: "p1/remind", action: "press" }),
+  { ...write(`A client still owes the full 60 for a charge dated 2026-11-18 and has paid 0 so far. Show its payment QR, Copy and Share controls using this supplied checkout link: ${exampleLink}`),
+    expectProps: { style: "link", amount: 60, paid: 0, paymentLink: exampleLink } },
+  { ...write("A client owes 60 on a payment record dated 2026-11-18. Show two received installments in its history: 10 on 2026-11-17 and 15 on 2026-11-18."),
+    expectProps: { installments: exampleInstallments } },
 ] satisfies Probe[];
 
 type PaymentProps = Props<typeof props, typeof meta>;
-function PaymentFacts({
-  input,
-  density,
-  lang,
-}: {
-  input: PaymentProps;
-  density: NonNullable<PaymentProps["density"]>;
-  lang: string;
-}) {
+// prettier-ignore
+function PaymentFacts({ input, density, lang }: { input: PaymentProps; density: PaymentProps["density"]; lang: string }) {
   const details = paymentDetails(input, lang);
   const rows = [
     details.filter(({ part }) => part === "date" || part === "due"),
@@ -114,34 +128,52 @@ function PaymentFacts({
   return (
     <KitContent {...{ density }}>
       {rows.map((row) => {
-        const fields = row.map(({ part, text }) => (
-          <KitText
-            key={part}
-            role="label"
-            tone="muted"
-            tabular={part !== "method"}
-            part={part}
-            {...{ density }}
-          >
-            {text}
-          </KitText>
-        ));
-        return fields.length > 1 ? (
-          <KitGrid key={row[0]!.part} fitLast {...{ density }}>
-            {fields}
-          </KitGrid>
-        ) : (
-          fields
-        );
+        const fields = row.map(({ part, text }) => <KitLayoutText key={part}
+          line={{ text, part, role: "meta", tone: "muted", tabular: part !== "method" }} {...{ density }} />);
+        return fields.length > 1 ? <KitGrid key={row[0]!.part} fitLast {...{ density }}>{fields}</KitGrid> : fields;
       })}
     </KitContent>
   );
 }
 
-export function PaymentStatus(input: PaymentProps) {
+// prettier-ignore
+function Installments({ installments, density }: Pick<PaymentProps, "installments" | "density">) {
   const { lang, words } = useWords(customersWordsFor);
-  const { paymentLabels } = words;
-  const { surface } = input;
+  if (!installments?.length) return null;
+  return <KitContent {...{ density }}>
+    <KitLayoutText line={{ text: words.paymentLabels.installments, part: "installments", strong: true }} {...{ density }} />
+    <KitRowGroup {...{ density }}>{installments.map((row) => {
+      const { date, amount } = installmentLine(row, lang);
+      return <KitRow key={row.id} item={row.id} inline inset="none" label={date} {...{ density }}
+        trailing={<KitLayoutText line={{ text: amount, part: "amount", role: "meta", tabular: true }} align="end" {...{ density }} />}>
+        <KitLayoutText line={{ text: date, part: "date", role: "meta" }} {...{ density }} />
+      </KitRow>;
+    })}</KitRowGroup>
+  </KitContent>;
+}
+
+// prettier-ignore
+function PaymentLink({ link, density }: { link: string; density: PaymentProps["density"] }) {
+  const { words } = useWords(customersWordsFor);
+  const { copied } = useWords().words.codeLabels;
+  const { copy, share, link: label } = words.paymentLabels;
+  return (
+    <KitContent {...{ density }}>
+      <KitFigure media={<KitCode part="code" value={link} label={label} />} {...{ density }}
+        caption={<KitLayoutText line={{ text: label, role: "meta" }} align="center" {...{ density }} />} />
+      <KitActionFooter {...{ density }}><KitGrid {...{ density }}>
+        <KitAction label={copy} part="copy" action="copy" value={link} copiedLabel={copied} kind="secondary" full />
+        <KitAction label={share} part="share" kind="secondary" full />
+      </KitGrid></KitActionFooter>
+    </KitContent>
+  );
+}
+
+// prettier-ignore
+export function PaymentStatus(input: PaymentProps) {
+  const { lang, words: { paymentLabels } } = useWords(customersWordsFor);
+  const { words: { moneyLabels } } = useWords();
+  const { surface, installments, paymentLink } = input;
   const density = useVariant("density", meta.variants.density, input.density);
   const state = useComponentState();
   const status = paymentStatus(input);
@@ -149,24 +181,20 @@ export function PaymentStatus(input: PaymentProps) {
   return (
     <KitCard padded part="root" {...{ density, surface }}>
       <KitContent lineRole="title" {...{ density }}>
-        <KitText role="title" tone={tone} part="status" {...{ density }}>
-          {paymentLabels[status]}
-        </KitText>
-        <KitText role="number" numberScale="compact" tabular part="amount" {...{ density }}>
-          {paymentAmountLine(input.amount, lang)}
-        </KitText>
+        <KitHeader title={{ text: paymentLabels[status], part: "status", tone }} {...{ density }} />
+        <KitFigure value={{ text: compactMoneyLine(input.amount, undefined, lang), part: "amount" }}
+          unit={{ text: moneyLabels.total, role: "meta" }} {...{ density }} />
       </KitContent>
       <PaymentFacts {...{ input, density, lang }} />
-      {state === "success" ? (
-        <KitText role="label" tone="good" part="confirmation" {...{ density }}>
-          {paymentLabels.updated}
-        </KitText>
-      ) : (input.paid ?? 0) < input.amount ? (
-        <KitContent group="response" {...{ density }}>
-          <KitAction label={paymentLabels.mark} part="mark" disabled={state !== "filled"} />
-          <KitAction label={paymentLabels.remind} kind="quiet" part="remind" disabled={state !== "filled"} />
-        </KitContent>
-      ) : null}
+      <Installments {...{ installments, density }} />
+      {state === "filled" && status !== "paid" && <>
+        {paymentLink && <PaymentLink link={paymentLink} {...{ density }} />}
+        <KitActionFooter {...{ density }}><KitGrid {...{ density }}>
+          <KitAction label={paymentLabels.mark} part="mark" full />
+          <KitAction label={paymentLabels.remind} kind="quiet" part="remind" full />
+        </KitGrid></KitActionFooter>
+      </>}
+      {state === "success" && <KitState retain message={paymentLabels.updated} part="confirmation" {...{ density }} />}
     </KitCard>
   );
 }
