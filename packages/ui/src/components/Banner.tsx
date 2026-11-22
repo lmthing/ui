@@ -20,7 +20,7 @@ export const meta = {
   id: "Banner",
   group: "content",
   purpose: "Something important to notice now, with an optional link to act.",
-  pick: "An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).",
+  pick: "A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).",
   writeHints: [
     'Warnings use the default surface and tone: set both fields to null unless a different finish is explicitly requested. To hide the icon, set only media to "none"; otherwise use null for media and put a custom icon in icon.',
   ],

@@ -18,8 +18,8 @@ import { KitChip, KitTrack } from "../kit";
 export const meta = {
   id: "Chips",
   group: "input",
-  purpose: "Filter things or pick one value from a few short options.",
-  pick: "Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).",
+  purpose: "Narrow a list by toggling visible labels, or pick one value from a few choices.",
+  pick: "One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).",
   writeHints: [
     'A request to hide or turn off existing icons means "lead":"none". Keep the icons supplied by the caller in the item icon fields; lead hides them. Otherwise output lead:null.',
   ],
@@ -94,7 +94,9 @@ export const examples = [
 
 const { choose, write, read } = probesFor("Chips");
 export const probes = [
-  choose("Show plants in only the rooms I pick"),
+  choose(
+    "Narrow my plants with Kitchen, Bathroom and Living room in one row. Let me tap the names directly and leave more than one room selected.",
+  ),
   choose("Switch between the upcoming walks view and the completed walks view", "Segmented"),
   write("Let me choose a walk length: 30 min selected, 45 min or 60 min"),
   {
