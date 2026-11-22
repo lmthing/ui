@@ -12,6 +12,24 @@ const draftLimit = 240;
 const previewAccess: ThreadAccess = { role: "staff", canReply: true };
 const sampleFile = { fileRef: "demo_gate_report", name: "Gate inspection.pdf" };
 const replyActions = ["field.type", "audience.select", "send.send", "canned.press"] as const;
+const retryEdit = c.defineLocalState({
+  schema: z.strictObject({
+    number: z.string().max(12),
+    entryCount: z.int().min(0).max(6),
+    audience: z.enum(threadAudiences),
+    draft: z.string().max(draftLimit).optional(),
+    retryText: z.string().max(draftLimit).optional(),
+  }),
+  events: ["retry_field.type"],
+  initial: (seed) => ({
+    number: String(seed.number),
+    entryCount: (seed.entries as unknown[]).length,
+    audience: seed.audience as (typeof threadAudiences)[number],
+    draft: seed.draft as string | undefined,
+  }),
+  reduce: (state, { value }) => ({ state: { ...state, retryText: String(value) } }),
+  project: ({ retryText }) => ({ retryText }),
+});
 // Core first: Bubbles/default cannot interleave typed work events or distinguish staff-only notes.
 export const meta = {
   id: "RequestThread",
@@ -23,29 +41,48 @@ export const meta = {
   region: "body",
   weight: 2,
   tier: "people",
-  partTiers: { field: "phone", send: "people", canned: "phone", retry: "people" },
+  partTiers: { field: "phone", send: "people", canned: "phone", retry_field: "phone", retry: "people" },
   realPath: "Messages and operational events are linked to one request in a shared app.",
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["event_detail"] } },
-  parts: ["root", "number", "field", "audience", "send", "send_label", "notice", "canned", "retry"],
+  parts: [
+    "root",
+    "number",
+    "field",
+    "audience",
+    "send",
+    "send_label",
+    "notice",
+    "canned",
+    "retry",
+    "retry_field",
+  ],
   items: {
     key: "entries",
     parts: ["root", "by", "date", "time", "audience", "text", "photo", "event_detail", "file"],
   },
   states: ["filled", "empty", "loading", "success", "error"],
   actions: {
-    parts: { field: ["type"], audience: ["select"], send: ["send"], canned: ["press"], retry: ["send"] },
+    parts: {
+      field: ["type"],
+      audience: ["select"],
+      send: ["send"],
+      canned: ["press"],
+      retry: ["send"],
+      retry_field: ["type"],
+    },
     items: { root: ["press"] },
     when: {
       root: { kind: "work" },
       field: { replyable: true },
       send: { sendable: true },
-      retry: { sendable: true },
+      retry: { retryable: true },
+      retry_field: { canRetryEdit: true },
       canned: { canBrowseReplies: true },
     },
   },
   emptyActions: replyActions,
-  errorActions: ["retry.send"],
+  errorActions: ["retry.send", "retry_field.type"],
   successActions: ["root.press", "field.type", "audience.select", "send.send"],
   selections: { audience: { prop: "audience", choices: { prop: "audience_choices" } } },
   deviceData: ["requestFiles", "requestThreadPreview"],
@@ -53,10 +90,11 @@ export const meta = {
     requestFiles: [sampleFile],
     ...(state === "success" ? { requestThreadPreview: [{ number: input.number, sent: input.draft }] } : {}),
   }),
+  localState: retryEdit,
   // prettier-ignore
   live: {
-    text: { field: { prop: "draft", max: draftLimit } },
-    send: { send: { field: "field", audience: "audience" }, retry: { field: "field", audience: "audience" } },
+    text: { field: { prop: "draft", max: draftLimit }, retry_field: { prop: "retryDraft", max: draftLimit } },
+    send: { send: { field: "field", audience: "audience" }, retry: { field: "retry_field", audience: "audience" } },
     derive: (input, _id, data) => threadGates(input, previewAccess, data),
   },
   readSuccess: true,
@@ -146,6 +184,9 @@ type ThreadLive = ThreadProps & {
   audience_choices: readonly ThreadProps["audience"][];
   sendable: boolean;
   canBrowseReplies: boolean;
+  canRetryEdit: boolean;
+  retryDraft?: string;
+  retryable: boolean;
 };
 
 type ReplyProps = { p: ThreadLive; words: RequestsWords["thread"]; density: c.ThemeDensity };
@@ -172,14 +213,21 @@ function ReplyComposer({ p, words, density }: ReplyProps) {
 
 // prettier-ignore
 function FailedReply({ p, words, density }: ReplyProps) {
-  const draft = p.audience_choices.includes(p.audience) ? p.draft : undefined;
   return <kit.KitContent inset="md" group="response" density={density}>
     <kit.KitState retain part="notice" message={words.failed}>
-      {draft && <kit.KitRow label={words.field} tone="muted" density="compact">
-        <kit.KitMetaLine title={{ text: draft, part: "field" }}
-          meta={{ text: words.audiences[p.audience], role: "caption" }} />
-      </kit.KitRow>}
-      {p.sendable && <kit.KitAction part="retry" full action="send" label={words.retry} />}
+      {p.canRetryEdit && <>
+        <kit.KitContent density={density}>
+          <kit.KitText part={null} role="label">{words.audience}</kit.KitText>
+          <kit.KitTrack part="audience" look="segments" role="radiogroup" label={words.audience}>
+            {p.audience_choices.map((choice) => <kit.KitChip key={choice} item={null} look="segment" role="radio"
+              part={null} value={choice} label={words.audiences[choice]} on={p.audience === choice} disabled />)}
+          </kit.KitTrack>
+          <kit.KitTextArea part="retry_field" label={words.field} hint={words.field}
+            value={p.retryDraft} lines={2} maxLength={draftLimit} />
+          <kit.KitAction part="retry" full action="send" label={words.retry}
+            kind={p.retryable ? "primary" : "secondary"} disabled={!p.retryable} />
+        </kit.KitContent>
+      </>}
     </kit.KitState>
   </kit.KitContent>;
 }

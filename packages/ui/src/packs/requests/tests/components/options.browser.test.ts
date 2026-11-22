@@ -91,11 +91,15 @@ it("retries a failed reply, retains the history and opens a fresh composer after
   const retry = page.getByRole("button", { name: "Retry reply" });
   const draft = page.getByRole("textbox", { name: "Write a reply" });
   const send = page.getByRole("button", { name: "Send reply" });
-  expect(await page.getByTestId("desk/thread/field").innerText()).toBe(original);
+  expect(await draft.inputValue()).toBe(original);
+  const audience = page.getByRole("radio", { name: "To requester" });
+  expect(await audience.isChecked()).toBe(true);
+  expect(await audience.isDisabled()).toBe(true);
   await page.getByText("Assigned to Ella").waitFor({ state: "visible" });
+  await draft.fill(`${original} Please confirm.`);
   await retry.click();
   await page.getByText("Reply sent").waitFor({ state: "visible" });
-  expect(await page.getByTestId("desk/thread/r5/text").innerText()).toBe(original);
+  expect(await page.getByTestId("desk/thread/r5/text").innerText()).toBe(`${original} Please confirm.`);
   expect(await retry.count()).toBe(0);
   expect(await draft.inputValue()).toBe("");
   expect(await send.isDisabled()).toBe(true);

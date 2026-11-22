@@ -15,8 +15,8 @@ export function ThreadEntry({ row, detail, density, lang }: Finish & { row: Thre
   const meta = { role: "caption", tone: "muted" } as const;
   return <kit.KitRow {...(loading ? { part: null } : { item: row.id })} goto={goto}
     label={fact ?? event ?? row.by}
-    density="compact" tone={message ? "muted" : undefined}>
-    <kit.KitContent lineRole="body" density={density} rhythm="flush">
+    density="compact" inline={!message} tone={message ? "muted" : undefined}>
+    <kit.KitContent lineRole="body" density={density} rhythm="flush" inset={message ? "none" : "md"}>
       {event && <kit.KitRow part={null} label={event} inline fitContent lineRole="label"
         trailing={row.goto && state !== "error" && <kit.KitIcon name="chevron_right" tone="muted" scale="sm" decorative loading={loading} />}>
         <kit.KitLayoutText line={{ text: event, role: "meta", strong: true }} />
@@ -24,14 +24,16 @@ export function ThreadEntry({ row, detail, density, lang }: Finish & { row: Thre
       <kit.KitLayoutText line={{ text: fact, part: "event_detail" }} />
       <kit.KitLayoutText line={{ text: row.text, part: "text" }} />
       <kit.KitGrid fitLast density={density}>
-        <kit.KitLayoutText line={{ text: row.by, part: "by", ...meta }} />
-        <kit.KitLayoutText line={{ text: audience, part: "audience", ...meta }} align="end" />
+        <kit.KitRow part={null} inline fitContent lineRole="caption" label={row.by}
+          trailing={<kit.KitLayoutText line={{ text: audience, part: "audience", ...meta }} />}>
+          <kit.KitLayoutText line={{ text: row.by, part: "by", ...meta }} />
+        </kit.KitRow>
+        {loading ? <kit.KitLayoutText line={{ text: `${time} ${date}`, ...meta }} />
+          : <kit.KitText part={null} {...meta}>
+          <kit.KitText part="time" {...meta} tabular>{time}</kit.KitText>{" "}
+          <kit.KitText part="date" {...meta}>{date}</kit.KitText>
+        </kit.KitText>}
       </kit.KitGrid>
-      {loading ? <kit.KitLayoutText line={{ text: `${time} ${date}`, ...meta }} />
-        : <kit.KitText part={null} {...meta}>
-        <kit.KitText part="time" {...meta} tabular>{time}</kit.KitText>{" "}
-        <kit.KitText part="date" {...meta}>{date}</kit.KitText>
-      </kit.KitText>}
       {row.photo && <kit.KitGrid fitLast density={density}>
         <kit.KitLayoutText line={{ text: photoLabel, ...meta }} />
         <kit.KitPhoto part={loading ? null : "photo"} photo={row.photo} label={photoLabel} loading={loading} />

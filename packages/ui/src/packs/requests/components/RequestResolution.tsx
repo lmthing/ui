@@ -172,8 +172,9 @@ function Verification({ p, w, density, editable, loading }: {
       {...(loading ? { part: null } : { item: id, part: "root" })}
       inline label={editable ? text : w.checkLabel(text, done)}><kit.KitGrid fitLast density={density}>
       <kit.KitLayoutText line={{ text, part: "text" }} />
-      {loading ? <kit.KitSkeleton shape="rows" density="compact" lead="box" inset="none" items={[{ lines: [] }]} />
-        : editable ? <kit.KitCheck part="check" {...{ done }} label={text} />
+      {loading ? <kit.KitSkeleton shape="rows" density="comfortable" lead="box" inset="none" items={[{ lines: [] }]} />
+        : editable ? <kit.KitRow part={null} inset="none" density="comfortable" leadingAlign="row"
+          label={text} leading={<kit.KitCheck part="check" {...{ done }} label={text} />}>{null}</kit.KitRow>
         : done ? <kit.KitTrail part="check" kind="check" tone="good" /> : <kit.KitIcon part="check" name="minus" tone="muted" decorative />}
     </kit.KitGrid></kit.KitRow>)}
   </kit.KitContent>;

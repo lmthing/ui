@@ -46,6 +46,8 @@ export function threadGates(input: Readonly<Values>, access?: ThreadAccess, data
       ? threadAudiences
       : ["requester"];
   const draft = choices.length ? input.draft : undefined;
+  const canRetryEdit = choices.includes(String(input.audience));
+  const retryDraft = canRetryEdit ? (input.retryText ?? draft) : undefined;
   const entries = (input.entries as Values[])
     .filter(({ audience }) => access?.role === "staff" || audience === "requester")
     .map((entry) => (entry.file ? { ...entry, fileName: fileName(data, entry.file) } : entry));
@@ -56,6 +58,9 @@ export function threadGates(input: Readonly<Values>, access?: ThreadAccess, data
     replyable: choices.length > 0,
     canBrowseReplies: access?.role === "staff" && access.canReply && typeof input.cannedGoto === "string",
     sendable: choices.includes(String(input.audience)) && typeof draft === "string" && Boolean(draft.trim()),
+    canRetryEdit,
+    retryDraft,
+    retryable: typeof retryDraft === "string" && Boolean(retryDraft.trim()),
   };
 }
 
@@ -90,15 +95,24 @@ type Thread = {
   audience: Entry["audience"];
   audience_choices?: readonly Entry["audience"][];
   canBrowseReplies?: boolean;
-  sendable?: boolean;
+  canRetryEdit?: boolean;
+  retryDraft?: string;
 };
 
 export function threadRead(input: unknown, state: StateName, lang?: string): string[] {
-  const { number, entries, detail, draft, audience, audience_choices, canBrowseReplies, sendable } =
-    input as Thread;
+  const {
+    number,
+    entries,
+    detail,
+    draft,
+    audience,
+    audience_choices,
+    canBrowseReplies,
+    canRetryEdit,
+    retryDraft,
+  } = input as Thread;
   const { thread: words } = requestsWordsFor(lang);
   const visible = state === "empty" ? [] : threadOrder(entries);
-  const failedDraft = state === "error" && audience_choices?.includes(audience) ? draft : undefined;
   return [
     words.heading(number),
     ...visible.map((entry) => {
@@ -122,8 +136,9 @@ export function threadRead(input: unknown, state: StateName, lang?: string): str
     ...(state === "error"
       ? [
           words.failed,
-          ...(failedDraft ? [failedDraft, words.audiences[audience]] : []),
-          ...(sendable ? [words.retry] : []),
+          ...(canRetryEdit
+            ? [words.audience, words.audiences[audience], retryDraft || words.field, words.retry]
+            : []),
         ]
       : audience_choices?.length
         ? [

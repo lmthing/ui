@@ -130,7 +130,7 @@ describe("RequestThread states and parts", () => {
       if (state === "success") expect(html).toContain("Reply sent");
       if (state === "error") {
         expect(html).toContain("Reply not sent");
-        expect(parts.get("home/c1/field")?.text).toEqual([full.draft]);
+        expect(parts.get("home/c1/retry_field")?.text).toEqual([full.draft]);
         expect(parts.get("home/c1/r4/text")?.text).toEqual([message.text]);
         expect(parts.get("home/c1/r2/root")?.attributes).not.toContain('role="link"');
       }
@@ -164,7 +164,32 @@ describe("RequestThread read and act", () => {
     const controller = host(failed);
     expect(controller.act(send).ok).toBe(false);
     expect(controller.act(retry).ok).toBe(true);
-    expect(onSend).toHaveBeenCalledExactlyOnceWith(full.draft, "desk/t/field", "internal");
+    expect(onSend).toHaveBeenCalledExactlyOnceWith(full.draft, "desk/t/retry_field", "internal");
+    const editRetry = { ...typed("Revised reply"), address: "t/retry_field" };
+    expect(host(full).act(editRetry).ok).toBe(false);
+    expect(host(failed, { [meta.id]: requester }).act(editRetry).ok).toBe(false);
+    expect(controller.act([{ ...editRetry, value: " " }, retry]).ok).toBe(false);
+    expect(controller.act([editRetry, retry]).ok).toBe(true);
+    expect(onSend).toHaveBeenLastCalledWith("Revised reply", "desk/t/retry_field", "internal");
+  });
+
+  it("does not carry a retry edit over to a different failed draft", () => {
+    const store = createInteractionStore();
+    const onSend = vi.fn();
+    const mount = (draft: string) =>
+      createScreenController({
+        screen: screen({ ...full, draft, state: "error" }),
+        defs: { RequestThread: components.RequestThread },
+        store,
+        onSend,
+      });
+    const first = mount("Original reply");
+    expect(first.act({ ...typed("First revision"), address: "t/retry_field" }).ok).toBe(true);
+    first.dispose();
+    const second = mount("Another reply");
+    expect(second.act(retry).ok).toBe(true);
+    expect(onSend).toHaveBeenCalledExactlyOnceWith("Another reply", "desk/t/retry_field", "requester");
+    second.dispose();
   });
 
   it("keeps the original work address when displaying entries in date and time order", () => {
