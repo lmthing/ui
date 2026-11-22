@@ -1,17 +1,66 @@
 const manualScrollQuietMs = 200;
+const androidDragRecoveryMs = 2_000;
 type ScrollOffset = { x: number; y: number };
 export type ScrollActivity = {
   dragging: boolean;
   momentum: boolean;
   lastManual: number;
   offset?: ScrollOffset | undefined;
+  dragUntil?: number | undefined;
+  command?: { offset: ScrollOffset; until: number } | undefined;
 };
 
-export function manualScrollActive(
-  state: { dragging: boolean; momentum: boolean; lastManual: number },
+export function manualScrollActive(state: ScrollActivity, now: number) {
+  return (
+    (state.dragging && now < (state.dragUntil ?? Infinity)) ||
+    state.momentum ||
+    now - state.lastManual < manualScrollQuietMs
+  );
+}
+
+export function beginNativeDrag(state: ScrollActivity, now: number, android: boolean) {
+  state.dragging = true;
+  state.momentum = false;
+  state.lastManual = now;
+  // Android may omit both the JS touch cancel and the end-drag event after native takeover.
+  state.dragUntil = android ? now + androidDragRecoveryMs : undefined;
+}
+
+export function endNativeDrag(state: ScrollActivity, now: number) {
+  if (!state.dragging) return;
+  state.dragging = false;
+  state.dragUntil = undefined;
+  state.lastManual = now;
+}
+
+export function expectNativeFollow(state: ScrollActivity, offset: ScrollOffset, now: number) {
+  state.command = { offset, until: now + manualScrollQuietMs };
+}
+
+export function recordNativeScroll(
+  state: ScrollActivity,
+  offset: ScrollOffset,
   now: number,
+  android: boolean,
 ) {
-  return state.dragging || state.momentum || now - state.lastManual < manualScrollQuietMs;
+  state.offset = offset;
+  const command = state.command;
+  state.command = undefined;
+  // Android can emit unowned scrolling (including a mouse wheel) with no drag-start event.
+  // Only the matching acknowledgement of our own instant scroll is exempt.
+  const own =
+    command &&
+    now < command.until &&
+    Math.abs(command.offset.x - offset.x) <= 1 &&
+    Math.abs(command.offset.y - offset.y) <= 1;
+  if (state.dragUntil !== undefined && now >= state.dragUntil) {
+    state.dragging = false;
+    state.dragUntil = undefined;
+  }
+  if (manualScrollActive(state, now) || (android && !own)) {
+    state.lastManual = now;
+    if (android && state.dragging) state.dragUntil = now + androidDragRecoveryMs;
+  }
 }
 
 /** Movement along one axis, as in scrollIntoView's nearest alignment. */
@@ -64,6 +113,7 @@ export function revealNativePart(
   horizontal: boolean,
   animated: boolean,
   currentView: () => { offset: ScrollOffset; extent: number } | undefined,
+  onMove?: (offset: ScrollOffset) => void,
 ) {
   const content = scroll.getInnerViewRef?.();
   if (!content) return;
@@ -79,7 +129,9 @@ export function revealNativePart(
       if (!delta) return;
       const offset = view.offset[axis] + delta;
       if (animated) destination = offset;
-      scroll.scrollTo?.({ ...view.offset, [axis]: offset, animated });
+      const next = { ...view.offset, [axis]: offset };
+      onMove?.(next);
+      scroll.scrollTo?.({ ...next, animated });
     },
     () => {},
   );

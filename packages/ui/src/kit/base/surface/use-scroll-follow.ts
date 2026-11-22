@@ -3,8 +3,12 @@ import { isIos } from "@tamagui/core";
 import { isWeb, type TamaguiElement } from "tamagui";
 import type { PartRefScope } from "../../part";
 import {
+  beginNativeDrag,
+  endNativeDrag,
+  expectNativeFollow,
   manualScrollActive,
   measureNativeOffset,
+  recordNativeScroll,
   revealNativePart,
   type NativePart,
   type ScrollActivity,
@@ -48,7 +52,10 @@ export function useScrollFollow(
   const animation = useRef(animate);
   useLayoutEffect(() => {
     animation.current = animate;
-    if (!optedIn) activity.current.offset = undefined;
+    if (!optedIn) {
+      activity.current.offset = undefined;
+      activity.current.command = undefined;
+    }
   }, [animate, optedIn]);
   useFollowRequest({ address, scroll, layout, horizontal, animation, activity, refs, auto });
   return {
@@ -107,6 +114,7 @@ function useFollowRequest(request: FollowRequest) {
                 return { offset, extent: horizontal ? layout.current.width : layout.current.height };
               }
             },
+            isIos ? undefined : (offset) => expectNativeFollow(activity.current, offset, performance.now()),
           );
           stop = () => {
             if (activity.current.offset) interrupt?.(activity.current.offset);
@@ -131,25 +139,18 @@ function useFollowRequest(request: FollowRequest) {
 
 function nativeScrollEvents(state: RefObject<ScrollActivity>, trackOffset: boolean) {
   const manual = () => (state.current.lastManual = performance.now());
+  const endDrag = () => endNativeDrag(state.current, performance.now());
   return {
     ...(trackOffset
       ? {
           scrollEventThrottle: 16,
-          onScroll: ({ nativeEvent }: { nativeEvent: { contentOffset: { x: number; y: number } } }) => {
-            state.current.offset = nativeEvent.contentOffset;
-            if (manualScrollActive(state.current, performance.now())) manual();
-          },
+          onScroll: ({ nativeEvent }: { nativeEvent: { contentOffset: { x: number; y: number } } }) =>
+            recordNativeScroll(state.current, nativeEvent.contentOffset, performance.now(), !isIos),
         }
       : {}),
-    onScrollBeginDrag: () => {
-      state.current.dragging = true;
-      state.current.momentum = false;
-      manual();
-    },
-    onScrollEndDrag: () => {
-      state.current.dragging = false;
-      manual();
-    },
+    onScrollBeginDrag: () => beginNativeDrag(state.current, performance.now(), !isIos),
+    onScrollEndDrag: endDrag,
+    onTouchCancel: endDrag,
     onMomentumScrollBegin: () => {
       state.current.momentum = manualScrollActive(state.current, performance.now());
     },

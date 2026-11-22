@@ -1,8 +1,12 @@
 import { expect, it, vi } from "vitest";
 import {
+  beginNativeDrag,
+  endNativeDrag,
+  expectNativeFollow,
   manualScrollActive,
   measureNativeOffset,
   nearestScrollDelta,
+  recordNativeScroll,
   revealNativePart,
 } from "./scroll-follow";
 
@@ -25,6 +29,32 @@ it("gives precedence to manual drag, momentum and the interval after the latest 
   expect(manualScrollActive({ ...idle, momentum: true }, 10_000)).toBe(true);
   expect(manualScrollActive({ ...idle, lastManual: 10 }, 209)).toBe(true);
   expect(manualScrollActive({ ...idle, lastManual: 10 }, 210)).toBe(false);
+});
+
+it("releases a cancelled Android drag even if the platform loses the end events", () => {
+  const state = { dragging: false, momentum: false, lastManual: -Infinity };
+  beginNativeDrag(state, 0, true);
+  expect(manualScrollActive(state, 1_900)).toBe(true);
+  recordNativeScroll(state, { x: 0, y: 25 }, 1_990, true);
+  expect(manualScrollActive(state, 3_900)).toBe(true);
+  expect(manualScrollActive(state, 3_991)).toBe(false);
+  beginNativeDrag(state, 4_000, true);
+  endNativeDrag(state, 4_100);
+  expect(manualScrollActive(state, 4_299)).toBe(true);
+  expect(manualScrollActive(state, 4_300)).toBe(false);
+});
+
+it("treats an Android wheel update as manual but not the acknowledgement of a follow command", () => {
+  const state = { dragging: false, momentum: false, lastManual: -Infinity };
+  expectNativeFollow(state, { x: 7, y: 25.2 }, 0);
+  recordNativeScroll(state, { x: 7, y: 25 }, 50, true);
+  expect(manualScrollActive(state, 51)).toBe(false);
+  expectNativeFollow(state, { x: 7, y: 130 }, 52);
+  recordNativeScroll(state, { x: 7, y: 30 }, 53, true);
+  expect(manualScrollActive(state, 54)).toBe(true);
+  recordNativeScroll(state, { x: 7, y: 50 }, 250, true);
+  expect(manualScrollActive(state, 449)).toBe(true);
+  expect(manualScrollActive(state, 450)).toBe(false);
 });
 
 it.each([
