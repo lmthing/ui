@@ -15,10 +15,13 @@ export function Streets({ width, height, count }: { width: number; height: numbe
   const c = (name: string) => (theme[name]?.val as string | undefined) ?? "currentColor";
   const pin = component.base.pinRadius;
   const numbered = spots.slice(0, Math.min(count, spots.length));
+  const west = `M0 ${height * 0.45} C ${width * 0.3} ${height * 0.35}, ${width * 0.6} ${height * 0.55}, ${width} ${height * 0.42}`;
+  const middle = `M ${width * 0.35} 0 C ${width * 0.4} ${height * 0.4}, ${width * 0.3} ${height * 0.7}, ${width * 0.38} ${height}`;
+  const east = `M ${width * 0.7} 0 L ${width * 0.66} ${height}`;
   return (
     <Svg width={width} height={height} pointerEvents="none" aria-hidden>
       <Path
-        d={`M0 ${height * 0.45} C ${width * 0.3} ${height * 0.35}, ${width * 0.6} ${height * 0.55}, ${width} ${height * 0.42} M ${width * 0.35} 0 C ${width * 0.4} ${height * 0.4}, ${width * 0.3} ${height * 0.7}, ${width * 0.38} ${height} M ${width * 0.7} 0 L ${width * 0.66} ${height}`}
+        d={`${west} ${middle} ${east}`}
         stroke={c("line")}
         strokeWidth={component.base.streetWidth}
         fill="none"
