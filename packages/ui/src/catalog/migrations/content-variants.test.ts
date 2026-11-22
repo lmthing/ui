@@ -86,7 +86,8 @@ it.each([
     { style: "centered", photo: "lib:dogs" },
     { media: "thumb", photo: "lib:dogs" },
   ],
-  [{ style: "centered" }, { media: "thumb" }],
+  [{ style: "centered" }, { media: "none" }],
+  [{ style: "centered", media: "thumb" }, { media: "thumb" }],
   [{ style: "centered", align: "start" }, { media: "thumb" }],
   [{ style: "centered", media: "none" }, { media: "none" }],
 ] as const)("migrates %j with explicit axes winning", (fields, expected) => {

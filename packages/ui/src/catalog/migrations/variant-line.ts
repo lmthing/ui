@@ -164,7 +164,16 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
       values: { wide: { aspect: "wide" }, square: { aspect: "square" }, tall: { aspect: "tall" } },
     },
   ],
-  Profile: [{ from: "style", values: { row: {}, centered: {} } }],
+  Profile: [
+    {
+      from: "style",
+      values: { row: {}, centered: {} },
+      prepare: (props) =>
+        props.style === "centered" && (props.align ?? "center") === "center" && !props.photo
+          ? { media: "none", ...props }
+          : props,
+    },
+  ],
   Sheet: [],
 };
 
