@@ -3,19 +3,23 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 // prettier-ignore
 import {
-  gradeQuiz, previewQuizSteps, projectQuiz, quizChoices, quizKey, quizMatches, quizProgress, quizSolution, readQuiz,
-  reviseQuiz, type QuizItem, type QuizRound,
+  audioParts, gradeQuiz, learningAudio, previewQuizSteps, projectQuiz, promptPlayback, promptPlaybackActions,
+  quizChoices, quizProgress, quizSolution, readQuiz, reviseQuiz, roundAudioPart, roundAudioProps, wordBankLimit, type QuizItem, type QuizRound,
 } from "../copy";
 import { learningWordsFor } from "../lang";
+import * as audioView from "../prompt-audio";
+import * as choiceView from "../quiz-choices";
 
 // Core first: Choice/cards cannot check a correct answer, explain mistakes or advance through questions.
 // prettier-ignore
 export const meta = {
   id: "Quiz", status: "ready", group: "input",
   purpose: "Practise one question at a time and get feedback after checking each answer.",
-  pick: "Assessed practice questions with correct answers and immediate feedback. Use for multiple choice, true or false, typed recall or matching pairs. Not choosing a preference (Choice), a vote (Poll), or self-rated recall (Flashcard).",
+  pick: "Assessed practice questions with correct answers and immediate feedback. Use for multiple choice, true or false, typed recall, matching pairs or putting words in sentence order. Not choosing a preference (Choice), a vote (Poll), or self-rated recall (Flashcard).",
   writeHints: [
     "Use null for unused fields. For choice, write 2–5 options and a zero-based answer index. For truefalse, write a boolean answer. For type, write a text answer. For match, write 3–5 correct left/right pairs and set answer to null.",
+    'For kind "order", put 3–8 scrambled word tiles in words, and write answer as the complete list of their zero-based indexes in correct sentence order. For example, words ["fern", "the", "Water"] have answer [2, 1, 0]. Set options and pairs to null.',
+    'Use media inside a question only for its supplied audio clip reference. Component-level media controls question photos, not audio.',
     "Leave selected_option, selected_left and selected_right null; selections are made by the learner.",
     'When asked to hide the question photo, write media "none" and retain its photo reference. Always write density and surface as null unless requested; do not fill in defaults such as "comfortable" or "card". Use media null for unrequested media.',
   ],
@@ -23,20 +27,23 @@ export const meta = {
   realPath: "Questions are stored with the app and answers are checked on the device.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["thumb", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
-  parts: ["root", "panel", "progress", "question", "photo", "field", "left", "right", "check", "next", "answer", "explain", "feedback", "score"],
+  parts: ["root", "panel", "progress", "question", "photo", "field", "left", "right", "check", "next", "answer", "explain", "feedback", "score",
+    "order_hint", "order_draft", ...audioParts, "audio_status"],
   states: ["filled", "success", "error"],
+  media: { playback: promptPlayback },
   selections: {
     root: { prop: "selected_option", choices: { prop: "option_indexes" } },
     left: { prop: "selected_left", choices: { prop: "match_indexes" } },
     right: { prop: "selected_right", choices: { prop: "right_indexes" } },
   },
   actions: {
-    parts: { root: ["select"], field: ["type"], left: ["select"], right: ["select"], check: ["press"], next: ["press"] },
+    parts: { root: ["select"], field: ["type"], left: ["select"], right: ["select"], check: ["press"], next: ["press"], ...promptPlaybackActions },
     when: { field: { kind: "type" }, right: { has_left: true }, next: { checked: true }, check: { checked: false } },
   },
   successActions: ["next.press"],
   session: {
     kind: "rounds", items: "questions", hidden: ["answer", "explain"], reveal: "check", next: "next",
+    actionProps: roundAudioProps("media"),
     assessment: {
       inputs: { root: "select", field: "type", left: "select", right: "select" },
       readHidden: ["answer"], project: projectQuiz, grade: gradeQuiz, revise: reviseQuiz,
@@ -48,19 +55,25 @@ export const meta = {
 // The strict Writer requires object keys and represents absent optional fields as null.
 const optionIndex = z.int().min(0).max(4);
 // prettier-ignore
+const orderAnswer = z.array(z.int().min(0).max(wordBankLimit - 1)).min(3).max(wordBankLimit);
+// prettier-ignore
 const question = z.strictObject({
-  question: c.text(120), kind: z.enum(["choice", "truefalse", "type", "match"]),
-  explain: c.text(200).optional(), photo: c.photo.optional(),
+  question: c.text(120), kind: z.enum(["choice", "truefalse", "type", "match", "order"]),
+  explain: c.text(200).optional(), photo: c.photo.optional(), media: learningAudio.optional(),
   options: z.array(c.text(40)).min(2).max(5).optional(),
-  answer: z.union([optionIndex, z.boolean(), c.text(40)]).optional(),
+  words: z.array(c.text(20)).min(3).max(wordBankLimit).optional(),
+  answer: z.union([optionIndex, z.boolean(), c.text(40), orderAnswer]).optional(),
   pairs: z.array(z.strictObject({ left: c.text(20), right: c.text(20) })).min(3).max(5).optional(),
 })
   .refine(({ kind, options }) => (kind === "choice") === (options !== undefined), { path: ["options"] })
   .refine(({ kind, pairs }) => (kind === "match") === (pairs !== undefined), { path: ["pairs"] })
-  .refine(({ kind, options, answer }) => {
+  .refine(({ kind, words }) => kind === "order" ? new Set(words).size >= 2 : words === undefined, { path: ["words"] })
+  .refine(({ kind, options, answer, words }) => {
     if (kind === "choice") return typeof answer === "number" && answer < (options?.length ?? 0);
     if (kind === "truefalse") return typeof answer === "boolean";
     if (kind === "type") return typeof answer === "string";
+    if (kind === "order") return !!words && Array.isArray(answer) && answer.length === words.length
+      && new Set(answer).size === words.length && answer.every((index) => index < words.length);
     return answer === undefined;
   }, { path: ["answer"] });
 // prettier-ignore
@@ -98,12 +111,17 @@ const match = {
     { left: "Bags", right: "Clean up" }],
 } satisfies z.input<typeof question>;
 // prettier-ignore
+const order = { question: "Put the care tip in order.", kind: "order",
+  words: ["soil", "the", "first.", "Check"], answer: [3, 1, 0, 2] } satisfies z.input<typeof question>;
+// prettier-ignore
 export const examples = [
   { questions: [choice, typed] },
   { questions: [
     { question: "Do dogs need water on long\u00a0walks?", kind: "truefalse", answer: true }, match,
   ] },
   { questions: [typed] }, { questions: [match] },
+  { questions: [order, { ...typed, media: "lib:fern_leaves" }] },
+  { questions: [{ ...choice, photo: undefined, media: "lib:water_question" }] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = c.probesFor("Quiz");
 // prettier-ignore
@@ -113,6 +131,10 @@ export const probes = [
   write("Ask which reading means water: mizu, yama or kawa. The first option is correct. Then ask me to type the reading of 川, which is kawa."),
   { ...write('Write exactly one question: "Which part absorbs water?" Choices Roots and Leaves, with Roots correct. Keep the plant photo attached but hide it from the question; leave all other appearance settings unset.'),
     variant: { axis: "media", value: "none" } },
+  { ...write('Write exactly one sentence-order question using tappable word tiles in this starting order: "fern.", "the", "Water". The checked sentence must be "Water the fern." Do not use a typing field.'),
+    expectProps: { questions: [{ kind: "order", words: ["fern.", "the", "Water"], answer: [2, 1, 0] }] } },
+  { ...write('Write exactly one assessed question that asks "Which reading means water?" with options mizu and yama, mizu correct. Attach the supplied audio prompt lib:water_prompt to that question, not as a photo.'),
+    expectProps: { questions: [{ kind: "choice", media: "lib:water_prompt" }] } },
   read("Use the quiz's shared choice control to select an answer. Don't check it yet.", { address: "q1", action: "select" }),
   read("Check my answer to the current question.", { address: "q1/check", action: "press" }),
 ] satisfies c.Probe[];
@@ -126,32 +148,6 @@ function preview(input: QuizProps, screen: string, id: string, correct: boolean)
     { Quiz: { meta, props, fallback, examples, probes } }, {},
     [...previewQuizSteps(item, id, correct), { address: `${id}/check`, action: "press" }], null);
   return result.ok ? result.values[`${screen}/${id}/${c.sessionKey}`] : undefined;
-}
-
-// prettier-ignore
-function Options({ labels, part, title, selected, binary, active = true }: {
-  labels: string[]; part: "root" | "left" | "right"; title: string; selected?: unknown; binary?: boolean; active?: boolean;
-}) {
-  const chips = labels.map((label, index) =>
-    <kit.KitChip key={index} item={null} part={active ? "root" : null} value={quizKey(part, index)}
-      label={label} role="radio" look={binary ? "box" : "pill"} on={index === selected} />);
-  return <kit.KitTrack part={part} role="radiogroup" label={title}>
-    {part !== "root" ? <kit.KitGrid arrange="rows" group="sections" groups={[{ id: part, heading: title, children: chips }]} children={null} />
-      : binary ? <kit.KitGrid>{chips}</kit.KitGrid> : chips}</kit.KitTrack>;
-}
-
-// prettier-ignore
-function MatchChoices({ item, answers }: { item: QuizItem; answers: Readonly<c.Values> }) {
-  const { lang, words: { quiz } } = kit.useWords(learningWordsFor);
-  const active = answers.left !== undefined;
-  const labels = quizMatches(item, answers, lang);
-  return <kit.KitContent>
-    <kit.KitText role="label" tone="muted" part={null}>{active ? quiz.pickRight : quiz.pickLeft}</kit.KitText>
-    <kit.KitGrid>
-      <Options part="left" title={quiz.left} labels={labels.left} selected={answers.left} />
-      <Options part="right" title={quiz.right} labels={labels.right} active={active} />
-    </kit.KitGrid>
-  </kit.KitContent>;
 }
 
 // prettier-ignore
@@ -185,16 +181,19 @@ export function Quiz(input: QuizProps) {
   if (round?.kind !== "rounds" || !round.assessment) return <kit.KitCard padded><kit.KitEmpty /></kit.KitCard>;
   const item = round.item as QuizItem, { answers, ready } = round.assessment;
   const options = quizChoices(item, lang);
-  return <kit.KitCard key={round.index} part={!round.revealed && options.length ? "panel" : "root"} padded {...{ density, surface }}>
+  const ordering = item.kind === "order";
+  return <kit.KitCard key={round.index} part={!round.revealed && (options.length || ordering) ? "panel" : "root"} padded {...{ density, surface }}>
     <kit.KitContent density={density} leadingAlign="row"
       lead={media === "thumb" && item.photo && <kit.KitPhoto photo={item.photo} shape="thumb" part="photo" label={quiz.photo} />}>
       <kit.KitText role="label" tone="muted" part="progress">{quizProgress(round, lang).progress}</kit.KitText>
       <kit.KitText role="heading" density={density} tone={round.revealed ? "muted" : "text"} part="question">{item.question}</kit.KitText>
     </kit.KitContent>
+    {!round.revealed && item.media && <audioView.PromptAudio density={density} part={roundAudioPart(round.index)} />}
     {round.revealed ? <Feedback {...{ item, round }} /> : <kit.KitContent group="response">
-      {options.length > 0 && <Options labels={options} title={item.question} part="root" binary={item.kind === "truefalse"} selected={answers.root} />}
+      {options.length > 0 && <choiceView.Options labels={options} title={item.question} part="root" binary={item.kind === "truefalse"} selected={answers.root} />}
       {item.kind === "type" && <kit.KitInput projected hint={quiz.type} value={typeof answers.field === "string" ? answers.field : ""} />}
-      {item.kind === "match" && <MatchChoices {...{ item, answers }} />}
+      {item.kind === "match" && <choiceView.MatchChoices {...{ item, answers }} />}
+      {ordering && <choiceView.OrderChoices {...{ item, answers }} />}
       <kit.KitContent group="response"><kit.KitAction full kind={ready ? "primary" : "secondary"} label={quiz.check} part="check" action="press" disabled={!ready} /></kit.KitContent>
     </kit.KitContent>}</kit.KitCard>;
 }
