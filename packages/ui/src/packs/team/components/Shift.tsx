@@ -141,8 +141,8 @@ function ShiftHeader({
   return (
     <kit.KitContent density={density}>
       <kit.KitFigure density={density}
-      value={{ text: from, part: "from" }}
-      unit={{ text: `${separator} ${to}`, part: "to", role: "figure", tone: "text", tabular: true }} />
+        value={{ text: from, part: "from" }}
+        unit={{ text: `${separator}${to}`, part: "to", role: "figure", tone: "text", tabular: true }} />
       <kit.KitGrid fitLast density={density}>
         <kit.KitLayoutText line={{ text: date, part: "date", role: "meta", tone: "muted" }} density={density} />
         <kit.KitLayoutText line={{ text: status, part: "status", role: "meta", tone: "muted" }} density={density} />

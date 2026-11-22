@@ -258,6 +258,7 @@ function RosterMatrix({ week, people, shifts, density, detail, loading }: Matrix
 // prettier-ignore
 export function Roster(input: ViewProps) {
   const state = kit.useComponentState();
+  const thing = kit.useEmptyThing();
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
@@ -278,7 +279,7 @@ export function Roster(input: ViewProps) {
       {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["heading", heading]]} /> :
         <kit.KitText part="week" role="heading">{heading}</kit.KitText>}
       {loading && !day ? body : (
-        <kit.KitState part="empty" icon="calendar_days" message={day ? words.roster.empty : undefined} density={density}
+        <kit.KitState part="empty" icon="calendar_days" message={day && !thing ? words.roster.empty : undefined} density={density}
           loading={<kit.KitSkeleton density={density} />}>
           {loaded}
         </kit.KitState>

@@ -222,6 +222,7 @@ function SheetColumns(people: SheetRow[], context: ReturnType<typeof kit.usePart
 }
 
 export function Timesheet(input: ViewProps) {
+  const thing = kit.useEmptyThing();
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
@@ -231,7 +232,7 @@ export function Timesheet(input: ViewProps) {
       <kit.KitState
         part="empty"
         icon="calendar_days"
-        message={input.style === "mine" ? words.timesheet.empty : undefined}
+        message={input.style === "mine" && !thing ? words.timesheet.empty : undefined}
         density={density}
       >
         <kit.KitContent density={density}>

@@ -131,7 +131,10 @@ function HandoverNote({ note, detail, density }: NoteProps) {
   const { by, time, text, flag, seen } = note;
   const { markSeen, seenNote } = words.handover;
   const checkLabel = (
-    <kit.KitLayoutText line={{ text: words.handover.seen, role: "meta", tone: "muted" }} density={density} />
+    <kit.KitLayoutText
+      line={{ text: seen ? words.handover.seen : words.handover.unseen, role: "meta", tone: "muted" }}
+      density={density}
+    />
   );
   const check = (
     <kit.KitContent lead={checkLabel} leadingAlign="row" density={density}>

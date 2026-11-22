@@ -211,6 +211,7 @@ function ApprovalRow({ row, lead, surface, density, style }: RequestProps) {
 
 export function Approval(input: ApprovalProps) {
   const state = kit.useComponentState();
+  const thing = kit.useEmptyThing();
   const { words } = kit.useWords(teamWordsFor);
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const lead = kit.useVariant("lead", meta.variants.lead, input.lead);
@@ -228,9 +229,11 @@ export function Approval(input: ApprovalProps) {
         message={
           state === "success"
             ? words.approval.success
-            : input.style === "my_requests"
-              ? words.approval.empty
-              : words.approval.queueEmpty
+            : thing
+              ? undefined
+              : input.style === "my_requests"
+                ? words.approval.empty
+                : words.approval.queueEmpty
         }
         density={density}
       >
