@@ -168,9 +168,12 @@ describe.each(ready)("%s conformance", (id) => {
             expect(html).not.toContain(`data-testid="home/c1/${items.prefix ?? "r"}2/root"`);
           const pageHidesRoots =
             props.overflow === "page" && meta.variantParts?.["overflow.page"]?.hides?.includes("root");
-          if (!pageHidesRoots)
-            for (const { id } of items.visible === "first" ? rows.slice(0, 1) : rows)
-              if (!hidden.includes(id)) expect(html).toContain(`data-testid="home/c1/${id}/root"`);
+          const mapOnly = id === "MapList" && props.style === "map";
+          for (const { id: row } of items.visible === "first" ? rows.slice(0, 1) : rows) {
+            const root = `data-testid="home/c1/${row}/root"`;
+            if (mapOnly) expect(html).not.toContain(root);
+            else if (!pageHidesRoots && !hidden.includes(row)) expect(html).toContain(root);
+          }
         }
       }
     }

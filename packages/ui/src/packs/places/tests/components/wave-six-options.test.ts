@@ -80,7 +80,7 @@ it("gates pins and row links against the current layout without renumbering them
   const start = screen("map");
   const mapped = readScreen(start, defs);
   expect(mapped).toContain("m1/r2/pin select");
-  expect(mapped).not.toMatch(/Indoor plants|m1\/r2 press/);
+  expect(mapped).not.toMatch(/Greenhouse Shop|Indoor plants|m1\/r2 press/);
   expect(planAct(start, defs, {}, [row])).toMatchObject(inactive);
   expect(planAct(screen("list"), defs, {}, [pin])).toMatchObject(inactive);
   const selected = planAct(start, defs, {}, [pin]);

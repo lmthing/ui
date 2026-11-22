@@ -20,6 +20,7 @@ type Place = z.output<typeof venue> & {
   priceLevel?: number | undefined;
   opens?: string | undefined;
   closes?: string | undefined;
+  saved?: boolean | undefined;
   unit?: "km" | "mi" | undefined;
   distanceUnit?: "km" | "mi";
 };
@@ -100,5 +101,8 @@ export function placeCardCopy(place: Place, data?: DeviceData, lang?: string) {
 
 export function placeCardReading(place: Place, data?: DeviceData, lang?: string) {
   const { ratingReading, price, distance, opening } = placeCardCopy(place, data, lang);
-  return [ratingReading, price, distance, opening?.text].filter((line): line is string => line !== undefined);
+  const save = place.saved === undefined ? undefined : placesWordsFor(lang).placeSave;
+  return [ratingReading, price, distance, opening?.text, save].filter(
+    (line): line is string => line !== undefined,
+  );
 }

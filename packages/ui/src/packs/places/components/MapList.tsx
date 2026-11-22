@@ -13,7 +13,7 @@ export const meta = {
   pick: "Browse six or more places with matching detailed rows and pins, or switch between a linked map and list-only view. Not a small map of up to five pins (MapPins) or rows without any map (List).",
   writeHints: [
     "Keep up to six places with one short note each and a goto link. Never write distances, pin positions, a total count, or view selection.",
-    'Set style only when a starting layout is requested: "map" shows only pins, "list" only rows, and "split" both.',
+    'Leave style null for the usual map with matching rows. Use "map" only if asked to hide all rows, "list" to hide the map at first, or "split" for an explicit both-visible starting layout.',
     'Hiding the notes uses detail "brief", not compact density. Still write each note in meta. Leave density and surface null unless specifically requested.',
   ],
   region: "body",
@@ -35,15 +35,16 @@ export const meta = {
     // prettier-ignore
     derive: ({ view, style, detail, places, activePin }) => {
       const options = style !== undefined;
-      const viewChoices = options ? ["split", "map", "list"] : ["map", "list"];
-      const activeView = typeof view === "string" && viewChoices.includes(view) ? view : (style ?? "map");
+      const words = placesWordsFor();
+      const viewChoices = options ? [{ value: "split", label: words.mapListSplit }, { value: "map", label: words.mapListMapOnly }, { value: "list", label: words.mapListListOnly }] : ["map", "list"];
+      const activeView = view === "map" || view === "list" || (options && view === "split") ? view : (style ?? "map");
       const rowsVisible = !options || activeView !== "map";
       const rows = Array.isArray(places) ? places as c.Values[] : undefined;
       return {
         activeView, ...(options && { view: activeView }), viewChoices, mapVisible: activeView !== "list", rowsVisible,
         activePlace: !rowsVisible ? rows?.[typeof activePin === "number" ? activePin - 1 : 0]?.name : undefined,
         ...((detail === "brief" || !rowsVisible) && rows
-          ? { places: rows.map((place) => ({ ...place, meta: undefined })) }
+          ? { places: rows.map((place) => ({ ...place, meta: undefined, ...(!rowsVisible && { name: undefined }) })) }
           : {}),
       };
     },
@@ -112,7 +113,7 @@ export const probes = [
   choose("Show three simple labelled pins on a map: Home, Park gate and Pond. No list-only mode.", "MapPins"),
   write("Show a linked map and list of plant shops that can switch to list only: Riverside Nursery for outdoor plants (nursery), Greenhouse Shop for indoor plants (greenhouse), and Hilltop Market for pots (hilltop)."),
   {
-    ...write("Show a map and matching rows for Riverside Nursery (nursery, outdoor plants), Greenhouse Shop (greenhouse, indoor plants) and Hilltop Market (hilltop, pots). Hide only the notes in the rows; keep the names, live distances and usual spacing."),
+    ...write("Use the usual layout with a map and matching rows for Riverside Nursery (nursery, outdoor plants), Greenhouse Shop (greenhouse, indoor plants) and Hilltop Market (hilltop, pots). Hide only the notes in the rows; keep the names, live distances and usual spacing."),
     variant: { axis: "detail", value: "brief" },
   },
   read("Use the view selector to choose list only, without selecting a pin or opening a venue", { address: "m1/view", action: "select" }),
@@ -126,10 +127,7 @@ export const probes = [
     ...write("Let me browse Riverside Nursery (nursery, outdoor plants) in a map browser, but start with only the list and hide the map."),
     expectProps: { style: "list" },
   },
-  {
-    ...write("Start with both the map and list visible for Riverside Nursery (nursery, outdoor plants), not just one or the other."),
-    expectProps: { style: "split" },
-  },
+  { ...write("For Riverside Nursery (nursery, outdoor plants), give me the three-way selector: Map + list, Map, or List. Select Map + list initially."), expectProps: { style: "split" } },
 ] satisfies c.Probe[];
 
 type MapListProps = c.Props<typeof props, typeof meta>;

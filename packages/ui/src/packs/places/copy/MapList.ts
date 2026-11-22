@@ -77,13 +77,13 @@ export function mapListReading(
   data?: DeviceData,
   lang?: string,
 ) {
-  const { places: rows, more } = mapListCopy(places, data, lang);
   const words = placesWordsFor(lang);
   const labels =
     style === undefined
       ? [words.mapListMap, words.mapListList]
       : [words.mapListSplit, words.mapListMapOnly, words.mapListListOnly];
   if (!rowsVisible) return activePlace ? [...labels, JSON.stringify(activePlace)] : labels;
+  const { places: rows, more } = mapListCopy(places, data, lang);
   return [
     ...labels,
     ...rows.flatMap(({ name, distance }) =>
