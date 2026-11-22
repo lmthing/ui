@@ -73,6 +73,8 @@ function inputOf(
   } else {
     input[["Field", "Camera"].includes(line.c) ? "kind" : "style"] = variant;
     if (line.c === "Field" && ["date", "time"].includes(variant)) input.value = undefined;
+    if (line.c === "Progress" && variant === "ring" && Array.isArray(input.bars))
+      input.bars = input.bars.slice(0, 1);
     if (line.c === "Timeline" && variant === "hours")
       input.items = (input.items as { title: string }[]).map((item, index) => ({
         title: item.title,
@@ -135,7 +137,7 @@ export function defaultLines(
   let fieldIndex = 0,
     groupIndex = -1;
   const components = recipe.map((line) => {
-    const prefix = line.c[0]!.toLowerCase();
+    const prefix = line.c === "Progress" && line.variant === "ring" ? "r" : line.c[0]!.toLowerCase();
     const id = `${prefix}${(counts[prefix] = (counts[prefix] ?? 0) + 1)}`;
     if (grouped.length && line.c === "SectionTitle") groupIndex++;
     const lineCast = grouped.length && line.c === "List" ? { ...cast, items: grouped[groupIndex]![1] } : cast;

@@ -7,6 +7,11 @@ export type SkeletonLine = {
   role: TextRole;
   align?: "start" | "center" | "end" | undefined;
   numberScale?: "display" | "compact" | undefined;
+  lines?: number | undefined;
+  strong?: boolean | undefined;
+  tabular?: boolean | undefined;
+  baseline?: boolean;
+  wrap?: boolean;
 } & TextFinish;
 export type SkeletonItem = {
   lines?: SkeletonLine[];
@@ -63,6 +68,11 @@ export function SkeletonText({
   numberScale = "display",
   density,
   emphasis,
+  lines,
+  strong,
+  tabular,
+  baseline,
+  wrap = false,
 }: SkeletonLine) {
   const stepOf = useTextStep({ density, emphasis });
   const scale = typography[stepOf(role === "number" && numberScale === "compact" ? "body" : role)];
@@ -74,7 +84,9 @@ export function SkeletonText({
       overflow="hidden"
       maxWidth="100%"
       flexShrink={0}
-      alignSelf={align === "center" ? "center" : align === "end" ? "flex-end" : "flex-start"}
+      alignSelf={
+        baseline ? undefined : align === "center" ? "center" : align === "end" ? "flex-end" : "flex-start"
+      }
       aria-hidden
     >
       <YStack opacity={component.base.none}>
@@ -82,9 +94,13 @@ export function SkeletonText({
           role={role}
           numberScale={numberScale}
           {...{ density, emphasis }}
+          {...(strong ? { emphasis: "strong" as const } : {})}
+          {...(tabular ? { tabular } : {})}
           align={align}
           part={null}
-          {...(/^\d+(?:[.,:]\d+)*(?:\s+\S+)?$/.test(text) ? { lines: 1 } : {})}
+          {...(lines !== undefined || (!wrap && /^\d+(?:[.,:]\d+)*(?:\s+\S+)?$/.test(text))
+            ? { lines: lines ?? 1 }
+            : {})}
         >
           {text}
         </KitText>

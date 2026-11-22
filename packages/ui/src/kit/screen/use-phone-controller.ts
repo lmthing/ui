@@ -7,75 +7,160 @@ import {
 } from "../interact";
 import type { PhoneScreenProps } from "./PhoneScreen";
 
-function useCommittedDeviceData(
-  source: { controller: ScreenController; committed: { deviceData: PhoneScreenProps["deviceData"] } },
-  deviceData: PhoneScreenProps["deviceData"],
+type HostSnapshot = Pick<
+  PhoneScreenProps,
+  | "deviceData"
+  | "hostCommands"
+  | "authenticateReveal"
+  | "attachments"
+  | "resolvePlayback"
+  | "privateValues"
+  | "resolveClipboardText"
+>;
+function useCommittedHost(
+  source: { controller: ScreenController; committed: { snapshot: HostSnapshot } },
+  snapshot: HostSnapshot,
 ) {
-  const [, refreshWithCommittedData] = useState(deviceData);
+  const [, refreshWithCommittedHost] = useState(snapshot);
   // Publish only on commit, before a child's layout effect can read the controller.
   useInsertionEffect(() => {
-    source.committed.deviceData = deviceData;
-  }, [source, deviceData]);
+    source.committed.snapshot = snapshot;
+  }, [source, snapshot]);
   useLayoutEffect(() => {
     source.controller.discardHiddenConfirmation();
     // Render-time control availability calls the controller, which just received the new snapshot.
-    refreshWithCommittedData(deviceData);
-  }, [source, deviceData]);
+    refreshWithCommittedHost(snapshot);
+  }, [source, snapshot]);
+}
+
+function createCommittedController(
+  options: Parameters<typeof createScreenController>[0],
+  committed: { snapshot: HostSnapshot },
+  callbacks: { current: PhoneScreenProps },
+) {
+  return createScreenController({
+    ...options,
+    ...phoneCallbacks(callbacks),
+    get lang() {
+      return callbacks.current.lang;
+    },
+    get deviceData() {
+      return committed.snapshot.deviceData;
+    },
+    get hostCommands() {
+      return committed.snapshot.hostCommands;
+    },
+    get authenticateReveal() {
+      return committed.snapshot.authenticateReveal;
+    },
+    get privateValues() {
+      return committed.snapshot.privateValues;
+    },
+    get attachments() {
+      return committed.snapshot.attachments;
+    },
+    get resolvePlayback() {
+      return committed.snapshot.resolvePlayback;
+    },
+    resolveClipboardText: (address: string) => committed.snapshot.resolveClipboardText?.(address),
+  });
 }
 
 export function usePhoneController(props: PhoneScreenProps) {
-  const {
-    screen,
-    defs,
-    interaction,
-    interactive = true,
-    media,
-    resolveMedia,
-    onLink,
-    onAction,
-    onChange,
-    onSend,
-    requestPhoto,
-  } = props;
-  const language = useRef(props.lang);
-  language.current = props.lang;
-  const callbacks = useRef({ onLink, onAction, resolveMedia, onChange, onSend, requestPhoto });
-  callbacks.current = { onLink, onAction, resolveMedia, onChange, onSend, requestPhoto };
+  const { screen, defs, interaction, interactive = true, media } = props;
+  const { requestPhoto, parentGate, writeClipboard } = props;
+  const { attachments, resolvePlayback } = props;
+  const callbacks = useRef(props);
+  callbacks.current = props;
   const localStore = useMemo(() => createInteractionStore(), [screen.id]);
   const store = interaction ?? localStore;
-  const hasMediaResolver = Boolean(resolveMedia);
+  const hasMediaResolver = Boolean(props.resolveMedia);
+  const snapshot = useHostSnapshot(props);
   const source = useMemo(() => {
-    const committed = { deviceData: props.deviceData };
-    const controller = createScreenController({
+    const committed = { snapshot };
+    const options = {
       screen,
       defs,
-      get lang() {
-        return language.current;
-      },
-      get deviceData() {
-        return committed.deviceData;
-      },
+      writeClipboard,
       store,
+      parentGate,
       interactive,
       requireMounted: true,
-      onChange: (changed, values) => callbacks.current.onChange?.(changed, values),
-      onSend: (text, address) => callbacks.current.onSend?.(text, address),
-      ...(requestPhoto
-        ? {
-            requestPhoto: (address: string) =>
-              callbacks.current.requestPhoto?.(address) ?? Promise.resolve(undefined),
-          }
-        : {}),
-      onLink: (goto, address) => callbacks.current.onLink?.(goto, address),
-      onAction: (step) => callbacks.current.onAction?.(step),
       media:
         media ??
         (hasMediaResolver
           ? browserMediaAdapter((reference) => callbacks.current.resolveMedia?.(reference))
           : undefined),
-    });
+    };
+    const controller = createCommittedController(options, committed, callbacks);
     return { controller, committed };
-  }, [screen, defs, media, hasMediaResolver, store, interactive, Boolean(requestPhoto)]);
-  useCommittedDeviceData(source, props.deviceData);
+  }, [
+    screen,
+    defs,
+    media,
+    Boolean(attachments),
+    Boolean(resolvePlayback),
+    hasMediaResolver,
+    store,
+    interactive,
+    Boolean(requestPhoto),
+    writeClipboard,
+    parentGate,
+  ]);
+  useCommittedHost(source, snapshot);
   return source.controller;
+}
+
+function phoneCallbacks(callbacks: {
+  current: Pick<
+    PhoneScreenProps,
+    "onLink" | "onAction" | "resolveMedia" | "onChange" | "onSend" | "requestPhoto"
+  >;
+}): Pick<PhoneScreenProps, "onChange" | "onSend" | "requestPhoto" | "onLink" | "onAction"> {
+  return {
+    onChange: (changed, values) => callbacks.current.onChange?.(changed, values),
+    onSend: (text, address, audience, attachments) =>
+      attachments?.length
+        ? callbacks.current.onSend?.(text, address, audience, attachments)
+        : callbacks.current.onSend?.(text, address),
+    ...(callbacks.current.requestPhoto
+      ? {
+          requestPhoto: (address: string) =>
+            callbacks.current.requestPhoto?.(address) ?? Promise.resolve(undefined),
+        }
+      : {}),
+    onLink: (goto, address) => callbacks.current.onLink?.(goto, address),
+    onAction: (step) => callbacks.current.onAction?.(step),
+  };
+}
+
+function useHostSnapshot({
+  deviceData,
+  hostCommands,
+  authenticateReveal,
+  attachments,
+  resolvePlayback,
+  privateValues,
+  resolveClipboardText,
+}: PhoneScreenProps) {
+  return useMemo(
+    () => ({
+      deviceData,
+      hostCommands,
+      authenticateReveal,
+      attachments,
+      resolvePlayback,
+      privateValues,
+      resolveClipboardText,
+    }),
+    [
+      deviceData,
+      hostCommands,
+      authenticateReveal,
+      attachments,
+      resolvePlayback,
+      privateValues,
+      resolveClipboardText,
+    ],
+  );
 }

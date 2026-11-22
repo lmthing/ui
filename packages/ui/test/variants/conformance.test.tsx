@@ -1,9 +1,17 @@
 import { expect, it } from "vitest";
-import { components, readComponent, stampItemIds, type Definition } from "@lmthing/ui/catalog";
+import {
+  accents,
+  components,
+  presets,
+  readComponent,
+  stampItemIds,
+  type Definition,
+} from "@lmthing/ui/catalog";
 import { renderers } from "@lmthing/ui/kit";
 import { selectedIds } from "../../scripts/build";
-import { variantChoices, variantLabel, variantPairs, variantSheet } from "../../scripts/variants";
-import { renderExample, renderInstance } from "../render";
+import { variantChoices, variantLabel, variantPairs } from "../../scripts/variants";
+import { renderExample, renderInstance, type Theme } from "../render";
+import { conformanceThemes } from "../themes";
 import { derivedItemIds, derivedItemIssues, renderedAddresses, variantPartIssues } from "./variant-parts";
 import { overflowAllIssues, peekHiddenItems, variantPeekIssues } from "./variant-peek";
 import { rowAddressIssues } from "./row-addresses";
@@ -18,6 +26,7 @@ function checkPair(
   def: Definition,
   choice: Choice,
   { baseline, input, itemIndex, inheritsTrail }: Pair,
+  theme: Theme,
 ) {
   const baseProps = stampItemIds(def.meta, def.props.parse(baseline) as Props);
   const props = stampItemIds(def.meta, def.props.parse(input) as Props);
@@ -27,9 +36,9 @@ function checkPair(
   const authoredIds = rows.map(({ id }) => id);
   expect(rowsOf(props).map(({ id }) => id)).toEqual(authoredIds);
   const options = { resolvePhoto: (ref: string) => ref };
-  const { html: beforeHTML, deviceData } = renderExample(id, baseline, "filled", variantSheet, options);
+  const { html: beforeHTML, deviceData } = renderExample(id, baseline, "filled", theme, options);
   // Vary the axis, not the host's data snapshot.
-  const afterHTML = renderInstance(id, input, "filled", variantSheet, {
+  const afterHTML = renderInstance(id, input, "filled", theme, {
     ...options,
     deviceData,
   });
@@ -72,29 +81,34 @@ function checkPair(
   return hidden.length;
 }
 
-for (const id of selectedIds(Object.keys(renderers) as Id[])) {
+const ids = selectedIds(Object.keys(renderers) as Id[], import.meta.url);
+const themes = conformanceThemes(presets, accents[0].id);
+for (const id of ids) {
   const def: Definition = components[id];
   for (const choice of variantChoices(def.meta, true)) {
-    it(`${id} ${variantLabel(choice)} keeps the variant address contract`, () => {
-      const pairs = def.examples.flatMap((example) =>
-        variantPairs(def.meta, example, choice).filter(
-          ({ baseline, input }) =>
-            def.props.safeParse(baseline).success && def.props.safeParse(input).success,
-        ),
-      );
-      expect(pairs.length, `Provide an example that supports ${variantLabel(choice)}`).toBeGreaterThan(0);
-      const hidden = pairs.map((pair) => checkPair(id, def, choice, pair));
-      if (choice.axis === "overflow" && choice.value === "peek")
-        expect(
-          Math.max(...hidden),
-          "Provide an overflow: peek example that actually hides items",
-        ).toBeGreaterThan(0);
-    });
+    it.each(themes)(
+      `${id} ${variantLabel(choice)} keeps the variant address contract in $preset $mode`,
+      (theme) => {
+        const pairs = def.examples.flatMap((example) =>
+          variantPairs(def.meta, example, choice).filter(
+            ({ baseline, input }) =>
+              def.props.safeParse(baseline).success && def.props.safeParse(input).success,
+          ),
+        );
+        expect(pairs.length, `Provide an example that supports ${variantLabel(choice)}`).toBeGreaterThan(0);
+        const hidden = pairs.map((pair) => checkPair(id, def, choice, pair, theme));
+        if (choice.axis === "overflow" && choice.value === "peek")
+          expect(
+            Math.max(...hidden),
+            "Provide an overflow: peek example that actually hides items",
+          ).toBeGreaterThan(0);
+      },
+    );
   }
 }
 
 it("allows ready components without variant declarations", () => {
-  for (const id of selectedIds(Object.keys(renderers) as Id[])) {
+  for (const id of ids) {
     const { meta } = components[id] as Definition;
     if (!meta.variants && !meta.items?.variants) expect(variantChoices(meta, true)).toEqual([]);
   }

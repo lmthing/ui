@@ -129,6 +129,8 @@ Messages render formatted body text, file chips, interactive emoji reaction pill
   messaging service; new messages post via core `Composer[reply]`.
 - Density: `meta.dense: true`, weight 3; channel streams render rich multi-part posts with reactions and
   attachments across up to 12 recent turns.
+- Renderer: use `FeedRow` for author, avatar, time, body, replies and addressed reaction/file accessories.
+  Use `DateRows` when grouping by date. Comms owns consecutive-message grouping, thread navigation and permissions.
 
 ### `ActiveCall` · planned · action · ok
 A pre-join A/V lobby or active 1:1 and group call stage with live participant status. Lobby style shows

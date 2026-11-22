@@ -54,8 +54,8 @@ a table lists its guests; unseated guests wait in a tray below.
 - Writes: `tables` of `label` text(12), `shape` (`round`, `long`), `seats` 2–16, `guests` text(24) each,
   1–20; `unseated` text(24) each 0–20. · Dense.
 - Parts → actions: tables `root press`, guests `root move` (to a table label). · States: filled, empty.
-- Real path: the plan on the organiser's device. · Kit: `KitSeatMap`.
-- Wave 6 options: add `style: "banquet" | "rows"` for assigned ceremony or talk rows alongside banquet tables.
+- Real path: the plan on the organiser's device. The `SeatingPlan` adapter uses `SeatPlan` / `KitSeatMap` for tables and the tray; Events provides guest move offers.
+- Wave 6 options: add `style: "banquet" | "rows"` for assigned ceremony or talk rows alongside banquet tables. Reuse `SeatPlan` for geometry without changing guest assignment into seat purchase or admission.
 
 ### `Vendors` · planned · data · phone
 The suppliers (venue, caterer, photographer, band, florist): each with its role icon, name, the agreed cost,

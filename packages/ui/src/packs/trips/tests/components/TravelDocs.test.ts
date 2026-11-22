@@ -2,7 +2,6 @@ import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import {
   components,
   createRegistry,
-  emptyLine,
   packReady,
   placeholderTitle,
   readComponent,
@@ -130,12 +129,12 @@ describe("TravelDocs states and parts", () => {
     expect(html).not.toContain("DEMO-");
   });
 
-  it("leaves out trip-relative parts without a trip and uses shared empty copy", () => {
+  it("leaves out trip-relative parts without a trip and names the missing documents", () => {
     const noTrip = addressedElements(renderInstance("TravelDocs", { docs: input.docs }, "filled", theme));
     expect(noTrip.has("home/c1/trip_ends")).toBe(false);
     expect(noTrip.has("home/c1/r2/warning")).toBe(false);
     const empty = renderInstance("TravelDocs", input, "empty", theme, "walk");
-    expect(empty).toContain(emptyLine("walk"));
+    expect(empty).toContain("No travel documents yet");
     expect([...addressedElements(empty).keys()]).toEqual(["home/c1/root", "home/c1/empty"]);
   });
 });

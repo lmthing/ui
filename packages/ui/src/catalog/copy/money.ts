@@ -72,22 +72,25 @@ type DocumentInput = {
   due?: string | undefined;
   lines: readonly { item: string; qty: number; price: number }[];
   tax?: number | undefined;
+  discount?: number | undefined;
   status: "draft" | "sent" | "paid";
   style: "invoice" | "quote";
   note?: string | undefined;
 };
 
-/** Round each extended line and the tax to cents before adding the payable total. */
+/** Round each line to cents; apply any discount before tax. */
 export function documentTotals<Line extends { qty: number; price: number }>(input: {
   lines: readonly Line[];
   tax?: number | undefined;
+  discount?: number | undefined;
 }) {
   const subtotalCents = input.lines.reduce(
     (sum, line) => sum + Math.round((line.qty * line.price + Number.EPSILON) * 100),
     0,
   );
-  const taxCents = Math.round((subtotalCents * (input.tax ?? 0)) / 100);
-  return { subtotal: subtotalCents / 100, tax: taxCents / 100, total: (subtotalCents + taxCents) / 100 };
+  const taxable = Math.max(0, subtotalCents - Math.round((input.discount ?? 0) * 100));
+  const taxCents = Math.round((taxable * (input.tax ?? 0)) / 100);
+  return { subtotal: subtotalCents / 100, tax: taxCents / 100, total: (taxable + taxCents) / 100 };
 }
 
 export function documentStatus(
@@ -140,7 +143,7 @@ export function documentCopy(input: DocumentInput, state: string, lang?: string)
 }
 
 /** Ordered label/value pairs keep the visible totals and agent reading identical. */
-export function documentAmounts(input: Pick<DocumentInput, "lines" | "tax">, lang?: string) {
+export function documentAmounts(input: Pick<DocumentInput, "lines" | "tax" | "discount">, lang?: string) {
   const words = wordsFor(lang);
   const { documentLabels } = words;
   const totals = documentTotals(input);
@@ -184,11 +187,8 @@ export function documentReading(input: DocumentInput, state: string, lang?: stri
 }
 
 /** Keep record amounts readable even at the schema's largest finite magnitude. */
-export function compactMoneyLine(
-  value: number,
-  currency: AppCurrency = defaultCurrency,
-  lang?: string,
-): string {
+// prettier-ignore
+export function compactMoneyLine(value: number, currency: AppCurrency = defaultCurrency, lang?: string): string {
   const magnitude = Math.abs(value);
   if (magnitude < 10000) return moneyLine(value, currency, undefined, lang);
   return new Intl.NumberFormat(localeOf(lang), {

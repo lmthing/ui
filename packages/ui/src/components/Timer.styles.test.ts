@@ -23,8 +23,9 @@ describe.each(["down", "up"] as const)("Timer rendering in %s", (style) => {
     [86400, "24:00:00"],
   ] as const)("renders %s seconds and both addressed buttons", (seconds, time) => {
     const html = renderTimer(style, seconds);
-    for (const part of meta.parts)
+    for (const part of meta.parts.filter((part) => part !== "goal"))
       expect(html.match(new RegExp(`data-testid="home/t1/${part}"`, "g"))).toHaveLength(1);
+    expect(html).not.toContain('data-testid="home/t1/goal"');
     expect(html).toContain(time);
     expect(html).toContain("tabular-nums");
     for (const part of ["start", "stop"] as const) {

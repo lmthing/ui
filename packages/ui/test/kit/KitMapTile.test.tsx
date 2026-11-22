@@ -95,6 +95,32 @@ describe("KitMapTile", () => {
     expect(elementAt(loading, "home/c1/map").attributes).toContain('aria-busy="true"');
   });
 });
+describe("KitMapTile Wave 6 markers", () => {
+  it("draws edge price and avatar marks within the tile with only the caller's addresses", async () => {
+    const options = [
+      { ...pins[0], mark: "price", label: "$1.2K" },
+      { ...pins[1], mark: "avatar", initials: "AB" },
+      { ...pins[2], mark: "avatar" },
+    ] as const;
+    const html = await draw({ pins: options }, "filled");
+    const first = elementAt(html, "home/c1/r1/pin");
+    const last = elementAt(html, "home/c1/r7/select");
+    expect([...addressedElements(html).keys()]).toEqual([
+      "home/c1/map",
+      "home/c1/r1/pin",
+      "home/c1/r7/select",
+    ]);
+    expect(first.attributes).toContain('aria-pressed="true"');
+    expect(styleAt(html, first)).toContain(`left:0px`);
+    expect(styleAt(html, first)).toContain(`width:${size.avatar.lg}px`);
+    expect(styleAt(html, last)).toContain(`left:${width - size.control.md}px`);
+    expect(html).toContain(">$1.2K<");
+    expect(html).toContain(">AB<");
+    const loading = await draw({ pins: options }, "loading");
+    expect([...addressedElements(loading).keys()]).toEqual(["home/c1/map"]);
+    expect(loading).not.toMatch(/\$1\.2K|>AB</);
+  });
+});
 
 describe("KitMapTile interaction", () => {
   it("dispatches the declared root action through the controller", async () => {

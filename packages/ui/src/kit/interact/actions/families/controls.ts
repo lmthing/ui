@@ -1,17 +1,44 @@
-import { clip, limitAt, type ActStep, type Values } from "../../../../catalog";
+import { attachmentKey, clip, limitAt, type ActStep, type SendDraft, type Values } from "../../../../catalog";
 import { controlStep } from "../../index";
 import { navigationAction } from "./navigation";
 import { deliverSend, rejected, type ActionContext, type ActionResult, type ActionState } from "../index";
-function appendMessage(values: Values, message: { text: string }, ctx: ActionContext) {
+function appendMessage(values: Values, text: string, attached: boolean, ctx: ActionContext) {
   const conversation = ctx.active.components.filter((item) => item.c === "Bubbles").at(-1);
   if (!conversation) return;
-  const maxText = limitAt(ctx.defs.Bubbles!, ["messages", "*", "text"]) ?? message.text.length;
+  const maxText = limitAt(ctx.defs.Bubbles!, ["messages", "*", "text"]) ?? text.length;
   const maxMessages = limitAt(ctx.defs.Bubbles!, ["messages"], "maxItems") ?? Number.MAX_SAFE_INTEGER;
   values[ctx.key(conversation.id, "$messages")] = [
     ...(conversation.messages as Values[]),
-    { from: "me", text: clip(message.text, maxText) },
+    { from: "me", text: clip(text, maxText), ...(attached ? { attachment: { kind: "file" } } : {}) },
   ].slice(-maxMessages);
 }
+
+function takeComposerAttachment(values: Values, ctx: ActionContext) {
+  const slot = ctx.key(ctx.entry.id, attachmentKey("attach"));
+  // The mirror changes with the rest of the draft, so dry runs, rejected batches and
+  // a second send planned in the same batch cannot consume the host's reference twice.
+  if (values[slot] === undefined) return;
+  const reference = ctx.attachmentReference(ctx.key(ctx.entry.id, "attach"));
+  values[slot] = undefined;
+  return reference;
+}
+
+function sendEffect(message: SendDraft, composer: boolean, values: Values, ctx: ActionContext) {
+  if (composer) {
+    const reference = takeComposerAttachment(values, ctx);
+    if (ctx.input.style === "reply") appendMessage(values, message.text, reference !== undefined, ctx);
+    return () => deliverSend(message, ctx.options.onSend, reference === undefined ? undefined : [reference]);
+  }
+  const references = message.attachments?.map(ctx.attachmentReference);
+  if (references?.some((reference) => reference === undefined)) return;
+  return () =>
+    deliverSend(
+      message,
+      ctx.options.onSend,
+      references?.filter((reference) => reference !== undefined),
+    );
+}
+
 export function controlsAction(state: ActionState, action: ActStep, ctx: ActionContext): ActionResult {
   const control = controlStep(
     ctx.active,
@@ -19,9 +46,10 @@ export function controlsAction(state: ActionState, action: ActStep, ctx: ActionC
     ctx.input,
     ctx.defs,
     state.values,
-    ctx.selected,
+    ctx.plannedDate ?? ctx.selected,
     ctx.now(),
     ctx.options.lang,
+    Boolean(ctx.plannedDate),
   );
   if (control.error)
     return rejected(state, ctx.at, control.disabled ? "disabled" : "invalid_value", control.error);
@@ -36,8 +64,9 @@ export function controlsAction(state: ActionState, action: ActStep, ctx: ActionC
     changes[changes.length - 1] = `${action.address} ${action.action} = ${JSON.stringify(control.value)}`;
   const message = ctx.send ?? control.send;
   if (message) {
-    if (control.send) appendMessage(values, message, ctx);
-    effects.push(() => deliverSend(message, ctx.options.onSend));
+    const send = sendEffect(message, Boolean(control.send && ctx.entry.c === "Composer"), values, ctx);
+    if (!send) return rejected(state, ctx.at, "not_actionable", "An attachment is unavailable");
+    effects.push(send);
   }
   if (control.requestPhoto && ctx.options.requestPhoto) {
     const target = control.requestPhoto;

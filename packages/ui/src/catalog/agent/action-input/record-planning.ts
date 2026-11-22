@@ -11,12 +11,15 @@ import {
   stageRecordClock,
 } from "../clocks";
 import type { DeviceData } from "../device-data";
-import { driveAffordances, driveTarget } from "../drives";
+import { driveAffordances, driveTarget, projectDriveObservation } from "../drives";
 import { liveProps, parseControlProps } from "../live-props";
 import type { ScreenLike } from "../read";
 import { isRecordAction, recordRequestAllowed, reportEditWire } from "../report-edits";
 import { isItemOffer, isSelectAll, projectSelectionBinding, selectionBindingFor } from "../selection-binding";
 import { localValues } from "./select-step";
+import { hostOnlyAddresses, isPrivateMark } from "./host-actions";
+import { hostActionPolicy } from "../host-commands";
+import { hasNestedCollectionControls } from "../nested";
 
 type PlannedAffordance = Affordance & { drive?: ActStep; checks?: readonly Affordance[] };
 
@@ -37,18 +40,31 @@ function usesLiveState(meta: Meta) {
   const { draw, emptyActions, errorActions, session, successActions, readSuccess, items, live } = meta;
   return (
     draw ||
+    meta.buzz ||
     emptyActions ||
+    meta.loadingActions?.length ||
+    meta.hostCommands ||
+    meta.actions?.authenticatedCopy ||
+    meta.actions?.privateInput ||
+    meta.actions?.privateVerify ||
     errorActions?.length ||
     session ||
     successActions?.length ||
     readSuccess ||
     items?.nested?.activeParent ||
     items?.nested?.maxActive !== undefined ||
+    hasNestedCollectionControls(meta) ||
     live ||
     meta.drives ||
+    meta.localState ||
+    meta.sequence ||
+    meta.media ||
+    items?.media ||
     meta.recordRuntime ||
     meta.linkedEdits ||
     meta.selectionBinding ||
+    meta.dateSpan ||
+    meta.jump ||
     hasRuntimeSets(meta) ||
     meta.deviceDataFlags ||
     items?.deviceData ||
@@ -56,6 +72,7 @@ function usesLiveState(meta: Meta) {
     items?.move ||
     items?.records ||
     items?.pickers ||
+    meta.collections ||
     meta.clear ||
     meta.signOff ||
     hasPlaybackClock(meta) ||
@@ -69,17 +86,20 @@ export function affordancesOfScreen(
   values: Values,
   data?: DeviceData,
   now?: number,
+  host?: Pick<ActStep, "address" | "action">,
 ) {
   const local = localValues(screen.id, values);
   return screen.components.flatMap(({ id, c, state, ...input }) => {
     const def = defs[c];
     if (!def) return [];
     const selection = selectionBindingFor(screen, defs, def.meta, id, local, data);
-    const props = projectSelectionBinding(
+    const bound = projectSelectionBinding(
       def.meta,
       liveInput(def, input, id, local, data, now),
       selection?.view,
     );
+    const target = driveTarget(def.meta, screen, defs, local, data);
+    const props = projectDriveObservation(def.meta, bound, id, target);
     const liveState = (props.state as typeof state) ?? (usesLiveState(def.meta) ? state : undefined);
     const get = (part: string) => local[`${id}/${part}`];
     const clock = recordClockOffer(def, input, props, get, data, now, values);
@@ -89,14 +109,17 @@ export function affordancesOfScreen(
       clock,
       wire,
       schema: def.props,
+      host: screen[hostActionPolicy],
+      baselineInput: input,
+      now,
     });
-    const routed = driveAffordances(
-      def.meta,
-      props,
-      id,
-      offered,
-      driveTarget(def.meta, screen, defs, local, data),
+    const hostOnly = hostOnlyAddresses(def, id, offered);
+    const allowed = offered.filter(
+      ({ address, action }) =>
+        (host?.address === address && host.action === action) ||
+        (!hostOnly?.has(address) && !isPrivateMark(local, address)),
     );
+    const routed = driveAffordances(def.meta, props, id, allowed, target);
     if (!selection) return routed;
     return routed.map((a): PlannedAffordance =>
       isSelectAll(def.meta, a.part, a.action, isItemOffer(id, a)) ? { ...a, checks: selection.checks } : a,

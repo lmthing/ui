@@ -1,8 +1,18 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 import type { TamaguiElement } from "tamagui";
 import { formatAddress } from "../../catalog";
 import { useKit } from "../provider";
 import { usePartContext } from "./part-context";
+
+const subscribeNone = () => () => {};
+export function usePartDisabled(address: string | undefined) {
+  const { controller } = useKit();
+  return useSyncExternalStore(
+    (address && controller?.subscribeDisabledParts) || subscribeNone,
+    () => Boolean(address && controller?.isPartDisabled?.(address)),
+    () => false,
+  );
+}
 
 type Measurable = {
   getBoundingClientRect?: () => { x: number; y: number; width: number; height: number };

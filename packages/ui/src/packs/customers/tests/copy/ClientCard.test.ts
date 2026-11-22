@@ -1,8 +1,19 @@
 import { expect, it } from "vitest";
-import { clientReading, contactLabels, nextLine, sinceLine, tagsLine } from "../../copy";
+import { clientBalanceLine, clientReading, contactLabels, nextLine, sinceLine, tagsLine } from "../../copy";
+
+it("names a positive, settled, or credit balance", () => {
+  expect(clientBalanceLine({ charged: 15.5, paid: 5 })).toBe("Owes $10.50");
+  expect(clientBalanceLine({ charged: 0.1 + 0.2, paid: 0.3 })).toBe("No balance due");
+  expect(clientBalanceLine({ charged: 0, paid: 4 })).toBe("$4 credit");
+});
 
 it("keeps contact actions, next details and static tags readable", () => {
-  expect(contactLabels).toEqual({ call: "Call", message: "Message", directions: "Directions" });
+  expect(contactLabels).toEqual({
+    call: "Call",
+    message: "Message",
+    directions: "Directions",
+    email: "Email",
+  });
   expect(nextLine("Friday 09:00")).toBe("Next: Friday 09:00");
   expect(tagsLine([])).toBe("");
   expect(tagsLine(["Regular"])).toBe("Regular");

@@ -1,6 +1,12 @@
 import type { z } from "zod";
 import type { AppCurrency, DeviceData, ScreenLike } from "../agent";
-import type { LiveActionInputs, StateName } from "../types";
+import type { ActionName, LiveActionInputs, StateName } from "../types";
+
+export type Draw =
+  | { kind: "faces"; press: string; count: string; sides: string; hold?: string }
+  | { kind: "pick"; press: string; pool: string; repeat?: string; reset?: string }
+  | { kind: "deck"; press: string; pool: string; count: string; reset: string }
+  | { kind: "partition"; press: string; redraw?: string; players: string; teams: string; locked?: string };
 
 export type LiveInputs = Omit<LiveActionInputs, "derive"> & {
   /** Project live props and gates from parsed props and declared host records. Derived items supply stable ids. */
@@ -32,6 +38,24 @@ export type SelectionBinding = {
 };
 
 type ProjectionProps = Readonly<Record<string, unknown>>;
+
+export type LocalStateEvent = Readonly<{
+  part: string;
+  action: ActionName;
+  item?: string;
+  value: unknown;
+}>;
+export type LocalStateRuntime = {
+  events?: readonly `${string}.${ActionName}`[];
+  itemEvents?: readonly `${string}.${ActionName}`[];
+  frame: (
+    seed: ProjectionProps,
+    stored: unknown,
+  ) =>
+    | { props: ProjectionProps; advance: (event: LocalStateEvent) => { stored: unknown } | { error: string } }
+    | undefined;
+};
+
 /** Schemas hosts use to supply a pack's trusted records, outside the Writer contract. */
 export type HostRecords = Readonly<Record<string, z.ZodType>>;
 
@@ -60,6 +84,8 @@ export type ReadSummary = (
   lang?: string,
   deviceData?: DeviceData,
   currency?: AppCurrency,
+  /** Reads an instance-local control value without adding it to the Writer schema or snapshot. */
+  liveValue?: (part: string) => unknown,
 ) => string[];
 
 export type RecordContext = {
@@ -97,4 +123,26 @@ export type RecordRuntime = {
       }
     >
   >;
+};
+
+export type AttachmentIntent = "pick" | "scan" | "preview" | "export";
+export type AttachmentTarget = { intent: AttachmentIntent; source?: string };
+
+export type MediaTargets = {
+  /** Scan uses `scan`; the other intents use `press`. Source names a part on the same owner. */
+  attachments?: Readonly<Partial<Record<string, AttachmentTarget>>>;
+  /** `play`, `pause` and `stop` live at the same address. The host resolves the reference. */
+  playback?: Readonly<Partial<Record<string, { video?: true }>>>;
+};
+
+/** A bounded cursor over addressed, visible items or a declared frame/page count. */
+export type SequenceMeta = {
+  seek?: string;
+  seekAction?: "seek" | "set";
+  item?: string;
+  cursor: string;
+  first?: 0 | 1;
+  count?: number | string;
+  steps?: { previous?: string; next?: string };
+  controls?: { part: string; intervalMs: number; start?: true | { prop: string; equals: boolean } };
 };

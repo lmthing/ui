@@ -7,3 +7,4 @@ export { KitSwipeStack } from "./KitSwipeStack";
 export { KitAvatarStack } from "./KitAvatarStack";
 export { KitBubble } from "./KitBubble";
 export { KitPhoto } from "./KitPhoto";
+export { KitPhotoCompare } from "./KitPhotoCompare";

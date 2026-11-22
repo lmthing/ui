@@ -7,7 +7,6 @@ Built in step U3 (drafts), then U7. Read `docs/catalog/packs/data.md`, plan 4.2 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `Table.tsx`
 - `Board.tsx`
-- `FilterBar.tsx`
 - `LineChart.tsx`
 - `Heatmap.tsx`
 - `BulkActions.tsx`

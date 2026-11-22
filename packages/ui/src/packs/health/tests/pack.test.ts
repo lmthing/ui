@@ -86,7 +86,7 @@ it("keeps the default core registry isolated and loads health only when ready", 
     expect(JSON.stringify(writerFormat(live))).toContain(`"const":"${id}"`);
   }
   expect(packs.health.probes.filter((probe) => probe.kind === "pack")).toHaveLength(4);
-  expect(packs.health.probes.find((probe) => probe.kind === "choose")).toMatchObject({ expect: "Ring" });
+  expect(packs.health.probes.find((probe) => probe.kind === "choose")).toMatchObject({ expect: "Progress" });
 });
 it("completes every layout's neutral defaults and checks the real compose scorer", () => {
   const registry = createRegistry({ packs: ["health"], includeDrafts: true });

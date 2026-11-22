@@ -23,6 +23,7 @@ import {
   renderers,
 } from "@lmthing/ui/kit";
 import { exampleDeviceData as previewData } from "../src/catalog/probes/fixtures";
+import { createPreviewController } from "../../../apps/gallery/app/draw";
 
 export const config = createTamagui({
   tokens: createTokens(kitTokens),
@@ -45,6 +46,7 @@ export type RenderOptions = {
   disableRootThemeClass?: boolean;
   resolvePhoto?: (reference: string) => string | undefined;
   deviceData?: DeviceData | undefined;
+  previewSelection?: true;
 };
 
 export function exampleDeviceData(def: Definition, input: Record<string, unknown>, state: StateName) {
@@ -90,9 +92,11 @@ export function renderInstance(
   const screen = { id: "home", components: [{ ...(input as object), id: component, c: id, state }] };
   const defs = { [id]: def };
   const controller =
-    deviceData && !gated
-      ? createScreenController({ screen, defs, deviceData, lang, interactive: false })
-      : undefined;
+    settings.previewSelection && def.meta.selectionBinding && state === "filled"
+      ? createPreviewController(def, parsed, screen.id, { state })
+      : deviceData && !gated
+        ? createScreenController({ screen, defs, deviceData, lang, interactive: false })
+        : undefined;
   const frame = { config, defaultTheme: themeName(theme), disableRootThemeClass };
   const phone = { defs, renderers, screen, theme, lang, resolvePhoto, deviceData, interactive: false };
   const part = { screen: "home", component, rev: 1, state, ...(thing ? { thing } : {}) };

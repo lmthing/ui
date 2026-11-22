@@ -5,14 +5,9 @@ import { component, radius, size, space } from "../../../catalog";
 import { usePart } from "../../part";
 import { useKitStyle } from "../../provider";
 import { KitText, shifted, surfaceOf } from "../text";
-import { SeatMoveChoices, SeatMoveScope, SeatTray, useSeatMoveTarget, type Seat } from "./seat-move";
-import {
-  PlanningTargetScope,
-  usePlanningAddress,
-  usePlanningPress,
-  usePlanningTarget,
-  type Target,
-} from "./usePlanningTarget";
+import { SeatMoveChoices, SeatMoveScope, SeatTray, type Seat } from "./seat-move";
+import { SeatBank, ScopedSeat } from "./seat-marks";
+import { PlanningTargetScope, usePlanningTarget, type Target } from "./usePlanningTarget";
 
 type Table = {
   id: string;
@@ -20,68 +15,19 @@ type Table = {
   shape: "round" | "long";
   seats: readonly Seat[];
   target?: Target;
+  labelPart?: string;
+  count?: { part: string; text: string };
 };
 type SeatMapProps = {
-  part?: string;
+  part?: string | null;
   loading?: boolean;
   tables: readonly Table[];
   tray?: ReactNode;
-  trayGuests?: readonly (Pick<Seat, "id" | "label" | "target"> & { move: NonNullable<Seat["move"]> })[];
+  trayGuests?: readonly (Pick<Seat, "id" | "label" | "target" | "namePart"> & {
+    move: NonNullable<Seat["move"]>;
+  })[];
 };
 const mapWidth = component.base.emptyMinHeight + 2 * (space.md + component.base.borderWidth);
-
-function SeatMark({ seat, loading, tray }: { seat: Seat; loading: boolean; tray: boolean }) {
-  const address = usePlanningAddress(seat.target, loading);
-  const press = usePlanningPress(seat.move ? undefined : address, seat.label, Boolean(seat.selected));
-  const move = useSeatMoveTarget(seat.move ? address : undefined, seat);
-  const selected = !loading && seat.selected;
-  return (
-    <YStack
-      {...press}
-      {...move}
-      {...(!loading && !address ? { accessibilityRole: "image", accessibilityLabel: seat.label } : {})}
-      width={tray ? "100%" : size.control.md}
-      height={size.control.md}
-      alignItems={tray ? "flex-start" : "center"}
-      justifyContent="center"
-      paddingHorizontal={tray ? space.sm : undefined}
-      borderRadius={tray ? radius.md : radius.pill}
-      borderWidth={tray ? 0 : selected ? component.base.strongBorder : component.base.borderWidth}
-      borderColor={selected ? "$accent" : "$line"}
-      backgroundColor={tray ? undefined : loading ? "$line" : selected ? "$accentSoft" : seatFill(seat)}
-    >
-      {!loading &&
-        (tray || seat.initials ? (
-          <KitText role={tray ? "body" : "label"} part={null} align={tray ? "start" : "center"} lines={1}>
-            {tray ? seat.label : seat.initials}
-          </KitText>
-        ) : (
-          <YStack width={space.sm} height={space.sm} borderRadius={radius.pill} backgroundColor="$muted" />
-        ))}
-    </YStack>
-  );
-}
-const seatFill = (seat: Seat) => (seat.initials ? "$raised" : "$surface");
-
-type ScopedSeatProps = { seat: Seat; loading?: boolean; tray?: boolean };
-function ScopedSeat({ seat, loading = false, tray = false }: ScopedSeatProps) {
-  return (
-    <PlanningTargetScope id={seat.id} target={seat.target}>
-      <SeatMark seat={seat} loading={loading} tray={tray} />
-      {tray && <SeatMoveChoices seat={seat} tray />}
-    </PlanningTargetScope>
-  );
-}
-
-function SeatBank({ seats, loading }: { seats: readonly Seat[]; loading: boolean }) {
-  return seats.length ? (
-    <XStack justifyContent="center" flexWrap="wrap" gap={space.xs}>
-      {seats.map((seat) => (
-        <ScopedSeat key={seat.id} seat={seat} loading={loading} />
-      ))}
-    </XStack>
-  ) : null;
-}
 
 function TableTop({ table, loading }: { table: Table; loading: boolean }) {
   const ks = useKitStyle();
@@ -104,7 +50,7 @@ function TableTop({ table, loading }: { table: Table; loading: boolean }) {
       {loading ? (
         <YStack width="60%" height={space.sm} borderRadius={radius.pill} backgroundColor="$line" />
       ) : (
-        <KitText role="body" part={null} align="center" lines={round ? 2 : 1}>
+        <KitText role="body" part={table.labelPart ?? null} align="center" lines={round ? 2 : 1}>
           {table.label}
         </KitText>
       )}
@@ -140,6 +86,11 @@ function TableDrawing({ table, loading }: { table: Table; loading: boolean }) {
         {flanks && <ScopedSeat seat={seats[split]!} loading={loading} />}
       </XStack>
       <SeatBank seats={bottom} loading={loading} />
+      {!loading && table.count && (
+        <KitText role="caption" tone="muted" part={table.count.part} align="center" tabular>
+          {table.count.text}
+        </KitText>
+      )}
       {!loading &&
         seats.map(
           (seat) =>
@@ -157,11 +108,11 @@ const loadingTables: readonly Table[] = [{ id: "placeholder", label: "", shape: 
 /** Tables and their seats are separate targets, never nested controls. */
 export function KitSeatMap({ part = "root", loading = false, tables, tray, trayGuests = [] }: SeatMapProps) {
   const ks = useKitStyle();
-  const address = usePart(part);
+  const address = usePart(part ?? undefined, part !== null);
   const drawings = loading && !tables.length ? loadingTables : tables;
   const guests = trayGuests.map((guest) => <ScopedSeat key={guest.id} seat={guest} tray />);
   return (
-    <YStack {...address} gap={space[ks.density.gap]} aria-busy={loading || undefined}>
+    <YStack {...(part === null ? {} : address)} gap={space[ks.density.gap]} aria-busy={loading || undefined}>
       {!drawings.length && (
         <YStack
           alignItems="center"

@@ -1,12 +1,27 @@
-export const type = {
-  display: { size: 34, lineHeight: 40, weight: "700", tracking: -0.6 },
+const steps = {
   title: { size: 26, lineHeight: 32, weight: "700", tracking: -0.4 },
-  heading: { size: 18, lineHeight: 24, weight: "600", tracking: -0.2 },
   body: { size: 16, lineHeight: 22, weight: "400", tracking: 0 },
   label: { size: 14, lineHeight: 20, weight: "500", tracking: 0 },
   caption: { size: 13, lineHeight: 18, weight: "400", tracking: 0 },
   number: { size: 40, lineHeight: 44, weight: "700", tracking: -1 },
 } as const;
+
+export const type = {
+  ...steps,
+  // Keep role names and finishes, but no legacy role introduces a sixth size.
+  display: { ...steps.number, tracking: -0.6 },
+  heading: { ...steps.body, weight: "600", tracking: -0.2 },
+} as const;
+
+/** Semantic steps for layout recipes; legacy KitText roles remain available to existing views. */
+export const layoutType = {
+  title: "title",
+  body: "body",
+  meta: "label",
+  figure: "number",
+  caption: "caption",
+} as const satisfies Record<string, keyof typeof steps>;
+
 export const fontFamilies = {
   humanist: "'Source Sans 3 Variable', 'Source Sans 3', 'Segoe UI', system-ui, sans-serif",
   grotesk: "'Inter Variable', Inter, 'Helvetica Neue', Arial, sans-serif",

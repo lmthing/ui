@@ -121,7 +121,8 @@ describe("ChapterList state and parts", () => {
     const current = elementAt(html, `${prefix}/r2/root`);
     expect(current.attributes).toContain('aria-current="true"');
     expect(current.attributes).toContain('aria-label="0:48 Loosen the roots · Current chapter"');
-    expect(current.attributes).toContain('role="button"');
+    for (const row of ["r1", "r2", "r3"])
+      expect(elementAt(html, `${prefix}/${row}/root`).attributes).toContain('role="button"');
     expect(elementAt(html, `${prefix}/r1/root`).attributes).not.toContain("aria-current");
     const variant = { chapters: sample.chapters, density: "compact", surface: "outlined" };
     const noCurrent = renderChapters(variant, "ar-EG");
@@ -155,7 +156,7 @@ describe("ChapterList read and act", () => {
     });
     try {
       expect(runtime.read()).toContain("٠:٤٨ Loosen the roots · Current chapter");
-      expect(runtime.read()).toContain("[c1/r3 press]");
+      for (const row of ["r1", "r2", "r3"]) expect(runtime.read()).toContain(`[c1/${row} press]`);
       expect(runtime.press(`${prefix}/r3/root`)).toMatchObject({
         ok: true,
         changed: "p1/scrubber seek = 112",
@@ -193,6 +194,6 @@ describe("ChapterList read and act", () => {
   it("does not advertise seeks in standalone reads without a target", () => {
     const reading = readComponent(def, sample, "c1").join("\n");
     expect(reading).toContain("1:52 Water it in");
-    expect(reading).not.toContain("[c1/r3 press]");
+    expect(reading).not.toMatch(/\[c1\/r\d+ press\]/);
   });
 });

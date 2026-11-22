@@ -1,5 +1,5 @@
 import { packIds, packIndex, type PackId, type PackMeta, type ArchetypeMeta } from "../meta";
-import type { Definition } from "../probes";
+import { packSelectionProbes, type Definition } from "../probes";
 import { registryOf } from "../registry";
 import { archetypes, type ArchetypeOverrides } from "../archetypes";
 import { checkArchetypeOverrides } from "./check-archetypes";
@@ -14,11 +14,13 @@ type Input = {
   packExamples: Partial<Record<PackId, string>>;
 };
 
+const indexedIds: readonly PackId[] = packIndex.map(({ id }) => id);
+
 function checkMeta(input: Input, pack: PackMeta): string[] {
   const issues: string[] = [];
   const entry = packIndex.find(({ id }) => id === pack.id);
   const pick = entry?.pick ?? "";
-  const nearest = packIds.filter((id) => id !== pack.id && new RegExp(`\\b${id}\\b`).test(pick));
+  const nearest = indexedIds.filter((id) => id !== pack.id && new RegExp(`\\b${id}\\b`).test(pick));
   const excludesCore =
     pick.includes("(core)") ||
     [...pick.matchAll(/\(core ([A-Z][A-Za-z0-9]*)\)/g)].some(
@@ -27,7 +29,7 @@ function checkMeta(input: Input, pack: PackMeta): string[] {
   if (!entry?.purpose.trim() || !pick.trim() || (!nearest.length && !excludesCore))
     issues.push(`${pack.id}: purpose/pick`);
   if ((input.packArchetypes[pack.id]?.length ?? 0) < 2) issues.push(`${pack.id}: archetypes`);
-  const probes = pack.probes.filter((probe) => probe.kind === "pack");
+  const probes = packSelectionProbes(pack.id, pack);
   const positive = probes.filter((probe) => probe.expect.includes(pack.id));
   const miss = probes.some(
     (probe) =>
@@ -36,9 +38,9 @@ function checkMeta(input: Input, pack: PackMeta): string[] {
         (excludesCore && probe.expect.length === 0 && !probe.allow?.length)),
   );
   if (probes.length < 3 || positive.length < 2 || !miss) issues.push(`${pack.id}: probes`);
-  if (probes.some((probe) => probe.expect.length > 3 || probe.expect.some((id) => !packIds.includes(id))))
+  if (probes.some((probe) => probe.expect.length > 3 || probe.expect.some((id) => !indexedIds.includes(id))))
     issues.push(`${pack.id}: expect`);
-  if (probes.some((probe) => probe.allow?.some((id) => !packIds.includes(id))))
+  if (probes.some((probe) => probe.allow?.some((id) => !indexedIds.includes(id))))
     issues.push(`${pack.id}: allow`);
   return issues;
 }
@@ -68,7 +70,11 @@ function checkComponents(input: Input): string[] {
   return Object.values(input.components).flatMap(({ meta }) => {
     if (!input.packOf[meta.id]) return [];
     const issues: string[] = [];
-    const parts = new Set([...(meta.parts ?? ["root"]), ...(meta.items?.parts ?? [])]);
+    const parts = new Set([
+      ...(meta.parts ?? ["root"]),
+      ...(meta.items?.parts ?? []),
+      ...Object.values(meta.collections ?? {}).flatMap(({ parts }) => parts),
+    ]);
     if ([...(meta.confirmParts ?? []), ...Object.keys(meta.partTiers ?? {})].some((part) => !parts.has(part)))
       issues.push(`${meta.id}: parts`);
     if (denseIds.includes(meta.id) && !meta.dense) issues.push(`${meta.id}: dense`);
