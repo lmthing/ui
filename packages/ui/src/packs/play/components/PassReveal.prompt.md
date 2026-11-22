@@ -9,3 +9,4 @@ Pass one phone around so each player privately reveals their own secret role, wo
 ## Writer
 
 - Write player names and their private seeds, never the current player, number seen, or reveal state.
+- Use `style: "hold"` for press-and-hold; the default curtain uses a tap. Set `media: "none"` only for a text-only curtain without the lock icon.
