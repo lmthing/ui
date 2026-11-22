@@ -1,12 +1,34 @@
 import { z } from "zod";
-// prettier-ignore
-import { detailOf, isoDate, itemVariantProps, itemsOf, placeholderTitle, wordsFor, probesFor, screenId,
-  text, thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props,
+import {
+  detailOf,
+  isoDate,
+  itemVariantProps,
+  itemsOf,
+  placeholderTitle,
+  wordsFor,
+  probesFor,
+  screenId,
+  text,
+  thingOf,
+  titleOf,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
   variantProps,
 } from "../../../catalog";
-// prettier-ignore
-import { KitCard, KitContent, KitEmpty, KitGrid, KitIcon, KitRow, KitText,
-  useComponentState, useVariant, useWords } from "../../../kit";
+import {
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitGrid,
+  KitIcon,
+  KitRow,
+  KitText,
+  useComponentState,
+  useVariant,
+  useWords,
+} from "../../../kit";
 import { pantryDates, pantryIsLow, pantryOpened, pantryOrder, pantryReading } from "../copy";
 import { kitchenWordsFor } from "../lang";
 import { prompt } from "../../../entry/prompt-Pantry.generated";
@@ -76,15 +98,21 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
       : [{ name: placeholderTitle(0, lang), qty: placeholderValue, place: "cupboard", goto: "details" }],
   };
 }
-// prettier-ignore
-const berries = { name: "Frozen berries", qty: "500 g", place: "freezer", useBy: "2027-02-01", goto: "food_details" } as const;
+const berries = {
+  name: "Frozen berries",
+  qty: "500 g",
+  place: "freezer",
+  useBy: "2027-02-01",
+  goto: "food_details",
+} as const;
 const oats = { name: "Oats", qty: "1 bag", place: "cupboard", goto: "food_details" } as const;
-// prettier-ignore
 export const examples = [
-  { items: [
-    { name: "Ricotta", qty: "250 g", place: "fridge", useBy: "2026-11-20", goto: "food_details" },
-    { name: "Lasagne sheets", qty: "1 box", place: "cupboard", goto: "food_details" },
-  ] },
+  {
+    items: [
+      { name: "Ricotta", qty: "250 g", place: "fridge", useBy: "2026-11-20", goto: "food_details" },
+      { name: "Lasagne sheets", qty: "1 box", place: "cupboard", goto: "food_details" },
+    ],
+  },
   { items: [{ ...berries, mark: "highlight" }, oats] },
   { items: [berries, oats] },
   { detail: "brief", items: [berries, oats] },
@@ -135,52 +163,95 @@ function PantryDate({ useBy, openedOn }: { useBy?: string | undefined; openedOn?
 }
 
 type PantryProps = Props<typeof props, typeof meta>;
-// prettier-ignore
 function PantryFood({ item, detail }: { item: PantryProps["items"][number]; detail: PantryProps["detail"] }) {
   const { words } = useWords(kitchenWordsFor);
   const low = pantryIsLow(item.qty, item.lowAt);
-  const place = detail === "full" && <KitText part="place" role="caption" tone="muted">
-    {words.pantryPlace(words.pantryLabels[item.place])}</KitText>;
+  const place = detail === "full" && (
+    <KitText part="place" role="caption" tone="muted">
+      {words.pantryPlace(words.pantryLabels[item.place])}
+    </KitText>
+  );
   return (
-    <KitRow label={item.name} inline lineRole="label" density="compact"
-      trailing={<KitIcon name="chevron_right" scale="sm" decorative />}>
-      <KitText part="name" role="label" density="compact" tone={item.mark === "highlight" ? "accent" : "text"}>
+    <KitRow
+      label={item.name}
+      inline
+      lineRole="label"
+      density="compact"
+      trailing={<KitIcon name="chevron_right" scale="sm" decorative />}
+    >
+      <KitText
+        part="name"
+        role="label"
+        density="compact"
+        tone={item.mark === "highlight" ? "accent" : "text"}
+      >
         {item.name}
       </KitText>
       <KitText part="qty" role="number" numberScale="compact" tabular children={item.qty} />
-      {low && <KitText part="low" role="caption" tone="warn">{words.pantryLabels.low}</KitText>}
+      {low && (
+        <KitText part="low" role="caption" tone="warn">
+          {words.pantryLabels.low}
+        </KitText>
+      )}
       {low && place ? <KitContent group="response">{place}</KitContent> : place}
     </KitRow>
   );
 }
 
-// prettier-ignore
 export function Pantry({ items, detail: choice }: PantryProps) {
   const state = useComponentState();
   const detail = useVariant("detail", meta.variants.detail, choice);
-  const { words: { pantryLabels } } = useWords(kitchenWordsFor);
-  if (state === "empty") return <KitCard part="root"><KitEmpty part="name" decorativeIcon /></KitCard>;
+  const {
+    words: { pantryLabels },
+  } = useWords(kitchenWordsFor);
+  if (state === "empty")
+    return (
+      <KitCard part="root">
+        <KitEmpty part="name" decorativeIcon />
+      </KitCard>
+    );
   const tiles = pantryOrder(items).map((item) => (
     <KitRow key={item.id} item={item.id} part={null} label={item.name} inline>
       <KitContent>
         <KitRow part="root" label={item.name} goto={item.goto} inline>
           {items.length === 1 && !item.openedOn && !pantryIsLow(item.qty, item.lowAt) ? (
-            <KitGrid columns={2}><PantryFood {...{ item, detail }} /><PantryDate useBy={item.useBy} /></KitGrid>
+            <KitGrid columns={2}>
+              <PantryFood {...{ item, detail }} />
+              <PantryDate useBy={item.useBy} />
+            </KitGrid>
           ) : (
             <KitContent>
               <PantryFood {...{ item, detail }} />
-              <KitContent group="response"><PantryDate useBy={item.useBy} openedOn={item.openedOn} /></KitContent>
+              <KitContent group="response">
+                <PantryDate useBy={item.useBy} openedOn={item.openedOn} />
+              </KitContent>
             </KitContent>
           )}
         </KitRow>
-        <KitRow part="used" label={pantryLabels.used} role="button" inline
-          lineRole="label" leading={<KitIcon name="trash" scale="sm" tone="bad" decorative />}>
-          <KitText part={null} role="label" tone="muted">{pantryLabels.used}</KitText>
+        <KitRow
+          part="used"
+          label={pantryLabels.used}
+          role="button"
+          inline
+          lineRole="label"
+          leading={<KitIcon name="trash" scale="sm" tone="bad" decorative />}
+        >
+          <KitText part={null} role="label" tone="muted">
+            {pantryLabels.used}
+          </KitText>
         </KitRow>
       </KitContent>
     </KitRow>
   ));
-  return <KitCard part="root" style="inset" padded>
-    {tiles.length === 1 ? tiles : <KitGrid columns={2} density="compact">{tiles}</KitGrid>}
-  </KitCard>;
+  return (
+    <KitCard part="root" style="inset" padded>
+      {tiles.length === 1 ? (
+        tiles
+      ) : (
+        <KitGrid columns={2} density="compact">
+          {tiles}
+        </KitGrid>
+      )}
+    </KitCard>
+  );
 }
