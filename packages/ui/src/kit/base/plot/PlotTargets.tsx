@@ -1,6 +1,6 @@
 import { useLayoutEffect } from "react";
 import { isWeb, XStack, YStack } from "tamagui";
-import { component, formatAddress, radius, size, space } from "../../../catalog";
+import { component, formatAddress, size, space } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKit, useKitStyle } from "../../provider";
 import { shifted } from "../text";
@@ -11,7 +11,7 @@ type Reading = ReturnType<typeof plotTargets>[number];
 type Marker = Reading & { x: number; y: number };
 type PressEvent = {
   stopPropagation?(): void;
-  currentTarget?: { getBoundingClientRect?(): DOMRect };
+  currentTarget?: HTMLElement;
   nativeEvent?: {
     clientX?: number;
     clientY?: number;
@@ -47,6 +47,7 @@ function usePointControl(
 ) {
   const address = usePart(target.part, !loading);
   const { interactive, controller } = useKit();
+  const nativeMarker = !isWeb && !!markerPress;
   const select = () =>
     controller?.act({
       address: address.testID,
@@ -61,12 +62,22 @@ function usePointControl(
           ...address,
           accessibilityRole: "button",
           accessibilityLabel: `${point.label}, ${point.value}`,
-          ...(isWeb ? { "aria-pressed": selected } : { accessible: true, accessibilityState: { selected } }),
+          ...(nativeMarker
+            ? { accessible: true, accessibilityState: { selected } }
+            : { "aria-pressed": selected }),
           ...(interactive && controller
             ? {
                 focusable: true,
                 cursor: "pointer",
-                ...(!isWeb ? { onAccessibilityTap: select } : {}),
+                ...(nativeMarker
+                  ? {
+                      onAccessibilityTap: select,
+                      accessibilityActions: [{ name: "activate" }],
+                      onAccessibilityAction: ({ nativeEvent }: { nativeEvent: { actionName: string } }) => {
+                        if (nativeEvent.actionName === "activate") select();
+                      },
+                    }
+                  : {}),
                 onPress: (event: PressEvent) => {
                   event.stopPropagation?.();
                   if (markerPress) markerPress(event);
@@ -133,7 +144,6 @@ function MarkerTarget({
       top={y - halfTarget}
       width={size.control.md}
       height={size.control.md}
-      borderRadius={radius.pill}
       focusVisibleStyle={{
         outlineColor: "$accent",
         outlineStyle: "solid",
@@ -160,6 +170,16 @@ export function BelowPlotTargets({ readings, selected, loading }: TargetsProps) 
   ) : null;
 }
 
+function focusSelectedMarker({ currentTarget }: PressEvent, address: string) {
+  if (!isWeb || !currentTarget?.parentElement) return;
+  for (const sibling of Array.from(currentTarget.parentElement.children)) {
+    if (sibling instanceof HTMLElement && sibling.getAttribute("data-testid") === address) {
+      sibling.focus({ preventScroll: true });
+      return;
+    }
+  }
+}
+
 export function MarkerPlotTargets({
   readings,
   selected,
@@ -180,6 +200,7 @@ export function MarkerPlotTargets({
     const { screen, component } = context;
     const item = target.item || context.item;
     const address = formatAddress({ screen, component, ...(item ? { item } : {}), part: target.part });
+    focusSelectedMarker(event, address);
     controller?.act({ address, action: "select", value: point.id });
   };
   return markers.map((marker) => (

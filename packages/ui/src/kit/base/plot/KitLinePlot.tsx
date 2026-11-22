@@ -1,7 +1,7 @@
 import { useWords } from "../../provider";
 import { useState } from "react";
 import { Svg, Path, Line, Circle } from "react-native-svg";
-import { XStack, YStack, useTheme } from "tamagui";
+import { isWeb, XStack, YStack, useTheme } from "tamagui";
 import { component, emptyLine, size, space, type as typography } from "../../../catalog";
 import { useEmptyThing, usePart } from "../../part";
 import { KitIcon, KitText } from "../text";
@@ -217,6 +217,8 @@ function PlotBody({
           minWidth={component.base.none}
           height={height}
           position="relative"
+          // Native can swap left and right in RTL. Keep native insets in the SVG's physical x space.
+          {...(onMarkers && !isWeb ? { style: { direction: "ltr" as const } } : {})}
           onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
         >
           <PlotDrawing

@@ -18,15 +18,19 @@ export type LinePlotProps = {
   style?: "full" | "compact";
 };
 
+function centeredScale(values: readonly number[], center: number) {
+  const unit = values.some((value) => !Number.isFinite(value - center)) ? 2 : 1;
+  const origin = center / unit;
+  const delta = (value: number) => value / unit - origin;
+  const half = values.reduce((extent, value) => Math.max(extent, Math.abs(delta(value))), 0);
+  return {
+    ticks: half ? [(origin + half) * unit, center, (origin - half) * unit].filter(Number.isFinite) : [center],
+    y: (value: number) => (half ? 0.5 - delta(value) / half / 2 : 0.5),
+  };
+}
+
 function verticalScale(values: readonly number[], center: number | undefined) {
-  if (center !== undefined && Number.isFinite(center)) {
-    const half = values.reduce((extent, value) => Math.max(extent, Math.abs(value - center)), 0);
-    if (Number.isFinite(center - half) && Number.isFinite(center + half))
-      return {
-        ticks: half ? [center + half, center, center - half] : [center],
-        y: (value: number) => (half ? 0.5 - (value - center) / half / 2 : 0.5),
-      };
-  }
+  if (center !== undefined && Number.isFinite(center)) return centeredScale(values, center);
   const low = values.length ? Math.min(...values) : 0;
   const high = values.length ? Math.max(...values) : 1;
   return {

@@ -112,17 +112,19 @@ it("registers the drawn marker centres and selects them directly by pointer and 
     await expect
       .poll(() => page.evaluate(() => window.meterPlotEvents.at(-1)))
       .toEqual(selection(address, index));
+    expect(await target.evaluate((node) => node === document.activeElement)).toBe(true);
+    if (index === 0) await page.keyboard.press("Enter");
+    if (index === 1) await page.keyboard.press("Space");
   }
   expect(await plot().getByRole("button").count()).toBe(samples.length);
-  const first = plot().getByRole("button").first();
-  const second = plot().getByRole("button").nth(1);
-  await first.focus();
-  await first.press("Enter");
-  await page.keyboard.press("Tab");
-  expect(await second.evaluate((node) => node === document.activeElement)).toBe(true);
-  await page.keyboard.press("Space");
-  expect(await page.evaluate(() => window.meterPlotEvents.slice(3))).toEqual(
-    samples.slice(0, 2).map(([address, , index]) => selection(address, index)),
+  await page.keyboard.press("Shift+Tab");
+  expect(
+    await page.getByRole("button", { name: "4:00, 56" }).evaluate((node) => node === document.activeElement),
+  ).toBe(true);
+  expect(await page.evaluate(() => window.meterPlotEvents)).toEqual(
+    samples.flatMap(([address, , index]) =>
+      Array.from({ length: index === 5 ? 1 : 2 }, () => selection(address, index)),
+    ),
   );
 });
 
