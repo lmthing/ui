@@ -155,6 +155,7 @@ function runtimeFor(input: unknown) {
 describe("SavedList read and act", () => {
   it("opens only linked items and moves an available item once, without navigating", () => {
     const { runtime, press, onLink, onAction } = runtimeFor(rows);
+    expect(runtime.read()).toContain("press its /move action");
     expect(press("r2/root")).toBe(false);
     expect(press("r1/root")).toBe(true);
     expect(onLink).toHaveBeenCalledOnce();
