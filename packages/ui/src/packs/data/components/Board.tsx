@@ -2,7 +2,7 @@ import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { StageBoard, type StageCard } from "../../../kit/renderers";
-import { boardReading, boardStages } from "../copy";
+import { boardReading, boardStages, boardSwimlanes } from "../copy";
 import { dataWordsFor } from "../lang";
 
 // Core first: Checklist/default can tick off jobs but cannot move cards between named stages.
@@ -15,6 +15,7 @@ export const meta = {
   writeHints: [
     "card.column is a zero-based index into columns. Use unique stage labels because the move action takes the destination label. Counts and totals are computed; never write them.",
     'Use arrange "rows" for stages stacked vertically, otherwise null. Leave density and surface null unless requested.',
+    "Set cards[].swimlane to a short group label only when cards should be separated into named horizontal groups across the same stages.",
   ],
   region: "body",
   weight: 3,
@@ -26,7 +27,7 @@ export const meta = {
     surface: ["plain", "outlined"],
     arrange: ["strip", "rows"],
   },
-  parts: ["root", "columns", "empty"],
+  parts: ["root", "columns", "empty", "swimlane_1", "swimlane_2", "swimlane_3", "swimlane_4"],
   items: {
     key: "cards",
     parts: ["root", "title", "tag", "who", "value"],
@@ -52,6 +53,7 @@ export const props = z
           column: z.int().min(0).max(4),
           tag: c.text(12).optional(),
           who: c.text(16).optional(),
+          swimlane: c.text(16).optional(),
           value: z.number().optional(),
           goto: c.screenId,
         }),
@@ -66,6 +68,10 @@ export const props = z
   .refine(({ columns, cards }) => cards.every(({ column }) => column < columns.length), {
     path: ["cards"],
     message: "Each card must refer to an existing column",
+  })
+  .refine(({ cards }) => new Set(cards.map(({ swimlane }) => swimlane)).size <= 4, {
+    path: ["cards"],
+    message: "Use at most four swimlanes, including cards without a swimlane",
   });
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
@@ -97,6 +103,13 @@ export const examples = [
       { title: "Pip's first park loop", column: 2, who: "Ana", value: 18, goto: "pip" },
     ],
   },
+  {
+    columns: [{ label: "New" }, { label: "Booked" }],
+    cards: [
+      { title: "Milo's weekday walks", column: 0, swimlane: "Recurring", goto: "milo" },
+      { title: "Pip's park loop", column: 1, swimlane: "One-off", goto: "pip" },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Board");
@@ -121,54 +134,64 @@ export const probes = [
     "Move the Boston fern card to In care. Copy the card address and the action word after it from the move bracket. Do not include the destination value.",
     { address: "s1/r1", action: "move" },
   ),
+  {
+    ...write(
+      "Use Waiting and In care as the stages. Put Repot the fern in Waiting, link to fern. Put Mist the rubber plant in In care, link to rubber. Keep both stages and put the cards in separate horizontal swimlanes named Repotting and Watering respectively.",
+    ),
+    expectProps: { cards: [{ swimlane: "Repotting" }, { swimlane: "Watering" }] },
+  },
 ] satisfies c.Probe[];
 
 type ViewProps = c.Props<typeof props, typeof meta>;
-export function Board({ columns, cards, density: requestedDensity, surface, arrange }: ViewProps) {
-  const density = kit.useVariant("density", meta.variants.density, requestedDensity);
+function cardSlots(
+  card: ViewProps["cards"][number],
+  input: ViewProps,
+  density: c.ThemeDensity,
+  lang: string,
+  currency: c.AppCurrency | undefined,
+): StageCard {
+  const { id, column, goto, title, tag, who, value } = card;
+  const lines: StageCard["lines"][number][] = [{ part: "title", role: "body", text: title, density }];
+  if (tag) lines.push({ part: "tag", role: "caption", tone: "muted", text: tag });
+  if (who) lines.push({ part: "who", role: "caption", tone: "muted", text: who });
+  if (value !== undefined)
+    lines.push({
+      part: "value",
+      role: "number",
+      numberScale: "compact",
+      tabular: true,
+      text: c.moneyLine(value, currency, undefined, lang),
+    });
+  const destinations = c.itemMoveOffer(meta, input, card)?.choices.map((label) => ({ label, value: label }));
+  return { id, column, goto, label: title, lines, destinations };
+}
+
+// prettier-ignore
+export function Board(input: ViewProps) {
+  const { columns, cards, surface, arrange } = input;
+  const density = kit.useVariant("density", meta.variants.density, input.density);
   const layout = kit.useVariant("arrange", meta.variants.arrange, arrange);
   const state = kit.useComponentState();
   const { words, lang } = kit.useWords(dataWordsFor);
   const currency = kit.useAppCurrency();
-  const stages = boardStages(columns, cards, lang, currency);
   const background = state === "empty" && surface === "plain" ? "card" : surface;
-  const cardSlots = (card: ViewProps["cards"][number]): StageCard => {
-    const { id, column, goto, title, tag, who, value } = card;
-    const lines: StageCard["lines"][number][] = [{ part: "title", role: "body", text: title, density }];
-    if (tag) lines.push({ part: "tag", role: "caption", tone: "muted", text: tag });
-    if (who) lines.push({ part: "who", role: "caption", tone: "muted", text: who });
-    if (value !== undefined)
-      lines.push({
-        part: "value",
-        role: "number",
-        numberScale: "compact",
-        tabular: true,
-        text: c.moneyLine(value, currency, undefined, lang),
-      });
-    const destinations = c
-      .itemMoveOffer(meta, { cards, columns }, card)
-      ?.choices.map((label) => ({ label, value: label }));
-    return { id, column, goto, label: title, lines, destinations };
-  };
-  return (
-    <kit.KitCard density={density} padded={surface === "outlined"} surface={background}>
-      {state === "empty" ? (
-        <kit.KitEmpty part="empty" decorativeIcon />
-      ) : (
-        <StageBoard
-          part="columns"
-          style={layout === "rows" ? "stack" : "columns"}
-          density={density}
-          lanes={stages.map(({ label, count, total }) => ({
-            id: label,
-            label,
-            count,
-            total: total ? { label: words.boardTotal, value: total } : undefined,
-          }))}
-          cards={cards.map(cardSlots)}
-          move={{ caption: words.boardMove, label: words.boardDestination }}
-        />
-      )}
-    </kit.KitCard>
-  );
+  const renderStages = (cards: ViewProps["cards"], part: string) => <StageBoard {...{ part, density }}
+    style={layout === "rows" ? "stack" : "columns"}
+    lanes={boardStages(columns, cards, lang, currency).map(({ label, count, total }) => ({
+      id: label, label, count, total: total ? { label: words.boardTotal, value: total } : undefined,
+    }))}
+    cards={cards.map((card) => cardSlots(card, input, density, lang, currency))}
+    move={{ caption: words.boardMove, label: words.boardDestination }}
+  />;
+  const grouped = cards.some(({ swimlane }) => swimlane);
+  return <kit.KitCard density={density} padded={grouped || surface === "outlined"} surface={background}>
+    <kit.KitState part="empty" density={density}>
+      {grouped ? <kit.KitRow part="columns" inline inset="none" label={words.boardStages} density={density}>
+        {boardSwimlanes(cards).map(({ label, cards }, index) => <kit.KitContent group="response" density={density} key={index}>
+          <kit.KitHeader title={{ text: label ?? words.boardUnassigned }} density={density} />
+          {renderStages(cards, `swimlane_${index + 1}`)}
+        </kit.KitContent>)}
+      </kit.KitRow> : renderStages(cards, "columns")}
+    </kit.KitState>
+  </kit.KitCard>;
 }

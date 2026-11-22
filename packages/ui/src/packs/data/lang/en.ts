@@ -3,15 +3,22 @@ import type { LDMLPluralRule } from "../../../catalog";
 const funnelOverall = "Overall conversion";
 
 export type DataWords = {
-  activityLabel: (who: string, text: string, time: string) => string;
+  activityLabel: (who: string, text: string, time: string, diff?: string) => string;
+  activityDiff: (old: string, next: string) => string;
+  activityKind: string;
+  activityKinds: Record<"all" | "created" | "updated" | "deleted", string>;
   boardCard: (id: string, fields: readonly (string | undefined)[]) => string;
   boardDestination: (destination: string, card: string) => string;
   boardMove: string;
   boardStage: (label: string, count: string, total?: string) => string;
   boardTotal: string;
+  boardStages: string;
+  boardUnassigned: string;
   bulkSelectAll: string;
   bulkSelected: (count: string) => string;
   chartLatest: string;
+  chartGoal: (value: string) => string;
+  chartRange: Record<"7d" | "30d" | "90d" | "1y", string>;
   chartPlaceholder: (index: number) => string;
   chartPoints: (title: string) => string;
   chartReading: (id: string, series: string, label: string, value: string) => string;
@@ -44,18 +51,28 @@ export type DataWords = {
   tableCount: (count: string, form: LDMLPluralRule) => string;
   tablePick: (label: string) => string;
   tableSort: string;
+  tableExport: string;
+  tableSummary: Record<"sum" | "avg" | "count", string>;
+  tableUnavailable: string;
 };
 
 export const en = {
-  activityLabel: (who, text, time) => `${who}: ${text} (${time})`,
+  activityLabel: (who, text, time, diff) => `${who}: ${text} (${time})${diff ? ` · ${diff}` : ""}`,
+  activityDiff: (old, next) => `${old} → ${next}`,
+  activityKind: "Filter changes by kind",
+  activityKinds: { all: "All changes", created: "Created", updated: "Updated", deleted: "Deleted" },
   boardCard: (id, fields) => `${id}: ${fields.filter(Boolean).join(" · ")}`,
   boardDestination: (destination, card) => `Move ${card} to ${destination}`,
   boardMove: "Move to",
   boardStage: (label, count, total) => `${label} (${count}${total ? `, Total ${total}` : ""})`,
   boardTotal: "Total",
+  boardStages: "Stages",
+  boardUnassigned: "Unassigned",
   bulkSelectAll: "Select all",
   bulkSelected: (count) => `${count} selected`,
   chartLatest: "Latest values",
+  chartGoal: (value) => `Goal: ${value}`,
+  chartRange: { "7d": "Last 7 days", "30d": "Last 30 days", "90d": "Last 90 days", "1y": "Last year" },
   chartPlaceholder: (index) => ["One", "Two", "Three", "Four"][index]!,
   chartPoints: (title) => `${title} data points`,
   chartReading: (id, series, label, value) => `${id} ${series} · ${label} · ${value}`,
@@ -92,4 +109,7 @@ export const en = {
   tableCount: (count, form) => (form === "one" ? `${count} row` : `${count} rows`),
   tablePick: (label) => `Select ${label}`,
   tableSort: "Sort by column",
+  tableExport: "Export table",
+  tableSummary: { sum: "Total", avg: "Average", count: "Record count" },
+  tableUnavailable: "Not available",
 } satisfies DataWords;

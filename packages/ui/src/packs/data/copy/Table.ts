@@ -5,6 +5,8 @@ type Kind = "text" | "number" | "money" | "date" | "status";
 type Column = { label: string; kind: Kind };
 type Cell = string | number;
 type Row = { id?: string; cells: readonly Cell[] };
+export const tableSummaryModes = ["sum", "avg", "count"] as const;
+type Summary = (typeof tableSummaryModes)[number];
 
 export function tableChoices(columns: readonly Column[]) {
   const repeated = new Set(columns.map(({ label }) => label)).size !== columns.length;
@@ -42,29 +44,97 @@ export function tableCount(count: number, lang?: string) {
   return dataWordsFor(lang).tableCount(numberLine(count, lang), pluralForm(count, lang));
 }
 
+export function tableSections<T extends Row>(
+  rows: readonly T[],
+  columns: readonly Column[],
+  group: "none" | "sections",
+  sort?: number,
+  lang?: string,
+) {
+  if (group !== "sections") return [{ label: undefined, rows: tableRows(rows, columns, sort, lang) }];
+  const status = columns.findIndex(({ kind }) => kind === "status");
+  const index = status < 0 ? 0 : status;
+  const groups = new Map<Cell, T[]>();
+  for (const row of rows) {
+    const cell = row.cells[index]!;
+    if (!groups.has(cell)) groups.set(cell, []);
+    groups.get(cell)!.push(row);
+  }
+  return [...groups].map(([cell, rows]) => ({
+    label: tableCell(cell, columns[index]!.kind, lang),
+    rows: tableRows(rows, columns, sort, lang),
+  }));
+}
+
+function aggregate(values: readonly number[], average: boolean) {
+  const total = values.reduce((sum, value) => sum + value, 0);
+  if (Number.isFinite(total)) return average ? total / values.length : total;
+  // Scale only when needed to recover a finite average or a sum with cancellation.
+  const scale = Math.max(...values.map(Math.abs));
+  const sum = values.reduce((sum, value) => sum + value / scale, 0);
+  return (average ? sum / values.length : sum) * scale;
+}
+
+export function tableSummary(columns: readonly Column[], rows: readonly Row[], mode: Summary, lang?: string) {
+  const words = dataWordsFor(lang);
+  return {
+    label: words.tableSummary[mode],
+    cells: columns.map(({ kind }, index) => {
+      if (mode === "count") return index === 0 ? numberLine(rows.length, lang) : undefined;
+      if (kind !== "number" && kind !== "money") return;
+      const value = aggregate(
+        rows.map(({ cells }) => cells[index] as number),
+        mode === "avg",
+      );
+      return Number.isFinite(value) ? tableCell(value, kind, lang) : words.tableUnavailable;
+    }),
+  };
+}
+
 export function tableReading(
   {
     columns,
     rows,
     sort,
     detail,
+    group = "none",
+    summaryRow,
+    exportable,
   }: {
     columns: readonly Column[];
     rows: readonly Row[];
     sort?: number | undefined;
     detail: "full" | "brief";
+    group?: "none" | "sections";
+    summaryRow?: Summary | undefined;
+    exportable?: boolean | undefined;
   },
   lang?: string,
 ): string[] {
   const stamped = rows.map((row, index) => ({ ...row, id: row.id ?? `r${index + 1}` }));
+  const summary = summaryRow && tableSummary(columns, rows, summaryRow, lang);
   return [
     tableChoices(columns)
       .map(({ label }) => label)
       .join(" · "),
-    ...tableRows(stamped, columns, sort, lang).map(
-      ({ id, cells }) =>
-        `${id}: ${cells.map((cell, index) => tableCell(cell, columns[index]!.kind, lang)).join(" · ")}`,
-    ),
+    ...tableSections(stamped, columns, group, sort, lang).flatMap(({ label, rows }) => [
+      ...(label === undefined ? [] : [label]),
+      ...rows.map(
+        ({ id, cells }) =>
+          `${id}: ${cells.map((cell, index) => tableCell(cell, columns[index]!.kind, lang)).join(" · ")}`,
+      ),
+    ]),
+    ...(summary
+      ? [
+          [
+            summary.label,
+            ...summary.cells.flatMap((cell, index) =>
+              cell === undefined ? [] : [summaryRow === "count" ? cell : `${columns[index]!.label}: ${cell}`],
+            ),
+          ].join(" · "),
+        ]
+      : []),
     ...(detail === "brief" ? [] : [tableCount(rows.length, lang)]),
+    ...(exportable ? [dataWordsFor(lang).tableExport] : []),
   ];
 }
