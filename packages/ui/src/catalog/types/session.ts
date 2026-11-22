@@ -30,4 +30,6 @@ export type Session =
       hidden: readonly string[];
       reveal: string;
       restart?: string;
+      /** Derive gates for active-round controls without writing them to the wire or store. */
+      actionProps?: (item: RoundFields, index: number, revealed: boolean) => RoundFields;
     } & RoundKind);

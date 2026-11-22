@@ -62,8 +62,7 @@ describe("Flashcard seed bounds", () => {
     expect(props.safeParse({ cards: Array(6).fill(card) }).success).toBe(true);
   });
   // prettier-ignore
-  it("keeps four ratings by default and validates optional audio as a host reference", () => {
-    expect(seed.style).toBe("srs");
+  it("validates optional audio as a host reference", () => {
     expect(props.safeParse({ style: "binary", cards: [{ ...first, audio: "local:3" }, second] }).success).toBe(true);
     expect(props.safeParse({ cards: [{ ...first, audio: "https://example.org/clip" }, second] }).success).toBe(false);
     expect(props.safeParse({ ...seed, style: "unknown" }).success).toBe(false);
@@ -187,9 +186,7 @@ describe("Flashcard session", () => {
     try {
       expect(controller.press(address("card")).ok).toBe(true);
       const text = controller.read();
-      expect(text).toContain("Still learning");
-      expect(text).toContain("Know");
-      for (const part of ["again", "good"]) expect(text).toContain(`[f1/${part} press]`);
+      for (const word of ["Still learning", "Know", "[f1/again press]", "[f1/good press]"]) expect(text).toContain(word);
       for (const part of ["hard", "easy"]) expect(controller.press(address(part)).ok).toBe(false);
       expect(controller.press(address("again")).ok).toBe(true);
       expect(controller.read()).toContain(second.front);

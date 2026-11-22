@@ -3,20 +3,17 @@ import * as kit from "../../../kit";
 import { learningWordsFor } from "../lang";
 
 /** A separate target from the card flip or answer controls. The host resolves the active clip. */
-export function PromptAudio({ density }: { density: ThemeDensity }) {
+export function PromptAudio({ density, part }: { density: ThemeDensity | undefined; part: string }) {
   const { screen, component, state } = kit.usePartContext();
-  const playback = kit.useControlValue<boolean | "error">(
-    `${screen}/${component}/${clipKey("audio")}`,
-    false,
-  );
+  const playback = kit.useControlValue<boolean | "error">(`${screen}/${component}/${clipKey(part)}`, false);
   const {
     words: { promptAudio: words },
   } = kit.useWords(learningWordsFor);
   return (
-    <kit.KitPlayback part="audio" style="compact" loading={state === "loading"}>
+    <kit.KitPlayback part={part} style="compact" loading={state === "loading"}>
       <kit.KitActionFooter density={density}>
         <kit.KitAction
-          part="audio"
+          part={part}
           contentParts={{}}
           kind="secondary"
           icon={playback === true ? "pause" : "play"}

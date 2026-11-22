@@ -26,9 +26,10 @@ async function flashcard(page: Page) {
   await page.getByRole("button", { name: "Still learning" }).click();
   await page.getByText("Second card", { exact: true }).waitFor();
   expect(await part("audio").count()).toBe(0);
+  expect(await part("audio_2").count()).toBe(0);
   await part("card").click();
   await page.getByRole("button", { name: "Know", exact: true }).click();
-  await part("audio").click();
+  await part("audio_3").click();
   await playback(page, "third");
 }
 
@@ -38,17 +39,17 @@ async function quiz(page: Page) {
   await part("audio").click();
   await playback(page, "arrange");
   expect(await part("check").getAttribute("aria-disabled")).toBe("true");
-  await tile("W3 · Water").click();
-  await tile("W1 · fern.").click();
+  await tile("Water").click();
+  await tile("fern.").click();
   expect(await part("order_draft").innerText()).toBe("Water fern.");
-  await tile("W1 · fern.").click();
-  await tile("W2 · the").click();
-  await tile("W1 · fern.").click();
+  await tile("fern.").click();
+  await tile("the").click();
+  await tile("fern.").click();
   await part("check").click();
   await playback(page);
   expect(await part("answer").innerText()).toBe("Water the fern.");
   await part("next").click();
-  await part("audio").click();
+  await part("audio_2").click();
   await playback(page, "confirm");
 }
 

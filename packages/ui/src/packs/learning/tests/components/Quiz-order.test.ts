@@ -41,10 +41,11 @@ it("requires a bounded bank and a complete permutation, only for ordering", () =
 });
 
 it("reads the draft, accepts tap-to-remove revisions and grades only a complete order", () => {
-  expect(read()).toContain('choices ["W1","W2","W3"]');
+  expect(read()).toContain('choices ["fern.","the","Water"]');
   expect(read()).not.toContain("Water the fern.");
   expect(read(...select("W3", "W1"))).toContain("Water fern.");
   expect(run(...select("W4")).ok).toBe(false);
+  expect(read(...select("Water", "the"))).toContain("Water the");
   expect(run(...select("W3", "W2"), check).ok).toBe(false);
   expect(read(...select("W1", "W2", "W3"), check)).toContain("correct false");
   const revised = select("W3", "W1", "W1", "W2", "W1");

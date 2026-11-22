@@ -10,7 +10,19 @@ import {
 import { learningWordsFor } from "../lang";
 
 export const learningAudio = media.meta({ kind: "media", max: 64, read: false });
-export const promptPlayback = { audio: {} } as const;
+export const audioParts = ["audio", "audio_2", "audio_3", "audio_4", "audio_5", "audio_6"] as const;
+export const roundAudioPart = (index: number) => audioParts[index]!;
+export const promptPlayback = Object.fromEntries(audioParts.map((part) => [part, {}]));
+export const promptPlaybackActions = Object.fromEntries(
+  audioParts.map((part) => [part, ["play", "pause"] as const]),
+);
+
+export function roundAudioProps(field: "audio" | "media") {
+  return (item: Readonly<Record<string, unknown>>, index: number, revealed: boolean) =>
+    Object.fromEntries(
+      audioParts.map((part, at) => [part, !revealed && at === index ? item[field] : undefined]),
+    );
+}
 
 export function cardsLeft(count: number, lang?: string): string {
   return learningWordsFor(lang).flashcard.left(numberLine(count, lang), pluralForm(count, lang));
@@ -25,6 +37,8 @@ export const readFlashcard: NonNullable<Meta["read"]> = (input, state, lang, _da
   return [
     cardsLeft(current.recall.remaining, lang),
     ...(style === "binary" && current.revealed ? [flashcard.stillLearning, flashcard.know] : []),
-    ...(control?.(clipKey("audio")) === "error" && !current.revealed ? [promptAudio.unavailable] : []),
+    ...(control?.(clipKey(roundAudioPart(current.index))) === "error" && !current.revealed
+      ? [promptAudio.unavailable]
+      : []),
   ];
 };

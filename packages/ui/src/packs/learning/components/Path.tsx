@@ -3,7 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { pathUnitCopy, readPath } from "../copy";
 import { learningWordsFor } from "../lang";
-import { Modules } from "../path-modules";
+import * as moduleView from "../path-modules";
 
 // Core first: Steps/numbered cannot open course units or distinguish locked nodes and milestones.
 export const meta = {
@@ -148,7 +148,7 @@ function PathUnit({ unit, milestone, density, brief }: {
         <kit.KitIcon name={unit.icon} scale="sm" />
       </kit.KitGrid>
       {(!brief || copy.milestone) && (
-        <kit.KitContent density={density} group={density === "compact" ? "content" : "response"}>
+        <kit.KitContent density={density}>
           <kit.KitText part={brief ? null : "state"} role={statusRole} tone={tone} density={density}>
             {!brief && copy.status}
             {!brief && copy.milestone && words.path.separator}
@@ -164,21 +164,13 @@ function PathUnit({ unit, milestone, density, brief }: {
   );
 }
 
-function LoadingUnits({ units, density }: { units: PathProps["units"]; density: c.ThemeDensity }) {
-  return units.map(({ id }, index) => (
-    <kit.KitContent key={id} density={density} group={index === 0 ? "content" : "response"}>
-      <kit.KitSkeleton lead="dot" inset="none" density={density} />
-    </kit.KitContent>
-  ));
-}
-
 // prettier-ignore
 export function Path({ units, milestones = [], detail, density: requested, surface, style }: PathProps) {
   const density = kit.useVariant("density", meta.variants.density, requested);
   const loading = kit.useComponentState() === "loading";
   const { lang } = kit.useWords();
   if (style === "modules") {
-    const modules = <Modules {...{ units, milestones, density, loading }} brief={detail === "brief"} />;
+    const modules = <moduleView.Modules {...{ units, milestones, density, loading }} brief={detail === "brief"} />;
     return <kit.KitCard part="root" {...{ density, surface }}>
       <kit.KitState density={density} loading={modules}>{modules}</kit.KitState>
     </kit.KitCard>;
@@ -194,9 +186,8 @@ export function Path({ units, milestones = [], detail, density: requested, surfa
       content: <PathUnit {...{ unit, milestone, density }} brief={detail === "brief"} />,
     };
   });
-  return (
-    <kit.KitCard part="root" padded {...{ density, surface }}>
-      {loading ? <LoadingUnits {...{ units, density }} /> : <kit.KitPath part={null} nodes={nodes} />}
-    </kit.KitCard>
-  );
+  const winding = <kit.KitPath part={null} {...{ nodes, loading }} />;
+  return <kit.KitCard part="root" padded {...{ density, surface }}>
+    <kit.KitState density={density} loading={winding}>{winding}</kit.KitState>
+  </kit.KitCard>;
 }

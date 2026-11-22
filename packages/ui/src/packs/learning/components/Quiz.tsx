@@ -3,12 +3,12 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 // prettier-ignore
 import {
-  gradeQuiz, learningAudio, previewQuizSteps, projectQuiz, promptPlayback, quizChoices, quizProgress,
-  quizSolution, readQuiz, reviseQuiz, wordBankLimit, type QuizItem, type QuizRound,
+  audioParts, gradeQuiz, learningAudio, previewQuizSteps, projectQuiz, promptPlayback, promptPlaybackActions,
+  quizChoices, quizProgress, quizSolution, readQuiz, reviseQuiz, roundAudioPart, roundAudioProps, wordBankLimit, type QuizItem, type QuizRound,
 } from "../copy";
 import { learningWordsFor } from "../lang";
-import { PromptAudio } from "../prompt-audio";
-import { MatchChoices, Options, OrderChoices } from "../quiz-choices";
+import * as audioView from "../prompt-audio";
+import * as choiceView from "../quiz-choices";
 
 // Core first: Choice/cards cannot check a correct answer, explain mistakes or advance through questions.
 // prettier-ignore
@@ -28,7 +28,7 @@ export const meta = {
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["thumb", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
   parts: ["root", "panel", "progress", "question", "photo", "field", "left", "right", "check", "next", "answer", "explain", "feedback", "score",
-    "order_hint", "order_draft", "audio", "audio_status"],
+    "order_hint", "order_draft", ...audioParts, "audio_status"],
   states: ["filled", "success", "error"],
   media: { playback: promptPlayback },
   selections: {
@@ -37,12 +37,13 @@ export const meta = {
     right: { prop: "selected_right", choices: { prop: "right_indexes" } },
   },
   actions: {
-    parts: { root: ["select"], field: ["type"], left: ["select"], right: ["select"], check: ["press"], next: ["press"], audio: ["play", "pause"] },
-    when: { field: { kind: "type" }, right: { has_left: true }, next: { checked: true }, check: { checked: false }, audio: { checked: false } },
+    parts: { root: ["select"], field: ["type"], left: ["select"], right: ["select"], check: ["press"], next: ["press"], ...promptPlaybackActions },
+    when: { field: { kind: "type" }, right: { has_left: true }, next: { checked: true }, check: { checked: false } },
   },
   successActions: ["next.press"],
   session: {
     kind: "rounds", items: "questions", hidden: ["answer", "explain"], reveal: "check", next: "next",
+    actionProps: roundAudioProps("media"),
     assessment: {
       inputs: { root: "select", field: "type", left: "select", right: "select" },
       readHidden: ["answer"], project: projectQuiz, grade: gradeQuiz, revise: reviseQuiz,
@@ -187,12 +188,12 @@ export function Quiz(input: QuizProps) {
       <kit.KitText role="label" tone="muted" part="progress">{quizProgress(round, lang).progress}</kit.KitText>
       <kit.KitText role="heading" density={density} tone={round.revealed ? "muted" : "text"} part="question">{item.question}</kit.KitText>
     </kit.KitContent>
-    {!round.revealed && item.media && <PromptAudio density={density} />}
+    {!round.revealed && item.media && <audioView.PromptAudio density={density} part={roundAudioPart(round.index)} />}
     {round.revealed ? <Feedback {...{ item, round }} /> : <kit.KitContent group="response">
-      {options.length > 0 && <Options labels={options} title={item.question} part="root" binary={item.kind === "truefalse"} selected={answers.root} />}
+      {options.length > 0 && <choiceView.Options labels={options} title={item.question} part="root" binary={item.kind === "truefalse"} selected={answers.root} />}
       {item.kind === "type" && <kit.KitInput projected hint={quiz.type} value={typeof answers.field === "string" ? answers.field : ""} />}
-      {item.kind === "match" && <MatchChoices {...{ item, answers }} />}
-      {ordering && <OrderChoices {...{ item, answers }} />}
+      {item.kind === "match" && <choiceView.MatchChoices {...{ item, answers }} />}
+      {ordering && <choiceView.OrderChoices {...{ item, answers }} />}
       <kit.KitContent group="response"><kit.KitAction full kind={ready ? "primary" : "secondary"} label={quiz.check} part="check" action="press" disabled={!ready} /></kit.KitContent>
     </kit.KitContent>}</kit.KitCard>;
 }

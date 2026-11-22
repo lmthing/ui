@@ -40,7 +40,7 @@ export function OrderChoices({ item, answers }: ActiveQuestion) {
     {Boolean(draft) && <kit.KitMetaLine title={{ text: quiz.orderDraft, role: "meta", tone: "muted" }}
       meta={{ text: draft, part: "order_draft", role: "body", tone: "text" }} />}
     <kit.KitTrack part="root" label={quiz.wordBank}>
-      {tiles.map(({ value, ...tile }) => <kit.KitChip key={value} item={null} value={value} role="checkbox" look="box" {...tile} />)}
+      {tiles.map(({ value, ...tile }) => <kit.KitChip key={value} item={null} value={value} role="checkbox" {...tile} />)}
     </kit.KitTrack>
   </kit.KitContent>;
 }

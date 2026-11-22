@@ -9,7 +9,7 @@ export function Modules({ units, milestones, density, brief, loading }: {
   units: readonly Unit[]; milestones: readonly number[]; density: ThemeDensity; brief: boolean; loading: boolean;
 }) {
   const { lang } = kit.useWords();
-  return <kit.KitRowGroup density={density}>
+  return <kit.KitRowGroup density={density} spacing="groups" separators={false}>
     {units.map((unit, index) => {
       const copy = pathUnitCopy(unit, milestones.includes(index), lang);
       const locked = unit.state === "locked";

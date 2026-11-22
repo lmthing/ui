@@ -1,5 +1,6 @@
 import { clipKey, numberLine, sessionKey, type Meta, type SessionState, type Values } from "../../../catalog";
 import { learningWordsFor } from "../lang";
+import { roundAudioPart } from "./Flashcard";
 import { mappingOf, quizKey, quizWordOrder, rightOrder, wordKey, type QuizItem } from "./quiz-answers";
 
 export { quizWordOrder, wordBankLimit, wordKey, type QuizItem } from "./quiz-answers";
@@ -22,7 +23,7 @@ export function quizOrderCopy(item: QuizItem, answers: Readonly<Values>, lang?: 
   return {
     draft: quiz.orderLine(order.map((index) => words[index]!)),
     tiles: words.map((word, index) => ({
-      label: quiz.keyed(word, wordKey(index)),
+      label: word,
       value: wordKey(index),
       on: order.includes(index),
     })),
@@ -73,7 +74,10 @@ export const readQuiz: NonNullable<Meta["read"]> = (input, _state, lang, _data, 
   const item = round.item as QuizItem;
   const { progress } = quizProgress(round, lang);
   if (round.revealed) return [progress, ...(round.complete ? [] : [quiz.next])];
-  const intro = [progress, ...(control?.(clipKey("audio")) === "error" ? [promptAudio.unavailable] : [])];
+  const intro = [
+    progress,
+    ...(control?.(clipKey(roundAudioPart(round.index))) === "error" ? [promptAudio.unavailable] : []),
+  ];
   if (item.kind === "type") return [...intro, quiz.type, quiz.check];
   if (item.kind === "order") {
     const { draft, tiles } = quizOrderCopy(item, round.assessment.answers, lang);

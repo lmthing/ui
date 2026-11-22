@@ -48,13 +48,12 @@ const indexOf = (value: unknown) =>
       : undefined;
 
 export function projectQuiz(item: Answers, answers: Answers) {
-  const { kind, options, pairs, words, media } = item as QuizItem;
+  const { kind, options, pairs, words } = item as QuizItem;
   const selected_left = indexOf(answers.left);
   return {
     kind,
-    audio: media,
     option_indexes: words
-      ? words.map((_, index) => wordKey(index))
+      ? words.map((label, index) => ({ value: wordKey(index), label }))
       : choices("root", kind === "truefalse" ? 2 : (options?.length ?? 0)),
     match_indexes: choices("left", pairs?.length ?? 0),
     right_indexes: choices("right", pairs?.length ?? 0),

@@ -1,9 +1,11 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { cardsLeft, learningAudio, promptPlayback, readFlashcard } from "../copy";
+// prettier-ignore
+import { audioParts, cardsLeft, learningAudio, promptPlayback, promptPlaybackActions,
+  readFlashcard, roundAudioPart, roundAudioProps } from "../copy";
 import { learningWordsFor } from "../lang";
-import { PromptAudio } from "../prompt-audio";
+import * as audioView from "../prompt-audio";
 
 // Core first: SwipeStack/default cannot reveal a back face and rate recall for spaced review.
 // prettier-ignore
@@ -19,19 +21,17 @@ export const meta = {
   region: "body", weight: 2, tier: "phone",
   realPath: "Cards and their review dates are stored on the device.",
   variants: { surface: ["card", "outlined"], align: ["center", "start"], density: ["comfortable", "compact"], media: ["thumb", "cover"] },
-  parts: ["root", "card", "front", "back", "hint", "photo", "left", "again", "hard", "good", "easy", "message", "audio", "audio_status"],
+  parts: ["root", "card", "front", "back", "hint", "photo", "left", "again", "hard", "good", "easy", "message", ...audioParts, "audio_status"],
   states: ["filled", "empty", "success", "loading"],
   emptyActions: [],
   media: { playback: promptPlayback },
-  live: { derive: ({ cards }) => ({ hasAudio: (cards as { audio?: string }[]).some(({ audio }) => Boolean(audio)) }) },
   session: {
     kind: "rounds", items: "cards", hidden: ["back"], front: ["front", "hint", "photo"], reveal: "card",
-    ratings: ["again", "hard", "good", "easy"],
+    ratings: ["again", "hard", "good", "easy"], actionProps: roundAudioProps("audio"),
   },
   actions: {
-    parts: { card: ["flip"], again: ["press"], hard: ["press"], good: ["press"], easy: ["press"], audio: ["play", "pause"] },
-    when: { again: { flipped: true }, hard: { flipped: true, style: "srs" }, good: { flipped: true },
-      easy: { flipped: true, style: "srs" }, audio: { flipped: false, hasAudio: true } },
+    parts: { card: ["flip"], again: ["press"], hard: ["press"], good: ["press"], easy: ["press"], ...promptPlaybackActions },
+    when: { again: { flipped: true }, hard: { flipped: true, style: "srs" }, good: { flipped: true }, easy: { flipped: true, style: "srs" } },
   },
   read: readFlashcard,
 } as const satisfies c.Meta;
@@ -135,9 +135,9 @@ function LoadingFront({ card, finish, reveal }: { card: Face; finish: Finish; re
   </>;
 }
 // prettier-ignore
-type ActiveCard = { card: Face; finish: Finish; flipped: boolean; loading: boolean; remaining: number; binary: boolean };
+type ActiveCard = { card: Face; finish: Finish; flipped: boolean; loading: boolean; remaining: number; binary: boolean; index: number };
 // prettier-ignore
-function ReviewCard({ card, finish, flipped, loading, remaining, binary }: ActiveCard) {
+function ReviewCard({ card, finish, flipped, loading, remaining, binary, index }: ActiveCard) {
   const { KitContent, KitFlip, KitText, KitAction, KitGrid, KitSkeleton, KitActionFooter } = kit;
   const { lang, words: { flashcard: words } } = kit.useWords(learningWordsFor);
   const { align, density } = finish, left = cardsLeft(remaining, lang);
@@ -152,7 +152,9 @@ function ReviewCard({ card, finish, flipped, loading, remaining, binary }: Activ
       front={loading ? <LoadingFront {...{ card, finish }} reveal={words.reveal} /> : card.front && <CardFront card={card} {...finish} />}
       back={<KitText part="back" role="title" {...{ align, density }}>{card.back}</KitText>}
     />
-    {!flipped && card.audio && <KitContent {...{ align, density }}><PromptAudio density={density} /></KitContent>}
+    {!flipped && card.audio && <KitContent {...{ align, density }}>
+      <audioView.PromptAudio density={density} part={roundAudioPart(index)} />
+    </KitContent>}
     {flipped && !loading && (binary ? <KitContent {...{ align, density }}><KitActionFooter density={density}>
       <KitAction part="again" contentParts={{}} kind="danger" label={words.stillLearning} />
       <KitAction part="good" contentParts={{}} label={words.know} />
@@ -164,7 +166,7 @@ function ReviewCard({ card, finish, flipped, loading, remaining, binary }: Activ
 
 // prettier-ignore
 export function Flashcard(input: FlashcardProps) {
-  const { KitCard, KitEmpty, KitState } = kit;
+  const { KitCard, KitContent, KitEmpty, KitState } = kit;
   const { screen, component } = kit.usePartContext();
   const state = kit.useComponentState();
   const { words: { flashcard: words } } = kit.useWords(learningWordsFor);
@@ -176,17 +178,19 @@ export function Flashcard(input: FlashcardProps) {
   };
   const frame = kit.useVariant("surface", surface, input.surface);
   const stored = kit.useControlValue<unknown>(`${screen}/${component}/${c.sessionKey}`, undefined);
-  const current = c.sessionState(meta, input, () => stored);
-  const recall = current?.kind === "rounds" ? current.recall : undefined;
-  const card = current?.kind === "rounds" ? (current.item as Face) : undefined;
-  const flipped = current?.kind === "rounds" && current.revealed;
-  const complete = state === "success" || (current?.kind === "rounds" && current.complete);
+  const session = c.sessionState(meta, input, () => stored);
+  const current = session?.kind === "rounds" ? session : undefined;
+  const complete = state === "success" || current?.complete;
   const loading = state === "loading";
-  const inactive = complete || state === "empty" || !card || !recall;
-  const review = !inactive && <ReviewCard {...{ card, finish, flipped, loading }} remaining={recall.remaining} binary={input.style === "binary"} />;
-  return <KitCard part="root" surface={!inactive && frame === "card" ? "plain" : frame} padded density={finish.density}>
-    {complete ? <KitEmpty part="message" decorativeIcon icon="check" tone="good" title={words.complete} /> :
-      state === "empty" ? <KitState part="message" density={finish.density} icon="sparkles" message={words.empty} /> :
-      <KitState density={finish.density} loading={review}>{review}</KitState>}
+  if (complete || state === "empty" || !current?.recall) return <KitContent inset="md">
+    <KitCard part="root" surface={frame} padded density={finish.density}>
+      {complete ? <KitEmpty part="message" decorativeIcon icon="check" tone="good" title={words.complete} /> :
+        <KitState part="message" density={finish.density} icon="sparkles" message={words.empty} />}
+    </KitCard>
+  </KitContent>;
+  const review = <ReviewCard card={current.item as Face} {...{ finish, loading }} flipped={current.revealed}
+    index={current.index} remaining={current.recall.remaining} binary={input.style === "binary"} />;
+  return <KitCard part="root" surface={frame === "card" ? "plain" : frame} padded density={finish.density}>
+    <KitState density={finish.density} loading={review}>{review}</KitState>
   </KitCard>;
 }

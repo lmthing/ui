@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { TamaguiProvider } from "tamagui";
-import { components, sessionKey, sessionState, type ScreenLike } from "@lmthing/ui/catalog";
-import { createInteractionStore, PhoneScreen, type MediaAdapter } from "@lmthing/ui/kit";
+import { components, type ScreenLike } from "@lmthing/ui/catalog";
+import { PhoneScreen, type MediaAdapter } from "@lmthing/ui/kit";
 import { config } from "../../../../../test/render";
 
 const flashcard = {
@@ -32,23 +32,13 @@ const screen: ScreenLike = {
   id: "home",
   components: [flashcard, quiz, { ...components.Path.examples[0]!, style: "modules", c: "Path", id: "path" }],
 };
-const interaction = createInteractionStore();
-const cardSeed = components.Flashcard.props.parse({ cards: flashcard.cards, style: flashcard.style });
-const quizSeed = components.Quiz.props.parse({ questions: quiz.questions });
-const resolvePlayback = (address: string) => {
-  const [, id, part] = address.split("/");
-  if (part !== "audio") return;
-  const stored = () => interaction.get(`home/${id}/${sessionKey}`);
-  const round =
-    id === "quiz"
-      ? sessionState(components.Quiz.meta, quizSeed, stored)
-      : id === "cards"
-        ? sessionState(components.Flashcard.meta, cardSeed, stored)
-        : undefined;
-  if (round?.kind !== "rounds" || round.revealed) return;
-  const clip = id === "quiz" ? round.item.media : round.item.audio;
-  return typeof clip === "string" ? clip.replace("lib:", "") : undefined;
+const clips: Record<string, string> = {
+  "home/cards/audio": "first",
+  "home/cards/audio_3": "third",
+  "home/quiz/audio": "arrange",
+  "home/quiz/audio_2": "confirm",
 };
+const resolvePlayback = (address: string) => clips[address];
 const media: MediaAdapter = {
   open(reference) {
     return {
@@ -69,7 +59,7 @@ const media: MediaAdapter = {
 createRoot(document.getElementById("root")!).render(
   <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss">
     <PhoneScreen
-      {...{ screen, interaction, resolvePlayback, media }}
+      {...{ screen, resolvePlayback, media }}
       theme={{ preset: "calm", mode: "light", accent: "moss" }}
       onLink={(destination) => {
         document.body.dataset.link = destination;
