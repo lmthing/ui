@@ -1,6 +1,6 @@
-import { Children, useRef, type ReactNode, type RefObject } from "react";
+import { Children, useRef, useState, type ReactNode, type RefObject } from "react";
 import { XStack, YStack, isWeb } from "tamagui";
-import { component, size, space } from "../../../catalog";
+import { component, radius, size, space } from "../../../catalog";
 import { useMoveFocus } from "../../interact";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
@@ -129,9 +129,10 @@ type CardProps = {
   column: ColumnsProps["columns"][number];
   loading: boolean;
   stack: boolean;
+  pageWidth: number;
   items: ReactNode;
 };
-function ColumnCard({ column, loading, stack, items }: CardProps) {
+function ColumnCard({ column, loading, stack, pageWidth, items }: CardProps) {
   const ks = useKitStyle();
   const empty = Children.toArray(column.children).length === 0;
   const addressed = Boolean(column.part && !loading);
@@ -140,9 +141,11 @@ function ColumnCard({ column, loading, stack, items }: CardProps) {
     <YStack
       {...(addressed ? address : {})}
       {...surfaceOf(ks.surface)}
+      backgroundColor="$raised"
       borderRadius={shifted("md", ks.radiusShift)}
-      width={stack ? "100%" : size.control.md * 4 + space.xl}
+      width={stack ? "100%" : pageWidth || size.control.md * 4 + space.xl}
       flexShrink={component.base.none}
+      {...(!stack && isWeb ? { style: { scrollSnapAlign: "start" } as never } : {})}
       padding={space.md}
       gap={space[ks.density.gap]}
     >
@@ -165,6 +168,22 @@ function ColumnCard({ column, loading, stack, items }: CardProps) {
   );
 }
 
+function ColumnPosition({ count, position }: { count: number; position: number }) {
+  return (
+    <XStack justifyContent="center" gap={space.xs} aria-hidden>
+      {Array.from({ length: count }, (_, index) => (
+        <YStack
+          key={index}
+          width={component.base.dot}
+          height={component.base.dot}
+          borderRadius={radius.pill}
+          backgroundColor={index === Math.min(position, count - 1) ? "$accent" : "$line"}
+        />
+      ))}
+    </XStack>
+  );
+}
+
 /** Counted columns scroll sideways or stack vertically; all copy and actions belong to callers. */
 export function KitColumns({
   part = "root",
@@ -176,7 +195,9 @@ export function KitColumns({
   const address = usePart(part ?? undefined, part !== null);
   const context = usePartContext();
   const focus = useRef<string | null>(null);
-  const stack = style === "stack";
+  const [pageWidth, setPageWidth] = useState(0);
+  const [position, setPosition] = useState(0);
+  const stack = style === "stack" || columns.length < 2;
   const labels = columns.map((column) => column.label);
   const cards = columns.map((column, index) => {
     const defaults = labels
@@ -189,7 +210,7 @@ export function KitColumns({
           <ColumnItemRoot {...{ card, loading, move, focus }} destinations={card.destinations ?? defaults} />
         </PartContext.Provider>
       ));
-    return <ColumnCard key={column.id} {...{ column, loading, stack, items }} />;
+    return <ColumnCard key={column.id} {...{ column, loading, stack, pageWidth, items }} />;
   });
   return (
     <YStack
@@ -197,15 +218,20 @@ export function KitColumns({
       minWidth={component.base.none}
       width="100%"
       aria-busy={loading}
+      onLayout={(event) => {
+        address.onLayout();
+        if (!stack) setPageWidth(event.nativeEvent.layout.width);
+      }}
     >
       {!columns.length ? null : stack ? (
         <YStack gap={space.md}>{cards}</YStack>
       ) : (
-        <MatrixScroll loading={loading} label={labels.join(", ")}>
-          <XStack gap={space.md} alignItems="flex-start">
-            {cards}
-          </XStack>
-        </MatrixScroll>
+        <YStack gap={space.sm}>
+          <MatrixScroll loading={loading} label={labels.join(", ")} pages={{ width: pageWidth, setPosition }}>
+            <XStack alignItems="flex-start">{cards}</XStack>
+          </MatrixScroll>
+          <ColumnPosition count={cards.length} position={position} />
+        </YStack>
       )}
     </YStack>
   );
