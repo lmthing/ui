@@ -51,5 +51,8 @@ describe("Table copy", () => {
     const cancelled = [1e16, 1, -1e16].map((value) => ({ cells: [value, "Ready"] }));
     expect(tableSummary(columns, cancelled, "sum").cells[0]).toBe("1");
     expect(tableSummary(columns, cancelled, "avg").cells[0]).toBe(tableCell(1 / 3, "number"));
+    const max = Number.MAX_VALUE;
+    const overflow = [max, max, -1e308, -max, -(max - 1e308)].map((value) => ({ cells: [value, "Ready"] }));
+    expect(tableSummary(columns, overflow, "sum").cells[0]).toBe("0");
   });
 });

@@ -144,29 +144,6 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type ViewProps = c.Props<typeof props, typeof meta>;
-function cardSlots(
-  card: ViewProps["cards"][number],
-  input: ViewProps,
-  density: c.ThemeDensity,
-  lang: string,
-  currency: c.AppCurrency | undefined,
-): StageCard {
-  const { id, column, goto, title, tag, who, value } = card;
-  const lines: StageCard["lines"][number][] = [{ part: "title", role: "body", text: title, density }];
-  if (tag) lines.push({ part: "tag", role: "caption", tone: "muted", text: tag });
-  if (who) lines.push({ part: "who", role: "caption", tone: "muted", text: who });
-  if (value !== undefined)
-    lines.push({
-      part: "value",
-      role: "number",
-      numberScale: "compact",
-      tabular: true,
-      text: c.moneyLine(value, currency, undefined, lang),
-    });
-  const destinations = c.itemMoveOffer(meta, input, card)?.choices.map((label) => ({ label, value: label }));
-  return { id, column, goto, label: title, lines, destinations };
-}
-
 // prettier-ignore
 export function Board(input: ViewProps) {
   const { columns, cards, surface, arrange } = input;
@@ -176,12 +153,28 @@ export function Board(input: ViewProps) {
   const { words, lang } = kit.useWords(dataWordsFor);
   const currency = kit.useAppCurrency();
   const background = state === "empty" && surface === "plain" ? "card" : surface;
+  const cardSlots = (card: ViewProps["cards"][number]): StageCard => {
+    const { id, column, goto, title, tag, who, value } = card;
+    const lines: StageCard["lines"][number][] = [{ part: "title", role: "body", text: title, density }];
+    if (tag) lines.push({ part: "tag", role: "caption", tone: "muted", text: tag });
+    if (who) lines.push({ part: "who", role: "caption", tone: "muted", text: who });
+    if (value !== undefined)
+      lines.push({
+        part: "value",
+        role: "number",
+        numberScale: "compact",
+        tabular: true,
+        text: c.moneyLine(value, currency, undefined, lang),
+      });
+    const destinations = c.itemMoveOffer(meta, input, card)?.choices.map((label) => ({ label, value: label }));
+    return { id, column, goto, label: title, lines, destinations };
+  };
   const renderStages = (cards: ViewProps["cards"], part: string) => <StageBoard {...{ part, density }}
     style={layout === "rows" ? "stack" : "columns"}
     lanes={boardStages(columns, cards, lang, currency).map(({ label, count, total }) => ({
       id: label, label, count, total: total ? { label: words.boardTotal, value: total } : undefined,
     }))}
-    cards={cards.map((card) => cardSlots(card, input, density, lang, currency))}
+    cards={cards.map(cardSlots)}
     move={{ caption: words.boardMove, label: words.boardDestination }}
   />;
   const grouped = cards.some(({ swimlane }) => swimlane);

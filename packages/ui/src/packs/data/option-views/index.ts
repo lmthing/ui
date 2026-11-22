@@ -1,3 +1,3 @@
-export { ActivityRow } from "./activitylog-slots";
-export { ChartControls, ChartLatest } from "./linechart-slots";
-export { TableMatrix } from "./table-slots";
+export * from "./activitylog-slots";
+export * from "./linechart-slots";
+export * from "./table-slots";

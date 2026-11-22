@@ -13,7 +13,7 @@ import {
   seriesTones,
 } from "../copy";
 import { dataWordsFor } from "../lang";
-import { ChartControls, ChartLatest } from "../option-views";
+import * as optionView from "../option-views";
 
 // Core first: Sparkline/default shows one compact trend, not labelled, selectable points from several series.
 export const meta = {
@@ -179,7 +179,7 @@ export function LineChart(input: ChartProps) {
       meta={{ text: words.chartRange[range], part: "range" }} density={density} /> :
     loading ? <kit.KitSkeleton rows={1} shape="figure" inset="none" density={density} content={[["heading", title]]} /> :
       <kit.KitText part="title" role="heading" density={density}>{title}</kit.KitText>}
-    {full && <ChartLatest {...{ ...input, density, loading }} />}
+    {full && <optionView.ChartLatest {...{ ...input, density, loading }} />}
     {unitLabel && (loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", unitLabel]]} /> :
       <kit.KitText part="unit" role="caption" tone="muted">{unitLabel}</kit.KitText>)}
     <kit.KitFigure density={density} media={<kit.KitLinePlot part="axes" loading={loading} series={series}
@@ -188,7 +188,7 @@ export function LineChart(input: ChartProps) {
     {!loading && selected && <kit.KitText part="reading" role="label" tabular>
       {words.chartSelected(selected.series, selected.label, pointValue(selected.value, unit, lang))}
     </kit.KitText>}
-    <ChartControls {...{ points, selected, title, loading }} />
+    <optionView.ChartControls {...{ points, selected, title, loading }} />
   </>;
   return <kit.KitCard part="root" padded {...{ density, surface }}>
     <kit.KitState part="title" loading={body} density={density}>{body}</kit.KitState>

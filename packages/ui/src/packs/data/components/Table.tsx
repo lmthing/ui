@@ -3,7 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { tableChoices, tableCount, tableReading, tableSummaryModes } from "../copy";
 import { dataWordsFor } from "../lang";
-import { TableMatrix } from "../option-views";
+import * as optionView from "../option-views";
 
 // Core first: List/rows cannot align typed fields across records or sort by a column.
 // prettier-ignore
@@ -151,7 +151,7 @@ export function Table(input: ViewProps) {
   const status = kit.useHostOperations().find(({ name }) => name === "data.exportTable")?.status;
   const pending = status === "pending";
   const feedback = status && status !== "pending" ? status : undefined;
-  const matrix = <TableMatrix {...{ input, density, loading, lang, pending }} />;
+  const matrix = <optionView.TableMatrix {...{ input, density, loading, lang, pending }} />;
   const body = <>
     {loading ? matrix :
       <kit.KitTrack part="header" role="radiogroup" label={words.tableSort}>

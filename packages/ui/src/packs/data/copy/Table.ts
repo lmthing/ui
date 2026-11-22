@@ -69,8 +69,8 @@ export function tableSections<T extends Row>(
 function aggregate(values: readonly number[], average: boolean) {
   const total = compensatedTotal(values);
   if (Number.isFinite(total)) return average ? total / values.length : total;
-  // Scale only when needed to recover a finite average or a sum with cancellation.
-  const scale = Math.max(...values.map(Math.abs));
+  // A power-of-two divisor bounds partial sums without rounding the large terms.
+  const scale = 2 ** Math.ceil(Math.log2(values.length));
   const sum = compensatedTotal(values.map((value) => value / scale));
   return (average ? sum / values.length : sum) * scale;
 }

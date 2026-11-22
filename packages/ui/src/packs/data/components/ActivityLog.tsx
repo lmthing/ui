@@ -18,9 +18,9 @@ import {
   type Props,
 } from "../../../catalog";
 import * as kit from "../../../kit";
-import { activityChoices, activityFilters, activityKinds, activityLive, activityReading } from "../copy";
+import { activityOptions, activityFilters, activityKinds, activityLive, activityReading } from "../copy";
 import { dataWordsFor } from "../lang";
-import { ActivityRow } from "../option-views";
+import * as optionView from "../option-views";
 
 // Core first: Timeline/default lays out events or plans; it does not identify who changed a record with avatars.
 export const meta = {
@@ -175,10 +175,10 @@ export function ActivityLog(input: LogProps) {
   const avatar = kit.useVariant("lead", meta.variants.lead, input.lead) === "avatar";
   const live = kit.useLiveControls(meta, input);
   const entries = visibleItems(meta, live) as Entry[];
-  const options = activityChoices(input.entries);
+  const options = activityOptions(input.entries);
   const { words } = kit.useWords(dataWordsFor);
   const upgraded = options.length > 0 || input.entries.some(({ diff }) => diff);
-  const rows = entries.map((entry) => <ActivityRow key={entry.id} {...{ entry, density, avatar, upgraded }} />);
+  const rows = entries.map((entry) => <optionView.ActivityRow key={entry.id} {...{ entry, density, avatar, upgraded }} />);
   const legacyLoading = <kit.KitSkeleton rows={entries.length} density={density} lead="none"
     items={entries.map(({ who, photo, text, time }) => ({
       ...(avatar ? { photo } : {}), trail: true,
@@ -189,8 +189,8 @@ export function ActivityLog(input: LogProps) {
   return <kit.KitCard part="root" surface={surface} density={density} padded={upgraded}>
     <kit.KitState icon="clipboard_list" part="title" loading={upgraded ? feed : legacyLoading} density={density}>
       {options.length > 0 && <kit.KitTrack part="kind" role="radiogroup" label={words.activityKind}>
-        {options.map((kind) => <kit.KitChip key={kind} item={null} role="radio"
-          label={words.activityKinds[kind]} value={kind} on={live.kind === kind} />)}
+        {options.map(({ value, label }) => <kit.KitChip key={value} item={null} role="radio"
+          label={label} value={value} on={live.kind === value} />)}
       </kit.KitTrack>}
       {feed}
     </kit.KitState>
