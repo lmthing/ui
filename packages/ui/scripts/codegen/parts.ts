@@ -30,7 +30,7 @@ const partName = (name: string) => name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").t
 const unique = (list: string[]) => [...new Set(list)];
 const rowsKey = "$rows";
 
-type Part = { name: string; itemKey?: string; shared?: boolean; actions: ActionName[]; confirm: boolean };
+type Part = { name: string; itemKey?: string; actions: ActionName[]; confirm: boolean };
 function readParts(source: string, sources: RowSource[], host: RowSource | undefined): Part[] {
   const keys = sources.map(({ key }) => key);
   const topKeys = sources.filter(({ parents }) => !parents.length).map(({ key }) => key);
@@ -59,9 +59,7 @@ function readParts(source: string, sources: RowSource[], host: RowSource | undef
     )
       throw new Error(`Unsupported part or action: ${raw}`);
     const part = { name, actions: offered as ActionName[], confirm: /\bconfirmParts\b/.test(entry) };
-    return owners.length
-      ? owners.map((itemKey) => ({ ...part, itemKey, shared: owners.length > 1 }))
-      : [part];
+    return owners.length ? owners.map((itemKey) => ({ ...part, itemKey })) : [part];
   });
 }
 
@@ -131,7 +129,7 @@ export function partMeta(source: string, fields: Field[]) {
   const multiple = new Set(addressed.map(({ field }) => field)).size > 1;
   const rows = rowEntries.map((row) => ({
     ...row,
-    name: partName(row.shared || (multiple && row.name === "root") ? row.itemKey! : row.name),
+    name: partName(multiple && row.name === "root" ? row.itemKey! : row.name),
   }));
   const key = addressed[0]?.key ?? (top.length === 1 && top[0]!.field.members ? top[0]!.key : undefined);
   const projected =
