@@ -4,7 +4,7 @@ Several things of the same kind, each one tappable.
 
 ## Pick
 
-Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).
+The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).
 
 ## Writer
 
@@ -12,5 +12,6 @@ Show all the person's entries of one kind so they can scan and tap them, even if
 - Use style "expand" with a body on every FAQ row or "shelf" with a photo on every sideways rail row. Photos use references like "lib:plants" or "local:1". The water icon is "drop".
 - Rankings use style null (never expand), lead "number", trail "value", and each score in value. Only the person’s row gets me.
 - For grouped headings use group "sections" and a section label on every row; keep rows in section order.
-- For See all: overflow "peek"; style and all other axes null unless requested. Output every row, including hidden ones. If asked for names only, write title and leave all other row fields null.
+- For a two-row preview with See all, set overflow to "peek" and output every row in order, including hidden ones. Keep style and every other axis null unless separately requested.
+- Names only is a row-content request: write title and leave all other row fields null. Keep detail null; "brief" hides existing metadata and is only for an explicit request to hide it.
 - For a photo shelf with a tall crop or portrait covers, output "style":"shelf" and top-level "aspect":"tall". Leave density, surface, detail, arrange, group, overflow, lead, and trail null unless individually requested; never fill in defaults. Use arrange "grid" for two-column quick cards with style null. Progress is a fraction (0 to 1) and badge is a short label. Only set unread or pinned on rows explicitly described that way.
