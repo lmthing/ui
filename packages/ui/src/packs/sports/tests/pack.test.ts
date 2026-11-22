@@ -30,7 +30,7 @@ it("exposes Sports only in an opted-in registry and gates drafts out of live Wri
   const core = createRegistry();
   const live = createRegistry({ packs: ["sports"] });
   const ready = packReady("sports");
-  expect(scoped.ids.filter((id) => !core.ids.includes(id)).sort()).toEqual([...ids].sort());
+  expect(scoped.ids.filter((id) => !core.ids.includes(id)).sort()).toEqual([...ids, "MatchStats"].sort());
   if (!ready) expect(live.ids).toEqual(core.ids);
   const formats = [core, scoped, live].map((registry) => JSON.stringify(writerFormat(registry)));
   for (const id of ids) {
@@ -38,6 +38,7 @@ it("exposes Sports only in an opted-in registry and gates drafts out of live Wri
     expect(formats.map((format) => format.includes(choice))).toEqual([false, true, ready]);
     expect(packOf[id]).toBe("sports");
   }
+  expect(live.ids.includes("MatchStats")).toBe(ready);
   for (const { id } of packArchetypes.sports) {
     expect(core.archetypes).not.toHaveProperty(id);
     expect(scoped.archetypes).toHaveProperty(id);

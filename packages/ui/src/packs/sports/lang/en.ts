@@ -1,4 +1,9 @@
 export const en = {
+  matchStats: {
+    title: "Match stats",
+    period: "Match period",
+    empty: "Match stats are unavailable.",
+  },
   bracket: {
     title: "Knockout bracket",
     winner: (team: string) => `${team} wins`,

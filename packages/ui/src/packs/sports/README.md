@@ -6,7 +6,7 @@ Built in step U7 (drafts in U3), wave 5 of the catalog plan. Read `docs/catalog/
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
-- `components/`: `Fixtures.tsx` `Scoreboard.tsx` `Standings.tsx` `Lineup.tsx` `MatchFeed.tsx` `Squad.tsx` `Bracket.tsx`
+- `components/`: `Fixtures.tsx` `Scoreboard.tsx` `Standings.tsx` `Lineup.tsx` `MatchFeed.tsx` `Squad.tsx` `Bracket.tsx` `MatchStats.tsx`
 - `archetypes/`: `club.ts` `match.ts` `league.ts` `cup.ts`
 
 Rules:

@@ -8,3 +8,4 @@
 - `Lineup.test.ts` covers formation and bench bounds, player addresses, variants and press actions.
 - `Scoreboard.test.ts` covers score bounds, display and keeper states, and clock controls.
 - `Scoreboard.record.test.tsx` checks both views before and after goal confirmation and cancellation.
+- `MatchStats.test.ts` covers the draft metric schema, period selection and fallback.
