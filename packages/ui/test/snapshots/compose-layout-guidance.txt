@@ -18,8 +18,8 @@ Layout rule: Choose one supplied record and use its name as the Header title. Ke
 
 Layout: calendar/week. Job: Things by date.
 Layout rule: Use only the supplied dated events and calendar month/start/days/selected values. Mark their event dates. Timeline uses day style with supplied times and titles, and the date and detail in meta. On EVERY Timeline item end, tone and goto must be literal null, even when time and title have values; do not replace those nulls with end times, status tones or links. This is not hours style. Header action is null.
-Layout rule: Use "Appointments this week" for the Header title and the actual date span and appointment count in its subtitle, e.g. "Nov 18–20 · 2 appointments". Give each marked appointment day tone good so the dates with an agenda stand out.
-Layout rule: List the appointments in date and time order, retaining their names and times. Put a readable date first and the supplied purpose second in each meta, e.g. "Nov 18 · Routine review". This is an agenda: done is null.
+Layout rule: Lead with a Header naming the week’s agenda, e.g. "Appointments this week". In its subtitle give the span from first to last event and the event count, e.g. "Nov 18–20 · 2 appointments". Next show the week Calendar under its supplied month and year, with tone good on event dates.
+Layout rule: Below the Calendar, list all the supplied events for that week in date and time order. Keep the names and times, then put the readable date and supplied purpose in each meta, e.g. "Nov 18 · Routine review". This is an agenda: done is null.
 Layout rule: The subtitle and every event's date and purpose must stay visible. Emit literal null for Header.density, Header.emphasis, Header.detail, Timeline.density and Timeline.detail.
 
 Layout: tracker/scale. Job: Log an activity again and again.
