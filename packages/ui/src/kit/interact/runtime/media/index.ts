@@ -175,6 +175,16 @@ export function createMediaRuntime(ctx: ControllerContext) {
 }
 export type MediaRuntime = ReturnType<typeof createMediaRuntime>;
 
+export function mediaActionContext(media: MediaRuntime) {
+  return {
+    playMedia: media.playMedia,
+    seekMedia: media.seekMedia,
+    requestPhoto: media.requestPhoto,
+    mediaEffect: media.effect,
+    attachmentReference: media.attachmentReference,
+  };
+}
+
 function prepareMedia(
   ctx: ControllerContext,
   sessions: Map<string, Opened>,

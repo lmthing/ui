@@ -1,5 +1,5 @@
 import { useWords, useKit } from "../../provider";
-import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { usePartContext } from "../../part";
 import { XStack, YStack, type TamaguiElement } from "tamagui";
 import { component as layout, formatAddress, radius, space, variants } from "../../../catalog";
@@ -40,15 +40,11 @@ type PlaybackProps = {
   part?: string;
 };
 
-function usePlayback(
-  { style, speed, loop, loading, part }: Omit<PlaybackProps, "children" | "overlay">,
-  framed: boolean,
-) {
+function usePlayback({ style, speed, loop, loading, part }: Omit<PlaybackProps, "children" | "overlay">) {
   const { controller } = useKit();
   const { component, item, screen } = usePartContext();
   const address =
     part === undefined ? undefined : formatAddress({ screen, component, ...(item ? { item } : {}), part });
-  const mount = useRef<TamaguiElement>(null);
   const legacy = useLegacyMedia(controller, component, part === undefined && !loading);
   const addressed = useSyncExternalStore(
     address && controller ? controller.store.subscribe : noSubscription,
@@ -57,14 +53,6 @@ function usePlayback(
   );
   const session = loading ? undefined : address === undefined ? legacy : addressed;
   const video = style === "video" && Boolean(session?.element || session?.content);
-  useEffect(() => {
-    const element = session?.element;
-    if (!element) return;
-    element.style.width = "100%";
-    if (style === "video") element.style.aspectRatio = String(variants.aspect.wide);
-    (mount.current as HTMLElement | null)?.appendChild(element);
-    return () => element.remove();
-  }, [session, style, framed]);
   useEffect(() => {
     const element = session?.element;
     if (!element) return;
@@ -77,27 +65,42 @@ function usePlayback(
       if (loop !== undefined) element.loop = previousLoop;
     };
   }, [session, speed, loop]);
-  return { controller, mount, video, content: session?.content };
+  return { controller, video, session };
+}
+
+function PlaybackMount({ session, video }: { session: MediaSession | undefined; video: boolean }) {
+  const mount = useRef<TamaguiElement>(null);
+  useLayoutEffect(() => {
+    const node = mount.current as HTMLElement | null;
+    const element = session?.element;
+    if (!node || !element) return;
+    element.style.width = "100%";
+    if (video) element.style.aspectRatio = String(variants.aspect.wide);
+    node.appendChild(element);
+    return () => {
+      if (element.parentNode === node) element.remove();
+    };
+  }, [session, video]);
+  return (
+    <YStack
+      ref={mount}
+      {...(video ? { aspectRatio: variants.aspect.wide } : { height: 0, overflow: "hidden" as const })}
+    >
+      {session?.content}
+    </YStack>
+  );
 }
 
 /** An optional toolbar stays in the frame even when real playback replaces its fallback children. */
 export function KitPlayback({ children, overlay, ...options }: PlaybackProps) {
-  const { controller, mount, video, content } = usePlayback(options, overlay !== undefined);
+  const { controller, video, session } = usePlayback(options);
   const playback = (
     <>
-      {controller && (
-        <YStack
-          ref={mount}
-          {...(video ? { aspectRatio: variants.aspect.wide } : { height: 0, overflow: "hidden" as const })}
-        >
-          {content}
-        </YStack>
-      )}
+      {controller && <PlaybackMount session={session} video={video} />}
       {(!video || options.loading) && children}
     </>
   );
   if (overlay === undefined) return playback;
-  // Tamagui captures its initial ref. Keep React from reusing the frame as the playback mount.
   return (
     <YStack
       key="playback-frame"

@@ -5,9 +5,11 @@ import type { Affordance, SendDraft, Values } from "../index";
 import { linkedInput, projectLinkedEdits } from "../linked-edits";
 import { mediaHostKey, type MediaHostGate } from "../media";
 import { addressedItems } from "../visibility";
-import { itemToggleDetail, projectItemToggles } from "./item-toggles";
 import { projectPickers } from "./pickers";
 export { pickerAt, pickerKey, pickerSelectionChanges, stageInlinePress } from "./pickers";
+
+export { defineLocalState, localEventOffer, projectLocalState, stageLocalEvent } from "./local-state";
+export { expireProgress, stageProgress } from "./progress";
 
 export type LiveInput = { kind: "check" | "boolean" } | { kind: "text"; max: number };
 type Get = (part: string) => unknown;
@@ -159,4 +161,29 @@ export function storeLiveInput(next: Values, screen: string, found: Affordance, 
   const target = parts.join("/") || "root";
   const action = found.input.kind === "text" ? "type" : "check";
   next[`${screen}/${instance}/${liveInputKey(target, action)}`] = value;
+}
+
+function itemToggleDetail(meta: Meta, part: string, row: Values): string | undefined {
+  const toggles = meta.items?.toggles;
+  if (part === "root" || !toggles || !Object.hasOwn(toggles, part)) return undefined;
+  return row[toggles[part]!] === true ? ":on" : ":off";
+}
+
+/** Overlay named toggle values on addressed rows before deriving live visibility and summaries. */
+export function projectItemToggles(meta: Meta, props: Values, get: (part: string) => unknown): Values {
+  const items = meta.items;
+  if (!items?.toggles) return props;
+  const toggles = Object.entries(items.toggles).filter(([part]) => part !== "root");
+  if (!toggles.length) return props;
+  const rows = addressedItems(meta, props);
+  const projected = rows.map((row) => {
+    if (typeof row.id !== "string") return row;
+    const id = row.id;
+    for (const [part, prop] of toggles) {
+      const value = get(`${id}/${part}`);
+      if (typeof value === "boolean" && value !== row[prop]) row = { ...row, [prop]: value };
+    }
+    return row;
+  });
+  return projected.some((row, index) => row !== rows[index]) ? { ...props, [items.key]: projected } : props;
 }

@@ -68,5 +68,8 @@ export function dependency(from: Anchor, to: Anchor, timeline: number, anchors: 
   const tip = center - direction * space.sm;
   const approach = tip - direction * space.sm;
   const elbow = connectorChannel(from, to, timeline, anchors);
-  return `M${x} ${exit} V${departure} H${elbow} V${approach} H${end} V${tip} M${end - space.xs / 2} ${tip - direction * space.xs} L${end} ${tip} L${end + space.xs / 2} ${tip - direction * space.xs}`;
+  const shaft = `M${x} ${exit} V${departure} H${elbow} V${approach} H${end} V${tip}`;
+  const head = tip - direction * space.xs;
+  const arrow = `M${end - space.xs / 2} ${head} L${end} ${tip} L${end + space.xs / 2} ${head}`;
+  return `${shaft} ${arrow}`;
 }

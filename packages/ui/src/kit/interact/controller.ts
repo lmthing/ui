@@ -6,8 +6,7 @@ import {
   createMediaRuntime,
   createAct,
   createAccess,
-  createReveal,
-  createPrivateValues,
+  createPrivateControls,
   privateMarkRegistration,
   discardHiddenConfirmation,
   bindParentGatePart,
@@ -85,40 +84,17 @@ function hostCommandsAt(ctx: ControllerContext, component: string, part: string,
   );
 }
 
-function privateLifecycle(
-  reveal: ReturnType<typeof createReveal>,
-  values: ReturnType<typeof createPrivateValues>,
-) {
-  return {
-    reconcile() {
-      reveal.reconcile();
-      values.reconcile();
-    },
-    clear() {
-      reveal.clear();
-      values.clear();
-    },
-    revoke(address: string) {
-      reveal.revoke(address);
-      values.revoke(address);
-    },
-    dispose: values.dispose,
-  };
-}
-
 /** One dispatcher for human taps and agent steps. Hidden sheets and covered controls are not actionable. */
 export function createScreenController(options: ControllerOptions & { currency?: AppCurrency | undefined }) {
   const currency = parseAppCurrency(options.currency);
   const ctx = createControllerContext(options);
   const clock = createClock(ctx, () => discardHiddenConfirmation(ctx));
   const media = createMediaRuntime(ctx);
-  const reveal = createReveal(ctx);
-  const privateValues = createPrivateValues(ctx);
+  const secrets = createPrivateControls(ctx);
   const sequence = createSequenceClock(ctx);
-  const secrets = privateLifecycle(reveal, privateValues);
   const lifecycle = controllerLifecycle(ctx, clock, media, secrets, sequence);
   const dispatch = createAct(ctx, media, lifecycle.schedule);
-  const act = privateValues.dispatch(reveal.dispatch(dispatch));
+  const act = secrets.dispatch(dispatch);
   const access = createAccess(ctx, act, currency, secrets.revoke);
   return {
     defs: ctx.defs,
@@ -145,8 +121,7 @@ export function createScreenController(options: ControllerOptions & { currency?:
     ...access,
     registerPart: lifecycle.registerPart(access.registerPart),
     registerPrivateMarkPart: privateMarkRegistration(ctx, dispatch),
-    ...reveal.view,
-    ...privateValues.view,
+    ...secrets.view,
     deviceDataFor: (component: string, data = options.deviceData) => deviceDataFor(ctx, component, data),
     get deviceData() {
       return options.deviceData;
