@@ -91,7 +91,7 @@ describe("Documents states and actions", () => {
 
 describe("Documents folder and page options", () => {
   const rows = [
-    { ...entry, title: "Unfiled certificate", pages: 1 },
+    { ...entry, title: "Original certificate", pages: 1 },
     { ...entry, title: "Policy", folder: "Cover", pages: 24 },
     { ...entry, title: "Office form", folder: "Office" },
     { ...entry, title: "Certificate of cover", folder: "Cover" },
@@ -111,6 +111,10 @@ describe("Documents folder and page options", () => {
     const reading = readComponent(components.Documents, input, "d1", "filled").join("\n");
     expect(reading).toContain("24 pages");
     expect(reading).toContain("Cover");
+    expect(reading).toContain("Unfiled");
+    expect(readComponent(components.Documents, { docs: rows }, "d1", "filled").join("\n")).not.toContain(
+      "Unfiled",
+    );
   });
 
   it("renders the optional folder inline in rows, and keeps folder style loading inert", () => {

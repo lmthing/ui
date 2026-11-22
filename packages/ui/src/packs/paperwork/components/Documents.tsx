@@ -44,8 +44,13 @@ export const meta = {
     items: { "share.press": { kind: "command", name: "shareDocument" } },
     identity: ({ row }) => (row?.can_share === true && typeof row.file === "string" ? row.file : undefined),
   },
-  read: (input, _state, lang): string[] =>
-    (input as z.output<typeof props>).docs.flatMap((row) => documentReading(row, new Date(), lang)),
+  read: (input, _state, lang): string[] => {
+    const { docs, style } = input as z.output<typeof props>;
+    const reading = docs.flatMap((row) => documentReading(row, new Date(), lang));
+    if (style === "folders" && docs.some((row) => !row.folder))
+      reading.push(paperworkWordsFor(lang).documents.unfiled);
+    return reading;
+  },
 } as const satisfies c.Meta;
 
 const doc = z
