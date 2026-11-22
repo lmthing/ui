@@ -64,9 +64,11 @@ export const holdingsLedger = {
   },
   read: readRows("positions", (r, props, lang) => {
     const value = `units ${measured(r.units, lang)}, value ${measured(r.value, lang)}`;
-    return props.detail === "brief"
-      ? value
-      : `${value}, unit cost ${measured(r.unitCost, lang)}, gain ${measured(r.gain, lang)}${r.quotedAt ? ` at ${r.quotedAt}` : ""}`;
+    if (props.detail === "brief") return value;
+    const cost = measured(r.unitCost, lang);
+    const gain = measured(r.gain, lang);
+    const quote = r.quotedAt ? ` at ${r.quotedAt}` : "";
+    return `${value}, unit cost ${cost}, gain ${gain}${quote}`;
   }),
 } satisfies Declaration;
 
@@ -113,11 +115,12 @@ export const performanceLedger = {
       });
     },
   },
-  read: readRows(
-    "samples",
-    (r, _props, lang) =>
-      `${r.at}: value ${measured(r.value, lang)}, contributed ${measured(r.contributed, lang)}, gain ${measured(r.gain, lang)}`,
-  ),
+  read: readRows("samples", (r, _props, lang) => {
+    const value = measured(r.value, lang);
+    const contributed = measured(r.contributed, lang);
+    const gain = measured(r.gain, lang);
+    return `${r.at}: value ${value}, contributed ${contributed}, gain ${gain}`;
+  }),
 } satisfies Declaration;
 
 function press(kind: LedgerOperation["kind"]): NonNullable<RecordRuntime["presses"]>[string] {
@@ -164,11 +167,13 @@ export const dividendsLedger = {
     },
     presses: { receive: press("receive"), void: press("reverse") },
   },
-  read: readRows(
-    "distributions",
-    (r, _props, lang) =>
-      `${r.payOn}: entitled units ${measured(r.entitledUnits, lang)}, gross ${measured(r.gross, lang)}, net ${measured(r.net, lang)}${r.receivedAt ? `, received ${r.receivedAt}` : ""}`,
-  ),
+  read: readRows("distributions", (r, _props, lang) => {
+    const units = measured(r.entitledUnits, lang);
+    const gross = measured(r.gross, lang);
+    const net = measured(r.net, lang);
+    const receipt = r.receivedAt ? `, received ${r.receivedAt}` : "";
+    return `${r.payOn}: entitled units ${units}, gross ${gross}, net ${net}${receipt}`;
+  }),
 } satisfies Declaration;
 export const activityLedger = {
   deviceData,

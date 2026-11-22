@@ -67,14 +67,36 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
-// prettier-ignore
 export const examples = [
-  { title: "Root 30 cuttings in November", goal: 30, unit: "plants", total: 30, mine: 4, ends: "2025-11-30", top: [
-    { name: "Maya", value: 8 }, { name: "Sam", value: 6 }, { name: "Jo", value: 4 },
-  ], joined: true, goto: "log_cuttings" },
-  { title: "Walk 100 km together", goal: 100, unit: "km", total: 72.5, mine: 0, ends: "2026-11-30", top: [
-    { name: "Anna", value: 23.5 }, { name: "Ben", value: 20 },
-  ], joined: false, goto: "log_walk" },
+  {
+    title: "Root 30 cuttings in November",
+    goal: 30,
+    unit: "plants",
+    total: 30,
+    mine: 4,
+    ends: "2025-11-30",
+    top: [
+      { name: "Maya", value: 8 },
+      { name: "Sam", value: 6 },
+      { name: "Jo", value: 4 },
+    ],
+    joined: true,
+    goto: "log_cuttings",
+  },
+  {
+    title: "Walk 100 km together",
+    goal: 100,
+    unit: "km",
+    total: 72.5,
+    mine: 0,
+    ends: "2026-11-30",
+    top: [
+      { name: "Anna", value: 23.5 },
+      { name: "Ben", value: 20 },
+    ],
+    joined: false,
+    goto: "log_walk",
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Challenge");
@@ -101,60 +123,119 @@ export const probes = [
 type ChallengeProps = c.Props<typeof props, typeof meta>;
 type ChallengeText = ReturnType<typeof challengeCopy>;
 
-// prettier-ignore
-function ChallengeProgress({ input, words, density }: {
-  input: ChallengeProps; words: ChallengeText; density: c.ThemeDensity;
+function ChallengeProgress({
+  input,
+  words,
+  density,
+}: {
+  input: ChallengeProps;
+  words: ChallengeText;
+  density: c.ThemeDensity;
 }) {
-  return <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>
-    <kit.KitGrid fitLast density={density}>
-      <kit.KitText part="total" role="heading" density="comfortable" tabular>{words.total}</kit.KitText>
-      <kit.KitText part={null} role="label" tone={words.reached ? "good" : "muted"}>{words.group}</kit.KitText>
-    </kit.KitGrid>
-    <kit.KitStepsTrack part="track" style="bar" count={1} at={Math.min(1, input.total / input.goal)} />
-    <kit.KitText part="goal" role="label" tone="muted">{words.goal}</kit.KitText>
-    <kit.KitText part="mine" role="label" tone="muted">{words.mine}</kit.KitText>
-  </kit.KitContent>;
+  return (
+    <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitText part="total" role="heading" density="comfortable" tabular>
+          {words.total}
+        </kit.KitText>
+        <kit.KitText part={null} role="label" tone={words.reached ? "good" : "muted"}>
+          {words.group}
+        </kit.KitText>
+      </kit.KitGrid>
+      <kit.KitStepsTrack part="track" style="bar" count={1} at={Math.min(1, input.total / input.goal)} />
+      <kit.KitText part="goal" role="label" tone="muted">
+        {words.goal}
+      </kit.KitText>
+      <kit.KitText part="mine" role="label" tone="muted">
+        {words.mine}
+      </kit.KitText>
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
-function ChallengeRankings({ top, words, density, lang }: {
-  top: ChallengeProps["top"]; words: ChallengeText; density: c.ThemeDensity; lang: string;
+function ChallengeRankings({
+  top,
+  words,
+  density,
+  lang,
+}: {
+  top: ChallengeProps["top"];
+  words: ChallengeText;
+  density: c.ThemeDensity;
+  lang: string;
 }) {
   if (!words.top) return null;
-  return <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>
-    <kit.KitText part="top" role="label" tone="muted" density={density}>{words.top}</kit.KitText>
-    <kit.KitGrid arrange="rows" list density={density}>
-      {top.map(({ id, name }, index) => {
-        const { score, label } = words.leaders[index]!;
-        const rank = <kit.KitText part="rank" role="label" tone="muted" tabular>{c.numberLine(index + 1, lang)}</kit.KitText>;
-        const value = <kit.KitContent inset="md" density={density}>
-          <kit.KitText part="value" role="number" numberScale="compact" density={density} tabular>{score}</kit.KitText>
-        </kit.KitContent>;
-        return <kit.KitRow key={id} item={id} label={label} leading={rank} trailing={value} inset="none" density={density}>
-          <kit.KitText part="name" role="body" density={density} lines={1}>{name}</kit.KitText>
-        </kit.KitRow>;
-      })}
-    </kit.KitGrid>
-  </kit.KitContent>;
+  return (
+    <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>
+      <kit.KitText part="top" role="label" tone="muted" density={density}>
+        {words.top}
+      </kit.KitText>
+      <kit.KitGrid arrange="rows" list density={density}>
+        {top.map(({ id, name }, index) => {
+          const { score, label } = words.leaders[index]!;
+          const rank = (
+            <kit.KitText part="rank" role="label" tone="muted" tabular>
+              {c.numberLine(index + 1, lang)}
+            </kit.KitText>
+          );
+          const value = (
+            <kit.KitContent inset="md" density={density}>
+              <kit.KitText part="value" role="number" numberScale="compact" density={density} tabular>
+                {score}
+              </kit.KitText>
+            </kit.KitContent>
+          );
+          return (
+            <kit.KitRow
+              key={id}
+              item={id}
+              label={label}
+              leading={rank}
+              trailing={value}
+              inset="none"
+              density={density}
+            >
+              <kit.KitText part="name" role="body" density={density} lines={1}>
+                {name}
+              </kit.KitText>
+            </kit.KitRow>
+          );
+        })}
+      </kit.KitGrid>
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
-function ChallengeAction({ input, words, density }: {
-  input: ChallengeProps; words: ChallengeText; density: c.ThemeDensity;
+function ChallengeAction({
+  input,
+  words,
+  density,
+}: {
+  input: ChallengeProps;
+  words: ChallengeText;
+  density: c.ThemeDensity;
 }) {
   const { controller, interactive } = kit.useKit();
   const part = input.joined ? "log" : "join";
   const label = words.action;
-  if (words.ended && (controller || !interactive)) return (
-    <kit.KitRow part={part} role="button" inline {...{ label, density }}>
-      <kit.KitText part={`${part}_label`} role="label" tone="accent">{label}</kit.KitText>
-    </kit.KitRow>
+  if (words.ended && (controller || !interactive))
+    return (
+      <kit.KitRow part={part} role="button" inline {...{ label, density }}>
+        <kit.KitText part={`${part}_label`} role="label" tone="accent">
+          {label}
+        </kit.KitText>
+      </kit.KitRow>
+    );
+  return (
+    <kit.KitAction
+      {...{ part, label }}
+      goto={input.joined ? input.goto : undefined}
+      kind={words.ended ? "quiet" : "primary"}
+      full={!words.ended}
+    />
   );
-  return <kit.KitAction {...{ part, label }} goto={input.joined ? input.goto : undefined}
-    kind={words.ended ? "quiet" : "primary"} full={!words.ended} />;
 }
 
-// prettier-ignore
 export function Challenge(input: ChallengeProps) {
   const state = kit.useComponentState();
   const density = kit.useKit().density;
@@ -162,16 +243,24 @@ export function Challenge(input: ChallengeProps) {
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang } = kit.useWords(socialWordsFor);
   const words = challengeCopy({ ...input, detail }, state, lang);
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    <kit.KitContent density={density}>
-      <kit.KitText part="title" role="heading" density="comfortable">{input.title}</kit.KitText>
-      <kit.KitText part="days_left" role="label" density={density}>{words.daysLeft}</kit.KitText>
-      <kit.KitText part="ends" role="label" tone="muted" density={density}>{words.ends}</kit.KitText>
-    </kit.KitContent>
-    <ChallengeProgress {...{ input, words, density }} />
-    <ChallengeRankings top={input.top} {...{ words, density, lang }} />
-    <kit.KitContent group="response" density={density}>
-      <ChallengeAction {...{ input, words, density }} />
-    </kit.KitContent>
-  </kit.KitCard>;
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      <kit.KitContent density={density}>
+        <kit.KitText part="title" role="heading" density="comfortable">
+          {input.title}
+        </kit.KitText>
+        <kit.KitText part="days_left" role="label" density={density}>
+          {words.daysLeft}
+        </kit.KitText>
+        <kit.KitText part="ends" role="label" tone="muted" density={density}>
+          {words.ends}
+        </kit.KitText>
+      </kit.KitContent>
+      <ChallengeProgress {...{ input, words, density }} />
+      <ChallengeRankings top={input.top} {...{ words, density, lang }} />
+      <kit.KitContent group="response" density={density}>
+        <ChallengeAction {...{ input, words, density }} />
+      </kit.KitContent>
+    </kit.KitCard>
+  );
 }

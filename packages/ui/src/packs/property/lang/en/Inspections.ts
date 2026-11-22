@@ -21,8 +21,10 @@ export const words = {
     finalised: "Report finalised",
     signedOff: (date: string) => `Signed off ${date}`,
     dateTime: (date: string, time: string) => `${date} at ${time}`,
-    completion: (recorded: string, total: string, form: LDMLPluralRule) =>
-      `${recorded} of ${total} ${form === "one" ? "check" : "checks"} recorded`,
+    completion: (recorded: string, total: string, form: LDMLPluralRule) => ({
+      count: `${recorded} of ${total}`,
+      label: `${form === "one" ? "check" : "checks"} recorded`,
+    }),
     previous: "Previous report referenced",
     coSign: "Co-sign check",
     coSigned: "Tenant co-signed",

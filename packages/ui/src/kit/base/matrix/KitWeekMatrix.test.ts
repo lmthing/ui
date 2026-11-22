@@ -4,6 +4,7 @@ import { component, presets, size, space } from "@lmthing/ui/catalog";
 import { KitWeekMatrix } from "@lmthing/ui/kit";
 import { elementAt, styleAt } from "../../../../test/render";
 import { renderMatrix, text } from "./matrix-drawing.test";
+import { wholeColumnViewport } from "./matrix-layout";
 
 const days = Array.from({ length: 7 }, (_, index) => ({
   id: `d${index}`,
@@ -29,6 +30,11 @@ const cases = presets.flatMap(({ id }) =>
   ),
 );
 describe("KitWeekMatrix column sizing", () => {
+  it("rests on whole columns only when the resulting viewport can still show its widest cell", () => {
+    expect(wholeColumnViewport(255, [64, 104, 100, 62])).toBe(168);
+    expect(wholeColumnViewport(255, [64, 216, 100, 62])).toBeUndefined();
+    expect(wholeColumnViewport(255, [64, 104])).toBeUndefined();
+  });
   it("fits the weekday heading and shares the width among all four days-down columns", () => {
     const meals = ["First", "Second", "Third", "Fourth"].map((label, index) => ({
       ...rows[0]!,
@@ -57,9 +63,9 @@ describe("KitWeekMatrix column sizing", () => {
     const across = renderMatrix(createElement(KitWeekMatrix, props));
     expect(across).toContain('role="region"');
     expect(renderMatrix(createElement(KitWeekMatrix, down))).toContain('role="region"');
-    expect(styleAt(across, elementAt(across, "home/c1/week").children[0]!)).toContain(
-      `width:${size.control.md * 3}px`,
-    );
+    const rail = styleAt(across, elementAt(across, "home/c1/week").children[0]!);
+    expect(rail).toContain("width:max-content");
+    expect(rail).toContain(`max-width:${size.control.md * 3}px`);
   });
 });
 describe("KitWeekMatrix", () => {

@@ -54,6 +54,7 @@ export type HostIntent = {
 };
 export type HostActionPolicy = {
   isDisabled?: (address: string) => boolean;
+  scannerBrightnessAvailable?: boolean;
   allowsLink?: (destination: string) => boolean;
   allowsCommand?: (intent: HostIntent) => boolean;
   operation?: (subject: Subject) => HostOperation | undefined;
@@ -118,6 +119,7 @@ export function hostOffer(
   policy?: HostActionPolicy,
   rows?: ReadonlyMap<string, Values>,
 ): Affordance | undefined {
+  if (offer.hostSecret === "brightness" && policy?.scannerBrightnessAvailable === false) return;
   const { address, action, part, detail } = offer;
   const isRow = address !== (part === "root" ? instance : `${instance}/${part}`);
   const row = isRow ? rows?.get(address.split("/")[1]!) : undefined;

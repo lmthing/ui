@@ -77,7 +77,7 @@ async function runOne(
   }
   const prompt = writePrompt(def, probe.brief);
   const reply = await callModel(prompt, 0, writerFormatFor(def), componentReplayProbe(def, probe, prompt));
-  const { pass, detail } = scoreWrite(reply, def, probe.variant, probe.expectProps);
+  const { pass, detail } = scoreWrite(reply, def, probe.variant, probe.expectProps, probe.fields);
   return { ...base, prompt, reply, status: pass ? "pass" : "fail", detail };
 }
 

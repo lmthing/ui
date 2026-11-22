@@ -102,7 +102,6 @@ function extraRelated(files: readonly string[], tests: readonly string[]) {
   for (const file of files) {
     if (componentPrompt.test(file)) {
       related.add(file.replace(/\.prompt\.md$/, ".tsx"));
-      related.add("scripts/build/entries/prompt-parity.test.ts");
       related.add("test/probes.test.ts");
     }
     if (file.startsWith("test/recordings/Archetypes/")) related.add("test/archetypes.test.ts");

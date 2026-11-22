@@ -1,3 +1,5 @@
+import { barcodeModules, barcodeQuiet } from "../../../catalog";
+
 // ISO/IEC 15417: alternating bar and space widths, indexed by Code 128 symbol value.
 const widths = (
   "212222 222122 222221 121223 121322 131222 122213 122312 132212 221213 221312 231212 " +
@@ -11,23 +13,20 @@ const widths = (
   "114311 411113 411311 113141 114131 311141 411131 211412 211214 211232 2331112"
 ).split(" ");
 
-const quiet = 10;
 const barHeight = 48;
 
 /** Encode printable ASCII (B) or pairs of digits (C), without inventing issuer-specific data. */
 export function barcodeDrawing(value: string | undefined, moduleBudget: number) {
-  if (!value || /[^\x20-\x7E]/.test(value)) return;
-  const pairs = value.length % 2 === 0 && !/\D/.test(value);
-  const symbols = pairs ? value.length / 2 : value.length;
-  const side = 2 * quiet + 11 * (symbols + 2) + 13;
-  if (side > moduleBudget) return;
+  const modules = barcodeModules(value);
+  if (!value || !modules || modules.side > moduleBudget) return;
+  const { pairs, side } = modules;
   const start = pairs ? 105 : 104;
   const data = pairs
     ? value.match(/../g)!.map(Number)
     : Array.from(value, (letter) => letter.charCodeAt(0) - 32);
   const checksum = data.reduce((sum, code, index) => sum + code * (index + 1), start) % 103;
   const bars: string[] = [];
-  let x = quiet;
+  let x = barcodeQuiet;
   for (const symbol of [start, ...data, checksum, 106])
     Array.from(widths[symbol]!, Number).forEach((width, index) => {
       if (index % 2 === 0) bars.push(`M${x} 0h${width}v${barHeight}h${-width}z`);

@@ -36,19 +36,25 @@ function JumpEffect({ jump, scroll }: { jump: MatrixJump; scroll: RefObject<Scro
   return null;
 }
 
+type MatrixScrollProps = {
+  children: ReactNode;
+  loading?: boolean | undefined;
+  fitted?: boolean | undefined;
+  label: string;
+  jump?: MatrixJump | undefined;
+  pages?: { width: number; setPosition: (page: number) => void };
+  width?: number | undefined;
+};
+
 export function MatrixScroll({
   children,
   loading = false,
   fitted,
   label,
   jump,
-}: {
-  children: ReactNode;
-  loading?: boolean | undefined;
-  fitted?: boolean | undefined;
-  label: string;
-  jump?: MatrixJump | undefined;
-}) {
+  pages,
+  width,
+}: MatrixScrollProps) {
   const scroll = useRef<ScrollNode>(null);
   const kit = useKit();
   if (fitted) return <>{children}</>;
@@ -57,13 +63,23 @@ export function MatrixScroll({
       ref={scroll as never}
       horizontal
       minWidth={component.base.none}
+      {...(width === undefined ? {} : { width, flexGrow: component.base.none })}
       showsHorizontalScrollIndicator
       contentContainerStyle={{ minWidth: "100%" }}
+      {...(pages && {
+        pagingEnabled: true,
+        ...(isWeb ? { style: { scrollSnapType: "x mandatory" } as never } : {}),
+        scrollEventThrottle: 32,
+        onScroll: (event: { nativeEvent: { contentOffset: { x: number } } }) => {
+          if (pages.width)
+            pages.setPosition(Math.max(0, Math.round(event.nativeEvent.contentOffset.x / pages.width)));
+        },
+      })}
       {...({
         role: "region",
         tabIndex: loading ? -1 : 0,
         "aria-label": label,
-        onKeyDown: matrixKey,
+        onKeyDown: (event: Parameters<typeof matrixKey>[0]) => matrixKey(event, Boolean(pages)),
       } as object)}
       onFocus={(event: { target: unknown }) => {
         const node = scroll.current?.getScrollableNode?.();

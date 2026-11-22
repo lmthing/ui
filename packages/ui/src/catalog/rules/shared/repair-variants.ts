@@ -3,8 +3,8 @@ import type { JsonSchema } from "../../format";
 import type { Definition } from "../../probes";
 import { variantAxes } from "../../props";
 import type { Axis, Variants } from "../../types";
+import { lineCodes } from "../../lines";
 
-const variantRepair = "R2.variant";
 type Props = Record<string, unknown>;
 const isProps = (value: unknown): value is Props =>
   value !== null && typeof value === "object" && !Array.isArray(value);
@@ -13,7 +13,7 @@ function repairFields(
   input: Props,
   axes: Variants | undefined,
   fields: () => JsonSchema["properties"],
-  codes: (typeof variantRepair)[],
+  codes: (typeof lineCodes.variant)[],
 ): Props {
   let repaired = input;
   for (const [key, value] of Object.entries(input)) {
@@ -28,7 +28,7 @@ function repairFields(
     if (repaired === input) repaired = { ...input };
     if (values) repaired[key] = values[0];
     else delete repaired[key];
-    codes.push(variantRepair);
+    codes.push(lineCodes.variant);
   }
   return repaired;
 }
@@ -39,9 +39,9 @@ export function repairVariants(
   input: unknown,
 ): {
   props: unknown;
-  codes: (typeof variantRepair)[];
+  codes: (typeof lineCodes.variant)[];
 } {
-  const codes: (typeof variantRepair)[] = [];
+  const codes: (typeof lineCodes.variant)[] = [];
   if (!isProps(input)) return { props: input, codes };
   let schema: JsonSchema | undefined;
   const fields = () =>

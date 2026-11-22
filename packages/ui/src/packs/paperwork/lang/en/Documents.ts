@@ -20,5 +20,7 @@ export const words = {
     attached: "File attached",
     unavailable: "File unavailable",
     remove: (title: string) => `Remove ${title} from the register`,
+    unfiled: "Unfiled",
+    shareFile: (title: string) => `Share ${title}`,
   },
 };

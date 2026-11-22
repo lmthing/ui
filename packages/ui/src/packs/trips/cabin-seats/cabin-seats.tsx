@@ -86,10 +86,93 @@ function cabinRow(
   };
 }
 
+type CabinWords = ReturnType<typeof tripsWordsFor>["cabinSeats"];
+type CabinPlan = {
+  cabinRows: ReturnType<typeof cabinRow>[];
+  legend: ReturnType<typeof cabinLegend>;
+  preview: string;
+  fee: ReturnType<typeof cabinFee>;
+  loading: boolean;
+  selected: Picked | undefined;
+};
+
+function RenderCabinPlan(
+  { cabin, passenger, confirmPart, density }: CabinSeatsView,
+  words: CabinWords,
+  { cabinRows, legend, preview, fee, loading, selected }: CabinPlan,
+) {
+  return (
+    <KitContent density={density}>
+      {passenger && (
+        <KitLayoutText
+          line={{ text: passenger, part: "passenger", role: "meta", tone: "muted" }}
+          density={density}
+        />
+      )}
+      <SeatPlan
+        kind="grid"
+        part={null}
+        sections={cabinRows.length ? [{ id: "cabin", label: cabin, rows: cabinRows }] : []}
+        {...(legend ? { legend: { text: legend, role: "caption", part: "legend" } } : {})}
+        preview={{ text: preview, role: "body", part: "preview" }}
+      />
+      {fee && (
+        <KitGrid fitLast density={density}>
+          <KitLayoutText
+            line={{ text: words.upgradeLabel, role: "meta", tone: "muted", part: "fee_label" }}
+            density={density}
+          />
+          <KitLayoutText
+            line={{ text: fee, role: "figure", compact: true, tabular: true, part: "fee" }}
+            align="end"
+            density={density}
+          />
+        </KitGrid>
+      )}
+      <KitActionFooter density={density}>
+        <KitAction
+          part={loading ? null : confirmPart}
+          action="press"
+          label={words.confirm}
+          contentParts={{}}
+          kind={selected ? "primary" : "secondary"}
+          disabled={!selected}
+        />
+      </KitActionFooter>
+    </KitContent>
+  );
+}
+
+function CabinSuccessCard(
+  { cabin, rows, passenger, density }: CabinSeatsView,
+  lang: string,
+  words: CabinWords,
+  finish: Pick<CabinSeatsView, "density" | "surface">,
+) {
+  return (
+    <KitCard part="root" padded {...finish}>
+      <KitEmpty
+        part="notice"
+        density={density}
+        tone="good"
+        prominence="heading"
+        icon="check"
+        announce="status"
+        decorativeIcon
+        title={cabinSuccess(rows, lang)}
+        sub={words.details(cabin, passenger)}
+      />
+    </KitCard>
+  );
+}
+
 /** The seat owner projects the single selection and supplies select/confirm targets. */
-// prettier-ignore
-export function CabinSeats({ cabin, columns, rows, passenger, style, selection, confirmPart, density, surface }: CabinSeatsView) {
-  const { lang, words: { cabinSeats: words } } = useWords(tripsWordsFor);
+export function CabinSeats(input: CabinSeatsView) {
+  const { rows, columns, style, selection, density, surface } = input;
+  const {
+    lang,
+    words: { cabinSeats: words },
+  } = useWords(tripsWordsFor);
   const currency = useAppCurrency();
   const state = useComponentState();
   const operation = useHostOperations().find(({ name }) => name === "reserve_seat");
@@ -103,25 +186,8 @@ export function CabinSeats({ cabin, columns, rows, passenger, style, selection, 
   const fee = cabinFee(selected?.seat.fee, currency, lang);
   const loading = state === "loading";
   const finish = { ...(density ? { density } : {}), ...(surface ? { surface } : {}) };
-  if (state === "success") return <KitCard part="root" padded {...finish}>
-    <KitEmpty part="notice" density={density} tone="good" prominence="heading" icon="check" announce="status" decorativeIcon
-      title={cabinSuccess(rows, lang)} sub={words.details(cabin, passenger)} />
-  </KitCard>;
-  const plan = <KitContent density={density}>
-    {passenger && <KitLayoutText line={{ text: passenger, part: "passenger", role: "meta", tone: "muted" }} density={density} />}
-    <SeatPlan kind="grid" part={null}
-      sections={cabinRows.length ? [{ id: "cabin", label: cabin, rows: cabinRows }] : []}
-      {...(legend ? { legend: { text: legend, role: "caption", part: "legend" } } : {})}
-      preview={{ text: preview, role: "body", part: "preview" }} />
-    {fee && <KitGrid fitLast density={density}>
-      <KitLayoutText line={{ text: words.upgradeLabel, role: "meta", tone: "muted", part: "fee_label" }} density={density} />
-      <KitLayoutText line={{ text: fee, role: "figure", compact: true, tabular: true, part: "fee" }} align="end" density={density} />
-    </KitGrid>}
-    <KitActionFooter density={density}>
-      <KitAction part={loading ? null : confirmPart} action="press" label={words.confirm} contentParts={{}}
-        kind={selected ? "primary" : "secondary"} disabled={!selected} />
-    </KitActionFooter>
-  </KitContent>;
+  if (state === "success") return CabinSuccessCard(input, lang, words, finish);
+  const plan = RenderCabinPlan(input, words, { cabinRows, legend, preview, fee, loading, selected });
   return (
     <KitCard part="root" padded {...finish}>
       <KitState
@@ -133,8 +199,12 @@ export function CabinSeats({ cabin, columns, rows, passenger, style, selection, 
         <KitContent density={density}>
           {state === "filled" && (operation?.status === "pending" || operation?.status === "rejected") && (
             <KitLayoutText
-              line={{ text: operation.status === "pending" ? words.pending : words.error,
-                part: "notice", role: "meta", tone: operation.status === "pending" ? "muted" : "bad" }}
+              line={{
+                text: operation.status === "pending" ? words.pending : words.error,
+                part: "notice",
+                role: "meta",
+                tone: operation.status === "pending" ? "muted" : "bad",
+              }}
               density={density}
             />
           )}
