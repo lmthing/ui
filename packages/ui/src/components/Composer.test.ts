@@ -23,6 +23,7 @@ describe("Composer schema", () => {
       hint: "Write here",
       max: 600,
       sendable: false,
+      attachments: [],
       detail: "full",
     });
   });
@@ -52,7 +53,7 @@ describe("Composer schema", () => {
   });
   it("types view props without presentation overrides", () => {
     type ViewProps = Props<typeof props, typeof meta>;
-    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"entry" | "reply">();
+    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"entry" | "reply" | "prompt">();
     expectTypeOf<ViewProps["max"]>().toEqualTypeOf<number>();
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
   });
@@ -110,6 +111,18 @@ describe("Composer fallback, metadata and actions", () => {
 });
 
 describe("Composer rendering", () => {
+  it("shows the empty hint and a separate sent treatment", () => {
+    const html = renderInstance("Composer", examples[1], "success", theme);
+    expect(html).toContain('data-testid="home/c1/sent"');
+    expect(html).not.toContain("<textarea");
+    expect(renderInstance("Composer", examples[4], "empty", theme)).toContain('placeholder="Write a reply"');
+  });
+  it("shows optional context, chips, and addressed prompt tools", () => {
+    const html = renderInstance("Composer", { ...examples[3], replyingTo: "Anna" }, "filled", theme);
+    for (const part of ["replying_to", "r1/label", "attach", "voice", "send"])
+      expect(html).toContain(`data-testid="home/c1/${part}"`);
+    expect(html).toContain("Run prompt");
+  });
   it("draws an entry with a multi-line box and a count, and no send", () => {
     const html = renderInstance("Composer", examples[0], "filled", theme);
     expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);

@@ -1,1 +1,1 @@
-export { CabinSeats, type CabinSeatsView } from "./cabin-seats";
+export * from "./cabin-seats";

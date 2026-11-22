@@ -131,7 +131,7 @@ describe("Bars fallback", () => {
 });
 
 describe("Bars metadata and reading", () => {
-  it("declares exactly the drawn parts, states, and no actions", () => {
+  it("declares the drawn parts and actions only for linked share rows", () => {
     expect(meta).toMatchObject({
       id: "Bars",
       group: "data",
@@ -139,11 +139,15 @@ describe("Bars metadata and reading", () => {
       weight: 2,
       tier: "phone",
       items: { key: "points", parts: ["root", "label"] },
-      parts: ["root", "title", "total"],
+      parts: ["root", "title", "total", "status"],
       states: ["filled", "empty", "loading"],
     });
-    for (const example of examples)
+    for (const example of examples.slice(0, -1))
       expect(affordancesOf(meta, stampItemIds(meta, props.parse(example)), "c1")).toEqual([]);
+    const link = stampItemIds(meta, props.parse(examples.at(-1)));
+    expect(affordancesOf(meta, link, "c1").map(({ address, action }) => ({ address, action }))).toEqual([
+      { address: "c1/r1", action: "press" },
+    ]);
   });
   it("has a real path and the required choose and write probes", () => {
     expect(meta.realPath).not.toBe("");
@@ -161,4 +165,14 @@ describe("Bars metadata and reading", () => {
     expect(meta.read(stampItemIds(meta, props.parse(input)), "filled")).toEqual(["Total 8", "Mon 3, Tue 5"]);
     for (const state of ["empty", "loading"] as const) expect(meta.read(input, state)).toEqual([]);
   });
+});
+
+it("keeps a share's original addresses when ordering the legend by amount", () => {
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  const html = renderInstance("Bars", examples.at(-1), "filled", theme);
+  expect(html.indexOf('data-testid="home/c1/r2/label"')).toBeLessThan(
+    html.indexOf('data-testid="home/c1/r1/label"'),
+  );
+  expect(props.safeParse({ ...input, active: 2 }).success).toBe(false);
+  expect(meta.read(props.parse({ ...input, active: 0 }), "filled")).toContain("Current: Mon");
 });

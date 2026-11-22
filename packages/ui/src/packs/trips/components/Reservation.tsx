@@ -141,13 +141,9 @@ function ReservationBody({ input, finish, loading }: { input: ReservationProps; 
   const arrive = <ReservationStop part="end" place={destination} stamp={end} {...{ kind, finish, loading }} />;
   return <>
     <kit.KitContent {...finish}>
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" density="comfortable"
-        content={[["caption", kindLabel, finish.align], ["heading", title, finish.align], ["body", location, finish.align]]} />
-        : <>
-          <kit.KitText part="kind" role="caption" tone="muted" {...finish}>{kindLabel}</kit.KitText>
-          <kit.KitText part="title" role="heading" {...finish} density="comfortable">{title}</kit.KitText>
-          {location && <kit.KitText part="to" role="body" {...finish}>{location}</kit.KitText>}
-        </>}
+      <kit.KitLayoutText line={{ text: kindLabel, part: "kind", role: "caption", tone: "muted" }} {...finish} />
+      <kit.KitHeader title={{ text: title, part: "title", role: "body", strong: true }}
+        meta={{ text: location, part: "to", role: "body", tone: "text" }} {...finish} />
     </kit.KitContent>
     {destination || end ? <kit.KitGrid density={finish.density}>{depart}{arrive}</kit.KitGrid> : depart}
     {seatLabel && (loading
@@ -162,22 +158,22 @@ export function Reservation(input: ReservationProps) {
   const loading = kit.useComponentState() === "loading";
   const { words } = kit.useWords(tripsWordsFor);
   const density = kit.useVariant("density", meta.variants.density, input.density);
-  const align = kit.useVariant("align", meta.variants.align, input.align);
+  const preferredAlign = kit.useVariant("align", meta.variants.align, input.align);
+  const align = style === "pass" ? "center" : preferredAlign;
   const finish = { density, align };
-  const refAlign = style === "pass" ? "center" : align;
-  const reference = <kit.KitContent {...finish} align={refAlign}>
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
-        content={[["caption", words.reservationRef, refAlign], ["body", ref, refAlign]]} />
-        : <>
-          <kit.KitText part={null} role="caption" tone="muted" {...finish} align={refAlign}>{words.reservationRef}</kit.KitText>
-          <kit.KitText part="ref_value" role="body" tabular {...finish} align={refAlign}>{ref}</kit.KitText>
-        </>}
-  </kit.KitContent>;
-  const copy = loading ? <kit.KitSkeleton shape="control" inset="none" kind="quiet" />
+  const copy = loading ? <kit.KitSkeleton shape="control" kind="quiet" inset="none" />
     : <kit.KitAction action="press" part="ref" kind="quiet" icon="clipboard" a11y={words.copyReservationRef} />;
-  const stub = refAlign === "center"
-    ? <kit.KitRow part={null} inline lineRole="display" label={words.reservationRef} leadingWidth="avatar"
-      leading={<kit.KitContent>{null}</kit.KitContent>} trailing={copy}>{reference}</kit.KitRow>
+  const reference = <kit.KitMetaLine {...finish}
+    title={{ text: words.reservationRef, role: "caption", tone: "muted" }}
+    meta={{ text: ref, part: "ref_value", role: "body", tone: "text", tabular: true }} />;
+  const stub = align === "center"
+    ? <kit.KitContent {...finish}>
+        <kit.KitLayoutText line={{ text: words.reservationRef, role: "caption", tone: "muted" }} {...finish} />
+        <kit.KitActionFooter density={density}>
+          <kit.KitLayoutText line={{ text: ref, part: "ref_value", tabular: true }} {...finish} />
+          {copy}
+        </kit.KitActionFooter>
+      </kit.KitContent>
     : <kit.KitGrid fitLast density={density}>{reference}{copy}</kit.KitGrid>;
   return <kit.KitTicket part="root" style={style ?? "card"} label={words.openReservation(title)}
     {...(!loading && { target: { part: "root" } })}
@@ -185,6 +181,8 @@ export function Reservation(input: ReservationProps) {
       {stub}
       <kit.KitCode part={loading ? null : "code"} value={ref} label={words.reservationCode} loading={loading} />
     </kit.KitContent> : stub}>
-    <ReservationBody {...{ input, finish, loading }} />
+    <kit.KitState density={density} loading={<ReservationBody {...{ input, finish, loading }} />}>
+      <ReservationBody {...{ input, finish, loading }} />
+    </kit.KitState>
   </kit.KitTicket>;
 }
