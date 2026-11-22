@@ -17,6 +17,10 @@ export type DataWords = {
   chartSeriesPoints: (series: string) => string;
   chartUnit: (unit: string) => string;
   chartValue: (value: string, unit: string) => string;
+  funnelConversion: string;
+  funnelEmpty: string;
+  funnelFromPrevious: (rate: string) => string;
+  funnelUnavailable: string;
   heatDay: (index: number, short?: boolean) => string;
   heatDetail: (style: "weeks" | "hours") => string;
   heatHour: (hour: string, short?: boolean) => string;
@@ -47,6 +51,10 @@ export const en = {
   chartSeriesPoints: (series) => `${series} data points`,
   chartUnit: (unit) => `Unit: ${unit}`,
   chartValue: (value, unit) => `${value} ${unit}`,
+  funnelConversion: "Overall conversion",
+  funnelEmpty: "No stage activity yet",
+  funnelFromPrevious: (rate) => `${rate} from previous`,
+  funnelUnavailable: "Not available",
   heatDay: (index, short) =>
     (short
       ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
