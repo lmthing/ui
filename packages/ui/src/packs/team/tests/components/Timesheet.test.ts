@@ -130,8 +130,8 @@ describe("Timesheet parts, reading and variants", () => {
     const parts = addressedElements(html);
     for (const part of ["root", "period", "matrix"]) expect(parts.has(`home/c1/${part}`)).toBe(true);
     for (const part of meta.items.parts) {
-      expect(parts.has(`home/c1/r1/${part}`)).toBe(part !== "approved");
-      expect(parts.has(`home/c1/r2/${part}`)).toBe(!["approve", "approve_label"].includes(part));
+      expect(parts.has(`home/c1/r1/${part}`)).toBe(!["approved", "punches"].includes(part));
+      expect(parts.has(`home/c1/r2/${part}`)).toBe(!["approve", "approve_label", "punches"].includes(part));
     }
     expect(html.match(/data-testid="home\/c1\/r1\/hours"/g)).toHaveLength(1);
     for (const day of wordsFor().weekdayShort) expect(html).toContain(`>${day}<`);
@@ -161,6 +161,32 @@ describe("Timesheet parts, reading and variants", () => {
     expect(reading).toContain("Total 43.5 h · Overtime 3.5 h");
     expect(reading).toContain("[t1/r1/approve press");
   });
+});
+
+it("lets an employee review their punches before submitting, without offering manager approval", () => {
+  const input = examples[2]!;
+  const html = view(input);
+  expect(html).toContain("07:00–11:00");
+  expect(html).toContain("Clock punches");
+  const parts = addressedElements(html);
+  expect(parts.has("home/c1/r1/approve")).toBe(false);
+  expect(parts.has("home/c1/submit")).toBe(true);
+  expect(view({ ...input, detail: "brief" })).not.toContain("07:00–11:00");
+  const onAction = vi.fn();
+  const controller = createScreenController({
+    screen: { id: "home", components: [{ ...input, id: "t1", c: "Timesheet" }] },
+    defs: components,
+    onAction,
+  });
+  expect(controller.read()).toContain("Monday 07:00–11:00");
+  expect(controller.press("t1/r1/approve").ok).toBe(false);
+  expect(controller.press("t1/submit").ok).toBe(true);
+  expect(onAction).toHaveBeenCalledWith({ address: "home/t1/submit", action: "press" });
+  controller.dispose();
+  const open = { ...input, rows: [{ ...input.rows[0]!, punches: [{ day: 0, from: "07:00" }] }] };
+  expect(view(open)).toContain("Still open");
+  expect(readComponent(def, open, "t1").join("\n")).not.toContain("[t1/submit");
+  expect(props.safeParse({ ...input, rows: full.rows }).success).toBe(false);
 });
 
 describe("Timesheet states and approval dispatch", () => {
