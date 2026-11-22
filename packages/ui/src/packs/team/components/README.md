@@ -14,6 +14,7 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `Handover.tsx`
 - `LeaveBalance.tsx`
 - `PayStub.tsx`
+- `TeamDirectory.tsx`
 
 Rules:
 - Same file shape as `src/components/`: exports `meta`, `props`, `fallback`, `examples`, `probes`, view.
