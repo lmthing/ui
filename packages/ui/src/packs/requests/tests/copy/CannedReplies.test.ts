@@ -10,13 +10,22 @@ it("folds whitespace and shortens only long snippets at a word boundary", () => 
   expect(cannedReplySnippet("a".repeat(90))).toBe(`${"a".repeat(78)}…`);
 });
 
+it("keeps complete sentences when more of the template can be opened separately", () => {
+  const first = "Could you send a photo of the spotted leaf?";
+  expect(cannedReplySnippet(`${first} A photo in daylight helps me check for pests and leaf damage.`)).toBe(
+    first,
+  );
+});
+
 it("keeps uncategorized templates on All and projects visibility without dropping ids", () => {
   const templates = [
     { id: "r1", title: "One", body: "Pending" },
     { id: "r2", title: "Two", category: "Update", body: "Ordered" },
   ];
   expect(validReplyCategories({ categories: ["Update"], templates })).toBe(true);
-  expect(projectCannedReplies({ templates, activeCategory: "Update", preview: "r2" })).toMatchObject({
+  expect(
+    projectCannedReplies({ templates, categories: ["Update"], activeCategory: "Update", preview: "r2" }),
+  ).toMatchObject({
     templates: [
       { id: "r1", visible: false, previewOpen: false },
       { id: "r2", visible: true, previewOpen: true },

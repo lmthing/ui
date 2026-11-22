@@ -20,6 +20,7 @@ export function validReplyCategories({
   const names = new Set(categories);
   return (
     !names.has(allReplyCategories()) &&
+    !names.has(requestsWordsFor().cannedReplies.all) &&
     names.size === categories.length &&
     (!activeCategory || names.has(activeCategory)) &&
     templates.every(({ category }) => category === undefined || names.has(category))
@@ -38,6 +39,12 @@ export const cannedReplyPreview = defineLocalState({
 export function cannedReplySnippet(body: string, lang?: string) {
   const line = body.replace(/\s+/g, " ");
   if (line.length <= snippetLimit) return line;
+  let sentenceEnd = 0;
+  for (const { index } of line.matchAll(/[.!?](?= |$)/g)) {
+    if (index >= snippetLimit) break;
+    sentenceEnd = index + 1;
+  }
+  if (sentenceEnd) return line.slice(0, sentenceEnd);
   const piece = line.slice(0, snippetLimit + 1);
   const end = piece.lastIndexOf(" ");
   return requestsWordsFor(lang).cannedReplies.snippet(
@@ -48,6 +55,10 @@ export function cannedReplySnippet(body: string, lang?: string) {
 export function projectCannedReplies(input: Readonly<Values>): Values {
   const templates = input.templates as Template[];
   return {
+    categoryChoices: [
+      ...(input.categories as string[]),
+      { value: allReplyCategories(), label: requestsWordsFor().cannedReplies.all },
+    ],
     templates: templates.map((row) => ({
       ...row,
       visible: !input.activeCategory || input.activeCategory === row.category,
@@ -66,17 +77,15 @@ export function readCannedReplies(raw: unknown, state: StateName, lang?: string)
   };
   const words = requestsWordsFor(lang).cannedReplies;
   const rows = input.templates.filter(({ visible }) => visible);
-  const lines = rows.flatMap(({ id, previewOpen, body }) =>
-    previewOpen
-      ? [`${id}: ${body}`]
-      : input.detail === "brief"
-        ? []
-        : [`${id}: ${cannedReplySnippet(body, lang)}`],
-  );
+  const brief = input.detail === "brief";
+  const lines = rows.flatMap(({ id, previewOpen, body, title }) => {
+    const text = previewOpen ? body : brief ? undefined : cannedReplySnippet(body, lang);
+    return [...(brief ? [words.insertReply(title)] : []), ...(text ? [`${id}: ${text}`] : [])];
+  });
   return [
     words.title,
     ...(input.categories.length ? [words.all, ...input.categories] : []),
-    ...(rows.length ? [input.detail === "brief" ? words.preview : words.insert] : []),
+    ...(rows.length ? [brief ? words.preview : words.insert] : []),
     ...(rows.length ? lines : [words.noMatches]),
   ];
 }

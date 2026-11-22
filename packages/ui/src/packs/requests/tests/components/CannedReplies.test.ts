@@ -46,6 +46,7 @@ describe("CannedReplies contract", () => {
     { categories: Array(6).fill("Diagnosis") },
     { categories: ["Diagnosis", "Diagnosis"] },
     { categories: [allReplyCategories()] },
+    { categories: ["All"] },
     { categories: ["x".repeat(17)] },
     { activeCategory: "Missing" },
     { categories: [] },
@@ -92,10 +93,12 @@ describe("CannedReplies read and act", () => {
     if (!result.ok) throw new Error(result.code);
     const filtered = readScreen(scene, defs, result.values);
     expect(filtered).not.toContain(first!.title);
+    expect(filtered).toContain('choices ["Diagnosis","Update","All"]');
+    expect(filtered).not.toContain(allReplyCategories());
     expect(filtered).toContain(`r2 "${second!.title}" [replies/r2/insert press] [replies/r2 press]`);
     expect(planAct(scene, defs, result.values, [preview("r1")]).ok).toBe(false);
     expect(planAct(scene, defs, result.values, [insert("r1")]).ok).toBe(false);
-    const reset = planAct(scene, defs, result.values, [select(allReplyCategories())]);
+    const reset = planAct(scene, defs, result.values, [select("All")]);
     if (!reset.ok) throw new Error(reset.code);
     expect(readScreen(scene, defs, reset.values)).toContain(first!.title);
   });

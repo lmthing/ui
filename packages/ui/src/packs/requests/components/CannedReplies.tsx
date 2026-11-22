@@ -25,7 +25,7 @@ export const meta = {
   parts: ["root", "title", "category", "empty"],
   items: { key: "templates", visibleWhen: { visible: true }, parts: ["root", "title", "snippet", "preview", "insert"] },
   actions: { parts: { category: ["select"] }, items: { insert: ["press"], root: ["press"] }, when: { category: { hasCategories: true } } },
-  selections: { category: { prop: "activeCategory", choices: { prop: "categories" }, runtime: true, clear: allReplyCategories() } },
+  selections: { category: { prop: "activeCategory", choices: { prop: "categoryChoices" }, runtime: true, clear: allReplyCategories() } },
   localState: cannedReplyPreview,
   live: { derive: projectCannedReplies },
   drives: { commands: [
@@ -110,25 +110,31 @@ function ReplyCategories({ categories, value, words, loading }: {
 function ReplyRow({ row, brief, density, words, lang, loading }: {
   row: Reply; brief: boolean; density: c.ThemeDensity; words: RequestsWords["cannedReplies"]; lang: string; loading: boolean;
 }) {
-  const insert = <kit.KitAction part="insert" label={brief ? row.title : words.insert}
-    kind={brief ? "secondary" : "quiet"} a11y={words.insertReply(row.title)}
+  const insert = <kit.KitAction part="insert" label={brief ? words.insertReply(row.title) : words.insert}
+    kind={brief ? "secondary" : "quiet"}
     contentParts={brief ? { label: "title" } : {}} />;
+  const text = row.previewOpen ? row.body : brief ? undefined : cannedReplySnippet(row.body, lang);
+  const body = <kit.KitLayoutText density={density} line={{
+    text, part: row.previewOpen ? "preview" : "snippet", role: "meta", tone: "muted",
+  }} />;
   const preview = <kit.KitRow part={loading ? null : "root"} role={loading ? "text" : "button"} expanded={row.previewOpen}
     inset="none" inline leading={brief ? undefined : <kit.KitIcon decorative loading={loading}
       name={row.previewOpen ? "minus" : "plus"} tone="muted" />}
     label={words.previewReply(row.title)} density={density}>
-    <kit.KitLayoutText density={density} line={brief
-      ? { text: words.preview, role: "meta", tone: "muted" }
-      : { text: row.title, part: "title", strong: true }} />
+    <kit.KitContent density={density}>
+      <kit.KitLayoutText density={density} line={brief
+        ? { text: words.preview, role: "meta", tone: "muted" }
+        : { text: row.title, part: "title", strong: true }} />
+      {!brief && body}
+    </kit.KitContent>
   </kit.KitRow>;
-  const text = row.previewOpen ? row.body : brief ? undefined : cannedReplySnippet(row.body, lang);
   return <kit.KitRow item={row.id} part={null} inset="none" label={row.title} density={density}>
     <kit.KitContent density={density}>
       <kit.KitGrid fitLast density={density}>
         {brief ? insert : preview}
         {brief ? preview : insert}
       </kit.KitGrid>
-      <kit.KitLayoutText density={density} line={{ text, part: row.previewOpen ? "preview" : "snippet", role: "meta", tone: "muted" }} />
+      {brief && body}
     </kit.KitContent>
   </kit.KitRow>;
 }
