@@ -11,10 +11,7 @@ import {
   type ScreenLike,
   type Values,
 } from "../index";
-import { stageCredentialToggle } from "../credential-toggle";
-import { stageLinkedEdit } from "../linked-edits";
-import { stageRecord } from "./record-planning";
-import { localValues } from "./select-step";
+import { localValues } from "../live-props";
 
 export function expireProgress(
   screen: ScreenLike,
@@ -35,7 +32,7 @@ export function expireProgress(
   }
 }
 
-function stageProgress(
+export function stageProgress(
   screen: ScreenLike,
   defs: Record<string, Definition>,
   address: string,
@@ -79,24 +76,4 @@ function stageProgress(
   const value =
     role === "hold" && outcome.kind === "faces" ? outcome.held[holdIndex(def.meta, target)] : outcome;
   return ` = ${JSON.stringify(value)}`;
-}
-
-export function stageStepProgress(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  next: Values,
-  step: ActStep,
-  found: Affordance,
-  random: RandomSource | null,
-  snapshot: DeviceData | undefined,
-  now: number,
-  touchNow: () => number,
-) {
-  const record = stageRecord(screen, defs, next, step, snapshot, now);
-  if (record !== undefined) return record ? "" : false;
-  return (
-    stageCredentialToggle(screen, defs, next, step) ??
-    stageLinkedEdit(screen, defs, next, found, step.value) ??
-    stageProgress(screen, defs, step.address, step, next, random, snapshot, touchNow)
-  );
 }

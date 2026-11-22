@@ -25,7 +25,7 @@ import {
   type Values,
 } from "../../../catalog";
 import type { Confirmation, ControllerContext } from "./context";
-import type { PrivateMarks } from "../../../catalog/agent/action-input";
+import type { PrivateMarks } from "../../../catalog/agent/private-controls";
 import { commandForConfirmation } from "./host";
 import { matchesMediaConfirmation } from "./media";
 import { hasKeypads, withKeypadDrafts } from "./read-keypad-drafts";

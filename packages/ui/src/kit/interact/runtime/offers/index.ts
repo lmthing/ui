@@ -1,29 +1,20 @@
 import {
   atDeviceTime,
-  affordancesOf,
   declaresNumericLimits,
   driveAffordances,
-  driveTarget,
   hostOnlyAddresses,
   hostActionPolicy,
   isLocalAnchorAction,
-  liveProps,
-  parseControlProps,
   partTierAt,
   privateMarkKey,
   projectDeviceData,
-  projectDriveObservation,
-  projectSelectionBinding,
-  recordClockOffer,
-  reportEditWire,
-  selectionBindingFor,
   withDisabledSelectionChecks,
   withRecordScreen,
   type Affordance,
   type Meta,
-  type StateName,
   type Values,
 } from "../../../../catalog";
+import { componentOffers, localValues } from "../../../../catalog/agent/action-input";
 import type { ControllerContext } from "../context";
 import { driveAccess, inactive } from "../planning";
 
@@ -64,33 +55,22 @@ export function offersAt(
   const def = entry && ctx.defs[entry.c];
   if (!entry || !def || inactive(ctx, entry)) return [];
   try {
-    const localValues = Object.fromEntries(
-      Object.entries(values).map(([key, value]) => [key.replace(`${ctx.screen.id}/`, ""), value]),
-    );
-    const { id: _id, c: _c, state: _state, ...raw } = entry;
-    const get = (part: string) => localValues[`${id}/${part}`];
+    const localInput = localValues(ctx.screen.id, values);
     const projected = projectDeviceData(ctx.options.deviceData, values);
     const data = withRecordScreen(atDeviceTime(projected, now), ctx.screen);
-    const live = liveProps(def.meta, parseControlProps(def, raw, get), id, localValues, true, data);
-    const selection = selectionBindingFor(screen, ctx.defs, def.meta, id, localValues, data);
     const canDrive = driveAccess(ctx);
-    const target = driveTarget(def.meta, screen, ctx.defs, localValues, data, canDrive);
-    const props = projectDriveObservation(
-      def.meta,
-      projectSelectionBinding(def.meta, live, selection?.view),
-      id,
-      target,
-    );
-    const clock = recordClockOffer(def, raw, props, get, data, now, values);
-    const wire = reportEditWire(def, raw, get);
-    const state = (props.state as StateName | undefined) ?? entry.state;
     const policy = screen[hostActionPolicy];
     const host =
       ignoreDisabledPart && policy?.isDisabled
         ? { ...policy, isDisabled: (at: string) => at !== local && policy.isDisabled!(at) }
         : policy;
-    const offerContext = { data, clock, wire, schema: def.props, host, baselineInput: raw, now };
-    const offered = affordancesOf(def.meta, props, id, localValues, state, includeBlocked, offerContext);
+    const { props, target, offered } = componentOffers(screen, ctx.defs, entry, values, localInput, {
+      data,
+      now,
+      host,
+      includeBlocked,
+      canDrive,
+    });
     if (hostOnlyAddresses(def, id, offered)?.has(local)) return [];
     return driveAffordances(def.meta, props, id, offered, target).filter(
       (item) =>

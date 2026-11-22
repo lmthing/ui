@@ -6,7 +6,6 @@ import { peekLimit, wordsFor } from "../../lang";
 import { migrateLine } from "../../migrations";
 import { formatAffordance, visibleItems, type Affordance, type SessionState } from "../index";
 import { matches } from "../visibility";
-import { groupItemLines } from "./group-item-lines";
 import { secretPlaceholder } from "./secret-props";
 export { readAffordances, readOffers } from "./read-affordances";
 export { readContent } from "./component-content";
@@ -197,4 +196,25 @@ export function readItems(
     ...(disclosure ? [`  ${peekOpen ? words.peekLess : words.peekMore}`] : []),
     ...named.map((row) => `  ${row}`),
   ];
+}
+
+/** Keep first appearance order and every row's original address; unnamed rows stay separate. */
+function groupItemLines(items: Values[], field: string, render: (item: Values) => string): string[] {
+  const groups = new Map<string, string[]>();
+  const lines: string[][] = [];
+  for (const item of items) {
+    const label = item[field];
+    if (typeof label !== "string" || !label.trim()) {
+      lines.push([render(item)]);
+      continue;
+    }
+    const group = groups.get(label);
+    if (group) group.push(render(item));
+    else {
+      const parts = [`${JSON.stringify(label)}: ${render(item)}`];
+      groups.set(label, parts);
+      lines.push(parts);
+    }
+  }
+  return lines.map((line) => line.join("; "));
 }
