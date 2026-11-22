@@ -47,6 +47,15 @@ it("scrolls to the last stat with the player pinned, switches team, and opens th
   const last = await table.getByText("PF", { exact: true }).boundingBox();
   const viewport = await table.boundingBox();
   expect(last!.x + last!.width).toBeLessThanOrEqual(viewport!.x + viewport!.width + 1);
+  const numericRuns = await table
+    .getByText("12345678", { exact: true })
+    .first()
+    .evaluate((node) => {
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      return range.getClientRects().length;
+    });
+  expect(numericRuns).toBe(1);
   await page.getByRole("radio", { name: "Fern House" }).click();
   const away = page.getByRole("button", { name: "Sam Banks", exact: true });
   await away.waitFor();

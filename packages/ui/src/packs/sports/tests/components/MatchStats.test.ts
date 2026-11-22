@@ -6,7 +6,7 @@ const { examples, fallback, meta, probes, props } = MatchStats;
 
 const cast = { things: [], items: [] };
 const valid = fallback({ cast });
-const invalid: unknown[] = [
+const invalid = [
   { ...valid, unknown: "invalid" },
   { ...valid, home: "x".repeat(21) },
   { ...valid, away: "x".repeat(21) },
@@ -17,13 +17,13 @@ const invalid: unknown[] = [
   { ...valid, metrics: [] },
   { ...valid, metrics: Array.from({ length: 11 }, () => ({ label: "x", homeValue: 0, awayValue: 0 })) },
   { ...valid, style: "not-a-choice!" },
-];
+] satisfies Record<string, unknown>[];
 
 it.each(examples)("accepts a draft example", (example) => {
   expect(props.safeParse(example).success).toBe(true);
 });
 
-it.each(invalid)("rejects invalid input", (input) => {
+it.each<Record<string, unknown>>(invalid)("rejects invalid input", (input) => {
   expect(props.safeParse(input).success).toBe(false);
 });
 

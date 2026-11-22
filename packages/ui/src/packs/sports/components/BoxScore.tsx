@@ -14,7 +14,8 @@ export const meta = {
   pick: "Per-player match statistics together with a period-by-period team line score. Not independent headline numbers (Stats), league standings (Standings), one player's profile (Profile), or a live scorekeeper (Scoreboard).",
   writeHints: [
     "Each player's stats follow the shared columns in order, with exactly one short text value per column. Never write team totals; the periods supply them.",
-    'Use style "linescore" for the period scores alone. In the full view use detail "brief" only to hide player positions while still drawing the player table.',
+    "Copy each supplied team name verbatim, keeping the home and away sides in the requested order.",
+    'Set style to "players" if the person wants the player table or team switch. Use "linescore" only when they want period scores without either control. In style "players", detail "brief" hides positions only.',
     "Leave density and surface null unless explicitly requested, including when detail is brief.",
   ],
   region: "body",
@@ -70,7 +71,7 @@ const schema = z
     homePlayers: players,
     awayPlayers: players,
     team: z.enum(sides).default("home"),
-    style: z.literal("linescore").optional(),
+    style: z.enum(["players", "linescore"]).default("players"),
   })
   .refine(
     ({ columns, homePlayers, awayPlayers }) =>
@@ -150,6 +151,16 @@ export const examples = [
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("BoxScore");
+const probeScore = {
+  style: "players",
+  home: "Lions",
+  away: "Fern",
+  periods: [
+    { label: "Q1", home: 18, away: 20 },
+    { label: "Q2", home: 22, away: 19 },
+  ],
+  columns: ["PTS", "REB", "AST"],
+} as const;
 export const probes = [
   choose(
     "Give me both teams' points in each basketball quarter and a switch between their players' minutes, points, rebounds and assists.",
@@ -158,14 +169,26 @@ export const probes = [
     "Put three independent headline figures side by side: total walks, active clients and new enquiries. No time breakdown or individual rows.",
     "Stats",
   ),
-  write(
-    "Show a basketball line score: Lions vs Fern, first quarter 18–20, second 22–19. Below it let me switch the two teams' player tables. Use PTS, REB, AST: Lions' Amara Field 12, 4, 3; Fern's Sam Banks 10, 5, 1.",
-  ),
   {
     ...write(
-      "Show Lions vs Fern, first quarter 18–20 and second 22–19. Keep the switchable tables with PTS, REB, AST: Lions' guard Amara Field 12, 4, 3; Fern's forward Sam Banks 10, 5, 1. Keep the positions in the data but hide the positions in the display.",
+      "I want the switchable player-stat view, not just the quarter scores. Use Lions as home and Fern as away: Q1 18–20, Q2 22–19. Use PTS, REB, AST: Amara Field for Lions 12, 4, 3; Sam Banks for Fern 10, 5, 1.",
+    ),
+    expectProps: {
+      ...probeScore,
+      homePlayers: [{ name: "Amara Field", stats: ["12", "4", "3"] }],
+      awayPlayers: [{ name: "Sam Banks", stats: ["10", "5", "1"] }],
+    },
+  },
+  {
+    ...write(
+      'Keep the team switch and the player tables. Copy these exact names: home team "Lions" and away team "Fern". Q1 Lions 18, Fern 20; Q2 Lions 22, Fern 19. Use PTS, REB, AST: Lions’ PG Amara Field 12, 4, 3; Fern’s SF Sam Banks 10, 5, 1. Keep PG and SF in the data, but don’t print the positions.',
     ),
     variant: { axis: "detail", value: "brief" },
+    expectProps: {
+      ...probeScore,
+      homePlayers: [{ name: "Amara Field", pos: "PG", stats: ["12", "4", "3"] }],
+      awayPlayers: [{ name: "Sam Banks", pos: "SF", stats: ["10", "5", "1"] }],
+    },
   },
   read("Switch the player table to Fern House.", { address: "c1/team", action: "select" }),
   read("Open Amara Field's player profile.", { address: "c1/r1", action: "press" }),
@@ -219,6 +242,9 @@ function PlayerTable({ input, density, loading }: BoxScoreView) {
   const {
     words: { boxScore: words },
   } = kit.useWords(sportsWordsFor);
+  // Longer readings need the scrollable kit columns rather than the narrower fitted cells.
+  const short = (value: string) => value.length <= 4;
+  const fitColumns = input.columns.every(short) && input.players.every(({ stats }) => stats.every(short));
   const columns = input.columns.map((label, index) => TableHeader(label, index, density));
   const rows = input.players
     .filter((row) => row.visible)
@@ -246,7 +272,7 @@ function PlayerTable({ input, density, loading }: BoxScoreView) {
   return (
     <kit.KitTable
       part="players"
-      fitColumns
+      fitColumns={fitColumns}
       {...{ rows, columns }}
       corner={
         <kit.KitLayoutText line={{ text: words.players, role: "meta", tone: "muted" }} density={density} />

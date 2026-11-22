@@ -23,20 +23,21 @@ describe("BoxScore schema", () => {
     ).toEqual({ home: 8991, away: 36 });
   });
 
-  it.each([
+  it.each<Record<string, unknown>>([
     { home: "x".repeat(21) },
     { periods: [] },
     { periods: Array.from({ length: 10 }, () => seed.periods[0]) },
     { periods: [{ label: "Q1", home: -1, away: 7 }] },
-    { periods: [{ label: "Overtime", home: 1000, away: 7 }] },
+    { periods: [{ label: "OT", home: 1000, away: 7 }] },
     { columns: ["PTS", "REB", "AST", "Long stat", "PF"] },
     { awayPlayers: [{ name: "Sam", stats: ["1", "2", "3"] }] },
-    { homePlayers: [{ name: "Amara", pos: "start", stats: ["1", "2", "3", "4", "5"] }] },
+    { homePlayers: [{ name: "Amara", pos: "start", stats: ["1", "2", "3", "4"] }] },
     { homePlayers: [{ ...seed.homePlayers[0], goto: "not an id" }] },
     { homePlayers: Array.from({ length: 17 }, () => seed.homePlayers[0]) },
     { awayPlayers: [] },
     { team: "guest" },
     { style: "grid" },
+    { style: "full" },
     { color: "red" },
     { totals: { home: 0, away: 0 } },
   ])("rejects undeclared or out-of-range data", (extra) => {

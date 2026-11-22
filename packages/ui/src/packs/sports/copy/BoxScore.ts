@@ -14,7 +14,7 @@ type BoxReading = {
   away: string;
   periods: readonly { label: string; home: number; away: number }[];
   totals: { home: number; away: number };
-  style?: "linescore" | undefined;
+  style: "players" | "linescore";
   team: "home" | "away";
   columns: readonly string[];
   players: readonly PlayerReading[];

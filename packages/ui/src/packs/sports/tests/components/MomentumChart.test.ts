@@ -25,7 +25,7 @@ it("accepts the point limit and both endpoints of each mode's scale", () => {
   ).toBe(true);
 });
 
-it.each([
+it.each<Record<string, unknown>>([
   { points: seed.points.slice(1) },
   { points: Array.from({ length: 61 }, (_, i) => ({ id: `${i}`, clock: `${i}′`, value: 50 })) },
   { points: seed.points.map((point) => ({ ...point, id: "duplicate" })) },

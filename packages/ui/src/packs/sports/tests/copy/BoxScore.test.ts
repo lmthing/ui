@@ -13,6 +13,7 @@ it("totals each side and reads each period and the visible player's stats", () =
     away: "Fern",
     periods,
     totals,
+    style: "players" as const,
     team: "away" as const,
     columns: ["PTS", "REB", "AST"],
     players: [{ id: "r4", name: "Sam", stats: ["10", "5", "6"] }],
