@@ -45,7 +45,10 @@ type CardProps = {
   /** Horizontal padding for padded content; `none` keeps form controls at the screen gutter. */
   inset?: "md" | "none";
   swatch?: Swatch;
+  orientation?: "opposing";
 };
+
+const swatchRoles = ["text", "muted", "accent", "good", "warn", "bad", "onAccent"];
 
 function swatchTheme(parent: string, swatch?: Swatch) {
   if (!swatch) return parent;
@@ -60,7 +63,7 @@ function swatchTheme(parent: string, swatch?: Swatch) {
     const bold = presets.find((preset) => preset.id === "bold")!;
     const foreground = luminance > 0.179 ? bold.roles.dark.bg : bold.roles.light.surface;
     const theme = { ...getThemes()[parent] };
-    for (const role of ["text", "muted", "accent", "good", "warn", "bad", "onAccent"]) {
+    for (const role of swatchRoles) {
       theme[role] = createVariable({
         key: role,
         name: role,
@@ -70,6 +73,11 @@ function swatchTheme(parent: string, swatch?: Swatch) {
     getThemes()[name] = theme;
   }
   return name;
+}
+
+function swatchCss(swatch: Swatch, theme: string) {
+  const properties = swatchRoles.map((role) => `--${role}:${getThemes()[theme]![role]!.val}`);
+  return `.kit-swatch-${swatch}{${properties.join(";")}}`;
 }
 
 function CardChildren({ loading, children }: { loading: boolean; children: ReactNode }) {
@@ -126,6 +134,7 @@ export function KitCard(props: CardProps) {
           {...root}
           cardStyle={style}
           {...finish}
+          {...(props.orientation === "opposing" ? { rotate: "180deg" } : {})}
           {...(swatch ? { backgroundColor: loading ? "$line" : component.swatch[swatch] } : {})}
           {...(swatch && isWeb ? { className: `kit-swatch-${swatch}` } : {})}
           {...(clip ? { overflow: "hidden" as const } : {})}
@@ -133,9 +142,7 @@ export function KitCard(props: CardProps) {
           accessibilityLabel={loading ? undefined : label}
           {...action}
         >
-          {swatch && isWeb && (
-            <style>{`.kit-swatch-${swatch}{${["text", "muted", "accent", "good", "warn", "bad", "onAccent"].map((role) => `--${role}:${getThemes()[theme]![role]!.val}`).join(";")}}`}</style>
-          )}
+          {swatch && isWeb && <style>{swatchCss(swatch, theme)}</style>}
           <CardChildren loading={loading}>{children}</CardChildren>
         </Frame>
       </Theme>

@@ -1,6 +1,6 @@
 import { durations, springs } from "./tokens";
 export const signatures = {
-  ring_fill: { component: "Ring", duration: durations.slow, spring: springs.gentle },
+  ring_fill: { component: "Progress", duration: durations.slow, spring: springs.gentle },
   bars_grow: { component: "Bars", duration: durations.slow, spring: springs.gentle },
   check_burst: { component: "Checklist", duration: durations.base, spring: springs.bouncy },
   count_up: { component: "Stats", duration: durations.slow, spring: springs.gentle },

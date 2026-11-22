@@ -1,7 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { checkoutAmount, checkoutReading } from "../copy";
+import { checkoutAmount, checkoutChoices, checkoutReading } from "../copy";
 import { commerceWordsFor } from "../lang";
 
 const modes = ["pickup", "delivery", "table"] as const;
@@ -23,8 +23,8 @@ export const meta = {
   weight: 2,
   tier: "phone",
   selections: {
-    mode: { prop: "mode", choices: { prop: "modes" } },
-    method: { prop: "method", choices: { prop: "methods" } },
+    mode: { prop: "mode", choices: { prop: "modeChoices" } },
+    method: { prop: "method", choices: { prop: "methodChoices" } },
   },
   partTiersBy: { place: { prop: "method", tiers: { card: "service", wallet: "service" } } },
   realPath: "Cash on pickup works on the device; card and wallet payments need a payment service.",
@@ -59,6 +59,7 @@ export const props = z
   })
   .overwrite(({ address, ...input }) => ({
     ...input,
+    ...checkoutChoices(input),
     ...(input.mode === "delivery" && address ? { address } : {}),
     ...(input.detail === "brief" ? { time: undefined } : {}),
   }));
@@ -80,7 +81,7 @@ export const examples = [
   {
     modes: ["pickup", "delivery", "table"],
     mode: "delivery",
-    time: "Tomorrow 10:30",
+    time: "Tomorrow at 10:30",
     address: "21 Fern Lane",
     methods: ["card", "cash", "wallet"],
     method: "card",
@@ -89,7 +90,7 @@ export const examples = [
     modes: ["pickup", "table"],
     mode: "pickup",
     time: "Today at 16:00",
-    methods: ["wallet", "cash"],
+    methods: ["cash", "wallet"],
     method: "cash",
   },
 ] satisfies z.input<typeof props>[];
@@ -116,19 +117,18 @@ type CheckoutProps = c.Props<typeof props, typeof meta>;
 type ChoiceKey = "mode" | "method";
 
 // prettier-ignore
-function CheckoutChoices<T extends string>({ part, label, options, labels, selected, density }: {
+function CheckoutChoices<T extends string>({ part, label, options, selected, density }: {
   part: ChoiceKey;
   label: string;
-  options: readonly T[];
-  labels: Record<T, string>;
+  options: readonly { value: T; label: string }[];
   selected: T;
   density: c.ThemeDensity;
 }) {
-  return <kit.KitContent {...{ density }} group={part === "method" ? "response" : "content"}>
+  return <kit.KitContent {...{ density }} rhythm="flush" group={part === "method" ? "response" : "content"}>
     <kit.KitText role="label" tone="muted" part={null}>{label}</kit.KitText>
     <kit.KitTrack look="segments" role="radiogroup" {...{ part, label }}>
-      {options.map((value) => <kit.KitChip key={value} item={null} role="radio" look="segment"
-        value={value} label={labels[value]} on={selected === value} />)}
+      {options.map(({ value, label }) => <kit.KitChip key={value} item={null} role="radio" look="segment"
+        {...{ value, label }} on={selected === value} />)}
     </kit.KitTrack>
   </kit.KitContent>;
 }
@@ -141,19 +141,19 @@ function CheckoutDetails({ mode, time, address, density, success }: Pick<Checkou
   const { words: { checkout: words } } = kit.useWords(commerceWordsFor);
   const addressLabel = address ? words.address : words.addAddress;
   return <>
-    {time && <kit.KitContent {...{ density }}>
+    {time && <kit.KitContent {...{ density }} group="response" rhythm="flush">
       <kit.KitText role="label" tone="muted" part={null}>{words.time}</kit.KitText>
       <kit.KitText part="time" {...{ density }}>{time}</kit.KitText>
     </kit.KitContent>}
     {mode === "delivery" && (!success || address) &&
-      <kit.KitRow inline part="address" label={addressLabel} {...{ density }}
+      <kit.KitContent {...{ density }} group="response"><kit.KitRow inline fitContent part="address" label={addressLabel} {...{ density }}
         role={success ? "text" : "button"}
         trailing={!success && <kit.KitIcon name="chevron_right" decorative scale="sm" />}>
-        <kit.KitContent {...{ density }}>
+        <kit.KitContent {...{ density }} rhythm="flush">
           <kit.KitText role="label" tone={address ? "muted" : "accent"} part={null}>{addressLabel}</kit.KitText>
           {address && <kit.KitText part={null} {...{ density }}>{address}</kit.KitText>}
         </kit.KitContent>
-      </kit.KitRow>}
+      </kit.KitRow></kit.KitContent>}
   </>;
 }
 
@@ -164,16 +164,18 @@ export function Checkout(input: CheckoutProps) {
   const success = kit.useComponentState() === "success";
   const { basket } = kit.useDeviceData();
   const { lang, words: { checkout: words } } = kit.useWords(commerceWordsFor);
+  const { modeChoices, methodChoices } = checkoutChoices(input, lang);
   return <kit.KitCard part="root" padded {...{ density, surface }}>
     {success ? <kit.KitText role="heading" part="success">{words.success}</kit.KitText> :
-      <CheckoutChoices part="mode" label={words.fulfillment} options={input.modes}
-        labels={words.modes} selected={input.mode} {...{ density }} />}
+      <CheckoutChoices part="mode" label={words.fulfillment} options={modeChoices}
+        selected={input.mode} {...{ density }} />}
     <CheckoutDetails {...input} {...{ density, success }} />
-    {!success && <CheckoutChoices part="method" label={words.payment} options={input.methods}
-      labels={words.methods} selected={input.method} {...{ density }} />}
-    <kit.KitContent group="response" {...{ density }}>
+    {!success && <CheckoutChoices part="method" label={words.payment} options={methodChoices}
+      selected={input.method} {...{ density }} />}
+    <kit.KitContent group="response" rhythm="flush" {...{ density }}>
       <kit.KitText role="label" tone="muted" part={null}>{words.total}</kit.KitText>
-      <kit.KitText role="number" numberScale="compact" part="total" tabular {...{ density }}>
+      <kit.KitText role="number" numberScale="compact" part="total" tabular {...{ density }}
+        {...(success ? { tone: "muted", emphasis: "quiet" } : {})}>
         {checkoutAmount(basket, lang)}
       </kit.KitText>
     </kit.KitContent>

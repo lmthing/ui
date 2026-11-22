@@ -1,5 +1,3 @@
-import type { LDMLPluralRule } from "../../../catalog";
-
 export const en = {
   signed: (date: string) => `Signed · ${date}`,
   since: (date: string) => `Client since ${date}`,
@@ -7,10 +5,21 @@ export const en = {
   received: (amount: string) => `Received ${amount}`,
   paymentDate: (date: string) => `Date ${date}`,
   paymentDue: (date: string) => `Due ${date}`,
-  reviews: (count: string, form: LDMLPluralRule) => `${count} ${form === "one" ? "review" : "reviews"}`,
-  stars: (count: string, form: LDMLPluralRule) => `${count} ${form === "one" ? "star" : "stars"}`,
   agreementLabels: { agree: "I agree", accepted: "Accepted", name: "Full name" },
-  contactLabels: { call: "Call", message: "Message", directions: "Directions" },
+  contactLabels: { call: "Call", message: "Message", directions: "Directions", email: "Email" },
+  clientBalance: {
+    due: (amount: string) => `Owes ${amount}`,
+    credit: (amount: string) => `${amount} credit`,
+    settled: "No balance due",
+  },
+  invoiceLabels: {
+    estimate: "Estimate",
+    discount: "Discount",
+    deposit: "Deposit received",
+    balance: "Balance due",
+    download: "Download",
+    recurring: { weekly: "Repeats weekly", monthly: "Repeats monthly", quarterly: "Repeats quarterly" },
+  },
   paymentLabels: {
     paid: "Paid",
     due: "Due",
@@ -19,8 +28,40 @@ export const en = {
     mark: "Mark as paid",
     remind: "Remind",
     updated: "Update complete",
+    link: "Scan to pay",
+    copy: "Copy link",
+    share: "Share link",
+    installments: "Installment history",
   },
-  reviewLabels: { reply: "Reply", response: "Business reply" },
+  followUpLabels: {
+    quote: "Quote",
+    invoice: "Invoice",
+    checkin: "Check-in",
+    renewal: "Renewal",
+    overdue: "Overdue",
+    today: "Due today",
+    upcoming: "Upcoming",
+    done: "Done",
+    due: (status: string, date: string) => `${status} · ${date}`,
+    reason: (kind: string, note?: string) => (note ? `${kind} · ${note}` : kind),
+    mark: (name: string) => `Mark ${name} done`,
+    marked: (name: string) => `${name}: done`,
+    snooze: (name: string) => `Snooze ${name}`,
+    remind: (name: string) => `Remind ${name}`,
+    success: "Follow-up updated",
+    error: "Reminder wasn’t sent",
+  },
+  savedItemLabels: {
+    taxable: "Taxable",
+    taxExempt: "Not taxable",
+    uncategorized: "Uncategorized",
+    unit: (unit: string) => ` / ${unit}`,
+    taxJoin: " · ",
+    add: (title: string) => `Add ${title} to the invoice`,
+    remove: (title: string) => `Remove ${title} from saved items`,
+    success: "Billing item updated",
+    error: "Billing item wasn’t saved",
+  },
 };
 
 export type CustomersWords = typeof en;

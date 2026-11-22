@@ -44,7 +44,8 @@ describe("KitWeekMatrix column sizing", () => {
     const [heading, ...columns] = table.children;
     expect(columns).toHaveLength(4);
     expect(fitted).not.toContain('role="region"');
-    expect(styleAt(fitted, heading!)).not.toContain(`width:${size.control.md * 3}px`);
+    expect(styleAt(fitted, heading!)).not.toMatch(/(?:^|;)\s*width:/);
+    expect(styleAt(fitted, heading!)).toContain(`max-width:${size.control.md * 3}px`);
     expect(styleAt(fitted, heading!)).toContain("flex-shrink:0");
     for (const column of columns) {
       const style = styleAt(fitted, column);

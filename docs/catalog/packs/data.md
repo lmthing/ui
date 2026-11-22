@@ -49,7 +49,7 @@ and an optional value, a count and value total per column, cards movable between
 - Writes: `columns` of `label` text(14), 2–5; `cards` of `title` text(32), `column` index, `tag` text(12)
   optional, `who` text(16) optional, `value` number optional, `goto`, 1–16. Column totals are computed.
 - Parts → actions: cards `root press`, cards `root move` (to a column label). · States: filled, empty.
-- Real path: records with a stage field on the device. · Kit: `KitColumns`.
+- Real path: records with a stage field on the device. · Renderer: `StageBoard` over `KitColumns`.
 - Wave 6 options: add `style: "list"` (vertical collapsible stage stacks for mobile), `wipLimit` per column (`warn`/`bad` tone), and optional `swimlane`.
 
 ### `FilterBar` · planned · input · phone

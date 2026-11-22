@@ -1,55 +1,14 @@
 import { Children, useRef, type ReactNode, type RefObject } from "react";
 import { XStack, YStack, isWeb } from "tamagui";
 import { component, size, space } from "../../../catalog";
+import { useMoveFocus } from "../../interact";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
-import { KitIcon, KitText, shifted, surfaceOf } from "../text";
 import { KitRow } from "../surface";
-import { MatrixContent, MatrixScroll } from "./matrix-drawing";
-import { useMoveFocus } from "../../interact";
+import { KitIcon, KitText, shifted, surfaceOf } from "../text";
+import { MatrixContent } from "./matrix-drawing";
+import { MatrixScroll } from "./matrix-scroll";
 import type { Drawing } from "./matrix-layout";
-
-type ColumnsProps = Drawing & {
-  columns: readonly { id: string; label: string; count: string; summary?: ReactNode; children?: ReactNode }[];
-  style?: "columns" | "stack";
-  move?: ColumnMove;
-};
-type CardProps = {
-  column: ColumnsProps["columns"][number];
-  loading: boolean;
-  stack: boolean;
-  items: ReactNode;
-};
-function ColumnCard({ column, loading, stack, items }: CardProps) {
-  const ks = useKitStyle();
-  const empty = Children.toArray(column.children).length === 0;
-  return (
-    <YStack
-      {...surfaceOf(ks.surface)}
-      borderRadius={shifted("md", ks.radiusShift)}
-      width={stack ? "100%" : size.control.md * 4 + space.xl}
-      flexShrink={component.base.none}
-      padding={space.md}
-      gap={space[ks.density.gap]}
-    >
-      <MatrixContent loading={loading}>
-        <XStack gap={space.md} alignItems="center" justifyContent="space-between">
-          <YStack flex={component.base.bodyFlex}>
-            <KitText role="heading" part={null}>
-              {column.label}
-            </KitText>
-          </YStack>
-          <KitText role="number" numberScale="compact" tabular part={null}>
-            {column.count}
-          </KitText>
-        </XStack>
-      </MatrixContent>
-      {column.summary && <MatrixContent loading={loading}>{column.summary}</MatrixContent>}
-      {!empty && <MatrixContent loading={loading}>{column.children}</MatrixContent>}
-      {items}
-    </YStack>
-  );
-}
 
 type ColumnItem = {
   id: string;
@@ -57,6 +16,7 @@ type ColumnItem = {
   label: string;
   goto?: string | undefined;
   children: ReactNode;
+  destinations?: readonly { value: string; label: string }[] | undefined;
 };
 type ColumnMove = {
   cards: readonly ColumnItem[];
@@ -100,12 +60,12 @@ function Destination({ destination, name, press }: DestinationProps) {
 
 type ItemProps = {
   card: ColumnItem;
-  destinations: readonly string[];
+  destinations: NonNullable<ColumnItem["destinations"]>;
   loading: boolean;
   move: ColumnMove;
   focus: RefObject<string | null>;
 };
-function ItemRoot({ card, destinations, move: { caption, label }, loading, focus }: ItemProps) {
+function ColumnItemRoot({ card, destinations, move: { caption, label }, loading, focus }: ItemProps) {
   const address = usePart("root", !loading);
   const { controller, interactive } = useKit();
   const runMove = useMoveFocus(focus, address.testID, address.ref);
@@ -137,17 +97,70 @@ function ItemRoot({ card, destinations, move: { caption, label }, loading, focus
             {caption}
           </KitText>
           <XStack gap={space.xs} flexWrap="wrap">
-            {destinations.map((destination) => (
+            {destinations.map(({ value, label: destination }) => (
               <Destination
-                key={destination}
+                key={value}
                 destination={destination}
                 name={label(destination, card.label)}
-                press={offered ? () => press(destination) : undefined}
+                press={offered ? () => press(value) : undefined}
               />
             ))}
           </XStack>
         </YStack>
       )}
+    </YStack>
+  );
+}
+
+type ColumnsProps = Omit<Drawing, "part"> & {
+  part?: string | null;
+  columns: readonly {
+    id: string;
+    part?: string;
+    label: string;
+    count: string;
+    summary?: ReactNode;
+    children?: ReactNode;
+  }[];
+  style?: "columns" | "stack";
+  move?: ColumnMove;
+};
+type CardProps = {
+  column: ColumnsProps["columns"][number];
+  loading: boolean;
+  stack: boolean;
+  items: ReactNode;
+};
+function ColumnCard({ column, loading, stack, items }: CardProps) {
+  const ks = useKitStyle();
+  const empty = Children.toArray(column.children).length === 0;
+  const addressed = Boolean(column.part && !loading);
+  const address = usePart(column.part, addressed);
+  return (
+    <YStack
+      {...(addressed ? address : {})}
+      {...surfaceOf(ks.surface)}
+      borderRadius={shifted("md", ks.radiusShift)}
+      width={stack ? "100%" : size.control.md * 4 + space.xl}
+      flexShrink={component.base.none}
+      padding={space.md}
+      gap={space[ks.density.gap]}
+    >
+      <MatrixContent loading={loading}>
+        <XStack gap={space.md} alignItems="center" justifyContent="space-between">
+          <YStack flex={component.base.bodyFlex}>
+            <KitText role="heading" part={null}>
+              {column.label}
+            </KitText>
+          </YStack>
+          <KitText role="number" numberScale="compact" tabular part={null}>
+            {column.count}
+          </KitText>
+        </XStack>
+      </MatrixContent>
+      {column.summary && <MatrixContent loading={loading}>{column.summary}</MatrixContent>}
+      {!empty && <MatrixContent loading={loading}>{column.children}</MatrixContent>}
+      {items}
     </YStack>
   );
 }
@@ -160,26 +173,31 @@ export function KitColumns({
   style = "columns",
   move,
 }: ColumnsProps) {
-  const address = usePart(part);
+  const address = usePart(part ?? undefined, part !== null);
   const context = usePartContext();
   const focus = useRef<string | null>(null);
   const stack = style === "stack";
   const labels = columns.map((column) => column.label);
   const cards = columns.map((column, index) => {
-    const destinations = labels.filter(
-      (label, at) => label && at !== index && labels.indexOf(label) === labels.lastIndexOf(label),
-    );
+    const defaults = labels
+      .filter((label, at) => label && at !== index && labels.indexOf(label) === labels.lastIndexOf(label))
+      .map((label) => ({ value: label, label }));
     const items = move?.cards
       .filter((card) => card.column === index)
       .map((card) => (
         <PartContext.Provider key={card.id} value={{ ...context, item: card.id }}>
-          <ItemRoot {...{ card, destinations, loading, move, focus }} />
+          <ColumnItemRoot {...{ card, loading, move, focus }} destinations={card.destinations ?? defaults} />
         </PartContext.Provider>
       ));
     return <ColumnCard key={column.id} {...{ column, loading, stack, items }} />;
   });
   return (
-    <YStack {...address} minWidth={component.base.none} width="100%" aria-busy={loading}>
+    <YStack
+      {...(part === null ? {} : address)}
+      minWidth={component.base.none}
+      width="100%"
+      aria-busy={loading}
+    >
       {!columns.length ? null : stack ? (
         <YStack gap={space.md}>{cards}</YStack>
       ) : (

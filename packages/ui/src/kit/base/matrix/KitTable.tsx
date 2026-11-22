@@ -1,13 +1,16 @@
-import { useContext, type ReactNode } from "react";
-import { XStack, YStack } from "tamagui";
+import { useContext, useRef, type ReactNode, type RefObject } from "react";
+import { XStack, YStack, type TamaguiElement } from "tamagui";
 import { component, parseAddress, size, space } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKit, useKitStyle } from "../../provider";
-import { MatrixContent, MatrixScroll } from "./matrix-drawing";
+import { MatrixScroll } from "./matrix-scroll";
+import { MatrixContent } from "./matrix-drawing";
 import {
   disabledContent,
+  fittedTableWidth,
   matrixColumnLayout,
   MatrixSelectionContext,
+  scrollColumnWidth,
   useCompactMatrix,
   useMatrixHeights,
   type Column,
@@ -15,17 +18,8 @@ import {
   type MatrixRow,
   type Target,
 } from "./matrix-layout";
+import { timelineLayout } from "./timeline-layout";
 
-type TableProps = Drawing & {
-  columns: readonly Column[];
-  rows: readonly MatrixRow[];
-  corner: ReactNode;
-  stickyFirst?: boolean;
-  fitColumns?: boolean | undefined;
-  activeColumn?: string;
-  headerTargets?: readonly { column: string; target: Target }[];
-  separators?: readonly string[];
-};
 type CellProps = {
   children: ReactNode;
   label: string;
@@ -38,17 +32,29 @@ type CellProps = {
   fit?: boolean | undefined;
   divider?: boolean;
   rail?: boolean;
+  anchor?: RefObject<TamaguiElement | null> | undefined;
   measure: ReturnType<ReturnType<typeof useMatrixHeights>["measure"]>;
 };
 
-function useCellTarget({ target, disabled, selected, loading, label }: CellProps) {
+function useCellTarget({ target, disabled, selected, loading, label, anchor }: CellProps) {
   const kit = useKit();
   const address = usePart(target?.part ?? "root", Boolean(target) && !loading);
   const press = () => kit.controller?.press(address.testID);
+  const anchorProps = anchor
+    ? {
+        accessible: true,
+        ref: (node: TamaguiElement | null) => {
+          anchor.current = node;
+          address.ref.current = node;
+        },
+        ...(!target ? { tabIndex: -1 as const, accessibilityLabel: label } : {}),
+      }
+    : {};
   return !target || loading
-    ? {}
+    ? anchorProps
     : {
         ...address,
+        ...anchorProps,
         accessibilityRole: "button",
         accessibilityLabel: label,
         "aria-pressed": Boolean(selected),
@@ -119,28 +125,96 @@ function ScopedCell({ item, ...props }: CellProps & { item?: string }) {
   );
 }
 
+type TimelineProps = {
+  rows: readonly MatrixRow[];
+  columns: readonly Column[];
+  heights: ReturnType<typeof useMatrixHeights>;
+  activeColumn?: string;
+  loading?: boolean;
+  separators?: readonly string[];
+};
+
+function timelineCells(row: MatrixRow, count: number) {
+  return timelineLayout(row.cells, count).flatMap((slot) =>
+    slot.cell
+      ? [slot]
+      : Array.from({ length: slot.span }, (_, at) => ({ ...slot, start: slot.start + at, span: 1 })),
+  );
+}
+
+function TimelineRows(props: TimelineProps) {
+  const { rows, columns, heights, activeColumn, loading, separators } = props;
+  const selected = useContext(MatrixSelectionContext);
+  return rows.map((row) => (
+    <XStack key={row.id}>
+      {timelineCells(row, columns.length).map(({ cell, start, span }) => {
+        const active = columns
+          .slice(start, start + span)
+          .some(({ id }) => id === activeColumn || selected.includes(id));
+        return (
+          <YStack
+            key={cell ? `cell:${cell.id}` : `gap:${start}`}
+            width={scrollColumnWidth * span}
+            flexShrink={component.base.none}
+          >
+            <ScopedCell
+              item={cell?.id ?? row.id}
+              label={cell?.label ?? `${row.label}, ${columns[start]!.label}`}
+              target={cell?.target}
+              disabled={cell?.disabled}
+              loading={Boolean(loading)}
+              selected={row.selected || active}
+              height={heights.height(row.id)}
+              measure={heights.measure(row.id, `span:${start}`)}
+              cut={separators?.includes(row.id)}
+            >
+              {cell?.content}
+            </ScopedCell>
+          </YStack>
+        );
+      })}
+    </XStack>
+  ));
+}
+
+type TableProps = Drawing & {
+  columns: readonly Column[];
+  rows: readonly MatrixRow[];
+  corner: ReactNode;
+  stickyFirst?: boolean;
+  fitColumns?: boolean | undefined;
+  activeColumn?: string;
+  headerTargets?: readonly { column: string; target: Target }[];
+  separators?: readonly string[];
+  timeline?: { jump?: { part: string; column: string } };
+};
 function TableColumn({
   column,
   index,
   props,
   heights,
   compact,
+  anchor,
+  onLayout,
 }: {
   column?: Column;
   index: number;
   props: TableProps;
   heights: ReturnType<typeof useMatrixHeights>;
   compact: boolean;
+  anchor?: React.RefObject<TamaguiElement | null> | undefined;
+  onLayout?: ReturnType<typeof useCompactMatrix>["onHeadingLayout"];
 }) {
-  const heading = !column,
-    loading = Boolean(props.loading);
+  const heading = !column;
+  const loading = Boolean(props.loading);
   const selected = useContext(MatrixSelectionContext);
   const active = Boolean(column && (column.id === props.activeColumn || selected.includes(column.id)));
   const fit = props.fitColumns ? { fit: true, rail: heading, divider: compact && index > 0 } : {};
   return (
-    <YStack {...matrixColumnLayout(Boolean(props.fitColumns), heading)}>
+    <YStack {...matrixColumnLayout(Boolean(props.fitColumns), heading)} onLayout={onLayout}>
       <ScopedCell
         loading={loading}
+        anchor={anchor}
         {...fit}
         label={column?.label ?? ""}
         height={heights.height("header")}
@@ -150,26 +224,27 @@ function TableColumn({
       >
         {heading ? props.corner : column.header}
       </ScopedCell>
-      {props.rows.map((row) => {
-        const cell = row.cells[index];
-        return (
-          <ScopedCell
-            key={row.id}
-            item={row.id}
-            loading={loading}
-            {...fit}
-            label={heading ? row.label : `${row.label}, ${column.label}`}
-            height={heights.height(row.id)}
-            measure={heights.measure(row.id, column?.id ?? "heading")}
-            target={heading ? row.target : cell?.target}
-            disabled={cell?.disabled && !heading}
-            selected={row.selected || active}
-            cut={props.separators?.includes(row.id)}
-          >
-            {heading ? row.heading : compact ? (cell?.compactContent ?? cell?.content) : cell?.content}
-          </ScopedCell>
-        );
-      })}
+      {(!props.timeline || heading) &&
+        props.rows.map((row) => {
+          const cell = row.cells[index];
+          return (
+            <ScopedCell
+              key={row.id}
+              item={row.id}
+              loading={loading}
+              {...fit}
+              label={heading ? row.label : `${row.label}, ${column.label}`}
+              height={heights.height(row.id)}
+              measure={heights.measure(row.id, column?.id ?? "heading")}
+              target={heading ? row.target : cell?.target}
+              disabled={cell?.disabled && !heading}
+              selected={row.selected || active}
+              cut={props.separators?.includes(row.id)}
+            >
+              {heading ? row.heading : compact ? (cell?.compactContent ?? cell?.content) : cell?.content}
+            </ScopedCell>
+          );
+        })}
     </YStack>
   );
 }
@@ -177,23 +252,50 @@ function TableColumn({
 export function KitTable({ part = "root", stickyFirst = true, ...props }: TableProps) {
   const ks = useKitStyle();
   const heights = useMatrixHeights(space[ks.density.rowPad]);
-  const { compact, onLayout } = useCompactMatrix(Boolean(props.fitColumns));
+  const fitColumns = !props.timeline && Boolean(props.fitColumns);
+  const { compact, available, onLayout, onHeadingLayout } = useCompactMatrix(fitColumns);
   const root = { ...usePart(part), onLayout, "aria-busy": Boolean(props.loading) };
-  const layout = { props, heights, compact };
-  const heading = <TableColumn index={-1} {...layout} />;
-  const pinned = stickyFirst || props.fitColumns;
+  const layout = { props: { ...props, fitColumns }, heights, compact };
+  const heading = <TableColumn index={-1} {...layout} onLayout={onHeadingLayout} />;
+  const pinned = stickyFirst || fitColumns;
+  const anchor = useRef<TamaguiElement>(null);
+  const jump = props.timeline?.jump;
+  const index = props.columns.findIndex((column) => column.id === jump?.column);
+  const destination =
+    jump && index >= 0 && !props.loading
+      ? { part: jump.part, offset: scrollColumnWidth * (index + Number(!pinned)), anchor }
+      : undefined;
+  const columns = props.columns.map((column, index) => (
+    <TableColumn
+      key={column.id}
+      column={column}
+      index={index}
+      {...layout}
+      anchor={destination && column.id === jump?.column ? anchor : undefined}
+    />
+  ));
+  const minWidth = fittedTableWidth(columns.length);
+  const overflow = fitColumns && available !== undefined && available < minWidth;
   return (
     <XStack {...root} width="100%" minWidth={component.base.none}>
       {pinned && heading}
       <MatrixScroll
         label={props.columns.map((column) => column.label).join(", ")}
         loading={props.loading}
-        fitted={props.fitColumns}
+        fitted={fitColumns && !overflow}
+        jump={destination}
       >
         {!pinned && heading}
-        {props.columns.map((column, index) => (
-          <TableColumn key={column.id} column={column} index={index} {...layout} />
-        ))}
+        {props.timeline ? (
+          <YStack>
+            <XStack>{columns}</XStack>
+            <TimelineRows {...layout.props} heights={heights} />
+          </YStack>
+        ) : overflow ? (
+          <XStack width={minWidth}>{columns}</XStack>
+        ) : (
+          columns
+        )}
       </MatrixScroll>
     </XStack>
   );

@@ -1,5 +1,8 @@
 import type { ClockState, Meta } from "../../meta";
-import type { ActStep, Values } from "../index";
+import type { Definition } from "../../probes";
+import { liveProps, parseControlProps, type ActStep, type ScreenLike, type Values } from "../index";
+import { deviceTimeOf, type DeviceData } from "../device-data";
+import { localValues } from "../live-props";
 import { adjustmentAt } from "./adjustment";
 import {
   clockTargets,
@@ -12,6 +15,7 @@ import {
   clockTriggerTarget,
   isPlaybackClock,
   canReplay,
+  clockControlDeclared,
 } from "./clock";
 
 function replayFromZero(
@@ -22,7 +26,7 @@ function replayFromZero(
   return canReplay(clock) && (state?.expired || clockEnded(clock, seconds));
 }
 
-function adjustValues(adjustment: ReturnType<typeof adjustmentAt>, now: number): Values {
+export function adjustmentChanges(adjustment: ReturnType<typeof adjustmentAt>, now: number): Values {
   if (adjustment?.atSet || adjustment?.next === undefined) return {};
   const { clock, state, current, next: seconds, key } = adjustment;
   if (!clock) return { [key]: seconds };
@@ -53,7 +57,7 @@ export function clockChanges(
   const changes: Values = {};
   const clocks = clockTargets(meta, props);
   for (const clock of clocks) {
-    if (clock.spec.kind === "until" || clock.spec.commitOnStop) continue;
+    if (!controlledClock(clock.spec)) continue;
     for (const operation of ["start", "stop", "reset"] as const) {
       const trigger = clock.spec[operation];
       if (!trigger || trigger.action !== step.action || clockTriggerTarget(clock, trigger) !== target)
@@ -90,7 +94,7 @@ export function clockChanges(
         changes.$state = undefined;
     }
   }
-  Object.assign(changes, adjustValues(adjustment, now));
+  Object.assign(changes, adjustmentChanges(adjustment, now));
   if (changes.$state && changes.$state !== "filled")
     for (const clock of clocks) {
       const state = (changes[clockKey(clock)] ?? get(clockKey(clock))) as ClockState | undefined;
@@ -100,4 +104,34 @@ export function clockChanges(
       if (clock.spec.prop) changes[clockPropKey(clock)] = seconds;
     }
   return changes;
+}
+
+const controlledClock = (spec: ReturnType<typeof clockTargets>[number]["spec"]) =>
+  spec.kind !== "until" && !spec.commitOnStop && !spec.journal && !spec.timestamp;
+
+/** A mounted controller already stages clocks through its action table. */
+export function stageStandaloneClock(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  next: Values,
+  address: string,
+  step: ActStep,
+  data?: DeviceData,
+) {
+  const [id, ...parts] = address.split("/");
+  const { id: _id, c, state: _state, ...input } = screen.components.find((item) => item.id === id)!;
+  const def = defs[c]!;
+  const { meta } = def;
+  const legacy =
+    (meta.live?.derive || meta.recordRuntime?.actions) &&
+    (meta.clocks || meta.items?.clocks || meta.items?.nested?.clocks);
+  const target = parts.join("/") || "root";
+  if (!legacy && !clockControlDeclared(meta, target, step.action, true)) return;
+  const get = (part: string) => next[`${screen.id}/${id}/${part}`];
+  const props = legacy
+    ? liveProps(meta, parseControlProps(def, input, get), id!, localValues(screen.id, next), true, data)
+    : parseControlProps(def, input, get);
+  const now = Number(get("$now") ?? deviceTimeOf(data) ?? Date.now());
+  const changes = clockChanges(meta, props, get, target, step, now);
+  for (const [part, value] of Object.entries(changes)) next[`${screen.id}/${id}/${part}`] = value;
 }

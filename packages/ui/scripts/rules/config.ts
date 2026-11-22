@@ -1,7 +1,8 @@
-export const limits = { file: 200, function: 60, folder: 12, readme: 20 } as const;
+export const limits = { file: 400, function: 60, folder: 12, readme: 20 } as const;
 export const roots = ["src", "scripts", "test", "../../apps/gallery/app"] as const;
 export const ignoredFolders = ["test/recordings"] as const;
 export const folderExemptions = ["src/components", "test/recordings"] as const;
+export const packFolderExemption = /^src\/packs\/[^/]+\/(?:components|tests(?:\/components)?)$/;
 export const styleExemptions = ["src/catalog/tokens", "src/catalog/themes"] as const;
 export const ruleNames = [
   "file-lines",

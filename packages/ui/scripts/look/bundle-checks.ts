@@ -1,4 +1,5 @@
 import { build } from "esbuild";
+import { emptyExpectations } from "./empty-expectations";
 
 export async function bundleChecks() {
   const result = await build({
@@ -8,6 +9,7 @@ export async function bundleChecks() {
     format: "iife",
     platform: "browser",
     target: "es2022",
+    define: { LOOK_EMPTY_STATES: JSON.stringify(emptyExpectations()) },
   });
   return result.outputFiles[0]!.text;
 }

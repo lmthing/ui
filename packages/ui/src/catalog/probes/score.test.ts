@@ -25,6 +25,7 @@ const fixture = {
         title: z.string().optional(),
         label: z.string().optional(),
         name: z.string().optional(),
+        limit: z.int().default(1),
       }),
     ),
   }),
@@ -70,10 +71,22 @@ it("requires the requested wire fields as well as a valid schema", () => {
       JSON.stringify({ c: "Fixture", detail, options: [{ label }, { label: "Basil" }] }),
       fixture,
       ordered,
+      { options: [{}, { label: "Basil" }] },
       fields,
     );
   expect(check("Fern").pass).toBe(true);
   expect(check(null)).toEqual({ pass: false, detail: "expected options.0.label: Fern, got undefined" });
   expect(check("Aloe").pass).toBe(false);
   expect(check("Fern", null).pass).toBe(false);
+});
+
+it("checks requested values on authored rows, not schema defaults", () => {
+  const check = (options: unknown[]) =>
+    scoreWrite(JSON.stringify({ c: "Fixture", options }), fixture, undefined, { options: [{ limit: 1 }] });
+  expect(check([{ label: "Basil", limit: 1 }]).pass).toBe(true);
+  expect(check([{ label: "Basil" }])).toEqual({
+    pass: false,
+    detail: "missing or incorrect props.options.0.limit",
+  });
+  expect(check([{ limit: 1 }, { limit: 1 }]).pass).toBe(false);
 });

@@ -13,20 +13,10 @@ import {
   type Probe,
   type Props,
 } from "../../../catalog";
+// prettier-ignore
 import {
-  KitCard,
-  KitCheck,
-  KitContent,
-  KitEmpty,
-  KitGrid,
-  KitInput,
-  KitMeter,
-  KitRow,
-  KitText,
-  useComponentState,
-  useLiveControls,
-  useVariant,
-  useWords,
+  KitCard, KitCheck, KitContent, KitFigure, KitGrid, KitInput, KitMeter, KitRow, KitRowGroup, KitState,
+  KitText, useComponentState, useLiveControls, useVariant, useWords,
 } from "../../../kit";
 import { packingProgress, packingQuantity, packingRead, packingRows } from "../copy";
 import { tripsWordsFor } from "../lang";
@@ -146,22 +136,24 @@ type PackingGroup = PackingProps["groups"][number];
 type PackingFinish = Pick<PackingProps, "detail" | "density">;
 
 // prettier-ignore
-function PackingSection({ group, detail, density, lang }: PackingFinish & { group: PackingGroup; lang: string }) {
+function PackingSection({ group, detail, density, lang, disabled }: PackingFinish & {
+  group: PackingGroup; lang: string; disabled: boolean;
+}) {
   const { packing } = tripsWordsFor(lang);
   return <KitRow item={group.id} label={group.label} inline density={density}>
     <KitText role="label" tone="muted" part="label" density={density}>{group.label}</KitText>
-    {group.items.map(({ name, qty, packed }, i) => {
+    <KitRowGroup density={density} separators={false}>{group.items.map(({ name, qty, packed }, i) => {
       const quantity = detail === "full" && qty !== undefined ? packingQuantity(qty, lang) : undefined;
       const label = quantity ? packing.itemLabel(name, quantity) : name;
       const tone = packed ? "muted" : "text";
       return <KitRow key={packedParts[i]} label={label} inset="none" density={density}
         trailing={<>
           {quantity && <KitText role="caption" tone="muted" part={quantityParts[i]!} tabular lines={1} density={density}>{quantity}</KitText>}
-          <KitCheck done={packed} part={packedParts[i]!} label={label} />
+          <KitCheck done={packed} part={packedParts[i]!} label={label} disabled={disabled} />
         </>}>
         <KitText role="body" tone={tone} part={null} density={density}>{name}</KitText>
       </KitRow>;
-    })}
+    })}</KitRowGroup>
   </KitRow>;
 }
 
@@ -175,24 +167,26 @@ export function PackingList(input: PackingProps) {
   const live = useLiveControls(meta, input) as PackingProps;
   const groups = packingRows(live.groups);
   const { label, amount, ratio } = packingProgress(groups, lang);
+  const complete = state === "success" && ratio === 1;
+  const progressLabel = complete ? packing.progress : label;
+  const content = <>
+    <KitRow part="progress" label={progressLabel} inline fitContent density={density}>
+      <KitGrid fitLast density={density}>
+        <KitText role="body" part={null}>{progressLabel}</KitText>
+        <KitFigure density={density} align="end" value={{ text: amount, compact: true }} />
+      </KitGrid>
+      <KitMeter label="" amount="" ratio={ratio} tone={ratio === 1 ? "good" : "accent"} addressed={false} />
+    </KitRow>
+    <KitRowGroup density={density} spacing="groups" separators={false}>
+      {groups.map((group) => <PackingSection key={group.id} {...{ group, detail, density, lang }} disabled={state === "success"} />)}
+    </KitRowGroup>
+  </>;
   return <KitCard padded part="root" {...{ density, surface }}>
-    {state === "filled" ? <>
-      <KitRow part="progress" label={label} inline density={density}>
-        <KitGrid fitLast density={density}>
-          <KitText role="body" part={null}>{label}</KitText>
-          <KitText role="number" numberScale="compact" tabular part={null}>{amount}</KitText>
-        </KitGrid>
-        <KitMeter label="" amount="" ratio={ratio} tone={ratio === 1 ? "good" : "accent"} addressed={false} />
-      </KitRow>
-      {groups.map((group) => <KitContent key={group.id} group="response" density={density}>
-        <PackingSection {...{ group, detail, density, lang }} />
-      </KitContent>)}
-    </> : <KitEmpty part="progress" decorativeIcon {...(state === "success" ? {
-      icon: "check", title: packing.allPacked, tone: "good",
-    } : {})} />}
-    <KitContent group={state === "filled" ? "response" : "content"} density={density}>
+    {state === "empty" ? <KitState part="progress" density={density} />
+      : complete ? <KitState retain message={packing.allPacked} density={density}>{content}</KitState> : content}
+    <KitContent group={state === "empty" ? "content" : "response"} density={density}>
       <KitText role="label" tone="muted" part="add_label" density={density}>{packing.add}</KitText>
-      <KitInput part="add" label={packing.add} hint="" />
+      <KitInput part="add" label={packing.add} hint={packing.addHint} icon="plus" action="type" />
     </KitContent>
   </KitCard>;
 }

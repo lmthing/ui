@@ -1,14 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
+// prettier-ignore
 import {
-  affordancesOf,
-  components,
-  createRegistry,
-  packReady,
-  placeholderTitle,
-  readComponent,
-  stampItemIds,
-  type CastLike,
-  type Props,
+  affordancesOf, components, createRegistry, packReady, placeholderTitle, readComponent, stampItemIds,
+  type CastLike, type Props,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { addressedElements, renderInstance } from "../../../../../test/render";
@@ -172,21 +166,34 @@ describe("PackingList state and action dispatch", () => {
   });
   it.each(["filled", "empty", "success"] as const)("types into add in %s", (state) => {
     const controller = controllerFor(state);
-    const parts = addressedElements(renderInstance("PackingList", packing, state, theme, { thing: "item" }));
+    const html = renderInstance("PackingList", packing, state, theme, { thing: "item" });
+    const parts = addressedElements(html);
     const read = readComponent(components.PackingList, packing, "p1", state).join("\n");
     expect(parts.get("home/c1/add")?.attributes).toContain('aria-label="Add an item"');
+    expect(parts.get("home/c1/add")?.attributes).toContain('placeholder="Type an item name"');
     expect(parts.get("home/c1/add_label")?.text).toContain("Add an item");
     expect(read).toContain("[p1/add type]");
     expect(controller.edit("home/p1/add", "Passport").ok).toBe(true);
     expect(controller.store.get("home/p1/add")).toBe("Passport");
     if (state !== "filled") {
-      expect(parts.get("home/c1/progress")?.text).toContain(
-        state === "empty" ? "No items yet" : "All packed",
-      );
+      expect(html).toContain(state === "empty" ? "No items yet" : "33%");
+      expect(parts.has("home/c1/progress")).toBe(true);
       expect(affordancesOf(meta, stampItemIds(meta, props.parse(packing)), "p1", {}, state)).toEqual([added]);
-      expect(parts.has("home/c1/r1/root")).toBe(false);
+      expect(parts.has("home/c1/r1/root")).toBe(state === "success");
       expect(controller.press("home/p1/r1/packed_1").ok).toBe(false);
     }
     controller.dispose();
+  });
+
+  // prettier-ignore
+  it("keeps checked items and progress under the success message", () => {
+    const groups = [{ ...clothes, items: [shirt] }];
+    const html = renderInstance("PackingList", { groups }, "success", theme);
+    const parts = addressedElements(html);
+    for (const text of ["All packed", "100%"]) expect(html).toContain(text);
+    expect(parts.has("home/c1/progress")).toBe(true);
+    const check = parts.get("home/c1/r1/packed_1")?.attributes;
+    expect(check).toContain('aria-checked="true"');
+    expect(check).toContain('aria-disabled="true"');
   });
 });

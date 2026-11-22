@@ -38,10 +38,6 @@ async function fixture(status = "draft", example = '{"c":"Ready"}\n') {
     `export const visitDetail = { id: "visit-detail", job: "Visit", layouts: {}, defaultLayout: "plain" }; export const probes = [];`,
   );
   await put("packs/booking/example.jsonl", example);
-  await put(
-    "packs/booking/components/index.ts",
-    'export * as Draft from "./Draft";\nexport * as Ready from "./Ready";\n',
-  );
   await put("packs/booking/archetypes/index.ts", 'export { visitDetail } from "./visit-detail";\n');
   await put(
     "packs/booking/index.ts",
@@ -64,16 +60,13 @@ async function loadCatalog(root: string) {
 
 it("imports pack data and views only through the root door", async () => {
   const root = await fixture();
-  await writeFile(
-    join(root, "src/packs/booking/components/index.ts"),
-    'export * as Draft from "./Draft";\nexport * as Ready from "./Ready";\n',
-  );
-  await writeFile(
-    join(root, "src/packs/booking/archetypes/index.ts"),
-    'export { visitDetail } from "./visit-detail";\n',
-  );
   const catalog = await loadCatalog(root);
   expect(catalog.createRegistry({ packs: ["booking"], includeDrafts: true }).ids).toContain("Draft");
+  const door = await readFile(join(root, "src/packs/booking/components/index.ts"), "utf8");
+  expect(door.trim().split("\n")).toEqual([
+    'export * as Draft from "./Draft";',
+    'export * as Ready from "./Ready";',
+  ]);
   const entry = await readFile(join(root, "src/entry/packs/group-1/booking.ts"), "utf8");
   expect(entry).toContain('from "../../../packs/booking"');
   expect(entry).not.toContain('packs/booking/components"');
@@ -100,7 +93,7 @@ it("generates scoped drafts, ready renderers, pack data and inlined examples", a
   expect(Object.keys(catalog.packs.booking)).toEqual(["id", "example", "probes"]);
   expect(catalog.packReady("booking")).toBe(false);
   expect(catalog.buildPackIndex()).toBe("");
-  expect(catalog.buildPackIndex({ includeDrafts: true }).split("\n")).toHaveLength(27);
+  expect(catalog.buildPackIndex({ includeDrafts: true }).split("\n")).toHaveLength(57);
   expect(catalog.packArchetypes.booking[0].id).toBe("visit-detail");
   expect(catalog.packExamples.booking).toBe('{"c":"Ready"}\n');
   const renderers = await build({
@@ -164,7 +157,7 @@ it.each([
     "Draft",
     "Ready",
   ]);
-  expect(catalog.buildPackIndex({ includeDrafts: true }).split("\n")).toHaveLength(27);
+  expect(catalog.buildPackIndex({ includeDrafts: true }).split("\n")).toHaveLength(57);
   expect(catalog.packReady("commerce")).toBe(false);
 });
 

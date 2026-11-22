@@ -34,7 +34,10 @@ export function checkNeighbours(screen: ScreenLike, defs: Record<string, Definit
         address: at(screen, entry),
         message: "A section title needs content after it",
       });
-    if (index && body[index - 1]!.c === entry.c && !["Card", "Field"].includes(entry.c))
+    const previous = body[index - 1];
+    const distinctProgress =
+      entry.c === "Progress" && (previous?.style ?? "bars") !== (entry.style ?? "bars");
+    if (previous?.c === entry.c && !distinctProgress && !["Card", "Field"].includes(entry.c))
       issues.push({
         code: "S.adjacent",
         address: at(screen, entry),

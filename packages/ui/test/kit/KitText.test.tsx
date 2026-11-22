@@ -3,7 +3,7 @@ import * as jsxRuntime from "react/jsx-dev-runtime";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it, vi } from "vitest";
-import { themeName, type StateName } from "@lmthing/ui/catalog";
+import { themeName, type as typography, type StateName } from "@lmthing/ui/catalog";
 import { KitProvider, KitText, PartScope } from "@lmthing/ui/kit";
 import { addressedElements, config, elementAt, styleAt } from "../render";
 
@@ -44,8 +44,10 @@ describe("KitText runs", () => {
     expect(root.children.map((node) => node.tag)).toEqual(["span", "span", "span"]);
     expect(styleAt(html, root.children[0]!)).toContain("font-weight:700");
     expect(styleAt(html, root.children[1]!)).toContain("font-style:italic");
-    expect(styleAt(html, root.children[1]!)).toContain("font-size:16px");
-    expect(styleAt(html, root.children[2]!)).toContain("font-size:18px");
+    expect(styleAt(html, root.children[1]!)).toContain(`font-size:${typography.body.size}px`);
+    const hero = styleAt(html, root.children[2]!);
+    expect(hero).toContain(`font-size:${typography.body.size}px`);
+    expect(hero).toContain("font-weight:700");
   });
 
   it("masks ordinary text and every nested part when a mixed paragraph loads", () => {

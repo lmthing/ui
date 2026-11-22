@@ -38,5 +38,19 @@ export const appointments = {
         { id: "t1", c: "Timeline", style: "history" },
       ],
     },
+    packs: {
+      recipe: [
+        { allow: ["Header"], required: true },
+        { allow: ["Segmented"], required: true },
+        { allow: ["SessionPack"], required: true },
+        { allow: ["List"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header" },
+        { id: "s1", c: "Segmented" },
+        { id: "s2", c: "SessionPack" },
+        { id: "l1", c: "List" },
+      ],
+    },
   },
 } as const satisfies ArchetypeMeta;

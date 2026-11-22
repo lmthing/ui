@@ -39,13 +39,18 @@ const legacyStyles: Readonly<Partial<Record<string, Readonly<Record<string, stri
   },
   Player: { compact: "Pending density migration in core adoption" },
   Progress: { compact: "Pending density migration in core adoption" },
-  Appointment: { card: "Action-bearing layout, not just surface treatment" },
+  Appointment: {
+    card: "Action-bearing layout, not just surface treatment",
+    compact: "Single-row booking overview, independent of spacing density",
+  },
   ServiceMenu: { rows: "Pending booking pack variant adoption" },
   Slots: { grid: "Pending arrange migration in booking pack" },
   Payoff: { compact: "Pending density migration in money pack adoption" },
   ScoreSheet: { grid: "Multi-round editing structure, not a generic collection grid" },
   Spinner: { strip: "Wheel alternative changes the draw mechanism, not collection arrangement" },
   Trivia: { card: "Question and answer reveal layout, not just surface treatment" },
+  PassCard: { card: "Membership layout versus coupon, centered code, or transit balance" },
+  FileList: { rows: "Grouped attachments with inline metadata, not separate cards with page badges" },
 };
 const itemAxes = { tone: true, mark: true, trail: true } satisfies Record<keyof ItemVariants, true>;
 

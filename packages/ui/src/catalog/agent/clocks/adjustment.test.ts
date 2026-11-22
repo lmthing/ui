@@ -1,5 +1,6 @@
 import { expect, it } from "vitest";
-import { adjustmentAt, itemSetAt, projectAdjustments } from "./adjustment";
+import { adjustmentAt, projectAdjustments } from "./adjustment";
+import { itemSetAt } from "./numeric";
 import type { Meta } from "../../meta";
 const meta: Meta = {
   id: "ClockFixture",
@@ -45,4 +46,22 @@ it("resolves item sets and adjustments to the same key and inherits bounds with 
     next: 30,
   });
   expect(projectAdjustments(definition, props, get).rows).toEqual([{ amount: 29.75 }]);
+});
+
+it("uses stamped ordinals for wire setters without replacing authored ids", () => {
+  const definition: Meta = {
+    ...meta,
+    items: { key: "rows", parts: ["value"], set: { value: { prop: "amount" } } },
+  };
+  const wire = {
+    rows: [
+      { id: "r2", amount: 10 },
+      { id: "r1", amount: 20 },
+    ],
+  };
+  const get = (part: string) => (part === "r1/$adjust/amount" ? 15 : undefined);
+  expect(projectAdjustments(definition, wire, get, true).rows).toEqual([
+    { id: "r2", amount: 15 },
+    { id: "r1", amount: 20 },
+  ]);
 });

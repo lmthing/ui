@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { TamaguiProvider } from "tamagui";
-import type { ActStep, ScreenLike } from "@lmthing/ui/catalog";
-import { PhoneScreen } from "@lmthing/ui/kit";
+import type { ActStep, DeviceData, ScreenLike } from "@lmthing/ui/catalog";
+import { PhoneScreen, type PhoneScreenProps } from "@lmthing/ui/kit";
 import { config, galleryParts } from "../../../gallery";
 import { placeholderFor } from "./placeholder";
 import "../../../gallery/app/fonts";
@@ -9,6 +9,7 @@ import { useTheme, type ThemeState } from "../theme/ThemeContext";
 
 export type PhoneProps = {
   screen: ScreenLike;
+  deviceData?: DeviceData | undefined;
   width?: number;
   /** The tallest the frame grows; it fits its content from `minHeight` up to this. */
   height?: number;
@@ -22,6 +23,7 @@ export type PhoneProps = {
   /** Called with the address under the pointer, or null. */
   onHover?: ((address: string | null) => void) | undefined;
   onAction?: ((step: ActStep) => void) | undefined;
+  onChange?: PhoneScreenProps["onChange"];
   label?: string;
 };
 
@@ -45,6 +47,7 @@ function findPart(root: HTMLElement, address: string): Element | null {
 /** A live kit screen in a phone frame. The frame's width is one of the shared phone widths. */
 export function Phone({
   screen,
+  deviceData,
   width = 390,
   height = 640,
   minHeight = 300,
@@ -53,6 +56,7 @@ export function Phone({
   highlight,
   onHover,
   onAction,
+  onChange,
   label,
 }: PhoneProps) {
   const page = useTheme();
@@ -89,10 +93,12 @@ export function Phone({
           <div style={{ width, maxWidth: "100%" }}>
             <PhoneScreen
               screen={screen}
+              deviceData={deviceData}
               theme={choice as never}
               parts={galleryParts}
               resolvePhoto={(ref) => placeholderFor(ref, choice)}
               onAction={onAction}
+              onChange={onChange}
             />
           </div>
         </TamaguiProvider>

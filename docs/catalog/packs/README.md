@@ -125,6 +125,9 @@ mood and sleep apart from workouts and medicine.
 
 ## Rules every pack follows
 
+- Use `copy` on a declared part. `KitAction` binds the nonempty text from its `value` prop; the
+  action itself carries no value. The kit defers clipboard writes to the host.
+
 - **Ids are unique** across the core and all packs, and a pack id is never reused as a component id
   (`trips` has `Reservation`, not `Booking`).
 - **A pack never depends on another pack.** What three or more packs need moves to the core (`Amount`,

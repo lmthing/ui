@@ -10,16 +10,15 @@ import {
   packOf,
   runComposeProbes,
   variantAxes,
+  type ProbeCall,
   type PackId,
   type PackMeta,
   type ComposeProbe,
 } from "@lmthing/ui/catalog";
 
-import { existsSync } from "node:fs";
 import { probeModels, replayCall } from "../scripts";
 import { componentFilter, selectedIds, selectedLayouts, wholePack } from "../scripts/build";
-
-const known = (id: string) => existsSync(`${import.meta.dirname}/known/${id}.md`);
+import { partialRunAnnotation } from "./known";
 
 const registry = createRegistry({ includeDrafts: true });
 const required = probeModels.filter((model) => model.required);
@@ -59,7 +58,6 @@ describe.each(required)("shared variant probes on $id", (model) => {
 
 describe.each(required)("probes on $id", (model) => {
   it.each(selectedIds(registry.ids, suite))("%s passes its probes", async (id) => {
-    if (known(id)) return; // open problem in test/known/<Id>.md: llm:check shows it, the fixer clears it
     const results = await runProbes({
       defs: registry.defs,
       callModel: replayCall(id, model.id),
@@ -72,59 +70,71 @@ describe.each(required)("probes on $id", (model) => {
   });
 });
 
-describe.each(required)("pack probes on $id", (model) => {
-  it.runIf(selectedPacks.length > 0)("replays every pack probe with a passing majority", async () => {
-    const results = [];
-    for (const id of selectedPacks)
-      results.push(
-        ...(await runPackProbes({
-          packs,
-          only: [id],
-          samples: model.samples,
-          callModel: replayCall(`pack/${id}`, model.id),
-        })),
-      );
-    if (!results.length) return;
-    expect(
-      results
-        .filter((result) => result.status !== "pass")
-        .map((result) => `${result.component}: ${result.detail}`),
-    ).toEqual([]);
-  });
-});
+function expectPassing(results: readonly { status: string }[]) {
+  expect(results.filter((result) => result.status !== "pass")).toEqual([]);
+}
 
-describe.each(required)("pack component and composition probes on $id", (model) => {
-  it.each(compositionPacks)("%s passes every component and every layout", async (id) => {
-    const registry = createRegistry({ packs: [id], includeDrafts: true });
-    const callModel = replayCall(`pack/${id}`, model.id);
-    const all = wholePack(id, suite);
-    const members = registry.ids.filter((name) => packMembers[name] === id);
-    const only = all ? members : selectedIds(members, suite);
-    const core = packMeta[id]!.probes.filter((probe) => probe.kind === "choose");
-    const coreResults = await runProbes({
-      defs: registry.defs.map((def) => ({
-        ...def,
-        probes: core.filter((probe) => probe.expect === def.meta.id),
-      })),
-      callModel,
-      samples: model.samples,
-      ...(all || !filter ? {} : { only: filter }),
-    });
-    expect(coreResults.filter((result) => result.status !== "pass")).toEqual([]);
-    const components = await runProbes({ defs: registry.defs, only, callModel, samples: model.samples });
-    expect(components.filter((result) => result.status !== "pass")).toEqual([]);
-    const metas = registry.packComposeArchetypes;
-    const layouts = all ? undefined : selectedLayouts(metas, suite);
-    if (layouts && !layouts.length) return;
-    const compose = await runComposeProbes({
+async function replayPackComposition(
+  id: PackId,
+  registry: ReturnType<typeof createRegistry>,
+  callModel: ProbeCall,
+  samples: number,
+  all: boolean,
+) {
+  const metas = registry.packComposeArchetypes;
+  const layouts = all ? undefined : selectedLayouts(metas, suite);
+  if (layouts && !layouts.length) return;
+  expectPassing(
+    await runComposeProbes({
       archetypes: metas,
       probes: (packComposeProbes as Partial<Record<PackId, readonly ComposeProbe[]>>)[id] ?? [],
       ...(layouts ? { only: layouts } : {}),
       defs: Object.fromEntries(registry.defs.map((def) => [def.meta.id, def])),
       cast: { things: [], items: [] },
       callModel,
-      samples: model.samples,
-    });
-    expect(compose.filter((result) => result.status !== "pass")).toEqual([]);
-  });
+      samples,
+    }),
+  );
+}
+
+describe.each(required)("pack probes on $id", ({ id: model, samples }) => {
+  it.for(compositionPacks)(
+    "%s passes selection, component and composition probes",
+    async (id, { annotate }) => {
+      const all = wholePack(id, suite);
+      if (!all) await annotate("Only selected components and layouts were replayed.", partialRunAnnotation);
+      const registry = createRegistry({ packs: [id], includeDrafts: true });
+      const callModel = replayCall(`pack/${id}`, model);
+      const members = registry.ids.filter((name) => packMembers[name] === id);
+      const only = all ? members : selectedIds(members, suite);
+      const core = packMeta[id]!.probes.filter((probe) => probe.kind === "choose");
+      const stages = await Promise.allSettled([
+        selectedPacks.includes(id)
+          ? runPackProbes({ packs, only: [id], samples, callModel }).then((results) => {
+              expect(
+                results
+                  .filter((result) => result.status !== "pass")
+                  .map((result) => `${result.component}: ${result.detail}`),
+              ).toEqual([]);
+            })
+          : undefined,
+        runProbes({
+          defs: registry.defs.map((def) => ({
+            ...def,
+            probes: core.filter((probe) => probe.expect === def.meta.id),
+          })),
+          callModel,
+          samples,
+          ...(all || !filter ? {} : { only: filter }),
+        }).then(expectPassing),
+        runProbes({ defs: registry.defs, only, callModel, samples }).then(expectPassing),
+        replayPackComposition(id, registry, callModel, samples, Boolean(all)),
+      ]);
+      const errors = stages.flatMap((stage) =>
+        stage.status === "rejected" ? [stage.reason as unknown] : [],
+      );
+      if (errors.length === 1) throw errors[0];
+      if (errors.length > 1) throw new AggregateError(errors, errors.map(String).join("\n"));
+    },
+  );
 });

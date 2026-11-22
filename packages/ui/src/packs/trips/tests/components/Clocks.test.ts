@@ -16,7 +16,12 @@ import { pack } from "../..";
 
 const { Clocks } = components;
 const { meta, props, examples, fallback, probes } = Clocks;
-const comparison = { places: examples.find((example) => example.arrange === "rows")!.places };
+const comparison = {
+  places: [
+    { label: "London", zone: "Europe/London" },
+    { label: "Tokyo", zone: "Asia/Tokyo" },
+  ],
+};
 const home = comparison.places[0]!;
 const inputWith = (patch: object) => ({ places: [{ ...home, ...patch }, comparison.places[1]] });
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -126,6 +131,10 @@ describe("Clocks parts and read/act", () => {
     const baseline = [...draw().keys()].sort();
     for (const [axis, values] of Object.entries(meta.variants))
       for (const value of values) expect([...draw({ [axis]: value }).keys()].sort()).toEqual(baseline);
+  });
+
+  it("compares the same cities in the grid and rows examples", () => {
+    expect(examples.find((example) => example.arrange === "rows")?.places).toEqual(examples[0]?.places);
   });
 
   it("reads the displayed clocks without offering actions on their parts", () => {

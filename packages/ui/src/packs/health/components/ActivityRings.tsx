@@ -6,13 +6,13 @@ import { KitCard, KitGrid, KitRadialTrack, KitRow, KitSkeleton, KitText, useWord
 import { activityRingLine, activityScoreLine, activityScoreMax } from "../copy";
 import { seedTitles } from "..";
 
-// Core first: Ring/default cannot show two or three independently filled concentric daily goals.
+// Core first: Progress/ring cannot show two or three independently filled concentric daily goals.
 export const meta = {
   id: "ActivityRings",
   status: "ready",
   group: "data",
   purpose: "Track multiple daily goals or a supplied wellness score with its factors.",
-  pick: "At least two separate daily goals with their own value and target, or one supplied readiness or bio-age score with three supplied factors, as concentric rings. Not a single step, exercise, water or other goal: choose Ring for any one goal, regardless of health context. Not targets drawn as bars (Progress).",
+  pick: "At least two distinct daily goals with their own value and target, or one supplied readiness or bio-age score with three supplied factors, as concentric rings. Not a single step, exercise, water or other goal: choose Progress for any one goal, regardless of health context. Not targets drawn as bars (Progress).",
   region: "body",
   weight: 2,
   tier: "phone",
@@ -91,7 +91,7 @@ export const probes = [
   choose(
     "Show move, exercise and stand as three concentric daily rings, each with a separate value and goal",
   ),
-  choose("Show just one circular daily step goal, 3000 of 8000, no other goals", "Ring"),
+  choose("Show just one circular daily step goal, 3000 of 8000, no other goals", "Progress"),
   write("Three daily goals: Move 280 of 400 kcal, Exercise 20 of 30 min, Stand 7 of 12 hours"),
   {
     ...write(

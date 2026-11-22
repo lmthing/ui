@@ -11,11 +11,9 @@ import {
   type Props,
 } from "@lmthing/ui/catalog";
 import { addressedElements, renderInstance } from "../../test/render";
-
 const { props, meta, examples, fallback, probes } = components.Bubbles;
 const message = { from: "them", text: "More details" };
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
-
 describe("Bubbles schema", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
@@ -91,14 +89,8 @@ describe("Bubbles fallback", () => {
       { things: [{ type: "entry", fields: ["heading"] }],
         items: [{ id: "first", type: "entry", sample: true, heading: "Title only" }] },
     ];
-    const expected = [
-      placeholderDetail,
-      "More details",
-      "Mixed detail",
-      "y".repeat(120),
-      placeholderDetail,
-      placeholderDetail,
-    ];
+    // prettier-ignore
+    const expected = [placeholderDetail, "More details", "Mixed detail", "y".repeat(120), placeholderDetail, placeholderDetail];
     casts.forEach((cast, index) => {
       const result = fallback({ cast });
       expect(props.parse(result)).toEqual({
@@ -108,7 +100,6 @@ describe("Bubbles fallback", () => {
     });
   });
 });
-
 // prettier-ignore
 it("clips the detail on a word boundary using the first item's own thing", () => {
   const cast: CastLike = {
@@ -126,8 +117,8 @@ describe("Bubbles metadata and probes", () => {
       region: "body",
       weight: 2,
       tier: "people",
-      items: { key: "messages", parts: ["root", "text"] },
-      parts: ["root", "with"],
+      items: { key: "messages" },
+      parts: ["root", "with", "broadcast"],
       states: ["filled", "empty"],
     });
     expect(meta).not.toHaveProperty("actions");
@@ -158,7 +149,7 @@ describe("Bubbles rendering", () => {
     expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
     const parsed = stampItemIds(meta, props.parse(example));
     for (const [index, item] of parsed.messages.entries()) {
-      for (const part of meta.items.parts)
+      for (const part of ["root", "text"])
         expect(html.match(new RegExp(`data-testid="home/c1/r${index + 1}/${part}"`, "g"))).toHaveLength(1);
       expect(readComponent(components.Bubbles, example, "c1").join("\n")).toContain(item.text);
     }
@@ -187,14 +178,23 @@ describe("Bubbles rendering", () => {
     for (const item of examples[0]!.messages) expect(html).not.toContain(item.text);
   });
 });
+// prettier-ignore
+it("renders message details at the same item address without adding actions", () => {
+  const rich = { style: "group", messages: [
+    { ...message, sender: "Anna", avatar: "lib:anna", time: "09:12", status: "read", replyTo: "Hi",
+      attachment: { kind: "photo", photo: "lib:park" }, reactions: ["👍"] },
+  ] };
+  const parts = addressedElements(renderInstance("Bubbles", rich, "filled", theme));
+  for (const part of meta.items.parts) expect(parts.has(`home/c1/r1/${part}`)).toBe(true);
+  expect(affordancesOf(meta, stampItemIds(meta, props.parse(rich)), "c1")).toEqual([]);
+  expect(readComponent(components.Bubbles, rich, "c1").join("\n")).toContain("r1 Read · Photo · 👍");
+  expect(props.safeParse({ messages: [{ ...message, attachment: { kind: "photo" } }] }).success).toBe(false);
+});
 
+// prettier-ignore
 it("hides just the partner heading without renumbering messages", () => {
   const input = examples[0]!;
   expect(meta.variantParts["detail.brief"].hides).toEqual(["with"]);
-  const addresses = (value: unknown) => [
-    ...addressedElements(renderInstance("Bubbles", value, "filled", theme)).keys(),
-  ];
-  expect(addresses({ ...input, detail: "brief" })).toEqual(
-    addresses(input).filter((part) => part !== "home/c1/with"),
-  );
+  const addresses = (value: unknown) => [...addressedElements(renderInstance("Bubbles", value, "filled", theme)).keys()];
+  expect(addresses({ ...input, detail: "brief" })).toEqual(addresses(input).filter((part) => part !== "home/c1/with"));
 });

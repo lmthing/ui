@@ -3,11 +3,15 @@ import { projectRuntimeSets } from "../clocks";
 import { selectDeviceData, type DeviceData } from "../device-data";
 import type { Affordance, SendDraft, Values } from "../index";
 import { linkedInput, projectLinkedEdits } from "../linked-edits";
+import { mediaHostKey, type MediaHostGate } from "../media";
 import { addressedItems } from "../visibility";
 import { projectPickers } from "./pickers";
 export { pickerAt, pickerKey, pickerSelectionChanges, stageInlinePress } from "./pickers";
 
-export type LiveInput = { kind: "check" } | { kind: "text"; max: number };
+export { defineLocalState, localEventOffer, projectLocalState, stageLocalEvent } from "./local-state";
+export { expireProgress, stageProgress } from "./progress";
+
+export type LiveInput = { kind: "check" | "boolean" } | { kind: "text"; max: number };
 type Get = (part: string) => unknown;
 
 /** Undefined means an ordinary send; null means a declared send is not ready. */
@@ -16,17 +20,29 @@ export function sendDraft(
   props: Values,
   part: string,
   instance: string,
+  values: Values,
 ): SendDraft | null | undefined {
   const sends = meta.live?.send;
   if (!sends || !Object.hasOwn(sends, part)) return undefined;
-  const { field, audience: prop } = sends[part]!;
+  const { field, audience: prop, attachments } = sends[part]!;
   const spec = meta.live?.text?.[field];
   const text = spec && props[spec.prop];
-  if (typeof text !== "string" || !text.trim()) return null;
+  const gate = values[mediaHostKey] as MediaHostGate | undefined;
+  const sources =
+    attachments &&
+    [...new Set(attachments)]
+      .map((part) => (part === "root" ? instance : `${instance}/${part}`))
+      .filter((source) => gate?.attachment(source)?.present);
+  if (!sources?.length && (typeof text !== "string" || !text.trim())) return null;
   const address = field === "root" ? instance : `${instance}/${field}`;
-  if (prop === undefined) return { address, text };
+  const draft = {
+    address,
+    text: typeof text === "string" ? text : "",
+    ...(sources?.length ? { attachments: sources } : {}),
+  };
+  if (prop === undefined) return draft;
   const audience = props[prop];
-  return typeof audience === "string" && audience ? { address, text, audience } : null;
+  return typeof audience === "string" && audience ? { ...draft, audience } : null;
 }
 
 export function projectNamedSelections(
@@ -48,6 +64,22 @@ export function projectNamedSelections(
 
 /** These keys are distinct from raw address values and rejected edit drafts. */
 export const liveInputKey = (target: string, action: "type" | "check") => `$${action}/${target}`;
+
+function componentToggle(meta: Meta, part: string) {
+  const toggles = meta.live?.toggles;
+  return Object.hasOwn(toggles ?? {}, part) ? toggles?.[part] : undefined;
+}
+
+export const hasComponentToggle = (meta: Meta, part: string) => componentToggle(meta, part) !== undefined;
+
+function applyComponentToggles(meta: Meta, props: Values, get: Get) {
+  for (const [part, { prop, initial }] of Object.entries(meta.live?.toggles ?? {})) {
+    const value = get(liveInputKey(part, "check"));
+    if (typeof value === "boolean") props = { ...props, [prop]: value };
+    else if (typeof props[prop] !== "boolean") props = { ...props, [prop]: initial };
+  }
+  return props;
+}
 
 function applyText(meta: Meta, props: Values, get: Get) {
   for (const [part, { prop, max }] of Object.entries(meta.live?.text ?? {})) {
@@ -83,17 +115,25 @@ export function projectLiveInputs(
   data?: DeviceData,
   validated = props,
 ): Values {
-  const seeded = projectRuntimeSets(meta, props, get, validated);
+  const seeded = projectRuntimeSets(meta, props, get, validated, data);
   const selected = projectNamedSelections(meta, seeded, get, "runtime");
   const edited = applyChecks(meta, applyText(meta, selected, get), get);
-  const projected = projectLinkedEdits(meta, projectPickers(meta, edited, get), get, data);
+  const toggled = applyComponentToggles(meta, projectItemToggles(meta, edited, get), get);
+  const projected = projectLinkedEdits(meta, projectPickers(meta, toggled, get), get, data);
   const derived = meta.live?.derive?.(projected, instance, selectDeviceData(meta, data));
   const live = derived ? { ...projected, ...derived } : projected;
-  return live === seeded ? live : projectRuntimeSets(meta, live, get, validated);
+  return live === seeded ? live : projectRuntimeSets(meta, live, get, validated, data);
 }
 
 /** Annotate declared inputs with their exact value/limits, not an item's first boolean. */
 export function withLiveInput(meta: Meta, part: string, action: string, holder: Values, row: boolean) {
+  const toggle = !row && (action === "toggle" || action === "check") && componentToggle(meta, part);
+  if (toggle) {
+    const value = holder[toggle.prop];
+    const on = typeof value === "boolean" ? value : toggle.initial;
+    const state = action === "toggle" ? (on ? "on" : "off") : on ? "done" : "todo";
+    return { input: { kind: "boolean" } as const, detail: `:${state}` };
+  }
   if (action === "type" && row && Object.hasOwn(meta.items?.edits ?? {}, part)) {
     const spec = meta.items!.edits![part];
     if (spec?.action === "type") return { input: { kind: "text", max: spec.max } as const };
@@ -103,11 +143,15 @@ export function withLiveInput(meta: Meta, part: string, action: string, holder: 
     const spec = linkedInput(meta, part) ?? (text && Object.hasOwn(text, part) ? text[part] : undefined);
     if (spec) return { input: { kind: "text", max: spec.max } as const };
   }
-  if (row && action === "check" && Object.hasOwn(meta.live?.checks ?? {}, part)) {
+  if (row && (action === "check" || action === "toggle") && Object.hasOwn(meta.live?.checks ?? {}, part)) {
     const done = holder[meta.live!.checks![part]!];
-    if (typeof done === "boolean")
-      return { input: { kind: "check" } as const, detail: `:${done ? "done" : "todo"}` };
+    if (typeof done === "boolean") {
+      const state = action === "toggle" ? (done ? "on" : "off") : done ? "done" : "todo";
+      return { input: { kind: "check" } as const, detail: `:${state}` };
+    }
   }
+  const detail = row && action === "toggle" ? itemToggleDetail(meta, part, holder) : undefined;
+  if (detail !== undefined) return { detail };
   return {};
 }
 
@@ -117,4 +161,29 @@ export function storeLiveInput(next: Values, screen: string, found: Affordance, 
   const target = parts.join("/") || "root";
   const action = found.input.kind === "text" ? "type" : "check";
   next[`${screen}/${instance}/${liveInputKey(target, action)}`] = value;
+}
+
+function itemToggleDetail(meta: Meta, part: string, row: Values): string | undefined {
+  const toggles = meta.items?.toggles;
+  if (part === "root" || !toggles || !Object.hasOwn(toggles, part)) return undefined;
+  return row[toggles[part]!] === true ? ":on" : ":off";
+}
+
+/** Overlay named toggle values on addressed rows before deriving live visibility and summaries. */
+export function projectItemToggles(meta: Meta, props: Values, get: (part: string) => unknown): Values {
+  const items = meta.items;
+  if (!items?.toggles) return props;
+  const toggles = Object.entries(items.toggles).filter(([part]) => part !== "root");
+  if (!toggles.length) return props;
+  const rows = addressedItems(meta, props);
+  const projected = rows.map((row) => {
+    if (typeof row.id !== "string") return row;
+    const id = row.id;
+    for (const [part, prop] of toggles) {
+      const value = get(`${id}/${part}`);
+      if (typeof value === "boolean" && value !== row[prop]) row = { ...row, [prop]: value };
+    }
+    return row;
+  });
+  return projected.some((row, index) => row !== rows[index]) ? { ...props, [items.key]: projected } : props;
 }
