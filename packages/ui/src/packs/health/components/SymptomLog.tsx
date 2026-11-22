@@ -1,6 +1,13 @@
 import { z } from "zod";
-// prettier-ignore
-import { probesFor, text, type FallbackInput, type Meta, type Probe, type Props, variantProps } from "../../../catalog";
+import {
+  probesFor,
+  text,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+  variantProps,
+} from "../../../catalog";
 import {
   KitCard,
   KitChip,
@@ -105,15 +112,36 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     ],
   };
 }
-// prettier-ignore
 export const examples = [
-  { groups: [
-    { label: "Head", symptoms: [{ label: "Headache", severity: 2, on: true }, { label: "Dizziness", severity: 0 }] },
-    { label: "Stomach", symptoms: [{ label: "Nausea", severity: 1 }, { label: "Cramping", severity: 0 }] },
-  ] },
-  { groups: [
-    { label: "Energy", symptoms: [{ label: "Fatigue", severity: 4 }, { label: "Weakness", severity: 1 }] },
-  ] },
+  {
+    groups: [
+      {
+        label: "Head",
+        symptoms: [
+          { label: "Headache", severity: 2, on: true },
+          { label: "Dizziness", severity: 0 },
+        ],
+      },
+      {
+        label: "Stomach",
+        symptoms: [
+          { label: "Nausea", severity: 1 },
+          { label: "Cramping", severity: 0 },
+        ],
+      },
+    ],
+  },
+  {
+    groups: [
+      {
+        label: "Energy",
+        symptoms: [
+          { label: "Fatigue", severity: 4 },
+          { label: "Weakness", severity: 1 },
+        ],
+      },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("SymptomLog");
 export const probes = [
@@ -147,9 +175,14 @@ function SymptomChip({ group, index }: { group: Group; index: number }) {
     <KitChip item={group.id} part={part} labelPart={null} label={symptom.label} on={on} role="checkbox" />
   );
 }
-// prettier-ignore
-function SymptomSeverity({ symptom, index, full }: {
-  symptom: Group["symptoms"][number]; index: number; full: boolean;
+function SymptomSeverity({
+  symptom,
+  index,
+  full,
+}: {
+  symptom: Group["symptoms"][number];
+  index: number;
+  full: boolean;
 }) {
   const { lang } = useWords(healthWordsFor);
   const part = `severity_${index + 1}`;
@@ -161,16 +194,19 @@ function SymptomSeverity({ symptom, index, full }: {
   return (
     <KitContent group="response">
       <KitGrid columns={2} fitLast>
-        <KitText role="label" tone="muted" part={null}>{symptom.label}</KitText>
-        {full && <KitText role="number" numberScale="compact" tabular part={`reading_${index + 1}`}>
-          {symptomLevelLine(current, lang)}
-        </KitText>}
+        <KitText role="label" tone="muted" part={null}>
+          {symptom.label}
+        </KitText>
+        {full && (
+          <KitText role="number" numberScale="compact" tabular part={`reading_${index + 1}`}>
+            {symptomLevelLine(current, lang)}
+          </KitText>
+        )}
       </KitGrid>
       <KitSlider part={part} label={symptom.label} value={symptomSeverity(current)} min={1} max={5} />
     </KitContent>
   );
 }
-// prettier-ignore
 export function SymptomLog({ groups, detail }: Props<typeof props, typeof meta>) {
   const full = useVariant("detail", meta.variants.detail, detail) === "full";
   const density = useKit().density;
@@ -178,12 +214,25 @@ export function SymptomLog({ groups, detail }: Props<typeof props, typeof meta>)
   return (
     <KitCard style="inset" part="root" density={density} padded={compact}>
       {groups.map((group) => (
-        <KitRow item={group.id} key={group.id} label={group.label} lineRole="heading" density={density} inline={compact}>
-          <KitText role="heading" part="label">{group.label}</KitText>
+        <KitRow
+          item={group.id}
+          key={group.id}
+          label={group.label}
+          lineRole="heading"
+          density={density}
+          inline={compact}
+        >
+          <KitText role="heading" part="label">
+            {group.label}
+          </KitText>
           <KitTrack part="chips" label={group.label}>
-            {group.symptoms.map((_, index) => <SymptomChip key={index} {...{ group, index }} />)}
+            {group.symptoms.map((_, index) => (
+              <SymptomChip key={index} {...{ group, index }} />
+            ))}
           </KitTrack>
-          {group.symptoms.map((symptom, index) => <SymptomSeverity key={index} {...{ symptom, index, full }} />)}
+          {group.symptoms.map((symptom, index) => (
+            <SymptomSeverity key={index} {...{ symptom, index, full }} />
+          ))}
         </KitRow>
       ))}
     </KitCard>

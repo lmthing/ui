@@ -1,8 +1,32 @@
 import { z } from "zod";
-// prettier-ignore
-import { useWords, KitAction, KitCard, KitContent, KitEmpty, KitRadialTrack, KitText, useComponentState, useEmptyThing, useVariant, type TextTone } from "../../../kit";
-// prettier-ignore
-import { detailOf, emptyLine, isoDate, itemsOf, probesFor, screenId, thingOf, titleOf, variantProps, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
+import {
+  useWords,
+  KitAction,
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitRadialTrack,
+  KitText,
+  useComponentState,
+  useEmptyThing,
+  useVariant,
+  type TextTone,
+} from "../../../kit";
+import {
+  detailOf,
+  emptyLine,
+  isoDate,
+  itemsOf,
+  probesFor,
+  screenId,
+  thingOf,
+  titleOf,
+  variantProps,
+  type CastLike,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../../../catalog";
 import {
   cycleDayLine,
   cycleEstimate,
@@ -60,7 +84,6 @@ export const examples = [
   { start: "2026-10-03", length: 28, period: 5, mode: "pregnancy", symptoms: { goto: "symptom_log" } },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Cycle");
-// prettier-ignore
 export const probes = [
   choose(
     "Follow my menstrual cycle, showing today's cycle day, phase, predicted next period and fertile window",
@@ -75,15 +98,21 @@ export const probes = [
   },
   read("Log a new period", { address: "c1/log", action: "press" }),
   {
-    ...write("I'm trying to conceive. My last period started November 1, 2026, my cycle averages 28 days, and my period lasts five days."),
+    ...write(
+      "I'm trying to conceive. My last period started November 1, 2026, my cycle averages 28 days, and my period lasts five days.",
+    ),
     fields: { mode: "conceive" },
   },
   {
-    ...write("I'm already pregnant. Put my cycle tracker in pregnancy mode. My last period began October 3, 2026, with an average 28-day cycle and a five-day period."),
+    ...write(
+      "I'm already pregnant. Put my cycle tracker in pregnancy mode. My last period began October 3, 2026, with an average 28-day cycle and a five-day period.",
+    ),
     fields: { mode: "pregnancy" },
   },
   {
-    ...write("My last period began November 1, 2026, my average cycle is 28 days, and my period lasts five days. Add a link to the symptom log screen, symptom_log."),
+    ...write(
+      "My last period began November 1, 2026, my average cycle is 28 days, and my period lasts five days. Add a link to the symptom log screen, symptom_log.",
+    ),
     fields: { "symptoms.goto": "symptom_log" },
   },
   read("Open the symptom log", { address: "c1/symptoms", action: "press" }, 4),
