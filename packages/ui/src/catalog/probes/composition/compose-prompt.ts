@@ -39,7 +39,7 @@ export function composeRequest(
   const listing = names.map((name) => `${buildEntry(defs[name]!)}\nweight: ${defs[name]!.meta.weight}`);
   const after = [
     `A valid default for this layout: ${JSON.stringify(defaultLines(meta, layout, cast, defs))}`,
-    ...(names.some((name) => defs[name]?.meta.variants?.density) ? [writerVariants] : []),
+    ...(offersVariants ? [writerVariants] : []),
     `Use the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. ${composeFlow} Reply with JSON only.`,
   ];
   return {

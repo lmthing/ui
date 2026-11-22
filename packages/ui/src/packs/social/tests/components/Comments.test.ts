@@ -26,8 +26,8 @@ describe("Comments schema", () => {
   );
   it("defaults the variants, trims author text, and stamps ids only after parsing", () => {
     const parsed = props.parse({ comments: [{ ...seed, name: "  Sam  " }] });
-    expect(parsed).toMatchObject({ surface: "card", detail: "full" });
-    expect(parsed.density).toBeUndefined();
+    expect(parsed).toMatchObject({ detail: "full" });
+    expect(parsed).not.toHaveProperty("density");
     expect(parsed.comments).toEqual([seed]);
     expect(stampItemIds(meta, parsed).comments).toEqual([{ ...seed, id: "r1" }]);
     type View = Props<typeof props, typeof meta>;
@@ -120,7 +120,7 @@ describe("Comments states, parts and reading", () => {
     ];
     const brief = { ...input, detail: "brief" };
     expect(parts(brief)).toEqual(parts(input).filter((address) => !address.endsWith("/time")));
-    expect(parts({ ...input, density: "compact", surface: "outlined" })).toEqual(parts(input));
+    expect(parts({ ...input })).toEqual(parts(input));
     const read = readComponent(def, input, "c1").join("\n");
     for (const line of [
       "r2: Maya replying to Sam · 1 like",

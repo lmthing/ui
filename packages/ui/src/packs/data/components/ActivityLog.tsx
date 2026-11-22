@@ -9,34 +9,32 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   wordsFor,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
+  variantProps,
 } from "../../../catalog";
 import * as kit from "../../../kit";
 import { activityLabel } from "../copy";
 import { dataWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-ActivityLog.generated";
 
 // Core first: Timeline/default lays out events or plans; it does not identify who changed a record with avatars.
 export const meta = {
   id: "ActivityLog",
   status: "ready",
   group: "data",
-  purpose: "See who changed a shared record, what changed, and when it happened.",
-  pick: "Audit changes by several people with actor portraits, times and links to changed records. Not scheduled events in time order (Timeline), one client's history (ClientHistory) or shift notes (Handover).",
-  writeHints: [
-    'Write the actor in who and the change in text, without repeating the actor in text. Keep the supplied timestamp and record link. Use lead "none" only when explicitly asked to hide portraits; still write photo for every entry.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "A change log kept by a shared app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     lead: ["avatar", "none"],
   },
   variantParts: { "lead.none": { hides: ["photo"] } },
@@ -98,7 +96,6 @@ export const examples = [
     ],
   },
   {
-    density: "compact",
     entries: [
       {
         who: "Sam",
@@ -135,7 +132,7 @@ export const probes = [
 
 type LogProps = Props<typeof props, typeof meta>;
 type Entry = LogProps["entries"][number];
-type RowProps = { entry: Entry; density: LogProps["density"]; avatar: boolean };
+type RowProps = { entry: Entry; density: ThemeDensity; avatar: boolean };
 
 function ActivityRow({ entry, density, avatar }: RowProps) {
   const { lang } = kit.useWords(dataWordsFor);
@@ -169,8 +166,8 @@ function ActivityRow({ entry, density, avatar }: RowProps) {
 
 export function ActivityLog(input: LogProps) {
   const { entries } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const avatar = kit.useVariant("lead", meta.variants.lead, input.lead) === "avatar";
   const state = kit.useComponentState();
   return (

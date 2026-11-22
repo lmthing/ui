@@ -3,23 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { weatherCopy } from "../copy";
 import { tripsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Weather.generated";
 
 // Core first: Stats/default cannot request a place's service-backed forecast with daily conditions.
 export const meta = {
   id: "Weather",
   status: "ready",
   group: "data",
-  purpose: "See the forecast or typical weather for the place and dates of a trip.",
-  pick: "A place's local weather or trip forecast, including conditions and rain chance. Not personal figures (Stats) or a series showing a trend (Sparkline).",
-  writeHints: [
-    "Write the place and optional trip dates. The service supplies all weather data, never the Writer.",
-    'When asked to hide only the main condition text, write detail "brief", density null, and surface null. Keep the icon, temperatures and next days. Do not write "card" or "comfortable" unless requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "service",
   realPath: "A weather service provides forecasts and typical monthly weather.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["condition"] } },
   parts: ["root", "place", "today", "forecast", "condition", "message", "sub"],
   // The host's offline case uses the error state with the Empty offline treatment.
@@ -103,7 +101,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type WeatherProps = c.Props<typeof props, typeof meta>;
-type Density = NonNullable<WeatherProps["density"]>;
+type Density = c.ThemeDensity;
 type WeatherDisplay = ReturnType<typeof weatherDisplay>;
 const stripColumns = 3;
 
@@ -174,8 +172,8 @@ function WeatherHeading({ place, heading, density }: { place: string; heading: s
 // prettier-ignore
 export function Weather(input: WeatherProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang } = kit.useWords();
   const copy = weatherDisplay(input, kit.useDeviceData(), lang, state === "error");

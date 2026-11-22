@@ -6,6 +6,7 @@ import {
   planAct,
   readComponent,
   type StateName,
+  type ThemeChoice,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { addressedElements, renderInstance } from "../../../../../test/render";
@@ -14,8 +15,8 @@ const { ProjectStatus } = components;
 const { props, examples, fallback, probes } = ProjectStatus;
 const first = examples[0]!;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
-const draw = (input: object, state: StateName = "filled") =>
-  addressedElements(renderInstance("ProjectStatus", input, state, theme, { component: "p1" }));
+const draw = (input: object, state: StateName = "filled", finish: ThemeChoice = theme) =>
+  addressedElements(renderInstance("ProjectStatus", input, state, finish, { component: "p1" }));
 const screen = (input: object, state: StateName = "filled") => ({
   id: "status",
   components: [{ ...input, c: "ProjectStatus", id: "p1", state }],
@@ -55,6 +56,8 @@ it("enforces date, reference, text and collection limits and rejects computed fi
     { postGoto: "Bad ID" },
     { style: "compact" },
     { tone: "bad" },
+    { density: "compact" },
+    { surface: "outlined" },
     { milestone: { goto: "elsewhere" } },
   ])
     expect(props.safeParse({ ...first, ...invalid }).success, JSON.stringify(invalid)).toBe(false);
@@ -102,7 +105,7 @@ it("keeps filled addresses across finishes and only reads and draws the short sn
       ].map((part) => `home/p1/${part}`),
     ),
   );
-  expect(keys({ ...first, density: "compact", surface: "outlined" })).toEqual(full);
+  expect([...draw(first, "filled", { ...theme, density: "compact" }).keys()]).toEqual(full);
   expect(keys({ ...first, detail: "brief" })).toEqual(
     full.filter((part) => /\/(root|status|headline|updated_at)$/.test(part)),
   );

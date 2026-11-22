@@ -43,7 +43,7 @@ each task. Checking a task updates the project record; a blocked task cannot be 
   `repeat` (`never`, `daily`, `weekly`, `monthly`) optional, `tags` text(20) each 0–2 optional, 1–6;
   `style` optional. Parent tasks omit `state`: code derives it from their children. Overdue and blockers are computed.
 - Styles: omit or use `null` for ordinary rows; `today` (only tasks due on the device's local date; hidden tasks still count
-  toward dependencies). Shared axes: density: `comfortable`, `compact`; group: `none`, `sections`
+  toward dependencies). Shared axis: group: `none`, `sections`
   (by project, with subtasks indented).
   If there are no matching tasks, `today` says no tasks are due today.
 - Parts → actions: items `root press` (linked), items `done check` (unblocked leaf tasks only), items
@@ -96,7 +96,7 @@ marks and computed day and week totals. Start and stop append one timed entry; a
   Duration, totals and running time come from timestamps; no written total or running flag.
 - Styles: `days` (default), `single_day` (one selected day's entries, at most 6, with the same timer),
   `summary` (weekly elapsed time per project split into billable and non-billable, without entry rows).
-  Shared axes: density: `comfortable`, `compact`; detail: `full`, `brief` (hide entry notes).
+  Shared axis: detail: `full`, `brief` (hide entry notes).
   If there are no entries, `summary` says no time was logged this week.
 - Parts → actions: `timer start`, `timer stop`, `discard press` (while running), `add press` (to `addGoto`),
   `export press`, entries `root press` (linked), entries `remove press`. Entry actions are not offered in

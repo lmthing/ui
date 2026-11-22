@@ -4,24 +4,22 @@ import * as kit from "../../../kit";
 import { registryGift, registryReading } from "../copy";
 import { eventsWordsFor } from "../lang";
 import { seedTitles } from "../seeds";
+import { prompt } from "../../../entry/prompt-Registry.generated";
 
 // Core first: Checklist/default cannot reserve gifts across guests or show claim ownership only to hosts.
 export const meta = {
   id: "Registry",
   status: "ready",
   group: "input",
-  purpose: "Share a gift list and keep guests from choosing the same gift.",
-  pick: "A shared event gift list with gift prices, where to buy, and who claimed a gift for hosts. Not a checklist for personal tasks (Checklist), shopping (ProductGrid) or a personal wishlist (Wishlist).",
-  writeHints: [
-    "Only give by for an already claimed gift in the host view; omit it for guests. Prices are numbers.",
-    'If explicitly asked for rows without photos, set lead to "none" and retain any supplied photo references. Set density and surface to JSON null unless explicitly requested; do not fill in their defaults.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "people",
   realPath: "A shared app reserves each gift so two guests cannot claim the same one.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], lead: ["thumb", "none"] },
+  variants: { lead: ["thumb", "none"] },
   variantParts: { "lead.none": { hides: ["photo"] } },
   parts: ["root", "empty", "success"],
   items: {
@@ -127,7 +125,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type RegistryProps = c.Props<typeof props, typeof meta>;
-type Finish = Pick<RegistryProps, "density" | "lead">;
+type Finish = Pick<RegistryProps, "lead"> & { density: c.ThemeDensity };
 type GiftRow = RegistryProps["gifts"][number];
 
 // prettier-ignore
@@ -160,8 +158,8 @@ function RegistryGiftRow({ row, host, density, lead }: Finish & { row: GiftRow; 
 export function Registry(input: RegistryProps) {
   const state = kit.useComponentState();
   const { words: { registry } } = kit.useWords(eventsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const lead = kit.useVariant("lead", meta.variants.lead, input.lead);
   return <kit.KitCard part="root" style="plain" {...{ density, surface }}>
     {state === "empty" ? <kit.KitEmpty part="empty" icon="gift" decorativeIcon />

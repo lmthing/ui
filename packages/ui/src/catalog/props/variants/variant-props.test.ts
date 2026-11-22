@@ -6,7 +6,6 @@ import type { Definition } from "../../probes";
 
 const props = z.strictObject({
   ...variantProps({
-    density: ["comfortable", "compact"],
     emphasis: ["normal", "hero"],
     trail: ["chevron", "toggle"],
   }),
@@ -32,7 +31,6 @@ const def = {
     tier: "phone",
     realPath: "An example.",
     variants: {
-      density: ["comfortable", "compact"],
       emphasis: ["normal", "hero"],
       trail: ["chevron", "toggle"],
     },
@@ -52,7 +50,6 @@ it("infers only the declared values and retains inheritance on omission", () => 
   expect(z.strictObject(itemVariantProps({ trail: ["chevron", "toggle"] })).parse({})).toEqual({
     trail: "chevron",
   });
-  expectTypeOf<z.output<typeof props>["density"]>().toEqualTypeOf<"comfortable" | "compact" | undefined>();
   expectTypeOf<z.output<typeof props>["emphasis"]>().toEqualTypeOf<"normal" | "hero">();
   expectTypeOf<z.output<typeof props>["rows"][number]["trail"]>().toEqualTypeOf<
     "chevron" | "toggle" | undefined
@@ -62,8 +59,7 @@ it("infers only the declared values and retains inheritance on omission", () => 
     trail: "chevron",
     rows: [{ title: "One", mark: "none" }],
   });
-  expect(props.parse({ density: "comfortable", rows: [{ title: "One", trail: "toggle" }] })).toEqual({
-    density: "comfortable",
+  expect(props.parse({ rows: [{ title: "One", trail: "toggle" }] })).toEqual({
     emphasis: "normal",
     trail: "chevron",
     rows: [{ title: "One", trail: "toggle", mark: "none" }],
@@ -91,10 +87,7 @@ it("exposes the same values in the prompt entry and strict writer schema", () =>
     { type: "string", enum: ["normal", "hero"] },
     { type: "null" },
   ]);
-  expect(schema.properties?.density?.anyOf).toEqual([
-    { type: "string", enum: ["comfortable", "compact"] },
-    { type: "null" },
-  ]);
+  expect(schema.properties?.density).toBeUndefined();
   expect(schema.properties?.surface).toBeUndefined();
   expect(schema.properties?.rows?.items?.properties?.trail?.anyOf).toEqual([
     { type: "string", enum: ["chevron", "toggle"] },

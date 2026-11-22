@@ -22,7 +22,7 @@ const render = (input: unknown, state: "filled" | "empty" = "filled") =>
   renderInstance("BabyLog", input, state, theme, { component: "b1" });
 
 it("keeps authored measurements but omits them from brief history", () => {
-  expect(props.parse(sample)).toMatchObject({ detail: "full", surface: "card" });
+  expect(props.parse(sample)).toMatchObject({ detail: "full" });
   const input = { ...sample, detail: "brief" };
   expect(props.parse(input).log).toEqual(sample.log);
   expect(props.safeParse({ ...sample, detail: "none" }).success).toBe(false);

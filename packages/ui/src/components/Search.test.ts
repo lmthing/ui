@@ -19,9 +19,9 @@ describe("Search schema", () => {
   it("trims the placeholder", () => {
     expect(props.parse({ hint: "  Search records  " })).toEqual({ hint: "Search records" });
   });
-  it("leaves omitted density unset for the app", () => {
+  it("rejects a component-level density override", () => {
     expect(props.parse({ hint: "Search records" })).not.toHaveProperty("density");
-    expect(props.parse({ hint: "Search records", density: "compact" }).density).toBe("compact");
+    expect(props.safeParse({ hint: "Search records", density: "compact" }).success).toBe(false);
   });
   it.each([
     {},
@@ -129,7 +129,7 @@ describe("Search fallback and metadata", () => {
 });
 
 describe("Search view", () => {
-  it("inherits compact density and lets a wire choice override it", () => {
+  it("uses theme density without changing the field address", () => {
     const input = { hint: "Search records" };
     const render = (props: unknown, density: "comfortable" | "compact") =>
       renderInstance("Search", props, "filled", { ...theme, density }).replace(
@@ -139,8 +139,8 @@ describe("Search view", () => {
     const comfortable = render(input, "comfortable");
     const compact = render(input, "compact");
     expect(compact).not.toBe(comfortable);
-    expect(render({ ...input, density: "compact" }, "comfortable")).toBe(compact);
-    expect(render({ ...input, density: "comfortable" }, "compact")).toBe(comfortable);
+    expect(compact).toContain('data-testid="home/c1/field"');
+    expect(comfortable).toContain('data-testid="home/c1/field"');
   });
   it.each([...examples, { hint: "a".repeat(40) }])(
     "offers type only on the rendered search field",

@@ -20,7 +20,6 @@ describe("Banner schema", () => {
     expect(props.parse({ text: "  Current status  " })).toEqual({
       text: "Current status",
       media: "icon",
-      surface: "tinted",
       tone: "warn",
       linked: false,
     });

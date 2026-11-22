@@ -51,13 +51,20 @@ badge for new episodes.
 - Real path: saved items on the device.
 
 ### `Collection` · planned · content · phone
-The head of a show, album, book or course: large artwork, title, author, a line about it, a count ("12
-episodes · 5 h"), and play-all and follow buttons.
+The head of a show, album, book or course: large artwork, title, author, a line about it, recording count
+and duration, optional ratings and shelf details, and play and follow buttons.
 - Pick: the top of one show, album, book or course page. Not a person (`Profile`), not a headline (`Hero`),
   not one recording (`Player`), not a collection of owned things (inventory `Things`).
-- Writes: `title` text(40), `by` text(32), `photo`, `about` text(200) optional, `followed` boolean. The
-  count and total length are computed from the `Playlist` on the screen.
-- Parts → actions: `play press`, `follow toggle`. · States: filled, loading.
+- Writes: `style` (`show` | `album` | `book`) optional, `title` text(40), `by` text(32), `photo`,
+  `about` text(200) optional, `followed` boolean, `rating` number 0–5 optional, `ratingCount` int ≥0
+  optional, `tags` text(20) each 0–3 optional, `shelfStatus` text(24) optional. Count and total length
+  are computed from the screen's `Playlist` or the host playlist data. Rating and rating count may be
+  provided independently; the count does not imply a rating.
+- Layouts: `show` (also used when style is omitted) places artwork above the left-aligned title and credits.
+  `album` centers the title and credits below the artwork. `book` places the title and credits above
+  the artwork and labels the play action “Play audiobook”.
+- Parts → actions: `rating`, `rating_count`, `tags`, `shelf_status`, `play press`, `follow toggle`. ·
+  States: filled, loading.
 - Real path: collection details stored with the app's media.
 
 ### `Playlist` · planned · content · phone

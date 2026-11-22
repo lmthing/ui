@@ -13,26 +13,22 @@ import {
 } from "../copy";
 import { projectsWordsFor } from "../lang";
 import { acyclic, seedFriday, seedLabels, unique } from "../seeds";
+import { prompt } from "../../../entry/prompt-Tasks.generated";
 
 // Core first: Checklist/default cannot show assigned project work with task dependencies or subtasks.
 export const meta = {
   id: "Tasks",
   status: "ready",
   group: "input",
-  purpose: "Track assigned project tasks, their subtasks, due dates and blockers.",
-  pick: "Assigned deliverable work with subtasks or dependencies. Not independent jobs (Checklist), operational columns (Board), or graded coursework (Assignments).",
-  writeHints: [
-    'For normal task lists write "style": null. Set "style": "today" ONLY when asked to show only tasks due today, and keep all supplied task rows and due dates. A due date, tags, recurrence or grouping alone never requests this filter.',
-    'Use only supplied record refs. Include state "todo", "doing" or "done" on leaves; omit it on parents with children. Each subtask is directly under a parent in the same project. Use after for prerequisite task refs, not parentRef.',
-    'Use group "sections" to group by project and indent children; leave group null otherwise. Always write density null unless tighter rows are requested, even when group is set. Do not write blocker, overdue or completion summaries.',
-    "Write repeat only if a cadence is specified and tags only for up to two requested short labels.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath:
     "Tasks, assignments and dependency links live on the device; assignments on another person's device require a shared app.",
-  variants: { density: ["comfortable", "compact"], group: ["none", "sections"] },
+  variants: { group: ["none", "sections"] },
   variantParts: { "group.sections": { adds: ["project"] } },
   parts: ["root", "empty", "today", "status"],
   items: {
@@ -157,7 +153,6 @@ export const examples = [
   ledge,
   { ...trot, group: "sections" },
   trot,
-  { ...trot, density: "compact" },
   { style: "today", items: [
     { ...ledge.items[0]!, due: taskToday(), repeat: "weekly", tags: ["Balcony", "Planning"] },
   ] },
@@ -195,7 +190,7 @@ type View = c.Props<typeof props, typeof meta>;
 type ViewRow = View["items"][number] & ReturnType<typeof projectTasks>[number];
 // prettier-ignore
 function TaskRow({ row, density, lang, indent, loading, choices, today }: {
-  row: ViewRow; density: View["density"]; lang: string; indent: boolean; loading: boolean; choices: readonly string[]; today?: boolean;
+  row: ViewRow; density: c.ThemeDensity; lang: string; indent: boolean; loading: boolean; choices: readonly string[]; today?: boolean;
 }) {
   const words = projectsWordsFor(lang).tasks, { state, due, overdue, priority, blockers, repeat, tags } = taskCopy(row, lang);
   const loadingCheck = today ? <kit.KitSkeleton shape="control" kind="quiet" /> :
@@ -226,8 +221,8 @@ function TaskRow({ row, density, lang, indent, loading, choices, today }: {
 // prettier-ignore
 export function Tasks(input: View) {
   const { lang, words: { tasks: words } } = kit.useWords(projectsWordsFor), state = kit.useComponentState();
-  const { controller } = kit.useKit(), loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density), group = kit.useVariant("group", meta.variants.group, input.group);
+  const { controller, density } = kit.useKit(), loading = state === "loading";
+  const group = kit.useVariant("group", meta.variants.group, input.group);
   const live = kit.useLiveControls(meta, input);
   const items = live.items as ViewRow[], assigneeChoices = live.assigneeChoices as string[];
   const today = input.style === "today", scope = kit.usePartContext();

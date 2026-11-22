@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 import * as log from "../copy";
 import { projectsWordsFor } from "../lang";
 import { dayOf, seedLabels, seedMonday } from "../seeds";
+import { prompt } from "../../../entry/prompt-TimeLog.generated";
 
 // Core first: Timer/up cannot save task-linked time entries or show a week's work records.
 // prettier-ignore
@@ -11,16 +12,12 @@ export const meta = {
   id: "TimeLog",
   status: "ready",
   group: "input",
-  purpose: "Save timed work entries and review billable and non-billable time by day.",
-  pick: "A saved work log of individual project or task time entries, billable marks, and totals. Not a single unsaved elapsed clock (Timer), staff clock-in (TimeClock), or payroll approval (Timesheet).",
-  writeHints: [
-    "Week is a Monday. Use ISO date-times expressed in the log's local time with its UTC offset (Z only for UTC), with end after start and no overlap. Entries must fit the selected local week. Use projectRef on each entry and when setting a current taskRef. Do not write durations, totals or running states.",
-    'For a week view, set style to "days" and day to null, even if there is only one entry. Use "single_day" only when the view is explicitly filtered to one day; supply its ISO date in day and at most six entries. To hide notes, set only detail to "brief" and retain notes in the data. Leave density null unless tighter rows are explicitly requested.',
-    'Use style "summary" instead of "days" for a weekly breakdown of billable and non-billable time by project. Keep the individual timestamped entries in the data and leave day null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Timestamped work entries are stored on the device; export opens the phone share sheet without submitting payroll.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["note"] } },
   parts: ["root", "week", "day", "day_total", "week_total", "timer", "timer_label", "elapsed",
     "discard", "discard_label", "add", "add_label", "export", "export_label", "empty", "status", "summary"],
@@ -142,7 +139,7 @@ type View = Input & Omit<Parameters<typeof log.timeLogSummary>[0], keyof Input>;
 type Row = ReturnType<typeof log.timeLogCopy<Input["entries"][number]>>["days"][number]["rows"][number];
 type Words = ReturnType<typeof projectsWordsFor>["timeLog"];
 // prettier-ignore
-function Entry({ copy, density, w, loading }: { copy: Row; density: Input["density"]; w: Words; loading: boolean }) {
+function Entry({ copy, density, w, loading }: { copy: Row; density: c.ThemeDensity; w: Words; loading: boolean }) {
   const { row, start, end, duration, billable, note } = copy, scope = kit.usePartContext();
   const remove = <kit.PartScope {...scope} item={row.id}>
     <kit.KitAction part="remove" kind="quiet" icon="trash" a11y={w.remove(row.title)} />
@@ -168,7 +165,7 @@ function Entry({ copy, density, w, loading }: { copy: Row; density: Input["densi
       </kit.KitContent></kit.KitRow></kit.KitRow>;
 }
 // prettier-ignore
-function ProjectSummary({ copy, w, density }: { copy: ReturnType<typeof log.timeLogSummary>; w: Words; density: Input["density"] }) {
+function ProjectSummary({ copy, w, density }: { copy: ReturnType<typeof log.timeLogSummary>; w: Words; density: c.ThemeDensity }) {
   const scope = kit.usePartContext();
   const figures = (project: typeof copy.projects[number]) => [
     [w.billable, project.billable], [w.nonBillable, project.nonBillable],
@@ -206,7 +203,7 @@ function ProjectSummary({ copy, w, density }: { copy: ReturnType<typeof log.time
 
 // prettier-ignore
 function LogFooter({ input, copy, w, density, empty }: { input: View; copy: { timer?: string | undefined };
-  w: Words; density: Input["density"]; empty: boolean }) {
+  w: Words; density: c.ThemeDensity; empty: boolean }) {
   const state = kit.useComponentState();
   const exportable = state !== "empty" && input.entries.length > 0;
   if (!copy.timer && !input.projectRef && !input.addGoto && !exportable) return null;
@@ -229,7 +226,7 @@ function LogFooter({ input, copy, w, density, empty }: { input: View; copy: { ti
 export function TimeLog(seed: Input) {
   const input = kit.useLiveControls(meta, seed) as View, state = kit.useComponentState();
   const { lang, words: { timeLog: w } } = kit.useWords(projectsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const data = kit.useDeviceData(), loading = state === "loading";
   if (input.style === "summary") {

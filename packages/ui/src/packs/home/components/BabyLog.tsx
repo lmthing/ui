@@ -1,30 +1,30 @@
 import { z } from "zod";
 // prettier-ignore
-import { clock, itemsOf, probesFor, text, textsOf, thingOf, timeOfDayLine, variantProps } from "../../../catalog";
+import { clock, itemsOf, probesFor, text, textsOf, thingOf, timeOfDayLine, type ThemeDensity, variantProps } from "../../../catalog";
 import type { FallbackInput, Meta, Probe, Props } from "../../../catalog";
 // prettier-ignore
 import { KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitRow, KitText, KitTime, KitTrail,
-  PartScope, useComponentState, usePartContext, useVariant, useWords } from "../../../kit";
+  PartScope, useComponentState, usePartContext, useWords,
+  useKit,
+} from "../../../kit";
 import { babyCopyFor, babyRead } from "../copy";
 import { homeWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-BabyLog.generated";
 // Core first: Timer/down times one task, not feed/nappy/sleep tiles and a baby's daily log.
 const itemParts = ["root", "kind", "time", "minutes", "amount", "label", "root_label", "trail"] as const;
 export const meta = {
   id: "BabyLog",
   status: "ready",
   group: "input",
-  purpose: "Quickly log a baby's feeds, nappies and sleeps and time an active feed or sleep.",
-  pick: "Baby feeds, nappies and sleeps with quick tiles, an active timer and today's log. Not timing one thing (Timer), adult habits (HabitGrid), or a general care history (Timeline).",
-  writeHints: [
-    "log has 0–12 entries. Write kind, HH:MM time and optional minutes/amount; never time-since-last. running is none or one kind, not a boolean.",
-    'Use detail "brief" only when asked to hide durations and amounts in history. Keep them in log. Write density:null and surface:null unless the person separately requests spacing or finish.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Baby entries and running timers stay on the device; two parents sharing need a shared app.",
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "outlined"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["minutes", "amount"] } },
   items: { key: "entries", parts: itemParts },
   parts: ["root", "running", "elapsed", "heading", "history", "actions", "empty"],
@@ -119,7 +119,7 @@ export const probes = [
 ] satisfies Probe[];
 type BabyLogProps = Props<typeof props, typeof meta>;
 // prettier-ignore
-function BabyLogRow(row: Extract<BabyLogProps["entries"][number], { entryKind: "log" }> & Pick<BabyLogProps, "density">) {
+function BabyLogRow(row: Extract<BabyLogProps["entries"][number], { entryKind: "log" }> & { density: ThemeDensity }) {
   const { lang } = useWords(homeWordsFor);
   const copy = babyCopyFor(lang);
   const minutes = row.minutes === undefined ? null : copy.duration(row.minutes), hasMeasurement = Boolean(minutes || row.amount);
@@ -164,8 +164,9 @@ function BabyQuickAction(row: Extract<BabyLogProps["entries"][number], { entryKi
 }
 // prettier-ignore
 export function BabyLog(input: BabyLogProps) {
-  const { entries, running, surface } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const { entries, running } = input;
+  const surface = "card";
+  const density = useKit().density;
   const { lang } = useWords(homeWordsFor);
   const copy = babyCopyFor(lang);
   if (useComponentState() === "empty")

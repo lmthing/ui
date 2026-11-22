@@ -1,28 +1,23 @@
 // prettier-ignore
-import { useWords, KitCard, KitEmpty, KitIcon, KitRow, KitSkeleton, KitText, useComponentState, useVariant } from "../../../kit";
+import { useWords, KitCard, KitEmpty, KitIcon, KitRow, KitSkeleton, KitText, useComponentState, useKit } from "../../../kit";
 // prettier-ignore
-import { wordsFor, changeLine, isoDate, itemVariantProps, itemsOf, placeholderTitle, probesFor, screenId, text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+import { wordsFor, changeLine, isoDate, itemVariantProps, itemsOf, placeholderTitle, probesFor, screenId, text, thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props, variantProps } from "../../../catalog";
 import { z } from "zod";
+import { prompt } from "../../../entry/prompt-ClientHistory.generated";
 
 // Core first: Timeline/history cannot distinguish client visits, orders, payments and notes with numeric amounts.
 export const meta = {
   id: "ClientHistory",
   status: "ready",
   group: "data",
-  purpose: "Recall one client's visits, orders, payments, notes and messages together.",
-  pick: "One client's past events across visits, orders, payments, notes and messages, newest first. Not a plan in time order (Timeline), personal banking (Transactions), or staff changes (ActivityLog).",
-  writeHints: [
-    "Write entries newest first. Amounts are numeric records, never currency text.",
-    'If asked only to hide the icons, use {"density":null,"surface":null,"lead":"none"}; keep each event kind and date and set each row tone and mark to null.',
-    "Ordinary visits, orders and payments do not request a row tone or mark. When asked to highlight, mark at most one in three rows.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Records linked to one client on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     lead: ["icon", "none"],
   },
   variantParts: { "lead.none": { hides: ["kind"] } },
@@ -105,8 +100,8 @@ export const examples = [
       { date: "2026-11-17", kind: "message", title: "Clover's pickup set", goto: "messages" },
     ],
   },
-  { entries: variantExample, density: "compact" },
-  { entries: variantExample, surface: "outlined" },
+  { entries: variantExample },
+  { entries: variantExample },
   { entries: variantExample, lead: "none" },
   { entries: [{ ...payment, mark: "highlight" }, message, reversal] },
   { entries: [{ ...payment, tone: "good" }, message, reversal] },
@@ -141,8 +136,9 @@ const kindIcons = {
 
 // prettier-ignore
 export function ClientHistory(input: Props<typeof props, typeof meta>) {
-  const { entries, lead, surface } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const { entries, lead } = input;
+  const surface = "card";
+  const density = useKit().density;
   const { lang, words } = useWords();
   const { historyDetailLine } = words;
   const state = useComponentState();

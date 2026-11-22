@@ -6,6 +6,7 @@ import {
   planAct,
   readComponent,
   type StateName,
+  type ThemeChoice,
 } from "@lmthing/ui/catalog";
 import { createScreenController, type HostCommandResult } from "@lmthing/ui/kit";
 import { addressedElements, renderInstance } from "../../../../../test/render";
@@ -15,8 +16,8 @@ const { props, examples, fallback, probes } = ProjectBrief;
 const first = examples[0]!;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const path = (part: string) => `home/p1/${part}`;
-const draw = (input: object, state: StateName = "filled") =>
-  addressedElements(renderInstance("ProjectBrief", input, state, theme, { component: "p1" }));
+const draw = (input: object, state: StateName = "filled", finish: ThemeChoice = theme) =>
+  addressedElements(renderInstance("ProjectBrief", input, state, finish, { component: "p1" }));
 const screen = (input: object = first, state: StateName = "filled") => ({
   id: "home",
   components: [{ ...input, c: "ProjectBrief", id: "p1", state }],
@@ -63,6 +64,8 @@ it("accepts the maximum field and list sizes and rejects values outside them", (
     { editGoto: "Bad ID" },
     { style: "summary" },
     { window: "Set by code" },
+    { density: "compact" },
+    { surface: "outlined" },
   ])
     expect(props.safeParse({ ...max, ...changes }).success, JSON.stringify(changes)).toBe(false);
 });
@@ -130,7 +133,7 @@ it("draws state-specific and stable parts and keeps hidden sections and links ou
     "edit_label",
   ])
     expect(full.has(path(part))).toBe(true);
-  expect([...draw({ ...first, density: "compact", surface: "outlined" }).keys()]).toEqual([...full.keys()]);
+  expect([...draw(first, "filled", { ...theme, density: "compact" }).keys()]).toEqual([...full.keys()]);
   const brief = { ...first, detail: "brief" };
   expect([...draw(brief).keys()]).toEqual(["root", "title", "objective", "owner", "window"].map(path));
   expect(draw(first, "empty").get(path("empty"))?.text).toContain("No project brief yet");

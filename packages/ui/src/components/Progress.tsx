@@ -1,33 +1,31 @@
 import { z } from "zod";
 // prettier-ignore
 import {
-  KitCard, KitFigure, KitHeader, KitLayoutText, KitMeter, KitRing, KitRow, KitSkeleton, KitState, useVariant, useWords,
+  KitCard, KitFigure, KitHeader, KitLayoutText, KitMeter, KitRing, KitRow, KitSkeleton, KitState, useWords,
+  useKit,
 } from "../kit";
 // prettier-ignore
 import {
   probesFor, goalLine, itemVariantProps, localeOf, numberLine, itemsOf, placeholderTitle,
-  screenId, text, thingOf, titleOf, variantProps, wordsFor,
+  screenId, text, thingOf, titleOf, wordsFor,
   type FallbackInput, type Meta, type Probe, type Props,
+  variantProps,
 } from "../catalog";
+import { prompt } from "../entry/prompt-Progress.generated";
 export const meta = {
   id: "Progress",
   status: "ready",
   group: "data",
-  purpose: "See measured progress toward one or more targets.",
-  pick: "One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).",
-  writeHints: [
-    'Use style "ring" for one circular goal. Put its label (up to 24 characters), value and of in one bars entry. Leave unit, tone and goto null. Set style "bars" for requested bars or null for an ordinary ratio; either way, shorten every horizontal bar label to at most 20 characters.',
-    'A request to hide the ring caption explicitly asks for "detail":"brief". Set it and keep the caption text verbatim in sub, for example {"detail":"brief","sub":"3 to go"}. If hiding the caption is not requested, leave detail null.',
-    'For a ring, always set figures to null. Use emphasis "hero" only for a large focal ring. Send null for all other unrequested axes and row options.',
-    'Set figures to "short" only to abbreviate bar counts without changing stored numbers. A bar crossing a target does not by itself request a special tone.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Amounts summed from records on the device, each compared with a stored target.",
   signatureByStyle: { ring: "ring_fill" },
   // prettier-ignore
-  variants: { density: ["comfortable", "compact"], figures: ["exact", "short"], emphasis: ["normal", "hero"], detail: ["full", "brief"] },
+  variants: { figures: ["exact", "short"], emphasis: ["normal", "hero"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["sub"] } },
   items: {
     key: "bars",
@@ -124,7 +122,7 @@ const ring = {
 // prettier-ignore
 export const examples = [
   { bars: [{ label: "Watered this week", value: 3, of: 5, unit: "plants" }, { label: "Fed this month", value: 1, of: 4, unit: "plants" }] },
-  { density: "compact", bars: walkMeters },
+  { bars: walkMeters },
   { bars: walkMeters },
   { bars: [steps] },
   { figures: "short", bars: [steps] },
@@ -158,7 +156,8 @@ export const probes = [
 type ViewProps = Props<typeof props, typeof meta>;
 
 // prettier-ignore
-function ProgressRing({ bars, emphasis, density, detail, sub }: ViewProps) {
+function ProgressRing({ bars, emphasis, detail, sub }: ViewProps) {
+  const density = useKit().density;
   const goal = bars[0]!;
   const scale = emphasis === "hero" ? "lg" : "md";
   const { lang } = useWords();
@@ -182,11 +181,11 @@ function ProgressRing({ bars, emphasis, density, detail, sub }: ViewProps) {
 // prettier-ignore
 export function Progress(input: ViewProps) {
   const { bars, figures, style } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const { lang } = useWords();
   return (
     <KitCard style="inset" part="root" padded density={density}>
-      {style === "ring" ? <ProgressRing {...input} density={density} /> : (
+      {style === "ring" ? <ProgressRing {...input} /> : (
         <KitState density={density} loading={<KitSkeleton rows={bars.length} lead="none" inset="none" density={density} />}>
           {bars.map((bar) => (
             <KitRow key={bar.id} item={bar.id} label={bar.label} goto={bar.goto} inset="none" density={density}>

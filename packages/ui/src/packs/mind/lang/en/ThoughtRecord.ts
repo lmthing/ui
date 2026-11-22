@@ -1,0 +1,21 @@
+export const words = {
+  thoughtRecord: {
+    title: "Thought record",
+    situation: "What happened?",
+    situationHint: "Describe the situation",
+    thought: "What went through your mind?",
+    thoughtHint: "Write the first thought you noticed",
+    traps: "Thinking traps",
+    reframe: "A more balanced thought",
+    reframeHint: "Try another way to look at it",
+    before: "Mood before",
+    after: "Mood after",
+    guide: (low: string, high: string) => `${low} is very low, ${high} is very good.`,
+    save: "Save reflection",
+    saved: "Reflection saved",
+    savedDetail: "Kept privately on this device.",
+    incomplete: "The reflection needs a thought and a reframe.",
+    rating: (label: string, value: string) => `${label}: ${value}`,
+    change: "Mood change",
+  },
+};

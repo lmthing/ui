@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 import { projectStatusCopy, projectStatusReading } from "../copy";
 import { projectsWordsFor } from "../lang";
 import { seedLabels, seedMonday } from "../seeds";
+import { prompt } from "../../../entry/prompt-ProjectStatus.generated";
 
 // Core first: Card[plain] with a badge cannot separate wins and blockers or link independently to a milestone and a check-in form.
 export const meta = {
@@ -11,20 +12,14 @@ export const meta = {
   status: "ready",
   group: "content",
   tier: "phone",
-  pick: "A periodic project health check-in with an on-track, at-risk or blocked status, wins and blockers. Not a featured generic card (Card), a dated acceptance gate (Milestones), or a shift handover (Handover).",
-  purpose:
-    "Report a project's health, recent wins and current blockers, with the next milestone and a link to post another check-in.",
-  writeHints: [
-    "Use the reported health as status, never infer it from dates. Use the latest check-in date for updatedAt; use nextMilestone only when supplied. Days until the milestone are computed.",
-    'Set detail "brief" for a headline-only check-in with its health badge and check-in date; keep wins, blockers and links in the data.',
-  ],
+  pick: prompt.pick,
+  purpose: prompt.purpose,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   realPath:
     "Health check-ins are saved locally with the project. Sharing them with collaborators requires a shared app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: {
@@ -151,7 +146,7 @@ function StatusList({
   title: string;
   entries: string[];
   part: "wins" | "blockers";
-  density: View["density"];
+  density: c.ThemeDensity;
 }) {
   if (!entries.length) return null;
   return (
@@ -163,7 +158,7 @@ function StatusList({
   );
 }
 
-function NextMilestone({ input, copy, density }: { input: View; copy: Copy; density: View["density"] }) {
+function NextMilestone({ input, copy, density }: { input: View; copy: Copy; density: c.ThemeDensity }) {
   const loading = kit.useComponentState() === "loading";
   if (!input.nextMilestone) return null;
   const { title, goto } = input.nextMilestone;
@@ -211,8 +206,7 @@ export function ProjectStatus(input: View) {
     words: { projectStatus: words },
   } = kit.useWords(projectsWordsFor);
   const data = kit.useDeviceData();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const { density } = kit.useKit();
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const copy = projectStatusCopy(input, lang, data);
   const content = (
@@ -248,7 +242,7 @@ export function ProjectStatus(input: View) {
     </>
   );
   return (
-    <kit.KitCard padded {...{ density, surface }}>
+    <kit.KitCard padded density={density}>
       <kit.KitState part="empty" icon="flag" message={words.empty} density={density} loading={content}>
         {content}
       </kit.KitState>

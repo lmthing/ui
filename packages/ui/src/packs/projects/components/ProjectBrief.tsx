@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 import { projectBriefCopy, projectBriefReading } from "../copy";
 import { projectsWordsFor } from "../lang";
 import { seedLabels } from "../seeds";
+import { prompt } from "../../../entry/prompt-ProjectBrief.generated";
 
 const sectionParts = ["section_1", "section_2", "section_3"] as const;
 const sectionBodies = ["section_1_body", "section_2_body", "section_3_body"] as const;
@@ -15,12 +16,9 @@ export const meta = {
   status: "ready",
   group: "content",
   tier: "phone",
-  pick: "A project charter framing a goal, owner, delivery window, pinned sections and resource links. Not label/value facts (KeyValue), testable deliverable acceptance (Scope) or long-form reading (Article).",
-  purpose: "Keep the objective, delivery window, pinned notes and key resources for one project together.",
-  writeHints: [
-    "Use supplied screen or local file route IDs for screen/file links; use only credential-free absolute HTTPS URLs for url links. Never put an external URL in a screen or file link.",
-    'For a short charter, set detail "brief" to show only the title, objective, owner and target date. Keep the supplied sections, window and links in the data.',
-  ],
+  pick: prompt.pick,
+  purpose: prompt.purpose,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   realPath: "The charter and internal resource links live on the device. The host hands approved HTTPS links off to the device browser.",
@@ -41,7 +39,7 @@ export const meta = {
   emptyActions: [],
   deviceData: ["project_briefs"],
   previewDeviceData: ({ state }): c.DeviceData => state === "empty" ? { project_briefs: [] } : {},
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: {
     "detail.brief": { hides: ["window", ...sectionParts, ...sectionBodies, "resources", "root", "label", "trail", "open", "open_icon", "edit", "edit_label", "edit_trail"] },
   },
@@ -130,7 +128,7 @@ export const probes = [
   choose("Show five plain labelled facts about an item: material, origin, size, colour and weight. No overview or links.", "KeyValue"),
   write("Project folio: title Folio website, objective Launch a three-page portfolio, owner Jo Lee, from 2026-11-16 to 2026-11-27. Pin Audience: Small design teams. Link Agreed scope to screen projects_scope, Design files to file route folio_design_files, Preview site to https://example.org/folio, and Edit brief to projects_brief_edit. Show the pinned section and all links, with no shared variant overrides."),
   {
-    ...write("For project exhibit, show a short charter titled Opening night exhibit with the objective Install and light six prints, owned by Ari Lane and due 2026-12-04. Save the Setup section (Use the existing rails) and Gallery layout file route gallery_layout, but display only the title, objective, owner and target date. Keep the app's spacing and surface unchanged; leave density and surface null."),
+    ...write("For project exhibit, show a short charter titled Opening night exhibit with the objective Install and light six prints, owned by Ari Lane and due 2026-12-04. Save the Setup section (Use the existing rails) and Gallery layout file route gallery_layout, but display only the title, objective, owner and target date. Keep the app's spacing and surface unchanged."),
     variant: { axis: "detail", value: "brief" },
   },
   read("Open the agreed scope screen.", { address: "p1/r1", action: "press" }),
@@ -143,15 +141,7 @@ type Link = View["links"][number];
 type Words = ReturnType<typeof projectsWordsFor>["projectBrief"];
 const icons = { screen: "file_text", file: "paperclip", url: "link" } as const;
 
-function RouteTrail({
-  density,
-  loading,
-  part,
-}: {
-  density: View["density"];
-  loading: boolean;
-  part: string;
-}) {
+function RouteTrail({ density, loading, part }: { density: c.ThemeDensity; loading: boolean; part: string }) {
   return loading ? (
     <kit.KitAction part={null} icon="chevron_right" kind="quiet" />
   ) : (
@@ -160,7 +150,7 @@ function RouteTrail({
 }
 
 // prettier-ignore
-function Resource({ link, density, words }: { link: Link; density: View["density"]; words: Words }) {
+function Resource({ link, density, words }: { link: Link; density: c.ThemeDensity; words: Words }) {
   const loading = kit.useComponentState() === "loading";
   const scope = kit.usePartContext();
   const external = link.kind === "url";
@@ -187,7 +177,7 @@ function Resources({
   words,
 }: {
   links: View["links"];
-  density: View["density"];
+  density: c.ThemeDensity;
   words: Words;
 }) {
   if (!links.length) return null;
@@ -207,7 +197,7 @@ function Resources({
 }
 
 // prettier-ignore
-function EditBrief({ label, goto, density }: { label: string; goto: string; density: View["density"] }) {
+function EditBrief({ label, goto, density }: { label: string; goto: string; density: c.ThemeDensity }) {
   const loading = kit.useComponentState() === "loading";
   return <kit.KitRow part="edit" {...{ label, density }} inset="none" goto={loading ? undefined : goto}
     leading={<kit.KitIcon name="pencil" tone="accent" scale="sm" decorative loading={loading} />}
@@ -219,8 +209,7 @@ function EditBrief({ label, goto, density }: { label: string; goto: string; dens
 // prettier-ignore
 export function ProjectBrief(input: View) {
   const { lang, words: { projectBrief: words } } = kit.useWords(projectsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const { density } = kit.useKit();
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const copy = projectBriefCopy({ ...input, detail }, lang);
   const facts: kit.LayoutLine[] = [
@@ -241,7 +230,7 @@ export function ProjectBrief(input: View) {
       {input.editGoto && <EditBrief label={words.edit} goto={input.editGoto} density={density} />}
     </>}
   </>;
-  return <kit.KitCard padded {...{ density, surface }}>
+  return <kit.KitCard padded density={density}>
     <kit.KitState part="empty" icon="file_text" message={words.empty} density={density} loading={content}>
       {content}
     </kit.KitState>

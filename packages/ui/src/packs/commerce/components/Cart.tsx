@@ -3,24 +3,22 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { cartLineCopy, cartReading, cartTotals } from "../copy";
 import { commerceWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Cart.generated";
 
 // Core first: List/rows lists products, not editable quantities, line prices, promo input and computed totals.
 export const meta = {
   id: "Cart",
   status: "ready",
   group: "content",
-  purpose: "Review and edit what you are about to buy.",
-  pick: "One shopping basket before ordering, with editable quantities, removal, a promo code and computed totals. Not browsing several past orders (List), a receipt for one placed order (OrderSummary), or a grocery checklist (GroceryList).",
-  writeHints: [
-    "Write each line's unit price and quantity. The optional delivery charge is separate; do not write subtotals, line totals or a grand total.",
-    'Keep supplied variant names in the line data. If asked to hide only those notes, write exactly {"density":null,"surface":null,"detail":"brief"} for the axes. Keeping photos or quantities visible does not request a surface. Never emit "card" for the default surface.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "The basket is kept on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["variant"] } },
   parts: ["root", "empty", "promo", "subtotal", "delivery", "total"],
   items: {
@@ -182,8 +180,8 @@ export function Cart(input: CartProps) {
   const { words: { cart } } = kit.useWords(commerceWordsFor);
   const { thing } = kit.usePartContext();
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const loading = state === "loading";
   return <kit.KitCard padded part="root" {...{ density, surface }}>

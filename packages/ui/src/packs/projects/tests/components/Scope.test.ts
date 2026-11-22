@@ -80,7 +80,7 @@ describe("Scope states and addresses", () => {
     const full = keys(first);
     expect(full).toContain(address("r1/due"));
     expect(full).toContain(address("r2/accepted_at"));
-    expect(keys({ ...first, density: "compact" })).toEqual(full);
+    expect(keys({ ...first })).toEqual(full);
     expect(keys({ ...first, detail: "brief" })).toEqual(
       full.filter((part) => !/\/(due|accepted_at)$/.test(part)),
     );

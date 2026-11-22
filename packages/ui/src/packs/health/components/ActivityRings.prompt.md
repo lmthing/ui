@@ -1,0 +1,13 @@
+<!-- replay-literals: d d ind -->
+
+## Purpose
+
+Track multiple daily goals together, never a single daily goal.
+
+## Pick
+
+Requires at least two distinct daily goals, each with its own value and target, shown as concentric rings. Not a single step, exercise, water or other goal: choose Progress for any one goal, regardless of health context. Not targets drawn as bars (Progress).
+
+## Writer
+
+- To hide target captions, use detail brief and still write each target in of.

@@ -3,21 +3,18 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import * as copy from "../copy";
 import { bookingWordsFor, type BookingWords } from "../lang";
+import { prompt } from "../../../entry/prompt-SessionPack.generated";
 
 // Core first: Progress/compact shows an amount against a target, not prepaid credits with expiry and redeem/renew actions.
 // prettier-ignore
 export const meta = {
   id: "SessionPack", status: "ready", group: "data",
-  purpose: "See how many prepaid sessions are left, redeem one or renew the bundle.",
-  pick: "Track a prepaid bundle of appointments: paid session credits left, their expiry, redeeming a visit and renewing. Not visit stamps (Loyalty), bars against targets (Progress), or an unpaid bill (Invoice).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body", weight: 2, tier: "phone",
   realPath: "Prepaid session balances live on the provider's device; online top-up uses a payment service.",
-  writeHints: [
-    'Use packId for the stored bundle reference. Write used, not remaining; used cannot exceed total. Dates use YYYY-MM-DD.',
-    'Use "detail":null for ordinary bundles. If full details with a meter or controls are requested, use "detail":"full". Only a read-only credits-left row uses "detail":"brief".',
-    'Unless explicitly asked for an outline, write "surface":null (not "card"). Unless asked for tighter spacing, write "density":null (not "comfortable").',
-  ],
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  writeHints: prompt.writeHints,
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": {
     hides: ["service", "label", "amount", "redeem", "redeem_label", "renew", "renew_label",
       "retry", "retry_label", "renew_error", "renew_error_label"], adds: ["remaining"],
@@ -169,8 +166,8 @@ function PackBody({ title, state, ...presentation }: Presentation & { title: str
 
 export function SessionPack(input: c.Props<typeof props, typeof meta>) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const { lang, words } = kit.useWords(bookingWordsFor);
   const live = kit.useLiveControls(meta, input);
   const facts = copy.sessionPackFacts(live);
