@@ -46,7 +46,7 @@ function stampExampleItems(meta: Meta, props: Record<string, unknown>) {
 function expectEmptyCopy(meta: Meta, input: Record<string, unknown>, html: string, data?: DeviceData) {
   if (meta.id === "TravelDocs") return expect(visibleTexts(html)).toContain("No travel documents yet");
   // Explicit empty screen reads only the state header; use the declared copy hook here.
-  const lines = data && meta.read?.(input, "empty", undefined, data);
+  const lines = data || meta.id === "Flashcard" ? meta.read?.(input, "empty", undefined, data) : undefined;
   if (!lines?.length) return expect(html).toContain(emptyLine(meta.deviceDataVisible ? undefined : "walk"));
   const visible = visibleTexts(html).join(" ");
   for (const line of lines) expect(visible).toContain(line);
@@ -84,10 +84,7 @@ it("supplies parsed props and state to fixtures, without leaking undeclared reco
   };
   const parsed = def.props.parse({ rows: [{ title: " Fern " }] }) as Record<string, unknown>;
   expect(exampleDeviceData(def, parsed, "empty")).toEqual({
-    allowed: [
-      expect.objectContaining({ surface: "card", rows: [expect.objectContaining({ title: "Fern" })] }),
-      "empty",
-    ],
+    allowed: [expect.objectContaining({ rows: [expect.objectContaining({ title: "Fern" })] }), "empty"],
   });
   expect(exampleDeviceData(components.List, parsed, "empty")).toBeUndefined();
 });
@@ -168,10 +165,9 @@ describe.each(ready)("%s conformance", (id) => {
             expect(html).not.toContain(`data-testid="home/c1/${items.prefix ?? "r"}2/root"`);
           const pageHidesRoots =
             props.overflow === "page" && meta.variantParts?.["overflow.page"]?.hides?.includes("root");
-          const mapOnly = id === "MapList" && props.style === "map";
           for (const { id: row } of items.visible === "first" ? rows.slice(0, 1) : rows) {
             const root = `data-testid="home/c1/${row}/root"`;
-            if (mapOnly) expect(html).not.toContain(root);
+            if (id === "MapList" && props.style === "map") expect(html).not.toContain(root);
             else if (!pageHidesRoots && !hidden.includes(row)) expect(html).toContain(root);
           }
         }

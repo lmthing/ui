@@ -78,7 +78,6 @@ describe("Result metadata", () => {
     expect(result.meta.realPath).not.toBe("");
     expect(result.meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(result.meta.variants).toMatchObject({
-      surface: ["card", "outlined"],
       emphasis: ["hero", "normal"],
     });
     expect(result.probes).toContainEqual(expect.objectContaining({ kind: "choose", expect: "Stats" }));

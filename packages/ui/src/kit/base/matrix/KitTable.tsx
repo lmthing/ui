@@ -1,11 +1,12 @@
-import { useContext, useRef, type ReactNode } from "react";
+import { useContext, useRef, type ReactNode, type RefObject } from "react";
 import { XStack, YStack, type TamaguiElement } from "tamagui";
-import { component, space } from "../../../catalog";
-import { usePart } from "../../part";
-import { useKitStyle } from "../../provider";
+import { component, parseAddress, size, space } from "../../../catalog";
+import { PartContext, usePart, usePartContext } from "../../part";
+import { useKit, useKitStyle } from "../../provider";
 import { MatrixScroll } from "./matrix-scroll";
-import { ScopedCell } from "./table-cell";
+import { MatrixContent } from "./matrix-drawing";
 import {
+  disabledContent,
   fittedTableWidth,
   matrixColumnLayout,
   MatrixSelectionContext,
@@ -17,7 +18,164 @@ import {
   type MatrixRow,
   type Target,
 } from "./matrix-layout";
-import { TimelineRows } from "./timeline-rows";
+import { timelineLayout } from "./timeline-layout";
+
+type CellProps = {
+  children: ReactNode;
+  label: string;
+  target?: Target | undefined;
+  disabled?: boolean | undefined;
+  selected?: boolean | undefined;
+  loading: boolean;
+  cut?: boolean | undefined;
+  height: number;
+  fit?: boolean | undefined;
+  divider?: boolean;
+  rail?: boolean;
+  anchor?: RefObject<TamaguiElement | null> | undefined;
+  measure: ReturnType<ReturnType<typeof useMatrixHeights>["measure"]>;
+};
+
+function useCellTarget({ target, disabled, selected, loading, label, anchor }: CellProps) {
+  const kit = useKit();
+  const address = usePart(target?.part ?? "root", Boolean(target) && !loading);
+  const press = () => kit.controller?.press(address.testID);
+  const anchorProps = anchor
+    ? {
+        accessible: true,
+        ref: (node: TamaguiElement | null) => {
+          anchor.current = node;
+          address.ref.current = node;
+        },
+        ...(!target ? { tabIndex: -1 as const, accessibilityLabel: label } : {}),
+      }
+    : {};
+  return !target || loading
+    ? anchorProps
+    : {
+        ...address,
+        ...anchorProps,
+        accessibilityRole: "button",
+        accessibilityLabel: label,
+        "aria-pressed": Boolean(selected),
+        "aria-disabled": Boolean(disabled),
+        disabled,
+        focusable: !disabled,
+        ...(kit.interactive && kit.controller && !disabled
+          ? {
+              cursor: "pointer",
+              onPress: (event: { stopPropagation?(): void }) => {
+                event.stopPropagation?.();
+                press();
+              },
+              onKeyDown: (event: { key: string; preventDefault(): void; stopPropagation(): void }) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  press();
+                }
+              },
+            }
+          : {}),
+      };
+}
+function TableCell(props: CellProps) {
+  const ks = useKitStyle();
+  const target = useCellTarget(props);
+  const highlight = props.selected && !props.loading;
+  const fill = highlight ? { backgroundColor: "$accentSoft" } : {};
+  const rule = props.divider ? { borderLeftWidth: component.base.borderWidth, borderColor: "$line" } : {};
+  return (
+    <YStack
+      {...(target as object)}
+      minHeight={props.height + (props.cut ? component.base.borderWidth : component.base.none)}
+      minWidth={props.rail && !props.target ? component.base.none : size.control.md}
+      paddingHorizontal={props.fit ? space.xs : space.md}
+      paddingVertical={space[ks.density.rowPad]}
+      justifyContent="center"
+      borderBottomWidth={props.cut ? component.base.strongBorder : component.base.borderWidth}
+      borderColor={props.cut ? "$muted" : "$line"}
+      {...(props.fit && !props.loading ? {} : { backgroundColor: highlight ? "$accentSoft" : "$surface" })}
+      {...(props.disabled ? { "aria-disabled": true } : {})}
+    >
+      {props.fit && (highlight || props.divider) && (
+        <YStack fullscreen pointerEvents="none" aria-hidden {...fill} {...rule} />
+      )}
+      <YStack
+        onLayout={props.measure}
+        pointerEvents={props.disabled ? "none" : "auto"}
+        {...(props.disabled ? { inert: true } : {})}
+      >
+        <MatrixContent loading={props.loading}>
+          {props.disabled ? disabledContent(props.children) : props.children}
+        </MatrixContent>
+      </YStack>
+    </YStack>
+  );
+}
+function ScopedCell({ item, ...props }: CellProps & { item?: string }) {
+  const { item: inherited, ...context } = usePartContext();
+  const id = props.target ? props.target.item : (item ?? inherited);
+  const valid =
+    id && (props.target || parseAddress(`${context.screen}/${context.component}/${id}/root`)?.item === id);
+  return (
+    <PartContext.Provider value={{ ...context, ...(valid ? { item: id } : {}) }}>
+      <TableCell {...props} />
+    </PartContext.Provider>
+  );
+}
+
+type TimelineProps = {
+  rows: readonly MatrixRow[];
+  columns: readonly Column[];
+  heights: ReturnType<typeof useMatrixHeights>;
+  activeColumn?: string;
+  loading?: boolean;
+  separators?: readonly string[];
+};
+
+function timelineCells(row: MatrixRow, count: number) {
+  return timelineLayout(row.cells, count).flatMap((slot) =>
+    slot.cell
+      ? [slot]
+      : Array.from({ length: slot.span }, (_, at) => ({ ...slot, start: slot.start + at, span: 1 })),
+  );
+}
+
+function TimelineRows(props: TimelineProps) {
+  const { rows, columns, heights, activeColumn, loading, separators } = props;
+  const selected = useContext(MatrixSelectionContext);
+  return rows.map((row) => (
+    <XStack key={row.id}>
+      {timelineCells(row, columns.length).map(({ cell, start, span }) => {
+        const active = columns
+          .slice(start, start + span)
+          .some(({ id }) => id === activeColumn || selected.includes(id));
+        return (
+          <YStack
+            key={cell ? `cell:${cell.id}` : `gap:${start}`}
+            width={scrollColumnWidth * span}
+            flexShrink={component.base.none}
+          >
+            <ScopedCell
+              item={cell?.id ?? row.id}
+              label={cell?.label ?? `${row.label}, ${columns[start]!.label}`}
+              target={cell?.target}
+              disabled={cell?.disabled}
+              loading={Boolean(loading)}
+              selected={row.selected || active}
+              height={heights.height(row.id)}
+              measure={heights.measure(row.id, `span:${start}`)}
+              cut={separators?.includes(row.id)}
+            >
+              {cell?.content}
+            </ScopedCell>
+          </YStack>
+        );
+      })}
+    </XStack>
+  ));
+}
 
 type TableProps = Drawing & {
   columns: readonly Column[];
@@ -47,8 +205,8 @@ function TableColumn({
   anchor?: React.RefObject<TamaguiElement | null> | undefined;
   onLayout?: ReturnType<typeof useCompactMatrix>["onHeadingLayout"];
 }) {
-  const heading = !column,
-    loading = Boolean(props.loading);
+  const heading = !column;
+  const loading = Boolean(props.loading);
   const selected = useContext(MatrixSelectionContext);
   const active = Boolean(column && (column.id === props.activeColumn || selected.includes(column.id)));
   const fit = props.fitColumns ? { fit: true, rail: heading, divider: compact && index > 0 } : {};

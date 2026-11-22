@@ -7,11 +7,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import {
   KitAction,
@@ -36,18 +36,16 @@ import {
   kitchenTimerReading,
 } from "../copy";
 import { kitchenWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-KitchenTimers.generated";
 
 // Core first: Timer/down cannot run independently named concurrent countdowns with add-minute controls.
 export const meta = {
   id: "KitchenTimers",
   status: "ready",
   group: "action",
-  purpose: "Run several named cooking timers at once and adjust each independently.",
-  pick: "Two or more named cooking countdowns running independently, each with its own start, pause and add-a-minute controls. Not a single countdown (Timer) or a timed recipe instruction (CookSteps).",
-  writeHints: [
-    "Write each timer's label and seed seconds, 1–14400. Never write remaining, finished, running, progress or sorted order; the device computes them.",
-    'If asked to stack timers one per row instead of side by side, set arrange to "rows"; otherwise leave arrange null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

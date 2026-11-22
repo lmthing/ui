@@ -1,28 +1,28 @@
 import { z } from "zod";
 // prettier-ignore
-import { icon, itemsOf, photo, screenId, text, variantProps, placeholderTitle, probesFor,
-  thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+import { icon, itemsOf, photo, screenId, text, placeholderTitle, probesFor,
+  thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props,
+  variantProps,
+} from "../../../catalog";
 // prettier-ignore
 import { KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitIcon, KitJar, KitPhoto,
   KitText, PartScope, useComponentState, usePartContext, useWords } from "../../../kit";
 import { rewardAmount, rewardBalanceParts, rewardJarRatio, rewardReading, rewardShortfall } from "../copy";
 import { homeWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Rewards.generated";
 // Core first: Progress/ring tracks one goal, not children's points spent on claimable prizes.
 export const meta = {
   id: "Rewards",
   status: "ready",
   group: "data",
-  purpose: "Keep children's earned points or pocket money and claim prizes they can afford.",
-  pick: "Children's points earned and spent on prizes with costs. Not one person's goal (Progress), a business stamp card (Loyalty), or milestone badges (Achievements).",
-  writeHints: [
-    "Write stored points and prize costs as nonnegative numbers. Claimability and balances after a claim are computed, never written. money means pocket money; never write a currency.",
-    'Use detail "brief" only when asked to hide the amount still needed for unaffordable prizes. Keep the costs and disabled controls. Write surface:null unless an outlined card is requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "A parent keeps points and prize claims on the device.",
-  variants: { detail: ["full", "brief"], surface: ["card", "outlined"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["reason"] } },
   items: {
     key: "entries",
@@ -166,7 +166,8 @@ function RewardPrize({ prize, money, best, brief }: { prize: Entry<"prize">; mon
   );
 }
 
-export function Rewards({ entries, money, detail, surface }: RewardsProps) {
+export function Rewards({ entries, money, detail }: RewardsProps) {
+  const surface = "card";
   const state = useComponentState();
   const { lang, words } = useWords(homeWordsFor);
   if (state === "success")

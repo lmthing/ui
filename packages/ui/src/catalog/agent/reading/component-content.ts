@@ -17,7 +17,7 @@ import { projectParsedControls } from "../live-props";
 import { hasNestedCollectionControls } from "../nested";
 import { nestedRemaining, visibleNestedProps } from "../selection";
 import { projectVisibleItems } from "../visibility";
-import { componentTexts, type ReadSchema } from "./index";
+import { componentTexts, readProgress, type ReadSchema } from "./index";
 import { redactCustomReadProps, roundHide, sessionForRead } from "./secret-props";
 
 type Props = Values;
@@ -70,13 +70,6 @@ function readingProps(
         }
       : {};
   return { ...projected, ...current, [sessionKey]: session };
-}
-
-function readProgress(session: SessionState | undefined, lang?: string): string[] {
-  const assessment = session?.kind === "rounds" && session.assessment;
-  if (!assessment || assessment.correct === undefined) return [];
-  const { right, of } = assessment.score;
-  return [`correct ${assessment.correct}`, `score ${numberLine(right, lang)}/${numberLine(of, lang)}`];
 }
 
 type Content = {

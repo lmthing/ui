@@ -22,7 +22,6 @@ describe("ServiceMenu contract and boundaries", () => {
   );
   it("defaults to rows and trims names", () => {
     expect(props.parse({ services: [{ ...service, name: " Consultation " }] })).toEqual({
-      surface: "card",
       detail: "full",
       lead: "thumb",
       services: [{ ...service, capacity: 1, tone: "neutral", mark: "none" }],

@@ -1,22 +1,20 @@
 import { z } from "zod";
 import * as c from "../catalog";
 import * as kit from "../kit";
+import { prompt } from "../entry/prompt-PassCard.generated";
 
 export const meta = {
   id: "PassCard",
   status: "ready",
   group: "content",
-  purpose: "Keep a membership, coupon, or transit pass ready to show and scan.",
-  pick: "A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).",
-  writeHints: [
-    'Use style "coupon" for a voucher with an expiry, "code" for a centered QR-only presentation, or "transit" for a fare pass; otherwise use style null for a membership card. If a code is supplied, copy the exact value and use codeKind "qr". Never invent issuer credentials, member IDs, balances, or codes.',
-    'Use detail "brief" only if asked to hide the summary facts; keep the supplied facts in the data. Use null for unrequested axes and [] when there are no summary facts.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "An issuer-supplied pass saved on the device, not a way to issue credentials.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["root", "label", "value"] } },
   // prettier-ignore
   parts: [
@@ -157,7 +155,7 @@ export function PassCard(input: PassProps) {
   const { scannable, state: invalid } = passControls(input);
   const reveal = kit.useControlValue<unknown>(`${screen}/${component}/reveal`, undefined);
   const { words: { passCard: words } } = kit.useWords();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const align = input.style === "code" ? "center" : "start";
   const layout = { density, align } as const;
   if (state === "empty" || state === "error" || (state === "filled" && invalid))

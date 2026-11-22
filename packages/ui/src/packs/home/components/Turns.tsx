@@ -7,11 +7,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import {
   KitAction,
@@ -26,24 +26,22 @@ import {
 } from "../../../kit";
 import { turnReading, visibleTurns } from "../copy";
 import { homeWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Turns.generated";
 
 // Core first: People/stack lists people, not a current duty holder and an advancing rotation.
 export const meta = {
   id: "Turns",
   status: "ready",
   group: "data",
-  purpose: "Rotate one household duty through people and advance or skip the current turn.",
-  pick: "One household job rotating through people, with current and next holders. Not a roster of several named household members without turns (People), many chores (Chores), staff shifts (Roster), or game turns (TurnOrder).",
-  writeHints: [
-    "at is a zero-based index smaller than people.length. The next people and next index are computed.",
-    'Use lead "none" only when asked to show the rotation without portraits or initials. Keep current and upcoming names, and use surface:null and emphasis:null unless asked to change the card finish or prominence.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   partTiers: { next: "people", skip: "people" },
   realPath: "A rotation stays on the device; everyone viewing it on their own phone needs a shared app.",
-  variants: { lead: ["avatar", "none"], surface: ["card", "outlined"], emphasis: ["normal", "hero"] },
+  variants: { lead: ["avatar", "none"], emphasis: ["normal", "hero"] },
   variantParts: { "lead.none": { hides: ["photo"] } },
   items: { key: "visiblePeople", parts: ["root", "name", "photo"] },
   parts: ["root", "job", "next", "skip"],
@@ -170,7 +168,8 @@ function TurnRow({
   );
 }
 
-export function Turns({ job, visiblePeople, lead, surface, emphasis }: TurnsProps) {
+export function Turns({ job, visiblePeople, lead, emphasis }: TurnsProps) {
+  const surface = "card";
   const { words } = useWords(homeWordsFor);
   const { next, skip } = words.turnLabels;
   const rows = visiblePeople.map((person, index) => (

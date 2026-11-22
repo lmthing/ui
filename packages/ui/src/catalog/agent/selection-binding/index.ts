@@ -11,7 +11,7 @@ import {
   type ScreenLike,
   type Values,
 } from "../index";
-import { hostOnlyAddresses, isPrivateMark } from "../action-input";
+import { hostOnlyAddresses, isPrivateMark } from "../private-controls";
 import { hostActionPolicy } from "../host-commands";
 
 export type BoundSelection = Readonly<{

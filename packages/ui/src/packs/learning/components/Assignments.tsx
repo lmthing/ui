@@ -3,25 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { assignmentDue, assignmentSubjectTone, assignmentToday } from "../copy";
 import { learningWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Assignments.generated";
 
 // Core first: Checklist/default cannot track coursework due dates, submission state and grades.
 export const meta = {
   id: "Assignments",
   status: "ready",
   group: "data",
-  purpose: "Know which coursework is due, handed in or graded.",
-  pick: "Homework and coursework with subjects, due dates, hand-in status and grades. Not simple tasks to tick off (Checklist) or the outcome of one practice session (Result).",
-  writeHints: [
-    "Write a real due date and goto for each assignment. Status is todo, done (handed in) or graded. Write a grade only for a graded item. Never write overdue or a relative due label.",
-    'Use lead "none" only when asked to hide the subject icons; keep the subject names. For a request to hide icons only, output lead:"none", density:null, surface:null. Never write "card" or "comfortable" as inferred defaults.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Assignments are stored on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     lead: ["icon", "none"],
   },
   variantParts: { "lead.none": { hides: ["mark"] } },
@@ -173,8 +169,8 @@ function AssignmentRow({ row, density, lead }: {
 }
 
 export function Assignments(input: AssignmentsProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const lead = kit.useVariant("lead", meta.variants.lead, input.lead);
   const state = kit.useComponentState();
   return (

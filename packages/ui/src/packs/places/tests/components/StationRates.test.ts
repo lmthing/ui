@@ -31,7 +31,7 @@ it("accepts exact text and array limits, trims names and stamps only view items"
   expect(props.parse({
     name: ` ${name} `, kind: "ev", brand: "b".repeat(20), distance: "d".repeat(10),
     updatedAt: "a".repeat(12), offer: { cashback: "o".repeat(20), claimed: true }, grades, chargers,
-  })).toMatchObject({ name, surface: "card", detail: "full", grades, chargers });
+  })).toMatchObject({ name, detail: "full", grades, chargers });
   expect(stampItemIds(meta, props.parse(ev))).toHaveProperty("rateRows.2.id", "r3");
 });
 
@@ -44,7 +44,8 @@ it.each([
   { grades: [{ label: "A", price: 1, unit: "x".repeat(7) }] }, { grades: [{ label: "A", price: 1, id: "r1" }] },
   { grades: [{ label: "A", price: 1, currency: "USD" }] }, { offer: { cashback: "o".repeat(21), claimed: false } },
   { offer: { cashback: "15¢" } }, { goto: "Invalid ID" }, { color: "red" }, { style: "compact" },
-  { detail: "tiny" }, { hasStation: true }, { canClaim: true }, { headline: "fake" },
+  { detail: "tiny" }, { density: "compact" }, { surface: "outlined" },
+  { hasStation: true }, { canClaim: true }, { headline: "fake" },
   { chargers: ev.chargers }, { grades: undefined },
 ])("rejects invalid overrides %j", (invalid) => expect(props.safeParse({ ...fuel, ...invalid }).success).toBe(false));
 
@@ -125,7 +126,8 @@ it("draws the EV price and addressed stall rows, then replaces them with a headl
   expect([...brief.keys()].some((part) => part.startsWith(`${address}r`) && part !== `${address}root`)).toBe(
     false,
   );
-  expect([...parts({ ...ev, density: "compact", surface: "outlined" }).keys()]).toEqual([...full.keys()]);
+  const compact = renderInstance("StationRates", ev, "filled", { ...theme, density: "compact" });
+  expect([...addressedElements(compact).keys()]).toEqual([...full.keys()]);
   const compactFuel = parts({ ...fuel, detail: "brief" });
   expect(compactFuel.get(`${address}headline`)?.text).toEqual(["$3.49/gal"]);
   expect(compactFuel.get(`${address}headline_label`)?.text).toEqual(["Regular"]);

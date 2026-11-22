@@ -25,6 +25,17 @@ const roles: Record<string, string[]> = {
   set: ["slider", "spinbutton"],
 };
 
+function hasCheckboxChoices(group: AddressedElement, action: string) {
+  if (action !== "select" || !/\brole="group".*\baria-label="[^"]+"/.test(group.attributes)) return false;
+  return group.children.some(
+    ({ attributes }) =>
+      /\brole="checkbox"/.test(attributes) &&
+      /\baria-checked="(?:true|false)"/.test(attributes) &&
+      /\baria-label="[^"]+"/.test(attributes) &&
+      !/\bdata-testid=/.test(attributes),
+  );
+}
+
 export function expectTarget(
   read: string,
   addressed: Map<string, AddressedElement>,
@@ -35,7 +46,13 @@ export function expectTarget(
   expect(read, `${address} is missing from the read`).toContain(`[${address} ${action}`);
   const element = addressed.get(`home/${address}${part === "root" ? "/root" : ""}`);
   expect(element, `${address} offers ${action} but is not on screen`).toBeDefined();
-  if (element && (hasStepTarget(element, action) || hasColumnTarget(element, action))) return;
+  if (
+    element &&
+    (hasStepTarget(element, action) ||
+      hasColumnTarget(element, action) ||
+      hasCheckboxChoices(element, action))
+  )
+    return;
   const role = element?.attributes.match(/\brole="([^"]+)"/)?.[1];
   const target = address.split("/").slice(1).join("/") || "root";
   if (

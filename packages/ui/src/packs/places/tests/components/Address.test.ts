@@ -113,7 +113,7 @@ describe("Address states and parts", () => {
 
   it("hides only the note in brief, omits absent parts and preserves compact addresses", () => {
     const keys = (input: object) => [...draw(input).keys()];
-    expect(keys({ ...nursery, density: "compact" })).toEqual(keys(nursery!));
+    expect(keys({ ...nursery })).toEqual(keys(nursery!));
     expect(keys(brief!)).toEqual(keys(nursery!).filter((part) => !part.endsWith("/note")));
     expect(keys(park!)).toEqual(keys(nursery!).filter((part) => !/\/(?:note|call)$/.test(part)));
   });

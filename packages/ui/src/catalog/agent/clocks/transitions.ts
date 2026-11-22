@@ -2,7 +2,7 @@ import type { ClockState, Meta } from "../../meta";
 import type { Definition } from "../../probes";
 import { liveProps, parseControlProps, type ActStep, type ScreenLike, type Values } from "../index";
 import { deviceTimeOf, type DeviceData } from "../device-data";
-import { localValues } from "../action-input";
+import { localValues } from "../live-props";
 import { adjustmentAt } from "./adjustment";
 import {
   clockTargets,

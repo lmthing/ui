@@ -41,7 +41,7 @@ describe("Approval schema and boundaries", () => {
       photo: "local:1",
     };
     const parsed = props.parse({ requests: Array.from({ length: 5 }, () => request) });
-    expect(parsed).toMatchObject({ lead: "avatar", surface: "card" });
+    expect(parsed).toMatchObject({ lead: "avatar" });
     expect(parsed.requests).toEqual(Array.from({ length: 5 }, () => ({ ...request, from })));
     expect(stampItemIds(meta, parsed).requests).toMatchObject(
       ["r1", "r2", "r3", "r4", "r5"].map((id) => ({ id })),
@@ -148,8 +148,8 @@ describe("Approval parts, reading and variants", () => {
   });
   it("keeps addresses for finish axes; turning portraits off hides only their parts", () => {
     const addresses = [...view(full).keys()];
-    expect([...view({ ...full, density: "compact" }).keys()]).toEqual(addresses);
-    expect([...view({ ...full, surface: "outlined" }).keys()]).toEqual(addresses);
+    expect([...view({ ...full }).keys()]).toEqual(addresses);
+    expect([...view({ ...full }).keys()]).toEqual(addresses);
     const noPortraits = { ...full, lead: "none" };
     expect([...view(noPortraits).keys()]).toEqual(addresses.filter((part) => !part.endsWith("/photo")));
     expect(props.parse(noPortraits).requests.map((item) => item.photo)).toEqual(

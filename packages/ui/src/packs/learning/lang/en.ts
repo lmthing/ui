@@ -1,83 +1,26 @@
+import { words as AchievementsWords } from "./en/Achievements";
+import { words as AssignmentsWords } from "./en/Assignments";
+import { words as FlashcardWords } from "./en/Flashcard";
+import { words as GradebookWords } from "./en/Gradebook";
+import { words as LessonWords } from "./en/Lesson";
+import { words as PathWords } from "./en/Path";
+import { words as QuizWords } from "./en/Quiz";
+import { words as ResultWords } from "./en/Result";
+import { words as SpeechCheckWords } from "./en/SpeechCheck";
+import { words as TimetableWords } from "./en/Timetable";
+import { words as WorkedSolutionWords } from "./en/WorkedSolution";
 export const en = {
-  achievements: {
-    empty: "No badges yet",
-    locked: "Locked",
-  },
-  assignments: {
-    handedIn: "Handed in?",
-    graded: "Work graded",
-    gradeSeparator: " · ",
-    dueToday: (date: string) => `Today · ${date}`,
-    dueIn: (days: string, plural: Intl.LDMLPluralRule, date: string) =>
-      `In ${days}\u00a0${plural === "one" ? "day" : "days"} · ${date}`,
-    dueOn: (date: string) => `Due ${date}`,
-    deadlinePassed: (date: string) => `Deadline passed · ${date}`,
-    handInLabel: (title: string) => `${title}: handed in`,
-    reading: (item: string, due: string, status: string) => `${item}: ${due} · ${status}`,
-  },
-  flashcard: {
-    left: (count: string, category: Intl.LDMLPluralRule) =>
-      `${count} ${category === "one" ? "card" : "cards"} left`,
-    reveal: "Reveal answer",
-    again: "Again",
-    hard: "Hard",
-    good: "Good",
-    easy: "Easy",
-    complete: "Done for today",
-  },
-  lesson: { example: "Worked example", next: "Continue" },
-  path: {
-    status: { done: "Completed", current: "Start unit", locked: "Locked" },
-    milestone: "Badge",
-    separator: " · ",
-    label: (title: string, status: string, milestone?: string) =>
-      [title, status, milestone].filter(Boolean).join(" · "),
-  },
-  quiz: {
-    check: "Check answer",
-    next: "Next question",
-    type: "Type your answer",
-    true: "True",
-    false: "False",
-    left: "Match from",
-    right: "Match to",
-    pickLeft: "Pick an item on the left.",
-    pickRight: "Pick its match on the right.",
-    photo: "Question photo",
-    correct: "Correct",
-    incorrect: "Not quite",
-    solution: "Correct answer",
-    progress: (at: string, count: string) => `Question ${at} of ${count}`,
-    score: (right: string, count: string) => `${right} of ${count} correct`,
-    keyed: (label: string, key: string) => `${key} · ${label}`,
-    paired: (label: string, other: string) => `${label} (${other})`,
-    pair: (left: string, right: string) => `${left} → ${right}`,
-  },
-  result: {
-    score: "Practice score",
-    perfect: "Perfect score",
-    total: (of: string) => ` of ${of}`,
-    right: "Right",
-    wrong: "Wrong",
-    seconds: "Time",
-    points: "Points",
-    corrections: "Corrections",
-    review: "Review",
-    again: "Try again",
-  },
-  timetable: {
-    picker: "Show first",
-    days: {
-      mon: { short: "mon", name: "Monday" },
-      tue: { short: "tue", name: "Tuesday" },
-      wed: { short: "wed", name: "Wednesday" },
-      thu: { short: "thu", name: "Thursday" },
-      fri: { short: "fri", name: "Friday" },
-      sat: { short: "sat", name: "Saturday" },
-      sun: { short: "sun", name: "Sunday" },
-    },
-    reading: (parts: readonly (string | undefined)[]) => parts.filter(Boolean).join(" · "),
-  },
+  ...AchievementsWords,
+  ...AssignmentsWords,
+  ...FlashcardWords,
+  ...GradebookWords,
+  ...LessonWords,
+  ...PathWords,
+  ...QuizWords,
+  ...ResultWords,
+  ...SpeechCheckWords,
+  ...TimetableWords,
+  ...WorkedSolutionWords,
 };
 
 export type LearningWords = typeof en;

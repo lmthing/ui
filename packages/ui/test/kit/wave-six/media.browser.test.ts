@@ -79,12 +79,15 @@ it("keeps the active video mounted when the overlay changes", async () => {
   const video = page.getByTestId("first_clip");
   const original = await video.elementHandle();
   const overlay = page.getByRole("button", { name: "Toggle playback overlay" });
-  await overlay.click();
   const toolbar = page.getByText("Overlay", { exact: true });
-  await toolbar.waitFor();
-  expect(await toolbar.locator("../..").locator(":scope > div > video").count()).toBe(1);
-  await overlay.click();
-  await toolbar.waitFor({ state: "detached" });
-  expect(await video.evaluate((element, initial) => element === initial, original)).toBe(true);
+  for (const _ of [1, 2]) {
+    await overlay.click();
+    await toolbar.waitFor();
+    const framedVideo = toolbar.locator("../..").locator(":scope > div > video");
+    expect(await framedVideo.evaluate((element, initial) => element === initial, original)).toBe(true);
+    await overlay.click();
+    await toolbar.waitFor({ state: "detached" });
+    expect(await video.evaluate((element, initial) => element === initial, original)).toBe(true);
+  }
   await original.dispose();
 });

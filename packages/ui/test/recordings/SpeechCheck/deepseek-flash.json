@@ -1,0 +1,800 @@
+{
+  "SpeechCheck%2Fchoose%2FI%20want%20to%20hear%20a%20native%20speaker%20say%20a%20fixed%20phrase%2C%20say%20it%20into%20my%20mic%2C%20and%20see%20which%20words%20I%20pronounced%20correctly./40dbd2a76ac1aab6/e459f803c2115d5e": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Achievements: See the learning badges you earned and how to unlock the rest. Pick: A grid of learning milestone badges with earned dates and unlock criteria. Not consecutive days of a habit (Streak), photos (Gallery) or redeemable rewards (Rewards).\n- Assignments: Know which coursework is due, handed in or graded. Pick: Homework and coursework with subjects, due dates, hand-in status and grades. Not simple tasks to tick off (Checklist) or the outcome of one practice session (Result).\n- Flashcard: Recall an answer, reveal it and rate how well you remembered it. Pick: Recall from a prompt, flip to reveal its answer, then rate recall to schedule the next review. Not checked answers (Quiz) or swiping to keep or skip things (SwipeStack).\n- Gradebook: See your weighted course grade and how each category contributes. Pick: A course gradebook with weighted categories, raw assignment points and GPA. Not homework due dates (Assignments), one quiz (Result), or independent counters (Stats).\n- Lesson: Learn one idea from a short explanation and worked example before practising it. Pick: Teach one idea with a titled explanation, an optional illustrated example and a continue action. Not a short supporting sentence (Note), long-form reading (Article) or an assessed question (Quiz).\n- Path: See which course units are finished, open now or still locked. Pick: A winding course map with done, current and locked unit nodes, selectable unlocked units and occasional milestones. Not progress through a short flow (Steps) or a plain browsable list (List).\n- Quiz: Practise one question at a time and get feedback after checking each answer. Pick: Assessed practice questions with correct answers and immediate feedback. Use for multiple choice, true or false, typed recall or matching pairs. Not choosing a preference (Choice), a vote (Poll), or self-rated recall (Flashcard).\n- Result: See a practice score and review the mistakes before trying again. Pick: A finished quiz or practice outcome: score, time, points, mistakes to review and a retry. Not independent summary numbers (Stats), a goal (Progress), confirmation (Success) or a sports score (Scoreboard).\n- SpeechCheck: Practise saying a phrase aloud and see which words need another try. Pick: Practise saying an exact target phrase into a microphone and get per-word pronunciation feedback and a fluency score. Not passive playback (Player), tap-or-type tests (Quiz), or open-ended chat (AiThread).\n- Timetable: See the week's repeating classes and where to go for each period. Pick: A student's repeating week of class periods with subject, room and teacher. Not a one-day schedule (Timeline), staff shifts (Roster), bookable slots (Slots) or family events (Agenda).\n- WorkedSolution: Work through a problem one derivation step at a time. Pick: Show how a specific problem is solved, with numbered derivation steps and an answer. Not general teaching (Lesson), quizzes (Quiz), recipes (CookSteps), or a bare step position (Steps).\n\nNeed, in the person's words: \"I want to hear a native speaker say a fixed phrase, say it into my mic, and see which words I pronounced correctly.\"\nReply with only the component id, nothing else.",
+    "reply": "SpeechCheck",
+    "replies": [
+      "SpeechCheck",
+      "SpeechCheck",
+      "SpeechCheck"
+    ]
+  },
+  "SpeechCheck%2Fchoose%2FI%20want%20to%20hear%20a%20native%20speaker%20say%20a%20fixed%20phrase%2C%20say%20it%20into%20my%20mic%2C%20and%20see%20which%20words%20I%20pronounced%20correctly./7591768da73b1499/e459f803c2115d5e": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Achievements: See the learning badges you earned and how to unlock the rest. Pick: A grid of learning milestone badges with earned dates and unlock criteria. Not consecutive days of a habit (Streak), photos (Gallery) or redeemable rewards (Rewards).\n- Assignments: Know which coursework is due, handed in or graded. Pick: Homework and coursework with subjects, due dates, hand-in status and grades. Not simple tasks to tick off (Checklist) or the outcome of one practice session (Result).\n- Flashcard: Recall an answer, reveal it and rate how well you remembered it. Pick: Recall from a prompt, flip to reveal its answer, then rate recall to schedule the next review. Not checked answers (Quiz) or swiping to keep or skip things (SwipeStack).\n- Gradebook: See your weighted course grade and how each category contributes. Pick: A course gradebook with weighted categories, raw assignment points and GPA. Not homework due dates (Assignments), one quiz (Result), or independent counters (Stats).\n- Lesson: Learn one idea from a short explanation and worked example before practising it. Pick: Teach one idea with a titled explanation, an optional illustrated example and a continue action. Not a short supporting sentence (Note), long-form reading (Article) or an assessed question (Quiz).\n- Path: See which course units are finished, open now or still locked. Pick: A winding course map with done, current and locked unit nodes, selectable unlocked units and occasional milestones. Not progress through a short flow (Steps) or a plain browsable list (List).\n- Quiz: Practise one question at a time and get feedback after checking each answer. Pick: Assessed practice questions with correct answers and immediate feedback. Use for multiple choice, true or false, typed recall or matching pairs. Not choosing a preference (Choice), a vote (Poll), or self-rated recall (Flashcard).\n- Result: See a practice score and review the mistakes before trying again. Pick: A finished quiz or practice outcome: score, time, points, mistakes to review and a retry. Not independent summary numbers (Stats), a goal (Progress), confirmation (Success) or a sports score (Scoreboard).\n- SpeechCheck: Practise saying a phrase aloud and see which words need another try. Pick: Practise saying an exact target phrase into a microphone and get per-word pronunciation feedback and a fluency score. Not passive playback (Player), tap-or-type tests (Quiz), or open-ended chat (AiThread).\n- Timetable: See the week's repeating classes and where to go for each period. Pick: A student's repeating week of class periods with subject, room and teacher. Not a one-day schedule (Timeline), staff shifts (Roster), bookable slots (Slots) or family events (Agenda).\n- WorkedSolution: Work through a problem one derivation step at a time. Pick: Show how a specific problem is solved, with numbered derivation steps and an answer. Not general teaching (Lesson), quizzes (Quiz), recipes (CookSteps), or a bare step position (Steps).\n\nNeed, in the person's words: \"I want to hear a native speaker say a fixed phrase, say it into my mic, and see which words I pronounced correctly.\"\nReply with only the component id, nothing else.",
+    "reply": "SpeechCheck",
+    "replies": [
+      "SpeechCheck",
+      "SpeechCheck",
+      "SpeechCheck"
+    ]
+  },
+  "SpeechCheck%2Fchoose%2FPlay%20the%2045-second%20audio%20recording%20from%20my%20last%20lesson%20with%20pause%20and%20a%20scrubber.%20I%20am%20only%20listening%20to%20the%20recording./c94318fff5476123/2124dd5064efbf79": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Achievements: See the learning badges you earned and how to unlock the rest. Pick: A grid of learning milestone badges with earned dates and unlock criteria. Not consecutive days of a habit (Streak), photos (Gallery) or redeemable rewards (Rewards).\n- Assignments: Know which coursework is due, handed in or graded. Pick: Homework and coursework with subjects, due dates, hand-in status and grades. Not simple tasks to tick off (Checklist) or the outcome of one practice session (Result).\n- Flashcard: Recall an answer, reveal it and rate how well you remembered it. Pick: Recall from a prompt, flip to reveal its answer, then rate recall to schedule the next review. Not checked answers (Quiz) or swiping to keep or skip things (SwipeStack).\n- Gradebook: See your weighted course grade and how each category contributes. Pick: A course gradebook with weighted categories, raw assignment points and GPA. Not homework due dates (Assignments), one quiz (Result), or independent counters (Stats).\n- Lesson: Learn one idea from a short explanation and worked example before practising it. Pick: Teach one idea with a titled explanation, an optional illustrated example and a continue action. Not a short supporting sentence (Note), long-form reading (Article) or an assessed question (Quiz).\n- Path: See which course units are finished, open now or still locked. Pick: A winding course map with done, current and locked unit nodes, selectable unlocked units and occasional milestones. Not progress through a short flow (Steps) or a plain browsable list (List).\n- Quiz: Practise one question at a time and get feedback after checking each answer. Pick: Assessed practice questions with correct answers and immediate feedback. Use for multiple choice, true or false, typed recall or matching pairs. Not choosing a preference (Choice), a vote (Poll), or self-rated recall (Flashcard).\n- Result: See a practice score and review the mistakes before trying again. Pick: A finished quiz or practice outcome: score, time, points, mistakes to review and a retry. Not independent summary numbers (Stats), a goal (Progress), confirmation (Success) or a sports score (Scoreboard).\n- SpeechCheck: Practise saying a phrase aloud and see which words need another try. Pick: Practise saying an exact target phrase into a microphone and get per-word pronunciation feedback and a fluency score. Not passive playback (Player), tap-or-type tests (Quiz), or open-ended chat (AiThread).\n- Timetable: See the week's repeating classes and where to go for each period. Pick: A student's repeating week of class periods with subject, room and teacher. Not a one-day schedule (Timeline), staff shifts (Roster), bookable slots (Slots) or family events (Agenda).\n- WorkedSolution: Work through a problem one derivation step at a time. Pick: Show how a specific problem is solved, with numbered derivation steps and an answer. Not general teaching (Lesson), quizzes (Quiz), recipes (CookSteps), or a bare step position (Steps).\n\nNeed, in the person's words: \"Play the 45-second audio recording from my last lesson with pause and a scrubber. I am only listening to the recording.\"\nReply with only the component id, nothing else.",
+    "reply": "Player",
+    "replies": [
+      "Player",
+      "Player",
+      "Player"
+    ]
+  },
+  "SpeechCheck%2Fchoose%2FPlay%20the%2045-second%20audio%20recording%20from%20my%20last%20lesson%20with%20pause%20and%20a%20scrubber.%20I%20am%20only%20listening%20to%20the%20recording./ff98f9c11757fd06/2124dd5064efbf79": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Achievements: See the learning badges you earned and how to unlock the rest. Pick: A grid of learning milestone badges with earned dates and unlock criteria. Not consecutive days of a habit (Streak), photos (Gallery) or redeemable rewards (Rewards).\n- Assignments: Know which coursework is due, handed in or graded. Pick: Homework and coursework with subjects, due dates, hand-in status and grades. Not simple tasks to tick off (Checklist) or the outcome of one practice session (Result).\n- Flashcard: Recall an answer, reveal it and rate how well you remembered it. Pick: Recall from a prompt, flip to reveal its answer, then rate recall to schedule the next review. Not checked answers (Quiz) or swiping to keep or skip things (SwipeStack).\n- Gradebook: See your weighted course grade and how each category contributes. Pick: A course gradebook with weighted categories, raw assignment points and GPA. Not homework due dates (Assignments), one quiz (Result), or independent counters (Stats).\n- Lesson: Learn one idea from a short explanation and worked example before practising it. Pick: Teach one idea with a titled explanation, an optional illustrated example and a continue action. Not a short supporting sentence (Note), long-form reading (Article) or an assessed question (Quiz).\n- Path: See which course units are finished, open now or still locked. Pick: A winding course map with done, current and locked unit nodes, selectable unlocked units and occasional milestones. Not progress through a short flow (Steps) or a plain browsable list (List).\n- Quiz: Practise one question at a time and get feedback after checking each answer. Pick: Assessed practice questions with correct answers and immediate feedback. Use for multiple choice, true or false, typed recall or matching pairs. Not choosing a preference (Choice), a vote (Poll), or self-rated recall (Flashcard).\n- Result: See a practice score and review the mistakes before trying again. Pick: A finished quiz or practice outcome: score, time, points, mistakes to review and a retry. Not independent summary numbers (Stats), a goal (Progress), confirmation (Success) or a sports score (Scoreboard).\n- SpeechCheck: Practise saying a phrase aloud and see which words need another try. Pick: Practise saying an exact target phrase into a microphone and get per-word pronunciation feedback and a fluency score. Not passive playback (Player), tap-or-type tests (Quiz), or open-ended chat (AiThread).\n- Timetable: See the week's repeating classes and where to go for each period. Pick: A student's repeating week of class periods with subject, room and teacher. Not a one-day schedule (Timeline), staff shifts (Roster), bookable slots (Slots) or family events (Agenda).\n- WorkedSolution: Work through a problem one derivation step at a time. Pick: Show how a specific problem is solved, with numbered derivation steps and an answer. Not general teaching (Lesson), quizzes (Quiz), recipes (CookSteps), or a bare step position (Steps).\n\nNeed, in the person's words: \"Play the 45-second audio recording from my last lesson with pause and a scrubber. I am only listening to the recording.\"\nReply with only the component id, nothing else.",
+    "reply": "Player",
+    "replies": [
+      "Player",
+      "Player",
+      "Player"
+    ]
+  },
+  "SpeechCheck%2Fread%2FShow%20the%20hidden%20words%20of%20the%20phrase%20without%20starting%20an%20audio%20recording./e6115dc0913afb89/b00cb229c0979d65": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 SpeechCheck[listen] Pronunciation practice — Listen first, then say the phrase. — Show phrase — Hear the phrase — Record your voice — Recording unavailable [s1/mic start !needs-ok] [s1/mic stop !needs-ok] [s1/reveal press]\n\nTask: Show the hidden words of the phrase without starting an audio recording.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/reveal\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1/reveal\", \"action\": \"press\"}",
+      "{\"address\": \"s1/reveal\", \"action\": \"press\"}",
+      "{\"address\": \"s1/reveal\", \"action\": \"press\"}"
+    ]
+  },
+  "SpeechCheck%2Fread%2FShow%20the%20hidden%20words%20of%20the%20phrase%20without%20starting%20an%20audio%20recording./eb5f27916b14fbbf/91f2de983b00694c": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 SpeechCheck[listen] Pronunciation practice — Listen, then repeat. — Show phrase — Hear the phrase — Record your voice — Recording unavailable [s1/mic start !needs-ok] [s1/mic stop !needs-ok] [s1/reveal press]\n\nTask: Show the hidden words of the phrase without starting an audio recording.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/reveal\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1/reveal\", \"action\": \"press\"}",
+      "{\"address\": \"s1/reveal\", \"action\": \"press\"}",
+      "{\"address\": \"s1/reveal\", \"action\": \"press\"}"
+    ]
+  },
+  "SpeechCheck%2Fwrite%2FLet%20me%20hear%20%22Put%20on%20the%20leash.%22%20from%20lib%3Aput-on-the-leash%20before%20seeing%20the%20phrase.%20Then%20record%20me%20saying%20the%20four%20words%20Put%2C%20on%2C%20the%2C%20leash%20and%20check%20how%20I%20pronounce%20them.%20There%20is%20no%20result%20yet./3b270ec14100fb25/1c511fe36e34a45e": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSpeechCheck: Practise saying a phrase aloud and see which words need another try.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", phrase: text≤120, phonetic?: text≤120, translation?: text≤120, referenceAudio?: text≤120, words: [1..16 { text: text≤24, status?: correct|close|missed }], fluencyScore?: num 0..100, style?: phrase|listen=\"phrase\" }\nRule: Supply the target phrase and its spoken words in order. Leave word status and fluencyScore null until a real evaluation returns results. Use referenceAudio only for the supplied clip reference, not a URL.\nRule: Use style \"listen\" when the learner hears a reference before seeing the phrase; supply referenceAudio. If the user wants the target visible but optional phonetic and translation hints hidden, use detail \"brief\" and retain both hints in props.\nRule: Leave surface and density null unless the person explicitly requests a different surface or spacing. The default card uses null, not \"card\".\nexample: {\"c\":\"SpeechCheck\",\"phrase\":\"Arrosez la fougère.\",\"phonetic\":\"ah-roh-zay lah foo-zhehr\",\"translation\":\"Water the fern.\",\"referenceAudio\":\"lib:water-the-fern\",\"words\":[{\"text\":\"Arrosez\",\"status\":\"correct\"},{\"text\":\"la\",\"status\":\"correct\"},{\"text\":\"fougère\",\"status\":\"close\"}],\"fluencyScore\":78}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Let me hear \"Put on the leash.\" from lib:put-on-the-leash before seeing the phrase. Then record me saying the four words Put, on, the, leash and check how I pronounce them. There is no result yet.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "SpeechCheck",
+              "enum": [
+                "SpeechCheck"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "phrase": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "phonetic": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "translation": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "referenceAudio": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "words": {
+              "minItems": 1,
+              "maxItems": 16,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "status": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "correct",
+                          "close",
+                          "missed"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "text",
+                  "status"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "fluencyScore": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "phrase",
+                    "listen"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "phrase",
+            "phonetic",
+            "translation",
+            "referenceAudio",
+            "words",
+            "fluencyScore",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"SpeechCheck\",\"density\":null,\"surface\":null,\"detail\":null,\"phrase\":\"Put on the leash.\",\"phonetic\":null,\"translation\":null,\"referenceAudio\":\"lib:put-on-the-leash\",\"words\":[{\"text\":\"Put\",\"status\":null},{\"text\":\"on\",\"status\":null},{\"text\":\"the\",\"status\":null},{\"text\":\"leash\",\"status\":null}],\"fluencyScore\":null,\"style\":\"listen\"}",
+    "replies": [
+      "{\"c\":\"SpeechCheck\",\"density\":null,\"surface\":null,\"detail\":null,\"phrase\":\"Put on the leash.\",\"phonetic\":null,\"translation\":null,\"referenceAudio\":\"lib:put-on-the-leash\",\"words\":[{\"text\":\"Put\",\"status\":null},{\"text\":\"on\",\"status\":null},{\"text\":\"the\",\"status\":null},{\"text\":\"leash\",\"status\":null}],\"fluencyScore\":null,\"style\":\"listen\"}",
+      "{\"c\":\"SpeechCheck\",\"density\":null,\"surface\":null,\"detail\":null,\"phrase\":\"Put on the leash.\",\"phonetic\":null,\"translation\":null,\"referenceAudio\":\"lib:put-on-the-leash\",\"words\":[{\"text\":\"Put\",\"status\":null},{\"text\":\"on\",\"status\":null},{\"text\":\"the\",\"status\":null},{\"text\":\"leash\",\"status\":null}],\"fluencyScore\":null,\"style\":\"listen\"}",
+      "{\"c\":\"SpeechCheck\",\"density\":null,\"surface\":null,\"detail\":null,\"phrase\":\"Put on the leash\",\"phonetic\":null,\"translation\":null,\"referenceAudio\":\"lib:put-on-the-leash\",\"words\":[{\"text\":\"Put\",\"status\":null},{\"text\":\"on\",\"status\":null},{\"text\":\"the\",\"status\":null},{\"text\":\"leash\",\"status\":null}],\"fluencyScore\":null,\"style\":\"listen\"}"
+    ]
+  },
+  "SpeechCheck%2Fwrite%2FLet%20me%20hear%20%22Put%20on%20the%20leash.%22%20from%20lib%3Aput-on-the-leash%20before%20seeing%20the%20phrase.%20Then%20record%20me%20saying%20the%20four%20words%20Put%2C%20on%2C%20the%2C%20leash%20and%20check%20how%20I%20pronounce%20them.%20There%20is%20no%20result%20yet./a9c44552f9a2bb20/21186ea7b76e5e39": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSpeechCheck: Practise saying a phrase aloud and see which words need another try.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", phrase: text≤120, phonetic?: text≤120, translation?: text≤120, referenceAudio?: text≤120, words: [1..16 { text: text≤24, status?: correct|close|missed }], fluencyScore?: num 0..100, style?: phrase|listen=\"phrase\" }\nRule: Supply the target phrase and its spoken words in order. Leave word status and fluencyScore null until a real evaluation returns results. Use referenceAudio only for the supplied clip reference, not a URL.\nRule: Use style \"listen\" when the learner hears a reference before seeing the phrase; supply referenceAudio. If the user wants the target visible but optional phonetic and translation hints hidden, use detail \"brief\" and retain both hints in props.\nexample: {\"c\":\"SpeechCheck\",\"phrase\":\"Arrosez la fougère.\",\"phonetic\":\"ah-roh-zay lah foo-zhehr\",\"translation\":\"Water the fern.\",\"referenceAudio\":\"lib:water-the-fern\",\"words\":[{\"text\":\"Arrosez\",\"status\":\"correct\"},{\"text\":\"la\",\"status\":\"correct\"},{\"text\":\"fougère\",\"status\":\"close\"}],\"fluencyScore\":78}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Let me hear \"Put on the leash.\" from lib:put-on-the-leash before seeing the phrase. Then record me saying the four words Put, on, the, leash and check how I pronounce them. There is no result yet.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "SpeechCheck",
+              "enum": [
+                "SpeechCheck"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "phrase": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "phonetic": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "translation": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "referenceAudio": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "words": {
+              "minItems": 1,
+              "maxItems": 16,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "status": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "correct",
+                          "close",
+                          "missed"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "text",
+                  "status"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "fluencyScore": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "phrase",
+                    "listen"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "phrase",
+            "phonetic",
+            "translation",
+            "referenceAudio",
+            "words",
+            "fluencyScore",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"SpeechCheck\",\"density\":null,\"surface\":\"card\",\"detail\":\"brief\",\"phrase\":\"Put on the leash.\",\"phonetic\":null,\"translation\":null,\"referenceAudio\":\"lib:put-on-the-leash\",\"words\":[{\"text\":\"Put\",\"status\":null},{\"text\":\"on\",\"status\":null},{\"text\":\"the\",\"status\":null},{\"text\":\"leash\",\"status\":null}],\"fluencyScore\":null,\"style\":\"listen\"}",
+    "replies": [
+      "{\"c\":\"SpeechCheck\",\"density\":null,\"surface\":\"card\",\"detail\":\"brief\",\"phrase\":\"Put on the leash.\",\"phonetic\":null,\"translation\":null,\"referenceAudio\":\"lib:put-on-the-leash\",\"words\":[{\"text\":\"Put\",\"status\":null},{\"text\":\"on\",\"status\":null},{\"text\":\"the\",\"status\":null},{\"text\":\"leash\",\"status\":null}],\"fluencyScore\":null,\"style\":\"listen\"}",
+      "{\"c\":\"SpeechCheck\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"phrase\":\"Put on the leash.\",\"phonetic\":null,\"translation\":null,\"referenceAudio\":\"lib:put-on-the-leash\",\"words\":[{\"text\":\"Put\",\"status\":null},{\"text\":\"on\",\"status\":null},{\"text\":\"the\",\"status\":null},{\"text\":\"leash\",\"status\":null}],\"fluencyScore\":null,\"style\":\"listen\"}",
+      "{\"c\":\"SpeechCheck\",\"density\":null,\"surface\":null,\"detail\":null,\"phrase\":\"Put on the leash\",\"phonetic\":null,\"translation\":null,\"referenceAudio\":\"lib:put-on-the-leash\",\"words\":[{\"text\":\"Put\",\"status\":null},{\"text\":\"on\",\"status\":null},{\"text\":\"the\",\"status\":null},{\"text\":\"leash\",\"status\":null}],\"fluencyScore\":null,\"style\":\"listen\"}"
+    ]
+  },
+  "SpeechCheck%2Fwrite%2FLet%20me%20see%20and%20say%20%22Arrosez%20la%20foug%C3%A8re.%22%20and%20check%20my%20pronunciation%20word%20by%20word.%20Store%20the%20hint%20%22ah-roh-zay%20lah%20foo-zhehr%22%20and%20translation%20%22Water%20the%20fern.%22%2C%20but%20explicitly%20hide%20both%20optional%20hints%3B%20do%20not%20hide%20the%20target%20phrase./1a75ffcd1664d4b6/d433a6bb729d9e81": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSpeechCheck: Practise saying a phrase aloud and see which words need another try.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", phrase: text≤120, phonetic?: text≤120, translation?: text≤120, referenceAudio?: text≤120, words: [1..16 { text: text≤24, status?: correct|close|missed }], fluencyScore?: num 0..100, style?: phrase|listen=\"phrase\" }\nRule: Supply the target phrase and its spoken words in order. Leave word status and fluencyScore null until a real evaluation returns results. Use referenceAudio only for the supplied clip reference, not a URL.\nRule: Use style \"listen\" when the learner hears a reference before seeing the phrase; supply referenceAudio. If the user wants the target visible but optional phonetic and translation hints hidden, use detail \"brief\" and retain both hints in props.\nRule: Leave surface and density null unless the person explicitly requests a different surface or spacing. The default card uses null, not \"card\".\nexample: {\"c\":\"SpeechCheck\",\"phrase\":\"Arrosez la fougère.\",\"phonetic\":\"ah-roh-zay lah foo-zhehr\",\"translation\":\"Water the fern.\",\"referenceAudio\":\"lib:water-the-fern\",\"words\":[{\"text\":\"Arrosez\",\"status\":\"correct\"},{\"text\":\"la\",\"status\":\"correct\"},{\"text\":\"fougère\",\"status\":\"close\"}],\"fluencyScore\":78}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Let me see and say \"Arrosez la fougère.\" and check my pronunciation word by word. Store the hint \"ah-roh-zay lah foo-zhehr\" and translation \"Water the fern.\", but explicitly hide both optional hints; do not hide the target phrase.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "SpeechCheck",
+              "enum": [
+                "SpeechCheck"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "phrase": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "phonetic": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "translation": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "referenceAudio": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "words": {
+              "minItems": 1,
+              "maxItems": 16,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "status": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "correct",
+                          "close",
+                          "missed"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "text",
+                  "status"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "fluencyScore": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "phrase",
+                    "listen"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "phrase",
+            "phonetic",
+            "translation",
+            "referenceAudio",
+            "words",
+            "fluencyScore",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"SpeechCheck\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"phrase\":\"Arrosez la fougère.\",\"phonetic\":\"ah-roh-zay lah foo-zhehr\",\"translation\":\"Water the fern.\",\"referenceAudio\":null,\"words\":[{\"text\":\"Arrosez\",\"status\":null},{\"text\":\"la\",\"status\":null},{\"text\":\"fougère\",\"status\":null}],\"fluencyScore\":null,\"style\":\"phrase\"}",
+    "replies": [
+      "{\"c\":\"SpeechCheck\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"phrase\":\"Arrosez la fougère.\",\"phonetic\":\"ah-roh-zay lah foo-zhehr\",\"translation\":\"Water the fern.\",\"referenceAudio\":null,\"words\":[{\"text\":\"Arrosez\",\"status\":null},{\"text\":\"la\",\"status\":null},{\"text\":\"fougère\",\"status\":null}],\"fluencyScore\":null,\"style\":\"phrase\"}",
+      "{\"c\":\"SpeechCheck\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"phrase\":\"Arrosez la fougère.\",\"phonetic\":\"ah-roh-zay lah foo-zhehr\",\"translation\":\"Water the fern.\",\"referenceAudio\":null,\"words\":[{\"text\":\"Arrosez\",\"status\":null},{\"text\":\"la\",\"status\":null},{\"text\":\"fougère\",\"status\":null}],\"fluencyScore\":null,\"style\":\"phrase\"}",
+      "{\"c\":\"SpeechCheck\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"phrase\":\"Arrosez la fougère.\",\"phonetic\":\"ah-roh-zay lah foo-zhehr\",\"translation\":\"Water the fern.\",\"referenceAudio\":null,\"words\":[{\"text\":\"Arrosez\",\"status\":null},{\"text\":\"la\",\"status\":null},{\"text\":\"fougère\",\"status\":null}],\"fluencyScore\":null,\"style\":\"phrase\"}"
+    ]
+  },
+  "SpeechCheck%2Fwrite%2FLet%20me%20see%20and%20say%20%22Arrosez%20la%20foug%C3%A8re.%22%20and%20check%20my%20pronunciation%20word%20by%20word.%20Store%20the%20hint%20%22ah-roh-zay%20lah%20foo-zhehr%22%20and%20translation%20%22Water%20the%20fern.%22%2C%20but%20explicitly%20hide%20both%20optional%20hints%3B%20do%20not%20hide%20the%20target%20phrase./5d9dade84ecab460/0c4e647dc56f9d60": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSpeechCheck: Practise saying a phrase aloud and see which words need another try.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", phrase: text≤120, phonetic?: text≤120, translation?: text≤120, referenceAudio?: text≤120, words: [1..16 { text: text≤24, status?: correct|close|missed }], fluencyScore?: num 0..100, style?: phrase|listen=\"phrase\" }\nRule: Supply the target phrase and its spoken words in order. Leave word status and fluencyScore null until a real evaluation returns results. Use referenceAudio only for the supplied clip reference, not a URL.\nRule: Use style \"listen\" when the learner hears a reference before seeing the phrase; supply referenceAudio. If the user wants the target visible but optional phonetic and translation hints hidden, use detail \"brief\" and retain both hints in props.\nexample: {\"c\":\"SpeechCheck\",\"phrase\":\"Arrosez la fougère.\",\"phonetic\":\"ah-roh-zay lah foo-zhehr\",\"translation\":\"Water the fern.\",\"referenceAudio\":\"lib:water-the-fern\",\"words\":[{\"text\":\"Arrosez\",\"status\":\"correct\"},{\"text\":\"la\",\"status\":\"correct\"},{\"text\":\"fougère\",\"status\":\"close\"}],\"fluencyScore\":78}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Let me see and say \"Arrosez la fougère.\" and check my pronunciation word by word. Store the hint \"ah-roh-zay lah foo-zhehr\" and translation \"Water the fern.\", but explicitly hide both optional hints; do not hide the target phrase.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "SpeechCheck",
+              "enum": [
+                "SpeechCheck"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "phrase": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "phonetic": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "translation": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "referenceAudio": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "words": {
+              "minItems": 1,
+              "maxItems": 16,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "status": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "correct",
+                          "close",
+                          "missed"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "text",
+                  "status"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "fluencyScore": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "phrase",
+                    "listen"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "phrase",
+            "phonetic",
+            "translation",
+            "referenceAudio",
+            "words",
+            "fluencyScore",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"SpeechCheck\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"phrase\":\"Arrosez la fougère.\",\"phonetic\":\"ah-roh-zay lah foo-zhehr\",\"translation\":\"Water the fern.\",\"referenceAudio\":null,\"words\":[{\"text\":\"Arrosez\",\"status\":null},{\"text\":\"la\",\"status\":null},{\"text\":\"fougère\",\"status\":null}],\"fluencyScore\":null,\"style\":\"phrase\"}",
+    "replies": [
+      "{\"c\":\"SpeechCheck\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"phrase\":\"Arrosez la fougère.\",\"phonetic\":\"ah-roh-zay lah foo-zhehr\",\"translation\":\"Water the fern.\",\"referenceAudio\":null,\"words\":[{\"text\":\"Arrosez\",\"status\":null},{\"text\":\"la\",\"status\":null},{\"text\":\"fougère\",\"status\":null}],\"fluencyScore\":null,\"style\":\"phrase\"}",
+      "{\"c\":\"SpeechCheck\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"phrase\":\"Arrosez la fougère.\",\"phonetic\":\"ah-roh-zay lah foo-zhehr\",\"translation\":\"Water the fern.\",\"referenceAudio\":null,\"words\":[{\"text\":\"Arrosez\",\"status\":null},{\"text\":\"la\",\"status\":null},{\"text\":\"fougère\",\"status\":null}],\"fluencyScore\":null,\"style\":null}",
+      "{\"c\":\"SpeechCheck\",\"density\":null,\"surface\":\"card\",\"detail\":\"brief\",\"phrase\":\"Arrosez la fougère.\",\"phonetic\":\"ah-roh-zay lah foo-zhehr\",\"translation\":\"Water the fern.\",\"referenceAudio\":null,\"words\":[{\"text\":\"Arrosez\",\"status\":null},{\"text\":\"la\",\"status\":null},{\"text\":\"fougère\",\"status\":null}],\"fluencyScore\":null,\"style\":\"phrase\"}"
+    ]
+  }
+}

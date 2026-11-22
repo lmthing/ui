@@ -3,19 +3,17 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { stationHeadline, stationRatesCopy, stationRatesReading } from "../copy";
 import { placesWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-StationRates.generated";
 
 // Core first: KeyValue with arrange="grid" can list station facts, but cannot show connector availability or claim station cashback.
 // prettier-ignore
 export const meta = {
   id: "StationRates", status: "ready", group: "data", region: "body", weight: 2, tier: "service",
-  purpose: "Compare local fuel prices or charging availability and claim station cashback.",
-  pick: "Live fuel grade prices, EV connector stalls or per-unit cashback for one station. Not static station facts (KeyValue), venue cards (PlaceCard), retail products (ProductGrid) or active charging sessions (ChargePump).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   realPath: "A fuel and EV data service supplies station prices, stalls and cashback; the device supplies location with permission.",
-  writeHints: [
-    "For fuel, write 1–5 grades in display order and no chargers. For EV, write the supplied charger groups and optional per-kWh pricing as grades. Never invent stall counts, prices, distance, or update times.",
-    'Use detail "brief" for only the primary fuel grade or total open stalls at a glance. Keep all supplied grades and chargers in the data. Leave density and surface null unless requested.',
-  ],
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  writeHints: prompt.writeHints,
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["root", "grade", "price", "connector", "power", "stalls", "offer_card"], adds: ["headline", "headline_label"] } },
   parts: ["root", "frame", "name", "brand", "distance", "updated", "headline", "headline_label", "offer", "offer_card", "claimed", "status", "claim", "directions"],
   items: { key: "rateRows", parts: ["root", "grade", "price", "connector", "power", "stalls"], visibleWhen: { detail: "full" } },
@@ -135,8 +133,7 @@ function StationOffer({ board, brief, density }: { board: Board; brief: boolean;
 // prettier-ignore
 export function StationRates(input: StationProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang, words: { stationRates: words } } = kit.useWords(placesWordsFor);
   const thing = kit.useEmptyThing();
@@ -165,7 +162,7 @@ export function StationRates(input: StationProps) {
       <kit.KitLayoutText line={{ text: words.directions, role: "meta", tone: "accent" }} density={density} />
     </kit.KitRow>}
   </>;
-  return <kit.KitCard part="frame" padded {...{ density, surface }}>
+  return <kit.KitCard part="frame" padded density={density} surface="card">
     {state !== "loading" && header}
     <kit.KitState part="status" icon="pin" density={density} retain={state === "success"}
       loading={<>{header}{body}</>} message={state === "success" ? words.success : state === "error" ? words.error : thing ? c.emptyLine(thing, lang) : words.empty}>

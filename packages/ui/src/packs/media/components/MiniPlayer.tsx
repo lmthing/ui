@@ -3,20 +3,20 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { miniPlayerTiming } from "../copy";
 import { mediaWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-MiniPlayer.generated";
 
 // Core first: Player/density compact cannot follow playback across screens above the tab bar.
 export const meta = {
   id: "MiniPlayer",
   status: "ready",
   group: "action",
-  purpose: "Keep the current recording within reach while moving between screens.",
-  pick: "Host-built persistent playback bar above the tabs, hidden on the full player screen. Never choose or write it; use Player for a recording on one screen.",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "bottom",
   weight: 1,
   tier: "phone",
   realPath: "The bar follows the device's current playback.",
   codeOwned: true,
-  variants: { surface: ["card", "plain"], density: ["comfortable", "compact"] },
   parts: ["root", "photo", "title", "progress", "time", "play", "play_icon"],
   states: ["filled"],
   actions: {
@@ -32,7 +32,6 @@ export const meta = {
 
 export const props = z
   .strictObject({
-    ...c.variantProps(meta.variants),
     title: c.text(40),
     photo: c.photo,
     at: z.int().min(0).max(36000),
@@ -71,7 +70,6 @@ export const examples = [
     seconds: 275,
     playing: false,
     goto: "slow_walk",
-    surface: "plain",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -88,8 +86,8 @@ export const probes = [
 
 export function MiniPlayer(input: c.Props<typeof props, typeof meta>) {
   const { title, photo, at, seconds, playing, goto } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const { lang, words } = kit.useWords(mediaWordsFor);
   const action = playing ? "pause" : "play";
   const copy = words.miniPlayer;
@@ -103,13 +101,17 @@ export function MiniPlayer(input: c.Props<typeof props, typeof meta>) {
             leadingAlign="row"
             lead={<kit.KitPhoto part="photo" photo={photo} label={copy.artwork} />}
           >
-            <kit.KitText part="title" role="body" lines={1} density={density}>
-              {title}
-            </kit.KitText>
+            <kit.KitMetaLine title={{ text: title, part: "title", lines: 1 }} density={density} />
             <kit.KitStepsTrack style="bar" count={1} at={at / seconds} part="progress" />
-            <kit.KitText part="time" role="caption" tone="muted" tabular>
-              {miniPlayerTiming(input, lang)}
-            </kit.KitText>
+            <kit.KitFigure
+              density={density}
+              value={{
+                text: miniPlayerTiming(input, lang),
+                part: "time",
+                compact: true,
+                tone: "muted",
+              }}
+            />
           </kit.KitContent>
         </kit.KitRow>
         <kit.KitAction part="play" kind="secondary" action={action} icon={action} a11y={copy[action]} />

@@ -26,18 +26,16 @@ import {
 import { kitchenWordsFor } from "../lang";
 import { z } from "zod";
 import { cookStepText, cookStepUses, cookStepsReading } from "../copy";
+import { prompt } from "../../../entry/prompt-CookSteps.generated";
 
 // Core first: Steps/numbered cannot show one cooking instruction with ingredients and an optional timer.
 export const meta = {
   id: "CookSteps",
   status: "ready",
   group: "action",
-  purpose: "Follow a recipe one instruction at a time with ingredients and a step timer.",
-  pick: "Cooking mode showing one recipe instruction, its ingredients and optional timer. Not progress through screens (Steps), a lesson (Lesson), or recording chapters (ChapterList).",
-  writeHints: [
-    "at is the one-based current step, between 1 and steps.length. minutes belongs only to timed instructions. Do not write timer state.",
-    'If asked to hide the ingredients line, set detail to "brief" and keep the uses data. Otherwise leave detail null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

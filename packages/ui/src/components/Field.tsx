@@ -1,7 +1,8 @@
 // prettier-ignore
 import {
-  useLiveControls, useVariant, useWords, KitCard, KitFieldControl, KitMicCapture,
+  useLiveControls, useWords, KitCard, KitFieldControl, KitMicCapture,
   KitSlider, KitText,
+  useKit,
 } from "../kit";
 // prettier-ignore
 import {
@@ -9,6 +10,7 @@ import {
   variantProps, type FallbackInput, type Meta, type Probe, type Props,
 } from "../catalog";
 import { z } from "zod";
+import { prompt } from "../entry/prompt-Field.generated";
 
 const endpoint = z.int().min(-1000000).max(1000000);
 // Use a local event instead of Field's legacy single-value set handler.
@@ -24,19 +26,14 @@ export const meta = {
   id: "Field",
   status: "ready",
   group: "input",
-  purpose: "Enter or change one labelled piece of information on a form.",
-  pick: "Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).",
-  writeHints: [
-    'For a recurring schedule use kind: "repeat" and repeat: "weekly" (or another repeat enum). Omit value; never use kind: "text" with repeat.',
-    "Date values use YYYY-MM-DD, time values HH:MM and photo values lib:<tag> or local:<n>. Fields are one line.",
-    'For a two-ended numeric field use kind "range" with integers min, max, lower and upper, in that order (min <= lower <= upper <= max, min < max). For a microphone input use kind "voice"; omit value for either kind.',
-    'To hide an authored helper hint, keep its text in hint and set detail to "brief". Leave density null unless the person asks for tighter spacing or smaller type.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 1,
   tier: "phone",
   realPath: "A field value stored on one record in the on-device database.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["hint"] } },
   parts: ["root", "label", "field", "hint", "photo", "lower", "upper", "voice", "range_reading"],
   partTiers: { voice: "ok" },
@@ -141,7 +138,7 @@ export const examples = [
   { kind: "repeat", label: "Water it", repeat: "weekly" },
   { ...interval, detail: "brief" },
   walkRange,
-  { ...walkRange, density: "compact" },
+  { ...walkRange },
   { kind: "voice", label: "Voice note" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Field");
@@ -165,7 +162,7 @@ function RangeField(input: Props<typeof props, typeof meta>) {
   const { min, max, lower, upper } = useLiveControls(meta, input) as z.output<typeof props>;
   const { fieldRange } = words;
   return <>
-      <KitText part="range_reading" role="number" numberScale="compact" density={input.density} tabular>{fieldRange.reading(numberLine(lower!, lang), numberLine(upper!, lang))}</KitText>
+      <KitText part="range_reading" role="number" numberScale="compact" tabular>{fieldRange.reading(numberLine(lower!, lang), numberLine(upper!, lang))}</KitText>
       <KitSlider min={min!} max={max!} range={[
           { part: "lower", value: lower!, label: fieldRange.lower(input.label) },
           { part: "upper", value: upper!, label: fieldRange.upper(input.label) },
@@ -176,7 +173,7 @@ function RangeField(input: Props<typeof props, typeof meta>) {
 // prettier-ignore
 export function Field(input: Props<typeof props, typeof meta>) {
   const { repeatLabels, composer } = useWords().words;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   return (
     <KitCard style="plain" part="root" padded inset="none" density={density}>
       <KitText role="label" part="label" density={density}>{input.label}</KitText>

@@ -3,8 +3,14 @@ import { defaultEnvironment, type Environment, type NativeHost } from "./environ
 function browserSnapshot() {
   if (typeof document === "undefined") return defaultEnvironment;
   const probe = document.createElement("div");
-  probe.style.cssText =
-    "position:fixed;visibility:hidden;padding-top:env(safe-area-inset-top);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left)";
+  probe.style.cssText = [
+    "position:fixed",
+    "visibility:hidden",
+    "padding-top:env(safe-area-inset-top)",
+    "padding-right:env(safe-area-inset-right)",
+    "padding-bottom:env(safe-area-inset-bottom)",
+    "padding-left:env(safe-area-inset-left)",
+  ].join(";");
   document.body.appendChild(probe);
   const css = getComputedStyle(probe);
   const insets = {

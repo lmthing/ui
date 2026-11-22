@@ -23,7 +23,6 @@ describe("PaymentStatus schema and boundaries", () => {
       ...base,
       method: "Bank transfer",
       detail: "full",
-      surface: "card",
       installments: [],
       outstanding: true,
     });

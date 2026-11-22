@@ -3,21 +3,18 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { workOrderCopy, workOrderLine, workOrderReading, type WorkLine } from "../copy";
 import { requestsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-WorkOrder.generated";
 // prettier-ignore
 const blocker = z.enum(["information", "access", "parts", "other"]), maxNote = 120;
 // Core first: Checklist/default cannot link a job to a request, time it or account for consumed parts.
 // prettier-ignore
 export const meta = {
   id: "WorkOrder", status: "ready", group: "input",
-  purpose: "Carry out a repair with required checks, time and parts used.", pick: "One assigned execution record tied to a service request, with required checks, time and consumed parts. Not simple jobs to tick (Checklist), attendance (TimeClock), or a booked visit (Appointment).",
-  writeHints: [
-    "Provide date/from/to together with from before to. A blocked order needs blockedBy and note. Summary is read-only and requires done.",
-    "Write previously recorded minutes and individual numeric quantities and unit costs only, not costs summed across parts or elapsed clock time.",
-    'Use null for unrequested axes. Only when asked to hide the assignee and planned window, write {"detail":"brief","density":null,"surface":null} unless those other axes are requested too. Always keep any supplied assignee and window in the data.',
-  ],
+  purpose: prompt.purpose, pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Work records and clock events live on the technician's device without changing stock or payments.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["who", "window"] } },
   parts: ["root", "number", "request", "title", "who", "window", "status", "clock", "clock_value", "clock_label", "blocked", "note", "finish", "finish_label", "total"],
   items: { key: "lines", parts: ["root", "text", "required", "check", "name", "qty", "cost"],
@@ -174,7 +171,7 @@ function WorkNotes({ p, w, copy, loading }: { p: View; w: Words; copy: Copy; loa
 // prettier-ignore
 export function WorkOrder(input: c.Props<typeof props, typeof meta>) {
   const { words: { workOrder: w }, lang } = kit.useWords(requestsWordsFor), state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density), surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density, surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail), live = kit.useLiveControls(meta, input) as View;
   const p = { ...live, detail, editable: (state === "filled" || state === "loading") && live.editable };
   const copy = workOrderCopy(p, state, lang), success = state === "success", loading = state === "loading", error = state === "error";

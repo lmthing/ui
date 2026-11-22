@@ -1,11 +1,11 @@
-import type { AxisValue, ThemeDensity } from "../../../catalog";
+import type { ThemeDensity, ContentAlign } from "../../../catalog";
 import { KitContent } from "../text";
 import { KitLayoutText, type LayoutLine } from "./KitLayoutText";
 
 type MetaProps = {
   title: LayoutLine;
   meta?: LayoutLine | readonly LayoutLine[];
-  align?: AxisValue<"align">;
+  align?: ContentAlign;
   density?: ThemeDensity | undefined;
 };
 

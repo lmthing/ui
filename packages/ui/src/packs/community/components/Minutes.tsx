@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 import { minutesHeader, minutesProjection, minutesReading, minutesRowCopy, type MinutesRow } from "../copy";
 import { communityWordsFor } from "../lang";
 import { dateTime, distinct, ref, seedDate, seedTitle } from "../seeds";
+import { prompt } from "../../../entry/prompt-Minutes.generated";
 
 // Core first: Checklist/default tracks jobs, not approved decisions linked to motions and owned follow-up.
 // prettier-ignore
@@ -11,20 +12,16 @@ export const meta = {
   id: "Minutes",
   status: "ready" as "ready" | "draft",
   group: "content",
-  purpose: "Record agreed decisions and follow-up actions with owners and sign-off.",
-  pick: "Official meeting minutes with agreed decisions, linked motions, owned follow-up and approval. Not a draft note (Composer), personal jobs (Checklist), long prose (Article) or a change audit (ActivityLog).",
-  writeHints: [
-    "Use unique snake_case decision and action ids. Each action decisionId must match a decision in this record. Only link closed, uncancelled votes; do not write their outcomes again.",
-    'Set both approval fields together or neither; approvedAt is an offset ISO datetime. Use style "actions" only for follow-up with decision links, not the official record.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "people",
   realPath:
     "A shared record links stored motions and members; chair approval locks decisions, but actions can still progress.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"] },
-  parts: ["root", "title", "date", "chair", "approval", "approve", "approve_label", "empty"],
+    parts: ["root", "title", "date", "chair", "approval", "approve", "approve_label", "empty"],
   items: {
     key: "entries",
     parts: ["root", "title", "text", "motion", "decision", "owner", "due", "done", "chevron"],
@@ -53,7 +50,7 @@ const followUp = z.strictObject({
 
 // prettier-ignore
 const schema = z.strictObject({
-  ...c.variantProps(meta.variants), title: c.text(40), date: c.isoDate, chairId: ref,
+  title: c.text(40), date: c.isoDate, chairId: ref,
   decisions: z.array(decision).min(1).max(8), actions: z.array(followUp).min(0).max(12),
   approvedAt: dateTime.optional(), approvedBy: ref.optional(),
   style: z.enum(["record", "actions"]).default("record"),
@@ -113,7 +110,7 @@ export const examples: z.input<typeof props>[] = [
     approvedBy: "ana",
   },
   {
-    title: "Trot committee minutes", date: "2026-10-08", chairId: "jo", style: "actions", surface: "outlined",
+    title: "Trot committee minutes", date: "2026-10-08", chairId: "jo", style: "actions",
     decisions: [{ id: "route", title: "Adopt the winter route", text: "Start at the park gate in winter." }],
     actions: [
       { id: "confirm_dates", decisionId: "route", text: "Confirm walk dates", ownerId: "lee", done: false },
@@ -134,7 +131,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type View = c.Props<typeof props, typeof meta>;
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 
 // prettier-ignore
 function Entry({ row, density, loading }: { row: MinutesRow; density: Density; loading: boolean }) {
@@ -161,8 +158,8 @@ function Entry({ row, density, loading }: { row: MinutesRow; density: Density; l
 // prettier-ignore
 export function Minutes(input: View) {
   const state = kit.useComponentState(), loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const { lang, words: { minutes: w } } = kit.useWords(communityWordsFor);
   const { entries, can_approve } = kit.useLiveControls(meta, input) as { entries: MinutesRow[]; can_approve: boolean };
   const header = minutesHeader(input, lang);

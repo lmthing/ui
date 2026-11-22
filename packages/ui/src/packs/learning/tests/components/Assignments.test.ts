@@ -32,7 +32,6 @@ describe("Assignments contract and limits", () => {
     const item = { ...graded, title: ` ${"a".repeat(28)} `, subject: "b".repeat(20), grade: "A".repeat(6) };
     expect(props.parse({ items: Array.from({ length: 6 }, () => item) })).toMatchObject({
       lead: "icon",
-      surface: "card",
       items: Array.from({ length: 6 }, () => ({ ...item, title: item.title.trim() })),
     });
   });

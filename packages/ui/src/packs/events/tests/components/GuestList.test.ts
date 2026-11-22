@@ -95,9 +95,7 @@ describe("GuestList states, parts and actions", () => {
     expect(parts.get(address("r1/diet"))?.text).toEqual([first.diet]);
     expect(parts.has(address("r2/status"))).toBe(true);
     expect(parts.has(address("counts"))).toBe(true);
-    expect([
-      ...addressedElements(render({ ...waiting, density: "compact", surface: "outlined" })).keys(),
-    ]).toEqual([...parts.keys()]);
+    expect([...addressedElements(render({ ...waiting })).keys()]).toEqual([...parts.keys()]);
     const brief: Input = { ...waiting, detail: "brief" };
     expect([...addressedElements(render(brief)).keys()]).toEqual(
       [...parts.keys()].filter((part) => !part.endsWith("/diet")),

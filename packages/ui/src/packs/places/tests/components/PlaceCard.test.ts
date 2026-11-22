@@ -155,7 +155,7 @@ describe("PlaceCard states and parts", () => {
 
   it("retains every filled part when moving the cover to the compact thumbnail", () => {
     const data = { place_details: [record] };
-    const compact = { ...nursery, density: "compact" };
+    const compact = { ...nursery };
     const parts = draw(compact, "filled", data);
     expect([...parts.keys()].sort()).toEqual([...draw(nursery, "filled", data).keys()].sort());
     expect(parts.get("home/p1/photo")?.attributes).toContain('aria-label="Riverside Nursery"');
