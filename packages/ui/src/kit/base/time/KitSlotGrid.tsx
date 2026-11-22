@@ -61,9 +61,13 @@ function SlotLine({
   const height = value ? space.sm : space.xs;
   return (
     <YStack minWidth={component.base.none} flexShrink={component.base.bodyFlex} alignItems="center">
-      <YStack opacity={loading ? component.base.none : undefined} aria-hidden={loading || undefined}>
-        {children}
-      </YStack>
+      {loading ? (
+        <YStack opacity={component.base.none} aria-hidden>
+          {children}
+        </YStack>
+      ) : (
+        children
+      )}
       {loading && (
         <YStack
           position="absolute"

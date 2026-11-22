@@ -257,7 +257,8 @@ export function KitAction(props: ActionProps) {
       <Frame
         {...(part === null ? {} : address)}
         kind={kind}
-        borderColor={bare ? "transparent" : kind === "secondary" && inactive ? "$line" : undefined}
+        borderColor={kind === "secondary" && inactive ? "$line" : undefined}
+        borderWidth={bare ? component.base.none : undefined}
         backgroundColor={inactive ? fill : copied ? "$goodSoft" : undefined}
         loading={loading}
         iconOnly={!label}

@@ -9,7 +9,8 @@ export type InputProps = {
   value?: string | undefined;
   kind?: "text" | "search" | "number" | "date" | "time";
   icon?: IconName | undefined;
-  part?: string;
+  /** Null reserves the loading drawing without an address. */
+  part?: string | null;
   label?: string;
   /** Fit paired columns without reducing the addressed control's touch target. */
   compact?: boolean;

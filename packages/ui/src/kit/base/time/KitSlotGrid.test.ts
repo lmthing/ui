@@ -48,7 +48,7 @@ describe("KitSlotGrid", () => {
           expect(html).toContain(slot.label);
           const time = elementAt(html, `home/c1/${slot.id}/time`);
           expect(styleAt(html, time)).toContain(`font-size:${typography.body.size}px`);
-          expect(time).toEqual(node.children[0]!.children[0]!.children[0]);
+          expect(time).toEqual(node.children[0]!.children[0]);
           expect(time.attributes).not.toContain('role="button"');
           expect(html.match(new RegExp(`data-testid="home/c1/${slot.id}/time"`, "g"))).toHaveLength(1);
         }
@@ -59,7 +59,7 @@ describe("KitSlotGrid", () => {
           `border-top-width:${component.base.strongBorder}px`,
         );
         expect(elementAt(html, "home/c1/r2/root").attributes).toContain('aria-label="09:30, 10:00"');
-        const end = elementAt(html, "home/c1/r2/root").children[1]!.children[0]!.children[0]!;
+        const end = elementAt(html, "home/c1/r2/root").children[1]!.children[0]!;
         expect(styleAt(html, end)).toContain(`font-size:${typography.caption.size}px`);
       }
     }
@@ -94,7 +94,7 @@ describe("KitSlotGrid states", () => {
     expect(elementAt(html, "home/c1/times").children).toHaveLength(3);
     expect(elementAt(html, "home/c1/r1/root").attributes).toContain('role="button"');
     expect(elementAt(html, "home/c1/r1/time")).toEqual(
-      elementAt(html, "home/c1/r1/root").children[0]!.children[0]!.children[0],
+      elementAt(html, "home/c1/r1/root").children[0]!.children[0],
     );
   });
 });

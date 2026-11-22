@@ -123,7 +123,7 @@ it("aligns an input with its caption and a neighbouring avatar row", async () =>
 it("keeps negative glyphs distinct from neutral actions and gives secondary actions a boundary", async () => {
   const tone = (el: Element) => getComputedStyle(el.querySelector("svg")!).color;
   const border = (el: Element) => getComputedStyle(el).borderTopColor;
-  expect(await base("delete").evaluate(border)).toBe("rgba(0, 0, 0, 0)");
+  expect(await base("delete").evaluate((el) => getComputedStyle(el).borderTopWidth)).toBe("0px");
   expect(await base("delete").evaluate(tone)).not.toBe(await base("close").evaluate(tone));
   expect(await base("keep").evaluate(border)).not.toBe("rgba(0, 0, 0, 0)");
   for (const part of ["delete", "close", "keep"]) {

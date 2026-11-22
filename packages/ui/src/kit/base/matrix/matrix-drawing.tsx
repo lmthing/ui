@@ -1,4 +1,4 @@
-import { Children, isValidElement, type ReactNode } from "react";
+import { Children, cloneElement, isValidElement, type ReactNode } from "react";
 import { XStack, YStack } from "tamagui";
 import { component, radius, size, space, type as typography } from "../../../catalog";
 import { useKitStyle } from "../../provider";
@@ -104,7 +104,8 @@ function loadingNode(node: ReactNode, shift: ReturnType<typeof useKitStyle>["rad
   const props = node.props;
   if (node.type === KitText) return <LoadingText {...props} />;
   if (node.type === KitRow) return <LoadingRow {...props} />;
-  if (node.type === KitInput) return <LoadingInput>{node}</LoadingInput>;
+  if (isValidElement<Parameters<typeof KitInput>[0]>(node) && node.type === KitInput)
+    return <LoadingInput>{cloneElement(node, { part: null })}</LoadingInput>;
   const geometry = loadingGeometry(props);
   if (geometry)
     return (

@@ -38,7 +38,7 @@ function TextControl({
   });
   return (
     <Input
-      {...((!loading ? address : {}) as Record<string, unknown>)}
+      {...((options.part !== null ? address : {}) as Record<string, unknown>)}
       flex={1}
       unstyled
       role={role as never}
@@ -75,7 +75,7 @@ export function KitInput(props: InputProps) {
   const ks = useKitStyle();
   const { lead, start, end, captionStart } = useInputLayout(props);
   const loading = useComponentState() === "loading";
-  const address = usePart(part, !loading);
+  const address = usePart(part ?? undefined, !loading && part !== null);
   const error = useControlValue<string | undefined>(`${address.testID}/$error`, undefined);
   const name = label ?? caption;
   return (
