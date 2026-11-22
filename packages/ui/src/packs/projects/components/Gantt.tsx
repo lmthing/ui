@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 import { ganttChart, ganttCopy, ganttReading } from "../copy";
 import { projectsWordsFor } from "../lang";
 import { acyclic, dayOf, seedFriday, seedLabels, seedMonday, seedSunday, unique } from "../seeds";
+import { prompt } from "../../../entry/prompt-Gantt.generated";
 
 const scales = ["week", "month"] as const;
 // Core first: Timeline/hours cannot show overlapping multi-day task bars and finish-to-start links.
@@ -11,12 +12,9 @@ export const meta = {
   id: "Gantt",
   status: "ready",
   group: "data",
-  purpose: "See overlapping task dates, milestone diamonds and finish-to-start dependencies in one project.",
-  pick: "Overlapping multi-day task bars and finish-to-start dependencies within one project. Not one day's hour blocks (Timeline), operational columns (Board), or shifts (Roster).",
-  writeHints: [
-    'Use an inclusive range of 7–90 days, with task start no later than end. Keep original task dates even outside the range; bars are clipped by the app. Use only supplied refs, and use after for finish-to-start links, never for rescheduling. Set style "month" only for week columns instead of day columns.',
-    'Leave density and detail null unless explicitly requested. Hiding the date and dependency notes means detail "brief", with density still null. Keep every task date and dependency in the data.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

@@ -13,18 +13,15 @@ import {
   bufferLine,
   dateOverrideLine,
 } from "../copy";
+import { prompt } from "../../../entry/prompt-Availability.generated";
 // Core first: Field/time edits one time, not a seven-day working week with switches and breaks.
 export const meta = {
   id: "Availability",
   status: "ready",
   group: "input",
-  purpose: "Set the working week during which people can book.",
-  pick: "Seven weekdays with working switches, start and end times and breaks. Not one time field (Field), one day's free starts (Slots), staff shifts (Roster), or venue opening hours (Hours).",
-  writeHints: [
-    "Write each weekday once, mon through sun. End follows start; breaks need both endpoints inside working hours.",
-    'Leave density and detail null unless requested. For working times without visible breaks, use detail "brief" and keep the breaks in the data.',
-    'Use bufferMinutes only for requested gaps between bookings. Use dateOverrides only for specific dates the provider is not taking bookings (kind "blocked" or "holiday").',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

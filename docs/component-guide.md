@@ -6,16 +6,19 @@ says what each component is; this guide says how its file is written.
 
 ## What one component is
 
-Exactly two files, plus recordings:
+A definition, a prompt, a test, and English words if the component owns any:
 
 | File                                | Holds                                                                  |
 | ----------------------------------- | ---------------------------------------------------------------------- |
 | `src/components/<Id>.tsx`           | `meta`, `props`, `fallback`, `examples`, `probes`, and the view `<Id>` |
+| `src/components/<Id>.prompt.md`     | Model-facing purpose, pick (including near misses), and Writer guidance |
 | `src/components/<Id>.test.ts`       | schema, fallback and probe-shape tests                                 |
+| `src/catalog/lang/en/<Id>.ts`       | English words owned by a core component                                |
 | `test/recordings/<Id>/<model>.json` | recorded model replies from `pnpm llm:check --component <Id>`          |
 
-Nothing else is registered by hand. Entries, the renderer map, conformance tests and the gallery pick
-the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs/catalog/` (plan 4.4).
+Entries, the renderer map, conformance tests and the gallery pick the definition up from the folder.
+Pack prompts sit beside pack definitions too. `<Id>` is the PascalCase id from the lists in
+`docs/catalog/` (plan 4.4).
 
 ## The file, in order
 
@@ -32,15 +35,19 @@ and custom runtime state names may need to be scaffolded by hand.
 
 Check the draft against the full entry before building the view: supply real examples,
 replace the probe prompts and check the read address, implement conditional actions and
-variant part changes, and move the label keys into the owning `lang/en.ts` dictionary.
+variant part changes, and put any English labels in the owning `lang/en/<Id>.ts` fragment.
 The generated view is only a placeholder, not evidence for the model or visual gates.
+From `packages/ui`, run `pnpm codemod:split` after scaffolding or after merging a branch that
+still edits inline `meta` text or the old `lang/en.ts` dictionary. The codemod keeps branch edits
+when it finds a matching prompt or word fragment. Run `pnpm build:entries` to regenerate imports.
 
-1. **Imports.** Only `zod`, `../catalog` and `../kit`. Never `tamagui`, `react-native` or lucide
+1. **Imports.** Use `zod`, the catalog and kit doors, and the generated prompt module. Never `tamagui`, `react-native` or lucide
    directly: those live behind kit bases.
 2. **`meta`**: a plain object, `as const satisfies Meta`.
-   - `purpose` ≤ 16 words, about the person's need, not the widget.
-   - `pick`: when to choose it, then "Not …" naming the nearest wrong component(s) by id.
-   - Optional `writeHints` explain cross-field rules that the compact schema signature omits, using valid examples.
+   - Use `prompt.purpose`, `prompt.pick`, and, when present, `prompt.writeHints` from the generated `entry/prompt-<Id>.generated` module. Edit `<Id>.prompt.md`, never the generated module. Keep migrated fields in place and leave any `replay-literals` comment alone; they preserve the existing replay identity.
+   - `## Purpose`: one line, ≤ 16 words, about the person's need, not the widget.
+   - `## Pick`: one line on when to choose it, then "Not …" naming the nearest wrong component(s) by id.
+   - Optional `## Writer`: one `- ` bullet per hint, with valid examples for cross-field rules the compact schema omits.
    - `region`, `weight`, `tier`, `realPath` (one sentence) from `docs/catalog/` and the component's current schema/metadata.
    - `items` (only if it repeats): `{ key, parts }`. `parts`, `states`, `actions` list exactly what
      the view draws and what a person can do. `partTiers` and `confirmParts` name declared parts;
@@ -231,12 +238,16 @@ them in `contentParts`; these recipes do not derive additional address names.
 ## Words and language
 
 `KitProvider` and `PhoneScreen` take the app's BCP-47 `lang`; the default is English.
-Keep built-in labels, units and grammar in `src/catalog/lang/en.ts`, not in views or copy helpers.
+Keep built-in labels, units and grammar in `src/catalog/lang/en/<Id>.ts` or in `en/pack.ts` for
+shared words, not in views or copy helpers. `lang/en.ts` assembles the fragments.
 Read them with `const { lang, words } = useWords()`; pass `lang` to number, date, time and copy
 helpers. Pass the same tag to data-only `meta.read`, `readPrompt`, and `fallback({ cast, lang })`.
 Leave authored text, action identifiers, and stored numeric and date values unchanged.
 
-A pack keeps its words in `src/packs/<pack>/lang/en.ts` and exposes its lookup through `lang/index.ts`.
+A pack keeps its words in `src/packs/<pack>/lang/en/<Id>.ts` and shared words in `lang/en/pack.ts`.
+Its `lang/en.ts` assembles the fragments and `lang/index.ts` exposes the lookup.
+Existing locale keys stay in their original lookup to preserve registered translations; for example,
+Loyalty's copy has a named fragment in the core dictionary.
 Use `useWords(<pack>WordsFor)` for pack words and `<pack>WordsFor(lang)` outside React.
 Use `Intl.PluralRules` via `pluralForm` for counted nouns; thing-type inflection belongs in the
 language file. To add a language, write a complete dictionary that `satisfies Words` (or

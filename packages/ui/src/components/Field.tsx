@@ -9,6 +9,7 @@ import {
   variantProps, type FallbackInput, type Meta, type Probe, type Props,
 } from "../catalog";
 import { z } from "zod";
+import { prompt } from "../entry/prompt-Field.generated";
 
 const endpoint = z.int().min(-1000000).max(1000000);
 // Use a local event instead of Field's legacy single-value set handler.
@@ -24,14 +25,9 @@ export const meta = {
   id: "Field",
   status: "ready",
   group: "input",
-  purpose: "Enter or change one labelled piece of information on a form.",
-  pick: "Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).",
-  writeHints: [
-    'For a recurring schedule use kind: "repeat" and repeat: "weekly" (or another repeat enum). Omit value; never use kind: "text" with repeat.',
-    "Date values use YYYY-MM-DD, time values HH:MM and photo values lib:<tag> or local:<n>. Fields are one line.",
-    'For a two-ended numeric field use kind "range" with integers min, max, lower and upper, in that order (min <= lower <= upper <= max, min < max). For a microphone input use kind "voice"; omit value for either kind.',
-    'To hide an authored helper hint, keep its text in hint and set detail to "brief". Leave density null unless the person asks for tighter spacing or smaller type.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 1,
   tier: "phone",

@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 import { candidateCopy, candidateReading } from "../copy";
 import { hiringWordsFor } from "../lang";
 import { activeStages, outcomes, seedApplicationId, seedDate, seedGoto, seedJobId, seedRows } from "../seeds";
+import { prompt } from "../../../entry/prompt-Candidate.generated";
 
 const findings = ["unreviewed", "needs_evidence", "meets", "gap"] as const;
 const { findings: findingLabels } = hiringWordsFor().candidate;
@@ -12,8 +13,8 @@ export const meta = {
   id: "Candidate",
   status: "ready",
   group: "content",
-  purpose: "Review evidence for one job application and record a human hiring decision.",
-  pick: "One application with criterion-by-criterion findings and evidence, interview and offer links, and a human decision. Not identity alone (Profile), generic facts (KeyValue), a client summary (ClientCard), or a rating (Scale).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 2,
   tier: "phone",
@@ -55,10 +56,7 @@ export const meta = {
   },
   read: (input, state, lang): string[] =>
     state === "filled" ? candidateReading(input as z.output<typeof props>, lang) : [],
-  writeHints: [
-    "Findings are explicitly recorded by a human. Default to unreviewed when no finding is supplied; never infer qualifications, assign a score or rank candidates.",
-    'For a findings-only view, keep authored evidence in the data and set detail to "brief". Write density null unless the person separately asks for tighter spacing.',
-  ],
+  writeHints: prompt.writeHints,
 } as const satisfies c.Meta;
 
 // prettier-ignore

@@ -1,55 +1,18 @@
+import { words as packWords } from "./en/pack";
+import { words as PlaceCardWords } from "./en/PlaceCard";
+import { words as HoursWords } from "./en/Hours";
+import { words as MapListWords } from "./en/MapList";
+import { words as AddressWords } from "./en/Address";
+import { words as DeparturesWords } from "./en/Departures";
+import { words as DeliveryTrackerWords } from "./en/DeliveryTracker";
 export const en = {
-  closed: "Closed",
-  rating: (value: string, max: string) => `Rating ${value} out of ${max}`,
-  ratingSkeleton: (value: string) => `${value}\u2004★\u2004★\u2004★\u2004★\u2004★`,
-  priceLevel: (value: string, max: string) => `Price level ${value} out of ${max}`,
-  placeHours: (opens: string, closes: string) => `${opens}–${closes}`,
-  openNow: "Open now",
-  closesAt: (time: string) => `Closes ${time}`,
-  hoursOpen: (time: string) => `Open now · closes ${time}`,
-  hoursClosed: "Closed now",
-  hoursToday: (day: string) => `${day} · Today`,
-  hoursSpecial: "Special hours",
-  hoursSpecialToday: "Special hours today",
-  hoursDash: "–",
-  hoursDayLine: (day: string, hours: string) => `${day}: ${hours}`,
-  hoursNoticeLine: (date: string, text: string, formattedDate?: string) =>
-    `${date}: ${JSON.stringify(text)}${formattedDate ? ` (${formattedDate})` : ""}`,
-  distanceAway: (value: string) => `${value} km away`,
-  mapListDistance: (value: string) => `${value} km`,
-  mapListView: "View places",
-  mapListMap: "With map",
-  mapListList: "Just the list",
-  mapListPin: (name: string) => `Select ${name} on the map`,
-  mapListReading: (name: string, distance: string) => `${JSON.stringify(name)}: ${distance}`,
-  addressDirections: "Directions",
-  addressMapPreview: "Schematic location preview",
-  addressCopy: "Copy address",
-  addressCall: (phone: string) => `Call ${phone}`,
-  departureDue: "Due",
-  departureMinutes: (minutes: string) => `${minutes} min`,
-  departureDelay: (minutes: string) => `${minutes} min late`,
-  departureLate: (hasTime: boolean) => (hasTime ? " · Late" : "Late"),
-  departuresEmpty: "No departures to show",
-  departureLabel: (line: string, to: string, time: string, delay?: string) =>
-    `Line ${line} to ${to}, ${time}${delay ? `, ${delay}` : ""}`,
-  departureReading: (line: string, to: string, time: string, delay?: string) =>
-    `${JSON.stringify(line)} to ${JSON.stringify(to)}: ${time}${delay ? `, ${delay}` : ""}`,
-  deliveryEta: "Estimated arrival",
-  deliveryEtaMinutes: (minutes: string) => `${minutes} min`,
-  deliveryEtaNow: "Arriving now",
-  deliveryEtaUnknown: "Estimate unavailable",
-  deliveryCourier: "Courier",
-  deliveryCourierMarker: "Courier location",
-  deliveryDestinationMarker: "Delivery destination",
-  deliveryCall: "Call courier",
-  deliveryStep: {
-    preparing: "Preparing",
-    picked_up: "Picked up",
-    on_the_way: "On the way",
-    nearby: "Nearby",
-    delivered: "Delivered",
-  },
+  ...packWords,
+  ...PlaceCardWords,
+  ...HoursWords,
+  ...MapListWords,
+  ...AddressWords,
+  ...DeparturesWords,
+  ...DeliveryTrackerWords,
 };
 
 export type PlacesWords = typeof en;

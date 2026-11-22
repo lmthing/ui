@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 import { scopeCanRemove, scopeCopy, scopeLocalDate, scopeReading } from "../copy";
 import { projectsWordsFor } from "../lang";
 import { seedFriday, seedLabels, unique } from "../seeds";
+import { prompt } from "../../../entry/prompt-Scope.generated";
 
 // Core first: KeyValue/default cannot record acceptance per deliverable or distinguish baseline exclusions.
 // prettier-ignore
@@ -11,12 +12,9 @@ export const meta = {
   id: "Scope",
   status: "ready",
   group: "input",
-  purpose: "Agree what one project delivers, how to accept it, and what is excluded.",
-  pick: "A project's versioned deliverables with testable acceptance conditions, accepted marks and exclusions. Not generic facts (KeyValue), terms signed once (Agreement), or an approval queue (Approval).",
-  writeHints: [
-    'Each deliverable needs a distinct supplied ref and a testable acceptance condition. Include acceptedAt only for a recorded acceptance; leave acceptance counts and overdue status to code. Use style "baseline" to show exclusions in a separate section.',
-    'To hide only dates, set detail "brief" and retain due and acceptedAt in the data. Use null for density unless tighter spacing was requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath: "Versioned scope and acceptance dates live on the device; client acceptance requires a shared host.",
   variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },

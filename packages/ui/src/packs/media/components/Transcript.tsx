@@ -1,6 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import { transcriptReading } from "../copy";
+import { prompt } from "../../../entry/prompt-Transcript.generated";
 
 // Core first: Article/article can show static text but cannot follow a playhead, seek per line, or clip timed lines.
 const player = { component: "Player", part: "scrubber" } as const;
@@ -9,12 +10,9 @@ export const meta = {
   id: "Transcript",
   status: "draft",
   group: "content",
-  purpose: "Follow lyrics or spoken lines in time with a recording and save individual lines.",
-  pick: "Continuous timed lyrics or verbatim spoken lines beside the recording, with line-level seek and clipping. Not a static reading (Article), named chapter jumps (ChapterList), or saved quotes alone (Highlights).",
-  writeHints: [
-    'Use only beside one Player on the same screen. Supply the actual lines in strictly increasing whole seconds, not chapter names. Use style "spoken" for dialogue or narration; lyrics is the default.',
-    "Use a zero-based current index only for an initial highlight. Follow scrolls to the active line by default.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

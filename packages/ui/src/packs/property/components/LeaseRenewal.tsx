@@ -5,6 +5,7 @@ import * as kit from "../../../kit";
 import { renewalCopy, renewalExpiry, renewalExpired, renewalGates, renewalNoteMax, renewalReading, renewalResponse, renewalStatuses } from "../copy";
 import { propertyWordsFor } from "../lang";
 import { ref, seedDate, seedLabels } from "../seeds";
+import { prompt } from "../../../entry/prompt-LeaseRenewal.generated";
 
 const recordRef = ref.meta({ kind: "id" });
 
@@ -12,13 +13,9 @@ const recordRef = ref.meta({ kind: "id" });
 // prettier-ignore
 export const meta = {
   id: "LeaseRenewal", status: "ready", group: "input", tier: "people",
-  purpose: "Compare rent and term choices for an occupied unit and respond to the renewal offer.",
-  pick: "An occupied unit’s lease renewal proposal: compare current and offered rent, choose a renewal term and accept, counter or decline by a deadline. Not a standalone choice (Choice), a policy expiry reminder (Renewals), a monthly rent ledger (RentRoll), or existing lease terms (Lease).",
-  writeHints: [
-    "Use snake_case renewal and unit refs, a real YYYY-MM-DD deadline, and unformatted positive rents. Term months are whole numbers, with 0 for month-to-month. An option without rent uses proposedRent; do not write a delta.",
-    'Set selectedOption to the zero-based position of the chosen option when specified. Use style "summary" for a read-only outcome after a response.',
-    'Hide per-option term explanations with "detail":"brief","density":null,"surface":null. This request is not about card finish or spacing; leave them null. Leave detail null for the default explanations.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2,
   realPath: "A shared app delivers the proposal and response between tenant and landlord; a counter does not amend the lease.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },

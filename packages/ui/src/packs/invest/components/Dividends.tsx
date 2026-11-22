@@ -5,18 +5,15 @@ import { dividendCopy, dividendReading, type DividendRow } from "../copy";
 import { investWordsFor } from "../lang";
 import { dividendsLedger, portfolioKind, portfolioRecord, type Portfolio } from "../ledger";
 import { compareInstants, dateTime, distinct, recordId, seedAssets, seedPortfolio, seedTime } from "../seeds";
+import { prompt } from "../../../entry/prompt-Dividends.generated";
 
 // Core first: Timeline/history shows past dates, not per-unit distributions, eligibility or cash receipt.
 // prettier-ignore
 export const meta = {
   id: "Dividends", status: "ready", group: "data",
-  purpose: "See investment distributions and record which payments actually arrived.",
-  pick: "Investment distributions tied to entitled units, per-unit amounts, withholding and actual receipts. Not bills to pay (Bills), deposits (InvestmentActivity), or an ordinary dated event history (Timeline).",
-  writeHints: [
-    "Use unique snake_case distribution ids, ISO datetimes with offsets for entitledAt/receivedAt, and YYYY-MM-DD for payOn. Omit receivedAt for unpaid entries. Never write entitled units, computed gross/net cash or status.",
-    'Use style "received" for received entries only, newest first; otherwise leave style null.',
-    'Set detail to "brief" for just the instrument, status, pay date and net cash. Density is independent: write "density":null unless the person explicitly asks for different spacing. Do not write "comfortable" as a default.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath:
     "Device records freeze ledger entitlement at the entitlement time; actual receipt credits cash once per distribution, and void reverses that receipt without deleting the distribution.",

@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { offerClock, offerRemaining, promoExpiry } from "../copy";
 import { commerceWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Promo.generated";
 
 // Core first: Banner/notice announces information, not an expiring shopping offer with a copyable discount code.
 export const meta = {
   id: "Promo",
   status: "ready",
   group: "content",
-  purpose: "Notice an offer, copy its discount code or open the offer.",
-  pick: "A shop discount or offer with optional copyable code, expiry and product photo. Not an urgent warning or service notice (Banner) or a headline fact (Hero).",
-  writeHints: [
-    'To keep a saved photo but hide the thumbnail, write the reference in photo and set media to "none". In that case write {"density":null,"surface":null,"emphasis":null} unless those axes were separately requested.',
-    'Use endsAt for the local closing time (HH:MM). For time remaining set style "countdown" and supply ends, the local closing date. If only a time is known, set endsAt and leave style null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

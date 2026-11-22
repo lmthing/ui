@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { productDetailCopy, productDetailReading, productStoreLines } from "../copy";
 import { commerceWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Product.generated";
 
 const minQty = 1;
 const maxQty = 99;
@@ -13,13 +14,9 @@ export const meta = {
   id: "Product",
   status: "ready",
   group: "content",
-  purpose: "Decide whether to buy one product and add the desired quantity.",
-  pick: "One product for sale with a description, stock, saving or quantity and add controls. Not a price alone (Amount), several products (ProductGrid), or a timed service (ServiceMenu).",
-  writeHints: [
-    "Write the current price and the optional old price as numbers, with no currency. Write stock only when known. Leave qty null unless asked to start with a specific quantity.",
-    'When only asked to hide the description, keep its text and write "detail":"brief","density":null,"surface":null. Do not write "card" for the default surface.',
-    'Store name, aisle and storeStock describe the physical store; stock is for online quantity. Use cleanTags for short shopping claims. For a barcode scan use scan: {"goto":"scan_barcode"} with the requested Camera scan screen id.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

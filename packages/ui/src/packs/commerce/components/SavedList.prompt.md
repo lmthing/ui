@@ -1,0 +1,12 @@
+## Purpose
+
+Track saved shop products, compare prices, and move items to the basket.
+
+## Pick
+
+A shop wishlist for saved buy-later products with saved versus current prices, drop alerts, a move-to-cart action, or shared gift claims. Not already in the basket (Cart), ordinary saved links (List), owned stock (Things), or an event registry (Registry).
+
+## Writer
+
+- Use a distinct short product id per item, including items without a link. Use numeric prices without a currency sign. Only write stock when known and never write computed badges.
+- Set shared true only for a shared gift list. For two columns set arrange "grid"; use null for unrequested density and surface, never explicit defaults.

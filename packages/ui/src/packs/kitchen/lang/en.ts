@@ -1,100 +1,23 @@
-import type { LDMLPluralRule } from "../../../catalog";
-
-const meals = { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner", snack: "Snack" };
-const places = { cupboard: "Cupboard", fridge: "Fridge", freezer: "Freezer" };
+import { words as packWords } from "./en/pack";
+import { words as NutritionFactsWords } from "./en/NutritionFacts";
+import { words as CookStepsWords } from "./en/CookSteps";
+import { words as KitchenTimersWords } from "./en/KitchenTimers";
+import { words as FoodLogWords } from "./en/FoodLog";
+import { words as GroceryListWords } from "./en/GroceryList";
+import { words as IngredientsWords } from "./en/Ingredients";
+import { words as MealPlanWords } from "./en/MealPlan";
+import { words as PantryWords } from "./en/Pantry";
 
 export const en = {
-  kcalUnit: "kcal",
-  kcalLine: (value: string, unit: string) => `${value} ${unit}`,
-  nutritionFacts: {
-    calories: "Calories",
-    protein: "Protein",
-    carbs: "Carbs",
-    fat: "Fat",
-    macros: "Macro grams and share by weight",
-    nutrients: "Other nutrients",
-    allergens: "Contains",
-    servings: "Servings",
-    servingBasis: (label: string) => `Servings · ${label}`,
-    less: "Decrease servings",
-    more: "Increase servings",
-    log: "Log portion",
-    success: "Added to food diary",
-    amount: (value: string, unit: string) => `${value} ${unit}`,
-    unitSuffix: (unit: string) => ` ${unit}`,
-    line: (label: string, value: string) => `${label}: ${value}`,
-    share: (value: string, percent: string) => `${value} (${percent})`,
-    list: (labels: readonly string[]) => labels.join(", "),
-  },
-  cookStepUses: (uses: readonly string[]) => uses.join(" · "),
-  cookStepsLabels: {
-    timer: "Cooking timer",
-    next: "Next step",
-    back: "Back",
-    done: "Recipe complete",
-    finished: "All steps finished.",
-  },
-  kitchenTimerLabels: {
-    start: "Start",
-    pause: "Pause",
-    finished: "Done",
-    more: (minutes: string) => `+${minutes} min`,
-    reading: (label: string, duration: string) => `${label}: ${duration}`,
-  },
-  foodLogLabels: {
-    meals,
-    target: "Daily target",
-    add: (meal: string): string => `Add food to ${meal.toLowerCase()}`,
-  },
-  groceryLabels: {
-    newItem: "Type a new grocery item",
-    allGot: "Everything is in the bag",
-  },
-  ingredientsLabels: {
-    servings: "Servings",
-    less: "One fewer serving",
-    more: "One more serving",
-    system: "Units",
-    metric: "Metric",
-    us: "US",
-    shop: "Add missing to groceries",
-  },
-  ingredientServings: (count: string, label: string) => `${count} ${label}`,
-  ingredientSwap: (swap: string) => `Swap: ${swap}`,
-  ingredientUnits: {
-    g: "g",
-    kg: "kg",
-    ml: "ml",
-    l: "l",
-    tsp: "tsp",
-    tbsp: "tbsp",
-    cup: "cup",
-    piece: "piece",
-    pinch: "pinch",
-    oz: "oz",
-    lb: "lb",
-    none: "",
-  },
-  // Match the existing English quantity convention: fractions under one use “piece”.
-  ingredientPieces: (value: number, _form: LDMLPluralRule): string =>
-    value === 0 || value > 1 ? "pieces" : "piece",
-  ingredientFractions: ["", "¼", "½", "¾"],
-  mealPlanLabels: { ...meals, add: "Add" },
-  mealPlanEmpty: "No meals yet.",
-  mealPlanWeek: (date: string) => `Week of ${date}`,
-  mealPlanAdd: (meal: string) => `Add ${meal.toLowerCase()}`,
-  pantryLabels: {
-    ...places,
-    used: "Used up",
-    expired: "Expired",
-    soon: "Use soon",
-    dated: "Use by",
-    undated: "Use-by date",
-    missing: "Not set",
-    low: "Low stock",
-  },
-  pantryOpened: (date: string) => `Opened ${date}`,
-  pantryPlace: (place: string) => place.toLowerCase(),
+  ...packWords,
+  ...NutritionFactsWords,
+  ...CookStepsWords,
+  ...KitchenTimersWords,
+  ...FoodLogWords,
+  ...GroceryListWords,
+  ...IngredientsWords,
+  ...MealPlanWords,
+  ...PantryWords,
 };
 
 export type KitchenWords = typeof en;

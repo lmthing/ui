@@ -13,16 +13,14 @@ import {
   type Props,
 } from "../catalog";
 import { KitCard, KitContent, KitPhoto, KitSkeleton, KitText, useComponentState } from "../kit";
+import { prompt } from "../entry/prompt-Photo.generated";
 
 export const meta = {
   id: "Photo",
   group: "content",
-  purpose: "Show one picture, with an optional caption.",
-  pick: "One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).",
-  writeHints: [
-    'For one picture without an expressly requested crop or edge treatment, write aspect:null and bleed:null, not the default "wide" and "inset". Use aspect "square", "wide" or "tall" only for an explicit crop and bleed "edge" only for a requested edge-to-edge image.',
-    'When asked to keep a supplied caption but not show it, set only detail "brief" and fill caption. If there is no caption to keep, leave both null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

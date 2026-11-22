@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath, URL } from "node:url";
 import ts from "typescript";
+import { parsePrompt, promptLiteralStyle, replayLiteral } from "../build/entries";
 
 const root = fileURLToPath(new URL("../../src/", import.meta.url));
 const paths = new Map<string, string | undefined>();
@@ -43,11 +44,31 @@ function withoutStatus(node: ts.Node): ts.Node[] {
     : [node];
 }
 
+function withResolvedPrompt(source: string, ast: ts.SourceFile, meta: ts.Node, markdown: string) {
+  const text = parsePrompt("component.prompt.md", markdown);
+  const style = promptLiteralStyle(markdown, text);
+  for (const node of withoutStatus(meta).reverse()) {
+    if (!ts.isPropertyAssignment(node) || !ts.isPropertyAccessExpression(node.initializer)) continue;
+    const field = ts.isStringLiteral(node.name) || ts.isIdentifier(node.name) ? node.name.text : undefined;
+    if (field !== "purpose" && field !== "pick" && field !== "writeHints") continue;
+    const { expression, name } = node.initializer;
+    if (!ts.isIdentifier(expression) || expression.text !== "prompt" || name.text !== field) continue;
+    const literal = replayLiteral(field, text, style);
+    if (literal === undefined) throw new Error(`component.prompt.md: missing ${field}`);
+    source =
+      source.slice(0, node.initializer.getStart(ast)) + literal + source.slice(node.initializer.getEnd());
+  }
+  return source;
+}
+
 /** Include local validation and metadata code, even when it cannot be represented as JSON Schema. */
-export function definitionSource(source: string): string {
+export function definitionSource(source: string, markdown?: string): string {
   const ast = ts.createSourceFile("component.tsx", source, ts.ScriptTarget.Latest, true);
   const nodes = declarations(ast);
   if (!exports.every((name) => nodes.has(name))) return "";
+  // Preserve the source representation existing evidence was keyed on, including inline literal syntax.
+  if (markdown !== undefined)
+    return definitionSource(withResolvedPrompt(source, ast, nodes.get("meta")!, markdown));
   const seen = new Map<string, string>();
   const printer = ts.createPrinter({ removeComments: true });
   function visit(name: string) {
@@ -73,7 +94,12 @@ export function definitionSource(source: string): string {
 export function currentDefinitionSource(id: string): string | undefined {
   if (!definitions.has(id)) {
     const path = componentPath(id);
-    if (path) definitions.set(id, definitionSource(readFileSync(join(root, path), "utf8")));
+    if (path) {
+      const source = readFileSync(join(root, path), "utf8");
+      const prompt = join(root, path.replace(/\.tsx$/, ".prompt.md"));
+      const markdown = source.includes("/entry/prompt-") ? readFileSync(prompt, "utf8") : undefined;
+      definitions.set(id, definitionSource(source, markdown));
+    }
   }
   return definitions.get(id);
 }

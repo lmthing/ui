@@ -20,6 +20,7 @@ import {
 } from "../../../kit";
 import { packingProgress, packingQuantity, packingRead, packingRows } from "../copy";
 import { tripsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-PackingList.generated";
 
 const maxItems = 10;
 const packedParts = Array.from({ length: maxItems }, (_, i) => `packed_${i + 1}`);
@@ -32,12 +33,9 @@ export const meta = {
   id: "PackingList",
   status: "ready",
   group: "input",
-  purpose: "Pack by category or person, track quantities and see what remains.",
-  pick: "Items to put in luggage, grouped by category or traveller, with optional quantities and an overall packed share. Not everyday tasks (Checklist) or shopping for groceries (GroceryList).",
-  writeHints: [
-    "Use 1–6 groups, each with 1–10 items. Write each packed flag; never write the packed share.",
-    'When only asked to hide quantities, write "density":null,"surface":null,"detail":"brief". Keep supplied qty values. Never write "comfortable", "card", or "full" for an unrequested axis; write null instead.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

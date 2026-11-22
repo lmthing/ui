@@ -17,18 +17,16 @@ import {
 import * as kit from "../../../kit";
 import { travelDocLines, travelDocsReading, travelDocsTripEnd } from "../copy";
 import { tripsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-TravelDocs.generated";
 
 // Core first: KeyValue/default cannot track multiple travellers' masked document numbers and expiry warnings.
 export const meta = {
   id: "TravelDocs",
   status: "ready",
   group: "data",
-  purpose: "Keep travel documents together and see whether they expire near the trip.",
-  pick: "A travel document wallet with owners, masked numbers and expiry warnings. Not facts about one thing (KeyValue) or warranties for belongings (Warranties).",
-  writeHints: [
-    "Never copy or invent real document numbers. Use an empty number when a person has not entered it on the device. Warnings are computed from dates.",
-    'Write null for every unrequested axis, not its default. When asked to hide masked number lines, write detail "brief" and leave density and surface null unless explicitly requested. Keep owners, dates and warnings visible in brief.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
