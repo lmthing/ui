@@ -59,6 +59,7 @@ export function projectCannedReplies(input: Readonly<Values>): Values {
 export function readCannedReplies(raw: unknown, state: StateName, lang?: string) {
   if (state !== "filled") return [];
   const input = raw as {
+    categories: string[];
     templates: (Template & { visible: boolean; previewOpen: boolean })[];
     activeCategory?: string;
     detail: "full" | "brief";
@@ -74,7 +75,8 @@ export function readCannedReplies(raw: unknown, state: StateName, lang?: string)
   );
   return [
     words.title,
-    ...(input.activeCategory ? [input.activeCategory] : []),
+    ...(input.categories.length ? [words.all, ...input.categories] : []),
+    ...(rows.length ? [input.detail === "brief" ? words.preview : words.insert] : []),
     ...(rows.length ? lines : [words.noMatches]),
   ];
 }

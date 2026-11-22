@@ -1,22 +1,16 @@
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { TamaguiProvider } from "tamagui";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   components,
   createRegistry,
   packReady,
-  partTierAt,
   placeholderTitle,
   planAct,
   readScreen,
-  stampItemIds,
-  themeName,
   type StateName,
 } from "@lmthing/ui/catalog";
-import { KitProvider, PartScope } from "@lmthing/ui/kit";
-import { addressedElements, config } from "../../../../../test/render";
-import { CannedReplies } from "../../components";
+import { createScreenController } from "@lmthing/ui/kit";
+import { addressedElements, renderInstance } from "../../../../../test/render";
+import { RequestThread } from "../../components";
 import { allReplyCategories } from "../../copy";
 
 const def = components.CannedReplies;
@@ -31,31 +25,13 @@ const page = (input = example!, state: StateName = "filled") => ({
   ],
 });
 const defs = { CannedReplies: def, RequestThread: thread };
-const typeableThread = {
-  ...thread,
-  meta: { ...thread.meta, partTiers: { ...thread.meta.partTiers, field: "phone" as const } },
-};
 const select = (value: string) => ({ address: "replies/category", action: "select", value });
 const preview = (item: string) => ({ address: `replies/${item}`, action: "press" });
 const insert = (item: string) => ({ address: `replies/${item}/insert`, action: "press" });
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 
 function draw(input = example!, state: StateName = "filled") {
-  const props = stampItemIds(def.meta, def.props.parse(input)) as Parameters<
-    typeof CannedReplies.CannedReplies
-  >[0];
-  const content = createElement(CannedReplies.CannedReplies, props);
-  const scope = createElement(PartScope, {
-    screen: "home",
-    component: "replies",
-    rev: 1,
-    state,
-    children: content,
-  });
-  const kit = createElement(KitProvider, { theme, interactive: false, children: scope });
-  return renderToStaticMarkup(
-    createElement(TamaguiProvider, { config, defaultTheme: themeName(theme) }, kit),
-  );
+  return renderInstance("CannedReplies", input, state, theme, { component: "replies" });
 }
 
 describe("CannedReplies contract", () => {
@@ -80,6 +56,7 @@ describe("CannedReplies contract", () => {
     { templates: [{ ...first, id: "r2" }] },
     { detail: "compact" },
     { preview: "r1" },
+    { color: "red" },
   ])("rejects invalid or calculated input %j", (change) => {
     expect(def.props.safeParse({ ...example, ...change }).success).toBe(false);
   });
@@ -93,6 +70,19 @@ describe("CannedReplies contract", () => {
       placeholderTitle(0),
     );
   });
+  it("keeps the core near miss and probes the real sibling insertion", () => {
+    expect(def.probes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: "choose", expect: "Composer" }),
+        expect.objectContaining({ kind: "write", variant: { axis: "detail", value: "brief" } }),
+        expect.objectContaining({
+          kind: "read",
+          expect: { address: "c1/r1/insert", action: "press" },
+          siblings: [expect.objectContaining({ c: "RequestThread" })],
+        }),
+      ]),
+    );
+  });
 });
 
 describe("CannedReplies read and act", () => {
@@ -102,8 +92,9 @@ describe("CannedReplies read and act", () => {
     if (!result.ok) throw new Error(result.code);
     const filtered = readScreen(scene, defs, result.values);
     expect(filtered).not.toContain(first!.title);
-    expect(filtered).toContain(`r2 "${second!.title}" [replies/r2 press]`);
+    expect(filtered).toContain(`r2 "${second!.title}" [replies/r2/insert press] [replies/r2 press]`);
     expect(planAct(scene, defs, result.values, [preview("r1")]).ok).toBe(false);
+    expect(planAct(scene, defs, result.values, [insert("r1")]).ok).toBe(false);
     const reset = planAct(scene, defs, result.values, [select(allReplyCategories())]);
     if (!reset.ok) throw new Error(reset.code);
     expect(readScreen(scene, defs, reset.values)).toContain(first!.title);
@@ -126,7 +117,10 @@ describe("CannedReplies read and act", () => {
     expect(planAct(scene, defs, {}, [preview("r1")]).ok).toBe(false);
     expect(planAct(scene, defs, {}, [insert("r1")]).ok).toBe(false);
   });
-  it("does not bypass a people-tier draft field and honors RequestThread's declared tier", () => {
+});
+
+describe("CannedReplies draft insertion", () => {
+  it("rejects non-phone, missing, ambiguous and non-replyable targets", () => {
     const peopleThread = {
       ...thread,
       meta: { ...thread.meta, partTiers: { ...thread.meta.partTiers, field: "people" as const } },
@@ -134,26 +128,41 @@ describe("CannedReplies read and act", () => {
     const people = { ...defs, RequestThread: peopleThread };
     expect(readScreen(page(), people)).not.toContain("replies/r1/insert");
     expect(planAct(page(), people, {}, [insert("r1")]).ok).toBe(false);
-    expect(planAct(page(), defs, {}, [insert("r1")]).ok).toBe(
-      partTierAt(thread.meta, {}, "field") === "phone",
-    );
-  });
-  it("writes the full draft without sending when the host exposes a phone-tier draft field", () => {
-    const future = { ...defs, RequestThread: typeableThread };
     const scene = page();
-    const result = planAct(scene, future, {}, [insert("r1")]);
-    if (!result.ok) throw new Error(result.code);
-    expect(result.values["home/thread/$type/field"]).toBe(first!.body);
-    expect(result.changed).toEqual([`thread/field type = ${JSON.stringify(first!.body)}`]);
-    expect(result.links).toEqual([]);
-    expect(scene.components[1]).toMatchObject({ draft: "Old draft", entries: [] });
-    expect(planAct({ ...scene, components: [scene.components[0]!] }, future, {}, [insert("r1")]).ok).toBe(
-      false,
-    );
+    const [source, target] = scene.components;
+    for (const components of [
+      [source!],
+      [source!, target!, { ...target!, id: "another_thread" }],
+      [source!, { ...target!, state: "loading" as const }],
+    ]) {
+      expect(readScreen({ ...scene, components }, defs)).not.toContain("replies/r1/insert");
+      expect(planAct({ ...scene, components }, defs, {}, [insert("r1")]).ok).toBe(false);
+    }
+    const denied = RequestThread.bindRequestThread(() => ({ role: "staff", canReply: false }));
+    expect(planAct(scene, { ...defs, RequestThread: denied }, {}, [insert("r1")]).ok).toBe(false);
+  });
+  it("replaces the real editable draft without sending, navigating, or editing the thread", () => {
+    const scene = page();
+    const onSend = vi.fn();
+    const onLink = vi.fn();
+    const controller = createScreenController({ screen: scene, defs, onSend, onLink });
+    try {
+      expect(controller.read()).toContain("replies/r1/insert press");
+      expect(controller.act(insert("r1")).ok).toBe(true);
+      expect(controller.store.get("home/thread/$type/field")).toBe(first!.body);
+      expect(controller.act(insert("r2")).ok).toBe(true);
+      expect(controller.store.get("home/thread/$type/field")).toBe(second!.body);
+      expect(controller.read()).toContain("thread/send send !needs-people");
+      expect(scene.components[1]).toMatchObject({ draft: "Old draft", entries: [] });
+      expect(onSend).not.toHaveBeenCalled();
+      expect(onLink).not.toHaveBeenCalled();
+    } finally {
+      controller.dispose();
+    }
   });
 });
 
-describe("CannedReplies draft view", () => {
+describe("CannedReplies view states and parts", () => {
   it("stamps the category, preview and insert parts and hides snippets in compact mode", () => {
     const full = addressedElements(draw());
     for (const part of ["category", "r1/root", "r1/title", "r1/snippet", "r1/insert"])
@@ -161,7 +170,9 @@ describe("CannedReplies draft view", () => {
     const compact = addressedElements(draw(brief));
     expect(compact.has("home/replies/r1/title")).toBe(true);
     expect(compact.has("home/replies/r1/snippet")).toBe(false);
-    expect(compact.has("home/replies/r3/root")).toBe(false);
+    const filtered = draw({ ...example!, activeCategory: "Update" });
+    expect(addressedElements(filtered).has("home/replies/r1/root")).toBe(false);
+    expect(addressedElements(filtered).has("home/replies/r2/root")).toBe(true);
   });
 
   it("shows intentional empty and loading treatments", () => {

@@ -6,10 +6,11 @@ import { PhoneScreen } from "@lmthing/ui/kit";
 import { config } from "../../../../../test/render";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
-const { RequestQueue, RequestThread, WorkOrder } = components;
+const { CannedReplies, RequestQueue, RequestThread, WorkOrder } = components;
 const mine = RequestQueue.examples[2]!.rows;
 const unassigned = RequestQueue.examples[0]!.rows[1]!;
 const completed = RequestQueue.examples[1]!.rows[0]!;
+const replies = CannedReplies.examples[0]!;
 const deviceData = {
   requestQueue: [{ now: Date.parse("2026-11-22T12:00:00Z"), mine: [mine[0]!.number, completed.number] }],
 };
@@ -17,6 +18,7 @@ const screen: ScreenLike = {
   id: "desk",
   components: [
     { c: "RequestQueue", id: "queue", style: "mine", rows: [...mine, unassigned, completed] },
+    { c: "CannedReplies", id: "replies", ...replies, categories: [...replies.categories, "Scheduling"] },
     { c: "RequestThread", id: "thread", ...RequestThread.examples[4]! },
     { c: "WorkOrder", id: "work", ...WorkOrder.examples[2]! },
   ],

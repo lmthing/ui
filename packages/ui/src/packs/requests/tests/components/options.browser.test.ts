@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, expect, it } from "vitest";
 import type { Browser, Page } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
+import { components } from "@lmthing/ui/catalog";
 import { launchChrome } from "../../../../../scripts";
 import { galleryConfig } from "../../../../../scripts/look";
 
@@ -58,4 +59,28 @@ it("uses each opt-in control through the mounted phone screen", async () => {
   await sign.click();
   await finish.click();
   expect(await page.locator("#events").textContent()).toBe("kennel_gate\nsaved_replies\nfinish");
+});
+
+it("filters, previews and inserts a full reply through the mounted phone screen", async () => {
+  await page.goto(new URL(route, server.resolvedUrls!.local[0]).href);
+  const [photo, update] = components.CannedReplies.examples[0]!.templates;
+  const draft = page.getByRole("textbox", { name: "Write a reply" });
+  const preview = page.getByTestId("desk/replies/r1/root");
+  const body = page.getByTestId("desk/replies/r1/preview");
+  await draft.fill("An earlier draft");
+  await preview.click();
+  await body.waitFor({ state: "visible", timeout: 3000 });
+  expect(await preview.getAttribute("aria-expanded")).toBe("true");
+  expect(await body.innerText()).toBe(photo!.body);
+  expect(await draft.inputValue()).toBe("An earlier draft");
+  await preview.click();
+  await body.waitFor({ state: "detached", timeout: 3000 });
+  await page.getByRole("radio", { name: "Scheduling" }).click();
+  expect(await page.getByTestId("desk/replies/empty").innerText()).toBe("No saved replies in this category");
+  await page.getByRole("radio", { name: "Update" }).click();
+  expect(await preview.count()).toBe(0);
+  await page.getByTestId("desk/replies/r2/insert").click();
+  expect(await draft.inputValue()).toBe(update!.body);
+  expect(await page.getByRole("button", { name: "Send reply" }).isEnabled()).toBe(true);
+  expect(await page.locator("#events").textContent()).toBe("");
 });

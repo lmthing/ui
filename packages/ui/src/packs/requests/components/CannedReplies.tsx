@@ -14,7 +14,7 @@ import { requestsWordsFor, type RequestsWords } from "../lang";
 // Core first: Composer[reply] edits one draft but cannot browse, preview or insert a saved reply template.
 // prettier-ignore
 export const meta = {
-  id: "CannedReplies", status: "draft", group: "input", tier: "phone", region: "body", weight: 3, dense: true,
+  id: "CannedReplies", status: "ready", group: "input", tier: "phone", region: "body", weight: 3, dense: true,
   purpose: "Find a saved reply and put it in a support draft without sending it.",
   pick: "Filter and preview reusable support or repair reply templates, then insert one into the active draft without sending. Not typing a blank reply (Composer), browsing generic rows (List), or showing the request stream (RequestThread).",
   realPath: "Reply templates are saved on the operator's phone or shared library, and RequestThread sends only on a separate action.",
@@ -76,7 +76,6 @@ export const examples = [
   { categories: ["Pickup", "Follow-up"], activeCategory: "Pickup", detail: "brief", templates: [
     { title: "Confirm key handover", category: "Pickup", body: "I can collect the spare key at 8:30 before the park walk. Please let me know if that works." },
     { title: "Meet at the side gate", category: "Pickup", body: "I’ll meet you at the side gate for pickup. Please clip the lead on before opening the latch." },
-    { title: "Check on the new lead", category: "Follow-up", body: "Is the new lead working well on your walks? I can bring a shorter one if it’s easier to handle." },
   ] },
 ] satisfies z.input<typeof props>[];
 
@@ -89,6 +88,10 @@ export const probes = [
   { ...write("Show saved reply templates as title-only insertion chips, not snippet rows: Diagnosis, Ask for a leaf photo, body Could you send a photo of the spotted leaf? Leave surface and density unchanged."), variant: { axis: "detail", value: "brief" } },
   read("Switch the saved reply templates to the Update category", { address: "c1/category", action: "select" }),
   read("Preview the full text of Ask for a leaf photo, without inserting it", { address: "c1/r1", action: "press" }),
+  {
+    ...read("Insert the saved reply titled Ask for a leaf photo into the draft. Do not preview or send it.", { address: "c1/r1/insert", action: "press" }),
+    siblings: [{ id: "thread", c: "RequestThread", number: "LG-41", entries: [], draft: "Could you send some details?" }],
+  },
 ] satisfies c.Probe[];
 
 type ReplyProps = c.Props<typeof props, typeof meta>;
@@ -111,16 +114,22 @@ function ReplyRow({ row, brief, density, words, lang, loading }: {
 }) {
   const insert = <kit.KitAction part="insert" label={brief ? row.title : words.insert}
     kind={brief ? "secondary" : "quiet"} a11y={words.insertReply(row.title)}
-    {...(brief ? { contentParts: { label: "title" } } : {})} />;
-  const title = <kit.KitLayoutText density={density} line={{ text: row.title, part: "title", strong: true }} />;
+    contentParts={brief ? { label: "title" } : {}} />;
+  const preview = <kit.KitRow part={loading ? null : "root"} role={loading ? "text" : "button"} expanded={row.previewOpen}
+    inset="none" inline leading={brief ? undefined : <kit.KitIcon decorative loading={loading}
+      name={row.previewOpen ? "minus" : "plus"} tone="muted" />}
+    label={words.previewReply(row.title)} density={density}>
+    <kit.KitLayoutText density={density} line={brief
+      ? { text: words.preview, role: "meta", tone: "muted" }
+      : { text: row.title, part: "title", strong: true }} />
+  </kit.KitRow>;
   const text = row.previewOpen ? row.body : brief ? undefined : cannedReplySnippet(row.body, lang);
-  return <kit.KitRow item={row.id} part={null} inset="none" inline label={row.title} trailing={!brief ? insert : undefined} density={density}>
+  return <kit.KitRow item={row.id} part={null} inset="none" label={row.title} density={density}>
     <kit.KitContent density={density}>
-      {brief && insert}
-      <kit.KitRow part={loading ? null : "root"} role={loading ? "text" : "button"} expanded={row.previewOpen}
-        inset="none" label={words.previewReply(row.title)} density={density}>
-        {brief ? <kit.KitLayoutText density={density} line={{ text: words.preview, role: "caption", tone: "muted" }} /> : title}
-      </kit.KitRow>
+      <kit.KitGrid fitLast density={density}>
+        {brief ? insert : preview}
+        {brief ? preview : insert}
+      </kit.KitGrid>
       <kit.KitLayoutText density={density} line={{ text, part: row.previewOpen ? "preview" : "snippet", role: "meta", tone: "muted" }} />
     </kit.KitContent>
   </kit.KitRow>;
@@ -136,13 +145,13 @@ export function CannedReplies(input: ReplyProps) {
   const { templates, activeCategory } = kit.useLiveControls(meta, input) as { templates: Reply[]; activeCategory?: string };
   const rows = templates.filter(({ visible }) => visible);
   const content = <>
-    <kit.KitHeader title={{ text: words.title, part: "title" }} {...{ density }} />
     <ReplyCategories categories={input.categories} value={activeCategory} {...{ words, loading }} />
     {rows.length ? <kit.KitRowGroup {...{ density }}>
       {rows.map((row) => <ReplyRow key={row.id} {...{ row, density, words, lang, loading }} brief={detail === "brief"} />)}
     </kit.KitRowGroup> : <kit.KitLayoutText density={density} line={{ text: words.noMatches, part: "empty", role: "meta", tone: "muted" }} />}
   </>;
-  return <kit.KitCard padded {...{ density, surface }}>
+  return <kit.KitCard part="root" padded {...{ density, surface }}>
+    <kit.KitHeader title={{ text: words.title, part: "title" }} {...{ density }} />
     <kit.KitState loading={content} message={words.empty} part="empty" icon="message" {...{ density }}>
       {content}
     </kit.KitState>

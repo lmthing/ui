@@ -84,7 +84,7 @@ describe("thread file attachments", () => {
   });
 });
 
-it("can insert a saved reply into the opted-in staff draft without sending", () => {
+it("can insert into a replyable draft independently of the staff-only shortcut", () => {
   const { templates, categories } = components.CannedReplies.examples[0]!;
   const replies = { c: "CannedReplies", id: "replies", templates, categories };
   const opened = (input: object) => {
@@ -101,7 +101,7 @@ it("can insert a saved reply into the opted-in staff draft without sending", () 
   });
   if (!staged.ok) return;
   expect(readScreen(target, components, staged.values)).toContain("send !needs-people");
-  expect(planAct(opened({ ...input, cannedGoto: undefined }), components, {}, [insert]).ok).toBe(false);
+  expect(planAct(opened({ ...input, cannedGoto: undefined }), components, {}, [insert]).ok).toBe(true);
   const requester = RequestThread.bindRequestThread(() => ({ role: "requester", canReply: true }));
-  expect(planAct(target, { ...components, RequestThread: requester }, {}, [insert]).ok).toBe(false);
+  expect(planAct(target, { ...components, RequestThread: requester }, {}, [insert]).ok).toBe(true);
 });
