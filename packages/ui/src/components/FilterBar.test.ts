@@ -62,7 +62,7 @@ describe("FilterBar contract and boundaries", () => {
       value: ` ${options[7]!} `,
     }));
     const parsed = props.parse({ hint: "x".repeat(40), sort: "x".repeat(20), filters });
-    expect(parsed).toMatchObject({ detail: "full", surface: "plain" });
+    expect(parsed).toMatchObject({ detail: "full" });
     expect(parsed.filters[3]).toEqual({ label: "x".repeat(14), options, value: options[7] });
     expect(stampItemIds(meta, parsed).filters[3]).toMatchObject({ id: "r4" });
     expectTypeOf<Props<typeof props, typeof meta>["filters"][number]["id"]>().toEqualTypeOf<string>();

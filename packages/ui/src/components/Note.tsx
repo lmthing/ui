@@ -6,11 +6,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
 import { z } from "zod";
 import { KitIcon, KitBlock, KitText } from "../kit";
@@ -27,7 +27,6 @@ export const meta = {
   tier: "phone",
   realPath: "A short text field on one thing in the on-device database.",
   variants: {
-    density: ["comfortable", "compact"],
     emphasis: ["normal", "quiet", "hero"],
     media: ["icon", "none"],
     tone: ["neutral", "good", "warn", "bad"],
@@ -66,7 +65,7 @@ export const examples = [
   },
   { text: "Keep your fern in indirect light.", icon: "sun", emphasis: "quiet" },
   { text: "Fern is thriving.", tone: "good", icon: "leaf" },
-  { text: "Fern is thriving.", density: "compact", icon: "leaf" },
+  { text: "Fern is thriving.", icon: "leaf" },
   { text: "Fern is thriving.", icon: "leaf" },
   { text: "Clover's booking was missed.", tone: "bad" },
   { text: "Pip likes shaded routes.", icon: "sun", media: "none" },
@@ -86,15 +85,15 @@ export const probes = [
   },
 ] satisfies Probe[];
 
-export function Note({ text, tone, icon, density, emphasis }: Props<typeof props, typeof meta>) {
+export function Note({ text, tone, icon, emphasis }: Props<typeof props, typeof meta>) {
   const textTone = tone === "neutral" ? (emphasis === "quiet" ? "muted" : "text") : tone;
   return (
     <KitBlock
       label={text}
-      {...{ density, emphasis }}
+      {...{ emphasis }}
       leading={icon && <KitIcon name={icon} tone={tone === "neutral" ? "muted" : tone} part="icon" />}
     >
-      <KitText role="body" tone={textTone} part="text" {...{ density, emphasis }}>
+      <KitText role="body" tone={textTone} part="text" {...{ emphasis }}>
         {text}
       </KitText>
     </KitBlock>

@@ -8,7 +8,7 @@ import {
   KitScroll,
   KitText,
   useComponentState,
-  useVariant,
+  useKit,
 } from "../../../kit";
 import {
   balancedLine,
@@ -21,11 +21,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import { customersWordsFor } from "../lang";
 import { z } from "zod";
@@ -46,8 +46,6 @@ export const meta = {
   realPath:
     "A signed copy kept with the client record on the business's phone; signing remotely needs a shared app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["date"] } },
@@ -111,8 +109,8 @@ export const examples = [
   },
   variantExample,
   unsignedExample,
-  { ...unsignedExample, density: "compact" },
-  { ...variantExample, surface: "outlined" },
+  { ...unsignedExample },
+  { ...variantExample },
   { ...variantExample, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Agreement");
@@ -131,8 +129,9 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Agreement(input: Props<typeof props, typeof meta>) {
-  const { title, terms, signed, name, date, surface } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const { title, terms, signed, name, date } = input;
+  const surface = "card";
+  const density = useKit().density;
   const { lang, words } = useWords(customersWordsFor);
   const { agreementLabels: copy } = words;
   const state = useComponentState();

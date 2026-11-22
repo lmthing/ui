@@ -18,7 +18,6 @@ describe("Agreement schema and boundaries", () => {
       terms: "Terms",
       signed: false,
       detail: "full",
-      surface: "card",
     });
     expect(props.parse({ ...seed, name: "  Ben Carter  " }).name).toBe("Ben Carter");
   });

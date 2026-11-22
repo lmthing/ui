@@ -18,8 +18,6 @@ export const meta = {
   tier: "phone",
   realPath: "Clock events stay on the device; sharing them with a manager needs a shared app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["since"] } },
@@ -81,8 +79,8 @@ export const probes = [
 export function TimeClock(input: c.Props<typeof props, typeof meta>) {
   const state = kit.useComponentState();
   const { lang, words } = kit.useWords(teamWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const copy = timeClockDisplay({ ...input, detail }, state, kit.useDeviceData(), lang, words.timeClock);
   const group = density === "compact" ? "content" : "response";

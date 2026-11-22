@@ -52,9 +52,10 @@ describe("paperwork examples and probes", () => {
       ["write", id],
     ] as const)
       expect(def.probes).toContainEqual(expect.objectContaining({ kind, expect: expected }));
-    expect(def.probes).toContainEqual(
-      expect.objectContaining({ kind: "write", expect: id, variant: expect.any(Object) }),
-    );
+    if (def.meta.variants)
+      expect(def.probes).toContainEqual(
+        expect.objectContaining({ kind: "write", expect: id, variant: expect.any(Object) }),
+      );
     for (const probe of def.probes.filter((p): p is Extract<Probe, { kind: "read" }> => p.kind === "read")) {
       const reading = readComponent(def, def.examples[probe.screen], id[0]!.toLowerCase() + "1").join("\n");
       expect(reading).toContain(`[${probe.expect.address} ${probe.expect.action}`);

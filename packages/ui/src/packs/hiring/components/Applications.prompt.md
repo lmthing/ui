@@ -9,4 +9,3 @@ A job seeker's own applications to multiple employers with dated next actions, f
 ## Writer
 
 - Leave applied absent for saved roles. Supply next when nextAt is present. Do not write calculated due notices, day counts, urgency or totals.
-- For a request to show application cards, write surface "card" and density null. Only set density to "compact" when the user separately asks for tighter spacing; never write "comfortable" as a default.

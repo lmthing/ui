@@ -1,3 +1,5 @@
+<!-- replay-literals: d d mcdd -->
+
 ## Purpose
 
 Prioritise and route a report, or link it to an existing request.
@@ -9,4 +11,4 @@ Triage one incoming service report: compare reported urgency with impact, set ef
 ## Writer
 
 - at and duplicateAt are zero-based indices. A chosen duplicate needs a reason and must not have the report's own number.
-- For the decision only, set detail "brief" and density null. Keep the report number and title in the data. Only set density when spacing is requested.
+- For the decision only, set detail "brief". Keep the report number and title in the data.

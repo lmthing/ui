@@ -18,9 +18,7 @@ export const meta = {
   tier: "phone",
   realPath: "Results are stored on the device.",
   variants: {
-    surface: ["card", "outlined"],
     emphasis: ["hero", "normal"],
-    density: ["comfortable", "compact"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["seconds", "points"] } },
@@ -67,7 +65,7 @@ export const examples = [
   // Ledge's fern practice finished without mistakes.
   { right: 6, of: 6, seconds: 58, points: 60, mistakes: [] },
   // Trot's walking-kit practice passed without mistakes.
-  { surface: "outlined", right: 5, of: 5, seconds: 48, points: 50, mistakes: [] },
+  { right: 5, of: 5, seconds: 48, points: 50, mistakes: [] },
   {
     right: 9,
     of: 10,
@@ -140,8 +138,8 @@ function Corrections({ mistakes, label, density }: {
 export function Result(input: ResultProps) {
   const state = kit.useComponentState();
   const { lang, words: { result } } = kit.useWords(learningWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const emphasis = kit.useVariant("emphasis", meta.variants.emphasis, input.emphasis);
   const values = resultFigures(input, lang);
   const hasMistakes = input.mistakes.length > 0;

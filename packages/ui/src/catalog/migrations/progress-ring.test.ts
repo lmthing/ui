@@ -34,7 +34,7 @@ it.each([
   expect(input).toEqual({ ...legacy, style, ...axes });
 });
 
-it("keeps the component id, explicit state, finish, and hidden caption without adding a row action", () => {
+it("keeps the component id, explicit state, emphasis and hidden caption without adding a row action", () => {
   const saved = {
     ...legacy,
     c: "r-i-n-g",
@@ -51,7 +51,6 @@ it("keeps the component id, explicit state, finish, and hidden caption without a
     c: "Progress",
     style: "ring",
     bars: [{ label: goal.label, value: 0, of: 0.5 }],
-    density: "compact",
     emphasis: "hero",
     detail: "brief",
     sub: "Two to go",

@@ -19,7 +19,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "The secretary can keep records on one device, while member access requires a shared app.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["joined", "ended", "photo", "other_roles"] } },
   parts: ["root", "empty"],
   items: {
@@ -146,7 +146,7 @@ type Row = Omit<View["members"][number], "joined"> & {
   joined?: string | undefined;
   can_end?: boolean;
 };
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 
 // prettier-ignore
 function MemberRow({ row, density, loading }: { row: Row; density: Density; loading: boolean }) {
@@ -174,7 +174,7 @@ function MemberRow({ row, density, loading }: { row: Row; density: Density; load
 // prettier-ignore
 export function Members(input: View) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const { members } = kit.useLiveControls(meta, input) as { members: Row[] };
   const { words: { members: w } } = kit.useWords(communityWordsFor);
   const rows = <kit.KitRowGroup density={density} leadingWidth={members.some((row) => row.photo || row.joined) ? "avatar" : undefined}>

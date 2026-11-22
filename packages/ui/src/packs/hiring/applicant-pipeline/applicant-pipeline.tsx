@@ -5,8 +5,8 @@ import {
   KitLayoutText,
   KitState,
   useComponentState,
-  useVariant,
   useWords,
+  useKit,
 } from "../../../kit";
 import { StageBoard, type StageCard } from "../../../kit/renderers";
 import { ApplicantPipeline } from "../components";
@@ -51,11 +51,11 @@ export function ApplicantLanes({
   applicants,
   title,
   style,
-  density: requestedDensity,
+
   moves,
 }: Input & { moves?: Moves }) {
   const { lang, words } = useWords(hiringWordsFor);
-  const density = useVariant("density", ApplicantPipeline.meta.variants.density, requestedDensity);
+  const density = useKit().density;
   const state = useComponentState();
   const loading = state === "loading";
   const active = applicants.filter(({ outcome }) => outcome === "active");

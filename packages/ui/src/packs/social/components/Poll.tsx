@@ -18,8 +18,6 @@ export const meta = {
   tier: "people",
   realPath: "Votes counted in a shared app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     emphasis: ["normal", "quiet"],
     detail: ["full", "brief"],
   },
@@ -134,8 +132,8 @@ export function Poll(input: PollProps) {
   const state = kit.useComponentState();
   const live = kit.useLiveControls(meta, input) as PollProps;
   const { lang, words: { poll } } = kit.useWords(socialWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const emphasis = kit.useVariant("emphasis", meta.variants.emphasis, input.emphasis);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const closes = pollDate({ ...input, detail }, lang);

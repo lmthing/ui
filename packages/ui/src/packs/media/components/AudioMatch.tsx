@@ -27,7 +27,7 @@ export const meta = {
   tier: "ok",
   realPath:
     "The host requests microphone permission, captures a sample, and asks a recognition service to identify it.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], media: ["cover", "none"] },
+  variants: { media: ["cover", "none"] },
   variantParts: { "media.none": { hides: ["artwork", "photo"] } },
   parts: ["root", "listen", "open", "artwork", "title", "artist", "album", "status", "recent"],
   items: { key: "history", parts: ["root", "title", "artist", "photo", "matched_at"] },
@@ -172,7 +172,7 @@ export function AudioMatch(input: AudioMatchProps) {
   const live = kit.useLiveControls(meta, input) as AudioMatchProps & MatchReading & { phase: RecognitionPhase; level: number };
   const context = kit.usePartContext(), { state } = context;
   const operation = kit.useHostOperations().find(({ name }) => name === "audioMatch.start" || name === "audioMatch.stop");
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const { words: { audioMatch: words } } = kit.useWords(mediaWordsFor);
   const phase = operation?.status === "pending" ? (operation.name === "audioMatch.start" ? "requesting" : "matching")
     : state === "loading" && live.phase === "idle" ? "matching"
@@ -182,7 +182,7 @@ export function AudioMatch(input: AudioMatchProps) {
   const groupActions = input.style === "result";
   const feedback = phase === "error" ? "error" : empty ? "empty" : track ? "success" : undefined;
   const message = feedback === "error" ? words.error : feedback === "success" ? words.success : words.empty;
-  return <kit.KitCard part="root" padded surface={input.surface} density={density}>
+  return <kit.KitCard part="root" padded density={density}>
     {feedback && <kit.PartScope {...context} state={feedback}>
       <kit.KitContent align={feedback === "error" ? "center" : "start"}>
         <kit.KitState retain message={message} part="status" density={density} icon="music" />

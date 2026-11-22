@@ -21,7 +21,7 @@ export const meta = {
   successActions: ["walkin.press", "promote.press", "checkin.toggle", "noshow.press"],
   live: { checks: { checkin: "checked" }, derive: copy.rosterLive },
   readSuccess: true, read: copy.rosterReading, confirmParts: ["noshow"],
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["at", "paid"] } },
   actions: {
     parts: { walkin: ["press"], promote: ["press"] },
@@ -100,9 +100,9 @@ export const examples = [
     ],
     waitlistCount: 1,
   },
-  { ...ledge, density: "compact" },
+  { ...ledge },
   { ...ledge, detail: "brief" },
-  { ...ledge, surface: "outlined" },
+  { ...ledge },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = c.probesFor("ClassRoster");
 // prettier-ignore
@@ -153,8 +153,9 @@ function RosterRow({ row, finish, words }: { row: RosterProps["attendees"][numbe
 
 // prettier-ignore
 export function ClassRoster(input: RosterProps) {
-  const { title, at, capacity, waitlistCount, surface, detail } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const { title, at, capacity, waitlistCount, detail  } = input;
+  const surface = "card";
+  const density = kit.useKit().density;
   const state = kit.useComponentState(), loading = state === "loading";
   const { words: { roster: words }, lang } = kit.useWords(bookingWordsFor);
   const { attendees: rows } = kit.useLiveControls(meta, input) as RosterProps;

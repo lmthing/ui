@@ -8,4 +8,4 @@ A short label just above a group within a screen. Not the screen's title at the 
 
 ## Writer
 
-- A request for a See all link means show it: write link and keep detail null. Only a request to hide the link uses detail "brief", keeping the link label and target in link. Keep density null unless explicitly asked to change spacing.
+- A request for a See all link means show it: write link and keep detail null. Only a request to hide the link uses detail "brief", keeping the link label and target in link.

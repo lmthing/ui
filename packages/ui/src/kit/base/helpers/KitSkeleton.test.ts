@@ -115,8 +115,8 @@ describe("Checklist loading row geometry", () => {
         expect(styleAt(loading, skeleton)).toContain("padding-left:0px");
         expect(styleAt(loading, skeleton)).toContain("padding-top:0px");
         expect(skeleton.children).toHaveLength(input.items.length);
-        const { items, density = "comfortable" } = components.Checklist.props.parse(input);
-        const steps = variants.density[density].text;
+        const { items } = components.Checklist.props.parse(input);
+        const steps = variants.density.comfortable.text;
         items.forEach(({ meta }, index) => {
           const row = skeleton.children[index]!;
           const content = row.children[1]!;

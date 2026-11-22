@@ -8,4 +8,4 @@ Claim one of several unassigned work shifts with a date, time range, role and op
 
 ## Writer
 
-- Keep pay as an optional numeric amount without a currency. Use detail "brief" only when asked to hide pay, and retain any supplied pay in the data. Leave density and surface null unless requested.
+- Keep pay as an optional numeric amount without a currency. Use detail "brief" only when asked to hide pay, and retain any supplied pay in the data.

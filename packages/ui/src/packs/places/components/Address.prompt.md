@@ -1,3 +1,5 @@
+<!-- replay-literals: d d ind -->
+
 ## Purpose
 
 Find a venue, copy its address, or call it.
@@ -8,4 +10,4 @@ One place’s postal address with a map tile and copy or directions; call if a p
 
 ## Writer
 
-- Hiding an access note only changes detail: use "detail":"brief","density":null. Keep the supplied note text verbatim. Use density null unless tighter spacing was requested separately.
+- To hide only the access note, set detail to brief and keep the supplied note text verbatim.

@@ -63,7 +63,7 @@ describe("Devices states and parts", () => {
 it.skipIf(!Object.hasOwn(renderers, "Devices"))(
   "can drop room headings without changing device and scene addresses",
   () => {
-    expect(props.parse(tiles)).toMatchObject({ group: "sections", surface: "card" });
+    expect(props.parse(tiles)).toMatchObject({ group: "sections" });
     expect(props.safeParse({ ...tiles, group: "dates" }).success).toBe(false);
     const flat = { ...tiles, group: "none" };
     const html = renderInstance("Devices", flat, "filled", theme, { component: "d1" });

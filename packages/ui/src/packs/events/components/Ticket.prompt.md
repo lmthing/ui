@@ -8,4 +8,4 @@ One issued event admission pass with holder, ticket type, venue and scannable ti
 
 ## Writer
 
-- For an ordinary admission pass use {"detail":null,"align":null,"density":null}. Only set detail to "brief" if the person explicitly says to omit the scan instruction. Never output "start" or "comfortable" just to set a default.
+- For an ordinary admission pass use {"detail":null}. Only set detail to "brief" if the person explicitly says to omit the scan instruction.

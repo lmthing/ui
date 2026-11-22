@@ -93,7 +93,7 @@ describe("Article fallback and contract", () => {
 describe("Article states and parts", () => {
   it.each([
     [{}, ["title", "by", "date", "reading_time", "photo"]],
-    [{ density: "compact" }, ["title", "by", "date", "reading_time", "photo"]],
+    [{}, ["title", "by", "date", "reading_time", "photo"]],
     [{ by: undefined, date: undefined, photo: undefined }, ["title", "reading_time"]],
     [{ detail: "brief" }, []],
   ] as const)("draws the expected header and stable body addresses for %j", (options, header) => {
@@ -127,12 +127,10 @@ it.each(["comfortable", "compact"] as const)("scales prose on fixed papers at %s
   const papers = ["light", "sepia", "dark"] as const;
   const swatches = ["white", "beige", "black"] as const;
   const fonts = sizes.map((fontScale, index) => {
-    const html = renderInstance(
-      "Article",
-      { ...sample, paper: papers[index], fontScale, density },
-      "filled",
-      theme,
-    );
+    const html = renderInstance("Article", { ...sample, paper: papers[index], fontScale }, "filled", {
+      ...theme,
+      density,
+    });
     const parts = addressedElements(html);
     expect(parts.get(`${prefix}/root`)?.attributes).toContain(`kit-swatch-${swatches[index]}`);
     expect(parts.get(`${prefix}/r1/root`)?.attributes).toContain('role="link"');

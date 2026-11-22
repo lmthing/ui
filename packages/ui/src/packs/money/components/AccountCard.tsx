@@ -16,7 +16,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Balances typed in on the device; a bank link would need an outside service.",
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "outlined"], arrange: ["strip", "rows"] },
+  variants: { detail: ["full", "brief"], arrange: ["strip", "rows"] },
   variantParts: { "detail.brief": { hides: ["last4"] } },
   parts: ["root"],
   items: { key: "accounts", parts: ["root", "name", "kind", "last4", "balance", "swatch", "credit_limit", "rewards_value"] },
@@ -72,8 +72,8 @@ export const examples = [
     ],
   },
   { ...ledgeAccounts, detail: "brief" },
-  { ...ledgeAccounts, density: "compact" },
-  { ...ledgeAccounts, surface: "outlined" },
+  { ...ledgeAccounts },
+  { ...ledgeAccounts },
   { ...ledgeAccounts, arrange: "rows" },
   {
     arrange: "rows",
@@ -113,7 +113,7 @@ function AccountTile({ account, copy, loading, numberScale, finish, stacked }: {
   loading: boolean;
   stacked: boolean;
   numberScale: "compact" | "display";
-  finish: { density: NonNullable<CardProps["density"]>; surface: CardProps["surface"] };
+  finish: { density: c.ThemeDensity; surface: c.SurfaceFinish };
 }) {
   const scope = kit.usePartContext();
   const { name, id, swatch, goto } = account;
@@ -162,8 +162,9 @@ function AccountTile({ account, copy, loading, numberScale, finish, stacked }: {
   );
 }
 // prettier-ignore
-export function AccountCard({ accounts, density: requested, surface, arrange }: CardProps) {
-  const density = kit.useVariant("density", meta.variants.density, requested);
+export function AccountCard({ accounts, arrange  }: CardProps) {
+  const surface = "card" as const;
+  const density = kit.useKit().density;
   const finish = { density, surface };
   const loading = kit.useComponentState() === "loading";
   const { lang, words } = kit.useWords(moneyWordsFor);

@@ -19,7 +19,7 @@ export const meta = {
   tier: "service",
   realPath:
     "A connected smart-home automation service saves trigger rules and runs device commands through the host adapter.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["summary"] } },
   parts: ["root", "heading", "empty", "feedback"],
   items: {
@@ -154,8 +154,8 @@ function RoutineRow({ row, style, detail, density }: Pick<View, "style" | "detai
 export function Routines(input: View) {
   const { words: { routines: w } } = kit.useWords(homeWordsFor);
   const state = kit.useComponentState();
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = "card";
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const title = w[input.style];
   return <kit.KitCard part="root" {...{ density, surface }}>

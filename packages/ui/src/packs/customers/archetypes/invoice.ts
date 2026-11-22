@@ -11,7 +11,7 @@ export const invoice = {
     edit: {
       writeHints: [
         numberHint,
-        'End with {"id":"b1","c":"Button","label":"Save","kind":null,"surface":null,"media":null,"icon":null,"goto":null,"confirm":null}. Saving is not destructive; the default button is primary. Invoice already has its own send action.',
+        'End with {"id":"b1","c":"Button","label":"Save","kind":null,"media":null,"icon":null,"goto":null,"confirm":null}. Saving is not destructive; the default button is primary. Invoice already has its own send action.',
         "Return compact, complete JSON. Write null for unused optional fields and close every object and array.",
       ],
       recipe: [

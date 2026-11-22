@@ -1,14 +1,14 @@
-import { useWords, useVariant, KitAction, KitCard, KitContent, KitRow, KitText } from "../../../kit";
+import { useWords, KitAction, KitCard, KitContent, KitRow, KitText, useKit } from "../../../kit";
 import { bookingWordsFor } from "../lang";
 import { z } from "zod";
 import {
   numberLine,
   probesFor,
-  variantProps,
   type CastLike,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import { queueAhead, queueCount, queueExact } from "../copy";
 import { prompt } from "../../../entry/prompt-Waitlist.generated";
@@ -24,7 +24,7 @@ export const meta = {
   weight: 2,
   tier: "people",
   realPath: "A queue in a shared app; notifications tell the next person when a place opens.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["ahead"] } },
   writeHints: prompt.writeHints,
   parts: ["root", "title", "position", "label", "ahead", "join", "leave"],
@@ -70,7 +70,7 @@ export const examples = [
   { ahead: 0, joined: true },
   { ahead: 0, joined: false },
   { position: 3, ahead: 2, joined: true, detail: "brief" },
-  { position: 3, ahead: 2, joined: true, density: "compact" },
+  { position: 3, ahead: 2, joined: true },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Waitlist");
 export const probes = [
@@ -94,7 +94,7 @@ function queueLabelsForPosition(position: number, lang?: string) {
 
 export function Waitlist(input: Props<typeof props, typeof meta>) {
   const { position, ahead, joined, detail } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const { lang, words } = useWords(bookingWordsFor);
   const { queueLabels } = words;
   const hasPosition = joined && position !== undefined;

@@ -8,4 +8,4 @@ Show the current position in a short setup or booking flow. Not independent jobs
 
 ## Writer
 
-- If asked to show only the step position without the task name, set detail to "brief". Otherwise leave detail null. Density must be null unless the person specifically asks for compact spacing; do not write "comfortable" as a default.
+- If asked to show only the step position without the task name, set detail to "brief". Otherwise leave detail null.

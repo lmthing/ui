@@ -19,7 +19,7 @@ export const meta = {
   tier: "phone",
   partTiers: { root: "people" },
   realPath: "The organiser enters results on one phone; sharing the league across clubs needs a shared app.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["form"] } },
   parts: ["root", "title", "hint", "table"],
   items: {
@@ -89,7 +89,6 @@ export const examples = [
     ],
   },
   {
-    density: "compact",
     scoring: { win: 2, draw: 1 },
     rows: [
       { team: "Trot Town", won: 3, drawn: 2, lost: 0, for: 9, against: 5, form: ["w", "w", "d", "d", "w"] },
@@ -132,7 +131,7 @@ type StandingsProps = c.Props<typeof props, typeof meta>;
 // prettier-ignore
 export function Standings(input: StandingsProps) {
   const { lang, words: { standings: words } } = kit.useWords(sportsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const loading = kit.useComponentState() === "loading";
   const { rows, cuts } = standingsCopy(input, lang);

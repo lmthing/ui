@@ -15,7 +15,7 @@ export const meta = {
   region: "body", weight: 2, tier: "phone",
   partTiers: { import: "ok" },
   realPath: "Sleep times are typed in or read from the phone's sleep data with permission.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["average"] } },
   parts: ["root", "bed", "wake", "duration", "night", "quality", "average", "edit", "import", "empty", "stages", "hr_avg", "hrv"],
   items: { key: "stageRows", parts: ["root", "label"] },
@@ -102,7 +102,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type SleepLogProps = c.Props<typeof props, typeof meta>;
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 
 // prettier-ignore
 function SleepValue({ part, label, value, density }: { part: string; label: string; value: string; density: Density }) {
@@ -170,8 +170,8 @@ function NightSummary({ input, density, full }: { input: SleepLogProps; density:
 // prettier-ignore
 export function SleepLog(input: SleepLogProps) {
   const empty = kit.useComponentState() === "empty";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const { lang, words } = kit.useWords(mindWordsFor), wearable = wearableLines(input, lang);
   return (

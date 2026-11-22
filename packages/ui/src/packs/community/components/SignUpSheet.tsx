@@ -21,7 +21,7 @@ export const meta = {
   tier: "people",
   realPath:
     "A shared app atomically reserves the remaining places and lets each member release only their own claim.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["claimants"] } },
   parts: ["root", "title", "status"],
   items: {
@@ -165,8 +165,8 @@ function SlotRow({ row, density, detail, state }: Finish & { row: Row }) {
 // prettier-ignore
 export function SignUpSheet(input: SheetProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang } = kit.useWords(communityWordsFor);
   const { slots } = kit.useLiveControls(meta, input) as { slots: Row[] };

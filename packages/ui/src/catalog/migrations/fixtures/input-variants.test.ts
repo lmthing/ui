@@ -5,11 +5,11 @@ it("rewrites legacy control lines at the wire boundary and does not migrate them
   const samples = [
     {
       line: { c: "Button", id: "b1", kind: "quiet", label: "Back", goto: "back" },
-      migrated: { c: "Button", id: "b1", surface: "plain", label: "Back", goto: "back" },
+      migrated: { c: "Button", id: "b1", label: "Back", goto: "back" },
     },
     {
       line: { c: "Choice", id: "c1", style: "list", options: [{ title: "A" }, { title: "B" }] },
-      migrated: { c: "Choice", id: "c1", surface: "plain", options: [{ title: "A" }, { title: "B" }] },
+      migrated: { c: "Choice", id: "c1", options: [{ title: "A" }, { title: "B" }] },
     },
   ] as const;
   for (const { line, migrated } of samples) {
@@ -21,18 +21,18 @@ it("rewrites legacy control lines at the wire boundary and does not migrate them
 });
 
 it.each([
-  ["cards", {}, "card"],
-  ["list", {}, "plain"],
-  ["list", { surface: "card" }, "card"],
-])("migrates saved %s options without changing their selection", (style, override, surface) => {
+  ["cards", {}],
+  ["list", {}],
+  ["list", { surface: "card" }],
+])("migrates saved %s options without changing their selection", (style, override) => {
   const { meta, props } = components.Choice;
   const options = [{ title: "Weekly" }, { title: "Monthly" }];
   const { c, id, ...wire } = migrateLine({ c: "Choice", id: "c1", style, options, at: 1, ...override });
   expect({ c, id }).toEqual({ c: "Choice", id: "c1" });
   expect(wire).not.toHaveProperty("style");
+  expect(wire).not.toHaveProperty("surface");
   const parsed = stampItemIds(meta, props.parse(wire));
   expect(parsed).toMatchObject({
-    surface,
     options: [
       { id: "r1", on: false },
       { id: "r2", on: true },

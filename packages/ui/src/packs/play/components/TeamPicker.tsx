@@ -4,6 +4,7 @@ import {
   drawKey, drawState, drawStatus, emptyLine, itemsOf, itemVariantProps, photo,
   placeholderTitle, probesFor, text, thingOf, titleOf, variantProps,
   type DrawState, type FallbackInput, type Meta, type Probe, type Props,
+  type ThemeDensity,
 } from "../../../catalog";
 import * as kit from "../../../kit";
 import { teamPickerCopy, teamPickerReading } from "../copy";
@@ -29,7 +30,7 @@ export const meta = {
     parts: ["root", "name", "photo", "team"],
     variants: { mark: ["none", "highlight"] },
   },
-  variants: { density: ["comfortable", "compact"], arrange: ["strip", "rows"] },
+  variants: { arrange: ["strip", "rows"] },
   parts: ["root", "teams", "make", "make_label", "remake", "remake_label", "empty", "error", "sub"],
   states: ["empty", "filled", "loading", "success", "error"],
   actions: { parts: { make: ["press"], remake: ["press"] } },
@@ -102,7 +103,7 @@ export const examples = [
     teams: [{ label: "Leaves" }, { label: "Roots" }, { label: "Seeds" }],
   },
   { ...walkers, arrange: "rows" },
-  { ...walkers, density: "compact" },
+  { ...walkers },
   {
     ...walkers,
     players: [{ name: "Jo", mark: "highlight" }, ...walkers.players.slice(1)],
@@ -130,7 +131,7 @@ type Panels = ReturnType<typeof teamPickerCopy<Setup["players"][number]>>["panel
 
 // prettier-ignore
 function TeamColumns({ panels, arrange, density, loading, words }: {
-  panels: Panels; arrange: Setup["arrange"]; density: Setup["density"]; loading: boolean;
+  panels: Panels; arrange: Setup["arrange"]; density: ThemeDensity; loading: boolean;
   words: ReturnType<typeof playWordsFor>["teamPicker"];
 }) {
   const columns = panels.map(({ players, ...panel }) => ({
@@ -162,7 +163,7 @@ export function TeamPicker(setup: Setup) {
     lang,
     words: { teamPicker: words },
   } = kit.useWords(playWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, setup.density);
+  const density = kit.useKit().density;
   const stored = kit.useControlValue<unknown>(`${screen}/${component}/${drawKey}`, undefined);
   const get = (part: string) => (part === drawKey ? stored : undefined);
   const state = drawStatus(meta, setup, source, get);
