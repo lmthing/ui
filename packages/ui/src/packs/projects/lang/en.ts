@@ -1,4 +1,9 @@
 export const en = {
+  projectBrief: {
+    resources: "Resources",
+    edit: "Edit brief",
+    empty: "No project brief yet",
+  },
   projectStatus: {
     status: { on_track: "On track", at_risk: "At risk", blocked: "Blocked" },
     wins: "Wins",
