@@ -29,16 +29,17 @@ it("draws two separate fans and requires confirmation to restore the deck", asyn
     await page.addInitScript("globalThis.process ??= { env: {} }; globalThis.__name = (fn) => fn");
     await page.goto(new URL(route, server.resolvedUrls!.local[0]).href);
     const part = (name: string) => page.getByTestId(`home/c1/${name}`);
+    const text = async (name: string) => (await part(name).innerText()).replace(/\s+/g, " ").trim();
     const draw = part("draw");
     const reshuffle = part("reshuffle");
     const faces = () => Promise.all([1, 2, 3].map((n) => part(`card_${n}`).innerText()));
     await draw.click();
     const first = await faces();
-    expect(await part("remaining").innerText()).toBe("Draw pile: 3");
+    expect(await text("remaining")).toBe("Draw pile: 3");
     await draw.click();
     const second = await faces();
     expect(new Set([...first, ...second]).size).toBe(6);
-    expect(await part("discard").innerText()).toBe("Discard pile: 6");
+    expect(await text("discard")).toBe("Discard pile: 6");
     expect(await part("root").getByRole("status").innerText()).toBe("The draw pile is empty");
     await draw.waitFor({ state: "detached" });
     await reshuffle.click();
@@ -46,7 +47,7 @@ it("draws two separate fans and requires confirmation to restore the deck", asyn
     expect(await faces()).toEqual(second);
     await reshuffle.click();
     await page.getByTestId("home/confirm/confirm").click();
-    expect(await part("remaining").innerText()).toBe("Draw pile: 6");
+    expect(await text("remaining")).toBe("Draw pile: 6");
     expect(await part("card").innerText()).toBe("No cards drawn yet");
     await reshuffle.waitFor({ state: "detached" });
   } finally {

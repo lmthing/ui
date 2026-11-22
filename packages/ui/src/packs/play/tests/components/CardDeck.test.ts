@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { components, placeholderTitle, readComponent, wordsFor } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { addressedElements, renderInstance } from "../../../../../test/render";
+import { addressedElements, renderInstance, type AddressedElement } from "../../../../../test/render";
 
 const { props, fallback, examples, meta, probes } = components.CardDeck;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -59,11 +59,15 @@ describe("CardDeck contract", () => {
   });
 });
 
+function partText(node?: AddressedElement): string {
+  return node ? [...node.text, ...node.children.map(partText)].join(" ").replace(/\s+/g, " ").trim() : "";
+}
+
 it("renders addressed piles and the draw control without leaking faces, also in brief and loading", () => {
   const html = renderInstance("CardDeck", sample, "empty", theme);
   const empty = addressedElements(html);
-  expect(empty.get(part("remaining"))).toMatchObject({ text: ["Draw pile: "], children: [{ text: ["6"] }] });
-  expect(empty.get(part("discard"))).toMatchObject({ text: ["Discard pile: "], children: [{ text: ["0"] }] });
+  expect(partText(empty.get(part("remaining")))).toBe("Draw pile: 6");
+  expect(partText(empty.get(part("discard")))).toBe("Discard pile: 0");
   expect(empty.has(part("card"))).toBe(true);
   expect(empty.has(part("draw"))).toBe(true);
   expect(empty.has(part("reshuffle"))).toBe(false);

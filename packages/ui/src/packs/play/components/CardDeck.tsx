@@ -127,10 +127,10 @@ type Setup = c.Props<typeof props, typeof meta>;
 type DeckCopy = ReturnType<typeof cardDeckCopy>;
 type Density = NonNullable<Setup["density"]>;
 
-function CardFace({ card, density, fan }: { card: DeckCard; density: Density; fan: boolean }) {
+function CardFace({ card, density }: { card: DeckCard; density: Density }) {
   return (
     <kit.KitMetaLine
-      title={{ text: card.title, role: fan ? "body" : "title", strong: true }}
+      title={{ text: card.title, role: "title", strong: true }}
       meta={[
         { text: card.tag, role: "caption" },
         { text: card.body, role: "body", tone: "text" },
@@ -164,13 +164,13 @@ function DeckFaces({
       </kit.KitCard>
     );
   const fan = style === "fan" && cards.length > 1;
-  const faces = cards.map((card, index) => <CardFace key={index} {...{ card, density, fan }} />);
+  const faces = cards.map((card, index) => <CardFace key={index} {...{ card, density }} />);
   if (fan)
     return (
-      <kit.KitCard style="plain" part="card">
+      <kit.KitCard part="card" surface="outlined" padded density={density}>
         <kit.KitGrid columns={faces.length === 3 ? 3 : 2} density={density} list>
           {faces.map((face, index) => (
-            <kit.KitCard key={index} part={`card_${index + 1}`} surface="outlined" padded density={density}>
+            <kit.KitCard key={index} part={`card_${index + 1}`} style="plain" density={density}>
               {face}
             </kit.KitCard>
           ))}
@@ -197,20 +197,18 @@ function Pile({
   part: string;
   density: Density;
 }) {
+  const loading = kit.useComponentState() === "loading";
   return (
-    <kit.KitText part={part} role="caption" tone="muted" density={density}>
-      {label}
-      <kit.KitText
-        part={null}
-        role="number"
-        numberScale="compact"
-        tabular
-        emphasis="strong"
-        density={density}
-      >
-        {value}
-      </kit.KitText>
-    </kit.KitText>
+    <kit.KitRow part={loading ? null : part} label={label} density={density} inline fitContent>
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitLayoutText line={{ text: label, role: "caption", tone: "muted" }} density={density} />
+        <kit.KitLayoutText
+          line={{ text: value, role: "figure", compact: true, tabular: true }}
+          align="end"
+          density={density}
+        />
+      </kit.KitGrid>
+    </kit.KitRow>
   );
 }
 
@@ -226,12 +224,12 @@ function DeckContent({ setup, deck, density }: { setup: Setup; deck: DeckCopy; d
         title={{ text: setup.title, part: "title", ...(drawn && { role: "caption", tone: "muted" }) }}
         density={density}
       />
-      <kit.KitGrid columns={2} density={density}>
+      <kit.KitRowGroup density={density} separators={false}>
         <Pile label={labels.remaining("")} value={deck.remainingValue} part="remaining" density={density} />
         {setup.detail !== "brief" && (
           <Pile label={labels.discarded("")} value={deck.discardedValue} part="discard" density={density} />
         )}
-      </kit.KitGrid>
+      </kit.KitRowGroup>
       <DeckFaces
         cards={loading ? [] : deck.revealed}
         style={setup.style}
@@ -240,14 +238,19 @@ function DeckContent({ setup, deck, density }: { setup: Setup; deck: DeckCopy; d
       />
       <kit.KitActionFooter density={density}>
         {!deck.exhausted && (
-          <kit.KitAction part={loading ? null : "draw"} action="press" label={labels.draw} kind="primary" />
+          <kit.KitAction
+            part={loading ? null : "draw"}
+            action="press"
+            label={labels.draw}
+            kind={drawn ? "secondary" : "primary"}
+          />
         )}
         {deck.hasDiscards && (
           <kit.KitAction
             part={loading ? null : "reshuffle"}
             action="press"
             label={labels.reshuffle}
-            kind={deck.exhausted ? "secondary" : "quiet"}
+            kind="danger"
           />
         )}
       </kit.KitActionFooter>
