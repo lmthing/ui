@@ -109,7 +109,7 @@ describe("Soundscape state and parts", () => {
       const html = renderInstance("Soundscape", example, "filled", theme, { component: "s1" });
       const base = "home/s1";
       const parts = [
-        ...meta.parts.map((part) => `${base}/${part}`),
+        ...["root", "mix", "mix_label", "mix_icon", "timer", "timer_label"].map((part) => `${base}/${part}`),
         ...example.sounds.flatMap((_, i) => meta.items.parts.map((part) => `${base}/r${i + 1}/${part}`)),
       ];
       expect([...addressedElements(html).keys()].sort()).toEqual(parts.sort());

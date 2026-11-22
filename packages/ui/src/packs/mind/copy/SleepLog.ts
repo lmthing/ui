@@ -4,12 +4,19 @@ import { mindWordsFor } from "../lang";
 const minutesPerHour = 60;
 const minutesPerDay = 24 * minutesPerHour;
 
+export const sleepStageKeys = ["deep", "rem", "light", "awake"] as const;
+type Stages = Record<(typeof sleepStageKeys)[number], number>;
+
 type Night = {
   bed: string;
   wake: string;
   awake?: number | undefined;
   quality?: number | undefined;
   week?: readonly number[] | undefined;
+  stages?: Stages | undefined;
+  hrAvg?: number | undefined;
+  hrv?: number | undefined;
+  style?: "summary" | "stages" | undefined;
 };
 
 export function nightMinutes(bed: string, wake: string): number {
@@ -26,7 +33,10 @@ function sleepDuration(total: number, lang?: string): string {
   return minutes === 0 ? words.hours(h) : words.hoursAndMinutes(h, numberLine(minutes, lang));
 }
 
-export function sleepLogLines({ bed, wake, awake = 0, quality, week }: Night, lang?: string) {
+export function sleepLogLines(
+  { bed, wake, stages, awake = stages?.awake ?? 0, quality, week }: Night,
+  lang?: string,
+) {
   const words = mindWordsFor(lang).sleep;
   const total = nightMinutes(bed, wake);
   const asleep = total - awake;
@@ -47,6 +57,27 @@ export function sleepLogLines({ bed, wake, awake = 0, quality, week }: Night, la
   };
 }
 
+export function sleepStagePoints(stages: Stages, lang?: string) {
+  const labels = mindWordsFor(lang).sleep.stageLabels;
+  return sleepStageKeys.map((key, index) => ({
+    id: `r${index + 1}`,
+    label: labels[key],
+    value: stages[key],
+  }));
+}
+
+export function wearableLines({ hrAvg, hrv }: Night, lang?: string) {
+  const words = mindWordsFor(lang).sleep;
+  return [
+    ...(hrAvg === undefined
+      ? []
+      : ([{ part: "hr_avg", label: words.hrAvg, value: words.beats(numberLine(hrAvg, lang)) }] as const)),
+    ...(hrv === undefined
+      ? []
+      : ([{ part: "hrv", label: words.hrv, value: words.milliseconds(numberLine(hrv, lang)) }] as const)),
+  ];
+}
+
 export function readSleepLog(input: Night, full: boolean, lang?: string): string[] {
   const { editSleep, sleep: words } = mindWordsFor(lang);
   const lines = sleepLogLines(input, lang);
@@ -60,6 +91,12 @@ export function readSleepLog(input: Night, full: boolean, lang?: string): string
     ...(full && lines.average !== undefined && lines.averageMinutes !== undefined
       ? [words.reading(words.average, words.minuteReading(lines.average, lines.averageMinutes))]
       : []),
+    ...(input.style === "stages" && input.stages
+      ? sleepStagePoints(input.stages, lang).map(({ label, value }) =>
+          words.reading(label, durationLine(value, lang)),
+        )
+      : []),
+    ...wearableLines(input, lang).map(({ label, value }) => words.reading(label, value)),
     words.import,
     JSON.stringify(editSleep),
   ];
