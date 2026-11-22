@@ -120,8 +120,15 @@ export const probes = [
 
 const stampColumns = 3,
   stampsPerPair = 2;
-// prettier-ignore
-function LoyaltyMarks({ stamps, of, density }: { stamps: number; of: number; density: "comfortable" | "compact" }) {
+function LoyaltyMarks({
+  stamps,
+  of,
+  density,
+}: {
+  stamps: number;
+  of: number;
+  density: "comfortable" | "compact";
+}) {
   const rows = Math.ceil(of / (stampColumns * stampsPerPair));
   const perRow = Math.ceil(of / rows);
   return (
@@ -131,9 +138,13 @@ function LoyaltyMarks({ stamps, of, density }: { stamps: number; of: number; den
         const offset = (pair % stampColumns) * stampsPerPair;
         const start = row * perRow + offset;
         const length = Math.max(0, Math.min(stampsPerPair, perRow - offset, of - start));
-        return <KitGrid key={pair} columns={stampsPerPair} {...{ density }}>
-          {Array.from({ length }, (_, index) => <KitDayMark key={index} done={start + index < stamps} />)}
-        </KitGrid>;
+        return (
+          <KitGrid key={pair} columns={stampsPerPair} {...{ density }}>
+            {Array.from({ length }, (_, index) => (
+              <KitDayMark key={index} done={start + index < stamps} />
+            ))}
+          </KitGrid>
+        );
       })}
     </KitGrid>
   );

@@ -3,7 +3,7 @@ import * as jsxRuntime from "react/jsx-dev-runtime";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it, vi } from "vitest";
-import { themeName, type as typography, type StateName } from "@lmthing/ui/catalog";
+import { size, themeName, type as typography, type StateName } from "@lmthing/ui/catalog";
 import { KitProvider, KitText, PartScope } from "@lmthing/ui/kit";
 import { addressedElements, config, elementAt, styleAt } from "../render";
 
@@ -91,7 +91,8 @@ describe("KitText links", () => {
       );
       const link = elementAt(html, "home/c1/r1/link");
       expect(link.attributes).toContain('role="link"');
-      expect(styleAt(html, link)).toContain("text-decoration-line:underline");
+      expect(styleAt(html, link)).toContain(`min-height:${size.control.md}px`);
+      expect(styleAt(html, link.children[0]!)).toContain("text-decoration-line:underline");
       const stopPropagation = vi.fn();
       expect(press).toBeDefined();
       press?.({ stopPropagation });

@@ -27,19 +27,29 @@ export const meta = {
   items: {
     key: "slots",
     // prettier-ignore
-    parts: ["root", "title", "meta", "capacity", "remaining", "claimants", "claim", "claim_label", "release", "release_label"],
+    parts: ["root", "title", "meta", "capacity", "remaining", "claimants", "claim", "claim_label",
+      "release", "release_label", "retry_claim", "retry_claim_label", "retry_release", "retry_release_label"],
   },
   states: ["filled", "empty", "loading", "success", "error"],
   actions: {
-    items: { root: ["toggle"], claim: ["press"], release: ["press"] },
+    items: {
+      root: ["toggle"],
+      claim: ["press"],
+      release: ["press"],
+      retry_claim: ["press"],
+      retry_release: ["press"],
+    },
     when: {
       root: { detail: "brief" },
       claim: { can_claim: true },
       release: { own_claim: true, has_own_claim: true },
+      retry_claim: { retry_claim: true },
+      retry_release: { retry_release: true, has_own_claim: true },
     },
   },
   select: { prop: "expanded", value: "index", mode: "flags", runtime: true },
-  confirmParts: ["release"],
+  errorActions: ["retry_claim.press", "retry_release.press"],
+  confirmParts: ["release", "retry_release"],
   deviceData: [signUpRecordKind],
   previewDeviceData: previewSignUp,
   live: { derive: projectSignUp },
@@ -48,6 +58,7 @@ export const meta = {
     has_own_claim: (_data, input) => (input.slots as SignUpRow[]).some((row) => row.own_claim),
   },
   readSuccess: true,
+  readError: true,
   read: signUpReading,
 } as const satisfies c.Meta;
 
@@ -130,21 +141,19 @@ type Finish = { density: c.ThemeDensity; detail: SheetProps["detail"]; state: c.
 function SlotRow({ row, density, detail, state }: Finish & { row: Row }) {
   const scope = kit.usePartContext();
   const { lang, words: { signUp: words } } = kit.useWords(communityWordsFor);
-  const { capacity, remaining, claimants, action } = signUpRowCopy(row, detail, lang);
-  const control = action && (state === "filled" || state === "loading") ? action : undefined;
-  const kind = control === "release" ? "danger" : "secondary";
+  const { capacity, remaining, claimants, action, retry } = signUpRowCopy(row, detail, lang);
+  const control = state === "error" ? retry : state === "filled" || state === "loading" ? action : undefined;
+  const kind = control === "release" || control === "retry_release" ? "danger" : "secondary";
   const loading = state === "loading";
   const disclosure = detail === "brief" && (state === "filled" || loading);
   return <kit.PartScope {...scope} item={row.id}>
-    <kit.KitContent density={density} rhythm="flush">
-      <kit.KitRow item={row.id} part={loading ? null : "root"} label={row.title} inline fitContent={!disclosure} density={density}
+    <kit.KitGrid fitLast density={density}>
+      <kit.KitRow part={loading ? null : "root"} label={row.title} inline fitContent={!disclosure} density={density}
         {...(disclosure && !loading ? { role: "button", expanded: row.expanded === true } as const : {})}
         trailing={disclosure ? <kit.KitIcon name={row.expanded ? "minus" : "plus"} decorative loading={loading} /> : null}>
-        <kit.KitMetaLine density={density} title={{ text: row.title, part: "title", strong: true }}
-          meta={{ text: row.meta, part: "meta" }} />
-      </kit.KitRow>
-      <kit.KitGrid fitLast density={density}>
-        <kit.KitContent density={density}>
+        <kit.KitContent density={density} rhythm="flush">
+          <kit.KitMetaLine density={density} title={{ text: row.title, part: "title", strong: true }}
+            meta={{ text: row.meta, part: "meta" }} />
           {loading ? <kit.KitLayoutText density={density}
             line={{ text: `${capacity}${words.separator}${remaining}`, role: "meta" }} /> :
           <kit.KitText part={null} role="label" tone="muted" density={density}>
@@ -156,9 +165,9 @@ function SlotRow({ row, density, detail, state }: Finish & { row: Row }) {
             <kit.KitLayoutText density={density} line={{ text: claimants, part: "claimants", role: "meta", tone: "muted" }} />
           </kit.KitContent>}
         </kit.KitContent>
-        {control ? <kit.KitAction part={loading ? null : control} action="press" kind={kind} label={words[control]} /> : null}
-      </kit.KitGrid>
-    </kit.KitContent>
+      </kit.KitRow>
+      {control ? <kit.KitAction part={loading ? null : control} action="press" kind={kind} label={words[control]} /> : null}
+    </kit.KitGrid>
   </kit.PartScope>;
 }
 
@@ -170,8 +179,8 @@ export function SignUpSheet(input: SheetProps) {
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang } = kit.useWords(communityWordsFor);
   const { slots } = kit.useLiveControls(meta, input) as { slots: Row[] };
-  const rows = <kit.KitContent group="response" density={density}>
-    <kit.KitRowGroup density={density} spacing="groups">
+  const rows = <kit.KitContent density={density}>
+    <kit.KitRowGroup density={density} spacing="groups" separators={false}>
       {slots.map((row) => <SlotRow key={row.id} {...{ row, density, detail, state }} />)}
     </kit.KitRowGroup>
   </kit.KitContent>;

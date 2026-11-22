@@ -25,6 +25,7 @@ const render = (input: unknown = example, state: StateName = "filled", lang?: st
 const read = (input: unknown = example, state: StateName = "filled", lang?: string) =>
   readComponent(Ticket, input, "t1", state, {}, lang).join("\n");
 const address = (part: string) => `home/t1/${part}`;
+const originalParts = ["root", "event", "date", "time", "place", "type", "holder", "number", "code", "hint"];
 
 describe("Ticket contract and boundaries", () => {
   it.each(examples)("accepts a real admission pass", (input) =>
@@ -44,7 +45,7 @@ describe("Ticket contract and boundaries", () => {
     { event: "x".repeat(33) }, { place: "x".repeat(33) }, { holder: "x".repeat(25) },
     { type: "x".repeat(17) }, { number: "x".repeat(13) }, { number: "" }, { event: " " },
     { date: "2027-02-29" }, { time: "24:00" }, { time: "6:30 pm" }, { holder: undefined },
-    { density: "tiny" }, { align: "right" }, { detail: "hidden" }, { style: "pass" },
+    { density: "tiny" }, { align: "right" }, { detail: "hidden" }, { style: "card" },
     { color: "#fff" }, { used: true }, { code: "other" }, { pixels: 12 },
   ])("rejects invalid input %o", (fields) =>
     expect(props.safeParse({ ...example, ...fields }).success).toBe(false),
@@ -98,14 +99,14 @@ describe("Ticket fallback and metadata", () => {
       { kind: "choose", expect: "Ticket" }, { kind: "choose", expect: "KeyValue" },
       { kind: "write", expect: "Ticket", variant: { axis: "detail", value: "brief" } },
     ]) expect(probes).toContainEqual(expect.objectContaining(probe));
-    expect(probes.filter(({ kind }) => kind === "write")).toHaveLength(2);
+    expect(probes.filter((probe) => probe.kind === "write" && probe.expectProps)).toHaveLength(9);
   });
 });
 
 describe("Ticket parts and states", () => {
   it("draws one labeled QR image and preserves its addresses under finish variants", () => {
     const full = addressedElements(render());
-    expect(new Set(full.keys())).toEqual(new Set(meta.parts.map(address)));
+    expect(new Set(full.keys())).toEqual(new Set(originalParts.map(address)));
     expect(full.get(address("code"))?.attributes).toContain(`aria-label="${words.code(example.number)}"`);
     expect(full.get(address("code"))?.children.some(({ tag }) => tag === "svg")).toBe(true);
     expect(full.get(address("number"))?.text).toEqual([example.number]);
@@ -120,7 +121,9 @@ describe("Ticket parts and states", () => {
   it("shows that the pass was scanned, without rendering a scannable QR or inviting a rescan", () => {
     const html = render(example, "success");
     const used = addressedElements(html);
-    expect(new Set(used.keys())).toEqual(new Set(meta.parts.filter((part) => part !== "hint").map(address)));
+    expect(new Set(used.keys())).toEqual(
+      new Set(originalParts.filter((part) => part !== "hint").map(address)),
+    );
     expect(used.get(address("code"))?.children.some(({ tag }) => tag === "svg")).toBe(false);
     expect(used.get(address("code"))?.attributes).not.toContain('role="img"');
     expect(used.get(address("number"))?.text).toEqual([example.number]);

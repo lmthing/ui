@@ -98,7 +98,7 @@ export function meterSummary(series: readonly Reading[], unit: MeterUnit, lang?:
   const latest = series.at(-1);
   const previous = series.at(-2);
   return {
-    latest: latest ? meters.latest(meterValue(latest.value, unit, lang)) : meters.noReadings,
+    latest: latest ? meterValue(latest.value, unit, lang) : undefined,
     previous: previous ? meters.previous(meterValue(previous.value, unit, lang)) : undefined,
     usage: latest && previous ? meterUsage(latest, previous, unit, lang) : undefined,
   };
@@ -131,7 +131,13 @@ export function readMeters(raw: unknown, state: StateName, lang?: string): strin
       ...input.meters.map((meter, index) => {
         const series = meterSeries(input.readings, meter.meterRef);
         const { latest, previous, usage } = meterSummary(series, meter.unit, lang);
-        return [`r${index + 1}`, meter.title, latest, input.detail === "full" && previous, usage]
+        return [
+          `r${index + 1}`,
+          meter.title,
+          latest ? words.latest(latest) : words.noReadings,
+          input.detail === "full" && previous,
+          usage,
+        ]
           .filter(Boolean)
           .join(" · ");
       }),

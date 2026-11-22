@@ -117,17 +117,19 @@ export const probes = [
 type AssignmentsProps = c.Props<typeof props, typeof meta>;
 
 // prettier-ignore
-function AssignmentRow({ row, density, lead }: {
+function AssignmentRow({ row, density, lead, first }: {
   row: AssignmentsProps["items"][number];
   density: c.ThemeDensity;
   lead: AssignmentsProps["lead"];
+  first: boolean;
 }) {
   const scope = kit.usePartContext();
   const { lang, words: { assignments: words } } = kit.useWords(learningWordsFor);
   const { id, title, subject, status, due, grade, goto } = row;
   const graded = status === "graded", today = assignmentToday();
   const done = kit.useControlValue(`${scope.screen}/${scope.component}/${id}/done`, status === "done");
-  const mark = lead === "icon" ? <kit.KitIcon name="book_open" tone={assignmentSubjectTone(subject)} part="mark" /> : undefined;
+  const overdue = !graded && !done && due < today;
+  const mark = lead === "icon" ? <kit.KitIcon name="book_open" tone={overdue ? "muted" : assignmentSubjectTone(subject)} part="mark" /> : undefined;
   const control = graded
     ? grade === undefined ? <kit.KitTrail kind="check" part="done" tone="good" />
       : <kit.KitIcon name="check" tone="good" decorative />
@@ -135,7 +137,7 @@ function AssignmentRow({ row, density, lead }: {
   const statusTone = graded || done ? "good" : "muted";
   return (
     <kit.PartScope {...scope} item={id}>
-      <kit.KitContent density={density}>
+      <kit.KitContent density={density} rhythm="flush" group={first ? "content" : "response"}>
         <kit.KitRow
           part="root"
           label={title}
@@ -148,7 +150,7 @@ function AssignmentRow({ row, density, lead }: {
         >
           <kit.KitText role="body" part="title" density={density}>{title}</kit.KitText>
           <kit.KitText role="caption" part="subject" tone="muted" density={density}>{subject}</kit.KitText>
-          <kit.KitText role="caption" part="due" tone={!graded && !done && due < today ? "bad" : "muted"} density={density}>
+          <kit.KitText role="caption" part="due" tone={overdue ? "bad" : "muted"} density={density}>
             {assignmentDue(due, status, lang, today)}
           </kit.KitText>
         </kit.KitRow>
@@ -178,7 +180,9 @@ export function Assignments(input: AssignmentsProps) {
       {state === "empty" ? (
         <kit.KitEmpty part="message" icon="book_open" decorativeIcon />
       ) : (
-        input.items.map((row) => <AssignmentRow key={row.id} {...{ row, density, lead }} />)
+        input.items.map((row, index) => (
+          <AssignmentRow key={row.id} {...{ row, density, lead }} first={index === 0} />
+        ))
       )}
     </kit.KitCard>
   );

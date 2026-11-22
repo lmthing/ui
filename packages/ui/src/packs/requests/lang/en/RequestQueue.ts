@@ -16,6 +16,12 @@ export const words = {
     count: (count: string, form: LDMLPluralRule) => `${count} ${form === "one" ? "request" : "requests"}`,
     more: (count: string) => `and ${count} more`,
     empty: { active: "No active requests", completed: "No completed requests" },
+    mine: "Assigned to me",
+    mineEmpty: {
+      active: "No active requests assigned to you",
+      completed: "No completed requests assigned to you",
+    },
+    slaBreached: "SLA breached",
     error: "Could not load requests",
     retry: "Try again",
     age: (count: string, unit: "minute" | "hour" | "day", form: LDMLPluralRule) =>

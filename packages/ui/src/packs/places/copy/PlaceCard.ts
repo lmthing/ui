@@ -20,6 +20,9 @@ type Place = z.output<typeof venue> & {
   priceLevel?: number | undefined;
   opens?: string | undefined;
   closes?: string | undefined;
+  saved?: boolean | undefined;
+  unit?: "km" | "mi" | undefined;
+  distanceUnit?: "km" | "mi";
 };
 
 // The host supplies the venue's local clock and the distance calculated with location permission.
@@ -61,6 +64,15 @@ function openingCopy({ opens, closes }: Place, localTime?: string, lang?: string
 const ratingLevels = [1, 2, 3, 4, 5] as const;
 const maxRating = ratingLevels[4];
 const maxPriceLevel = 4;
+const kmPerMile = 1.609344;
+
+function distanceCopy(km: number | undefined, unit: Place["unit"], lang?: string) {
+  if (km === undefined) return;
+  const words = placesWordsFor(lang);
+  return unit === "mi"
+    ? words.milesAway(numberLine(Number((km / kmPerMile).toFixed(2)), lang))
+    : words.distanceAway(numberLine(km, lang));
+}
 
 export function placeCardCopy(place: Place, data?: DeviceData, lang?: string) {
   const { rating, priceLevel } = place;
@@ -82,15 +94,15 @@ export function placeCardCopy(place: Place, data?: DeviceData, lang?: string) {
       priceLevel === undefined
         ? undefined
         : words.priceLevel(numberLine(priceLevel, lang), numberLine(maxPriceLevel, lang)),
-    distance:
-      current?.distanceKm === undefined
-        ? undefined
-        : words.distanceAway(numberLine(current.distanceKm, lang)),
+    distance: distanceCopy(current?.distanceKm, place.distanceUnit ?? place.unit, lang),
     opening: openingCopy(place, current?.localTime, lang),
   };
 }
 
 export function placeCardReading(place: Place, data?: DeviceData, lang?: string) {
   const { ratingReading, price, distance, opening } = placeCardCopy(place, data, lang);
-  return [ratingReading, price, distance, opening?.text].filter((line): line is string => line !== undefined);
+  const save = place.saved === undefined ? undefined : placesWordsFor(lang).placeSave;
+  return [ratingReading, price, distance, opening?.text, save].filter(
+    (line): line is string => line !== undefined,
+  );
 }

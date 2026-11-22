@@ -34,6 +34,7 @@ export function scoreWrite(
   def: Definition,
   variant?: WriteProbe["variant"],
   expectProps?: WriteProbe["expectProps"],
+  fields?: WriteProbe["fields"],
 ): Score {
   const line = jsonLine(reply);
   if (!line || typeof line !== "object") return { pass: false, detail: "no JSON object" };
@@ -44,6 +45,14 @@ export function scoreWrite(
   if (parsed.success) {
     const mismatch = expectProps && firstMismatch(input, expectProps);
     if (mismatch) return { pass: false, detail: `missing or incorrect ${mismatch}` };
+    for (const [path, expected] of Object.entries(fields ?? {})) {
+      const actual = path.split(".").reduce<unknown>((value, key) => {
+        if (value && typeof value === "object" && Object.hasOwn(value, key))
+          return (value as Record<string, unknown>)[key];
+      }, input);
+      if (actual !== expected)
+        return { pass: false, detail: `expected ${path}: ${expected}, got ${String(actual)}` };
+    }
     return variant ? scoreVariant(input, def, variant) : { pass: true, detail: "valid first time" };
   }
   const issues = parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`);

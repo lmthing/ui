@@ -1,9 +1,23 @@
 import { z } from "zod";
-// prettier-ignore
 import {
-  drawKey, drawState, drawStatus, emptyLine, itemsOf, itemVariantProps, photo,
-  placeholderTitle, probesFor, text, thingOf, titleOf, variantProps,
-  type DrawState, type FallbackInput, type Meta, type Probe, type Props,
+  drawKey,
+  drawState,
+  drawStatus,
+  emptyLine,
+  itemsOf,
+  itemVariantProps,
+  photo,
+  placeholderTitle,
+  probesFor,
+  text,
+  thingOf,
+  titleOf,
+  variantProps,
+  type DrawState,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
   type ThemeDensity,
 } from "../../../catalog";
 import * as kit from "../../../kit";
@@ -129,32 +143,67 @@ export const probes = [
 type Setup = Props<typeof props, typeof meta>;
 type Panels = ReturnType<typeof teamPickerCopy<Setup["players"][number]>>["panels"];
 
-// prettier-ignore
-function TeamColumns({ panels, arrange, density, loading, words }: {
-  panels: Panels; arrange: Setup["arrange"]; density: ThemeDensity; loading: boolean;
+function TeamColumns({
+  panels,
+  arrange,
+  density,
+  loading,
+  words,
+}: {
+  panels: Panels;
+  arrange: Setup["arrange"];
+  density: ThemeDensity;
+  loading: boolean;
   words: ReturnType<typeof playWordsFor>["teamPicker"];
 }) {
   const columns = panels.map(({ players, ...panel }) => ({
     ...panel,
     children: players.map(({ id, name, photo, team, mark }) => (
-      <kit.KitRow key={id} item={id} inset="none" inline={arrange === "rows" || density === "compact"} {...{ density, mark }}
-        label={team === undefined ? name : words.lockedName(name)} leadingAlign="row"
-        leading={<kit.KitPhoto {...(photo ? { photo } : { initials: Array.from(name)[0]! })}
-          shape="round" part="photo" label={name} />}
+      <kit.KitRow
+        key={id}
+        item={id}
+        inset="none"
+        inline={arrange === "rows" || density === "compact"}
+        {...{ density, mark }}
+        label={team === undefined ? name : words.lockedName(name)}
+        leadingAlign="row"
+        leading={
+          <kit.KitPhoto
+            {...(photo ? { photo } : { initials: Array.from(name)[0]! })}
+            shape="round"
+            part="photo"
+            label={name}
+          />
+        }
       >
-        <kit.KitRow inline label={name}
-          trailing={team === undefined ? undefined : <kit.KitIcon part="team" name="lock" tone="muted" scale="sm" />}
+        <kit.KitRow
+          inline
+          label={name}
+          trailing={
+            team === undefined ? undefined : <kit.KitIcon part="team" name="lock" tone="muted" scale="sm" />
+          }
         >
-          <kit.KitText part="name" lines={1} density={density}>{name}</kit.KitText>
+          <kit.KitText part="name" lines={1} density={density}>
+            {name}
+          </kit.KitText>
         </kit.KitRow>
       </kit.KitRow>
     )),
-    ...(!players.length ? { summary: <kit.KitText role="label" tone="muted" part={null}>{words.noPlayers}</kit.KitText> } : {}),
+    ...(!players.length
+      ? {
+          summary: (
+            <kit.KitText role="label" tone="muted" part={null}>
+              {words.noPlayers}
+            </kit.KitText>
+          ),
+        }
+      : {}),
   }));
-  return <kit.KitColumns part="teams" style={arrange === "rows" ? "stack" : "columns"} {...{ columns, loading }} />;
+  return (
+    <kit.KitColumns part="teams" style={arrange === "rows" ? "stack" : "columns"} {...{ columns, loading }} />
+  );
 }
 
-// prettier-ignore
 export function TeamPicker(setup: Setup) {
   const { screen, component } = kit.usePartContext();
   const source = kit.useComponentState();
@@ -171,24 +220,41 @@ export function TeamPicker(setup: Setup) {
   const { status, action, panels } = teamPickerCopy(setup, draw, lang);
   const loading = state === "loading";
   const kind = action === "make" ? "primary" : "secondary";
-  const button = loading ? <kit.KitSkeleton shape="control" label={words[action]} {...{ kind }} full />
-    : <kit.KitAction part={action} action="press" label={words[action]} {...{ kind }} full />;
+  const button = loading ? (
+    <kit.KitSkeleton shape="control" label={words[action]} {...{ kind }} full />
+  ) : (
+    <kit.KitAction part={action} action="press" label={words[action]} {...{ kind }} full />
+  );
   return (
     <kit.KitCard part="root" padded {...{ density }}>
-      {state === "error" ?
-        <kit.KitEmpty part="error" icon="users" title={words.error} sub={words.errorDetail} decorativeIcon /> :
-        state === "empty" ? <>
-          <kit.KitEmpty part="empty" icon="users" title={thing ? emptyLine(thing, lang) : words.empty} decorativeIcon />
+      {state === "error" ? (
+        <kit.KitEmpty part="error" icon="users" title={words.error} sub={words.errorDetail} decorativeIcon />
+      ) : state === "empty" ? (
+        <>
+          <kit.KitEmpty
+            part="empty"
+            icon="users"
+            title={thing ? emptyLine(thing, lang) : words.empty}
+            decorativeIcon
+          />
           {button}
-        </> : <>
+        </>
+      ) : (
+        <>
           <kit.KitContent inset={setup.arrange === "rows" ? "md" : "none"}>
-            {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["heading", status]]} /> :
-              <kit.KitText role="heading" tone={action === "remake" ? "accent" : "text"} part={null}>{status}</kit.KitText>}
+            {loading ? (
+              <kit.KitSkeleton shape="figure" inset="none" content={[["heading", status]]} />
+            ) : (
+              <kit.KitText role="heading" tone={action === "remake" ? "accent" : "text"} part={null}>
+                {status}
+              </kit.KitText>
+            )}
           </kit.KitContent>
           {action === "make" && button}
           <TeamColumns arrange={setup.arrange} {...{ panels, density, loading, words }} />
           {action === "remake" && button}
-        </>}
+        </>
+      )}
     </kit.KitCard>
   );
 }

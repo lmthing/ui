@@ -167,17 +167,19 @@ export function Timetable(input: TimetableProps) {
   const options = weekdays.filter((day) => days.some((group) => group.day === day));
   return <kit.KitCard part="root" padded={state !== "empty"} {...{ density, surface }}>
     {state === "empty" ? <kit.KitEmpty icon="calendar_days" part="title" decorativeIcon /> : <>
-      <kit.KitContent inset="md" density={density}>
-        <kit.KitText role="label" tone="muted" part={null} density={density}>{words.timetable.picker}</kit.KitText>
+      <kit.KitContent density={density}>
+        <kit.KitContent inset="md" density={density}>
+          <kit.KitText role="label" tone="muted" part={null} density={density}>{words.timetable.picker}</kit.KitText>
+        </kit.KitContent>
+        <kit.KitTrack part="day" look="segments" role="radiogroup" label={words.timetable.picker}>
+          {options.map((day) =>
+            <kit.KitChip key={day} item={null} look="segment" role="radio" label={words.timetable.days[day].short} value={day} on={day === days[0]?.day} />
+          )}
+        </kit.KitTrack>
       </kit.KitContent>
-      <kit.KitTrack part="day" role="radiogroup" label={words.timetable.picker}>
-        {options.map((day) =>
-          <kit.KitChip key={day} item={null} role="radio" label={words.timetable.days[day].short} value={day} on={day === days[0]?.day} />
-        )}
-      </kit.KitTrack>
-      {days.map(({ day, rows }, index) => <kit.KitContent key={day} group="response" density={density}>
-        <kit.KitContent inset="md" group={index ? "response" : "content"} density={density}>
-          <kit.KitText role="body" tone="muted" part={null} density={density}>{words.timetable.days[day].name}</kit.KitText>
+      {days.map(({ day, rows }) => <kit.KitContent key={day} group="response" rhythm="flush" density={density}>
+        <kit.KitContent inset="md" density={density}>
+          <kit.KitText role="label" tone="muted" part={null} density={density}>{words.timetable.days[day].name}</kit.KitText>
         </kit.KitContent>
         <kit.KitGrid arrange="rows" list density={density}>
           {rows.map((row) => <PeriodRow key={row.id} {...{ row, density, detail }} active={row === current} />)}

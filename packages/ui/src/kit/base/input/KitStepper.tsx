@@ -38,6 +38,7 @@ function StepButton({
   disabled: boolean;
 }) {
   const { controller, interactive } = useKit();
+  const positive = action === "increment" && !disabled;
   const press = (event: { stopPropagation?(): void }) => {
     event.stopPropagation?.();
     if (!disabled) controller?.act({ address: target, action });
@@ -53,7 +54,7 @@ function StepButton({
             tabIndex: interactive && controller && !disabled ? 0 : -1,
           }
         : { accessibilityState: { disabled } })}
-      backgroundColor={disabled ? "$raised" : "$accentSoft"}
+      backgroundColor={positive ? "$accentSoft" : "$raised"}
       onPress={controller && interactive ? press : undefined}
       {...((isWeb && controller && interactive && !disabled
         ? {
@@ -67,7 +68,7 @@ function StepButton({
     >
       <KitIcon
         name={action === "decrement" ? "minus" : "plus"}
-        tone={disabled ? "muted" : "accent"}
+        tone={disabled ? "muted" : positive ? "accent" : "text"}
         decorative
       />
     </Hit>
@@ -98,7 +99,7 @@ export function KitStepper({ part, value, min, max, disabled = false, labels }: 
       {...(isWeb ? { accessibilityRole: "group" as const } : {})}
       alignItems="center"
       alignSelf="flex-start"
-      gap={space.xs}
+      gap={space.sm}
     >
       <StepButton
         target={address.testID}

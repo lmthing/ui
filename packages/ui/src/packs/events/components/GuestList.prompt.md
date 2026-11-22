@@ -9,3 +9,4 @@ An event's invitation roster with party groups, RSVP statuses, plus-ones and die
 ## Writer
 
 - Set detail to "brief" only when dietary notes should not be displayed. Keep supplied diet in the data.
+- Use "pending_approval" for a submitted RSVP awaiting a host decision and "waitlisted" for someone on the waitlist. Pending approval shows Approve and Decline automatically.

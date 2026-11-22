@@ -69,6 +69,7 @@ describe("RequestThread contract", () => {
     ).toBe(true);
   });
   it("keeps the closest core near miss and follows pack readiness", () => {
+    expect(meta.partTiers.field).toBe("phone");
     expect(meta.partTiers.send).toBe("people");
     expect(createRegistry({ packs: ["requests"] }).ids.includes(meta.id)).toBe(packReady("requests"));
     expect(probes).toEqual(

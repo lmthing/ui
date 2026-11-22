@@ -51,10 +51,34 @@ it("filters the vacancy list by date and dispatches only available tenant action
   expect(await testId("rent/r1/record").count()).toBe(0);
   const dispute = testId("inspection/r2/dispute");
   const sign = testId("inspection/r2/sign");
+  const condition = testId("inspection/r2/condition").getByRole("radio", { name: "Not applicable" });
+  await condition.click();
+  expect(await condition.getAttribute("aria-checked")).toBe("true");
   await dispute.fill("The latch sticks.");
   await sign.waitFor({ state: "detached" });
   await dispute.fill("");
   await sign.click();
   expect(await page.locator("#actions").textContent()).toContain("home/rent/r1/pay press");
   expect(await page.locator("#actions").textContent()).toContain("home/inspection/r2/sign press");
+});
+
+it("keeps recorded attendance editable and switches meter history without carrying over evidence", async () => {
+  await page.goto(new URL(route, server.resolvedUrls!.local[0]).href);
+  const outcome = page.getByRole("radiogroup", { name: "Change attendance" });
+  const noShow = outcome.getByRole("radio", { name: "No-show" });
+  const attended = outcome.getByRole("radio", { name: "Attended" });
+  expect(await noShow.getAttribute("aria-checked")).toBe("true");
+  await attended.click();
+  expect(await attended.getAttribute("aria-checked")).toBe("true");
+  expect(await noShow.getAttribute("aria-checked")).toBe("false");
+
+  const meter = page.getByRole("radiogroup", { name: "Utility meters" });
+  const evidence = page.getByTestId("home/meters/r4/photo");
+  await evidence.click();
+  expect(await page.locator("#actions").textContent()).toContain("home/meters/r4/photo press");
+  await meter.getByRole("radio", { name: "Gas" }).click();
+  await evidence.waitFor({ state: "detached" });
+  expect(await page.getByTestId("home/meters/empty").textContent()).toBe("No readings yet");
+  await meter.getByRole("radio", { name: "Water" }).click();
+  await evidence.waitFor({ state: "visible" });
 });

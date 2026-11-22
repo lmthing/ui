@@ -6,7 +6,7 @@ Built in step U7 (drafts in U3), wave 2 of the catalog plan. Read `docs/catalog/
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
-- `components/`: `Workout.tsx` `Exercise.tsx` `Measurements.tsx` `Medication.tsx` `HabitGrid.tsx` `Vitals.tsx` `SymptomLog.tsx` `Cycle.tsx` `ActivityRings.tsx`
+- `components/`: `Workout.tsx` `Exercise.tsx` `Measurements.tsx` `Medication.tsx` `HabitGrid.tsx` `Vitals.tsx` `SymptomLog.tsx` `Cycle.tsx` `ActivityRings.tsx` `CardioSession.tsx` `TrainingPlan.tsx`
 - `archetypes/`: `today.ts` `workout.ts` `body-trends.ts` `bodylog.ts`
 
 Rules:

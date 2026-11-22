@@ -117,9 +117,14 @@ export function readInspection(raw: unknown, state: StateName, lang?: string): s
     canFinalise: boolean;
   };
   const { inspections: words } = propertyWordsFor(lang);
+  const { date, kind, completion, previous, signed } = inspectionSummary(input, lang);
   return [
     ...(state === "success" || input.finalisedAt ? [words.finalised] : []),
-    ...Object.values(inspectionSummary(input, lang)).filter((line): line is string => Boolean(line)),
+    date,
+    kind,
+    `${completion.count} ${completion.label}`,
+    ...(previous ? [previous] : []),
+    ...(signed ? [signed] : []),
     ...(input.finalisedAt ? [input.finalisedAt] : []),
     ...input.entries.map((row) =>
       row.entryKind === "room"
