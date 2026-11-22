@@ -54,7 +54,8 @@ export const props = z
       ((awake === undefined || awake === stages.awake) &&
         sleepStageKeys.reduce((total, key) => total + stages[key], 0) === nightMinutes(bed, wake)),
     { path: ["stages"], message: "Stage minutes must cover the night and match any explicit awake duration" },
-  );
+  ).overwrite((input) => ({ ...input, stageRows: input.style === "stages" && input.stages
+    ? sleepStageKeys.map((stage) => ({ stage, value: input.stages![stage] })) : [] }));
 
 export function fallback({ cast }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);

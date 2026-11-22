@@ -105,7 +105,7 @@ describe("SleepLog options", () => {
       expect(html).toContain(value);
       expect(read).toContain(value);
     }
-    expect(read).toContain("REM: 110 min (23%)");
+    expect(read).toContain("r2/label REM: 110 min (23%)");
     expect(html).toContain("23%");
     expect(read).toContain("[c1/edit press");
   });

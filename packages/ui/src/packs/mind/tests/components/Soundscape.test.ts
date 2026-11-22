@@ -131,19 +131,19 @@ describe("Soundscape state and parts", () => {
   );
 });
 
-describe("Soundscape read and act", () => {
-  // prettier-ignore
-  it("preserves wire-backed volume edits when reopening a mix without presets", () => {
-    const runtime = createScreenController({ screen, defs });
-    try {
-      expect(runtime.act({ address: "s1/r1/level", action: "set", value: 1 }).ok).toBe(true);
-      expect(runtime.act({ address: "s1/r1/mix_level", action: "set", value: 5 }).ok).toBe(false);
-      const snapshot = runtime.snapshotScreen();
-      expect(snapshot.components[0]?.sounds).toMatchObject([{ ...sound, level: 1 }, ...sample.sounds.slice(1)]);
-      expect(readScreen(snapshot, defs)).toContain('"Rain": 1');
-    } finally { runtime.dispose(); }
-  });
+// prettier-ignore
+it("preserves wire-backed volume edits when reopening a mix without presets", () => {
+  const runtime = createScreenController({ screen, defs });
+  try {
+    expect(runtime.act({ address: "s1/r1/level", action: "set", value: 1 }).ok).toBe(true);
+    expect(runtime.act({ address: "s1/r1/mix_level", action: "set", value: 5 }).ok).toBe(false);
+    const snapshot = runtime.snapshotScreen();
+    expect(snapshot.components[0]?.sounds).toMatchObject([{ ...sound, level: 1 }, ...sample.sounds.slice(1)]);
+    expect(readScreen(snapshot, defs)).toContain('"Rain": 1');
+  } finally { runtime.dispose(); }
+});
 
+describe("Soundscape read and act", () => {
   it("sets independent levels and the timer without changing sound identity or order", () => {
     const steps = [
       { address: "s1/r2/level", action: "set", value: 10 },

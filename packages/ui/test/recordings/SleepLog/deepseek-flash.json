@@ -325,6 +325,24 @@
       "Timeline"
     ]
   },
+  "SleepLog%2Fchoose%2FLay%20out%20tomorrow's%20timed%20activities%20from%208%20AM%20to%208%20PM%20in%20chronological%20order%2C%20not%20last%20night's%20sleep./fbe63bf49c0686e2/650822becbcaf91f": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Breathe: Follow paced breaths with repeats, phase cues and start or pause. Pick: A growing and shrinking circle guiding inhale, hold, exhale and rest, or a guided 5-4-3-2-1 sensory grounding exercise. Not counting down an activity (Timer) or playing a recording (Player).\n- Entries: Revisit personal journal entries grouped by month, newest first. Pick: A feed of past personal journal entries with dates, mood faces, excerpts, tags and optional thumbnails. Not general tappable rows (List), posts by other people (Feed), or saved passages from books (Highlights).\n- Factors: Mark several things that affected how the day felt. Pick: A grid of four to sixteen independently toggled icon tiles for things that happened or shaped a day. Not a few text filters (Chips), physical symptoms with severity (SymptomLog), or shortcuts (Actions).\n- Feelings: Name up to three precise feelings by choosing words within a family. Pick: Choose a family such as calm or anxious, then toggle up to three precise feeling words. Not one five-point rating (Scale), things that happened (Factors), or physical symptoms (SymptomLog).\n- Patterns: Find which logged daily factors tend to go with better or worse moods. Pick: Derive findings from a mood journal by comparing days with and without a tagged factor after at least two weeks. Choose this for journal-derived comparisons even when findings also use paired bars. Not plotting values the person already supplied (Bars) or a single time trend (Sparkline).\n- SleepLog: Review last night's sleep, its quality and the week's average. Pick: One night's bedtime and wake time with an asleep versus awake bar, quality face and weekly sleep average. Not a schedule of timed events (Timeline) or one rating alone (Scale).\n- Soundscape: Mix calming sound loops at individual volumes and set a sleep timer. Pick: Combine two to six looping background sounds such as rain and fire with independent volumes and a sleep timer. Not one recording (Player) or a list of tracks to play in turn (Playlist).\n- ThoughtRecord: Reflect on a difficult thought and find a more balanced way to see it. Pick: A guided thought record: what happened, automatic thought, thinking traps, balanced reframe, and before and after mood. Not a free-form journal (Composer), browsing past entries (Entries), or naming feelings (Feelings).\n\nNeed, in the person's words: \"Lay out tomorrow's timed activities from 8 AM to 8 PM in chronological order, not last night's sleep.\"\nReply with only the component id, nothing else.",
+    "reply": "Timeline",
+    "replies": [
+      "Timeline",
+      "Timeline",
+      "Timeline"
+    ]
+  },
+  "SleepLog%2Fchoose%2FShow%20how%20last%20night%20went%3A%20when%20I%20went%20to%20bed%20and%20woke%2C%20a%20bar%20for%20time%20asleep%20versus%20awake%2C%20a%20quality%20face%2C%20and%20my%20average%20over%20the%20week./369dc37be4258bcc/60fe029a24d1d919": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Breathe: Follow paced breaths with repeats, phase cues and start or pause. Pick: A growing and shrinking circle guiding inhale, hold, exhale and rest, or a guided 5-4-3-2-1 sensory grounding exercise. Not counting down an activity (Timer) or playing a recording (Player).\n- Entries: Revisit personal journal entries grouped by month, newest first. Pick: A feed of past personal journal entries with dates, mood faces, excerpts, tags and optional thumbnails. Not general tappable rows (List), posts by other people (Feed), or saved passages from books (Highlights).\n- Factors: Mark several things that affected how the day felt. Pick: A grid of four to sixteen independently toggled icon tiles for things that happened or shaped a day. Not a few text filters (Chips), physical symptoms with severity (SymptomLog), or shortcuts (Actions).\n- Feelings: Name up to three precise feelings by choosing words within a family. Pick: Choose a family such as calm or anxious, then toggle up to three precise feeling words. Not one five-point rating (Scale), things that happened (Factors), or physical symptoms (SymptomLog).\n- Patterns: Find which logged daily factors tend to go with better or worse moods. Pick: Derive findings from a mood journal by comparing days with and without a tagged factor after at least two weeks. Choose this for journal-derived comparisons even when findings also use paired bars. Not plotting values the person already supplied (Bars) or a single time trend (Sparkline).\n- SleepLog: Review last night's sleep, its quality and the week's average. Pick: One night's bedtime and wake time with an asleep versus awake bar, quality face and weekly sleep average. Not a schedule of timed events (Timeline) or one rating alone (Scale).\n- Soundscape: Mix calming sound loops at individual volumes and set a sleep timer. Pick: Combine two to six looping background sounds such as rain and fire with independent volumes and a sleep timer. Not one recording (Player) or a list of tracks to play in turn (Playlist).\n- ThoughtRecord: Reflect on a difficult thought and find a more balanced way to see it. Pick: A guided thought record: what happened, automatic thought, thinking traps, balanced reframe, and before and after mood. Not a free-form journal (Composer), browsing past entries (Entries), or naming feelings (Feelings).\n\nNeed, in the person's words: \"Show how last night went: when I went to bed and woke, a bar for time asleep versus awake, a quality face, and my average over the week.\"\nReply with only the component id, nothing else.",
+    "reply": "SleepLog",
+    "replies": [
+      "SleepLog",
+      "SleepLog",
+      "SleepLog"
+    ]
+  },
   "SleepLog%2Fchoose%2FShow%20how%20last%20night%20went%3A%20when%20I%20went%20to%20bed%20and%20woke%2C%20a%20bar%20for%20time%20asleep%20versus%20awake%2C%20a%20quality%20face%2C%20and%20my%20average%20over%20the%20week./a39dfeb40ee64412/60fe029a24d1d919": {
     "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Breathe: Follow paced breaths with repeats, phase cues and start or pause. Pick: A growing and shrinking circle guiding inhale, hold, exhale and rest, or a guided 5-4-3-2-1 sensory grounding exercise. Not counting down an activity (Timer) or playing a recording (Player).\n- Entries: Revisit personal journal entries grouped by month, newest first. Pick: A feed of past personal journal entries with dates, mood faces, excerpts, tags and optional thumbnails. Not general tappable rows (List), posts by other people (Feed), or saved passages from books (Highlights).\n- Factors: Mark several things that affected how the day felt. Pick: A grid of four to sixteen independently toggled icon tiles for things that happened or shaped a day. Not a few text filters (Chips), physical symptoms with severity (SymptomLog), or shortcuts (Actions).\n- Feelings: Name up to three precise feelings by choosing words within a family. Pick: Choose a family such as calm or anxious, then toggle up to three precise feeling words. Not one five-point rating (Scale), things that happened (Factors), or physical symptoms (SymptomLog).\n- Patterns: Find which logged daily factors tend to go with better or worse moods. Pick: Derive findings from a mood journal by comparing days with and without a tagged factor after at least two weeks. Choose this for journal-derived comparisons even when findings also use paired bars. Not plotting values the person already supplied (Bars) or a single time trend (Sparkline).\n- SleepLog: Review last night's sleep, its quality and the week's average. Pick: One night's bedtime and wake time with an asleep versus awake bar, quality face and weekly sleep average. Not a schedule of timed events (Timeline) or one rating alone (Scale).\n- Soundscape: Mix calming sound loops at individual volumes and set a sleep timer. Pick: Combine two to six looping background sounds such as rain and fire with independent volumes and a sleep timer. Not one recording (Player) or a list of tracks to play in turn (Playlist).\n- ThoughtRecord: Reflect on a difficult thought and find a more balanced way to see it. Pick: A guided thought record: what happened, automatic thought, thinking traps, balanced reframe, and before and after mood. Not a free-form journal (Composer), browsing past entries (Entries), or naming feelings (Feelings).\n\nNeed, in the person's words: \"Show how last night went: when I went to bed and woke, a bar for time asleep versus awake, a quality face, and my average over the week.\"\nReply with only the component id, nothing else.",
     "reply": "SleepLog",
@@ -353,6 +371,15 @@
     ]
   },
   "SleepLog%2Fread%2FOpen%20the%20screen%20where%20I%20can%20edit%20last%20night's%20sleep%20times./46e252f0983effeb/b5d7abfde2da40d0": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 SleepLog Bedtime: 22:45 — Wake time: 06:45 — Time asleep: 7 h 30 min (450 min) — 94% asleep — 30 min awake — Sleep quality: Good — 7-night average: 7 h 21 min (441 min) — Only phone import needs permission — \"Edit sleep times\" [s1/edit press→sleep_log]\n\nTask: Open the screen where I can edit last night's sleep times.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/edit\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1/edit\", \"action\": \"press\"}",
+      "{\"address\": \"s1/edit\", \"action\": \"press\"}",
+      "{\"address\": \"s1/edit\", \"action\": \"press\"}"
+    ]
+  },
+  "SleepLog%2Fread%2FOpen%20the%20screen%20where%20I%20can%20edit%20last%20night's%20sleep%20times./cd22f7076b2bd04c/b5d7abfde2da40d0": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 SleepLog Bedtime: 22:45 — Wake time: 06:45 — Time asleep: 7 h 30 min (450 min) — 94% asleep — 30 min awake — Sleep quality: Good — 7-night average: 7 h 21 min (441 min) — Only phone import needs permission — \"Edit sleep times\" [s1/edit press→sleep_log]\n\nTask: Open the screen where I can edit last night's sleep times.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"s1/edit\", \"action\": \"press\"}",
     "replies": [
@@ -795,6 +822,440 @@
       "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"bed\":\"22:45\",\"wake\":\"06:45\",\"awake\":30,\"stages\":null,\"hrAvg\":null,\"hrv\":null,\"quality\":4,\"week\":[7,7.5,8,6.5,7,8,7.5],\"goto\":\"sleep_log\"}"
     ]
   },
+  "SleepLog%2Fwrite%2FLast%20night's%20bedtime%2022%3A45%20and%20wake%20time%2006%3A45%2C%20with%2030%20minutes%20awake%2C%20quality%20four%2C%20and%20seven%20nights%20at%207%2C%207.5%2C%208%2C%206.5%2C%207%2C%208%20and%207.5%20hours.%20Edit%20goes%20to%20sleep_log./e0c11c6d0e1f33b6/2d72ea180af73e22": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSleepLog: Review last night's sleep, its quality and the week's average.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", style?: summary|stages=\"summary\", bed: time HH:MM, wake: time HH:MM, awake?: int 0..1439, stages?: { deep: int 0..1439, rem: int 0..1439, light: int 0..1439, awake: int 0..1439 }, hrAvg?: int 1..300, hrv?: int 0..1000, quality?: int 1..5, week?: [7..7 num 0..24], goto: id snake_case }\nRule: Use 24-hour HH:MM for bed and wake. Awake minutes cannot exceed the interval from bed to wake across midnight. If supplied, week contains exactly seven hours values from 0 to 24; never write duration or average.\nRule: For a night with the weekly average hidden, use {\"density\":null,\"surface\":null,\"detail\":\"brief\"}. Keep the seven nights in week. Set unrequested finish axes to null, never \"card\" or \"comfortable\".\nRule: Only select style \"stages\" if a breakdown is requested. Never infer stages from bedtime, wake or awake time. Leave stages null unless all four actual durations are given; their total must match the night, and the two awake values must agree if both given. Leave unrequested style, hrAvg (bpm) and hrv (ms) null.\nexample: {\"c\":\"SleepLog\",\"bed\":\"22:45\",\"wake\":\"06:45\",\"awake\":30,\"quality\":4,\"week\":[7,7.5,8,6.5,7,8,7.5],\"goto\":\"sleep_log\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Last night's bedtime 22:45 and wake time 06:45, with 30 minutes awake, quality four, and seven nights at 7, 7.5, 8, 6.5, 7, 8 and 7.5 hours. Edit goes to sleep_log.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "SleepLog",
+              "enum": [
+                "SleepLog"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "summary",
+                    "stages"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "bed": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "wake": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "awake": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1439
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "stages": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "deep": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    },
+                    "rem": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    },
+                    "light": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    },
+                    "awake": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    }
+                  },
+                  "required": [
+                    "deep",
+                    "rem",
+                    "light",
+                    "awake"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "hrAvg": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 300
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "hrv": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1000
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "quality": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 5
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "week": {
+              "anyOf": [
+                {
+                  "minItems": 7,
+                  "maxItems": 7,
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 24
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "style",
+            "bed",
+            "wake",
+            "awake",
+            "stages",
+            "hrAvg",
+            "hrv",
+            "quality",
+            "week",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"bed\":\"22:45\",\"wake\":\"06:45\",\"awake\":30,\"stages\":null,\"hrAvg\":null,\"hrv\":null,\"quality\":4,\"week\":[7,7.5,8,6.5,7,8,7.5],\"goto\":\"sleep_log\"}",
+    "replies": [
+      "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"bed\":\"22:45\",\"wake\":\"06:45\",\"awake\":30,\"stages\":null,\"hrAvg\":null,\"hrv\":null,\"quality\":4,\"week\":[7,7.5,8,6.5,7,8,7.5],\"goto\":\"sleep_log\"}",
+      "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"bed\":\"22:45\",\"wake\":\"06:45\",\"awake\":30,\"stages\":null,\"hrAvg\":null,\"hrv\":null,\"quality\":4,\"week\":[7,7.5,8,6.5,7,8,7.5],\"goto\":\"sleep_log\"}",
+      "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"bed\":\"22:45\",\"wake\":\"06:45\",\"awake\":30,\"stages\":null,\"hrAvg\":null,\"hrv\":null,\"quality\":4,\"week\":[7,7.5,8,6.5,7,8,7.5],\"goto\":\"sleep_log\"}"
+    ]
+  },
+  "SleepLog%2Fwrite%2FShow%20a%20sleep%20log%20from%2022%3A45%20to%2006%3A45%20as%20a%20stage%20breakdown%2C%20with%2080%20minutes%20deep%2C%20110%20REM%2C%20260%20light%2C%20and%2030%20awake.%20Edit%20opens%20sleep_log./3e0db7651f05a162/4889c003624aa1e0": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSleepLog: Review last night's sleep, its quality and the week's average.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", style?: summary|stages=\"summary\", bed: time HH:MM, wake: time HH:MM, awake?: int 0..1439, stages?: { deep: int 0..1439, rem: int 0..1439, light: int 0..1439, awake: int 0..1439 }, hrAvg?: int 1..300, hrv?: int 0..1000, quality?: int 1..5, week?: [7..7 num 0..24], goto: id snake_case }\nRule: Use 24-hour HH:MM for bed and wake. Awake minutes cannot exceed the interval from bed to wake across midnight. If supplied, week contains exactly seven hours values from 0 to 24; never write duration or average.\nRule: For a night with the weekly average hidden, use {\"density\":null,\"surface\":null,\"detail\":\"brief\"}. Keep the seven nights in week. Set unrequested finish axes to null, never \"card\" or \"comfortable\".\nRule: Only select style \"stages\" if a breakdown is requested. Never infer stages from bedtime, wake or awake time. Leave stages null unless all four actual durations are given; their total must match the night, and the two awake values must agree if both given. Leave unrequested style, hrAvg (bpm) and hrv (ms) null.\nexample: {\"c\":\"SleepLog\",\"bed\":\"22:45\",\"wake\":\"06:45\",\"awake\":30,\"quality\":4,\"week\":[7,7.5,8,6.5,7,8,7.5],\"goto\":\"sleep_log\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show a sleep log from 22:45 to 06:45 as a stage breakdown, with 80 minutes deep, 110 REM, 260 light, and 30 awake. Edit opens sleep_log.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "SleepLog",
+              "enum": [
+                "SleepLog"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "summary",
+                    "stages"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "bed": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "wake": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "awake": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1439
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "stages": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "deep": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    },
+                    "rem": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    },
+                    "light": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    },
+                    "awake": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    }
+                  },
+                  "required": [
+                    "deep",
+                    "rem",
+                    "light",
+                    "awake"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "hrAvg": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 300
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "hrv": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1000
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "quality": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 5
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "week": {
+              "anyOf": [
+                {
+                  "minItems": 7,
+                  "maxItems": 7,
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 24
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "style",
+            "bed",
+            "wake",
+            "awake",
+            "stages",
+            "hrAvg",
+            "hrv",
+            "quality",
+            "week",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"stages\",\"bed\":\"22:45\",\"wake\":\"06:45\",\"awake\":30,\"stages\":{\"deep\":80,\"rem\":110,\"light\":260,\"awake\":30},\"hrAvg\":null,\"hrv\":null,\"quality\":null,\"week\":null,\"goto\":\"sleep_log\"}",
+    "replies": [
+      "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"stages\",\"bed\":\"22:45\",\"wake\":\"06:45\",\"awake\":30,\"stages\":{\"deep\":80,\"rem\":110,\"light\":260,\"awake\":30},\"hrAvg\":null,\"hrv\":null,\"quality\":null,\"week\":null,\"goto\":\"sleep_log\"}",
+      "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"stages\",\"bed\":\"22:45\",\"wake\":\"06:45\",\"awake\":null,\"stages\":{\"deep\":80,\"rem\":110,\"light\":260,\"awake\":30},\"hrAvg\":null,\"hrv\":null,\"quality\":null,\"week\":null,\"goto\":\"sleep_log\"}",
+      "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":\"full\",\"style\":\"stages\",\"bed\":\"22:45\",\"wake\":\"06:45\",\"awake\":30,\"stages\":{\"deep\":80,\"rem\":110,\"light\":260,\"awake\":30},\"hrAvg\":null,\"hrv\":null,\"quality\":null,\"week\":null,\"goto\":\"sleep_log\"}"
+    ]
+  },
   "SleepLog%2Fwrite%2FShow%20a%20sleep%20log%20from%2022%3A45%20to%2006%3A45%20as%20a%20stage%20breakdown%2C%20with%2080%20minutes%20deep%2C%20110%20REM%2C%20260%20light%2C%20and%2030%20awake.%20Edit%20opens%20sleep_log./793c3e0f09babcc2/d935609f25253550": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSleepLog: Review last night's sleep, its quality and the week's average.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", style?: summary|stages=\"summary\", bed: time HH:MM, wake: time HH:MM, awake?: int 0..1439, stages?: { deep: int 0..1439, rem: int 0..1439, light: int 0..1439, awake: int 0..1439 }, hrAvg?: int 1..300, hrv?: int 0..1000, quality?: int 1..5, week?: [7..7 num 0..24], goto: id snake_case }\nRule: Use 24-hour HH:MM for bed and wake. Awake minutes cannot exceed the interval from bed to wake across midnight. If supplied, week contains exactly seven hours values from 0 to 24; never write duration or average.\nRule: Use detail \"brief\" only when asked to show the night without the weekly average. Keep the seven nights in week if supplied.\nRule: Use style \"stages\" for the stage breakdown. Supply deep, rem, light and awake as whole minutes in stages only when known. They must fit the night; if both awake fields are supplied they must agree. Leave unrequested style, stages, hrAvg (bpm) and hrv (ms) null.\nexample: {\"c\":\"SleepLog\",\"bed\":\"22:45\",\"wake\":\"06:45\",\"awake\":30,\"quality\":4,\"week\":[7,7.5,8,6.5,7,8,7.5],\"goto\":\"sleep_log\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show a sleep log from 22:45 to 06:45 as a stage breakdown, with 80 minutes deep, 110 REM, 260 light, and 30 awake. Edit opens sleep_log.",
     "format": {
@@ -1227,6 +1688,223 @@
       "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"stages\",\"bed\":\"22:45\",\"wake\":\"06:45\",\"awake\":30,\"stages\":{\"deep\":80,\"rem\":110,\"light\":260,\"awake\":30},\"hrAvg\":null,\"hrv\":null,\"quality\":null,\"week\":null,\"goto\":\"sleep_log\"}",
       "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":\"full\",\"style\":\"stages\",\"bed\":\"22:45\",\"wake\":\"06:45\",\"awake\":30,\"stages\":{\"deep\":80,\"rem\":110,\"light\":260,\"awake\":30},\"hrAvg\":null,\"hrv\":null,\"quality\":null,\"week\":null,\"goto\":\"sleep_log\"}",
       "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"stages\",\"bed\":\"22:45\",\"wake\":\"06:45\",\"awake\":30,\"stages\":{\"deep\":80,\"rem\":110,\"light\":260,\"awake\":30},\"hrAvg\":null,\"hrv\":null,\"quality\":null,\"week\":null,\"goto\":\"sleep_log\"}"
+    ]
+  },
+  "SleepLog%2Fwrite%2FShow%20last%20night%20only%3A%20slept%20from%2023%3A15%20to%2007%3A20%20with%2025%20minutes%20awake%20and%20quality%204%20out%20of%205.%20Store%20all%20seven%20nights%20(7%2C%208%2C%206%2C%208%2C%207%2C%207.5%2C%208%20hours)%2C%20but%20hide%20the%20weekly%20average.%20Edit%20opens%20sleep_log./8934b4715ae8a15a/2c9ac23430ee71b2": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSleepLog: Review last night's sleep, its quality and the week's average.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", style?: summary|stages=\"summary\", bed: time HH:MM, wake: time HH:MM, awake?: int 0..1439, stages?: { deep: int 0..1439, rem: int 0..1439, light: int 0..1439, awake: int 0..1439 }, hrAvg?: int 1..300, hrv?: int 0..1000, quality?: int 1..5, week?: [7..7 num 0..24], goto: id snake_case }\nRule: Use 24-hour HH:MM for bed and wake. Awake minutes cannot exceed the interval from bed to wake across midnight. If supplied, week contains exactly seven hours values from 0 to 24; never write duration or average.\nRule: For a night with the weekly average hidden, use {\"density\":null,\"surface\":null,\"detail\":\"brief\"}. Keep the seven nights in week. Set unrequested finish axes to null, never \"card\" or \"comfortable\".\nRule: Only select style \"stages\" if a breakdown is requested. Never infer stages from bedtime, wake or awake time. Leave stages null unless all four actual durations are given; their total must match the night, and the two awake values must agree if both given. Leave unrequested style, hrAvg (bpm) and hrv (ms) null.\nexample: {\"c\":\"SleepLog\",\"bed\":\"22:45\",\"wake\":\"06:45\",\"awake\":30,\"quality\":4,\"week\":[7,7.5,8,6.5,7,8,7.5],\"goto\":\"sleep_log\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show last night only: slept from 23:15 to 07:20 with 25 minutes awake and quality 4 out of 5. Store all seven nights (7, 8, 6, 8, 7, 7.5, 8 hours), but hide the weekly average. Edit opens sleep_log.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "SleepLog",
+              "enum": [
+                "SleepLog"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "summary",
+                    "stages"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "bed": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "wake": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "awake": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1439
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "stages": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "deep": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    },
+                    "rem": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    },
+                    "light": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    },
+                    "awake": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    }
+                  },
+                  "required": [
+                    "deep",
+                    "rem",
+                    "light",
+                    "awake"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "hrAvg": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 300
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "hrv": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1000
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "quality": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 5
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "week": {
+              "anyOf": [
+                {
+                  "minItems": 7,
+                  "maxItems": 7,
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 24
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "style",
+            "bed",
+            "wake",
+            "awake",
+            "stages",
+            "hrAvg",
+            "hrv",
+            "quality",
+            "week",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"bed\":\"23:15\",\"wake\":\"07:20\",\"awake\":25,\"stages\":null,\"hrAvg\":null,\"hrv\":null,\"quality\":4,\"week\":[7,8,6,8,7,7.5,8],\"goto\":\"sleep_log\"}",
+    "replies": [
+      "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"bed\":\"23:15\",\"wake\":\"07:20\",\"awake\":25,\"stages\":null,\"hrAvg\":null,\"hrv\":null,\"quality\":4,\"week\":[7,8,6,8,7,7.5,8],\"goto\":\"sleep_log\"}",
+      "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"bed\":\"23:15\",\"wake\":\"07:20\",\"awake\":25,\"stages\":null,\"hrAvg\":null,\"hrv\":null,\"quality\":4,\"week\":[7,8,6,8,7,7.5,8],\"goto\":\"sleep_log\"}",
+      "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"bed\":\"23:15\",\"wake\":\"07:20\",\"awake\":25,\"stages\":null,\"hrAvg\":null,\"hrv\":null,\"quality\":4,\"week\":[7,8,6,8,7,7.5,8],\"goto\":\"sleep_log\"}"
     ]
   },
   "SleepLog%2Fwrite%2FShow%20last%20night%20only%3A%20slept%20from%2023%3A15%20to%2007%3A20%20with%2025%20minutes%20awake%20and%20quality%204%20out%20of%205.%20Store%20all%20seven%20nights%20(7%2C%208%2C%206%2C%208%2C%207%2C%207.5%2C%208%20hours)%2C%20but%20hide%20the%20weekly%20average.%20Edit%20opens%20sleep_log./8fbf4c604ea8e524/2c9ac23430ee71b2": {
@@ -1663,6 +2341,223 @@
       "{\"c\":\"SleepLog\",\"density\":null,\"surface\":\"card\",\"detail\":\"brief\",\"style\":null,\"bed\":\"23:15\",\"wake\":\"07:20\",\"awake\":25,\"stages\":null,\"hrAvg\":null,\"hrv\":null,\"quality\":4,\"week\":[7,8,6,8,7,7.5,8],\"goto\":\"sleep_log\"}"
     ]
   },
+  "SleepLog%2Fwrite%2FShow%20my%20sleep%20from%2023%3A15%20to%2007%3A20%2C%20with%20a%20wearable%20average%20heart%20rate%20of%2061%20bpm.%20Edit%20opens%20sleep_log./3d12a23b596509f6/4591788faca20c70": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSleepLog: Review last night's sleep, its quality and the week's average.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", style?: summary|stages=\"summary\", bed: time HH:MM, wake: time HH:MM, awake?: int 0..1439, stages?: { deep: int 0..1439, rem: int 0..1439, light: int 0..1439, awake: int 0..1439 }, hrAvg?: int 1..300, hrv?: int 0..1000, quality?: int 1..5, week?: [7..7 num 0..24], goto: id snake_case }\nRule: Use 24-hour HH:MM for bed and wake. Awake minutes cannot exceed the interval from bed to wake across midnight. If supplied, week contains exactly seven hours values from 0 to 24; never write duration or average.\nRule: For a night with the weekly average hidden, use {\"density\":null,\"surface\":null,\"detail\":\"brief\"}. Keep the seven nights in week. Set unrequested finish axes to null, never \"card\" or \"comfortable\".\nRule: Only select style \"stages\" if a breakdown is requested. Never infer stages from bedtime, wake or awake time. Leave stages null unless all four actual durations are given; their total must match the night, and the two awake values must agree if both given. Leave unrequested style, hrAvg (bpm) and hrv (ms) null.\nexample: {\"c\":\"SleepLog\",\"bed\":\"22:45\",\"wake\":\"06:45\",\"awake\":30,\"quality\":4,\"week\":[7,7.5,8,6.5,7,8,7.5],\"goto\":\"sleep_log\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show my sleep from 23:15 to 07:20, with a wearable average heart rate of 61 bpm. Edit opens sleep_log.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "SleepLog",
+              "enum": [
+                "SleepLog"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "summary",
+                    "stages"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "bed": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "wake": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "awake": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1439
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "stages": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "deep": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    },
+                    "rem": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    },
+                    "light": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    },
+                    "awake": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    }
+                  },
+                  "required": [
+                    "deep",
+                    "rem",
+                    "light",
+                    "awake"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "hrAvg": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 300
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "hrv": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1000
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "quality": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 5
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "week": {
+              "anyOf": [
+                {
+                  "minItems": 7,
+                  "maxItems": 7,
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 24
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "style",
+            "bed",
+            "wake",
+            "awake",
+            "stages",
+            "hrAvg",
+            "hrv",
+            "quality",
+            "week",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"bed\":\"23:15\",\"wake\":\"07:20\",\"awake\":null,\"stages\":null,\"hrAvg\":61,\"hrv\":null,\"quality\":null,\"week\":null,\"goto\":\"sleep_log\"}",
+    "replies": [
+      "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"bed\":\"23:15\",\"wake\":\"07:20\",\"awake\":null,\"stages\":null,\"hrAvg\":61,\"hrv\":null,\"quality\":null,\"week\":null,\"goto\":\"sleep_log\"}",
+      "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"bed\":\"23:15\",\"wake\":\"07:20\",\"awake\":null,\"stages\":null,\"hrAvg\":61,\"hrv\":null,\"quality\":null,\"week\":null,\"goto\":\"sleep_log\"}",
+      "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"bed\":\"23:15\",\"wake\":\"07:20\",\"awake\":null,\"stages\":null,\"hrAvg\":61,\"hrv\":null,\"quality\":null,\"week\":null,\"goto\":\"sleep_log\"}"
+    ]
+  },
   "SleepLog%2Fwrite%2FShow%20my%20sleep%20from%2023%3A15%20to%2007%3A20%2C%20with%20a%20wearable%20average%20heart%20rate%20of%2061%20bpm.%20Edit%20opens%20sleep_log./7cbf578e94471b5f/4591788faca20c70": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSleepLog: Review last night's sleep, its quality and the week's average.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", style?: summary|stages=\"summary\", bed: time HH:MM, wake: time HH:MM, awake?: int 0..1439, stages?: { deep: int 0..1439, rem: int 0..1439, light: int 0..1439, awake: int 0..1439 }, hrAvg?: int 1..300, hrv?: int 0..1000, quality?: int 1..5, week?: [7..7 num 0..24], goto: id snake_case }\nRule: Use 24-hour HH:MM for bed and wake. Awake minutes cannot exceed the interval from bed to wake across midnight. If supplied, week contains exactly seven hours values from 0 to 24; never write duration or average.\nRule: For a night with the weekly average hidden, use {\"density\":null,\"surface\":null,\"detail\":\"brief\"}. Keep the seven nights in week. Set unrequested finish axes to null, never \"card\" or \"comfortable\".\nRule: Only select style \"stages\" if a breakdown is requested. Never infer stages from bedtime, wake or awake time. Leave stages null unless all four actual durations are given; their total must match the night, and the two awake values must agree if both given. Leave unrequested style, hrAvg (bpm) and hrv (ms) null.\nexample: {\"c\":\"SleepLog\",\"bed\":\"22:45\",\"wake\":\"06:45\",\"awake\":30,\"quality\":4,\"week\":[7,7.5,8,6.5,7,8,7.5],\"goto\":\"sleep_log\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show my sleep from 23:15 to 07:20, with a wearable average heart rate of 61 bpm. Edit opens sleep_log.",
     "format": {
@@ -2095,6 +2990,223 @@
       "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"bed\":\"23:15\",\"wake\":\"07:20\",\"awake\":null,\"stages\":null,\"hrAvg\":61,\"hrv\":null,\"quality\":null,\"week\":null,\"goto\":\"sleep_log\"}",
       "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"bed\":\"23:15\",\"wake\":\"07:20\",\"awake\":null,\"stages\":null,\"hrAvg\":61,\"hrv\":null,\"quality\":null,\"week\":null,\"goto\":\"sleep_log\"}",
       "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"bed\":\"23:15\",\"wake\":\"07:20\",\"awake\":null,\"stages\":null,\"hrAvg\":61,\"hrv\":null,\"quality\":null,\"week\":null,\"goto\":\"sleep_log\"}"
+    ]
+  },
+  "SleepLog%2Fwrite%2FShow%20my%20sleep%20from%2023%3A15%20to%2007%3A20%2C%20with%20heart%20rate%20variability%20of%2048%20milliseconds%20from%20my%20wearable.%20Edit%20opens%20sleep_log./1829680c48d0ac8d/8283245d02d43935": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSleepLog: Review last night's sleep, its quality and the week's average.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", style?: summary|stages=\"summary\", bed: time HH:MM, wake: time HH:MM, awake?: int 0..1439, stages?: { deep: int 0..1439, rem: int 0..1439, light: int 0..1439, awake: int 0..1439 }, hrAvg?: int 1..300, hrv?: int 0..1000, quality?: int 1..5, week?: [7..7 num 0..24], goto: id snake_case }\nRule: Use 24-hour HH:MM for bed and wake. Awake minutes cannot exceed the interval from bed to wake across midnight. If supplied, week contains exactly seven hours values from 0 to 24; never write duration or average.\nRule: For a night with the weekly average hidden, use {\"density\":null,\"surface\":null,\"detail\":\"brief\"}. Keep the seven nights in week. Set unrequested finish axes to null, never \"card\" or \"comfortable\".\nRule: Only select style \"stages\" if a breakdown is requested. Never infer stages from bedtime, wake or awake time. Leave stages null unless all four actual durations are given; their total must match the night, and the two awake values must agree if both given. Leave unrequested style, hrAvg (bpm) and hrv (ms) null.\nexample: {\"c\":\"SleepLog\",\"bed\":\"22:45\",\"wake\":\"06:45\",\"awake\":30,\"quality\":4,\"week\":[7,7.5,8,6.5,7,8,7.5],\"goto\":\"sleep_log\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show my sleep from 23:15 to 07:20, with heart rate variability of 48 milliseconds from my wearable. Edit opens sleep_log.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "SleepLog",
+              "enum": [
+                "SleepLog"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "summary",
+                    "stages"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "bed": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "wake": {
+              "type": "string",
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+            },
+            "awake": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1439
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "stages": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "deep": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    },
+                    "rem": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    },
+                    "light": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    },
+                    "awake": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1439
+                    }
+                  },
+                  "required": [
+                    "deep",
+                    "rem",
+                    "light",
+                    "awake"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "hrAvg": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 300
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "hrv": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1000
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "quality": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 5
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "week": {
+              "anyOf": [
+                {
+                  "minItems": 7,
+                  "maxItems": 7,
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 24
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "style",
+            "bed",
+            "wake",
+            "awake",
+            "stages",
+            "hrAvg",
+            "hrv",
+            "quality",
+            "week",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"bed\":\"23:15\",\"wake\":\"07:20\",\"awake\":null,\"stages\":null,\"hrAvg\":null,\"hrv\":48,\"quality\":null,\"week\":null,\"goto\":\"sleep_log\"}",
+    "replies": [
+      "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"bed\":\"23:15\",\"wake\":\"07:20\",\"awake\":null,\"stages\":null,\"hrAvg\":null,\"hrv\":48,\"quality\":null,\"week\":null,\"goto\":\"sleep_log\"}",
+      "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"bed\":\"23:15\",\"wake\":\"07:20\",\"awake\":null,\"stages\":null,\"hrAvg\":null,\"hrv\":48,\"quality\":null,\"week\":null,\"goto\":\"sleep_log\"}",
+      "{\"c\":\"SleepLog\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"bed\":\"23:15\",\"wake\":\"07:20\",\"awake\":null,\"stages\":null,\"hrAvg\":null,\"hrv\":48,\"quality\":null,\"week\":null,\"goto\":\"sleep_log\"}"
     ]
   },
   "SleepLog%2Fwrite%2FShow%20my%20sleep%20from%2023%3A15%20to%2007%3A20%2C%20with%20heart%20rate%20variability%20of%2048%20milliseconds%20from%20my%20wearable.%20Edit%20opens%20sleep_log./201286d242690108/261fb87972de6300": {

@@ -82,20 +82,23 @@ export function readSleepLog(input: Night, full: boolean, lang?: string): string
   const { editSleep, sleep: words } = mindWordsFor(lang);
   const lines = sleepLogLines(input, lang);
   const stages = input.style === "stages" && input.stages;
+  const total = nightMinutes(input.bed, input.wake);
   return [
     words.reading(words.bed, lines.bed),
     words.reading(words.wake, lines.wake),
     words.reading(words.duration, words.minuteReading(lines.duration, lines.asleepMinutes)),
     ...(stages
-      ? sleepStagePoints(stages, lang).map(({ label, value }) =>
-          words.reading(
-            label,
-            words.minuteReading(
-              durationLine(value, lang),
-              percentLine(value, nightMinutes(input.bed, input.wake), lang),
-            ),
+      ? [
+          words.stageTitle,
+          words.stageMinutes,
+          ...sleepStagePoints(stages, lang).map(
+            ({ id, label, value }) =>
+              `${id}/label ${words.reading(
+                label,
+                words.minuteReading(durationLine(value, lang), percentLine(value, total, lang)),
+              )}`,
           ),
-        )
+        ]
       : [lines.share, lines.awake]),
     ...(lines.quality === undefined ? [] : [words.reading(words.quality, lines.quality)]),
     ...(full && lines.average !== undefined && lines.averageMinutes !== undefined
