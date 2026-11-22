@@ -67,6 +67,7 @@ export function tableSections<T extends Row>(
 }
 
 function aggregate(values: readonly number[], average: boolean) {
+  if (average && values.every((value) => value === values[0])) return values[0]!;
   const total = compensatedTotal(values);
   if (Number.isFinite(total)) return average ? total / values.length : total;
   // A power-of-two divisor bounds partial sums without rounding the large terms.
