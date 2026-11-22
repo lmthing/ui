@@ -539,10 +539,10 @@ scope or Writer fields follow from shared drawing.
 
 ### 4.7 Lookups for repairs
 
-**Pending:** `nearestIcon(name)` (edit distance and synonyms, else neutral `dot`),
-`nearestPhotoTag(tag)` over catalog photo tags, `clampText(value, max)` at a word boundary, and
-`snapEnum(value, values)`. Strict output prevents wrong ids; these helpers serve legacy or other
-untrusted input and property-level repairs, not component alias mapping.
+R2 snaps icon names (edit distance or Lucide synonyms, else neutral `dot`), enum values and
+malformed photo tags, and clips text at a word boundary. The photo schema accepts open `lib:` tags;
+the host may supply its tag vocabulary when repairing a malformed reference. Valid references are
+preserved. These repairs do not map modern component aliases.
 
 Current schemas reject unknown icons and malformed photo references. `swatch` already snaps unknown
 product-colour names. `clip` is a cast/copy helper, not the planned repair API. `legacyTarget` is
@@ -562,9 +562,9 @@ home/~after:l1      gap after component
 `parseAddress`, `formatAddress` and `climb` are built. Round-trip tests cover the grammar. The kit
 stamps full addresses; root elements include `/root`, while reader action addresses omit it.
 
-**Pending persistent ids:** `stampItemIds` currently assigns positional `r1`, `r2`, … (or a declared
-prefix) and overwrites supplied ids with positional ids. It does not allocate component ids or persist item counters.
-“Second row ever added” semantics require the host/validator counter contract.
+`stampItemIds` remains the positional view helper. The line pipeline allocates component and primary
+item ids from serializable high water marks. Keep the counters across additions and deletions;
+matching retained items on a rewrite stays with the host.
 
 ### 4.9 Prompt entries
 
@@ -793,13 +793,13 @@ component acceptance is each probe's majority, not those aggregate thresholds.
 
 ### 4.14 Lines to screens: parse, component repairs, ids
 
-**Pending pipeline.** The pure R1/R2 steps remain requirements for legacy/untrusted input and worked
+The pure R1/R2 steps handle legacy/untrusted input and worked
 examples. Strict output removes component alias/off-pack repairs, not property validation.
 
 ```ts
 parseLine(text): { line?: unknown; codes: string[] };
 repairComponent(line, registry, ctx: { cast }): { component?: Component; codes: string[] };
-stampIds(components): Component[];
+stampIds(components, registry, counters?): Component[];
 assembleScreen(lines, registry, ctx): { screen: ScreenLike; codes: string[] };
 ```
 
@@ -808,14 +808,15 @@ exact/scoped ids, strips unknown fields, fills required values from fallback, sn
 tags, clamps text/arrays and applies migration aliases. It has no `R2.alias` or `R2.off_pack`.
 The repair is named `repairComponent`. The existing `readComponent` export remains the text reader.
 
-Only positional `stampItemIds` exists. Persistent component/item counters and `assembleScreen` are
-not built. Repair codes live in one future `lines/codes.ts`, with fixture tables for real bad inputs.
-Pack checks and compose probes currently parse JSON directly and require schema validity without
-repair; gallery does not yet load a full JSON Lines fixture suite through this pipeline.
+`stampIdsWithCounters` returns wire components, primary item ids keyed by component id, and the
+advanced counters. `assembleScreen` puts the latter two alongside `components` on the returned
+screen, so a runtime row id never collides with a schema-declared business id. `stampIds` projects
+row ids onto view props instead. Repair codes live in `lines/codes.ts`.
 
 The pipeline stops at R2. Region sorting, primary demotion, extras, flows/waves, cast checks and
-rewrite id carry-over stay in host R3–R6. Once built, `assembleScreen` serves worked examples,
-composition and gallery fixtures; compose must still count issues before any R3 repair.
+rewrite id carry-over stay in host R3–R6. Worked JSONL examples run through `assembleScreen` in
+tests. Compose and gallery can adopt the pipeline separately; compose must still count issues
+before any R3 repair.
 
 #### Retirement manifests
 
