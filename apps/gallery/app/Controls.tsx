@@ -118,7 +118,7 @@ export function Controls({ kind, query }: { kind: string; query: URLSearchParams
         <PhoneScreen
           screen={screens[kind] ?? screens.form!}
           theme={theme}
-          resolvePhoto={resolvePhoto}
+          resolvePhoto={(ref) => resolvePhoto(ref, theme)}
           onLink={onLink}
           onSend={onSend}
           onChange={onChange}
