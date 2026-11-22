@@ -1,14 +1,17 @@
 import type { ActStep, Values } from "../../../catalog";
 
 type Pair = { left: string; right: string };
+export const wordBankLimit = 8;
 export type QuizItem = {
   question: string;
-  kind: "choice" | "truefalse" | "type" | "match";
+  kind: "choice" | "truefalse" | "type" | "match" | "order";
   options?: string[] | undefined;
   pairs?: Pair[] | undefined;
-  answer?: number | boolean | string | undefined;
+  words?: string[] | undefined;
+  answer?: number | boolean | string | number[] | undefined;
   explain?: string | undefined;
   photo?: string | undefined;
+  media?: string | undefined;
 };
 
 export const rightOrder = (pairs: readonly Pair[]) => {
@@ -33,6 +36,10 @@ const choices = (part: ChoicePart, count: number) => [
   ...indexes(count),
   ...indexes(count).map((index) => quizKey(part, index)),
 ];
+export const wordKey = (index: number) => `W${index + 1}`;
+export const quizWordOrder = (answers: Answers) => (answers.order ?? []) as readonly number[];
+const wordIndex = (value: unknown) =>
+  typeof value === "string" && /^W[1-8]$/.test(value) ? Number(value.slice(1)) - 1 : undefined;
 const indexOf = (value: unknown) =>
   typeof value === "number"
     ? value
@@ -41,11 +48,13 @@ const indexOf = (value: unknown) =>
       : undefined;
 
 export function projectQuiz(item: Answers, answers: Answers) {
-  const { kind, options, pairs } = item as QuizItem;
+  const { kind, options, pairs, words } = item as QuizItem;
   const selected_left = indexOf(answers.left);
   return {
     kind,
-    option_indexes: choices("root", kind === "truefalse" ? 2 : (options?.length ?? 0)),
+    option_indexes: words
+      ? words.map((label, index) => ({ value: wordKey(index), label }))
+      : choices("root", kind === "truefalse" ? 2 : (options?.length ?? 0)),
     match_indexes: choices("left", pairs?.length ?? 0),
     right_indexes: choices("right", pairs?.length ?? 0),
     has_left: selected_left !== undefined,
@@ -57,6 +66,11 @@ export function projectQuiz(item: Answers, answers: Answers) {
 
 export function reviseQuiz(answers: Answers, part: string, value: unknown): Answers {
   if (part === "field") return { field: value };
+  const word = part === "root" ? wordIndex(value) : undefined;
+  if (word !== undefined) {
+    const order = quizWordOrder(answers);
+    return { order: order.includes(word) ? order.filter((index) => index !== word) : [...order, word] };
+  }
   const index = indexOf(value);
   if (index === undefined) return answers;
   if (part === "root") return { root: index };
@@ -71,7 +85,13 @@ export function reviseQuiz(answers: Answers, part: string, value: unknown): Answ
 const normalized = (value: string) => value.normalize("NFKC").trim().replace(/\s+/g, " ").toLowerCase();
 
 export function gradeQuiz(item: Answers, answers: Answers) {
-  const { kind, pairs, answer } = item as QuizItem;
+  const { kind, pairs, answer, words } = item as QuizItem;
+  if (kind === "order" && words && Array.isArray(answer)) {
+    const order = quizWordOrder(answers);
+    return order.length === words.length
+      ? answer.every((word, index) => words[word] === words[order[index]!])
+      : undefined;
+  }
   if (kind === "type") {
     const entry = typeof answers.field === "string" ? normalized(answers.field) : "";
     return entry && typeof answer === "string" ? entry === normalized(answer) : undefined;
@@ -88,8 +108,16 @@ export function gradeQuiz(item: Answers, answers: Answers) {
 }
 
 export function previewQuizSteps(item: QuizItem, id: string, correct: boolean): ActStep[] {
+  if (item.kind === "order" && Array.isArray(item.answer)) {
+    const order = [...item.answer];
+    const different = order.findIndex((index) => item.words?.[index] !== item.words?.[order[0]!]);
+    if (!correct && different > 0) [order[0], order[different]] = [order[different]!, order[0]!];
+    return order.map((index) => ({ address: id, action: "select", value: wordKey(index) }));
+  }
   if (item.kind === "type")
-    return [{ address: `${id}/field`, action: "type", value: correct ? item.answer : `${item.answer}?` }];
+    return [
+      { address: `${id}/field`, action: "type", value: correct ? String(item.answer) : `${item.answer}?` },
+    ];
   if (item.kind === "match") {
     const order = rightOrder(item.pairs ?? []);
     return order.flatMap(({ index }, right) => [

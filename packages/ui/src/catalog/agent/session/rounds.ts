@@ -127,6 +127,8 @@ export function advanceRound(
 }
 
 export function roundActionProps(session: Rounds, props: Values, current: RoundState): Values {
+  if (session.actionProps)
+    props = { ...props, ...session.actionProps(current.item, current.index, current.revealed) };
   if (session.hide !== undefined)
     return {
       ...props,

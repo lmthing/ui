@@ -37,6 +37,7 @@ describe("Path schema", () => {
     { ...first, density: "huge" },
     { ...first, surface: "tinted" },
     { ...first, detail: "none" },
+    { ...first, style: "grid" },
     { ...first, color: "red" },
     withUnit({ title: "  " }),
     withUnit({ title: "x".repeat(25) }),
@@ -54,7 +55,12 @@ describe("Path schema", () => {
   it("accepts exact limits, applies defaults and reserves ids for the view", () => {
     const units = Array(12).fill({ ...done, title: ` ${"a".repeat(24)} `, goto: "a".repeat(64) });
     const milestones = units.map((_, index) => index);
-    expect(props.parse({ units, milestones })).toMatchObject({ surface: "card", detail: "full", milestones });
+    expect(props.parse({ units, milestones })).toMatchObject({
+      surface: "card",
+      detail: "full",
+      style: "winding",
+      milestones,
+    });
     expect(props.parse({ units }).units[11]?.title).toBe("a".repeat(24));
     expectTypeOf<Props<typeof props, typeof meta>["units"][number]["id"]>().toEqualTypeOf<string>();
   });
@@ -157,4 +163,24 @@ describe("Path read and act", () => {
     expect(press("p1/r2", "loading")).toMatchObject({ ok: false, code: "not_actionable" });
     expect(readComponent(Path, first, "p1", "loading")).toEqual(["p1 Path (loading)"]);
   });
+});
+
+it("renders modules as rows with the original addresses and gates", () => {
+  const input = { ...first, style: "modules" };
+  const parts = (style: string, detail: string) =>
+    addressedElements(renderInstance("Path", { ...input, style, detail }, "filled", theme));
+  for (const detail of ["full", "brief"]) {
+    const rows = parts("modules", detail);
+    expect([...rows.keys()].sort()).toEqual([...parts("winding", detail).keys()].sort());
+    expect(rows.get("home/c1/r1/root")?.attributes).toContain('role="link"');
+    expect(rows.get("home/c1/r2/root")?.attributes).toContain('aria-current="true"');
+    expect(rows.get("home/c1/r3/root")?.attributes).not.toContain('role="link"');
+  }
+  const loading = renderInstance("Path", input, "loading", theme);
+  expect([...addressedElements(loading).keys()]).toEqual(["home/c1/root"]);
+  expect(loading).toContain('aria-busy="true"');
+  expect(loading).not.toContain('role="link"');
+  const read = readComponent(Path, input, "p1").join("\n");
+  expect(read).toContain("[p1/r2 press");
+  expect(read).not.toContain("[p1/r3 press");
 });

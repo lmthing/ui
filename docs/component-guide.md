@@ -434,6 +434,13 @@ labels announce playback without replacing the button's name.
 For the step bars, use `KitStepsTrack style="segmented"` with `count`, one-based `at` (add one to a
 zero-based sequence cursor), and `progress` (the current step's fraction, default zero). Past bars are
 full and future bars empty. The track is decorative; provide a separate readable slide label.
+For playhead-driven rows, pass `KitScroll follow={{ address, enabled }}`. Use the mounted child's full
+part address (for example, `home/c1/r4/root` for an addressed `KitRow`). The kit reveals the active
+child at the nearest edge along the scroll axis without moving keyboard or accessibility focus.
+It moves immediately in calm or reduced motion, and on Android where smooth scroll cannot be
+interrupted reliably. With follow off, no active address, or during
+manual scrolling, updates do not move the viewport. Updates skipped during scrolling are not
+replayed; a later address change can follow again after scrolling settles.
 
 Media tokens are 1–128 ASCII letters, digits, underscores or hyphens. Hosts keep bytes, file paths, provider errors and scan details out of Writer props, read output and snapshots. Use a Core Camera or FileList link instead when the component only needs navigation.
 
