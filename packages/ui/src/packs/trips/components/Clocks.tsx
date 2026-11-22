@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { clockReadings } from "../copy";
 import { tripsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Clocks.generated";
 
 // prettier-ignore
 const zones = [
@@ -28,19 +29,14 @@ export const meta = {
   id: "Clocks",
   status: "ready",
   group: "data",
-  purpose: "Compare local time in several places with the time back home.",
-  pick: "Current local clock times in two to four named time zones, with offsets from home. Not elapsed or remaining time (Timer) or scheduled events (Timeline).",
-  writeHints: [
-    "Use 2–4 labeled places and IANA time zone IDs such as Europe/London, America/New_York or Asia/Tokyo. The first place is home. Do not write times, differences or daylight flags.",
-    'Set density and surface to null unless the person explicitly asks to change spacing or the card surface. For one place per row with no finish requested, write "arrange":"rows","density":null,"surface":null. Otherwise leave arrange null unless a layout is requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "The device's clock and time zone data provide the current times and offsets.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "plain"],
     arrange: ["grid", "rows"],
   },
   parts: ["root"],
@@ -86,7 +82,7 @@ const comparisonPlaces = [
 
 export const examples = [
   { places: comparisonPlaces },
-  { density: "compact", places: comparisonPlaces },
+  { places: comparisonPlaces },
   { arrange: "rows", places: comparisonPlaces },
 ] satisfies z.input<typeof props>[];
 
@@ -112,32 +108,63 @@ type ClockPlaceProps = {
   home: boolean;
 };
 
-// prettier-ignore
 function ClockPlace({ reading, density, inRows, home }: ClockPlaceProps) {
   const { label, time, offset, isDay } = reading;
   const tone = home ? "accent" : "text";
-  const place = <kit.KitText part="label" role="label" density="comfortable" tone={tone}>{label}</kit.KitText>;
-  const clock = <kit.KitFigure density="comfortable" value={{ part: "time", text: time, tone }} align={inRows ? "end" : "start"} />;
+  const place = (
+    <kit.KitText part="label" role="label" density="comfortable" tone={tone}>
+      {label}
+    </kit.KitText>
+  );
+  const clock = (
+    <kit.KitFigure
+      density="comfortable"
+      value={{ part: "time", text: time, tone }}
+      align={inRows ? "end" : "start"}
+    />
+  );
   const footer = (
-    <kit.KitContent density={density} leadingAlign="row"
-      lead={<kit.KitIcon part="daylight" name={isDay ? "sun" : "moon"} scale="sm" />}>
-      <kit.KitText part="offset" role="caption" tone={home ? tone : "muted"} density="comfortable">{offset}</kit.KitText>
+    <kit.KitContent
+      density={density}
+      leadingAlign="row"
+      lead={<kit.KitIcon part="daylight" name={isDay ? "sun" : "moon"} scale="sm" />}
+    >
+      <kit.KitText part="offset" role="caption" tone={home ? tone : "muted"} density="comfortable">
+        {offset}
+      </kit.KitText>
     </kit.KitContent>
   );
-  if (inRows) return (
-    <kit.KitGrid fitLast density={density}>
-      <kit.KitContent density={density}>{place}{footer}</kit.KitContent>
+  if (inRows)
+    return (
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitContent density={density}>
+          {place}
+          {footer}
+        </kit.KitContent>
+        {clock}
+      </kit.KitGrid>
+    );
+  if (density === "compact")
+    return (
+      <>
+        {place}
+        {clock}
+        {footer}
+      </>
+    );
+  return (
+    <kit.KitContent density={density}>
+      {place}
       {clock}
-    </kit.KitGrid>
+      {footer}
+    </kit.KitContent>
   );
-  if (density === "compact") return <>{place}{clock}{footer}</>;
-  return <kit.KitContent density={density}>{place}{clock}{footer}</kit.KitContent>;
 }
 
 export function Clocks(input: c.Props<typeof props, typeof meta>) {
   const { words, lang } = kit.useWords(tripsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   const inRows = arrange === "rows";
   const readings = clockReadings(input.places, new Date(), lang);

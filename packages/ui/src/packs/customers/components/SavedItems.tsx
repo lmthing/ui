@@ -3,26 +3,22 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { savedItemDetails, savedItemGroups } from "../copy";
 import { customersWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-SavedItems.generated";
 
 // Core first: List/trail value shows a price but cannot add a reusable billable entry with its unit and tax defaults.
 export const meta = {
   id: "SavedItems",
   status: "ready",
   group: "content",
-  purpose: "Reuse saved billable rates with their units and tax defaults while quoting or invoicing.",
-  pick: "A reusable rate card of saved billable line items with quick-add into an invoice or estimate. Not a bill for one client (Invoice), bookable services (ServiceMenu), retail stock (ProductGrid), or a simple list with values (List).",
-  writeHints: [
-    "Use a unique short id for every saved item, a nonnegative numeric rate and an optional unit or category. Use taxable:false only for a nontaxable item. Don't put prices in titles or compute invoice totals.",
-    'If asked for category headings, use exactly {"density":null,"surface":null,"group":"sections"} for the axes. Keep category on each categorized item. Leave all axes null unless requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "The reusable billing item library is stored on the business device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     group: ["none", "sections"],
   },
   variantParts: { "group.sections": { adds: ["category"] } },
@@ -88,24 +84,27 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
-// prettier-ignore
-const ledge = { items: [
-  { id: "watering", title: "Plant care visit", rate: 32.5, unit: "visit", category: "Care" },
-  { id: "repotting", title: "Repotting", rate: 24, unit: "plant", category: "Care" },
-  { id: "consultation", title: "Care consultation", rate: 0, taxable: false },
-] } satisfies z.input<typeof props>;
+const ledge = {
+  items: [
+    { id: "watering", title: "Plant care visit", rate: 32.5, unit: "visit", category: "Care" },
+    { id: "repotting", title: "Repotting", rate: 24, unit: "plant", category: "Care" },
+    { id: "consultation", title: "Care consultation", rate: 0, taxable: false },
+  ],
+} satisfies z.input<typeof props>;
 
-// prettier-ignore
 export const examples = [
   ledge,
-  { group: "sections", items: [
-    { id: "park", title: "Park walk", rate: 15, unit: "walk", category: "Dog walking" },
-    { id: "leash", title: "Spare leash", rate: 12, category: "Supplies" },
-    { id: "river", title: "River walk", rate: 20, unit: "walk", category: "Dog walking" },
-  ] },
+  {
+    group: "sections",
+    items: [
+      { id: "park", title: "Park walk", rate: 15, unit: "walk", category: "Dog walking" },
+      { id: "leash", title: "Spare leash", rate: 12, category: "Supplies" },
+      { id: "river", title: "River walk", rate: 20, unit: "walk", category: "Dog walking" },
+    ],
+  },
   { ...ledge, group: "sections" },
-  { ...ledge, density: "compact" },
-  { ...ledge, surface: "outlined" },
+  { ...ledge },
+  { ...ledge },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("SavedItems");
@@ -129,53 +128,128 @@ export const probes = [
 
 type SavedItemsProps = c.Props<typeof props, typeof meta>;
 
-// prettier-ignore
-function SavedItemRow({ row, density }: { row: SavedItemsProps["items"][number]; density: c.ThemeDensity }) {
-  const { lang, words: { savedItemLabels: copy } } = kit.useWords(customersWordsFor);
-  const loading = kit.useComponentState() === "loading";
-  const { amount, unit, tax } = savedItemDetails(row, lang, kit.useAppCurrency());
-  return <kit.KitRow item={row.id} part={null} label={row.title} density={density} inset="none"
-    trailing={loading ? <>
+function SavedItemActions(
+  title: string,
+  loading: boolean,
+  copy: ReturnType<typeof customersWordsFor>["savedItemLabels"],
+) {
+  return loading ? (
+    <>
       <kit.KitSkeleton shape="control" kind="quiet" />
       <kit.KitSkeleton shape="control" kind="quiet" />
-    </> : <>
-      <kit.KitAction kind="quiet" icon="plus" part="add" a11y={copy.add(row.title)} />
-      <kit.KitAction kind="quiet" icon="close" part="remove" a11y={copy.remove(row.title)} />
-    </>}>
-    <kit.KitRow inline density={density} part={loading ? null : "root"} role={loading ? "text" : "button"} label={row.title}>
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
-        content={[["body", row.title], ["caption", `${amount}${unit}${copy.taxJoin}${tax}`]]} /> : <>
-        <kit.KitText part="title" emphasis="strong" density={density}>{row.title}</kit.KitText>
-        <kit.KitText part="rate" role="caption" tone="muted" density={density}>
-          <kit.KitText part={null} role="number" numberScale="compact" density={density} tabular>{amount}</kit.KitText>
-          {unit}{copy.taxJoin}{tax}
-        </kit.KitText>
-      </>}
-    </kit.KitRow>
-  </kit.KitRow>;
+    </>
+  ) : (
+    <>
+      <kit.KitAction kind="quiet" icon="plus" part="add" a11y={copy.add(title)} />
+      <kit.KitAction kind="quiet" icon="close" part="remove" a11y={copy.remove(title)} />
+    </>
+  );
 }
 
-// prettier-ignore
-export function SavedItems({ items, surface, group, density: requested }: SavedItemsProps) {
-  const density = kit.useVariant("density", meta.variants.density, requested);
+function SavedItemRow({ row, density }: { row: SavedItemsProps["items"][number]; density: c.ThemeDensity }) {
+  const {
+    lang,
+    words: { savedItemLabels: copy },
+  } = kit.useWords(customersWordsFor);
+  const loading = kit.useComponentState() === "loading";
+  const { amount, unit, tax } = savedItemDetails(row, lang, kit.useAppCurrency());
+  return (
+    <kit.KitRow
+      item={row.id}
+      part={null}
+      label={row.title}
+      density={density}
+      inset="none"
+      trailing={SavedItemActions(row.title, loading, copy)}
+    >
+      <kit.KitRow
+        inline
+        density={density}
+        part={loading ? null : "root"}
+        role={loading ? "text" : "button"}
+        label={row.title}
+      >
+        {loading ? (
+          <kit.KitSkeleton
+            shape="figure"
+            inset="none"
+            density={density}
+            content={[
+              ["body", row.title],
+              ["caption", `${amount}${unit}${copy.taxJoin}${tax}`],
+            ]}
+          />
+        ) : (
+          <>
+            <kit.KitText part="title" emphasis="strong" density={density}>
+              {row.title}
+            </kit.KitText>
+            <kit.KitText part="rate" role="caption" tone="muted" density={density}>
+              <kit.KitText part={null} role="number" numberScale="compact" density={density} tabular>
+                {amount}
+              </kit.KitText>
+              {unit}
+              {copy.taxJoin}
+              {tax}
+            </kit.KitText>
+          </>
+        )}
+      </kit.KitRow>
+    </kit.KitRow>
+  );
+}
+
+export function SavedItems({ items, group }: SavedItemsProps) {
+  const surface = "card";
+  const density = kit.useKit().density;
   const state = kit.useComponentState();
-  const { words: { savedItemLabels: copy } } = kit.useWords(customersWordsFor);
-  const render = (row: SavedItemsProps["items"][number]) => <SavedItemRow key={row.id} {...{ row, density }} />;
-  return <kit.KitCard part="root" padded {...{ surface, density }}>
-    {state === "empty" ? <kit.KitEmpty part="status" icon="receipt" decorativeIcon /> :
-      state === "success" || state === "error" ?
-        <kit.KitEmpty part="status" icon={state === "success" ? "check" : "receipt"} decorativeIcon
-          title={copy[state]} tone={state === "success" ? "good" : "neutral"} /> :
-      group === "none" ? <kit.KitGrid list arrange="rows" density={density}>{items.map(render)}</kit.KitGrid> :
+  const {
+    words: { savedItemLabels: copy },
+  } = kit.useWords(customersWordsFor);
+  const render = (row: SavedItemsProps["items"][number]) => (
+    <SavedItemRow key={row.id} {...{ row, density }} />
+  );
+  return (
+    <kit.KitCard part="root" padded {...{ surface, density }}>
+      {state === "empty" ? (
+        <kit.KitEmpty part="status" icon="receipt" decorativeIcon />
+      ) : state === "success" || state === "error" ? (
+        <kit.KitEmpty
+          part="status"
+          icon={state === "success" ? "check" : "receipt"}
+          decorativeIcon
+          title={copy[state]}
+          tone={state === "success" ? "good" : "neutral"}
+        />
+      ) : group === "none" ? (
+        <kit.KitGrid list arrange="rows" density={density}>
+          {items.map(render)}
+        </kit.KitGrid>
+      ) : (
         <kit.KitGrid list arrange="rows" listRowGap="cards" density={density}>
           {savedItemGroups(items).map(({ category, rows }) => {
-            const id = rows[0]!.id, label = category ?? copy.uncategorized;
-            return <kit.KitGrid key={id} list arrange="rows" density={density}>
-              {state === "loading" ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", label]]} /> :
-                <kit.KitText item={id} role="label" tone="muted" part="category">{label}</kit.KitText>}
-              {rows.map(render)}
-            </kit.KitGrid>;
+            const id = rows[0]!.id,
+              label = category ?? copy.uncategorized;
+            return (
+              <kit.KitGrid key={id} list arrange="rows" density={density}>
+                {state === "loading" ? (
+                  <kit.KitSkeleton
+                    shape="figure"
+                    inset="none"
+                    density={density}
+                    content={[["label", label]]}
+                  />
+                ) : (
+                  <kit.KitText item={id} role="label" tone="muted" part="category">
+                    {label}
+                  </kit.KitText>
+                )}
+                {rows.map(render)}
+              </kit.KitGrid>
+            );
           })}
-        </kit.KitGrid>}
-  </kit.KitCard>;
+        </kit.KitGrid>
+      )}
+    </kit.KitCard>
+  );
 }

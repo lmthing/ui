@@ -17,6 +17,7 @@ import {
   roomRecordKind,
   roomSpeaker,
 } from "../live-room-host";
+import { prompt } from "../../../entry/prompt-LiveRoom.generated";
 
 const reactionTray = c.defineLocalState({
   schema: z.strictObject({ open: z.boolean() }),
@@ -30,15 +31,12 @@ const reactionTray = c.defineLocalState({
 // prettier-ignore
 export const meta = {
   id: "LiveRoom", status: "ready", group: "content", tier: "people",
-  pick: "Join or host a live multi-speaker audio room with an audience, a hand-raise queue, and stage controls. Not a recording (Player), a private call (ActiveCall), or asynchronous posts (Feed).",
-  purpose: "Join a live audio conversation, see who’s speaking, and ask to speak.",
+  pick: prompt.pick,
+  purpose: prompt.purpose,
   region: "body", weight: 3, dense: true,
   realPath: "Live audio needs a real-time audio service, and speaking needs device microphone permission.",
-  writeHints: [
-    'Use style "mini" only for a collapsed bar with the active speaker and Leave. Otherwise leave style null for the stage.',
-    'Write detail "brief" when asked to hide the room topic and speaker role labels. Leave unrequested axes null.',
-  ],
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  writeHints: prompt.writeHints,
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["topic", "role"] } },
   parts: ["root", "title", "topic", "listeners", "listeners_unit", "active", "status", "connect", "speak", "hand", "react", "applaud", "heart", "leave", "end"],
   items: { key: "speakers", parts: ["root", "name", "photo", "role", "status", "mute"], addressedWhen: { style: "stage" } },
@@ -175,8 +173,8 @@ export function LiveRoom(input: RoomProps) {
   const { lang, words: { liveRoom: words } } = kit.useWords(socialWordsFor);
   const room = kit.useLiveControls(meta, input) as RoomLive;
   const display = interactive || room.roomKey ? room : { ...room, joined: input.isHost, canModerate: input.isHost };
-  const density = kit.useVariant("density", meta.variants.density, room.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, room.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, room.detail), rows = room.speakers as Speaker[];
   const active = liveRoomActiveSpeaker(rows), mini = room.style === "mini";
   const title = { text: room.title, part: "title" } as const;

@@ -147,7 +147,17 @@ it("keeps each question a strict Writer object and decodes its unused nullable f
   const quiz = components.Quiz;
   const question = writerFormatFor(quiz).json_schema.schema.properties?.questions?.items;
   expect(question?.additionalProperties).toBe(false);
-  expect(question?.required).toEqual(["question", "kind", "explain", "photo", "options", "answer", "pairs"]);
+  expect(question?.required).toEqual([
+    "question",
+    "kind",
+    "explain",
+    "photo",
+    "media",
+    "options",
+    "words",
+    "answer",
+    "pairs",
+  ]);
   const questions = [...quiz.examples[0]!.questions, ...quiz.examples[1]!.questions].map((question) => ({
     options: null,
     answer: null,
@@ -158,12 +168,20 @@ it("keeps each question a strict Writer object and decodes its unused nullable f
   }));
   const reply = {
     c: "Quiz",
-    density: null,
-    surface: null,
     selected_option: null,
     selected_left: null,
     selected_right: null,
     questions,
   };
+  // Old evidence omits the new keys; current strict Writer replies use null for them.
   expect(scoreWrite(JSON.stringify(reply), quiz).pass).toBe(true);
+  expect(
+    scoreWrite(
+      JSON.stringify({
+        ...reply,
+        questions: questions.map((value) => ({ media: null, words: null, ...value })),
+      }),
+      quiz,
+    ).pass,
+  ).toBe(true);
 });

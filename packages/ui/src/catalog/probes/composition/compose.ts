@@ -3,10 +3,9 @@ import type { ComposeProbe, CoreArchetypeMeta as ArchetypeMeta } from "../../arc
 import { checkScreen, type PackScreenContext } from "../../rules";
 import { readScreen, type ScreenLike } from "../../agent";
 import { migrateScreen } from "../../migrations";
-import type { ProbeCall, Definition } from "..";
+import type { ProbeCall, Definition, ReplayProbe } from "..";
 import { composeFormat, compositionInput } from "./compose-format";
 import { composeRequest } from "./compose-prompt";
-import { packPropIssues } from "./pack-prop-issues";
 export type ComposeResult = {
   archetype: string;
   layout: string;
@@ -15,7 +14,7 @@ export type ComposeResult = {
   detail: string;
   prompt: string;
   replies: string[];
-  rubric?: Record<string, number>;
+  rubric?: (Record<string, unknown> | null)[];
 };
 function decode(reply: string): unknown {
   try {
@@ -33,6 +32,57 @@ function hasToggleRows(entry: ScreenLike["components"][number], def: Definition 
   const rows: unknown = parsed.data[def.meta.items.key];
   return Array.isArray(rows) && rows.every((row) => (row?.trail ?? parsed.data.trail) === "toggle");
 }
+function conflictingTrailRows(
+  def: Definition,
+  props: Record<string, unknown>,
+  trail: "badge" | "value",
+): boolean {
+  const items = def.meta.items;
+  if (!items?.variants?.trail?.includes(trail)) return false;
+  const rows = props[items.key];
+  return (
+    Array.isArray(rows) &&
+    rows.some((row) => {
+      const hasValue = typeof row.value === "string" && row.value.trim().length > 0;
+      const effective = row.trail ?? props.trail;
+      return trail === "badge" ? !hasValue || effective !== trail : effective !== (hasValue ? trail : "none");
+    })
+  );
+}
+
+/** Scalar pack seed props specify the layout; arrays and objects may supply example content. */
+function packPropIssues(
+  screen: ScreenLike,
+  lines: ArchetypeMeta["defaults"][string],
+  defs: Record<string, Definition>,
+): string[] {
+  const counts = new Map<string, number>();
+  return screen.components.flatMap(({ id, c, state: _state, ...input }) => {
+    const matching = lines.filter((line) => line.c === c);
+    const index = counts.get(c) ?? 0;
+    counts.set(c, index + 1);
+    const line = matching.length === 1 ? matching[0] : matching[index];
+    if (!line?.seed) return [];
+    const constraints = Object.entries(line.seed).filter(
+      ([key, value]) =>
+        (value === null || ["string", "number", "boolean"].includes(typeof value)) &&
+        !(line.variant && key === (c === "Field" || c === "Camera" ? "kind" : "style")),
+    );
+    if (!constraints.length) return [];
+    const parsed = defs[c]?.props.safeParse(input);
+    if (!parsed?.success) return []; // checkScreen already reports schema failures.
+    return constraints
+      .filter(
+        ([key, value]) =>
+          parsed.data[key] !== value ||
+          (key === "trail" &&
+            (value === "badge" || value === "value") &&
+            conflictingTrailRows(defs[c]!, parsed.data, value)),
+      )
+      .map(([key, value]) => `Layout requires ${c}.${key} = ${JSON.stringify(value)} (${id})`);
+  });
+}
+
 export function scoreComposition(
   reply: string,
   meta: ArchetypeMeta,
@@ -83,10 +133,44 @@ export function scoreComposition(
 }
 export function compositionRubricPrompt(screen: ScreenLike, defs: Record<string, Definition>): string {
   return [
-    "Evaluate this phone screen for clarity, focus, flow, content and structure, each from 1 to 5. Judge its visible content and interaction plan. A useful, coherent, specific screen should score at least 4. Return only JSON numbers with those five keys.",
+    "Evaluate this phone screen for clarity, focus, flow, content and structure, each from 1 to 5. " +
+      "Judge its visible content and interaction plan. A useful, coherent, specific screen should score at least 4. " +
+      "Return only JSON numbers with those five keys.",
     readScreen(screen, defs),
   ].join("\n\n");
 }
+function meetsRubricBar(rubric: Record<string, unknown> | null): boolean {
+  const ratings = ["clarity", "focus", "flow", "content", "structure"].map((name) => rubric?.[name]);
+  return (
+    ratings.every((rating) => typeof rating === "number") &&
+    ratings.every((rating) => rating >= 3.5 && rating <= 5) &&
+    ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length >= 4
+  );
+}
+
+async function rateScreens(
+  scored: readonly { screen?: ScreenLike }[],
+  defs: Record<string, Definition>,
+  callModel: ProbeCall,
+  probe: Pick<ReplayProbe, "id" | "definition">,
+) {
+  const ratings: NonNullable<ComposeResult["rubric"]> = [];
+  let rated = 0;
+  for (const [index, { screen }] of scored.entries()) {
+    if (!screen) {
+      ratings.push(null);
+      continue;
+    }
+    rated++;
+    const localPrompt = compositionRubricPrompt(screen, defs);
+    const reply = decode(
+      await callModel(localPrompt, 0, undefined, { ...probe, id: `${probe.id}/${index}`, localPrompt }),
+    );
+    ratings.push(reply && typeof reply === "object" ? (reply as Record<string, unknown>) : null);
+  }
+  return { ratings, rated, passed: ratings.filter(meetsRubricBar).length };
+}
+
 type ComposeOptions = {
   archetypes: readonly ArchetypeMeta[];
   probes?: readonly ComposeProbe[];
@@ -140,33 +224,29 @@ async function runComposeProbe(
     scored.push(scoreComposition(reply, meta, layout, defs, packContext && { packContext }));
   }
   const passed = scored.filter((result) => !result.issues.length).length;
+  const prefix = passed * 2 > samples && passed < samples ? "unstable: " : "";
+  const detail = scored.find((item) => item.issues.length)?.issues.join("; ") ?? "Valid screen and recipe";
   const result: ComposeResult = {
     archetype: meta.id,
     layout,
     status: passed * 2 > samples ? "pass" : "fail",
     score: `${passed}/${samples}`,
-    detail: `${passed * 2 > samples && passed < samples ? "unstable: " : ""}${scored.find((item) => item.issues.length)?.issues.join("; ") ?? "Valid screen and recipe"}`,
+    detail: `${prefix}${detail}`,
     prompt,
     replies,
   };
-  const screen = scored.find((item) => item.screen)?.screen;
-  if (result.status === "pass" && useRubric && screen) {
-    const localPrompt = compositionRubricPrompt(screen, defs);
-    const rubric = decode(
-      await callModel(localPrompt, 0, undefined, { id: `rubric/${id}`, definition, localPrompt }),
-    ) as Record<string, number> | undefined;
-    const names = ["clarity", "focus", "flow", "content", "structure"];
-    const ratings = names.map((name) => rubric?.[name]);
-    if (
-      !ratings.every(
-        (rating) => typeof rating === "number" && Number.isFinite(rating) && rating >= 3.5 && rating <= 5,
-      ) ||
-      (ratings as number[]).reduce((sum, value) => sum + value, 0) / ratings.length < 4
-    ) {
-      result.status = "fail";
-      result.detail = "Composition rubric needs average 4 and no score below 3.5";
+  if (useRubric) {
+    const rubric = await rateScreens(scored, defs, callModel, { id: `rubric/${id}`, definition });
+    result.rubric = rubric.ratings;
+    if (result.status === "pass" && rubric.passed < rubric.rated) {
+      const score = `${rubric.passed}/${rubric.rated} rated samples`;
+      if (rubric.passed * 2 <= rubric.rated) {
+        result.status = "fail";
+        result.detail = `Composition rubric needs average 4 and no score below 3.5 in a majority (${score} passed)`;
+      } else {
+        result.detail = `unstable: rubric passed ${score}; ${result.detail.replace(/^unstable: /, "")}`;
+      }
     }
-    if (rubric) result.rubric = rubric;
   }
   return result;
 }

@@ -8,6 +8,8 @@ type Task = {
   title: string;
   assignee?: string | undefined;
   due?: string | undefined;
+  repeat?: "never" | "daily" | "weekly" | "monthly" | undefined;
+  tags?: readonly string[] | undefined;
   priority: "normal" | "low" | "high";
   state?: Progress | undefined;
   parentRef?: string | undefined;
@@ -32,7 +34,11 @@ function taskGraph(tasks: readonly Task[]) {
   return { byRef, progress, blocked };
 }
 
-export function projectTasks<T extends Task>(items: readonly T[], choices: readonly string[] = []) {
+export function projectTasks<T extends Task>(
+  items: readonly T[],
+  choices: readonly string[] = [],
+  onlyDue?: string,
+) {
   const { byRef, progress, blocked } = taskGraph(items);
   return items.map((row) => {
     const blockers = blocked(row);
@@ -47,6 +53,7 @@ export function projectTasks<T extends Task>(items: readonly T[], choices: reado
       root: row.goto,
       assign: {},
       canAssign: choices.length > 0,
+      visible: !onlyDue || row.due === onlyDue,
       checked,
       done: blockers.length || locked ? undefined : checked,
       progress: progress(row),
@@ -67,7 +74,12 @@ export function taskControls(input: Readonly<Values>, choices: readonly string[]
       }),
     ),
   ];
-  return { assigneeChoices, items: projectTasks(input.items as Task[], assigneeChoices) };
+  const items = projectTasks(
+    input.items as Task[],
+    assigneeChoices,
+    input.style === "today" ? taskToday() : undefined,
+  );
+  return { assigneeChoices, items };
 }
 
 /** Bind local host choices without adding assignee options to Writer input. */
@@ -108,12 +120,15 @@ export function taskGroups<T extends { taskRef: string; projectRef: string; pare
   }));
 }
 
-export function taskCopy(row: ProjectedTask, lang?: string, now = new Date()) {
-  const words = projectsWordsFor(lang).tasks;
-  const today = [now.getFullYear(), now.getMonth() + 1, now.getDate()]
+export function taskToday(now = new Date()) {
+  return [now.getFullYear(), now.getMonth() + 1, now.getDate()]
     .map((value, index) => String(value).padStart(index ? 2 : 4, "0"))
     .join("-");
-  const overdue = row.due !== undefined && row.progress !== "done" && row.due < today;
+}
+
+export function taskCopy(row: ProjectedTask, lang?: string, now = new Date()) {
+  const words = projectsWordsFor(lang).tasks;
+  const overdue = row.due !== undefined && row.progress !== "done" && row.due < taskToday(now);
   const date = row.due && appointmentDate(row.due, lang);
   return {
     overdue,
@@ -121,6 +136,8 @@ export function taskCopy(row: ProjectedTask, lang?: string, now = new Date()) {
     state: words.state[row.progress],
     priority: row.priority === "normal" ? undefined : words.priority[row.priority],
     blockers: row.blockers.length ? words.blockers(row.blockers) : undefined,
+    repeat: row.repeat && row.repeat !== "never" ? words.repeat[row.repeat] : undefined,
+    tags: row.tags?.length ? row.tags.join(words.separator) : undefined,
   };
 }
 
@@ -128,19 +145,27 @@ export function taskCopy(row: ProjectedTask, lang?: string, now = new Date()) {
 export function taskPreviewComplete<T extends ProjectedTask>(rows: readonly T[]) {
   const refs = new Set(rows.map(({ taskRef }) => taskRef));
   if (rows.some(({ after }) => after.some((ref) => !refs.has(ref)))) return rows;
-  return projectTasks(rows.map((row) => ({ ...row, checked: row.state === undefined ? undefined : true })));
+  return projectTasks(
+    rows.map((row) => ({ ...row, checked: row.state === undefined ? undefined : true })),
+  ).map((row, index) => ({ ...row, visible: rows[index]!.visible }));
 }
 
 export function taskReading(input: unknown, state: StateName, lang?: string) {
   if (state !== "filled" && state !== "success") return [];
-  const { items, group } = input as { items: ProjectedTask[]; group: string };
+  const { items, group, style } = input as { items: ProjectedTask[]; group: string; style?: string };
   const groups = group === "sections" ? taskGroups(items) : [{ project: undefined, tasks: items }];
   const words = projectsWordsFor(lang).tasks;
-  return groups.flatMap(({ project, tasks }) => [
+  if (style === "today" && !items.length) return [words.todayEmpty];
+  const rows = groups.flatMap(({ project, tasks }) => [
     ...(project ? [words.project(project)] : []),
     ...tasks.map((row) => {
-      const { due, priority, state, blockers } = taskCopy(row, lang);
-      return [row.title, row.assignee, due, priority, state, blockers].filter(Boolean).join(words.separator);
+      const { due, priority, state, blockers, repeat, tags } = taskCopy(row, lang);
+      return [row.title, row.assignee, due, priority, state, blockers, repeat, tags]
+        .filter(Boolean)
+        .join(words.separator);
     }),
   ]);
+  return style === "today"
+    ? [...(state === "success" ? [words.state.done] : []), words.today, ...rows]
+    : rows;
 }

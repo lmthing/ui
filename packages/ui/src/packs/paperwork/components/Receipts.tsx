@@ -4,26 +4,22 @@ import * as kit from "../../../kit";
 import { receiptCurrency, receiptDetails } from "../copy";
 import { paperworkWordsFor } from "../lang";
 import { attachment, seedDate, seedRows } from "../seeds";
+import { prompt } from "../../../entry/prompt-Receipts.generated";
 
 // Core first: Amount/default shows a number, not evidence files with reviewed status and allocated shares.
 export const meta = {
   id: "Receipts",
   status: "ready",
   group: "data",
-  purpose: "Keep purchase evidence and review the share assigned to each receipt.",
-  pick: "Receipt evidence with private scans, amounts, review ticks and optionally allocated shares. Not one standalone amount (Amount), purchase warranties (Warranties), bank movements (Transactions), store orders (OrderSummary) or client bills (Invoice).",
-  writeHints: [
-    "Write the amount as a number with no currency. allocation is the assigned percentage (0–100), not a deduction or an amount. Never write allocated amounts or totals.",
-    'File is an opaque local:<id> or supplied synthetic lib:<id>, never a URL. Write style "cards" for separate receipt tiles only; otherwise style:null.',
-    'Receipt rows shown directly on the screen without an enclosing card explicitly request surface:"plain". Write surface:null when no surface is requested, and density:null unless spacing changes are requested.',
-    'Change detail to "brief" only for a request to hide the category and tags. For that request set surface:null and density:null unless separately requested. For a plain background alone leave detail:null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath:
     "The person enters or scans receipts and checks them locally, with the brief's currency and no bank or tax service.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["category", "tags"] } },
   parts: ["root", "empty", "error"],
   deviceData: ["currency"],
@@ -91,8 +87,6 @@ export const examples = [
   },
   {
     style: "cards",
-    density: "compact",
-    surface: "plain",
     items: [
       { payee: "Walk Supply", date: "2026-11-05", amount: 36, file: "lib:trot_supplies", reviewed: true, tags: ["expenses"] },
       { payee: "Park Permit Office", date: "2026-11-12", amount: 12, reviewed: false, tags: ["fees"] },
@@ -109,12 +103,6 @@ export const probes = [
   write(
     "Record a Fern Nursery receipt for 24.50 on 2026-11-19 with supplied scan lib:ledge_supplies. Allocate 50 percent, not reviewed, tag pots.",
   ),
-  {
-    ...write(
-      "Keep proof of the 24.50 payment to Fern Nursery on 2026-11-19, not reviewed, with synthetic scan lib:ledge_supplies and tag pots. Let those receipt rows sit directly on the screen without an enclosing card.",
-    ),
-    variant: { axis: "surface", value: "plain" },
-  },
   {
     ...write(
       "Keep the 24.50 Fern Nursery receipt of 2026-11-19, not yet reviewed. Hide the category and tags, but keep the date and amount visible.",
@@ -134,20 +122,22 @@ function ReceiptItem({ row, density, surface, currency }: {
   const loading = kit.useComponentState() === "loading", canOpen = Boolean(row.file || row.goto);
   const [amount, ...details] = receiptDetails(row, currency, lang);
   const skeleton = <kit.KitSkeleton shape="control" kind="quiet" />;
-  const groups = [["date", "category"], ["allocation", "allocated_amount"], ["file"], ["tags"]]
+  const groups = [["date", "category"], ["allocation", "allocated_amount"]]
     .map((parts) => details.filter(({ part }) => parts.includes(part)));
+  const evidence = ["tags", "file"].flatMap((part) => details.filter((detail) => detail.part === part))
+    .map(({ part, line }) => <kit.KitLayoutText key={part}
+      line={{ part, text: line, role: "caption", tone: "muted" }} {...{ density }} />);
   const draw = (group: (typeof groups)[number]) => {
     if (!group.length) return null;
-    if (loading) return <kit.KitSkeleton shape="figure" inset="none" density={density}
-      content={[["caption", c.clip(group.map(({ line }) => line).join(words.separator), row.payee.length)]]} />;
-    return <kit.KitText part={null} role="caption" tone="muted">
-      {group.map(({ part, line }, index) => <kit.KitText key={part} {...{ part }} role="caption" tone="muted">
+    const key = group[0]!.part;
+    if (loading) return <kit.KitLayoutText key={key} {...{ density }}
+      line={{ role: "caption", text: group.map(({ line }) => line).join(words.separator) }} />;
+    return <kit.KitText key={key} part={null} role="caption" tone="muted" density={density}>
+      {group.map(({ part, line }, index) => <kit.KitText key={part} {...{ part, density }} role="caption" tone="muted">
         {index ? words.separator : undefined}{line}
       </kit.KitText>)}
     </kit.KitText>;
   };
-  const [date, allocation, file, tags] = groups as [typeof details, typeof details, typeof details, typeof details];
-  const dot = <kit.KitSkeleton shape="figure" lead="dot" inset="none" content={[]} />;
   return <kit.KitRow item={row.id} part={null} label="" {...{ density, surface }}
     trailing={loading ? <>{skeleton}{skeleton}</> : <>
       <kit.KitCheck part="reviewed" label={words.review(row.payee)} done={row.reviewed} />
@@ -155,25 +145,27 @@ function ReceiptItem({ row, density, surface, currency }: {
     </>}>
     <kit.KitRow part={loading ? null : "root"} inline surface="plain" label={loading ? "" : row.payee}
       goto={loading ? undefined : row.goto} role={!loading && row.file ? "button" : "text"} density={density}
-      leading={loading ? dot
-        : <kit.KitContent lead={<kit.KitIcon name="file_text" tone="muted" decorative />} children={null} />}
-      trailing={canOpen ? loading ? dot : <kit.KitContent lead={<kit.KitIcon name="chevron_right" tone="muted" decorative />} children={null} /> : undefined}>
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
-        content={[["body", row.payee], ["number", amount?.line, "start", "compact"]]} /> : <>
-        <kit.KitText part="payee" density={density}>{row.payee}</kit.KitText>
-        <kit.KitText role="number" numberScale="compact" part="amount" tabular>{amount?.line}</kit.KitText>
-      </>}
-      <kit.KitContent density={density}>{draw(date)}{draw(allocation)}</kit.KitContent>
-      {(file.length > 0 || tags.length > 0) && <kit.KitContent group="response" density={density}>
-        {draw(file)}{draw(tags)}
-      </kit.KitContent>}
+      leading={<kit.KitIcon name={row.file ? "paperclip" : row.goto ? "chevron_right" : "file_text"}
+        tone={canOpen ? "accent" : "muted"} decorative loading={loading} />}>
+      <kit.KitContent density={density}>
+        <kit.KitGrid fitLast density={density}>
+          <kit.KitLayoutText line={{ part: "payee", text: row.payee }} {...{ density }} />
+          <kit.KitLayoutText line={{ part: "amount", text: amount?.line, role: "figure", compact: true, tabular: true }}
+            align="end" {...{ density }} />
+        </kit.KitGrid>
+        <kit.KitContent rhythm="flush" density={density}>
+          {groups.map(draw)}
+          {evidence.length === 2 ? <kit.KitGrid fitLast density={density}>{evidence}</kit.KitGrid> : evidence}
+        </kit.KitContent>
+      </kit.KitContent>
     </kit.KitRow>
   </kit.KitRow>;
 }
 
 // prettier-ignore
-export function Receipts({ items, style, surface, density: requested }: ReceiptsProps) {
-  const density = kit.useVariant("density", meta.variants.density, requested);
+export function Receipts({ items, style }: ReceiptsProps) {
+  const surface = "card";
+  const density = kit.useKit().density;
   const state = kit.useComponentState(), { words } = kit.useWords(paperworkWordsFor);
   const currency = receiptCurrency(kit.useDeviceData()), cards = style === "cards";
   return <kit.KitCard style={cards ? "cards" : "inset"} {...{ surface, density }}>

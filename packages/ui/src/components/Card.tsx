@@ -2,28 +2,21 @@ import * as catalog from "../catalog";
 import type { FallbackInput, Meta, Probe, Props } from "../catalog";
 import { z } from "zod";
 import * as kit from "../kit";
+import { prompt } from "../entry/prompt-Card.generated";
 
 export const meta = {
   id: "Card",
   status: "ready",
   group: "content",
-  purpose: "One thing with a little detail, optionally tappable to open it.",
-  pick: "A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).",
-  writeHints: [
-    "Use null for every unrequested Card axis. Ordinary photos, icons and status text go in the content fields; they do not request a cover, tint or hidden detail.",
-    "A wide photo above the text changes media to cover only; leave other axes null unless explicitly requested.",
-    "Leave detail null for short copy; use brief only when asked to hide the body and meta. Keep both in the data.",
-    "Use surface tinted with a semantic tone only when asked to colour the card for that status.",
-    'Use badge for a short corner status. Put reward and duration pills in their own fields, using the requested wording verbatim (for example, keep "20 points", not "20 pts").',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "A preview of one record and optional navigation link in the on-device app.",
   variants: {
-    density: ["comfortable", "compact"],
     emphasis: ["normal", "quiet", "hero"],
-    surface: ["card", "plain", "tinted", "outlined"],
     media: ["thumb", "none", "icon", "cover"],
     detail: ["full", "brief"],
     tone: ["neutral", "good", "warn", "bad"],
@@ -72,7 +65,6 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
-// prettier-ignore
 export const examples = [
   {
     media: "cover",
@@ -83,26 +75,30 @@ export const examples = [
     goto: "fern",
   },
   {
-    surface: "tinted",
     title: "Park walk itinerary",
     body: "Clover and Pip · 09:00",
     meta: "South gate",
     icon: "dog",
   },
-  { title: "Monstera", body: "Living room · due Friday", photo: "lib:plants", density: "compact" },
+  { title: "Monstera", body: "Living room · due Friday", photo: "lib:plants" },
   {
-    surface: "outlined",
     title: "Basil",
     body: "Kitchen · freshly watered",
     icon: "leaf",
     goto: "basil",
   },
-  { title: "Evening walk", body: "Pip · 18:30 · Hyde Park", badge: "Due today",
-    icon: "dog", reward: "20 points", duration: "15 min" },
+  {
+    title: "Evening walk",
+    body: "Pip · 18:30 · Hyde Park",
+    badge: "Due today",
+    icon: "dog",
+    reward: "20 points",
+    duration: "15 min",
+  },
   { title: "Fern care", body: "Water on Friday", media: "icon", icon: "leaf" },
-  { title: "Walk confirmed", body: "Clover · Sunday", surface: "tinted", tone: "good" },
-  { title: "Booking pending", body: "Pip · awaiting confirmation", surface: "tinted", tone: "warn" },
-  { title: "Walk cancelled", body: "Clover · Friday morning", surface: "tinted", tone: "bad" },
+  { title: "Walk confirmed", body: "Clover · Sunday", tone: "good" },
+  { title: "Booking pending", body: "Pip · awaiting confirmation", tone: "warn" },
+  { title: "Walk cancelled", body: "Clover · Friday morning", tone: "bad" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = catalog.probesFor("Card");
@@ -128,36 +124,60 @@ export const probes = [
 ] satisfies Probe[];
 
 type CardProps = Props<typeof props, typeof meta>;
-// prettier-ignore
-function CardText({ title, density, emphasis, body, meta, goto, reward, duration }: CardProps) {
-  const heading = <kit.KitText role="heading" part="title" {...{ density, emphasis }}>{title}</kit.KitText>;
-  const header = goto
-    ? <kit.KitGrid fitLast density={density}>{heading}<kit.KitIcon name="chevron_right" decorative /></kit.KitGrid>
-    : heading;
+function CardText({ title, emphasis, body, meta, goto, reward, duration }: CardProps) {
+  const density = kit.useKit().density;
+  const heading = (
+    <kit.KitText role="heading" part="title" {...{ density, emphasis }}>
+      {title}
+    </kit.KitText>
+  );
+  const header = goto ? (
+    <kit.KitGrid fitLast density={density}>
+      {heading}
+      <kit.KitIcon name="chevron_right" decorative />
+    </kit.KitGrid>
+  ) : (
+    heading
+  );
   const prize = reward && <kit.KitTrail kind="badge" value={reward} part="reward" density={density} />;
-  const time = duration && <kit.KitTrail kind="badge" value={duration} part="duration" tone="muted" density={density} />;
+  const time = duration && (
+    <kit.KitTrail kind="badge" value={duration} part="duration" tone="muted" density={density} />
+  );
   return (
     <>
       {header}
-      {body && <kit.KitText role="body" tone="muted" part="body" density={density}>{body}</kit.KitText>}
-      {meta && <kit.KitText role="caption" tone="muted" part="meta" density={density}>{meta}</kit.KitText>}
-      {(prize || time) && <kit.KitContent group="response" density={density} lead={prize || time} leadingAlign="row">
-        {prize && time && <kit.KitContent lead={time} leadingAlign="row" density={density}>{null}</kit.KitContent>}
-      </kit.KitContent>}
+      {body && (
+        <kit.KitText role="body" tone="muted" part="body" density={density}>
+          {body}
+        </kit.KitText>
+      )}
+      {meta && (
+        <kit.KitText role="caption" tone="muted" part="meta" density={density}>
+          {meta}
+        </kit.KitText>
+      )}
+      {(prize || time) && (
+        <kit.KitContent group="response" density={density} lead={prize || time} leadingAlign="row">
+          {prize && time && (
+            <kit.KitContent lead={time} leadingAlign="row" density={density}>
+              {null}
+            </kit.KitContent>
+          )}
+        </kit.KitContent>
+      )}
     </>
   );
 }
 
-// prettier-ignore
 export function Card(input: CardProps) {
-  const { media, title, icon, photo, surface, tone, emphasis, goto, badge } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const { media, title, icon, photo, tone, emphasis, goto, badge } = input;
+  const density = kit.useKit().density;
   const loading = kit.useComponentState() === "loading";
   const { resolvePhoto } = kit.useKit();
   const cover = media === "cover";
   const coverPhoto = cover && photo && resolvePhoto?.(photo) ? photo : undefined;
   const finish = { density, emphasis };
-  const frame = { surface, tone, density, clip: cover, padded: !loading, goto: loading ? undefined : goto };
+  const frame = { tone, density, clip: cover, padded: !loading, goto: loading ? undefined : goto };
   const thumbnail = !cover && photo;
   const lead = icon ? (
     <kit.KitIcon name={icon} part="icon" scale={media === "icon" ? "lg" : "md"} />
@@ -183,14 +203,27 @@ export function Card(input: CardProps) {
         <>
           {coverPhoto && <kit.KitPhoto photo={coverPhoto} shape="wide" part="photo" />}
           {badge ? (
-            <kit.KitRow part={null} inline label={title} lineRole="heading" leading={lead}
-              leadingAlign={thumbnail ? "row" : "line"} {...finish}
-              trailing={<kit.KitTrail kind="badge" value={badge} part="badge" tone="muted" density={density} />}>
-              <kit.KitContent {...finish}><CardText {...input} density={density} /></kit.KitContent>
+            <kit.KitRow
+              part={null}
+              inline
+              label={title}
+              lineRole="heading"
+              leading={lead}
+              leadingAlign={thumbnail ? "row" : "line"}
+              {...finish}
+              trailing={
+                <kit.KitTrail kind="badge" value={badge} part="badge" tone="muted" density={density} />
+              }
+            >
+              <kit.KitContent {...finish}>
+                <CardText {...input} />
+              </kit.KitContent>
             </kit.KitRow>
-          ) : <kit.KitContent {...{ lead }} leadingAlign={thumbnail ? "row" : "line"} {...finish}>
-            <CardText {...input} density={density} />
-          </kit.KitContent>}
+          ) : (
+            <kit.KitContent {...{ lead }} leadingAlign={thumbnail ? "row" : "line"} {...finish}>
+              <CardText {...input} />
+            </kit.KitContent>
+          )}
         </>
       )}
     </kit.KitCard>

@@ -1,25 +1,23 @@
 // prettier-ignore
-import { KitCard, KitContent, KitEmpty, KitSkeleton, KitSlotGrid, KitText, KitTrail, useWords,
+import { KitCard, KitContent, KitGrid, KitLayoutText, KitMetaLine, KitRow, KitRowGroup,
+  KitSlotGrid, KitState, KitTrail, useWords,
   useComponentState, useEmptyThing, useVariant } from "../../../kit";
 import { bookingWordsFor } from "../lang";
 import { z } from "zod";
 // prettier-ignore
 import { clock, clockLine, detailOf, durationLine, emptyLine, itemsOf, placeholderValue, probesFor,
   text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
-import { slotDetailLine, slotLoadingLine, slotRangeLine } from "../copy";
+import { slotLabelLine } from "../copy";
+import { prompt } from "../../../entry/prompt-Slots.generated";
 
 // Core first: Calendar/week selects dates, not free and taken times within a day.
 export const meta = {
   id: "Slots",
   status: "ready",
   group: "input",
-  purpose: "Pick an available appointment start time, such as 09:00.",
-  pick: "Select free HH:MM start times, keeping taken times disabled. Not deciding which day, date or week to book: use Calendar for that, even in a booking app. Not working hours (Availability).",
-  writeHints: [
-    "Times are unique HH:MM start times. at, when present, must exactly match a free time; omit it if none is selected.",
-    'minutes is the appointment length, from 5 to 600. Only use arrange "rows" when asked for one row per time or for computed end times; otherwise leave arrange null.',
-    'Use style "ranges" for a single start–end span such as 09:00–09:45. Leave arrange null for ranges. Set timezone only when supplied; it labels the local times without converting them.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
@@ -39,14 +37,11 @@ export const meta = {
     return [
       durationLine(minutes, lang),
       ...(timezone ? [timezone] : []),
-      ...times.flatMap(({ time, taken }) =>
-        style === "ranges"
-          ? [slotRangeLine(time, minutes, lang), taken ? slotLabels.taken : slotLabels.free]
-          : [
-              `${time}${taken ? ` (${slotLabels.taken})` : ""}`,
-              slotDetailLine(time, minutes, arrange, taken, lang),
-            ],
-      ),
+      ...times.flatMap(({ time, taken }) => [
+        slotLabelLine(time, minutes, style ?? arrange, lang),
+        taken ? slotLabels.taken : slotLabels.free,
+        ...(taken && !style && arrange === "grid" ? [`${time} (${slotLabels.taken})`] : []),
+      ]),
     ];
   },
 } as const satisfies Meta;
@@ -117,7 +112,18 @@ export const examples = [
     at: "00:00",
     minutes: 600,
   },
-  { ...plantCareStarts, style: "ranges", minutes: 45, timezone: "New York time" },
+  {
+    ...plantCareStarts,
+    times: [
+      { time: "09:00", taken: false },
+      { time: "09:45", taken: true },
+      { time: "10:30", taken: false },
+      { time: "11:15", taken: true },
+    ],
+    style: "ranges",
+    minutes: 45,
+    timezone: "New York time",
+  },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Slots");
 export const probes = [
@@ -146,6 +152,31 @@ export const probes = [
   },
 ] satisfies Probe[];
 
+function SlotPlaceholders({
+  slots,
+  list,
+  label,
+}: {
+  slots: readonly { id: string; label: string; sub: string }[];
+  list: boolean;
+  label: string;
+}) {
+  const cells = slots.map((slot) => (
+    <KitRow key={slot.id} inset="none" label={slot.label}>
+      <KitMetaLine
+        align={list ? "start" : "center"}
+        title={{ text: slot.label, role: "figure", compact: true, tabular: true }}
+        meta={{ text: slot.sub }}
+      />
+    </KitRow>
+  ));
+  return (
+    <KitRow part="times" inline label={label}>
+      {list ? <KitRowGroup separators={false}>{cells}</KitRowGroup> : <KitGrid columns={3}>{cells}</KitGrid>}
+    </KitRow>
+  );
+}
+
 // prettier-ignore
 export function Slots(input: Props<typeof props, typeof meta>) {
   const { times, at, minutes, timezone } = input;
@@ -156,42 +187,30 @@ export function Slots(input: Props<typeof props, typeof meta>) {
   const state = useComponentState();
   const thing = useEmptyThing();
   const duration = durationLine(minutes, lang);
-  if (state === "empty") {
-    return (
-      <KitCard style="inset" part="root">
-        <KitEmpty
-          icon="clock"
-          title={thing ? emptyLine(thing, lang) : slotLabels.empty}
-          part="minutes"
-          decorativeIcon
-        />
-      </KitCard>
-    );
-  }
-  const slots = times.map(({ id, time, taken }) => {
-    const label = ranges ? slotRangeLine(time, minutes, lang) : time;
-    const sub = slotDetailLine(time, minutes, ranges ? "grid" : arrange, taken, lang);
-    return {
-      id,
-      taken,
-      label: state === "loading" ? slotLoadingLine(label) : label,
-      sub: state === "loading" ? slotLoadingLine(sub) : sub,
-    };
-  });
+  const list = ranges || arrange === "rows";
+  const slots = times.map(({ id, time, taken }) => ({
+    id,
+    taken,
+    label: slotLabelLine(time, minutes, input.style ?? arrange, lang),
+    sub: taken ? slotLabels.taken : slotLabels.free,
+  }));
   const selected = times.find(({ time }) => time === at);
+  const body = <>
+    {timezone && <KitContent leadingAlign="row"
+      lead={<KitTrail kind="badge" part="timezone" tone="muted" value={timezone} />}>{null}</KitContent>}
+    {state === "loading" ? <SlotPlaceholders slots={slots} list={list} label={duration} /> :
+      <KitSlotGrid times={slots} {...(selected ? { at: selected.id } : {})}
+        style={list ? "list" : "grid"} part="times" />}
+    <KitContent group="response">
+      <KitLayoutText line={{ text: duration, role: "caption", tone: "muted", tabular: true, part: "minutes" }} />
+    </KitContent>
+  </>;
   return (
-    <KitCard style="inset" padded part="root">
-      {timezone && <KitContent leadingAlign="row"
-        lead={<KitTrail kind="badge" part="timezone" tone="muted" value={timezone} />}>{null}</KitContent>}
-      <KitSlotGrid
-        times={slots}
-        {...(selected ? { at: selected.id } : {})}
-        style={ranges || arrange === "rows" ? "list" : "grid"}
-        loading={state === "loading"}
-        part="times"
-      />
-      {state === "loading" ? <KitSkeleton shape="figure" inset="none" content={[["caption", duration]]} /> :
-        <KitText role="caption" tone="muted" tabular part="minutes">{duration}</KitText>}
+    <KitCard style="inset" padded={state !== "empty"} part="root">
+      <KitState part="minutes" icon="clock" message={thing ? emptyLine(thing, lang) : slotLabels.empty}
+        loading={body}>
+        {body}
+      </KitState>
     </KitCard>
   );
 }

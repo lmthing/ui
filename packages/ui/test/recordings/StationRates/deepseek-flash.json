@@ -1,0 +1,1060 @@
+{
+  "StationRates%2Fchoose%2FAt%20one%20local%20fuel%20station%2C%20compare%20Regular%20and%20Premium%20prices%20per%20gallon%20and%20let%20me%20claim%20its%20cashback%20offer./6cf45d1098019a56/16a45ccfbb228160": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Address: Find a venue, copy its address, or call it. Pick: One place’s postal address with a map tile and copy or directions; call if a phone is supplied. Not facts about a venue (KeyValue) or live delivery progress (DeliveryTracker).\n- DeliveryTracker: Follow a delivery on its way and contact the courier. Pick: Live courier and destination together on a map with delivery ETA and current step. Not order steps without a map (OrderStatus) or a path through planned stops (Route).\n- Departures: See what leaves a transit stop next and whether it is delayed. Pick: Next live buses, trains or ferries from one stop, with line badges, destinations, minutes and delays. Not a day's events (Timeline) or a journey's ordered stops (Route).\n- Hours: Check when a place is open today and through the week. Pick: A venue's recurring opening hours across all seven weekdays, with optional special dates. Not a day's events (Timeline), bookable times (Availability), or staff shifts (Roster).\n- MapList: Browse nearby places on a map and in a linked list. Pick: Browse six or more places with matching detailed rows and pins, or switch between a linked map and list-only view. Not a small map of up to five pins (MapPins) or rows without any map (List).\n- PlaceCard: See whether a venue is open and worth visiting. Pick: One venue to visit with its opening times, distance, rating or price level. Not a compact preview of an ordinary record (Card), several places (List), a product (Product), or a rental (Listing).\n- StationRates: Compare local fuel prices or charging availability and claim station cashback. Pick: Live fuel grade prices, EV connector stalls or per-unit cashback for one station. Not static station facts (KeyValue), venue cards (PlaceCard), retail products (ProductGrid) or active charging sessions (ChargePump).\n\nNeed, in the person's words: \"At one local fuel station, compare Regular and Premium prices per gallon and let me claim its cashback offer.\"\nReply with only the component id, nothing else.",
+    "reply": "StationRates",
+    "replies": [
+      "StationRates",
+      "StationRates",
+      "StationRates"
+    ]
+  },
+  "StationRates%2Fchoose%2FAt%20one%20local%20fuel%20station%2C%20compare%20Regular%20and%20Premium%20prices%20per%20gallon%20and%20let%20me%20claim%20its%20cashback%20offer./881c24580e290c16/f5e008965b2950d3": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Address: Find a venue, copy its address, or call it. Pick: One place’s postal address with a map tile and copy or directions; call if a phone is supplied. Not facts about a venue (KeyValue) or live delivery progress (DeliveryTracker).\n- DeliveryTracker: Follow a delivery on its way and contact the courier. Pick: Live courier and destination together on a map with delivery ETA and current step. Not order steps without a map (OrderStatus) or a path through planned stops (Route).\n- Departures: See what leaves a transit stop next and whether it is delayed. Pick: Next live buses, trains or ferries from one stop, with line badges, destinations, minutes and delays. Not a day's events (Timeline) or a journey's ordered stops (Route).\n- Hours: Check when a place is open today and through the week. Pick: A venue's recurring opening hours across all seven weekdays, with optional special dates. Not a day's events (Timeline), bookable times (Availability), or staff shifts (Roster).\n- MapList: Browse nearby places on a map and in a linked list. Pick: Browse six or more places with matching detailed rows and pins, or switch between a linked map and list-only view. Not a small map of up to five pins (MapPins) or rows without any map (List).\n- PlaceCard: See whether a venue is open and worth visiting. Pick: One venue to visit with its opening times, distance, rating or price level. Not a compact preview of an ordinary record (Card), several places (List), a product (Product), or a rental (Listing).\n- StationRates: Compare local fuel prices or charging availability and claim station cashback. Pick: Live fuel grade prices, EV connector stalls or per-unit cashback for one station. Not static station facts (KeyValue), venue cards (PlaceCard), retail products (ProductGrid) or active charging sessions (ChargePump).\n\nNeed, in the person's words: \"At one local fuel station, compare Regular and Premium prices per gallon and let me claim its cashback offer.\"\nReply with only the component id, nothing else.",
+    "reply": "StationRates",
+    "replies": [
+      "StationRates",
+      "StationRates",
+      "StationRates"
+    ]
+  },
+  "StationRates%2Fchoose%2FShow%20one%20venue%E2%80%99s%20static%20amenities%20as%20labeled%20facts%20in%20a%20two-column%20grid%3A%20parking%20Yes%2C%20Wi-Fi%20Yes%2C%20seating%20Outdoors./69a35946c8767502/0857e5231e35e315": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Address: Find a venue, copy its address, or call it. Pick: One place’s postal address with a map tile and copy or directions; call if a phone is supplied. Not facts about a venue (KeyValue) or live delivery progress (DeliveryTracker).\n- DeliveryTracker: Follow a delivery on its way and contact the courier. Pick: Live courier and destination together on a map with delivery ETA and current step. Not order steps without a map (OrderStatus) or a path through planned stops (Route).\n- Departures: See what leaves a transit stop next and whether it is delayed. Pick: Next live buses, trains or ferries from one stop, with line badges, destinations, minutes and delays. Not a day's events (Timeline) or a journey's ordered stops (Route).\n- Hours: Check when a place is open today and through the week. Pick: A venue's recurring opening hours across all seven weekdays, with optional special dates. Not a day's events (Timeline), bookable times (Availability), or staff shifts (Roster).\n- MapList: Browse nearby places on a map and in a linked list. Pick: Browse six or more places with matching detailed rows and pins, or switch between a linked map and list-only view. Not a small map of up to five pins (MapPins) or rows without any map (List).\n- PlaceCard: See whether a venue is open and worth visiting. Pick: One venue to visit with its opening times, distance, rating or price level. Not a compact preview of an ordinary record (Card), several places (List), a product (Product), or a rental (Listing).\n- StationRates: Compare local fuel prices or charging availability and claim station cashback. Pick: Live fuel grade prices, EV connector stalls or per-unit cashback for one station. Not static station facts (KeyValue), venue cards (PlaceCard), retail products (ProductGrid) or active charging sessions (ChargePump).\n\nNeed, in the person's words: \"Show one venue’s static amenities as labeled facts in a two-column grid: parking Yes, Wi-Fi Yes, seating Outdoors.\"\nReply with only the component id, nothing else.",
+    "reply": "KeyValue",
+    "replies": [
+      "KeyValue",
+      "KeyValue",
+      "KeyValue"
+    ]
+  },
+  "StationRates%2Fchoose%2FShow%20one%20venue%E2%80%99s%20static%20amenities%20as%20labeled%20facts%20in%20a%20two-column%20grid%3A%20parking%20Yes%2C%20Wi-Fi%20Yes%2C%20seating%20Outdoors./df3dc803889145b3/5c25b0c2983f7b4a": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Address: Find a venue, copy its address, or call it. Pick: One place’s postal address with a map tile and copy or directions; call if a phone is supplied. Not facts about a venue (KeyValue) or live delivery progress (DeliveryTracker).\n- DeliveryTracker: Follow a delivery on its way and contact the courier. Pick: Live courier and destination together on a map with delivery ETA and current step. Not order steps without a map (OrderStatus) or a path through planned stops (Route).\n- Departures: See what leaves a transit stop next and whether it is delayed. Pick: Next live buses, trains or ferries from one stop, with line badges, destinations, minutes and delays. Not a day's events (Timeline) or a journey's ordered stops (Route).\n- Hours: Check when a place is open today and through the week. Pick: A venue's recurring opening hours across all seven weekdays, with optional special dates. Not a day's events (Timeline), bookable times (Availability), or staff shifts (Roster).\n- MapList: Browse nearby places on a map and in a linked list. Pick: Browse six or more places with matching detailed rows and pins, or switch between a linked map and list-only view. Not a small map of up to five pins (MapPins) or rows without any map (List).\n- PlaceCard: See whether a venue is open and worth visiting. Pick: One venue to visit with its opening times, distance, rating or price level. Not a compact preview of an ordinary record (Card), several places (List), a product (Product), or a rental (Listing).\n- StationRates: Compare local fuel prices or charging availability and claim station cashback. Pick: Live fuel grade prices, EV connector stalls or per-unit cashback for one station. Not static station facts (KeyValue), venue cards (PlaceCard), retail products (ProductGrid) or active charging sessions (ChargePump).\n\nNeed, in the person's words: \"Show one venue’s static amenities as labeled facts in a two-column grid: parking Yes, Wi-Fi Yes, seating Outdoors.\"\nReply with only the component id, nothing else.",
+    "reply": "KeyValue",
+    "replies": [
+      "KeyValue",
+      "KeyValue",
+      "KeyValue"
+    ]
+  },
+  "StationRates%2Fread%2FClaim%20the%20cashback%20offer%20at%20Alder%20Park%20Fuel./9202ae115e37ca5d/975c92c58c7ab05e": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 StationRates[fuel] \"Alder Park Fuel\" — Greenway — 1.2 mi — Updated 10:42 — \"Regular\": $3.49/gal — \"Premium\": $3.99/gal — \"Diesel\": $3.79/gal — 15¢/gal cashback — Claim offer — Directions [s1 press→alder_fuel] [s1/claim press !needs-service] [s1/directions press !needs-service]\n  r1\n  r2\n  r3\n\nTask: Claim the cashback offer at Alder Park Fuel.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/claim\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1/claim\", \"action\": \"press\"}",
+      "{\"address\": \"s1/claim\", \"action\": \"press\"}",
+      "{\"address\": \"s1/claim\", \"action\": \"press\"}"
+    ]
+  },
+  "StationRates%2Fread%2FClaim%20the%20cashback%20offer%20at%20Alder%20Park%20Fuel./e559c374f4f1f8d7/975c92c58c7ab05e": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 StationRates[fuel] \"Alder Park Fuel\" — Greenway — 1.2 mi — Updated 10:42 — \"Regular\": $3.49/gal — \"Premium\": $3.99/gal — \"Diesel\": $3.79/gal — 15¢/gal cashback — Claim offer — Directions [s1 press→alder_fuel] [s1/claim press !needs-service] [s1/directions press !needs-service]\n  r1\n  r2\n  r3\n\nTask: Claim the cashback offer at Alder Park Fuel.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/claim\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1/claim\", \"action\": \"press\"}",
+      "{\"address\": \"s1/claim\", \"action\": \"press\"}",
+      "{\"address\": \"s1/claim\", \"action\": \"press\"}"
+    ]
+  },
+  "StationRates%2Fread%2FGet%20directions%20to%20Alder%20Park%20Fuel./483ccc541688a233/815969a1b8756a40": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 StationRates[fuel] \"Alder Park Fuel\" — Greenway — 1.2 mi — Updated 10:42 — \"Regular\": $3.49/gal — \"Premium\": $3.99/gal — \"Diesel\": $3.79/gal — 15¢/gal cashback — Claim offer — Directions [s1 press→alder_fuel] [s1/claim press !needs-service] [s1/directions press !needs-service]\n  r1\n  r2\n  r3\n\nTask: Get directions to Alder Park Fuel.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/directions\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1/directions\", \"action\": \"press\"}",
+      "{\"address\": \"s1/directions\", \"action\": \"press\"}",
+      "{\"address\": \"s1/directions\", \"action\": \"press\"}"
+    ]
+  },
+  "StationRates%2Fread%2FGet%20directions%20to%20Alder%20Park%20Fuel./a3a59db0cca385a2/815969a1b8756a40": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 StationRates[fuel] \"Alder Park Fuel\" — Greenway — 1.2 mi — Updated 10:42 — \"Regular\": $3.49/gal — \"Premium\": $3.99/gal — \"Diesel\": $3.79/gal — 15¢/gal cashback — Claim offer — Directions [s1 press→alder_fuel] [s1/claim press !needs-service] [s1/directions press !needs-service]\n  r1\n  r2\n  r3\n\nTask: Get directions to Alder Park Fuel.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/directions\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1/directions\", \"action\": \"press\"}",
+      "{\"address\": \"s1/directions\", \"action\": \"press\"}",
+      "{\"address\": \"s1/directions\", \"action\": \"press\"}"
+    ]
+  },
+  "StationRates%2Fread%2FOpen%20the%20station%20details%20for%20Alder%20Park%20Fuel%2C%20not%20directions./c0518de3c3fbfa75/0dad12355e69917f": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 StationRates[fuel] \"Alder Park Fuel\" — Greenway — 1.2 mi — Updated 10:42 — \"Regular\": $3.49/gal — \"Premium\": $3.99/gal — \"Diesel\": $3.79/gal — 15¢/gal cashback — Claim offer — Directions [s1 press→alder_fuel] [s1/claim press !needs-service] [s1/directions press !needs-service]\n  r1\n  r2\n  r3\n\nTask: Open the station details for Alder Park Fuel, not directions.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1\", \"action\": \"press\"}",
+      "{\"address\": \"s1\", \"action\": \"press\"}",
+      "{\"address\": \"s1\", \"action\": \"press\"}"
+    ]
+  },
+  "StationRates%2Fread%2FOpen%20the%20station%20details%20for%20Alder%20Park%20Fuel%2C%20not%20directions./e69d0760f39002a6/0dad12355e69917f": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 StationRates[fuel] \"Alder Park Fuel\" — Greenway — 1.2 mi — Updated 10:42 — \"Regular\": $3.49/gal — \"Premium\": $3.99/gal — \"Diesel\": $3.79/gal — 15¢/gal cashback — Claim offer — Directions [s1 press→alder_fuel] [s1/claim press !needs-service] [s1/directions press !needs-service]\n  r1\n  r2\n  r3\n\nTask: Open the station details for Alder Park Fuel, not directions.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1\", \"action\": \"press\"}",
+      "{\"address\": \"s1\", \"action\": \"press\"}",
+      "{\"address\": \"s1\", \"action\": \"press\"}"
+    ]
+  },
+  "StationRates%2Fwrite%2FAt%20Alder%20Park%20Fuel%20show%20Regular%20at%203.49%20per%20gal%20and%20Premium%20at%203.99%20per%20gal.%20Show%20an%20unclaimed%2015%C2%A2%2Fgal%20cashback%20offer./58bc2150ccf3f506/ab157c8b8ea0d2ae": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nStationRates: Compare local fuel prices or charging availability and claim station cashback.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", name: text≤32, brand?: text≤20, kind: fuel|ev, distance?: text≤10, updatedAt?: text≤12, grades?: [1..5 { label: text≤16, price: number, unit?: text≤6 }], chargers?: [0..4 { connector: text≤12, kw: number, available: int 0..9007199254740991, total: int ..9007199254740991 }], offer?: { cashback: text≤20, claimed: boolean }, goto?: id snake_case }\nRule: For fuel, write 1–5 grades in display order and no chargers. For EV, write the supplied charger groups and optional per-kWh pricing as grades. Never invent stall counts, prices, distance, or update times.\nRule: Use detail \"brief\" for only the primary fuel grade or total open stalls at a glance. Keep all supplied grades and chargers in the data. Leave density and surface null unless requested.\nexample: {\"c\":\"StationRates\",\"name\":\"Alder Park Fuel\",\"brand\":\"Greenway\",\"kind\":\"fuel\",\"distance\":\"1.2 mi\",\"updatedAt\":\"10:42\",\"grades\":[{\"label\":\"Regular\",\"price\":3.49,\"unit\":\"gal\"},{\"label\":\"Premium\",\"price\":3.99,\"unit\":\"gal\"},{\"label\":\"Diesel\",\"price\":3.79,\"unit\":\"gal\"}],\"offer\":{\"cashback\":\"15¢/gal\",\"claimed\":false},\"goto\":\"alder_fuel\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: At Alder Park Fuel show Regular at 3.49 per gal and Premium at 3.99 per gal. Show an unclaimed 15¢/gal cashback offer.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "StationRates",
+              "enum": [
+                "StationRates"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "brand": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "fuel",
+                "ev"
+              ]
+            },
+            "distance": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 10
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "updatedAt": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "grades": {
+              "anyOf": [
+                {
+                  "minItems": 1,
+                  "maxItems": 5,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 16
+                      },
+                      "price": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "unit": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 6
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "price",
+                      "unit"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "chargers": {
+              "anyOf": [
+                {
+                  "minItems": 0,
+                  "maxItems": 4,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "connector": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 12
+                      },
+                      "kw": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "available": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "total": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "connector",
+                      "kw",
+                      "available",
+                      "total"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "offer": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "cashback": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20
+                    },
+                    "claimed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "cashback",
+                    "claimed"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "name",
+            "brand",
+            "kind",
+            "distance",
+            "updatedAt",
+            "grades",
+            "chargers",
+            "offer",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"StationRates\",\"density\":null,\"surface\":null,\"detail\":null,\"name\":\"Alder Park Fuel\",\"brand\":\"Greenway\",\"kind\":\"fuel\",\"distance\":\"1.2 mi\",\"updatedAt\":\"10:42\",\"grades\":[{\"label\":\"Regular\",\"price\":3.49,\"unit\":\"gal\"},{\"label\":\"Premium\",\"price\":3.99,\"unit\":\"gal\"}],\"chargers\":null,\"offer\":{\"cashback\":\"15¢/gal\",\"claimed\":false},\"goto\":\"alder_fuel\"}",
+    "replies": [
+      "{\"c\":\"StationRates\",\"density\":null,\"surface\":null,\"detail\":null,\"name\":\"Alder Park Fuel\",\"brand\":\"Greenway\",\"kind\":\"fuel\",\"distance\":\"1.2 mi\",\"updatedAt\":\"10:42\",\"grades\":[{\"label\":\"Regular\",\"price\":3.49,\"unit\":\"gal\"},{\"label\":\"Premium\",\"price\":3.99,\"unit\":\"gal\"}],\"chargers\":null,\"offer\":{\"cashback\":\"15¢/gal\",\"claimed\":false},\"goto\":\"alder_fuel\"}",
+      "{\"c\":\"StationRates\",\"density\":null,\"surface\":null,\"detail\":null,\"name\":\"Alder Park Fuel\",\"brand\":null,\"kind\":\"fuel\",\"distance\":null,\"updatedAt\":null,\"grades\":[{\"label\":\"Regular\",\"price\":3.49,\"unit\":\"gal\"},{\"label\":\"Premium\",\"price\":3.99,\"unit\":\"gal\"}],\"chargers\":null,\"offer\":{\"cashback\":\"15¢/gal\",\"claimed\":false},\"goto\":null}",
+      "{\"c\":\"StationRates\",\"density\":null,\"surface\":null,\"detail\":null,\"name\":\"Alder Park Fuel\",\"brand\":\"Greenway\",\"kind\":\"fuel\",\"distance\":\"1.2 mi\",\"updatedAt\":\"10:42\",\"grades\":[{\"label\":\"Regular\",\"price\":3.49,\"unit\":\"gal\"},{\"label\":\"Premium\",\"price\":3.99,\"unit\":\"gal\"}],\"chargers\":null,\"offer\":{\"cashback\":\"15¢/gal\",\"claimed\":false},\"goto\":null}"
+    ]
+  },
+  "StationRates%2Fwrite%2FAt%20Alder%20Park%20Fuel%20show%20Regular%20at%203.49%20per%20gal%20and%20Premium%20at%203.99%20per%20gal.%20Show%20an%20unclaimed%2015%C2%A2%2Fgal%20cashback%20offer./694d6239742a4f0c/fcb8230bf25a397f": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nStationRates: Compare local fuel prices or charging availability and claim station cashback.\nprops: { detail?: full|brief=\"full\", name: text≤32, brand?: text≤20, kind: fuel|ev, distance?: text≤10, updatedAt?: text≤12, grades?: [1..5 { label: text≤16, price: number, unit?: text≤6 }], chargers?: [0..4 { connector: text≤12, kw: number, available: int 0..9007199254740991, total: int ..9007199254740991 }], offer?: { cashback: text≤20, claimed: boolean }, goto?: id snake_case }\nRule: For fuel, write 1–5 grades in display order and no chargers. For EV, write the supplied charger groups and optional per-kWh pricing as grades. Never invent stall counts, prices, distance, or update times.\nRule: Use detail \"brief\" for only the primary fuel grade or total open stalls at a glance. Keep all supplied grades and chargers in the data.\nexample: {\"c\":\"StationRates\",\"name\":\"Alder Park Fuel\",\"brand\":\"Greenway\",\"kind\":\"fuel\",\"distance\":\"1.2 mi\",\"updatedAt\":\"10:42\",\"grades\":[{\"label\":\"Regular\",\"price\":3.49,\"unit\":\"gal\"},{\"label\":\"Premium\",\"price\":3.99,\"unit\":\"gal\"},{\"label\":\"Diesel\",\"price\":3.79,\"unit\":\"gal\"}],\"offer\":{\"cashback\":\"15¢/gal\",\"claimed\":false},\"goto\":\"alder_fuel\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: At Alder Park Fuel show Regular at 3.49 per gal and Premium at 3.99 per gal. Show an unclaimed 15¢/gal cashback offer.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "StationRates",
+              "enum": [
+                "StationRates"
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "brand": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "fuel",
+                "ev"
+              ]
+            },
+            "distance": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 10
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "updatedAt": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "grades": {
+              "anyOf": [
+                {
+                  "minItems": 1,
+                  "maxItems": 5,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 16
+                      },
+                      "price": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "unit": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 6
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "price",
+                      "unit"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "chargers": {
+              "anyOf": [
+                {
+                  "minItems": 0,
+                  "maxItems": 4,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "connector": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 12
+                      },
+                      "kw": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "available": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "total": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "connector",
+                      "kw",
+                      "available",
+                      "total"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "offer": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "cashback": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20
+                    },
+                    "claimed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "cashback",
+                    "claimed"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "detail",
+            "name",
+            "brand",
+            "kind",
+            "distance",
+            "updatedAt",
+            "grades",
+            "chargers",
+            "offer",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"StationRates\",\"detail\":\"brief\",\"name\":\"Alder Park Fuel\",\"brand\":null,\"kind\":\"fuel\",\"distance\":null,\"updatedAt\":null,\"grades\":[{\"label\":\"Regular\",\"price\":3.49,\"unit\":\"gal\"},{\"label\":\"Premium\",\"price\":3.99,\"unit\":\"gal\"}],\"chargers\":null,\"offer\":{\"cashback\":\"15¢/gal\",\"claimed\":false},\"goto\":null}",
+    "replies": [
+      "{\"c\":\"StationRates\",\"detail\":\"brief\",\"name\":\"Alder Park Fuel\",\"brand\":null,\"kind\":\"fuel\",\"distance\":null,\"updatedAt\":null,\"grades\":[{\"label\":\"Regular\",\"price\":3.49,\"unit\":\"gal\"},{\"label\":\"Premium\",\"price\":3.99,\"unit\":\"gal\"}],\"chargers\":null,\"offer\":{\"cashback\":\"15¢/gal\",\"claimed\":false},\"goto\":null}",
+      "{\"c\":\"StationRates\",\"detail\":\"brief\",\"name\":\"Alder Park Fuel\",\"brand\":\"Greenway\",\"kind\":\"fuel\",\"distance\":\"1.2 mi\",\"updatedAt\":\"10:42\",\"grades\":[{\"label\":\"Regular\",\"price\":3.49,\"unit\":\"gal\"},{\"label\":\"Premium\",\"price\":3.99,\"unit\":\"gal\"}],\"chargers\":null,\"offer\":{\"cashback\":\"15¢/gal\",\"claimed\":false},\"goto\":\"alder_fuel\"}",
+      "{\"c\":\"StationRates\",\"detail\":null,\"name\":\"Alder Park Fuel\",\"brand\":null,\"kind\":\"fuel\",\"distance\":null,\"updatedAt\":null,\"grades\":[{\"label\":\"Regular\",\"price\":3.49,\"unit\":\"gal\"},{\"label\":\"Premium\",\"price\":3.99,\"unit\":\"gal\"}],\"chargers\":null,\"offer\":{\"cashback\":\"15¢/gal\",\"claimed\":false},\"goto\":null}"
+    ]
+  },
+  "StationRates%2Fwrite%2FAt%20Canal%20Green%20Charging%20there%20are%203%20open%20of%204%20CCS%20stalls%20at%20150%20kW%20and%200%20open%20of%202%20NACS%20stalls%20at%20250%20kW.%20Keep%20both%20connectors%20in%20the%20data%20but%20show%20only%20the%20total%20open%20stalls%20at%20a%20glance%2C%20not%20the%20individual%20rows./6ffc51f3f2f6e65b/e98cbf1d8b7b936f": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nStationRates: Compare local fuel prices or charging availability and claim station cashback.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", name: text≤32, brand?: text≤20, kind: fuel|ev, distance?: text≤10, updatedAt?: text≤12, grades?: [1..5 { label: text≤16, price: number, unit?: text≤6 }], chargers?: [0..4 { connector: text≤12, kw: number, available: int 0..9007199254740991, total: int ..9007199254740991 }], offer?: { cashback: text≤20, claimed: boolean }, goto?: id snake_case }\nRule: For fuel, write 1–5 grades in display order and no chargers. For EV, write the supplied charger groups and optional per-kWh pricing as grades. Never invent stall counts, prices, distance, or update times.\nRule: Use detail \"brief\" for only the primary fuel grade or total open stalls at a glance. Keep all supplied grades and chargers in the data. Leave density and surface null unless requested.\nexample: {\"c\":\"StationRates\",\"name\":\"Alder Park Fuel\",\"brand\":\"Greenway\",\"kind\":\"fuel\",\"distance\":\"1.2 mi\",\"updatedAt\":\"10:42\",\"grades\":[{\"label\":\"Regular\",\"price\":3.49,\"unit\":\"gal\"},{\"label\":\"Premium\",\"price\":3.99,\"unit\":\"gal\"},{\"label\":\"Diesel\",\"price\":3.79,\"unit\":\"gal\"}],\"offer\":{\"cashback\":\"15¢/gal\",\"claimed\":false},\"goto\":\"alder_fuel\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: At Canal Green Charging there are 3 open of 4 CCS stalls at 150 kW and 0 open of 2 NACS stalls at 250 kW. Keep both connectors in the data but show only the total open stalls at a glance, not the individual rows.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "StationRates",
+              "enum": [
+                "StationRates"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "brand": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "fuel",
+                "ev"
+              ]
+            },
+            "distance": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 10
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "updatedAt": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "grades": {
+              "anyOf": [
+                {
+                  "minItems": 1,
+                  "maxItems": 5,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 16
+                      },
+                      "price": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "unit": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 6
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "price",
+                      "unit"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "chargers": {
+              "anyOf": [
+                {
+                  "minItems": 0,
+                  "maxItems": 4,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "connector": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 12
+                      },
+                      "kw": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "available": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "total": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "connector",
+                      "kw",
+                      "available",
+                      "total"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "offer": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "cashback": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20
+                    },
+                    "claimed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "cashback",
+                    "claimed"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "name",
+            "brand",
+            "kind",
+            "distance",
+            "updatedAt",
+            "grades",
+            "chargers",
+            "offer",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"StationRates\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"name\":\"Canal Green Charging\",\"brand\":null,\"kind\":\"ev\",\"distance\":null,\"updatedAt\":null,\"grades\":null,\"chargers\":[{\"connector\":\"CCS\",\"kw\":150,\"available\":3,\"total\":4},{\"connector\":\"NACS\",\"kw\":250,\"available\":0,\"total\":2}],\"offer\":null,\"goto\":null}",
+    "replies": [
+      "{\"c\":\"StationRates\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"name\":\"Canal Green Charging\",\"brand\":null,\"kind\":\"ev\",\"distance\":null,\"updatedAt\":null,\"grades\":null,\"chargers\":[{\"connector\":\"CCS\",\"kw\":150,\"available\":3,\"total\":4},{\"connector\":\"NACS\",\"kw\":250,\"available\":0,\"total\":2}],\"offer\":null,\"goto\":null}",
+      "{\"c\":\"StationRates\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"name\":\"Canal Green Charging\",\"brand\":null,\"kind\":\"ev\",\"distance\":null,\"updatedAt\":null,\"grades\":null,\"chargers\":[{\"connector\":\"CCS\",\"kw\":150,\"available\":3,\"total\":4},{\"connector\":\"NACS\",\"kw\":250,\"available\":0,\"total\":2}],\"offer\":null,\"goto\":null}",
+      "{\"c\":\"StationRates\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"name\":\"Canal Green Charging\",\"brand\":null,\"kind\":\"ev\",\"distance\":null,\"updatedAt\":null,\"grades\":null,\"chargers\":[{\"connector\":\"CCS\",\"kw\":150,\"available\":3,\"total\":4},{\"connector\":\"NACS\",\"kw\":250,\"available\":0,\"total\":2}],\"offer\":null,\"goto\":null}"
+    ]
+  },
+  "StationRates%2Fwrite%2FAt%20Canal%20Green%20Charging%20there%20are%203%20open%20of%204%20CCS%20stalls%20at%20150%20kW%20and%200%20open%20of%202%20NACS%20stalls%20at%20250%20kW.%20Keep%20both%20connectors%20in%20the%20data%20but%20show%20only%20the%20total%20open%20stalls%20at%20a%20glance%2C%20not%20the%20individual%20rows./ac83b2d7e907fb3f/9595687ae3e0126f": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nStationRates: Compare local fuel prices or charging availability and claim station cashback.\nprops: { detail?: full|brief=\"full\", name: text≤32, brand?: text≤20, kind: fuel|ev, distance?: text≤10, updatedAt?: text≤12, grades?: [1..5 { label: text≤16, price: number, unit?: text≤6 }], chargers?: [0..4 { connector: text≤12, kw: number, available: int 0..9007199254740991, total: int ..9007199254740991 }], offer?: { cashback: text≤20, claimed: boolean }, goto?: id snake_case }\nRule: For fuel, write 1–5 grades in display order and no chargers. For EV, write the supplied charger groups and optional per-kWh pricing as grades. Never invent stall counts, prices, distance, or update times.\nRule: Use detail \"brief\" for only the primary fuel grade or total open stalls at a glance. Keep all supplied grades and chargers in the data.\nexample: {\"c\":\"StationRates\",\"name\":\"Alder Park Fuel\",\"brand\":\"Greenway\",\"kind\":\"fuel\",\"distance\":\"1.2 mi\",\"updatedAt\":\"10:42\",\"grades\":[{\"label\":\"Regular\",\"price\":3.49,\"unit\":\"gal\"},{\"label\":\"Premium\",\"price\":3.99,\"unit\":\"gal\"},{\"label\":\"Diesel\",\"price\":3.79,\"unit\":\"gal\"}],\"offer\":{\"cashback\":\"15¢/gal\",\"claimed\":false},\"goto\":\"alder_fuel\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: At Canal Green Charging there are 3 open of 4 CCS stalls at 150 kW and 0 open of 2 NACS stalls at 250 kW. Keep both connectors in the data but show only the total open stalls at a glance, not the individual rows.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "StationRates",
+              "enum": [
+                "StationRates"
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "brand": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "fuel",
+                "ev"
+              ]
+            },
+            "distance": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 10
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "updatedAt": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "grades": {
+              "anyOf": [
+                {
+                  "minItems": 1,
+                  "maxItems": 5,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 16
+                      },
+                      "price": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "unit": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 6
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "price",
+                      "unit"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "chargers": {
+              "anyOf": [
+                {
+                  "minItems": 0,
+                  "maxItems": 4,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "connector": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 12
+                      },
+                      "kw": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "available": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "total": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "connector",
+                      "kw",
+                      "available",
+                      "total"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "offer": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "cashback": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20
+                    },
+                    "claimed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "cashback",
+                    "claimed"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "detail",
+            "name",
+            "brand",
+            "kind",
+            "distance",
+            "updatedAt",
+            "grades",
+            "chargers",
+            "offer",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"StationRates\",\"detail\":\"brief\",\"name\":\"Canal Green Charging\",\"brand\":null,\"kind\":\"ev\",\"distance\":null,\"updatedAt\":null,\"grades\":null,\"chargers\":[{\"connector\":\"CCS\",\"kw\":150,\"available\":3,\"total\":4},{\"connector\":\"NACS\",\"kw\":250,\"available\":0,\"total\":2}],\"offer\":null,\"goto\":null}",
+    "replies": [
+      "{\"c\":\"StationRates\",\"detail\":\"brief\",\"name\":\"Canal Green Charging\",\"brand\":null,\"kind\":\"ev\",\"distance\":null,\"updatedAt\":null,\"grades\":null,\"chargers\":[{\"connector\":\"CCS\",\"kw\":150,\"available\":3,\"total\":4},{\"connector\":\"NACS\",\"kw\":250,\"available\":0,\"total\":2}],\"offer\":null,\"goto\":null}",
+      "{\"c\":\"StationRates\",\"detail\":\"brief\",\"name\":\"Canal Green Charging\",\"brand\":null,\"kind\":\"ev\",\"distance\":null,\"updatedAt\":null,\"grades\":null,\"chargers\":[{\"connector\":\"CCS\",\"kw\":150,\"available\":3,\"total\":4},{\"connector\":\"NACS\",\"kw\":250,\"available\":0,\"total\":2}],\"offer\":null,\"goto\":null}",
+      "{\"c\":\"StationRates\",\"detail\":\"brief\",\"name\":\"Canal Green Charging\",\"brand\":null,\"kind\":\"ev\",\"distance\":null,\"updatedAt\":null,\"grades\":null,\"chargers\":[{\"connector\":\"CCS\",\"kw\":150,\"available\":3,\"total\":4},{\"connector\":\"NACS\",\"kw\":250,\"available\":0,\"total\":2}],\"offer\":null,\"goto\":null}"
+    ]
+  }
+}

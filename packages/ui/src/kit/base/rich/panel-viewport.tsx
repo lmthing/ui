@@ -1,6 +1,5 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { isWeb, ScrollView, YStack, type TamaguiElement } from "tamagui";
-import { component } from "../../../catalog";
 import { useWords } from "../../provider";
 
 type Mode = "strip" | "ltr" | "rtl";
@@ -138,54 +137,5 @@ export function PanelViewport(props: ViewportProps) {
     >
       {children(active)}
     </ScrollView>
-  );
-}
-
-export function PanelPage({
-  children,
-  width,
-  height,
-  viewHeight,
-  strip,
-  loading,
-  active,
-}: {
-  children: ReactNode;
-  width: number;
-  height: number;
-  viewHeight: number;
-  strip: boolean;
-  loading: boolean;
-  active: boolean;
-}) {
-  const drawing = (
-    <YStack width={width} height={height} backgroundColor={loading ? "$line" : undefined}>
-      {!loading && children}
-    </YStack>
-  );
-  const overflow = !strip && height > viewHeight;
-  return (
-    <YStack
-      width={width}
-      height={strip ? height : viewHeight}
-      flexShrink={component.base.none}
-      accessibilityRole={loading ? undefined : "listitem"}
-      aria-current={!loading && active ? true : undefined}
-      {...(isWeb
-        ? {
-            style: { scrollSnapAlign: strip ? undefined : "start", overflowY: overflow ? "auto" : "hidden" },
-            dir: "auto",
-            ...(overflow && active && !loading ? { tabIndex: 0 } : {}),
-          }
-        : {})}
-    >
-      {!isWeb && overflow ? (
-        <ScrollView nestedScrollEnabled scrollEnabled={!loading}>
-          {drawing}
-        </ScrollView>
-      ) : (
-        drawing
-      )}
-    </YStack>
   );
 }

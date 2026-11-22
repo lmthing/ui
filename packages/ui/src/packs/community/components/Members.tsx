@@ -4,41 +4,29 @@ import * as kit from "../../../kit";
 import { memberFacts, memberReading, membersProjection, previewMemberDues } from "../copy";
 import { communityWordsFor } from "../lang";
 import { distinct, ref, seedDate, seedTitle } from "../seeds";
+import { prompt } from "../../../entry/prompt-Members.generated";
 
 // Core first: People/rows shows names and roles, not membership dates, voting rights or reconciled dues.
+// prettier-ignore
 export const meta = {
   id: "Members",
   status: "ready" as "ready" | "draft",
   group: "data",
-  purpose: "Keep membership records, voting rights and dues badges together.",
-  pick: "A group's official membership register with joining or leaving dates, voting rights and dues badges. Not a small directory (People), one person's identity (Profile), business clients (ClientCard) or event guests (GuestList).",
-  writeHints: [
-    "Use unique snake_case member ids. Leave ended unset for continuing members; when supplied it must not precede joined. Dues badges are computed by the host.",
-    'For names, primary roles and badges only, write detail "brief" and keep the dates, roles and photo in the data. Hiding extra details does not request different row spacing: write density null unless the person expressly asks for tighter or roomier spacing.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "The secretary can keep records on one device, while member access requires a shared app.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["joined", "ended", "photo", "other_roles"] } },
   parts: ["root", "empty"],
   items: {
     key: "members",
-    parts: [
-      "root",
-      "name",
-      "role",
-      "other_roles",
-      "joined",
-      "ended",
-      "voting_rights",
-      "photo",
-      "dues",
-      "end",
-      "end_label",
-    ],
+    parts: ["root", "name", "role", "other_roles", "joined", "ended", "voting_rights",
+      "photo", "dues", "badge", "committee", "end", "end_label"],
   },
   states: ["filled", "empty", "loading", "success", "error"],
   actions: {
@@ -63,6 +51,8 @@ const member = z
     votingRights: z.boolean(),
     photo: c.photo.optional(),
     goto: c.screenId.optional(),
+    badge: c.text(16).optional(),
+    committee: c.text(24).optional(),
   })
   .refine(({ joined, ended }) => !ended || joined <= ended, { path: ["ended"] });
 
@@ -115,6 +105,8 @@ export const examples: z.input<typeof props>[] = [
         roles: ["Walk leader", "Treasurer"],
         joined: "2025-02-09",
         votingRights: true,
+        badge: "Keyholder",
+        committee: "Events",
       },
       { id: "jo", name: "Jo Bell", roles: ["Route steward"], joined: "2025-04-07", votingRights: false },
     ],
@@ -139,6 +131,18 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
+  {
+    ...write(
+      "Register Ana Reed as the sole member, joined 2024-03-12, with voting rights and the exact badge Keyholder.",
+    ),
+    expectProps: { members: [{ badge: "Keyholder" }] },
+  },
+  {
+    ...write(
+      "Register Ana Reed as the sole member, joined 2024-03-12, with voting rights. She serves on the committee named Events. Record Events as the committee name, not a badge or a role.",
+    ),
+    expectProps: { members: [{ committee: "Events" }] },
+  },
   read("Open Ana Reed's membership record.", { address: "m1/r1", action: "press" }),
 ] satisfies c.Probe[];
 
@@ -148,24 +152,26 @@ type Row = Omit<View["members"][number], "joined"> & {
   joined?: string | undefined;
   can_end?: boolean;
 };
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 
 // prettier-ignore
 function MemberRow({ row, density, loading }: { row: Row; density: Density; loading: boolean }) {
   const scope = kit.usePartContext();
   const { lang, words: { members: w } } = kit.useWords(communityWordsFor);
-  const { voting, joined, ended, otherRoles, dues } = memberFacts(row, kit.useDeviceData(), lang);
-  const photo = row.photo ? <kit.KitPhoto part="photo" shape="round" photo={row.photo} label={row.name} loading={loading} />
-    : joined ? <kit.KitIcon name="user" tone="muted" decorative loading={loading} /> : undefined;
-  const badge = dues && <kit.KitTrail kind="badge" part="dues" tone={dues.tone} value={dues.label} density={density} />;
+  const { voting, joined, ended, otherRoles, dues, badge, committee } = memberFacts(row, kit.useDeviceData(), lang);
+  const photo = row.photo || joined ? <kit.KitPhoto part={!loading && row.photo ? "photo" : null}
+    shape="round" photo={row.photo} label={row.name} initials={Array.from(row.name)[0]} loading={loading} /> : undefined;
+  const duesBadge = dues && <kit.KitTrail kind="badge" part="dues" tone={dues.tone} value={dues.label} density={density} />;
+  const fields = { role: row.roles[0], other_roles: otherRoles, joined, ended, voting_rights: voting, committee };
   return <kit.PartScope {...scope} item={row.id}>
     <kit.KitRow part={loading ? null : "root"} label={row.name} inset="none" density={density}
-      goto={loading ? undefined : row.goto} leading={photo} leadingAlign={row.photo ? "row" : "line"} trailing={badge}>
-      <kit.KitMetaLine density={density} title={{ text: row.name, part: "name", strong: true }} meta={[
-        { text: row.roles[0], part: "role" }, { text: otherRoles, part: "other_roles" },
-        { text: joined, part: "joined" }, { text: ended, part: "ended" },
-        { text: voting, part: "voting_rights" },
-      ]} />
+      goto={loading ? undefined : row.goto} leading={photo} leadingAlign="row" trailing={duesBadge}>
+      <kit.KitContent density={density} rhythm="flush">
+        <kit.KitLayoutText density={density} line={{ text: row.name, part: "name", strong: true }} />
+        {Object.entries(fields).map(([part, text]) => <kit.KitLayoutText key={part} density={density}
+          line={{ text, part, role: "meta", tone: "muted" }} />)}
+        {badge && <kit.KitLayoutText density={density} line={{ text: badge, part: "badge", role: "meta", tone: "muted" }} />}
+      </kit.KitContent>
     </kit.KitRow>
     {row.can_end && <kit.KitActionFooter density={density}>
       <kit.KitAction part={loading ? null : "end"} action="press" kind="danger" label={w.end} />
@@ -176,7 +182,7 @@ function MemberRow({ row, density, loading }: { row: Row; density: Density; load
 // prettier-ignore
 export function Members(input: View) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const { members } = kit.useLiveControls(meta, input) as { members: Row[] };
   const { words: { members: w } } = kit.useWords(communityWordsFor);
   const rows = <kit.KitRowGroup density={density} leadingWidth={members.some((row) => row.photo || row.joined) ? "avatar" : undefined}>

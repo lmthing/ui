@@ -10,7 +10,17 @@ export type VariantMove = {
   prepare?: (props: Line) => Line;
 };
 
-const listVariants = ["density", "surface", "detail", "group", "overflow", "lead", "trail"];
+const listVariants = [
+  "density",
+  "surface",
+  "detail",
+  "arrange",
+  "aspect",
+  "group",
+  "overflow",
+  "lead",
+  "trail",
+];
 const legacyListStyles = ["plain", "inset", "cards", "shelf", "ranked", "expand"];
 
 /** Replay the old schema's effective layout before moving its style to shared axes. */
@@ -84,35 +94,27 @@ export function migrateProgressItems(props: Line): Line {
 
 /** Each table applies once the corresponding component adopts its axes. */
 export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[]>>> = {
-  Feed: [
-    { from: "style", values: { stream: {}, compact: { density: "compact" }, grid: { arrange: "grid" } } },
-  ],
-  Post: [
-    { from: "style", values: { stream: {}, compact: { density: "compact" }, grid: { arrange: "grid" } } },
-  ],
+  Feed: [{ from: "style", values: { stream: {}, compact: {}, grid: { arrange: "grid" } } }],
+  Post: [{ from: "style", values: { stream: {}, compact: {}, grid: { arrange: "grid" } } }],
   Button: [
     {
       from: "kind",
       values: {
         primary: {},
-        secondary: { surface: "tinted" },
-        quiet: { surface: "plain" },
+        secondary: {},
+        quiet: {},
       },
     },
   ],
-  Choice: [{ from: "style", values: { cards: { surface: "card" }, list: { surface: "plain" } } }],
+  Choice: [{ from: "style", values: { cards: {}, list: {} } }],
   ScoreSheet: [{ from: "style", values: { grid: { overflow: "all" }, round: { overflow: "page" } } }],
   TeamPicker: [{ from: "style", values: { columns: { arrange: "strip" }, groups: { arrange: "rows" } } }],
+  Table: [{ from: "style", values: { compact: {}, grouped: { group: "sections" } } }],
   Trivia: [{ from: "style", values: { card: { emphasis: "normal" }, large: { emphasis: "hero" } } }],
-  Amount: [
-    { from: "style", values: { large: { emphasis: "hero" } } },
-    { from: "style", values: { total: { surface: "outlined" } }, retainStyle: true },
-  ],
+  Amount: [{ from: "style", values: { large: { emphasis: "hero" } } }],
   Ring: [{ from: "style", values: { md: {}, lg: { emphasis: "hero" } } }],
-  Player: [{ from: "style", values: { compact: { density: "compact", detail: "brief" } } }],
-  Progress: [
-    { from: "style", values: { stack: { density: "comfortable" }, compact: { density: "compact" } } },
-  ],
+  Player: [{ from: "style", values: { compact: { detail: "brief" } } }],
+  Progress: [{ from: "style", values: { stack: {}, compact: {} } }],
   Hero: [{ from: "style", values: { statement: {}, photo: { media: "cover" } } }],
   Header: [{ from: "style", values: { large: {}, inline: { emphasis: "quiet" } } }],
   Note: [
@@ -127,30 +129,31 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
   Loan: [{ from: "style", values: { summary: { detail: "brief" }, schedule: { detail: "full" } } }],
   Payoff: [{ from: "style", values: { plan: { detail: "full" }, compact: { detail: "brief" } } }],
   Slots: [{ from: "style", values: { grid: { arrange: "grid" }, list: { arrange: "rows" } } }],
-  ServiceMenu: [
-    { from: "style", values: { rows: { surface: "card" } } },
-    { from: "style", values: { cards: { surface: "card" } }, retainStyle: true },
+  Library: [
+    {
+      from: "style",
+      values: { grid: { arrange: "grid" }, list: { arrange: "rows" }, shelf: { arrange: "strip" } },
+    },
   ],
+  ServiceMenu: [{ from: "style", values: { rows: {} } }],
   List: [
     {
       from: "style",
       values: {
-        plain: { surface: "plain" },
-        inset: { surface: "card" },
+        plain: {},
+        inset: {},
         grid: { arrange: "grid" },
       },
     },
-    // The shared surface sets the finish; the structural style keeps one card per row.
-    { from: "style", values: { cards: { surface: "card" } }, retainStyle: true },
     { from: "style", values: { ranked: { lead: "number", trail: "value" } }, prepare: preserveRankedTrail },
   ],
   Card: [
     {
       from: "style",
       values: {
-        plain: { surface: "card" },
-        tinted: { surface: "tinted" },
-        outlined: { surface: "outlined" },
+        plain: {},
+        tinted: {},
+        outlined: {},
         media: { media: "cover" },
       },
       prepare: (props) =>
@@ -163,7 +166,7 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
   Stats: [{ from: "style", values: { tiles: { arrange: "grid" }, inline: { arrange: "rows" } } }],
   KeyValue: [{ from: "style", values: { rows: { arrange: "rows" }, grid: { arrange: "grid" } } }],
   Devices: [{ from: "style", values: { tiles: { group: "sections" } } }],
-  Entries: [{ from: "style", values: { feed: {}, compact: { density: "compact", media: "none" } } }],
+  Entries: [{ from: "style", values: { feed: {}, compact: { media: "none" } } }],
   Photo: [
     {
       from: "style",
@@ -173,7 +176,7 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
   Profile: [
     {
       from: "style",
-      values: { row: { align: "start" }, centered: { align: "center" } },
+      values: { row: {}, centered: {} },
       prepare: (props) =>
         props.style === "centered" && (props.align ?? "center") === "center" && !props.photo
           ? { media: "none", ...props }

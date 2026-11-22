@@ -13,6 +13,8 @@ const cast = { things: [], items: [] };
 const valid = fallback({ cast });
 const invalid: unknown[] = [
   { ...valid, unknown: "invalid" },
+  { ...valid, density: "compact" },
+  { ...valid, surface: "plain" },
   { ...valid, title: "x".repeat(49) },
   { ...valid, topic: "x".repeat(21) },
   { ...valid, speakers: [] },
@@ -63,7 +65,14 @@ it("draws distinct speaker states and keeps finish addresses stable", () => {
   expect(full.get(key("listeners_unit"))?.text).toEqual(["listeners"]);
   expect(full.get(key("r1/status"))?.text).toEqual(["Speaking"]);
   expect(full.get(key("r3/status"))?.text).toEqual(["Muted"]);
-  expect([...drawn({ ...stage, density: "compact", surface: "plain" }).keys()]).toEqual([...full.keys()]);
+  const compact = renderInstance(
+    "LiveRoom",
+    stage,
+    "filled",
+    { ...theme, density: "compact" },
+    { component: "l1" },
+  );
+  expect([...addressedElements(compact).keys()]).toEqual([...full.keys()]);
   expect([...drawn({ ...stage, detail: "brief" }).keys()]).toEqual(
     [...full.keys()].filter((part) => !/\/(?:topic|role)$/.test(part)),
   );

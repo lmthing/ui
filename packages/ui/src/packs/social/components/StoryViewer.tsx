@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 import { storyViewerReading } from "../copy";
 import { socialWordsFor } from "../lang";
 import * as progress from "./story-progress";
+import { prompt } from "../../../entry/prompt-StoryViewer.generated";
 
 const maxSlides = 8,
   maxReply = 120,
@@ -15,16 +16,13 @@ const availability = z.strictObject({ component: c.screenId, expired: z.literal(
 // prettier-ignore
 export const meta = {
   id: "StoryViewer", status: "ready", group: "content",
-  purpose: "Watch a person’s short-lived story and respond to the current slide.",
-  pick: "Watch one person’s temporary multi-slide story with timed progress, stickers or quick replies. Not a static photo carousel (Gallery), a row of people’s stories (Stories), or a permanent Post.",
-  writeHints: [
-    'Each slide needs its own photo and time; current is a zero-based index into slides. For a read-only viewer use detail "brief"; leave detail null otherwise.',
-    'A link sticker can have a goto; a poll sticker can have up to two options. Use null for unrequested variant axes, including aspect and bleed.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "people",
   partTiers: { prev: "phone", next: "phone", story: "phone", close: "phone" },
   realPath: "Stories expire after 24 hours in a shared app; replies go to the author’s message thread.",
-  variants: { aspect: ["tall", "square", "wide"], bleed: ["edge", "inset"], detail: ["full", "brief"] },
+  variants: { aspect: ["tall", "square", "wide"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["reply", "send", "react"] } },
   parts: ["root", "progress", "position", "author", "avatar", "time", "photo", "caption", "prev", "next", "story", "sticker", "reply", "send", "react", "close", "status"],
   states: ["filled", "empty", "loading", "success"],
@@ -167,7 +165,7 @@ export function StoryViewer(input: StoryProps) {
   const state = live.state ?? scope.state;
   const { lang, words: { storyViewer: words } } = kit.useWords(socialWordsFor);
   const { current, slides, replyDraft } = live;
-  const aspect = kit.useVariant("aspect", meta.variants.aspect, input.aspect), bleed = kit.useVariant("bleed", meta.variants.bleed, input.bleed);
+  const aspect = kit.useVariant("aspect", meta.variants.aspect, input.aspect);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const slide = slides[current], loading = state === "loading";
   const position = words.position(c.numberLine(current + 1, lang), c.numberLine(slides.length, lang));
@@ -189,10 +187,10 @@ export function StoryViewer(input: StoryProps) {
         {close}
       </kit.KitGrid></kit.KitContent>;
   const body = slide && <>
-    <kit.KitContent inset={bleed === "inset" ? "md" : "none"}>
+    <kit.KitContent inset="none">
       <kit.KitPhoto part="photo" photo={slide.photo} aspect={aspect} label={slide.caption ?? words.photo(position)} loading={loading} />
     </kit.KitContent>{controls}</>;
-  return <kit.PartScope {...scope} state={state}><kit.KitCard bleed={bleed} part="root" padded inset="none" clip>
+  return <kit.PartScope {...scope} state={state}><kit.KitCard bleed="edge" part="root" padded inset="none" clip>
     {state === "filled" || loading ? header : <kit.KitContent inset="md"><kit.KitGrid fitLast><>{null}</>{close}</kit.KitGrid></kit.KitContent>}
     <kit.KitState part="status" icon={state === "empty" ? "clock" : undefined}
       message={state === "success" ? words.sent : words.expired} loading={body}>{body}</kit.KitState>

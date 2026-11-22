@@ -69,6 +69,12 @@ describe("KitTable", () => {
       renderMatrix(createElement(KitTable, { columns: [], rows: [], corner: null, loading: true })),
     ).toContain('aria-busy="true"');
   });
+  it("keeps the interior rules but removes the floating last rule", () => {
+    const last = { ...rows[0]!, id: "r2", target: { item: "r2", part: "root" } };
+    const html = renderMatrix(createElement(KitTable, { ...input, rows: [...rows, last] }));
+    expect(styleAt(html, "home/c1/r1/root")).toContain(`border-bottom-width:${component.base.borderWidth}px`);
+    expect(styleAt(html, "home/c1/r2/root")).toContain(`border-bottom-width:${component.base.none}px`);
+  });
 });
 
 describe("KitTable disabled input cells", () => {

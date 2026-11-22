@@ -3,22 +3,25 @@ import { TamaguiProvider } from "tamagui";
 import { expect, it } from "vitest";
 import { themeName } from "@lmthing/ui/catalog";
 import { KitMeter, KitProvider, PartScope } from "@lmthing/ui/kit";
-import { config } from "../../../../test/render";
+import { config, elementAt, styleAt } from "../../../../test/render";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 
-function render(addressed?: false) {
+function render(addressed?: false, fillFrom?: "start" | "end", ratio = 0.5) {
   return renderToStaticMarkup(
     <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
       <KitProvider theme={theme}>
         <PartScope screen="home" component="c1" rev={1} state="filled">
-          <KitMeter
-            label="5 stars"
-            amount="12"
-            ratio={0.5}
-            slim
-            {...(addressed === false ? { addressed } : {})}
-          />
+          <div data-testid="meter">
+            <KitMeter
+              label="5 stars"
+              amount="12"
+              ratio={ratio}
+              slim
+              {...(addressed === false ? { addressed } : {})}
+              {...(fillFrom ? { fillFrom } : {})}
+            />
+          </div>
         </PartScope>
       </KitProvider>
     </TamaguiProvider>,
@@ -35,4 +38,22 @@ it("keeps meter text and geometry when callers opt out of the default text addre
   expect(withoutStyles(render(false))).toBe(
     withoutStyles(original).replace(/ data-testid="home\/c1\/(?:label|amount)"/g, ""),
   );
+});
+
+it("anchors only the opted-in fill to the logical end and preserves the clamped width", () => {
+  expect(render(undefined, "start")).toBe(render());
+  for (const [ratio, width] of [
+    [-1, 0],
+    [0.35, 35],
+    [2, 100],
+  ] as const) {
+    const fill = (from?: "end") => {
+      const html = render(undefined, from, ratio);
+      return styleAt(html, elementAt(html, "meter").children[0]!.children[1]!.children[0]!);
+    };
+    expect(fill()).toContain(`width:${width}%`);
+    expect(fill()).not.toContain("align-self:flex-end");
+    expect(fill("end")).toContain(`width:${width}%`);
+    expect(fill("end")).toContain("align-self:flex-end");
+  }
 });

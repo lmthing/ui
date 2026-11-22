@@ -1,20 +1,18 @@
+import type { ReactNode } from "react";
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { mealPlanDaysFor, mealPlanReading, mealPlanToday, mealPlanTotals, mealPlanWeek } from "../copy";
 import { kitchenWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-MealPlan.generated";
 // Core first: Calendar/week cannot place recipe names in a seven-day by meal matrix with empty add cells.
 export const meta = {
   id: "MealPlan",
   status: "ready",
   group: "input",
-  purpose: "Plan recipes across the week's days and meals.",
-  pick: "A week matrix of recipes by day and meal, with empty cells to add meals. Not calendar marks (Calendar), staff shifts (Roster), or class periods (Timetable).",
-  writeHints: [
-    "week is a real Monday date. List each meal column once. Every filled cell has one unique day/meal pair and its meal is a listed column. Empty add cells are computed, not written.",
-    'Use media "none" only when asked for a text-only week or to hide recipe photos. Leave media null otherwise.',
-    'Write kcal on individual recipes only when supplied, never daily totals. Use style "day" for a stacked agenda grouped by day.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
@@ -80,35 +78,48 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   }));
   return { week: "2026-11-16", meals: ["dinner"], cells };
 }
-// prettier-ignore
-const supper = { week: "2026-11-16", meals: ["lunch", "dinner"], cells: [
-  { day: 3, meal: "dinner", title: "Nonna's lasagne", photo: "lib:food", goto: "recipe_overview" },
-] } satisfies z.input<typeof props>;
+const supper = {
+  week: "2026-11-16",
+  meals: ["lunch", "dinner"],
+  cells: [{ day: 3, meal: "dinner", title: "Nonna's lasagne", photo: "lib:food", goto: "recipe_overview" }],
+} satisfies z.input<typeof props>;
 const withKcal = { ...supper, cells: supper.cells.map((cell) => ({ ...cell, kcal: 480 })) };
-// prettier-ignore
 export const examples = [
   supper,
   { ...supper, media: "none" },
   // Trot: breakfast before the walking round.
-  { week: "2026-11-23", meals: ["breakfast", "snack"], cells: [
-    { day: 0, meal: "breakfast", title: "Apple porridge", goto: "recipe_overview" },
-    { day: 1, meal: "snack", title: "Yogurt and berries", goto: "recipe_overview" },
-  ] },
+  {
+    week: "2026-11-23",
+    meals: ["breakfast", "snack"],
+    cells: [
+      { day: 0, meal: "breakfast", title: "Apple porridge", goto: "recipe_overview" },
+      { day: 1, meal: "snack", title: "Yogurt and berries", goto: "recipe_overview" },
+    ],
+  },
   withKcal,
   { ...withKcal, style: "day" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = c.probesFor("MealPlan");
-// prettier-ignore
 export const probes = [
-  choose("Plan breakfast, lunch and dinner across seven days, with a recipe in each cell and add buttons in gaps"),
+  choose(
+    "Plan breakfast, lunch and dinner across seven days, with a recipe in each cell and add buttons in gaps",
+  ),
   choose("Show this week's calendar with a mark on days I watered my plants", "Calendar"),
-  write("For the week starting Monday 2026-11-16, use lunch and dinner columns and put Nonna's lasagne on Thursday dinner, opening recipe_overview"),
+  write(
+    "For the week starting Monday 2026-11-16, use lunch and dinner columns and put Nonna's lasagne on Thursday dinner, opening recipe_overview",
+  ),
   {
-    ...write("A text-only meal plan for Monday 2026-11-16's week: dinners only, lasagne on Thursday opening recipe_overview. Keep lib:food as its photo but don't show photos."),
+    ...write(
+      "A text-only meal plan for Monday 2026-11-16's week: dinners only, lasagne on Thursday opening recipe_overview. Keep lib:food as its photo but don't show photos.",
+    ),
     variant: { axis: "media", value: "none" },
   },
-  write("Week starting Monday 2026-11-16. Thursday's lunch is Soup (200 kcal) and dinner is Pasta (450 kcal), both opening recipe_overview. Show the daily calorie total."),
-  write("Use a day agenda instead of a weekly grid for the week starting Monday 2026-11-16. Dinners only: Thursday lasagne opens recipe_overview; leave every other day empty."),
+  write(
+    "Week starting Monday 2026-11-16. Thursday's lunch is Soup (200 kcal) and dinner is Pasta (450 kcal), both opening recipe_overview. Show the daily calorie total.",
+  ),
+  write(
+    "Use a day agenda instead of a weekly grid for the week starting Monday 2026-11-16. Dinners only: Thursday lasagne opens recipe_overview; leave every other day empty.",
+  ),
   read("Open Thursday's dinner recipe", { address: "m1/r8", action: "press" }),
   read("Add a meal for Monday lunch", { address: "m1/r1/add", action: "press" }),
 ] satisfies c.Probe[];
@@ -119,9 +130,13 @@ type Cell = { id: string } & (
 function MatrixLabel({ label }: { label: string }) {
   return <kit.KitText role="caption" tone="muted" part={null} children={label} />;
 }
-// prettier-ignore
-type MealCellProps = { cell: Cell; compact?: boolean; stackPhoto: boolean; showPhoto: boolean; agenda?: boolean };
-// prettier-ignore
+type MealCellProps = {
+  cell: Cell;
+  compact?: boolean;
+  stackPhoto: boolean;
+  showPhoto: boolean;
+  agenda?: boolean;
+};
 function MealCell({ cell, compact, stackPhoto, showPhoto, agenda }: MealCellProps) {
   const { lang, words } = kit.useWords(kitchenWordsFor);
   const photo = showPhoto && cell.filled && cell.photo && (
@@ -129,7 +144,9 @@ function MealCell({ cell, compact, stackPhoto, showPhoto, agenda }: MealCellProp
   );
   const leading = !stackPhoto && photo;
   const title = cell.filled && (
-    <kit.KitText part="title" role={compact && !leading ? "caption" : "body"} lines={2}>{cell.title}</kit.KitText>
+    <kit.KitText part="title" role={compact && !leading ? "caption" : "body"} lines={2}>
+      {cell.title}
+    </kit.KitText>
   );
   const target = { item: cell.id, goto: cell.goto, label: mealPlanReading("", [cell], lang, agenda)[0]! };
   const meal = words.mealPlanLabels[cell.meal];
@@ -137,8 +154,17 @@ function MealCell({ cell, compact, stackPhoto, showPhoto, agenda }: MealCellProp
   return (
     <kit.KitRow {...target} inline leading={!agenda && leading} leadingAlign="row">
       {stackPhoto && photo}
-      {cell.filled && (agenda ? <kit.KitContent lead={leading} leadingAlign="row"><MatrixLabel label={meal} />{title}</kit.KitContent>
-        : leading ? <kit.KitRow inline label={cell.title} children={title} /> : title)}
+      {cell.filled &&
+        (agenda ? (
+          <kit.KitContent lead={leading} leadingAlign="row">
+            <MatrixLabel label={meal} />
+            {title}
+          </kit.KitContent>
+        ) : leading ? (
+          <kit.KitRow inline label={cell.title} children={title} />
+        ) : (
+          title
+        ))}
       {!cell.filled && (
         <kit.KitRow part="add" role="button" label={add} inline>
           <kit.KitText part="title" role="caption" tone="accent" children={add} />
@@ -150,22 +176,83 @@ function MealCell({ cell, compact, stackPhoto, showPhoto, agenda }: MealCellProp
 function DailyKcal({ day, value }: { day: number; value: string }) {
   return <kit.KitTrail part={`kcal_${day + 1}`} kind="badge" tone="text" value={value} />;
 }
-// prettier-ignore
-export function MealPlan(input: c.Props<typeof props, typeof meta>) {
+type MealPlanProps = c.Props<typeof props, typeof meta>;
+type MealDayHeader = ReturnType<typeof mealPlanDaysFor>[number] & { badge: ReactNode; header: ReactNode };
+type MealAgendaProps = {
+  heading: string;
+  days: MealDayHeader[];
+  rows: Cell[];
+  today: ReturnType<typeof mealPlanToday>;
+  showPhoto: boolean;
+};
+
+function MealPlanDayHeaders(cells: MealPlanProps["cells"], lang?: string): MealDayHeader[] {
+  const totals = mealPlanTotals(cells, lang);
+  return mealPlanDaysFor(lang).map((day, index) => {
+    const value = totals.get(index);
+    const badge = value && <DailyKcal day={index} value={value} />;
+    const header = <MatrixLabel label={day.short} />;
+    return {
+      ...day,
+      badge,
+      header: badge ? (
+        <kit.KitContent>
+          {header}
+          {badge}
+        </kit.KitContent>
+      ) : (
+        header
+      ),
+    };
+  });
+}
+
+function MealAgenda({ heading, days, rows, today, showPhoto }: MealAgendaProps) {
+  return (
+    <kit.KitRow part="meals" label={heading} role="group">
+      <kit.KitGrid arrange="rows" list listRowGap="cards">
+        {days.map((day, index) => (
+          <kit.KitContent key={day.id} group="response">
+            <kit.KitRow part={null} label={day.label} inline trailing={day.badge}>
+              <kit.KitText
+                part={null}
+                role="label"
+                emphasis="strong"
+                tone={day.id === today ? "accent" : "text"}
+              >
+                {day.label}
+              </kit.KitText>
+            </kit.KitRow>
+            {rows
+              .filter((row) => row.day === index)
+              .map((cell) => (
+                <MealCell key={cell.id} cell={cell} agenda showPhoto={showPhoto} stackPhoto={false} />
+              ))}
+          </kit.KitContent>
+        ))}
+      </kit.KitGrid>
+    </kit.KitRow>
+  );
+}
+
+export function MealPlan(input: MealPlanProps) {
   const { week, meals, rows } = input as typeof input & { rows: Cell[] };
   const { lang, words } = kit.useWords(kitchenWordsFor);
   const showPhoto = kit.useVariant("media", meta.variants.media, input.media) !== "none";
   const { state, thing } = kit.usePartContext();
-  if (state === "empty") return <kit.KitCard part="root"><kit.KitEmpty part="meals" icon="calendar_days"
-    {...(!thing ? { title: words.mealPlanEmpty } : {})} decorativeIcon /></kit.KitCard>;
-  const totals = mealPlanTotals(input.cells, lang);
+  if (state === "empty")
+    return (
+      <kit.KitCard part="root">
+        <kit.KitEmpty
+          part="meals"
+          icon="calendar_days"
+          {...(!thing ? { title: words.mealPlanEmpty } : {})}
+          decorativeIcon
+        />
+      </kit.KitCard>
+    );
   const today = mealPlanToday(week);
-  const days = mealPlanDaysFor(lang).map((day, index) => {
-    const value = totals.get(index);
-    const badge = value && <DailyKcal day={index} value={value} />;
-    const header = <MatrixLabel label={day.short} />;
-    return { ...day, badge, header: badge ? <kit.KitContent>{header}{badge}</kit.KitContent> : header };
-  });
+  const days = MealPlanDayHeaders(input.cells, lang);
   const stackPhoto = meals.length > 2;
   const columns = meals.map((meal) => ({
     id: meal,
@@ -173,27 +260,32 @@ export function MealPlan(input: c.Props<typeof props, typeof meta>) {
     heading: <MatrixLabel label={words.mealPlanLabels[meal]} />,
     cells: days.map((day, index) => {
       const cell = rows.find((cell) => cell.day === index && cell.meal === meal)!;
-      return { id: day.id, content: <MealCell cell={cell} {...{ stackPhoto, showPhoto }} />,
-        compactContent: <MealCell cell={cell} compact {...{ stackPhoto, showPhoto }} /> };
+      return {
+        id: day.id,
+        content: <MealCell cell={cell} {...{ stackPhoto, showPhoto }} />,
+        compactContent: <MealCell cell={cell} compact {...{ stackPhoto, showPhoto }} />,
+      };
     }),
   }));
   const heading = mealPlanWeek(week, lang);
   return (
     <kit.KitCard part="root">
-      <kit.KitRow part="week" label={heading}><kit.KitText role="heading" part={null} children={heading} /></kit.KitRow>
+      <kit.KitRow part="week" label={heading}>
+        <kit.KitText role="heading" part={null} children={heading} />
+      </kit.KitRow>
       {input.style === "day" ? (
-        <kit.KitRow part="meals" label={heading} role="group">
-          <kit.KitGrid arrange="rows" list listRowGap="cards">
-            {days.map((day, index) => <kit.KitContent key={day.id} group="response">
-              <kit.KitRow part={null} label={day.label} inline trailing={day.badge}>
-                <kit.KitText part={null} role="label" emphasis="strong" tone={day.id === today ? "accent" : "text"}>{day.label}</kit.KitText>
-              </kit.KitRow>
-              {rows.filter((row) => row.day === index).map((cell) =>
-                <MealCell key={cell.id} cell={cell} agenda showPhoto={showPhoto} stackPhoto={false} />)}
-            </kit.KitContent>)}
-          </kit.KitGrid>
-        </kit.KitRow>
-      ) : <kit.KitWeekMatrix part="meals" orientation="daysDown" corner={null} fitColumns days={days} rows={columns} today={today} />}
+        <MealAgenda {...{ heading, days, rows, today, showPhoto }} />
+      ) : (
+        <kit.KitWeekMatrix
+          part="meals"
+          orientation="daysDown"
+          corner={null}
+          fitColumns
+          days={days}
+          rows={columns}
+          today={today}
+        />
+      )}
     </kit.KitCard>
   );
 }

@@ -3,27 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { inviteJoinedLine, inviteReading, liveRoomSpeakerInitials } from "../copy";
 import { socialWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Invite.generated";
 
 // Core first: People/default draws a current roster, not a copyable, shareable QR invite and its join count.
 export const meta = {
   id: "Invite",
   status: "ready",
   group: "action",
-  purpose: "Bring new members in with a code or a shareable starter pack.",
-  pick: "Invite people to join an app or group using a copyable code, optional QR, or a starter pack of people to discover. Not sharing a post (Post) or listing existing members (People).",
-  writeHints: [
-    'Use style "starter_pack" with members for a curated invitation to discover people. Each member has a name and may have a photo. Retain the join code. Use style null for ordinary code invites.',
-    'If the brief says to keep the number who joined without displaying it, write both fields: "joined":3,"detail":"brief" (use the supplied number, not necessarily 3). A null detail shows the count, so use null only when hiding the count was not requested.',
-    "The joined field is null only if the count is unknown. Set qr to true for a scannable version of code. Leave density, surface and align null unless requested.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "An invite code from a shared app; sharing uses the phone’s share sheet.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
-    align: ["start", "center"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["joined"] } },
@@ -124,9 +118,9 @@ type InviteProps = c.Props<typeof props, typeof meta>;
 export function Invite(input: InviteProps) {
   const { title, code, qr, joined } = input;
   const { lang, words } = kit.useWords(socialWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
-  const align = kit.useVariant("align", meta.variants.align, input.align);
+  const density = kit.useKit().density;
+  const surface = "card";
+  const align = "start";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const joinedLine = inviteJoinedLine({ joined, detail }, lang);
   const group = density === "compact" ? "content" : "response";
@@ -170,19 +164,47 @@ export function Invite(input: InviteProps) {
   );
 }
 
-// prettier-ignore
-function InviteMembers({ members, density }: { members: NonNullable<InviteProps["members"]>; density: c.ThemeDensity }) {
-  const { words: { invite } } = kit.useWords(socialWordsFor);
-  return <kit.KitContent group="response" density={density}>
-    <kit.KitHeader title={{ text: invite.members, part: "members_title", role: "meta", strong: true }} density={density} />
-    <kit.KitGrid density={density} list>
-      {members.map(({ id, name, photo }) =>
-        <kit.KitRow key={id} item={id} part="root" inset="none" label={name} inline fitContent density={density}>
-          <kit.KitContent density={density}>
-            <kit.KitPhoto photo={photo} part={photo ? "photo" : null} label={name} shape="round" initials={liveRoomSpeakerInitials(name)} />
-            <kit.KitLayoutText line={{ text: name, part: "name" }} density={density} />
-          </kit.KitContent>
-        </kit.KitRow>)}
-    </kit.KitGrid>
-  </kit.KitContent>;
+function InviteMembers({
+  members,
+  density,
+}: {
+  members: NonNullable<InviteProps["members"]>;
+  density: c.ThemeDensity;
+}) {
+  const {
+    words: { invite },
+  } = kit.useWords(socialWordsFor);
+  return (
+    <kit.KitContent group="response" density={density}>
+      <kit.KitHeader
+        title={{ text: invite.members, part: "members_title", role: "meta", strong: true }}
+        density={density}
+      />
+      <kit.KitGrid density={density} list>
+        {members.map(({ id, name, photo }) => (
+          <kit.KitRow
+            key={id}
+            item={id}
+            part="root"
+            inset="none"
+            label={name}
+            inline
+            fitContent
+            density={density}
+          >
+            <kit.KitContent density={density}>
+              <kit.KitPhoto
+                photo={photo}
+                part={photo ? "photo" : null}
+                label={name}
+                shape="round"
+                initials={liveRoomSpeakerInitials(name)}
+              />
+              <kit.KitLayoutText line={{ text: name, part: "name" }} density={density} />
+            </kit.KitContent>
+          </kit.KitRow>
+        ))}
+      </kit.KitGrid>
+    </kit.KitContent>
+  );
 }

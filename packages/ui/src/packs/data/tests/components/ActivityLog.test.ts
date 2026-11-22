@@ -60,7 +60,6 @@ describe("ActivityLog schema and boundaries", () => {
       goto: "a".repeat(64),
     };
     expect(props.parse({ entries: Array(6).fill(entry) })).toMatchObject({
-      surface: "card",
       lead: "avatar",
       entries: Array(6).fill(entry),
     });
@@ -106,7 +105,7 @@ describe("ActivityLog fallback and probes", () => {
   it("retains the core near miss, non-finish write probe, and non-destructive people tier", () => {
     expect(meta).toMatchObject({ status: "ready", tier: "people", weight: 2, region: "body" });
     expect(meta).not.toHaveProperty("confirmParts");
-    expect(probes).toMatchObject([
+    expect(probes.slice(0, 5)).toMatchObject([
       { kind: "choose", expect: "ActivityLog" },
       { kind: "choose", expect: "Timeline" },
       { kind: "write", expect: "ActivityLog" },
@@ -134,7 +133,7 @@ describe("ActivityLog states and parts", () => {
       expect(parts.get(`${base}/text`)?.text).toEqual([text]);
       expect(parts.get(`${base}/time`)?.text).toEqual([time]);
     });
-    const variant = { ...input, lead: "none", surface: "outlined", density: "compact" };
+    const variant = { ...input, lead: "none" };
     const alternates = addressedElements(renderInstance("ActivityLog", variant, "filled", theme));
     expect([...alternates.keys()]).toEqual([...parts.keys()].filter((part) => !part.endsWith("/photo")));
   });

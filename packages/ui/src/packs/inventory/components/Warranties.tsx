@@ -3,23 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { warrantyCopy, warrantyReading } from "../copy";
 import { inventoryWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Warranties.generated";
 
 // Core first: KeyValue/default shows static facts, not purchase records with receipt and expiry states.
 export const meta = {
   id: "Warranties",
   status: "ready",
   group: "data",
-  purpose: "Find proof of purchase and see which warranties are ending.",
-  pick: "Owned items' proof of purchase with receipt photos and warranty dates. Not static facts (KeyValue), travel documents (TravelDocs), or bills to pay (Bills).",
-  writeHints: [
-    "Use YYYY-MM-DD dates. Never write warranty status or a receipt URL; status follows from ends and a receipt is a photo reference.",
-    'Use detail "brief" only when asked to hide purchase dates and prices; still write the supplied record fields. For that request set density:null and surface:null. On other requests set unrequested axes to null, not their default values.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Photographed receipts and purchase records are stored on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["bought", "price"] } },
   parts: ["root", "empty"],
   items: {
@@ -106,15 +104,49 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type WarrantiesProps = c.Props<typeof props, typeof meta>;
-type WarrantyRowProps = Pick<WarrantiesProps, "detail" | "surface"> & {
+type WarrantyRowProps = Pick<WarrantiesProps, "detail"> & { surface: c.SurfaceFinish } & {
   row: WarrantiesProps["items"][number];
   density: c.ThemeDensity;
   today: Date;
 };
 
-// prettier-ignore
+function WarrantyExpiry(
+  { ends, status, tone }: Pick<ReturnType<typeof warrantyCopy>, "ends" | "status" | "tone">,
+  separator: string,
+  density: c.ThemeDensity,
+) {
+  return (
+    <kit.KitContent group="response" density={density}>
+      <kit.KitText
+        part="ends"
+        role="caption"
+        tone={status ? "muted" : "text"}
+        density={density}
+        emphasis={status ? "normal" : "strong"}
+      >
+        {status && (
+          <kit.KitText
+            part="status"
+            role="caption"
+            tone={tone === "warn" ? tone : "text"}
+            emphasis="strong"
+            density={density}
+          >
+            {status}
+          </kit.KitText>
+        )}
+        {status && separator}
+        {ends}
+      </kit.KitText>
+    </kit.KitContent>
+  );
+}
+
 function WarrantyRow({ row, density, surface, detail, today }: WarrantyRowProps) {
-  const { lang, words: { warranties: words } } = kit.useWords(inventoryWordsFor);
+  const {
+    lang,
+    words: { warranties: words },
+  } = kit.useWords(inventoryWordsFor);
   const { shop, bought, price, ends, status, tone } = warrantyCopy(row, detail, lang, today);
   const leading = row.receipt && (
     <kit.KitPhoto part="receipt" photo={row.receipt} label={words.receiptFor(row.thing)} />
@@ -122,22 +154,44 @@ function WarrantyRow({ row, density, surface, detail, today }: WarrantyRowProps)
   return (
     <kit.KitRow item={row.id} part="root" role="button" label={row.thing} {...{ density, surface }}>
       <kit.KitContent density={density}>
-        <kit.KitRow part={null} inline surface="plain" label={row.thing} lineRole="body" density={density}
-          trailing={<kit.KitTrail part="trail" kind="chevron" />}>
+        <kit.KitRow
+          part={null}
+          inline
+          surface="plain"
+          label={row.thing}
+          lineRole="body"
+          density={density}
+          trailing={<kit.KitTrail part="trail" kind="chevron" />}
+        >
           <kit.KitContent density={density} lead={leading} leadingAlign="row">
-            <kit.KitText part="thing" role="body" density={density}>{row.thing}</kit.KitText>
-            {shop && <kit.KitText part="shop" role="caption" tone="muted" density={density}>{shop}</kit.KitText>}
-            {bought && <kit.KitText part="bought" role="caption" tone="muted" density={density}>{bought}</kit.KitText>}
-            {price && <kit.KitText part="price" role="number" numberScale="compact" tone="muted" emphasis="quiet" density={density}>{price}</kit.KitText>}
+            <kit.KitText part="thing" role="body" density={density}>
+              {row.thing}
+            </kit.KitText>
+            {shop && (
+              <kit.KitText part="shop" role="caption" tone="muted" density={density}>
+                {shop}
+              </kit.KitText>
+            )}
+            {bought && (
+              <kit.KitText part="bought" role="caption" tone="muted" density={density}>
+                {bought}
+              </kit.KitText>
+            )}
+            {price && (
+              <kit.KitText
+                part="price"
+                role="number"
+                numberScale="compact"
+                tone="muted"
+                emphasis="quiet"
+                density={density}
+              >
+                {price}
+              </kit.KitText>
+            )}
           </kit.KitContent>
         </kit.KitRow>
-        <kit.KitContent group="response" density={density}>
-          <kit.KitText part="ends" role="caption" tone={status ? "muted" : "text"} density={density} emphasis={status ? "normal" : "strong"}>
-            {status && <kit.KitText part="status" role="caption" tone={tone === "warn" ? tone : "text"} emphasis="strong" density={density}>{status}</kit.KitText>}
-            {status && words.separator}
-            {ends}
-          </kit.KitText>
-        </kit.KitContent>
+        {WarrantyExpiry({ ends, status, tone }, words.separator, density)}
       </kit.KitContent>
     </kit.KitRow>
   );
@@ -145,8 +199,8 @@ function WarrantyRow({ row, density, surface, detail, today }: WarrantyRowProps)
 
 export function Warranties(input: WarrantiesProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   if (state === "empty")
     return (

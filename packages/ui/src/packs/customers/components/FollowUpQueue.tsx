@@ -3,35 +3,39 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { followUpDetails, followUpPriority, followUpToday, orderFollowUps } from "../copy";
 import { customersWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-FollowUpQueue.generated";
 
 // Core first: Checklist/default cannot order client outreach by due date or offer snooze and service reminders.
 export const meta = {
   id: "FollowUpQueue",
   status: "ready",
   group: "data",
-  purpose: "Prioritize client outreach by due date and act on each follow-up.",
-  pick: "A prioritized queue of client follow-ups across quotes, invoices, renewals and check-ins. Not plain jobs to tick off (Checklist), a client header (ClientCard), or repair tickets (RequestQueue).",
-  writeHints: [
-    "Each entry needs a short unique id, clientName, kind, due date and done flag. Use done:false unless it is completed. Do not write urgency, groups per row or sort positions.",
-    'Use group "none" for an unsectioned queue when asked. Leave group null for the default due-date sections. Set density "compact" only for tighter spacing, not for removing sections. Otherwise leave density and surface null.',
-    'If the only appearance request is one list without sections, the exact axis values are {"density":null,"surface":null,"group":"none"}. Do not write surface:"card" for the default.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Follow-ups are stored on the business phone; sending a nudge uses SMS or email.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     group: ["sections", "none"],
   },
   variantParts: { "group.none": { hides: ["overdue", "today", "upcoming", "completed"] } },
   parts: ["root", "overdue", "today", "upcoming", "completed", "status"],
   items: {
     key: "items",
-    // prettier-ignore
-    parts: ["root", "client_name", "reason", "due", "amount", "done", "snooze",
-      "remind", "snooze_icon", "remind_icon"],
+    parts: [
+      "root",
+      "client_name",
+      "reason",
+      "due",
+      "amount",
+      "done",
+      "snooze",
+      "remind",
+      "snooze_icon",
+      "remind_icon",
+    ],
   },
   states: ["filled", "empty", "loading", "success", "error"],
   partTiers: { remind: "service" },
@@ -91,22 +95,54 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
-// prettier-ignore
-const ledge = { items: [
-    { id: "lighting", clientName: "Anna Patel", kind: "quote", due: "2025-11-18", note: "Grow light installation", amount: 85, done: false, goto: "client" },
-    { id: "winter_visit", clientName: "Leah Kim", kind: "checkin", due: "2026-11-21", note: "Greenhouse visit", done: false },
-    { id: "winter", clientName: "Luis Reyes", kind: "checkin", due: "2027-12-02", note: "Winter watering plan", done: false },
-  ] } satisfies z.input<typeof props>;
-// prettier-ignore
+const ledge = {
+  items: [
+    {
+      id: "lighting",
+      clientName: "Anna Patel",
+      kind: "quote",
+      due: "2025-11-18",
+      note: "Grow light installation",
+      amount: 85,
+      done: false,
+      goto: "client",
+    },
+    {
+      id: "winter_visit",
+      clientName: "Leah Kim",
+      kind: "checkin",
+      due: "2026-11-21",
+      note: "Greenhouse visit",
+      done: false,
+    },
+    {
+      id: "winter",
+      clientName: "Luis Reyes",
+      kind: "checkin",
+      due: "2027-12-02",
+      note: "Winter watering plan",
+      done: false,
+    },
+  ],
+} satisfies z.input<typeof props>;
 export const examples = [
   ledge,
-  { items: [
-    { id: "october", clientName: "Ben Carter", kind: "invoice", due: "2025-11-18", amount: 120, done: false },
-    { id: "walks", clientName: "Mia Jones", kind: "renewal", due: "2027-12-03", done: true },
-  ] },
+  {
+    items: [
+      {
+        id: "october",
+        clientName: "Ben Carter",
+        kind: "invoice",
+        due: "2025-11-18",
+        amount: 120,
+        done: false,
+      },
+      { id: "walks", clientName: "Mia Jones", kind: "renewal", due: "2027-12-03", done: true },
+    ],
+  },
   { ...ledge, group: "none" },
-  { ...ledge, density: "compact" },
-  { ...ledge, surface: "outlined" },
+  { ...ledge },
+  { ...ledge },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("FollowUpQueue");
@@ -127,67 +163,187 @@ export const probes = [
 
 type QueueProps = c.Props<typeof props, typeof meta>;
 
-// prettier-ignore
-function FollowUpRow({ row, density, today, grouped }: {
-  row: QueueProps["items"][number]; density: c.ThemeDensity; today: string; grouped: boolean;
-}) {
-  const loading = kit.useComponentState() === "loading";
-  const { lang, words: { followUpLabels: copy } } = kit.useWords(customersWordsFor);
-  const { reason, date, priority, due, amount } = followUpDetails(row, today, lang, kit.useAppCurrency());
-  const tone = priority === "overdue" ? "bad" : priority === "today" ? "warn" : priority === "done" ? "good" : "muted";
-  return <kit.KitRow item={row.id} part={null} label={row.clientName} density={density} inset="none"
-    trailing={loading ? <>
-      {!row.done && <><kit.KitSkeleton shape="control" kind="quiet" /><kit.KitSkeleton shape="control" kind="quiet" /></>}
+type QueueRow = QueueProps["items"][number];
+type FollowUpWords = ReturnType<typeof customersWordsFor>["followUpLabels"];
+
+function FollowUpActions(row: QueueRow, loading: boolean, copy: FollowUpWords) {
+  return loading ? (
+    <>
+      {!row.done && (
+        <>
+          <kit.KitSkeleton shape="control" kind="quiet" />
+          <kit.KitSkeleton shape="control" kind="quiet" />
+        </>
+      )}
       <kit.KitSkeleton shape="control" kind="quiet" />
-    </> : <>
-      {!row.done && <>
-        <kit.KitAction kind="quiet" icon="clock" part="snooze" a11y={copy.snooze(row.clientName)} />
-        <kit.KitAction kind="quiet" icon="bell" part="remind" a11y={copy.remind(row.clientName)} />
-      </>}
-      <kit.KitCheck part="done" done={row.done} readonly={row.done}
-        label={row.done ? copy.marked(row.clientName) : copy.mark(row.clientName)} />
-    </>}>
-    <kit.KitRow part={loading ? null : "root"} label={row.clientName} goto={loading ? undefined : row.goto} density={density} inline>
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
-        content={[["body", row.clientName], ["caption", reason], ["number", amount, "start", "compact"]]} /> : <>
-        <kit.KitText part="client_name" lines={1} emphasis="strong" tone={row.goto ? "accent" : "text"}>{row.clientName}</kit.KitText>
-        <kit.KitText part="reason" role="caption" tone="muted">{reason}</kit.KitText>
-        {amount && <kit.KitText part="amount" role="number" numberScale="compact" lines={1} tabular>{amount}</kit.KitText>}
-      </>}
-    </kit.KitRow>
-    <kit.KitContent leadingAlign="row" lead={<kit.KitTrail kind="badge" part="due" value={grouped ? date : due} tone={tone} />}>
-      {null}
-    </kit.KitContent>
-  </kit.KitRow>;
+    </>
+  ) : (
+    <>
+      {!row.done && (
+        <>
+          <kit.KitAction kind="quiet" icon="clock" part="snooze" a11y={copy.snooze(row.clientName)} />
+          <kit.KitAction kind="quiet" icon="bell" part="remind" a11y={copy.remind(row.clientName)} />
+        </>
+      )}
+      <kit.KitCheck
+        part="done"
+        done={row.done}
+        readonly={row.done}
+        label={row.done ? copy.marked(row.clientName) : copy.mark(row.clientName)}
+      />
+    </>
+  );
 }
 
-// prettier-ignore
+function FollowUpClient(
+  row: QueueRow,
+  { reason, amount }: Pick<ReturnType<typeof followUpDetails>, "reason" | "amount">,
+  loading: boolean,
+  density: c.ThemeDensity,
+) {
+  return loading ? (
+    <kit.KitSkeleton
+      shape="figure"
+      inset="none"
+      density={density}
+      content={[
+        ["body", row.clientName],
+        ["caption", reason],
+        ["number", amount, "start", "compact"],
+      ]}
+    />
+  ) : (
+    <>
+      <kit.KitText part="client_name" lines={1} emphasis="strong" tone={row.goto ? "accent" : "text"}>
+        {row.clientName}
+      </kit.KitText>
+      <kit.KitText part="reason" role="caption" tone="muted">
+        {reason}
+      </kit.KitText>
+      {amount && (
+        <kit.KitText part="amount" role="number" numberScale="compact" lines={1} tabular>
+          {amount}
+        </kit.KitText>
+      )}
+    </>
+  );
+}
+
+function FollowUpStatus(state: "success" | "error", title: string) {
+  return (
+    <kit.KitEmpty
+      part="status"
+      icon={state === "success" ? "check" : "bell_off"}
+      decorativeIcon
+      title={title}
+      tone={state === "success" ? "good" : "neutral"}
+    />
+  );
+}
+
+function FollowUpRow({
+  row,
+  density,
+  today,
+  grouped,
+}: {
+  row: QueueProps["items"][number];
+  density: c.ThemeDensity;
+  today: string;
+  grouped: boolean;
+}) {
+  const loading = kit.useComponentState() === "loading";
+  const {
+    lang,
+    words: { followUpLabels: copy },
+  } = kit.useWords(customersWordsFor);
+  const { reason, date, priority, due, amount } = followUpDetails(row, today, lang, kit.useAppCurrency());
+  const tone =
+    priority === "overdue" ? "bad" : priority === "today" ? "warn" : priority === "done" ? "good" : "muted";
+  return (
+    <kit.KitRow
+      item={row.id}
+      part={null}
+      label={row.clientName}
+      density={density}
+      inset="none"
+      trailing={FollowUpActions(row, loading, copy)}
+    >
+      <kit.KitRow
+        part={loading ? null : "root"}
+        label={row.clientName}
+        goto={loading ? undefined : row.goto}
+        density={density}
+        inline
+      >
+        {FollowUpClient(row, { reason, amount }, loading, density)}
+      </kit.KitRow>
+      <kit.KitContent
+        leadingAlign="row"
+        lead={<kit.KitTrail kind="badge" part="due" value={grouped ? date : due} tone={tone} />}
+      >
+        {null}
+      </kit.KitContent>
+    </kit.KitRow>
+  );
+}
+
 export function FollowUpQueue(input: QueueProps) {
-  const { items, group, surface, density: requested } = kit.useLiveControls(meta, input) as QueueProps;
-  const density = kit.useVariant("density", meta.variants.density, requested);
+  const { items, group } = kit.useLiveControls(meta, input) as QueueProps;
+  const surface = "card";
+  const density = kit.useKit().density;
   const state = kit.useComponentState();
   const loading = state === "loading";
-  const { words: { followUpLabels: copy } } = kit.useWords(customersWordsFor);
+  const {
+    words: { followUpLabels: copy },
+  } = kit.useWords(customersWordsFor);
   const today = followUpToday();
   const grouped = group === "sections";
-  const render = (row: QueueProps["items"][number]) => <FollowUpRow key={row.id} {...{ row, density, today, grouped }} />;
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    {state === "empty" ? <kit.KitEmpty part="status" icon="clock" decorativeIcon /> :
-      state === "success" || state === "error" ?
-        <kit.KitEmpty part="status" icon={state === "success" ? "check" : "bell_off"} decorativeIcon
-          title={copy[state]} tone={state === "success" ? "good" : "neutral"} /> :
-      !grouped ? <kit.KitGrid list arrange="rows" density={density}>{items.map(render)}</kit.KitGrid> :
+  const render = (row: QueueProps["items"][number]) => (
+    <FollowUpRow key={row.id} {...{ row, density, today, grouped }} />
+  );
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      {state === "empty" ? (
+        <kit.KitEmpty part="status" icon="clock" decorativeIcon />
+      ) : state === "success" || state === "error" ? (
+        FollowUpStatus(state, copy[state])
+      ) : !grouped ? (
+        <kit.KitGrid list arrange="rows" density={density}>
+          {items.map(render)}
+        </kit.KitGrid>
+      ) : (
         <kit.KitGrid list arrange="rows" listRowGap="cards" density={density}>
           {(["overdue", "today", "upcoming", "done"] as const).map((priority) => {
             const section = items.filter((row) => followUpPriority(row, today) === priority);
-            return section.length > 0 && <kit.KitGrid key={priority} list arrange="rows" density={density}>
-              <kit.KitContent density={density}>
-                {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", copy[priority]]]} /> :
-                  <kit.KitText role="label" tone="muted" part={priority === "done" ? "completed" : priority}>{copy[priority]}</kit.KitText>}
-              </kit.KitContent>
-              {section.map(render)}
-            </kit.KitGrid>;
+            return (
+              section.length > 0 && (
+                <kit.KitGrid key={priority} list arrange="rows" density={density}>
+                  <kit.KitContent density={density}>
+                    {loading ? (
+                      <kit.KitSkeleton
+                        shape="figure"
+                        inset="none"
+                        density={density}
+                        content={[["label", copy[priority]]]}
+                      />
+                    ) : (
+                      <kit.KitText
+                        role="label"
+                        tone="muted"
+                        part={priority === "done" ? "completed" : priority}
+                      >
+                        {copy[priority]}
+                      </kit.KitText>
+                    )}
+                  </kit.KitContent>
+                  {section.map(render)}
+                </kit.KitGrid>
+              )
+            );
           })}
-        </kit.KitGrid>}
-  </kit.KitCard>;
+        </kit.KitGrid>
+      )}
+    </kit.KitCard>
+  );
 }

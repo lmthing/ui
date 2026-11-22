@@ -119,6 +119,26 @@ describe("ActivityRings fallback and contract", () => {
   });
 });
 
+it("limits a headline score to 0–100 and requires exactly three surrounding factors", () => {
+  const score = examples.find((example) => example.style === "score")!;
+  expect(props.parse(input).style).toBe("rings");
+  for (const value of [0, 100])
+    expect(props.safeParse({ ...score, score: { label: "Readiness", value } }).success).toBe(true);
+  for (const value of [-1, 101])
+    expect(props.safeParse({ ...score, score: { label: "Readiness", value } }).success).toBe(false);
+  expect(props.safeParse({ ...score, score: undefined }).success).toBe(false);
+  expect(props.safeParse({ ...score, rings: score.rings.slice(1) }).success).toBe(false);
+  expect(props.safeParse({ ...score, style: "rings" }).success).toBe(false);
+  const html = renderInstance("ActivityRings", score, "filled", theme);
+  expect(html.match(/<circle/g)).toHaveLength(8);
+  expect(html).toContain('data-testid="home/c1/score"');
+  expect(meta.read(score, "filled")[0]).toBe("Readiness: 82 of 100");
+  const loading = renderInstance("ActivityRings", score, "loading", theme);
+  expect(loading).not.toContain('data-testid="home/c1/score"');
+  expect(loading).not.toContain('data-testid="home/c1/score_label"');
+  expect(meta.read(score, "loading")).toEqual([]);
+});
+
 describe("ActivityRings states, parts and reading", () => {
   it.each([
     [2, 9999, "number"],

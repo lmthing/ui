@@ -145,6 +145,17 @@ describe("Availability parts, filled state and read/act", () => {
 });
 
 describe("Availability identity and read/act", () => {
+  it("visibly distinguishes saved off-day hours without hiding their values or edit targets", () => {
+    const draw = (on: boolean) => renderInstance("Availability", firstDay({ on }), "filled", theme);
+    const working = draw(true);
+    const off = draw(false);
+    expect(off).toContain("Monday · Off");
+    expect(working).not.toContain("Monday · Off");
+    expect(styleAt(working, "home/c1/r1/from")).toContain("color:var(--text)");
+    expect(styleAt(off, "home/c1/r1/from")).toContain("color:var(--muted)");
+    expect(elementAt(off, "home/c1/r1/from").attributes).toContain('value="09:00"');
+  });
+
   it("uses the weekday identity, not array order, for names", () => {
     const input = { days: [...neutral().days].reverse() };
     const html = renderInstance("Availability", input, "filled", theme);

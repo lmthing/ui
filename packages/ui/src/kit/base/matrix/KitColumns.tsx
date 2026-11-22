@@ -1,13 +1,116 @@
-import { Children, useRef, type ReactNode } from "react";
-import { XStack, YStack } from "tamagui";
-import { component, size, space } from "../../../catalog";
-import { useKitStyle } from "../../provider";
+import { Children, useRef, useState, type ReactNode, type RefObject } from "react";
+import { XStack, YStack, isWeb } from "tamagui";
+import { component, radius, size, space } from "../../../catalog";
+import { useMoveFocus } from "../../interact";
+import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
-import { KitText, shifted, surfaceOf } from "../text";
-import { ColumnItemRoot, type ColumnMove } from "./column-item";
+import { KitRow } from "../surface";
+import { KitIcon, KitText, shifted, surfaceOf } from "../text";
 import { MatrixContent } from "./matrix-drawing";
 import { MatrixScroll } from "./matrix-scroll";
 import type { Drawing } from "./matrix-layout";
+
+type ColumnItem = {
+  id: string;
+  column: number;
+  label: string;
+  goto?: string | undefined;
+  children: ReactNode;
+  destinations?: readonly { value: string; label: string }[] | undefined;
+};
+type ColumnMove = {
+  cards: readonly ColumnItem[];
+  caption: string;
+  /** Accessible name for the button that moves this card to the given column. */
+  label: (destination: string, card: string) => string;
+};
+type DestinationProps = { destination: string; name: string; press?: (() => void) | undefined };
+function Destination({ destination, name, press }: DestinationProps) {
+  const ks = useKitStyle();
+  return (
+    <XStack
+      maxWidth="100%"
+      minHeight={size.control.md}
+      minWidth={size.control.md}
+      paddingHorizontal={space.sm}
+      alignItems="center"
+      justifyContent="center"
+      borderRadius={shifted("sm", ks.radiusShift)}
+      backgroundColor="$raised"
+      accessibilityRole="button"
+      accessibilityLabel={name}
+      {...(isWeb ? { "data-step-action": "move", tabIndex: press ? 0 : -1 } : {})}
+      onPress={press}
+      {...((isWeb && press
+        ? {
+            onKeyDown: (event: { key: string; preventDefault(): void }) => {
+              if (event.key !== "Enter" && event.key !== " ") return;
+              event.preventDefault();
+              press();
+            },
+          }
+        : {}) as object)}
+    >
+      <KitText role="label" tone="text" part={null}>
+        {destination}
+      </KitText>
+    </XStack>
+  );
+}
+
+type ItemProps = {
+  card: ColumnItem;
+  destinations: NonNullable<ColumnItem["destinations"]>;
+  loading: boolean;
+  move: ColumnMove;
+  focus: RefObject<string | null>;
+};
+function ColumnItemRoot({ card, destinations, move: { caption, label }, loading, focus }: ItemProps) {
+  const address = usePart("root", !loading);
+  const { controller, interactive } = useKit();
+  const runMove = useMoveFocus(focus, address.testID, address.ref);
+  const active = interactive && controller;
+  const offered = !loading && active && active.actionsAt(address.testID).includes("move");
+  const press = (value: string) =>
+    runMove(() => controller!.act({ address: address.testID, action: "move", value }));
+  const row = (
+    <KitRow
+      label={card.label}
+      goto={card.goto}
+      inset="none"
+      trailing={card.goto && <KitIcon name="chevron_right" decorative />}
+    >
+      {card.children}
+    </KitRow>
+  );
+  return (
+    <YStack
+      {...(loading ? { "aria-hidden": true } : address)}
+      {...(!loading && isWeb
+        ? { accessibilityRole: "group", "aria-label": card.label, "data-kit-move-item": "", tabIndex: -1 }
+        : {})}
+    >
+      <MatrixContent loading={loading}>{row}</MatrixContent>
+      {!loading && destinations.length > 0 && (!interactive || !controller || offered) && (
+        <YStack gap={space.xs}>
+          <KitText role="caption" tone="muted" part={null}>
+            {caption}
+          </KitText>
+          <XStack gap={space.xs} flexWrap="wrap">
+            {destinations.map(({ value, label: destination }) => (
+              <Destination
+                key={value}
+                destination={destination}
+                name={label(destination, card.label)}
+                press={offered ? () => press(value) : undefined}
+              />
+            ))}
+          </XStack>
+        </YStack>
+      )}
+    </YStack>
+  );
+}
 
 type ColumnsProps = Omit<Drawing, "part"> & {
   part?: string | null;
@@ -26,9 +129,10 @@ type CardProps = {
   column: ColumnsProps["columns"][number];
   loading: boolean;
   stack: boolean;
+  pageWidth: number;
   items: ReactNode;
 };
-function ColumnCard({ column, loading, stack, items }: CardProps) {
+function ColumnCard({ column, loading, stack, pageWidth, items }: CardProps) {
   const ks = useKitStyle();
   const empty = Children.toArray(column.children).length === 0;
   const addressed = Boolean(column.part && !loading);
@@ -37,9 +141,11 @@ function ColumnCard({ column, loading, stack, items }: CardProps) {
     <YStack
       {...(addressed ? address : {})}
       {...surfaceOf(ks.surface)}
+      backgroundColor="$raised"
       borderRadius={shifted("md", ks.radiusShift)}
-      width={stack ? "100%" : size.control.md * 4 + space.xl}
+      width={stack ? "100%" : pageWidth || size.control.md * 4 + space.xl}
       flexShrink={component.base.none}
+      {...(!stack && isWeb ? { style: { scrollSnapAlign: "start" } as never } : {})}
       padding={space.md}
       gap={space[ks.density.gap]}
     >
@@ -62,6 +168,22 @@ function ColumnCard({ column, loading, stack, items }: CardProps) {
   );
 }
 
+function ColumnPosition({ count, position }: { count: number; position: number }) {
+  return (
+    <XStack justifyContent="center" gap={space.xs} aria-hidden>
+      {Array.from({ length: count }, (_, index) => (
+        <YStack
+          key={index}
+          width={component.base.dot}
+          height={component.base.dot}
+          borderRadius={radius.pill}
+          backgroundColor={index === Math.min(position, count - 1) ? "$accent" : "$line"}
+        />
+      ))}
+    </XStack>
+  );
+}
+
 /** Counted columns scroll sideways or stack vertically; all copy and actions belong to callers. */
 export function KitColumns({
   part = "root",
@@ -73,7 +195,9 @@ export function KitColumns({
   const address = usePart(part ?? undefined, part !== null);
   const context = usePartContext();
   const focus = useRef<string | null>(null);
-  const stack = style === "stack";
+  const [pageWidth, setPageWidth] = useState(0);
+  const [position, setPosition] = useState(0);
+  const stack = style === "stack" || columns.length < 2;
   const labels = columns.map((column) => column.label);
   const cards = columns.map((column, index) => {
     const defaults = labels
@@ -86,7 +210,7 @@ export function KitColumns({
           <ColumnItemRoot {...{ card, loading, move, focus }} destinations={card.destinations ?? defaults} />
         </PartContext.Provider>
       ));
-    return <ColumnCard key={column.id} {...{ column, loading, stack, items }} />;
+    return <ColumnCard key={column.id} {...{ column, loading, stack, pageWidth, items }} />;
   });
   return (
     <YStack
@@ -94,15 +218,20 @@ export function KitColumns({
       minWidth={component.base.none}
       width="100%"
       aria-busy={loading}
+      onLayout={(event) => {
+        address.onLayout();
+        if (!stack) setPageWidth(event.nativeEvent.layout.width);
+      }}
     >
       {!columns.length ? null : stack ? (
         <YStack gap={space.md}>{cards}</YStack>
       ) : (
-        <MatrixScroll loading={loading} label={labels.join(", ")}>
-          <XStack gap={space.md} alignItems="flex-start">
-            {cards}
-          </XStack>
-        </MatrixScroll>
+        <YStack gap={space.sm}>
+          <MatrixScroll loading={loading} label={labels.join(", ")} pages={{ width: pageWidth, setPosition }}>
+            <XStack alignItems="flex-start">{cards}</XStack>
+          </MatrixScroll>
+          <ColumnPosition count={cards.length} position={position} />
+        </YStack>
       )}
     </YStack>
   );

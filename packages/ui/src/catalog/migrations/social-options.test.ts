@@ -3,13 +3,13 @@ import { components } from "@lmthing/ui/catalog";
 import { migrateLine } from "./index";
 
 it.each(["Feed", "Post"] as const)(
-  "moves %s style aliases to shared axes without losing explicit values",
+  "migrates %s layout aliases while dropping retired presentation props",
   (id) => {
     const { examples, props } = components[id];
     const input = { ...examples[0]!, c: id, id: "posts" };
     for (const [style, expected] of [
       ["stream", {}],
-      ["compact", { density: "compact" }],
+      ["compact", {}],
       ["grid", { arrange: "grid" }],
     ] as const) {
       const migrated = migrateLine({ ...input, style });
@@ -17,9 +17,9 @@ it.each(["Feed", "Post"] as const)(
       const { c: _c, id: _id, ...data } = migrated;
       expect(props.safeParse(data).success).toBe(true);
     }
-    expect(migrateLine({ ...input, style: "compact", density: "comfortable" })).toEqual({
+    expect(migrateLine({ ...input, style: "grid", density: "compact", arrange: "rows" })).toEqual({
       ...input,
-      density: "comfortable",
+      arrange: "rows",
     });
   },
 );

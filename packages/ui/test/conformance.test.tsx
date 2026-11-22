@@ -23,6 +23,7 @@ import { addressedElements, config, exampleDeviceData, renderExample } from "./r
 import { selectedIds } from "../scripts/build";
 import { conformanceThemes, modes } from "./themes";
 import {
+  decode,
   derivedItemIds,
   derivedItemIssues,
   peekForExample,
@@ -43,12 +44,31 @@ function stampExampleItems(meta: Meta, props: Record<string, unknown>) {
   return stampItemIds(meta, props);
 }
 
+const domainEmpty: Readonly<Record<string, string>> = {
+  CannedReplies: "No saved replies yet",
+  CreditScore: "No credit report available",
+  LeaveBalance: "No leave balances assigned",
+  PayStub: "No pay statements issued yet",
+  TeamDirectory: "No teammates in the directory yet",
+  Transcript: "No transcript available",
+  TravelDocs: "No travel documents yet",
+};
+
 function expectEmptyCopy(meta: Meta, input: Record<string, unknown>, html: string, data?: DeviceData) {
-  if (meta.id === "TravelDocs") return expect(visibleTexts(html)).toContain("No travel documents yet");
+  const expected = domainEmpty[meta.id];
+  if (expected) return expect(visibleTexts(html)).toContain(expected);
   // Explicit empty screen reads only the state header; use the declared copy hook here.
-  const lines = data && meta.read?.(input, "empty", undefined, data);
+  const lines =
+    data || meta.id === "Flashcard" || meta.id === "Sessions"
+      ? meta.read?.(input, "empty", undefined, data)
+      : undefined;
   if (!lines?.length) return expect(html).toContain(emptyLine(meta.deviceDataVisible ? undefined : "walk"));
-  const visible = visibleTexts(html).join(" ");
+  const placeholders = [...addressedElements(html).values()].flatMap(({ tag, text, attributes }) => {
+    if (tag !== "textarea" || text.length > 0 || attributes.includes('aria-hidden="true"')) return [];
+    const placeholder = attributes.match(/\bplaceholder="([^"]+)"/)?.[1];
+    return placeholder ? [decode(placeholder)] : [];
+  });
+  const visible = [...visibleTexts(html), ...placeholders].join(" ");
   for (const line of lines) expect(visible).toContain(line);
 }
 
@@ -84,10 +104,7 @@ it("supplies parsed props and state to fixtures, without leaking undeclared reco
   };
   const parsed = def.props.parse({ rows: [{ title: " Fern " }] }) as Record<string, unknown>;
   expect(exampleDeviceData(def, parsed, "empty")).toEqual({
-    allowed: [
-      expect.objectContaining({ surface: "card", rows: [expect.objectContaining({ title: "Fern" })] }),
-      "empty",
-    ],
+    allowed: [expect.objectContaining({ rows: [expect.objectContaining({ title: "Fern" })] }), "empty"],
   });
   expect(exampleDeviceData(components.List, parsed, "empty")).toBeUndefined();
 });
@@ -168,9 +185,11 @@ describe.each(ready)("%s conformance", (id) => {
             expect(html).not.toContain(`data-testid="home/c1/${items.prefix ?? "r"}2/root"`);
           const pageHidesRoots =
             props.overflow === "page" && meta.variantParts?.["overflow.page"]?.hides?.includes("root");
-          if (!pageHidesRoots)
-            for (const { id } of items.visible === "first" ? rows.slice(0, 1) : rows)
-              if (!hidden.includes(id)) expect(html).toContain(`data-testid="home/c1/${id}/root"`);
+          for (const { id: row } of items.visible === "first" ? rows.slice(0, 1) : rows) {
+            const root = `data-testid="home/c1/${row}/root"`;
+            if (id === "MapList" && props.style === "map") expect(html).not.toContain(root);
+            else if (!pageHidesRoots && !hidden.includes(row)) expect(html).toContain(root);
+          }
         }
       }
     }

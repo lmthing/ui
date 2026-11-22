@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { feelingCountLine, feelingPlaceholder, readFeelings } from "../copy";
 import { mindWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Feelings.generated";
 
 const wordParts = ["word_1", "word_2", "word_3", "word_4", "word_5", "word_6", "word_7", "word_8"] as const;
 const maxChosen = 3;
@@ -12,16 +13,14 @@ export const meta = {
   id: "Feelings",
   status: "ready",
   group: "input",
-  purpose: "Name up to three precise feelings by choosing words within a family.",
-  pick: "Choose a family such as calm or anxious, then toggle up to three precise feeling words. Not one five-point rating (Scale), things that happened (Factors), or physical symptoms (SymptomLog).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "The selected words are saved with the day's entry on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["hint"] } },
@@ -43,10 +42,7 @@ export const meta = {
     word_5: ["toggle"], word_6: ["toggle"], word_7: ["toggle"], word_8: ["toggle"],
   } },
   select: { prop: "family", value: "index" },
-  writeHints: [
-    "Give three to six families, each with three to eight words. Chosen has up to three distinct words from the families; use [] when none are selected.",
-    'Use null for each unrequested axis, including density and surface even if detail is requested. Use detail "brief" only when asked to hide the instructions, and keep every family and word.',
-  ],
+  writeHints: prompt.writeHints,
   read: (input, state, lang): string[] => {
     if (state !== "filled") return [];
     const { families, detail, family = 0 } = input as z.output<typeof props> & { family?: number };
@@ -103,7 +99,6 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
-// prettier-ignore
 export const examples = [
   {
     families: [
@@ -150,35 +145,56 @@ export const probes = [
 
 type FeelingsProps = c.Props<typeof props, typeof meta>;
 
-// prettier-ignore
-function FeelingWords({ parent, controls, label }: ReturnType<typeof kit.useNestedControls> & { label: string }) {
+function FeelingWords({
+  parent,
+  controls,
+  label,
+}: ReturnType<typeof kit.useNestedControls> & { label: string }) {
   const { words } = kit.useWords(mindWordsFor);
   return (
     <kit.KitTrack part="words" label={label}>
       {controls.map(({ target, part, item, spec, disabled }) => (
-        <kit.KitChip key={target} item={parent ?? null} part={part} labelPart={null}
-          label={String(item.label)} role="checkbox" on={item[spec.prop] === true} disabled={disabled} />
+        <kit.KitChip
+          key={target}
+          item={parent ?? null}
+          part={part}
+          labelPart={null}
+          label={String(item.label)}
+          role="checkbox"
+          on={item[spec.prop] === true}
+          disabled={disabled}
+        />
       ))}
-      {!controls.length && <kit.KitText part={null} role="caption" tone="muted">{words.feelings.noWords}</kit.KitText>}
+      {!controls.length && (
+        <kit.KitText part={null} role="caption" tone="muted">
+          {words.feelings.noWords}
+        </kit.KitText>
+      )}
     </kit.KitTrack>
   );
 }
 
-// prettier-ignore
 export function Feelings(input: FeelingsProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const { words, lang } = kit.useWords(mindWordsFor);
   const nested = kit.useNestedControls(meta, input);
   const { parent, remaining = maxChosen } = nested;
   const family = input.families.find(({ id }) => id === parent);
-  const columns = input.families.length % 3 === 0 && input.families.every(({ label }) => label.length <= 8) ? 3 : 2;
+  const columns =
+    input.families.length % 3 === 0 && input.families.every(({ label }) => label.length <= 8) ? 3 : 2;
   return (
     <kit.KitCard part="root" padded density={density} surface={surface}>
       <kit.KitContent density={density}>
-        <kit.KitText part="title" role="heading" density={density}>{words.feelings.title}</kit.KitText>
-        {full && <kit.KitText part="hint" role="caption" tone="muted" density={density}>{words.feelings.hint}</kit.KitText>}
+        <kit.KitText part="title" role="heading" density={density}>
+          {words.feelings.title}
+        </kit.KitText>
+        {full && (
+          <kit.KitText part="hint" role="caption" tone="muted" density={density}>
+            {words.feelings.hint}
+          </kit.KitText>
+        )}
       </kit.KitContent>
       <kit.KitContent group="response" density={density}>
         <kit.KitTrack part="families" look="segments" role="radiogroup" label={words.feelings.families}>

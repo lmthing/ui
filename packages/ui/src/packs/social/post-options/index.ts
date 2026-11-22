@@ -5,7 +5,6 @@ export {
   postOptionWhen,
   postPlayback,
   postOptionFlags,
-  postOptionHints,
   postOptionProbes,
 } from "./schema";
 export * from "./view";

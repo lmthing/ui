@@ -28,7 +28,7 @@ describe("Vitals schema", () => {
         ...input,
         readings: [{ ...reading, label: " Blood pressure ", unit: " mmHg ", at: " 08:10 " }],
       }),
-    ).toEqual({ ...input, surface: "card", detail: "full" });
+    ).toEqual({ ...input, detail: "full", style: "band" });
   });
   it.each([
     {},
@@ -138,21 +138,21 @@ describe("Vitals states, parts and read/act", () => {
     example.readings.forEach((row, index) => {
       for (const part of meta.items.parts) {
         const address = `home/c1/r${index + 1}/${part}`;
-        if (part === "value2" && !("value2" in row)) expect(html).not.toContain(`data-testid="${address}"`);
+        const hidden =
+          (part === "value2" && !("value2" in row)) ||
+          (part === "context" && !("context" in row)) ||
+          (part === "band" && example.style === "history");
+        if (hidden) expect(html).not.toContain(`data-testid="${address}"`);
         else expect(html.match(new RegExp(`data-testid="${address}"`, "g"))).toHaveLength(1);
       }
       expect(read).toContain(`${row.label}: ${row.value}`);
       const label = "value2" in row ? "Systolic reference" : "Reference";
       expect(read).toContain(`${label} ${row.low}–${row.high}`);
     });
+    // prettier-ignore
     expect(affordancesOf(meta, stampItemIds(meta, props.parse(example)), "v1")).toEqual([
       { address: "v1/add", action: "press", part: "add", detail: "→add_reading" },
-      ...example.readings.map((_, index) => ({
-        address: `v1/r${index + 1}`,
-        action: "press",
-        part: "root",
-        detail: "",
-      })),
+      ...example.readings.map((_, index) => ({ address: `v1/r${index + 1}`, action: "press", part: "root", detail: "" })),
     ]);
   });
 });

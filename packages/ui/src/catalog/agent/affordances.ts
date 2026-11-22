@@ -1,19 +1,18 @@
 import type { LocalStateEvent, Meta } from "../meta";
 import type { Definition } from "../probes";
-import type { StateName } from "../types";
+import type { StateName, Tier } from "../types";
 import { choiceValues, type ChoiceOption } from "./validate-value";
 import { clockActionValid, clockControlDeclared, type numericSetAt } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { buzzAvailable, buzzRound, buzzStatus, buzzTarget } from "./buzz";
 import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
 import { actionAllowedIn, addressedItems, nestedActions, visibleItems } from "./visibility";
-import { sendDraft, type LiveInput } from "./live-inputs";
+import { hasComponentToggle, localEventOffer, sendDraft, withLiveInput, type LiveInput } from "./live-inputs";
 import type { SendDraft } from "./act";
-import { boundActionAvailable, isItemOffer } from "./selection-binding";
-import { itemActionOffer, partsOf } from "./action-input";
+import { boundActionAvailable, isItemOffer, isSelectAll } from "./selection-binding";
 import { activeDateSpan, dateSpanOffer } from "./date-span";
-import { collectionOffers } from "./collections";
-import type { HostActionPolicy, HostIntent } from "./host-commands";
+import { collectionOffers, itemActionOffer } from "./collections";
+import { hostOffer, type HostActionPolicy, type HostIntent } from "./host-commands";
 import { deviceTimeOf, type DeviceData } from "./device-data";
 import { isLocalAnchorAction } from "./drives";
 import { keypadOffers, type KeypadProfile } from "./keypad-profile";
@@ -25,8 +24,17 @@ import {
   type stageSequence,
 } from "./media";
 
-import { hostOffers, partTierAt } from "./offer-policies";
-export { partTierAt } from "./offer-policies";
+import { matches } from "./visibility";
+import { linkedInput } from "./linked-edits";
+import { recordActionAt } from "./record-runtime";
+import { privateOffer } from "./private-controls";
+import {
+  itemEditOffer,
+  recordEdit,
+  recordEditAllowed,
+  reportConfirmation,
+  reportLocked,
+} from "./report-edits";
 import { numericOffer, type Adjustment } from "./numeric-offer";
 export { isAdjustOnlyItem } from "./numeric-offer";
 
@@ -47,7 +55,7 @@ export type Affordance = {
   hostIntent?: HostIntent;
   localEvent?: Omit<LocalStateEvent, "value">;
   hostReveal?: true;
-  hostSecret?: "copy" | "input" | "verify";
+  hostSecret?: "copy" | "input" | "verify" | "brightness";
   keypad?: { profile: KeypadProfile; initial: string };
   slotMove?: { key: string; orders: ReadonlyMap<string, string[]> };
   rowSelection?: { key: string; id: string; value: string | number };
@@ -194,4 +202,146 @@ export function affordancesOf(
 /** Every action names its own address, so a model copies it and never assembles one: `[l1/r1/trail toggle:on]`. */
 export function formatAffordance({ address, readAddress = address, action, detail }: Affordance): string {
   return `[${readAddress} ${action}${detail}]`;
+}
+
+const firstBoolean = (value: Props) => Object.values(value).find((v) => typeof v === "boolean");
+function detailOf(action: string, holder: Props, suppressLink: boolean, flag?: string): string {
+  if (!suppressLink && (action === "press" || action === "select") && typeof holder.goto === "string")
+    return `→${holder.goto}`;
+  if (action === "toggle" && flag !== undefined) return holder[flag] === true ? ":on" : ":off";
+  if (action === "toggle" && ["on", "off"].includes(String(holder.value))) return `:${holder.value}`;
+  if (action === "toggle" || action === "check") {
+    const on = firstBoolean(holder);
+    if (on !== undefined) return action === "check" ? `:${on ? "done" : "todo"}` : `:${on ? "on" : "off"}`;
+  }
+  return "";
+}
+
+type When = Record<string, Record<string, string | boolean>> | undefined;
+
+function hasPart(meta: Meta, holder: Props, part: string, item: boolean) {
+  if (!(part in holder) || holder[part] !== undefined) return true;
+  if (item) return recordEdit(meta, part) || Object.hasOwn(meta.items?.edits ?? {}, part);
+  return (
+    meta.selections?.[part]?.runtime ||
+    Object.hasOwn(meta.live?.text ?? {}, part) ||
+    hasComponentToggle(meta, part) ||
+    linkedInput(meta, part)
+  );
+}
+
+function itemControlAt(meta: Meta, part: string) {
+  return Boolean(
+    recordEdit(meta, part) ||
+    meta.items?.edits?.[part] ||
+    meta.items?.pickers?.[part] ||
+    meta.recordRuntime?.presses?.[part],
+  );
+}
+
+function componentPressAt(meta: Meta, part: string, action: string) {
+  return (
+    meta.clear?.[part] ||
+    meta.items?.reset === part ||
+    meta.linkedEdits?.swap.part === part ||
+    reportConfirmation(meta, part, action)
+  );
+}
+
+function nestedHolder(holder: Props, part: string) {
+  const target = holder[part];
+  return target && typeof target === "object" ? (target as Props) : holder;
+}
+
+export function partsOf(
+  spec: Record<string, readonly string[]> | undefined,
+  holder: Props,
+  base: string,
+  when: When,
+  outer: Props,
+  meta: Meta,
+  item = false,
+  data?: DeviceData,
+  wire?: Props,
+) {
+  const noGoto = item ? meta.actions?.noGoto?.items : meta.actions?.noGoto?.parts;
+  const locked = reportLocked(meta, outer);
+  return Object.entries(spec ?? {}).flatMap(([part, actions]) =>
+    matches(when?.[part], holder, outer, meta.deviceDataFlags) && hasPart(meta, holder, part, item)
+      ? actions
+          .filter((action) => {
+            if (!matches(when?.[`${part}.${action}`], holder, outer, meta.deviceDataFlags)) return false;
+            if (!item) {
+              const record = recordActionAt(meta, part, action);
+              if (record && record.target(holder) === undefined) return false;
+              return !locked || !reportConfirmation(meta, part, action);
+            }
+            const edit =
+              recordEditAllowed(meta, outer, holder, part, action, data) ??
+              itemEditOffer(meta, holder, part, action, wire);
+            return edit === undefined || (edit && !locked);
+          })
+          .map((action) => {
+            const localEvent = localEventOffer(meta, part, action, item ? String(holder.id) : undefined);
+            const address = part === "root" ? base : `${base}/${part}`;
+            const privateControl = privateOffer(meta, address, part, action, item);
+            if (privateControl) return privateControl;
+            const nested = nestedHolder(holder, part);
+            const record = item ? recordEdit(meta, part) : undefined;
+            const flag = item && part === "root" && meta.select?.runtime ? meta.select.prop : undefined;
+            const localPress = !item && componentPressAt(meta, part, action);
+            const suppressLink = Boolean(
+              localEvent ||
+              isSelectAll(meta, part, action, item) ||
+              (item && itemControlAt(meta, part)) ||
+              (action === "press" && (localPress || (nested === holder && noGoto?.includes(part)))),
+            );
+            return {
+              address,
+              part,
+              action,
+              ...(localEvent && { localEvent }),
+              detail:
+                record?.action === "check"
+                  ? `:${holder[record.date] === undefined ? "todo" : "done"}`
+                  : detailOf(action, nested, suppressLink, flag),
+              ...withLiveInput(meta, part, action, holder, item),
+            };
+          })
+      : [],
+  );
+}
+
+function hostOffers(
+  meta: Meta,
+  props: Props,
+  instance: string,
+  offered: Affordance[],
+  policy: HostActionPolicy | undefined,
+  rows: ReadonlyMap<string, Props> | undefined,
+) {
+  if (!meta.hostCommands && !policy) return offered;
+  return offered.flatMap((offer) => {
+    const allowed = hostOffer(
+      meta,
+      props,
+      instance,
+      offer,
+      partTierAt(meta, props, offer.part),
+      policy,
+      rows,
+    );
+    return allowed ? [allowed] : [];
+  });
+}
+
+/** Resolve a part against live props, without changing the component's tier. */
+export function partTierAt(meta: Meta, props: Props, part: string): Tier {
+  const rule = Object.hasOwn(meta.partTiersBy ?? {}, part) ? meta.partTiersBy![part] : undefined;
+  const value = rule && props[rule.prop];
+  if (rule && ["string", "number", "boolean"].includes(typeof value)) {
+    const key = String(value);
+    if (Object.hasOwn(rule.tiers, key) && rule.tiers[key]) return rule.tiers[key];
+  }
+  return meta.partTiers?.[part] ?? meta.tier;
 }

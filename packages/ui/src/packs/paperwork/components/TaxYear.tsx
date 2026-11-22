@@ -4,20 +4,16 @@ import * as kit from "../../../kit";
 import { taxEvidence, taxYearLines } from "../copy";
 import { paperworkWordsFor } from "../lang";
 import { seedDate, seedRows } from "../seeds";
+import { prompt } from "../../../entry/prompt-TaxYear.generated";
 
 // Core first: Checklist/default ticks jobs but cannot match required evidence against files and reviewed receipts.
 export const meta = {
   id: "TaxYear",
   status: "ready",
   group: "data",
-  purpose: "Find missing tax evidence by matching records to one filing period.",
-  pick: "Completeness of tax evidence for one specified period, computed from linked documents and reviewed receipts. Not manually ticking off jobs (Checklist), money movements (Transactions), client bills (Invoice) or arbitrary data rows (Table).",
-  writeHints: [
-    "Write from and to in YYYY-MM-DD, in ascending order. Omit due unless supplied; never infer statutory dates.",
-    'Each requirement asks for "documents" or "receipts" using a tag and a needed count. Do not write matches, totals, tax owed, or filed status.',
-    'Tighter summary rows request density:"compact", retaining all category links. More categories fitting on screen does not request a different surface: write surface:null unless the surface is explicitly requested. Without a spacing request write density:null.',
-    'Exact defaults are density:null, surface:null, detail:null. For explicitly hiding the deadline and receipt totals set only detail:"brief"; keep the category links, requirements and date range.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   // prettier-ignore
   region: "body",
   weight: 3,
@@ -25,7 +21,7 @@ export const meta = {
   tier: "phone",
   realPath:
     "The device matches linked documents and reviewed receipts with usable files to period requirements; tax rules, filing and advice stay outside the app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["due", "receipt_total", "allocation_total"] } },
   parts: ["root", "label", "from", "to", "due", "receipt_total", "allocation_total", "empty", "success"],
   items: { key: "requirements", parts: ["root", "label", "meta", "matched", "needed", "missing"] },
@@ -102,7 +98,7 @@ export const examples = [
   },
   {
     label: "Trot tax evidence",
-    from: "2026-04-06", to: "2027-04-05", density: "compact", surface: "plain",
+    from: "2026-04-06", to: "2027-04-05",
     requirements: [
       { label: "Account statements", source: "documents", tag: "statements", needed: 12, goto: "vault" },
       { label: "Expense evidence", source: "receipts", tag: "expenses", needed: 6, goto: "tax_receipts" },
@@ -117,10 +113,6 @@ export const probes = [
   choose("Give me independent tasks I can tick by hand: tidy the folder, call the accountant, and make a backup. No matches or files.", "Checklist"),
   write("Call this Ledge archive 2026, from 2026-01-01 to 2026-12-31. Require one Greenhouse permits document tagged permits and three Pot purchase proof receipts tagged pots."),
   {
-    ...write("Show Ledge archive 2026 from 2026-01-01 to 2026-12-31. Require one Greenhouse permits document tagged permits and three Pot purchase proof receipts tagged pots. Use tighter summary rows so more categories fit, keeping each evidence link."),
-    variant: { axis: "density", value: "compact" },
-  },
-  {
     ...write("For Ledge archive 2026, from 2026-01-01 to 2026-12-31, require one document tagged permits. Hide the deadline and receipt totals; keep the date range and evidence categories."),
     variant: { axis: "detail", value: "brief" },
   },
@@ -134,21 +126,17 @@ function TaxCategory({ row, density, loading }: { row: EvidenceRow; density: c.T
   const { requirement, matchedLine, neededLine, missingLine } = row;
   return <kit.KitRow {...(!loading ? { item: requirement.id, goto: requirement.goto } : {})}
     part={loading ? null : "root"} label={loading ? "" : requirement.label} density={density}
-    trailing={requirement.goto ? loading ? <kit.KitSkeleton shape="figure" lead="dot" inset="none" content={[]} />
-      : <kit.KitContent lead={<kit.KitIcon name="chevron_right" tone="muted" decorative />} children={null} /> : undefined}>
-    {loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }}
-      content={[["body", requirement.label], ["caption", row.metaLine], ["caption", neededLine],
-        ["caption", missingLine]]} /> : <>
-      <kit.KitText part="label" density={density}>{requirement.label}</kit.KitText>
-      <kit.KitText part="meta" role="caption" tone="muted">{row.metaLine}</kit.KitText>
-      <kit.KitContent density={density}>
-        <kit.KitText part={null} role="caption" tone="muted">
-          <kit.KitText part="matched" role="caption" tone="muted">{matchedLine}</kit.KitText>
-          <kit.KitText part="needed" role="caption" tone="muted">{neededLine}</kit.KitText>
-        </kit.KitText>
-        {row.missing > 0 && <kit.KitText part="missing" role="caption" tone="warn">{missingLine}</kit.KitText>}
-      </kit.KitContent>
-    </>}
+    trailing={requirement.goto && <kit.KitIcon name="chevron_right" decorative loading={loading} />}>
+    <kit.KitLayoutText line={{ part: "label", text: requirement.label }} {...{ density }} />
+    <kit.KitLayoutText line={{ part: "meta", role: "caption", text: row.metaLine, tone: "muted" }} {...{ density }} />
+    <kit.KitContent density={density}>
+      {loading ? <kit.KitLayoutText line={{ role: "caption", text: `${matchedLine}${neededLine}` }} {...{ density }} /> :
+        <kit.KitText part={null} role="caption" tone="muted" density={density}>
+          <kit.KitText part="matched" role="caption" tone="muted" density={density}>{matchedLine}</kit.KitText>
+          <kit.KitText part="needed" role="caption" tone="muted" density={density}>{neededLine}</kit.KitText>
+        </kit.KitText>}
+      <kit.KitLayoutText line={{ part: "missing", role: "caption", text: missingLine, tone: "warn" }} {...{ density }} />
+    </kit.KitContent>
   </kit.KitRow>;
 }
 // prettier-ignore
@@ -156,41 +144,44 @@ function TaxSummary({ input, evidence, data, density, loading, lang }: {
   input: TaxYearProps; evidence: ReturnType<typeof taxEvidence>; data: c.DeviceData;
   density: c.ThemeDensity; loading: boolean; lang: string;
 }) {
-  const { taxYear: words } = paperworkWordsFor(lang);
   const lines = taxYearLines(input, evidence, data, lang);
+  const heading = density === "compact" ? "title" : "heading";
   const dates = lines.filter(({ number }) => number === undefined), totals = lines.filter(({ number }) => number !== undefined);
-  return <kit.KitRow part={null} label="" lineRole="heading" {...{ density }}>
+  return <kit.KitRow part={null} label="" lineRole={heading} {...{ density }}>
     {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} emphasis="hero"
-      content={[["heading", input.label], ...dates.map(({ line }): ["caption", string] => ["caption", line])]} /> : <>
-      <kit.KitText part="label" role="heading" emphasis="hero" {...{ density }}>{input.label}</kit.KitText>
-      {dates.map(({ part, line }) => <kit.KitText key={part} {...{ part }} role="caption" tone="muted">{line}</kit.KitText>)}
-    </>}
+      content={[[heading, input.label]]} /> :
+      <kit.KitText part="label" role={heading} emphasis="hero" {...{ density }}>{input.label}</kit.KitText>}
+    {dates.map(({ part, line }) => <kit.KitLayoutText key={part}
+      line={{ part, role: "caption", text: line, tone: "muted" }} {...{ density }} />)}
     {totals.length > 0 && <kit.KitContent group="response" density={density}>
-      <kit.KitGrid density={density}>{totals.map(({ part, label, number }) => loading ?
-        <kit.KitSkeleton key={part} shape="figure" inset="none" density={density}
-          content={[["caption", label], ["number", number, "start", "compact"]]} /> :
+      <kit.KitGrid density={density}>{totals.map(({ part, label, number }) =>
         <kit.KitContent key={part} density={density}>
-          <kit.KitText part={null} role="caption" tone="muted">{label}</kit.KitText>
-          <kit.KitText part={part} role="number" numberScale="compact" tabular>{number}</kit.KitText>
+          <kit.KitLayoutText line={{ role: "caption", text: label, tone: "muted" }} {...{ density }} />
+          <kit.KitLayoutText line={{ part, role: "figure", text: number, compact: true, tabular: true }} {...{ density }} />
         </kit.KitContent>)}</kit.KitGrid>
     </kit.KitContent>}
-    {!loading && evidence.complete && <kit.KitText part="success" role="label" tone="good">{words.success}</kit.KitText>}
   </kit.KitRow>;
 }
 
 // prettier-ignore
 export function TaxYear(input: TaxYearProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const state = kit.useComponentState(), { lang, words: { taxYear: words } } = kit.useWords(paperworkWordsFor);
   const data = kit.useDeviceData(), evidence = taxEvidence(input, data, lang);
   const loading = state === "loading", complete = evidence.complete;
-  return <kit.KitCard surface={input.surface} density={density}>
+  return <kit.KitCard surface={"card"} density={density}>
     <TaxSummary {...{ input, evidence, data, density, loading, lang }} />
     {!loading && !evidence.hasEvidence && <kit.KitEmpty part="empty" icon="file_text" decorativeIcon title={words.empty} />}
     <kit.KitRow part={null} label="" {...{ density }}>
-      {loading && <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.progress]]} />}
-      <kit.KitMeter label={loading ? "" : words.progress} amount={loading ? "" : evidence.progress}
-        ratio={loading ? 0 : evidence.ratio} tone={complete ? "good" : "accent"} slim addressed={false} />
+      <kit.KitContent {...{ density }} rhythm={loading ? "flush" : "close"}>
+        {loading && <kit.KitGrid fitLast density={density}>
+          <kit.KitLayoutText line={{ role: "meta", text: words.progress }} />
+          <kit.KitLayoutText line={{ role: "caption", text: evidence.progress }} align="end" />
+        </kit.KitGrid>}
+        <kit.KitMeter label={loading ? "" : words.progress} amount={loading ? "" : evidence.progress}
+          ratio={loading ? 0 : evidence.ratio} tone={complete ? "good" : "accent"} slim addressed={false} />
+        {!loading && complete && <kit.KitText part="success" role="label" tone="good">{words.success}</kit.KitText>}
+      </kit.KitContent>
     </kit.KitRow>
     <kit.KitGrid list arrange="rows" density={density}>
       {evidence.rows.map((row) => <TaxCategory key={row.requirement.id} {...{ row, density, loading }} />)}

@@ -1,60 +1,60 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { collectionReading, collectionSummary } from "../copy";
+import {
+  collectionExtraReading,
+  collectionExtras,
+  collectionFigures,
+  collectionPlayLabel,
+  collectionReading,
+} from "../copy";
 import { mediaWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Collection.generated";
 
 // Core first: Hero/media cover cannot combine collection credits, computed totals, play-all and follow.
+// prettier-ignore
 export const meta = {
   id: "Collection",
   status: "ready",
   group: "content",
-  purpose: "See one show's details, start the whole series and follow new releases.",
-  pick: "The overview at the top of one show, album, book or course, with artwork, credits, play-all and follow. Not a photo and headline (Hero), a person (Profile), one recording (Player), or owned things (Things).",
-  writeHints: [
-    "Count and duration come from Playlist on this screen; never write either value.",
-    'Use detail "brief" only when asked to hide the description. Keep it in about and leave density and aspect null unless explicitly requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "The collection details are stored with the app's media.",
-  variants: { density: ["comfortable", "compact"], aspect: ["square", "wide"], detail: ["full", "brief"] },
+  variants: { aspect: ["square", "wide"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["about"] } },
-  parts: [
-    "root",
-    "photo",
-    "title",
-    "by",
-    "about",
-    "summary",
-    "play",
-    "play_icon",
-    "play_label",
-    "follow",
-    "follow_icon",
-    "follow_label",
-  ],
+  parts: ["root", "photo", "title", "by", "about", "summary", "rating", "rating_count", "tags", "shelf_status",
+    "play", "play_icon", "play_label", "follow", "follow_icon", "follow_label"],
   states: ["filled", "loading"],
   actions: { parts: { play: ["press"], follow: ["toggle"] } },
   deviceData: ["playlist"],
-  previewDeviceData: () => ({
-    playlist: [{ style: "episodes", items: [1080, 1260, 840].map((seconds) => ({ seconds })) }],
+  previewDeviceData: ({ input }) => ({
+    playlist: [{ style: input.style === "album" || input.style === "book" ? "tracks" : "episodes",
+      items: (input.style === "album" ? [185, 224, 198] : [1080, 1260, 840]).map((seconds) => ({ seconds })) }],
   }),
-  read: (input, state, lang, data): string[] =>
-    state === "filled"
-      ? collectionReading(data?.playlist?.[0], (input as CollectionProps).followed, lang)
-      : [],
+  read: (value, state, lang, data): string[] => {
+    const input = value as CollectionProps;
+    return state === "filled" ? [...collectionExtraReading(input, lang),
+      ...collectionReading(data?.playlist?.[0], input.followed, lang, input.style)] : [];
+  },
 } as const satisfies c.Meta;
 
 export const props = z
   .strictObject({
     ...c.variantProps(meta.variants),
+    style: z.enum(["show", "album", "book"]).optional(),
     title: c.text(40),
     by: c.text(32),
     photo: c.photo,
     about: c.text(200).optional(),
     followed: z.boolean(),
+    rating: z.number().min(0).max(5).optional(),
+    ratingCount: z.int().nonnegative().optional(),
+    tags: z.array(c.text(20)).min(0).max(3).optional(),
+    shelfStatus: c.text(24).optional(),
   })
   .overwrite((value) => (value.detail === "brief" ? { ...value, about: undefined } : value));
 
@@ -74,7 +74,7 @@ export const examples = [
     title: "The Fern Shelf",
     by: "Noor Martin",
     photo: "lib:plants",
-    about: "A short series on making room for ferns in a small flat.",
+    about: "A short series on growing ferns indoors.",
     followed: false,
   },
   {
@@ -83,6 +83,24 @@ export const examples = [
     photo: "lib:dogs",
     about: "Slow walks for curious dogs.",
     followed: true,
+  },
+  {
+    style: "album",
+    title: "Quiet Mornings",
+    by: "Noor Martin",
+    photo: "lib:fern",
+    followed: false,
+    rating: 4.5,
+    ratingCount: 18,
+  },
+  {
+    style: "book",
+    title: "Window Pots",
+    by: "Maya Chen",
+    photo: "lib:basil",
+    followed: true,
+    tags: ["Gardening", "Field guide"],
+    shelfStatus: "Want to read",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -100,7 +118,7 @@ export const probes = [
   ),
   {
     ...write(
-      "Feature The Slow Walk by Ella Price with lib:dogs artwork, already followed. Save the description Field notes on exploring at a dog's pace, but don't show the description. Keep the credits, play-all and follow controls visible.",
+      "Feature The Slow Walk by Ella Price with lib:dogs artwork, already followed. Save the description Field notes on exploring at a dog's pace, but change the detail setting to hide it. Keep the credits, play-all and follow controls visible and leave other settings unspecified.",
     ),
     variant: { axis: "detail", value: "brief" },
   },
@@ -109,80 +127,181 @@ export const probes = [
     address: "c1/play",
     action: "press",
   }),
+  {
+    ...write("Use the explicit show layout for Fern Shelf by Noor Martin, cover lib:fern, not followed."),
+    expectProps: { style: "show" },
+  },
+  {
+    ...write(
+      "Use the album layout, with the title and credits centered below the cover, for Quiet Mornings by Noor Martin, cover lib:fern, not followed.",
+    ),
+    expectProps: { style: "album" },
+  },
+  {
+    ...write("Use the book overview for Window Pots by Maya Chen, cover lib:basil, not followed."),
+    expectProps: { style: "book" },
+  },
+  {
+    ...write(
+      "Use the show overview for Fern Shelf by Noor Martin, cover lib:fern, not followed. Show a rating of 4.5 out of 5.",
+    ),
+    expectProps: { rating: 4.5 },
+  },
+  {
+    ...write(
+      "Use the show overview for Fern Shelf by Noor Martin, cover lib:fern, not followed. Show its 18 ratings; the average isn't known.",
+    ),
+    expectProps: { ratingCount: 18 },
+  },
+  {
+    ...write(
+      "Show Fern Shelf by Noor Martin, cover lib:fern, not followed. Tag it Gardening and Field guide in that order.",
+    ),
+    expectProps: { tags: ["Gardening", "Field guide"] },
+  },
+  {
+    ...write(
+      "Show the book overview for Window Pots by Maya Chen, cover lib:basil, not followed. Its reading shelf status is Want to read.",
+    ),
+    expectProps: { shelfStatus: "Want to read" },
+  },
 ] satisfies c.Probe[];
 
 type CollectionProps = c.Props<typeof props, typeof meta>;
 
-// prettier-ignore
-function CollectionActions({ loading, followed, density }: {
-  loading: boolean;
-  followed: boolean;
-  density: c.ThemeDensity;
-}) {
+function CollectionActions({
+  followed,
+  density,
+  style,
+}: Pick<CollectionProps, "followed" | "style"> & { density: c.ThemeDensity }) {
   const { screen, component } = kit.usePartContext();
   const following = kit.useControlValue(`${screen}/${component}/follow`, followed);
-  const { words: { collection: words } } = kit.useWords(mediaWordsFor);
+  const loading = kit.useComponentState() === "loading";
+  const {
+    lang,
+    words: { collection: words },
+  } = kit.useWords(mediaWordsFor);
   const followIcon = following ? "check" : "plus";
   const followLabel = following ? words.following : words.follow;
-  return <kit.KitGrid {...{ density }}>
-    {loading ? <kit.KitSkeleton shape="control" label={words.playAll} inset="none" full /> :
-      <kit.KitAction part="play" action="press" label={words.playAll} icon="play" full />}
-    {loading ? <kit.KitSkeleton shape="control" label={followLabel} kind="secondary" inset="none" full /> :
-      <kit.KitAction part="follow" action="toggle" label={followLabel} icon={followIcon} kind="secondary" full />}
-  </kit.KitGrid>;
+  return (
+    <kit.KitActionFooter density={density}>
+      <kit.KitGrid density={density}>
+        <kit.KitAction
+          part={loading ? null : "play"}
+          action="press"
+          label={collectionPlayLabel(style, lang)}
+          icon="play"
+          full
+        />
+        <kit.KitAction
+          part={loading ? null : "follow"}
+          action="toggle"
+          label={followLabel}
+          icon={followIcon}
+          kind="secondary"
+          full
+        />
+      </kit.KitGrid>
+    </kit.KitActionFooter>
+  );
 }
 
-// prettier-ignore
-function CollectionDetails({ title, by, about, density, summary }: Pick<CollectionProps, "title" | "by" | "about"> & {
+function CollectionFigures({
+  input,
+  source,
+  density,
+  lang,
+  loading,
+}: {
+  input: CollectionProps;
+  source: unknown;
   density: c.ThemeDensity;
-  summary: string | undefined;
+  lang: string;
+  loading: boolean;
 }) {
-  return <>
-    <kit.KitContent lineRole="title" {...{ density }}>
-      <kit.KitText part="title" role="title" {...{ density }}>{title}</kit.KitText>
-      <kit.KitText part="by" role="label" tone="muted" {...{ density }}>{by}</kit.KitText>
-      {summary && <kit.KitText part="summary" role="label" tone="muted" {...{ density }}>{summary}</kit.KitText>}
-    </kit.KitContent>
-    {about && <kit.KitText part="about" role="body" {...{ density }}>{about}</kit.KitText>}
-  </>;
+  const totals = collectionFigures(source, lang, input.style);
+  const { rating, ratingCount, tags, shelfStatus } = collectionExtras(input, lang);
+  const align = input.style === "album" ? "center" : "start";
+  const figure = ({ value, unit }: { value: string; unit: string }, part: string | null = null) => (
+    <kit.KitFigure
+      {...{ density, align }}
+      value={{ text: value, compact: true, part, lines: 1 }}
+      unit={{ text: unit }}
+    />
+  );
+  return (
+    <>
+      {totals && (
+        <kit.KitRow part={loading ? null : "summary"} inline fitContent label="" density={density}>
+          <kit.KitGrid columns={totals.duration.length === 1 ? 2 : 3} density={density}>
+            {figure(totals.count)}
+            {totals.duration.map((duration, index) => (
+              <kit.KitContent key={index}>{figure(duration)}</kit.KitContent>
+            ))}
+          </kit.KitGrid>
+        </kit.KitRow>
+      )}
+      {(rating || ratingCount) && (
+        <kit.KitContent density={density}>
+          {rating && figure(rating, "rating")}
+          {ratingCount && figure(ratingCount, "rating_count")}
+        </kit.KitContent>
+      )}
+      <kit.KitLayoutText
+        {...{ density, align }}
+        line={{ text: tags, part: "tags", role: "caption", tone: "muted" }}
+      />
+      <kit.KitLayoutText
+        {...{ density, align }}
+        line={{ text: shelfStatus, part: "shelf_status", role: "caption" }}
+      />
+    </>
+  );
 }
 
 export function Collection(input: CollectionProps) {
-  const { title, by, about, photo, followed } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const { title, by, about, photo, followed, style } = input;
+  const density = kit.useKit().density;
   const aspect = kit.useVariant("aspect", meta.variants.aspect, input.aspect);
   const loading = kit.useComponentState() === "loading";
   const { controller } = kit.useKit();
   const { playlist } = kit.useDeviceData();
   const { lang } = kit.useWords(mediaWordsFor);
   const sibling = controller?.snapshotScreen().components.find(({ c }) => c === "Playlist");
-  const summary = collectionSummary(sibling ?? playlist?.[0], lang);
-  return (
-    <kit.KitCard part="root" padded {...{ density }}>
-      {loading ? (
+  const align = style === "album" ? "center" : "start";
+  const header = (
+    <kit.KitHeader
+      {...{ density, align }}
+      title={{ text: title, part: "title" }}
+      meta={{ text: by, part: "by", role: "caption" }}
+    />
+  );
+  const cover = (
+    <kit.KitPhoto part={loading ? null : "photo"} label={title} {...{ photo, aspect, loading }} />
+  );
+  const content = (
+    <>
+      {style === "book" ? (
         <>
-          <kit.KitSkeleton shape="media" inset="none" content={[]} {...{ aspect, density }} />
-          <kit.KitSkeleton
-            shape="figure"
-            inset="none"
-            {...{ density }}
-            content={[
-              ["title", title],
-              ["label", by],
-              ["label", summary],
-            ]}
-          />
-          {about && (
-            <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["body", about]]} />
-          )}
+          {header}
+          {cover}
         </>
       ) : (
         <>
-          <kit.KitPhoto part="photo" label={title} {...{ photo, aspect }} />
-          <CollectionDetails {...{ title, by, about, density, summary }} />
+          {cover}
+          {header}
         </>
       )}
-      <CollectionActions {...{ followed, density, loading }} />
+      <kit.KitLayoutText {...{ density, align }} line={{ text: about, part: "about" }} />
+      <CollectionFigures {...{ input, density, lang, loading }} source={sibling ?? playlist?.[0]} />
+      <CollectionActions {...{ followed, density, style }} />
+    </>
+  );
+  return (
+    <kit.KitCard part="root" padded density={density}>
+      <kit.KitState density={density} loading={content}>
+        {content}
+      </kit.KitState>
     </kit.KitCard>
   );
 }

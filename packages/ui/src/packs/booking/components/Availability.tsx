@@ -1,36 +1,34 @@
 // prettier-ignore
-import { KitCard, KitContent, KitGrid, KitInput, KitRow, KitText, KitTrail,
-  useControlValue, usePart, useVariant, useWords } from "../../../kit";
+import { KitCard, KitContent, KitGrid, KitInput, KitLayoutText, KitRow, KitRowGroup, KitText, KitTrail,
+  useControlValue, usePart, useKit, useWords } from "../../../kit";
 // prettier-ignore
-import { clock, isoDate, probesFor, variantProps, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
+import { clock, isoDate, probesFor, type CastLike, type Meta, type Probe, type Props, variantProps } from "../../../catalog";
 import { z } from "zod";
 import { bookingWordsFor } from "../lang";
 import {
+  availabilityDayLabel,
   availabilityDefaults,
   availabilityReading,
+  bookingWeekdays,
   breakLine,
-  breakRange,
   bufferLine,
   dateOverrideLine,
 } from "../copy";
+import { prompt } from "../../../entry/prompt-Availability.generated";
 // Core first: Field/time edits one time, not a seven-day working week with switches and breaks.
 export const meta = {
   id: "Availability",
   status: "ready",
   group: "input",
-  purpose: "Set the working week during which people can book.",
-  pick: "Seven weekdays with working switches, start and end times and breaks. Not one time field (Field), one day's free starts (Slots), staff shifts (Roster), or venue opening hours (Hours).",
-  writeHints: [
-    "Write each weekday once, mon through sun. End follows start; breaks need both endpoints inside working hours.",
-    'Leave density and detail null unless requested. For working times without visible breaks, use detail "brief" and keep the breaks in the data.',
-    'Use bufferMinutes only for requested gaps between bookings. Use dateOverrides only for specific dates the provider is not taking bookings (kind "blocked" or "holiday").',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Working hours stored on the device.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["break"] } },
   items: { key: "days", parts: ["root", "day", "toggle", "from", "to", "break"] },
   parts: ["root", "buffer", "overrides"],
@@ -39,7 +37,7 @@ export const meta = {
   read: (input, state, lang): string[] =>
     state === "filled" ? availabilityReading(input as z.output<typeof props>, lang) : [],
 } as const satisfies Meta;
-const weekdays = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
+const weekdays = bookingWeekdays;
 export const props = z
   .strictObject({
     ...variantProps(meta.variants),
@@ -109,7 +107,7 @@ export const examples = [
       ...(day === "mon" ? { breakFrom: "12:00", breakTo: "13:00" } : {}),
     })),
   },
-  { ...plantCareWeek, density: "compact" },
+  { ...plantCareWeek },
   { ...plantCareWeek, detail: "brief" },
   { ...plantCareWeek, bufferMinutes: 15, dateOverrides: [
     { date: "2026-12-24", kind: "blocked" }, { date: "2026-12-25", kind: "holiday" },
@@ -136,16 +134,16 @@ export const probes = [
     expectProps: { dateOverrides: [{ date: "2026-12-24", kind: "blocked" }, { date: "2026-12-25", kind: "holiday" }] } },
 ] satisfies Probe[];
 // prettier-ignore
-function DayFields({ day, enhanced }: { day: Props<typeof props, typeof meta>["days"][number]; enhanced: boolean }) {
-  const { lang, words: { weekdayNames } } = useWords();
-  const weekday = weekdayNames[weekdays.indexOf(day.day)]!;
-  const { availabilityLabels } = bookingWordsFor(lang);
+function DayFields({ day }: { day: Props<typeof props, typeof meta>["days"][number] }) {
+  const { lang, words: { availabilityLabels } } = useWords(bookingWordsFor);
   const toggle = usePart("toggle", false);
   const on = useControlValue(toggle.testID, day.on);
   return (
     <>
-      <KitRow inline label={weekday} trailing={<KitTrail kind="toggle" on={day.on} part="toggle" />}>
-        <KitText role={enhanced ? "heading" : "label"} part="day">{weekday}</KitText>
+      <KitRow inline label={availabilityDayLabel(day.day, true, lang)}
+        trailing={<KitTrail kind="toggle" on={day.on} part="toggle" />}>
+        <KitLayoutText line={{ text: availabilityDayLabel(day.day, on, lang),
+          part: "day", strong: on, tone: on ? "text" : "muted" }} />
       </KitRow>
       <KitGrid columns={2}>
         <KitRow inline label={availabilityLabels.from}>
@@ -158,10 +156,10 @@ function DayFields({ day, enhanced }: { day: Props<typeof props, typeof meta>["d
         </KitRow>
       </KitGrid>
       {day.breakFrom && day.breakTo && (
-        <KitText role="caption" tone="muted" part="break">
-          {enhanced ? <>{availabilityLabels.break} <KitText role="number" numberScale="compact" tabular part={null}>
-            {breakRange(day.breakFrom, day.breakTo)}</KitText></> : breakLine(day.breakFrom, day.breakTo, lang)}
-        </KitText>
+        <KitContent group="response">
+          <KitLayoutText line={{ text: breakLine(day.breakFrom, day.breakTo, lang),
+            part: "break", role: "caption", tone: "muted", tabular: true }} />
+        </KitContent>
       )}
     </>
   );
@@ -170,15 +168,17 @@ function DayFields({ day, enhanced }: { day: Props<typeof props, typeof meta>["d
 // prettier-ignore
 export function Availability(input: Props<typeof props, typeof meta>) {
   const { days, bufferMinutes, dateOverrides } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const { lang, words } = useWords(bookingWordsFor);
   return (
     <KitCard style="inset" part="root">
-      {days.map((day) => (
-        <KitRow key={day.id} item={day.id} label={day.day} density={density}>
-          <DayFields day={day} enhanced={bufferMinutes !== undefined || !!dateOverrides?.length} />
-        </KitRow>
-      ))}
+      <KitRowGroup density={density}>
+        {days.map((day) => (
+          <KitRow key={day.id} item={day.id} label={day.day} density={density}>
+            <DayFields day={day} />
+          </KitRow>
+        ))}
+      </KitRowGroup>
       {bufferMinutes !== undefined && <KitRow part={null} label={bufferLine(bufferMinutes, lang)} density={density}>
         <KitText part="buffer" role="label">{bufferLine(bufferMinutes, lang)}</KitText>
       </KitRow>}

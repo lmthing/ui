@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   components,
   createRegistry,
@@ -64,7 +64,7 @@ describe("Tasks contract and fallback", () => {
 describe("Tasks rendering and action gates", () => {
   it("keeps all item addresses under density, and adds the section without renumbering children", () => {
     const base = render();
-    expect([...render({ ...first, density: "compact" }).keys()]).toEqual([...base.keys()]);
+    expect([...render({ ...first }).keys()]).toEqual([...base.keys()]);
     expect(base.get(part("r1/root"))?.attributes).toContain('role="link"');
     expect(base.get(part("r1/done"))?.attributes).toContain('role="checkbox"');
     expect(base.has(part("r2/blockers"))).toBe(true);
@@ -126,4 +126,61 @@ it("shows completed example tasks in success without changing the filled example
   expect(success.has(part("r2/blockers"))).toBe(false);
   expect(success.get(part("r2/done"))?.attributes).toContain('aria-checked="true"');
   expect(render(first).get(part("r1/done"))?.attributes).toContain('aria-checked="false"');
+});
+
+it("validates optional recurrence and two bounded tags without changing legacy rows", () => {
+  const row = first.items[0]!;
+  const input = (overrides: object) => ({ items: [{ ...row, ...overrides }] });
+  for (const repeat of ["never", "daily", "weekly", "monthly"])
+    expect(props.parse(input({ repeat, tags: [" Balcony ", "Planning"] })).items[0]).toMatchObject({
+      repeat,
+      tags: ["Balcony", "Planning"],
+    });
+  for (const value of [{ repeat: "yearly" }, { tags: ["A", "B", "C"] }, { tags: ["x".repeat(21)] }])
+    expect(props.safeParse(input(value)).success).toBe(false);
+  for (const value of [{}, { repeat: "never", tags: [] }]) {
+    const drawn = render(input(value));
+    expect(drawn.has(part("r1/repeat"))).toBe(false);
+    expect(drawn.has(part("r1/tags"))).toBe(false);
+  }
+  expect(render({ ...first, style: null })).toEqual(render(first));
+});
+
+it("shows today's due rows at their original addresses without ignoring hidden blockers", () => {
+  vi.useFakeTimers({ toFake: ["Date"] }).setSystemTime(new Date(2026, 10, 21, 12));
+  try {
+    const input = {
+      style: "today",
+      items: [
+        first.items[0]!,
+        { ...first.items[1]!, due: "2026-11-21", repeat: "weekly", tags: ["Balcony", "Planning"] },
+        { ...first.items[0]!, taskRef: "ready", due: "2026-11-21", state: "done", goto: "ready" },
+      ],
+    };
+    const parsed = props.parse(input);
+    const drawn = render(input);
+    expect(drawn.get(part("today"))?.text).toEqual(["Due today"]);
+    expect(drawn.has(part("r1/root"))).toBe(false);
+    expect(drawn.get(part("r2/repeat"))?.text).toEqual(["Repeats weekly"]);
+    expect(drawn.get(part("r2/tags"))?.text).toEqual(["Balcony · Planning"]);
+    expect(drawn.get(part("r3/done"))?.attributes).toContain('aria-checked="true"');
+    const reading = readComponent(definition, input, "t1").join("\n");
+    expect(reading).toContain("Blocked by Check balcony light");
+    expect(reading).toContain("Repeats weekly · Balcony · Planning");
+    expect(reading).not.toContain("[t1/r1");
+    expect(reading).toContain("[t1/r3 press→ready]");
+    const check = (row: string) => ({ address: `t1/${row}/done`, action: "check" });
+    const defs = { Tasks: definition };
+    const todayScreen = { ...screen, components: [{ ...screen.components[0]!, ...input }] };
+    expect(planAct(todayScreen, defs, {}, [check("r1")]).ok).toBe(false);
+    expect(planAct(todayScreen, defs, {}, [check("r2")]).ok).toBe(false);
+    expect(planAct(todayScreen, defs, {}, [check("r3")]).ok).toBe(true);
+    vi.setSystemTime(new Date(2026, 10, 22, 12));
+    expect(props.parse(input)).toEqual(parsed);
+    expect(planAct(todayScreen, defs, {}, [check("r3")]).ok).toBe(false);
+    expect(render(input).get(part("empty"))?.text).toContain("No tasks due today");
+    expect(readComponent(definition, input, "t1").join("\n")).toContain("No tasks due today");
+  } finally {
+    vi.useRealTimers();
+  }
 });

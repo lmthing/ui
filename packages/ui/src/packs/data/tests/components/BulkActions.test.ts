@@ -82,7 +82,7 @@ describe("BulkActions contract, fallback and probes", () => {
   it("accepts four actions with the maximum label length, and reserves ids for the view", () => {
     const item = { icon: "check", label: "x".repeat(14), danger: false };
     const parsed = props.parse({ items: Array.from({ length: 4 }, () => item) });
-    expect(parsed).toMatchObject({ arrange: "grid", surface: "card" });
+    expect(parsed).toMatchObject({ arrange: "grid" });
     expect(stampItemIds(meta, parsed).items[3]).toEqual({ ...item, id: "r4" });
     expectTypeOf<Props<typeof props, typeof meta>["items"][number]["id"]>().toEqualTypeOf<string>();
   });
@@ -133,7 +133,7 @@ describe("BulkActions states and parts", () => {
       expect(active.get(at("r2/icon"))).toBeDefined();
       expect(active.get(at("r2/label"))?.text).toContain("Delete plants");
       const addresses = [...active.keys()].sort();
-      for (const change of [{ arrange: "rows" }, { surface: "outlined" }, { density: "compact" }])
+      for (const change of [{ arrange: "rows" }])
         expect([...draw(controller, { ...ledge, ...change }).keys()].sort()).toEqual(addresses);
       expect(draw(controller, ledge, "empty").size).toBe(0);
       expect(controller.press(at("all")).ok).toBe(true);

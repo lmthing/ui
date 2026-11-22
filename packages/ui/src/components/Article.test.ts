@@ -93,7 +93,7 @@ describe("Article fallback and contract", () => {
 describe("Article states and parts", () => {
   it.each([
     [{}, ["title", "by", "date", "reading_time", "photo"]],
-    [{ density: "compact" }, ["title", "by", "date", "reading_time", "photo"]],
+    [{}, ["title", "by", "date", "reading_time", "photo"]],
     [{ by: undefined, date: undefined, photo: undefined }, ["title", "reading_time"]],
     [{ detail: "brief" }, []],
   ] as const)("draws the expected header and stable body addresses for %j", (options, header) => {
@@ -103,7 +103,7 @@ describe("Article states and parts", () => {
       ["root", ...header, "body", "r1/root"].map((part) => `${prefix}/${part}`).sort(),
     );
     expect(parts.get(`${prefix}/r1/root`)?.attributes).toContain('role="link"');
-    expect(parts.get(`${prefix}/r1/root`)?.text).toEqual(["fern care schedule"]);
+    expect(parts.get(`${prefix}/r1/root`)?.children[0]?.text).toEqual(["fern care schedule"]);
     const text = visibleTexts(html);
     expect(text).toEqual(
       expect.arrayContaining(["Pick a spot", "indirect light", "“Check the pot before you water.”"]),
@@ -127,16 +127,15 @@ it.each(["comfortable", "compact"] as const)("scales prose on fixed papers at %s
   const papers = ["light", "sepia", "dark"] as const;
   const swatches = ["white", "beige", "black"] as const;
   const fonts = sizes.map((fontScale, index) => {
-    const html = renderInstance(
-      "Article",
-      { ...sample, paper: papers[index], fontScale, density },
-      "filled",
-      theme,
-    );
+    const html = renderInstance("Article", { ...sample, paper: papers[index], fontScale }, "filled", {
+      ...theme,
+      density,
+    });
     const parts = addressedElements(html);
     expect(parts.get(`${prefix}/root`)?.attributes).toContain(`kit-swatch-${swatches[index]}`);
     expect(parts.get(`${prefix}/r1/root`)?.attributes).toContain('role="link"');
-    return Number(/font-size:(\d+)px/.exec(styleAt(html, parts.get(`${prefix}/r1/root`)!))?.[1]);
+    const label = parts.get(`${prefix}/r1/root`)!.children[0]!;
+    return Number(/font-size:(\d+)px/.exec(styleAt(html, label))?.[1]);
   });
   expect(fonts[0]).toBeLessThan(fonts[1]!);
   expect(fonts[1]).toBeLessThan(fonts[2]!);

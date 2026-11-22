@@ -3,25 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { assignmentDue, assignmentSubjectTone, assignmentToday } from "../copy";
 import { learningWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Assignments.generated";
 
 // Core first: Checklist/default cannot track coursework due dates, submission state and grades.
 export const meta = {
   id: "Assignments",
   status: "ready",
   group: "data",
-  purpose: "Know which coursework is due, handed in or graded.",
-  pick: "Homework and coursework with subjects, due dates, hand-in status and grades. Not simple tasks to tick off (Checklist) or the outcome of one practice session (Result).",
-  writeHints: [
-    "Write a real due date and goto for each assignment. Status is todo, done (handed in) or graded. Write a grade only for a graded item. Never write overdue or a relative due label.",
-    'Use lead "none" only when asked to hide the subject icons; keep the subject names. For a request to hide icons only, output lead:"none", density:null, surface:null. Never write "card" or "comfortable" as inferred defaults.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Assignments are stored on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     lead: ["icon", "none"],
   },
   variantParts: { "lead.none": { hides: ["mark"] } },
@@ -121,17 +117,19 @@ export const probes = [
 type AssignmentsProps = c.Props<typeof props, typeof meta>;
 
 // prettier-ignore
-function AssignmentRow({ row, density, lead }: {
+function AssignmentRow({ row, density, lead, first }: {
   row: AssignmentsProps["items"][number];
   density: c.ThemeDensity;
   lead: AssignmentsProps["lead"];
+  first: boolean;
 }) {
   const scope = kit.usePartContext();
   const { lang, words: { assignments: words } } = kit.useWords(learningWordsFor);
   const { id, title, subject, status, due, grade, goto } = row;
   const graded = status === "graded", today = assignmentToday();
   const done = kit.useControlValue(`${scope.screen}/${scope.component}/${id}/done`, status === "done");
-  const mark = lead === "icon" ? <kit.KitIcon name="book_open" tone={assignmentSubjectTone(subject)} part="mark" /> : undefined;
+  const overdue = !graded && !done && due < today;
+  const mark = lead === "icon" ? <kit.KitIcon name="book_open" tone={overdue ? "muted" : assignmentSubjectTone(subject)} part="mark" /> : undefined;
   const control = graded
     ? grade === undefined ? <kit.KitTrail kind="check" part="done" tone="good" />
       : <kit.KitIcon name="check" tone="good" decorative />
@@ -139,7 +137,7 @@ function AssignmentRow({ row, density, lead }: {
   const statusTone = graded || done ? "good" : "muted";
   return (
     <kit.PartScope {...scope} item={id}>
-      <kit.KitContent density={density}>
+      <kit.KitContent density={density} rhythm="flush" group={first ? "content" : "response"}>
         <kit.KitRow
           part="root"
           label={title}
@@ -152,7 +150,7 @@ function AssignmentRow({ row, density, lead }: {
         >
           <kit.KitText role="body" part="title" density={density}>{title}</kit.KitText>
           <kit.KitText role="caption" part="subject" tone="muted" density={density}>{subject}</kit.KitText>
-          <kit.KitText role="caption" part="due" tone={!graded && !done && due < today ? "bad" : "muted"} density={density}>
+          <kit.KitText role="caption" part="due" tone={overdue ? "bad" : "muted"} density={density}>
             {assignmentDue(due, status, lang, today)}
           </kit.KitText>
         </kit.KitRow>
@@ -173,8 +171,8 @@ function AssignmentRow({ row, density, lead }: {
 }
 
 export function Assignments(input: AssignmentsProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const lead = kit.useVariant("lead", meta.variants.lead, input.lead);
   const state = kit.useComponentState();
   return (
@@ -182,7 +180,9 @@ export function Assignments(input: AssignmentsProps) {
       {state === "empty" ? (
         <kit.KitEmpty part="message" icon="book_open" decorativeIcon />
       ) : (
-        input.items.map((row) => <AssignmentRow key={row.id} {...{ row, density, lead }} />)
+        input.items.map((row, index) => (
+          <AssignmentRow key={row.id} {...{ row, density, lead }} first={index === 0} />
+        ))
       )}
     </kit.KitCard>
   );

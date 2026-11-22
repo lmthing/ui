@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { isWeb, YStack, XStack } from "tamagui";
-import { component, radius, space, type as typography } from "../../../catalog";
+import { component, radius, size, space, type as typography } from "../../../catalog";
 import { usePart } from "../../part";
 import { KitIcon, KitText } from "../text";
 import { PlotLabel } from "./PlotParts";
@@ -21,15 +21,15 @@ type RangeBandProps = {
 );
 
 function scale(min: number, max: number) {
-  const start = Math.min(min, max),
-    end = Math.max(min, max);
+  const start = Math.min(min, max);
+  const end = Math.max(min, max);
   return (n: number) =>
     !Number.isFinite(n) || end === start ? 0.5 : Math.min(1, Math.max(0, (n - start) / (end - start)));
 }
 
 function NormalBand({ low, high, loading }: { low: number; high: number; loading: boolean }) {
-  const lower = Math.min(low, high),
-    upper = Math.max(low, high);
+  const lower = Math.min(low, high);
+  const upper = Math.max(low, high);
   const collapsed = lower === upper;
   return (
     <YStack
@@ -101,6 +101,7 @@ function BandReading({ reading, loading }: { reading: ReactNode; loading: boolea
         <YStack
           position="absolute"
           width="100%"
+          maxWidth={size.control.md * 2}
           top={(typography.number.lineHeight - typography.number.size * 0.6) / 2}
           height={typography.number.size * 0.6}
           backgroundColor="$line"
@@ -145,9 +146,9 @@ export function KitRangeBand({
                 <PlotLabel label={props.label} tone="muted" loading={loading} />
               </YStack>
             </XStack>
-          ) : (
+          ) : reading !== null ? (
             <BandReading reading={reading} loading={loading} />
-          )}
+          ) : null}
           <RangeDrawing {...props} tone={tone} loading={loading} />
         </>
       )}

@@ -45,7 +45,6 @@ describe("Camera schema", () => {
     expect(props.parse({ hint: "  Point at the subject  " })).toEqual({
       kind: "photo",
       hint: "Point at the subject",
-      surface: "plain",
       still: true,
     });
   });
@@ -155,22 +154,6 @@ describe("Camera metadata and probes", () => {
 
 describe("Camera rendering and reading", () => {
   const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
-  it.each(["photo", "scan"] as const)("keeps the %s parts, read and action on a card", (kind) => {
-    const input = { kind, hint: "Aim at the subject" };
-    const card = { ...input, surface: "card" };
-    const plain = { ...input, surface: "plain" };
-    const html = renderInstance("Camera", card, "filled", theme);
-    expect(html).not.toBe(renderInstance("Camera", plain, "filled", theme));
-    expect([...html.matchAll(/data-testid="home\/c1\/([^"]+)"/g)].map((match) => match[1])).toEqual(
-      meta.parts,
-    );
-    expect(readComponent(components.Camera, card, "c1")).toEqual(
-      readComponent(components.Camera, plain, "c1"),
-    );
-    expect(affordancesOf(meta, props.parse(card), "c1")).toEqual(
-      affordancesOf(meta, props.parse(plain), "c1"),
-    );
-  });
   it.each(["photo", "scan"] as const)("draws and reads the %s shutter with unique parts", (kind) => {
     const input = { kind, hint: "Aim at the subject" };
     const html = renderInstance("Camera", input, "filled", theme);

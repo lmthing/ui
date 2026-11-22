@@ -24,7 +24,7 @@ describe("StoryViewer schema", () => {
           sticker: { kind: "poll", label: "x".repeat(40), options: ["x".repeat(20), "Fern"] },
         }),
       }),
-    ).toMatchObject({ author: "Maya", current: 0, paused: false, detail: "full", bleed: "edge" });
+    ).toMatchObject({ author: "Maya", current: 0, paused: false, detail: "full" });
   });
 
   it.each([
@@ -105,7 +105,7 @@ it("draws the current slide and hides only the reply dock for brief detail", () 
   expect(full.get(key("reply"))?.attributes).toContain('role="textbox"');
   expect(full.get(key("send"))?.attributes).toContain('role="button"');
   expect(drawn({ ...example, current: 1 }).has(key("sticker"))).toBe(false);
-  expect([...drawn({ ...example, aspect: "square", bleed: "inset" }).keys()]).toEqual([...full.keys()]);
+  expect([...drawn({ ...example, aspect: "square" }).keys()]).toEqual([...full.keys()]);
   expect([...drawn({ ...example, detail: "brief" }).keys()]).toEqual(
     [...full.keys()].filter((part) => !/\/(?:reply|send|react)$/.test(part)),
   );

@@ -4,7 +4,9 @@ import type { ControllerContext } from "../context";
 import type { createAct } from "../dispatch";
 import { offersAt } from "../offers";
 import { trackPrivateOperations, type PrivateResult } from "./operations";
-import { offered, partAddress, partSpec, privateProfile, type Operation } from "./target";
+import { createReveal } from "./reveal";
+import { createScannerBrightness } from "./scanner-brightness";
+export type { AuthenticateReveal } from "./reveal";
 
 export type { PrivateResult, PrivateStatus } from "./operations";
 type HostResult = PrivateResult | Promise<PrivateResult>;
@@ -147,7 +149,7 @@ function privateDispatch(ctx: ControllerContext, act: Act, ops: Operations, draf
   };
 }
 
-export function createPrivateValues(ctx: ControllerContext) {
+function createPrivateValues(ctx: ControllerContext) {
   const ops = trackPrivateOperations();
   const drafts = privateDrafts(ctx, ops.notify);
   const reconcile = () => {
@@ -193,5 +195,55 @@ export function createPrivateValues(ctx: ControllerContext) {
         return drafts.edit(ctx.relative(full), edit);
       },
     },
+  };
+}
+
+type Operation = "copy" | "verify";
+const partAddress = (id: string, part: string) => (part === "root" ? id : `${id}/${part}`);
+
+function partSpec(ctx: ControllerContext, address: string) {
+  const [id, ...parts] = address.split("/");
+  const entry = ctx.sourceOf(id!);
+  const spec = entry && ctx.defs[entry.c]?.meta.actions;
+  return { id: id!, part: parts.join("/") || "root", spec };
+}
+
+function privateProfile(ctx: ControllerContext, address: string) {
+  const { part, spec } = partSpec(ctx, address);
+  return Object.hasOwn(spec?.privateInput ?? {}, part) ? spec!.privateInput![part] : undefined;
+}
+
+function offered(ctx: ControllerContext, address: string, kind: Operation | "input") {
+  return (
+    ctx.options.interactive !== false &&
+    (!ctx.options.requireMounted || ctx.mounted.has(address)) &&
+    offersAt(ctx, address).some(({ hostSecret }) => hostSecret === kind)
+  );
+}
+
+export function createPrivateControls(ctx: ControllerContext) {
+  const reveal = createReveal(ctx);
+  const values = createPrivateValues(ctx);
+  const scanner = createScannerBrightness(ctx);
+  const hasScanner = ctx.screen.components.some(({ c }) => ctx.defs[c]?.meta.actions?.scannerBrightness);
+  return {
+    dispatch: (act: Act) => values.dispatch(reveal.dispatch(hasScanner ? scanner.dispatch(act) : act)),
+    view: { ...reveal.view, ...values.view, ...scanner.view },
+    reconcile() {
+      reveal.reconcile();
+      values.reconcile();
+      scanner.reconcile();
+    },
+    clear() {
+      reveal.clear();
+      values.clear();
+      scanner.clear();
+    },
+    revoke(address: string) {
+      reveal.revoke(address);
+      values.revoke(address);
+      scanner.revoke(address);
+    },
+    dispose: values.dispose,
   };
 }

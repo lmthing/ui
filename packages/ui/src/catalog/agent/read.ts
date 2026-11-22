@@ -1,4 +1,4 @@
-import { liveProps, parseControlProps } from "./live-props";
+import { liveProps, localValues, parseControlProps } from "./live-props";
 import { z } from "zod";
 import type { Definition } from "../probes";
 import type { StateName } from "../types";
@@ -28,7 +28,7 @@ import {
 import { driveTarget, projectDriveObservation, type CanDrive } from "./drives";
 import { captureDeviceTime, isDeviceDataVisible, projectDeviceData, type DeviceData } from "./device-data";
 import { withRecordScreen } from "./record-runtime";
-import { redactPrivateMarks } from "./action-input";
+import { redactPrivateMarks } from "./private-controls";
 import { hostActionPolicy, readHostOperations, type HostActionPolicy } from "./host-commands";
 
 type Props = Record<string, unknown>;
@@ -69,22 +69,23 @@ export function readComponent(
   const head = `${instance} ${meta.id}${variantsOf(schema, redactSecretProps(schema, props))}${state === "filled" ? "" : ` (${state})`}`;
   const draw = drawState(def.meta, props, get),
     session = sessionState(meta, props, get);
-  const offered = readOffers(def, migrated, instance, props, state, values, {
-    addresses,
-    deviceData,
-    target,
-    host,
-  });
+  const options = { addresses, deviceData, target, host };
+  const offered = readOffers(def, migrated, instance, props, state, values, options);
   const operations = readHostOperations(meta, props, instance, host, get("more") === true);
   const affordances = readAffordances(offered, values, def, props, instance, session);
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
-  if (state !== "filled" && !feedback && !(state === "success" && (draw || session || meta.readSuccess)))
-    return [
-      [head, ...(state === "empty" ? readDraw(draw) : []), ...affordances.map(formatAffordance)].join(" "),
-      ...operations,
-    ];
   const content = { props, validated, instance, values, state, session, draw };
-  const { key, own } = readContent(meta, schema, content, { lang, deviceData, currency });
+  const copy = { lang, deviceData, currency };
+  if (state !== "filled" && !feedback && !(state === "success" && (draw || session || meta.readSuccess))) {
+    const summary =
+      state === "empty"
+        ? readDraw(draw)
+        : state === "error" && meta.readError
+          ? readContent(meta, schema, content, copy).own
+          : [];
+    return [[head, ...summary, ...affordances.map(formatAffordance)].join(" "), ...operations];
+  }
+  const { key, own } = readContent(meta, schema, content, copy);
   const nested = visibleNestedProps(meta, props, get);
   return [
     ...readItems(meta, schema, nested, instance, key, head, own, affordances, get("more") === true, lang),
@@ -114,9 +115,7 @@ export function readScreen(
   const migrated = migrateScreen(screen, { variantOnly: true, includeSavedRing: true });
   deviceData = withRecordScreen(captureDeviceTime(defs, deviceData), migrated);
   const snapshot = projectDeviceData(deviceData, redactPrivateMarks(values).values);
-  const local = Object.fromEntries(
-    Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
-  );
+  const local = localValues(screen.id, values);
   const { values: safe, addresses } = redactPrivateMarks(local);
   const header = `screen ${screen.id}${screen.title ? ` ${quote(screen.title)}` : ""}`;
   const lines = migrated.components.flatMap(({ id, c, state, ...props }) => {

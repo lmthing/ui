@@ -1,6 +1,5 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePhoneController } from "./use-phone-controller";
-import { usePhoneLifecycle } from "./use-phone-lifecycle";
 import {
   emptyDeviceData,
   type ActStep,
@@ -26,8 +25,10 @@ import {
   type PlaybackResolver,
   type PrivateValuesHost,
   type SendHandler,
+  type ScreenController,
 } from "../interact";
 import type { PartRegistry } from "../registry";
+import type { MicCaptureAdapter } from "../interact/runtime";
 import { Screen, type RendererMap } from "./Screen";
 
 type AgentAccess = ReturnType<typeof createAgentAccess>;
@@ -35,6 +36,39 @@ declare global {
   interface Window {
     __lmthingUI?: AgentAccess;
   }
+}
+
+function usePhoneLifecycle(
+  controller: ScreenController,
+  agent: AgentAccess,
+  onReady: ((agent: AgentAccess) => void) | undefined,
+) {
+  const lifecycle = useMemo(() => ({ mounted: false }), [controller]);
+  const [, render] = useState(0);
+  useEffect(() => controller.store.subscribe(() => render((version) => version + 1)), [controller]);
+  useEffect(() => {
+    lifecycle.mounted = true;
+    controller.mount();
+    return () => {
+      if (typeof window !== "undefined" && window.__lmthingUI === agent) delete window.__lmthingUI;
+      lifecycle.mounted = false;
+      queueMicrotask(() => {
+        if (!lifecycle.mounted) controller.dispose();
+      });
+    };
+  }, [agent, controller, lifecycle]);
+  useEffect(() => {
+    // A layout effect can synchronously mount pinned descendants in a second commit.
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      if (typeof window !== "undefined") window.__lmthingUI = agent;
+      onReady?.(agent);
+    });
+    return () => {
+      active = false;
+    };
+  }, [agent, onReady]);
 }
 
 /** The host supplies local media resolution and callbacks; every input uses the same dispatcher. */
@@ -54,6 +88,7 @@ export type PhoneScreenProps = {
   resolvePhoto?: ((reference: string) => string | undefined) | undefined;
   resolveMedia?: ((reference: string) => string | undefined) | undefined;
   media?: MediaAdapter | undefined;
+  micCapture?: MicCaptureAdapter | undefined;
   resolvePlayback?: PlaybackResolver | undefined;
   attachments?: AttachmentHost | undefined;
   onReady?: ((agent: AgentAccess) => void) | undefined;

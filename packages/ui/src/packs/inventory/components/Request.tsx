@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { requestReading, requestStatusChoices } from "../copy";
 import { inventoryWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Request.generated";
 
 const statuses = ["new", "booked", "fixed"] as const;
 const updateLimit = 36;
@@ -12,17 +13,14 @@ export const meta = {
   id: "Request",
   status: "ready",
   group: "input",
-  purpose: "Review one rental repair and share its status and brief updates.",
-  pick: "One rental-repair summary with location, priority, status, assignee and short updates. Not a history-only view (Timeline), any queue, triage, conversation, work order or request workflow (requests pack), staff leave (Approval), or a general board (Board).",
-  writeHints: [
-    "Use new, booked or fixed. Include up to four short updates, each with a time label. Never write a second request, thread, workflow or separate work order.",
-    'Visibility is separate from whether the record has a photo. "Without the photo", "hide the photo" or "text only" must output "media":"none", even if you also output "photo":"local:1". Ordinary requests use "media":null. Set density and surface only when requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "A shared repair record connects the tenant and landlord; the landlord changes status.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], media: ["thumb", "none"] },
+  variants: { media: ["thumb", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
   parts: ["root", "title", "where", "photo", "priority", "status", "who", "updates", "update"],
   items: { key: "updates", parts: ["root", "time", "text"] },
@@ -131,55 +129,126 @@ type RequestWords = ReturnType<typeof inventoryWordsFor>["request"];
 type Density = c.ThemeDensity;
 type RequestStatus = RequestProps["status"];
 
-// prettier-ignore
-function Status({ status, editable, density, words }: { status: RequestStatus; editable: boolean; density: Density; words: RequestWords }) {
-  return <kit.KitContent group="response" density={density}>
-    <kit.KitText part={null} role="label" tone="muted" density={density}>{words.statusLabel}</kit.KitText>
-    {editable
-      ? <kit.KitTrack part="status" look="segments" role="radiogroup" label={words.statusLabel}>
-        {statuses.map((choice) => <kit.KitChip key={choice} item={null} look="segment" role="radio" value={choice} label={words.status[choice]} on={status === choice} />)}
-      </kit.KitTrack>
-      : <kit.KitText part="status" tone={status === "fixed" ? "good" : "text"} density={density}>{words.status[status]}</kit.KitText>}
-  </kit.KitContent>;
+function Status({
+  status,
+  editable,
+  density,
+  words,
+}: {
+  status: RequestStatus;
+  editable: boolean;
+  density: Density;
+  words: RequestWords;
+}) {
+  return (
+    <kit.KitContent group="response" density={density}>
+      <kit.KitText part={null} role="label" tone="muted" density={density}>
+        {words.statusLabel}
+      </kit.KitText>
+      {editable ? (
+        <kit.KitTrack part="status" look="segments" role="radiogroup" label={words.statusLabel}>
+          {statuses.map((choice) => (
+            <kit.KitChip
+              key={choice}
+              item={null}
+              look="segment"
+              role="radio"
+              value={choice}
+              label={words.status[choice]}
+              on={status === choice}
+            />
+          ))}
+        </kit.KitTrack>
+      ) : (
+        <kit.KitText part="status" tone={status === "fixed" ? "good" : "text"} density={density}>
+          {words.status[status]}
+        </kit.KitText>
+      )}
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
-function Updates({ rows, density, label }: { rows: RequestProps["updates"]; density: Density; label: string }) {
+function Updates({
+  rows,
+  density,
+  label,
+}: {
+  rows: RequestProps["updates"];
+  density: Density;
+  label: string;
+}) {
   if (!rows.length) return null;
-  return <kit.KitContent group="response" density={density}>
-    <kit.KitText part="updates" role="label" tone="muted" density={density}>{label}</kit.KitText>
-    {rows.map((row) => <kit.KitRow key={row.id} item={row.id} part="root" label={row.text} inline density={density}>
-      <kit.KitText part="time" role="label" tone="muted" density={density}>{row.time}</kit.KitText>
-      <kit.KitText part="text" density={density}>{row.text}</kit.KitText>
-    </kit.KitRow>)}
-  </kit.KitContent>;
+  return (
+    <kit.KitContent group="response" density={density}>
+      <kit.KitText part="updates" role="label" tone="muted" density={density}>
+        {label}
+      </kit.KitText>
+      {rows.map((row) => (
+        <kit.KitRow key={row.id} item={row.id} part="root" label={row.text} inline density={density}>
+          <kit.KitText part="time" role="label" tone="muted" density={density}>
+            {row.time}
+          </kit.KitText>
+          <kit.KitText part="text" density={density}>
+            {row.text}
+          </kit.KitText>
+        </kit.KitRow>
+      ))}
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
 export function Request(input: RequestProps) {
-  const { words: { request: words } } = kit.useWords(inventoryWordsFor);
+  const {
+    words: { request: words },
+  } = kit.useWords(inventoryWordsFor);
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const live = kit.useLiveControls(meta, input);
   const success = state === "success";
-  const status = success ? "fixed" : live.status as RequestStatus;
-  const photo = media === "thumb" && input.photo
-    ? <kit.KitPhoto part="photo" shape="thumb" photo={input.photo} label={words.photo} /> : undefined;
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    <kit.KitContent lead={photo} leadingAlign="row" density={density}>
-      <kit.KitRow part={null} inline surface="plain" label={input.title} density={density}>
-        <kit.KitText part="title" role={density === "compact" ? "title" : "heading"} density={density}>{input.title}</kit.KitText>
-        <kit.KitText part="where" role="label" tone="muted" density={density}>{input.where}</kit.KitText>
-      </kit.KitRow>
-      <kit.KitText part="priority" role="label" tone={status !== "fixed" && input.priority === "urgent" ? "bad" : "muted"} density={density}>{words.priority[input.priority]}</kit.KitText>
-      {input.who && <kit.KitText part="who" role="label" tone="muted" density={density}>{words.assignee(input.who)}</kit.KitText>}
-    </kit.KitContent>
-    <Status {...{ status, words, density }} editable={!success && live.may_change_status === true} />
-    <Updates rows={input.updates} label={words.updates} density={density} />
-    {!success && <kit.KitContent group={input.updates.length ? "response" : "content"} density={density}>
-      <kit.KitInput part="update" label={words.update} hint={words.update} compact={density === "compact"} />
-    </kit.KitContent>}
-  </kit.KitCard>;
+  const status = success ? "fixed" : (live.status as RequestStatus);
+  const photo =
+    media === "thumb" && input.photo ? (
+      <kit.KitPhoto part="photo" shape="thumb" photo={input.photo} label={words.photo} />
+    ) : undefined;
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      <kit.KitContent lead={photo} leadingAlign="row" density={density}>
+        <kit.KitRow part={null} inline surface="plain" label={input.title} density={density}>
+          <kit.KitText part="title" role={density === "compact" ? "title" : "heading"} density={density}>
+            {input.title}
+          </kit.KitText>
+          <kit.KitText part="where" role="label" tone="muted" density={density}>
+            {input.where}
+          </kit.KitText>
+        </kit.KitRow>
+        <kit.KitText
+          part="priority"
+          role="label"
+          tone={status !== "fixed" && input.priority === "urgent" ? "bad" : "muted"}
+          density={density}
+        >
+          {words.priority[input.priority]}
+        </kit.KitText>
+        {input.who && (
+          <kit.KitText part="who" role="label" tone="muted" density={density}>
+            {words.assignee(input.who)}
+          </kit.KitText>
+        )}
+      </kit.KitContent>
+      <Status {...{ status, words, density }} editable={!success && live.may_change_status === true} />
+      <Updates rows={input.updates} label={words.updates} density={density} />
+      {!success && (
+        <kit.KitContent group={input.updates.length ? "response" : "content"} density={density}>
+          <kit.KitInput
+            part="update"
+            label={words.update}
+            hint={words.update}
+            compact={density === "compact"}
+          />
+        </kit.KitContent>
+      )}
+    </kit.KitCard>
+  );
 }

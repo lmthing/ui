@@ -1,0 +1,22 @@
+export const words = {
+  modQueue: {
+    heading: "Moderation queue",
+    counts: (count: string) => `${count} pending`,
+    countUnit: "pending",
+    kind: { join: "Join request", flagged_post: "Flagged post", flagged_comment: "Flagged comment" },
+    status: { pending: "Pending", approved: "Approved", declined: "Declined", removed: "Removed" },
+    approve: "Approve",
+    keep: "Keep visible",
+    decline: "Decline",
+    remove: "Remove",
+    reason: "Rule reason",
+    recordedReason: (rule: string) => `Recorded reason: ${rule}`,
+    selectedReason: (rule: string) => `Selected reason: ${rule}`,
+    submitted: (date: string, time: string) => `${date}, ${time}`,
+    empty: "Nothing is waiting for review.",
+    saved: "Decision saved.",
+    error: "Could not save the decision. The item may already be resolved.",
+    pending: "Saving decision…",
+    separator: " · ",
+  },
+};

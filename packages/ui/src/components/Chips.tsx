@@ -14,15 +14,14 @@ import {
   type Props,
 } from "../catalog";
 import { KitChip, KitTrack } from "../kit";
+import { prompt } from "../entry/prompt-Chips.generated";
 
 export const meta = {
   id: "Chips",
   group: "input",
-  purpose: "Filter things or pick one value from a few short options.",
-  pick: "Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).",
-  writeHints: [
-    'A request to hide or turn off existing icons means "lead":"none". Keep the icons supplied by the caller in the item icon fields; lead hides them. Otherwise output lead:null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 1,
   tier: "phone",
@@ -94,7 +93,9 @@ export const examples = [
 
 const { choose, write, read } = probesFor("Chips");
 export const probes = [
-  choose("Show plants in only the rooms I pick"),
+  choose(
+    "Narrow my plants with Kitchen, Bathroom and Living room in one row. Let me tap the names directly and leave more than one room selected.",
+  ),
   choose("Switch between the upcoming walks view and the completed walks view", "Segmented"),
   write("Let me choose a walk length: 30 min selected, 45 min or 60 min"),
   {

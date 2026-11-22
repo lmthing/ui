@@ -21,7 +21,7 @@ import {
   type Definition,
 } from "@lmthing/ui/catalog";
 
-const nearest = {
+const scaffoldNearest = {
   Roster: "Timeline",
   Shift: "Card",
   OpenShift: "Checklist",
@@ -29,6 +29,13 @@ const nearest = {
   Timesheet: "Bars",
   Approval: "Checklist",
   Handover: "Composer",
+} as const;
+const nearest = {
+  ...scaffoldNearest,
+  LeaveBalance: "Progress",
+  PayStub: "Amount",
+  TeamDirectory: "People",
+  TeamNotice: "Banner",
 } as const;
 const ids = Object.keys(nearest) as (keyof typeof nearest)[];
 const defs: Record<string, Definition> = components;
@@ -103,7 +110,7 @@ describe("team pack scaffold", () => {
       .split("\n")
       .map((line) => JSON.parse(line) as { id: string; c: string } & Record<string, unknown>);
     expect(new Set(lines.map(({ id }) => id)).size).toBe(lines.length);
-    expect(lines.map(({ c }) => c)).toEqual(expect.arrayContaining(ids));
+    expect(lines.map(({ c }) => c)).toEqual(expect.arrayContaining(Object.keys(scaffoldNearest)));
     for (const { id, c, ...input } of lines) {
       const resolved = scoped.resolve(c);
       expect(resolved, id).toBe(c);
@@ -190,7 +197,8 @@ describe("draft schema boundaries", () => {
     Handover: [{ notes: [] }, { notes: [{ ...Handover.examples[0]!.notes[0], text: "a".repeat(161) }] }],
   };
 
-  it.each(ids)("%s rejects invalid boundaries and raw presentation keys while draft", (id) => {
+  const scaffoldIds = Object.keys(scaffoldNearest) as (keyof typeof scaffoldNearest)[];
+  it.each(scaffoldIds)("%s rejects invalid boundaries and raw presentation keys while draft", (id) => {
     const def = defs[id]!;
     if (def.meta.status !== "draft") return;
     for (const input of invalid[id]) expect(def.props.safeParse(input).success).toBe(false);

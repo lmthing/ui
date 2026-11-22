@@ -3,7 +3,6 @@ import {
   affordancesOf,
   components,
   createRegistry,
-  emptyLine,
   packReady,
   placeholderTitle,
   readComponent,
@@ -41,7 +40,7 @@ describe("Approval schema and boundaries", () => {
       photo: "local:1",
     };
     const parsed = props.parse({ requests: Array.from({ length: 5 }, () => request) });
-    expect(parsed).toMatchObject({ lead: "avatar", surface: "card" });
+    expect(parsed).toMatchObject({ lead: "avatar" });
     expect(parsed.requests).toEqual(Array.from({ length: 5 }, () => ({ ...request, from })));
     expect(stampItemIds(meta, parsed).requests).toMatchObject(
       ["r1", "r2", "r3", "r4", "r5"].map((id) => ({ id })),
@@ -113,7 +112,7 @@ describe("Approval fallback and metadata", () => {
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.realPath).not.toBe("");
     expect(meta.pick).toContain("Checklist");
-    expect(probes).toMatchObject([
+    expect(probes.slice(0, 5)).toMatchObject([
       { kind: "choose", expect: "Approval" },
       { kind: "choose", expect: "Checklist" },
       { kind: "write", expect: "Approval" },
@@ -131,8 +130,8 @@ describe("Approval parts, reading and variants", () => {
     expect(parts.has("home/c1/root")).toBe(true);
     expect(parts.has("home/c1/message")).toBe(false);
     for (const part of meta.items.parts) {
-      expect(parts.has(`home/c1/r1/${part}`)).toBe(part !== "amount");
-      expect(parts.has(`home/c1/r2/${part}`)).toBe(part !== "dates");
+      expect(parts.has(`home/c1/r1/${part}`)).toBe(!["amount", "status"].includes(part));
+      expect(parts.has(`home/c1/r2/${part}`)).toBe(!["dates", "status"].includes(part));
     }
     expect(parts.get("home/c1/r1/photo")?.attributes).toContain('aria-label="Anna"');
     expect(parts.get("home/c1/r1/kind")?.text).toEqual([words.kinds.time_off]);
@@ -148,8 +147,8 @@ describe("Approval parts, reading and variants", () => {
   });
   it("keeps addresses for finish axes; turning portraits off hides only their parts", () => {
     const addresses = [...view(full).keys()];
-    expect([...view({ ...full, density: "compact" }).keys()]).toEqual(addresses);
-    expect([...view({ ...full, surface: "outlined" }).keys()]).toEqual(addresses);
+    expect([...view({ ...full }).keys()]).toEqual(addresses);
+    expect([...view({ ...full }).keys()]).toEqual(addresses);
     const noPortraits = { ...full, lead: "none" };
     expect([...view(noPortraits).keys()]).toEqual(addresses.filter((part) => !part.endsWith("/photo")));
     expect(props.parse(noPortraits).requests.map((item) => item.photo)).toEqual(
@@ -162,7 +161,9 @@ describe("Approval states and dispatch", () => {
   it.each(["empty", "success"] as const)("shows only feedback and offers no stale actions in %s", (state) => {
     const parts = view(full, state);
     expect([...parts.keys()]).toEqual(["home/c1/root", "home/c1/message"]);
-    expect(parts.get("home/c1/message")?.text).toEqual([state === "success" ? words.success : emptyLine()]);
+    expect(parts.get("home/c1/message")?.text).toEqual([
+      state === "success" ? words.success : words.queueEmpty,
+    ]);
     expect(readComponent(def, full, "a1", state)).toEqual([`a1 Approval (${state})`]);
     expect(affordancesOf(meta, stampItemIds(meta, props.parse(full)), "a1", {}, state)).toEqual([]);
     const screen = { id: "home", components: [{ ...full, id: "a1", c: "Approval", state }] };
@@ -192,4 +193,24 @@ describe("Approval states and dispatch", () => {
     expect(onAction).toHaveBeenCalledTimes(2);
     runtime.dispose();
   });
+});
+
+it("labels shift claims and leaves requester decisions read-only at their original addresses", () => {
+  const own = examples[2]!;
+  const parts = view(own);
+  expect(parts.get("home/c1/r1/kind")?.text).toEqual(["Shift claim"]);
+  expect(parts.get("home/c1/r1/status")?.text).toEqual(["Pending"]);
+  expect(parts.get("home/c1/r2/status")?.text).toEqual(["Approved"]);
+  expect(parts.has("home/c1/r1/approve")).toBe(false);
+  expect(parts.has("home/c1/r1/decline")).toBe(false);
+  const reading = readComponent(def, own, "a1").join("\n");
+  expect(reading).toContain("Shift claim · Pending");
+  expect(reading).not.toContain(" press");
+  const runtime = createScreenController({
+    screen: { id: "home", components: [{ ...own, id: "a1", c: "Approval" }] },
+    defs: components,
+  });
+  expect(runtime.press("a1/r1/approve").ok).toBe(false);
+  expect(runtime.press("a1/r1/decline").ok).toBe(false);
+  runtime.dispose();
 });

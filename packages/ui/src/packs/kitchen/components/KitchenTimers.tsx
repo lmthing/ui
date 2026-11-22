@@ -7,11 +7,11 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import {
   KitAction,
@@ -36,18 +36,16 @@ import {
   kitchenTimerReading,
 } from "../copy";
 import { kitchenWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-KitchenTimers.generated";
 
 // Core first: Timer/down cannot run independently named concurrent countdowns with add-minute controls.
 export const meta = {
   id: "KitchenTimers",
   status: "ready",
   group: "action",
-  purpose: "Run several named cooking timers at once and adjust each independently.",
-  pick: "Two or more named cooking countdowns running independently, each with its own start, pause and add-a-minute controls. Not a single countdown (Timer) or a timed recipe instruction (CookSteps).",
-  writeHints: [
-    "Write each timer's label and seed seconds, 1–14400. Never write remaining, finished, running, progress or sorted order; the device computes them.",
-    'If asked to stack timers one per row instead of side by side, set arrange to "rows"; otherwise leave arrange null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
@@ -115,12 +113,24 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
         ],
   };
 }
-// prettier-ignore
-const supper = { timers: [{ label: "Béchamel", seconds: 372 }, { label: "Oven", seconds: 1120 }] } satisfies z.input<typeof props>;
-// prettier-ignore
-const longTimers = { timers: [{ label: "Stock", seconds: 3599 }, { label: "Slow roast", seconds: 14400 }] } satisfies z.input<typeof props>;
-// prettier-ignore
-export const examples = [supper, { ...supper, arrange: "rows" }, { ...longTimers, arrange: "rows" }, longTimers] satisfies z.input<typeof props>[];
+const supper = {
+  timers: [
+    { label: "Béchamel", seconds: 372 },
+    { label: "Oven", seconds: 1120 },
+  ],
+} satisfies z.input<typeof props>;
+const longTimers = {
+  timers: [
+    { label: "Stock", seconds: 3599 },
+    { label: "Slow roast", seconds: 14400 },
+  ],
+} satisfies z.input<typeof props>;
+export const examples = [
+  supper,
+  { ...supper, arrange: "rows" },
+  { ...longTimers, arrange: "rows" },
+  longTimers,
+] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("KitchenTimers");
 export const probes = [
   choose("Run separate pasta and oven countdowns at the same time, each with pause and add a minute"),
@@ -137,7 +147,28 @@ export const probes = [
 ] satisfies Probe[];
 
 type Timer = Props<typeof props, typeof meta>["timers"][number];
-// prettier-ignore
+type CountdownRingProps = { timer: Timer; stacked: boolean; remaining: number; clock: string };
+
+function CountdownRing({ timer, stacked, remaining, clock }: CountdownRingProps) {
+  const bigClock = !stacked && remaining < kitchenTimerMinute * kitchenTimerMinute;
+  return (
+    <KitRing part="ring" value={timer.running ? remaining : 0} of={timer.seconds}>
+      <KitText
+        part={null}
+        role={bigClock ? "title" : "number"}
+        numberScale="compact"
+        emphasis={bigClock ? "normal" : "hero"}
+        density={stacked ? undefined : "comfortable"}
+        tabular
+        align="center"
+        lines={1}
+      >
+        {clock}
+      </KitText>
+    </KitRing>
+  );
+}
+
 function CountdownTile({ timer, stacked }: { timer: Timer; stacked: boolean }) {
   const {
     lang,
@@ -146,34 +177,51 @@ function CountdownTile({ timer, stacked }: { timer: Timer; stacked: boolean }) {
   const remaining = countdownOf(timer);
   const control = kitchenTimerControl(timer);
   const clock = clockLine(remaining, lang);
-  const bigClock = !stacked && remaining < kitchenTimerMinute * kitchenTimerMinute;
-  const label = <KitText part="label" role="label" tone="muted" align="center">{timer.label}</KitText>;
-  const ring = (
-    <KitRing part="ring" value={timer.running ? remaining : 0} of={timer.seconds}>
-      <KitText part={null} role={bigClock ? "title" : "number"} numberScale="compact"
-        emphasis={bigClock ? "normal" : "hero"} density={stacked ? undefined : "comfortable"}
-        tabular align="center" lines={1}>{clock}</KitText>
-    </KitRing>
+  const label = (
+    <KitText part="label" role="label" tone="muted" align="center">
+      {timer.label}
+    </KitText>
   );
-  const actions = <>
-    <KitAction part="root" label={labels[control]} action={control === "pause" ? "stop" : "start"}
-      kind="secondary" disabled={control === "finished"} full />
-    <KitAction part="more" label={kitchenTimerMore(lang)} action="press" kind="quiet"
-      disabled={remaining >= kitchenTimerMax} full />
-  </>;
+  const ring = <CountdownRing {...{ timer, stacked, remaining, clock }} />;
+  const actions = (
+    <>
+      <KitAction
+        part="root"
+        label={labels[control]}
+        action={control === "pause" ? "stop" : "start"}
+        kind="secondary"
+        disabled={control === "finished"}
+        full
+      />
+      <KitAction
+        part="more"
+        label={kitchenTimerMore(lang)}
+        action="press"
+        kind="quiet"
+        disabled={remaining >= kitchenTimerMax}
+        full
+      />
+    </>
+  );
   return (
     <KitRow item={timer.id} part="tile" label={timer.label} inset="none">
       {stacked ? (
         <KitContent align="center">
           {label}
-          <KitContent density="compact" leadingAlign="row"
-            lead={<KitContent>{actions}</KitContent>}>
-            <KitRow part="seconds" label={clock} inline>{ring}</KitRow>
+          <KitContent density="compact" leadingAlign="row" lead={<KitContent>{actions}</KitContent>}>
+            <KitRow part="seconds" label={clock} inline>
+              {ring}
+            </KitRow>
           </KitContent>
         </KitContent>
       ) : (
-        <KitContent>{label}<KitRow part="seconds" label={clock} inline>{ring}</KitRow>
-          <KitContent group="response">{actions}</KitContent></KitContent>
+        <KitContent>
+          {label}
+          <KitRow part="seconds" label={clock} inline>
+            {ring}
+          </KitRow>
+          <KitContent group="response">{actions}</KitContent>
+        </KitContent>
       )}
     </KitRow>
   );

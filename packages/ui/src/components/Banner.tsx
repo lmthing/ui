@@ -7,29 +7,27 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
 import { z } from "zod";
 import { KitBlock, KitIcon, KitText } from "../kit";
+import { prompt } from "../entry/prompt-Banner.generated";
 
 export const meta = {
   id: "Banner",
   group: "content",
-  purpose: "Something important to notice now, with an optional link to act.",
-  pick: "An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).",
-  writeHints: [
-    'Warnings use the default surface and tone: set both fields to null unless a different finish is explicitly requested. To hide the icon, set only media to "none"; otherwise use null for media and put a custom icon in icon.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "top",
   weight: 2,
   tier: "phone",
   realPath: "A current status message and optional navigation link in the on-device app.",
   variants: {
-    surface: ["tinted", "outlined"],
     media: ["icon", "none"],
     tone: ["warn", "neutral", "good", "bad"],
   },
@@ -69,7 +67,7 @@ export const examples = [
     icon: "alert",
     goto: "walk_details",
   },
-  { text: "Booking closes at noon", surface: "outlined" },
+  { text: "Booking closes at noon" },
   { text: "Booking closes at noon" },
   { text: "Walk status updated", tone: "neutral" },
   { text: "Walk status updated" },
@@ -92,7 +90,8 @@ export const probes = [
   read("Open the banner", { address: "b1", action: "press" }, 1),
 ] satisfies Probe[];
 
-export function Banner({ text, icon, tone, goto, surface, media }: Props<typeof props, typeof meta>) {
+export function Banner({ text, icon, tone, goto, media }: Props<typeof props, typeof meta>) {
+  const surface = "tinted";
   const names = { neutral: "info", good: "circle_check", warn: "alert", bad: "close" } as const;
   const name = icon ?? names[tone];
   return (

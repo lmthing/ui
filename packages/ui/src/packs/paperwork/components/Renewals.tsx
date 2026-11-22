@@ -4,25 +4,22 @@ import * as kit from "../../../kit";
 import { actionDate, renewalDetails } from "../copy";
 import { paperworkWordsFor } from "../lang";
 import { seedDate, seedRows } from "../seeds";
+import { prompt } from "../../../entry/prompt-Renewals.generated";
 
 // Core first: Calendar/week shows marked days, not distinct notice and end dates with a dated completion.
 export const meta = {
   id: "Renewals",
   status: "ready",
   group: "data",
-  purpose: "Act on obligations before their notice or expiry dates.",
-  pick: "Act on administrative renewals with separate notice and end dates, dated completion and local reminders. Not dates alone (Calendar), filing expiring documents (Documents), recurring payments (Bills), routine care (CareSchedule) or purchase warranties (Warranties).",
-  writeHints: [
-    "Use actual dates in YYYY-MM-DD. noticeBy cannot be later than due. Omit completedOn unless a real completion date was supplied. Never write derived warnings or completion flags.",
-    'Use style "cards" only for separate cards naming both dates; otherwise leave style null. Leave density and surface null unless requested.',
-    'Exact defaults are density:null, surface:null, detail:null. A request for shorter rows sets only density:"compact"; never write detail:"full". Only a request to hide the owner sets detail:"brief"; keep both dates and leave unrequested axes null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath:
     "Deadline and completion dates stay on device and local reminders need permission; the renewal itself happens outside the tracker.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["for"] } },
   parts: ["root", "empty", "success"],
   items: {
@@ -110,8 +107,6 @@ export const examples = [
   },
   {
     style: "cards",
-    density: "compact",
-    surface: "plain",
     items: [
       { title: "Trot liability cover", for: "Alex", noticeBy: "2027-01-12", due: "2027-02-01", completedOn: "2027-01-09" },
     ],
@@ -129,12 +124,6 @@ export const probes = [
   ),
   {
     ...write(
-      "Show the greenhouse permit renewal, notice on 2027-03-10 and end date 2027-04-10. Use shorter rows with less vertical spacing so more deadlines fit on screen.",
-    ),
-    variant: { axis: "density", value: "compact" },
-  },
-  {
-    ...write(
       "Track the greenhouse permit renewal. Notice is 2027-03-10 and it ends 2027-04-10. Hide the owner and still show both dates.",
     ),
     variant: { axis: "detail", value: "brief" },
@@ -146,49 +135,50 @@ type RenewalsProps = c.Props<typeof props, typeof meta>;
 type RenewalRow = RenewalsProps["items"][number];
 
 // prettier-ignore
-function RenewalItem({ row, density, surface, now, success }: {
-  row: RenewalRow; density: c.ThemeDensity; surface: "card" | "plain" | undefined; now: Date; success: boolean;
+function RenewalItem({ row, density, surface, now, success, status }: {
+  row: RenewalRow; density: c.ThemeDensity; surface?: "card" | undefined; now: Date;
+  success: boolean; status?: string | undefined;
 }) {
   const { lang, words: { renewals: words } } = kit.useWords(paperworkWordsFor);
   const loading = kit.useComponentState() === "loading", done = success || complete(row);
   const details = renewalDetails({ ...row, complete: done }, now, lang);
-  return <kit.KitRow item={row.id} part={null} label="" {...{ density, surface }}
-    leading={loading ? <kit.KitSkeleton shape="control" kind="quiet" /> :
-      <kit.KitCheck part="done" label={words.check(row.title)} done={done} />}
-    trailing={loading ? <>
-      {!done && <kit.KitSkeleton shape="control" kind="quiet" />}
-      <kit.KitSkeleton shape="control" kind="quiet" />
-    </> : <>
-      {!done && !success && <kit.KitAction kind="quiet" part="remind" icon="bell" a11y={words.remind(row.title)} />}
-      <kit.KitAction kind="quiet" part="remove" icon="close" a11y={words.remove(row.title)} />
-    </>}>
-    <kit.KitRow part={loading ? null : "root"} inline surface="plain" goto={loading ? undefined : row.goto}
-      label={loading ? "" : row.title} density={density}
-      trailing={row.goto && !loading ? <kit.KitIcon name="chevron_right" scale="sm" tone="muted" decorative /> : undefined}>
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }}
-        content={[["body", row.title], ["caption", row.for], ...details.map(({ line }): ["caption", string] => ["caption", line])]} /> : <>
-        <kit.KitText part="title" density={density}>{row.title}</kit.KitText>
-        {row.for && <kit.KitText part="for" role="caption" tone="muted">{row.for}</kit.KitText>}
-        {details.map(({ part, line, tone }) => <kit.KitText key={part} {...{ part, tone }} role="caption">{line}</kit.KitText>)}
-      </>}
-    </kit.KitRow>
+  return <kit.KitRow part={null} label="" inline={!surface} {...{ density, surface }}>
+    <kit.KitContent {...{ density }}>
+      {status && <kit.KitText part="success" role="label" tone="good" density={density}>{status}</kit.KitText>}
+      <kit.KitRow item={row.id} part={null} label="" inline surface="plain" {...{ density }}
+        leading={loading ? <kit.KitSkeleton shape="control" kind="quiet" /> :
+          <kit.KitCheck part="done" label={words.check(row.title)} done={done} />}
+        trailing={<>
+          {!done && (loading ? <kit.KitSkeleton shape="control" kind="quiet" /> :
+            <kit.KitAction kind="quiet" part="remind" icon="bell" a11y={words.remind(row.title)} />)}
+          {loading ? <kit.KitSkeleton shape="control" kind="quiet" /> :
+            <kit.KitAction kind="quiet" part="remove" icon="close" a11y={words.remove(row.title)} />}
+        </>}>
+        <kit.KitRow part={loading ? null : "root"} inline surface="plain" goto={loading ? undefined : row.goto}
+          label={loading ? "" : row.title} density={density}
+          trailing={row.goto && <kit.KitIcon name="chevron_right" scale="sm" decorative loading={loading} />}>
+          <kit.KitLayoutText line={{ part: "title", text: row.title }} {...{ density }} />
+          <kit.KitLayoutText line={{ part: "for", text: row.for, role: "caption", tone: "muted" }} {...{ density }} />
+          {details.map(({ part, line, tone }) => <kit.KitLayoutText key={part}
+            line={{ part, text: line, role: "caption", tone }} {...{ density }} />)}
+        </kit.KitRow>
+      </kit.KitRow>
+    </kit.KitContent>
   </kit.KitRow>;
 }
 
 // prettier-ignore
-export function Renewals({ items, style, surface, density: requested }: RenewalsProps) {
-  const density = kit.useVariant("density", meta.variants.density, requested);
+export function Renewals({ items, style }: RenewalsProps) {
+  const surface = "card";
+  const density = kit.useKit().density;
   const state = kit.useComponentState(), { words } = kit.useWords(paperworkWordsFor);
   const success = state === "success", cards = style === "cards", now = new Date();
-  const loading = state === "loading";
-  return <kit.KitCard style={cards ? "cards" : "inset"} {...{ surface, density }}>
-    {state === "empty" ? <kit.KitEmpty part="empty" icon="calendar" decorativeIcon /> : <>
-      {!loading && (success || items.every(complete)) && <kit.KitRow part={null} label="" surface="plain">
-        <kit.KitText part="success" role="label" tone="good">{words.renewals.success}</kit.KitText>
-      </kit.KitRow>}
-      <kit.KitGrid list arrange="rows" listRowGap={cards ? "cards" : undefined} density={density}>
-        {items.map((row) => <RenewalItem key={row.id} {...{ row, density, now, success }} surface={cards ? surface : undefined} />)}
-      </kit.KitGrid>
-    </>}
+  const allDone = state !== "loading" && (success || items.every(complete));
+  return <kit.KitCard style={cards ? "cards" : "inset"} padded={!cards && state !== "empty"} {...{ surface, density }}>
+    {state === "empty" ? <kit.KitEmpty part="empty" icon="calendar" decorativeIcon /> :
+      <kit.KitGrid list arrange="rows" listRowGap="cards" density={density}>
+        {items.map((row, index) => <RenewalItem key={row.id} {...{ row, density, now, success }}
+          surface={cards ? surface : undefined} status={index === 0 && allDone ? words.renewals.success : undefined} />)}
+      </kit.KitGrid>}
   </kit.KitCard>;
 }

@@ -3,25 +3,22 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { fixtureCopy, fixtureReading } from "../copy";
 import { sportsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Fixtures.generated";
 
 // Core first: Calendar/week shows dates, not opponents, venues and results or a full next-match card.
 export const meta = {
   id: "Fixtures",
   status: "ready",
   group: "data",
-  purpose: "See who we play next and how recent matches ended.",
-  pick: "A team’s fixture schedule and results: opponents, venues and home or away, or one next-match card with meet time and kit. Not dates alone (Calendar), live scoring (Scoreboard), an appointment (Appointment) or a community event (EventCard).",
-  writeHints: [
-    "Order matches by date and kickoff time. In next style put the next match first. Supply both scores for a result, or neither for an unplayed match.",
-    'For a single next match use style "next". Write density: null unless asked to change spacing, even when changing detail.',
-    'Write detail: null to show venue, meet time and kit. Use detail "brief" only when asked to hide those details; keep the supplied values in the data.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   partTiers: { root: "people" },
   realPath: "The captain enters fixtures on one phone; teammates following them need a shared app.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["venue", "meet", "kit"] } },
   parts: ["root", "message"],
   items: {
@@ -95,7 +92,7 @@ export const examples = [
     ],
   },
   { style: "next", matches: [nextMatch] },
-  { style: "next", density: "compact", matches: [nextMatch] },
+  { style: "next", matches: [nextMatch] },
   { style: "next", detail: "brief", matches: [nextMatch] },
 ] satisfies z.input<typeof props>[];
 
@@ -122,7 +119,7 @@ export const probes = [
 
 type FixturesProps = c.Props<typeof props, typeof meta>;
 type Match = FixturesProps["matches"][number];
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 
 // prettier-ignore
 function MatchRow({ row, next, density, loading }: { row: Match; next: boolean; density: Density; loading: boolean }) {
@@ -173,7 +170,7 @@ function MatchRow({ row, next, density, loading }: { row: Match; next: boolean; 
 // prettier-ignore
 export function Fixtures(input: FixturesProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const next = input.style === "next";
   const rows = next ? input.matches.slice(0, 1) : input.matches;
   return (

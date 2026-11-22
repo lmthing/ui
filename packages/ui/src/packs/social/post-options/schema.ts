@@ -42,13 +42,6 @@ export function postOptionFlags(post: Record<string, unknown>, showMedia: boolea
   };
 }
 
-export const postOptionHints = [
-  'Two columns or side-by-side photos: write "arrange":"grid","density":null. Tight spacing with the usual layout: write "density":"compact","arrange":null. Only write both when both are requested. For the standard layout and spacing write both null, not "rows" or "comfortable".',
-  'A visible photo is ordinary content, not a request for a "media" variant. Use "media":null unless the brief says to hide attachments. Put a video poster reference in video (lib: or local:); the host supplies playback.',
-  "Use null for each unrequested reposts, reposted and saved field; zero and false are explicit states, not placeholders. For quoted text use quote. For an existing upvote or downvote use vote up or down.",
-  "Put a neighborhood alert category in alertTag, never tags. Tags are ordinary topic labels. RadiusKm is the stated neighborhood distance in kilometers. Use null for unrequested options.",
-] as const;
-
 const optionRequests = [
   ["Attach a playable video with poster reference lib:fern.", { video: "lib:fern" }],
   ["Show that the post has seven reposts.", { reposts: 7 }],

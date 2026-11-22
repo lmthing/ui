@@ -19,6 +19,7 @@ export type MigrationOptions = {
 // Enable each staged migration here in the same change that adopts the component schema.
 const adoptedVariants: readonly string[] = [
   "List",
+  "Library",
   "Card",
   "People",
   "Gallery",
@@ -32,6 +33,7 @@ const adoptedVariants: readonly string[] = [
   "Payoff",
   "ScoreSheet",
   "TeamPicker",
+  "Table",
   "Trivia",
   "Hero",
   "Header",
@@ -51,8 +53,19 @@ const adoptedVariants: readonly string[] = [
 const isBlock = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === "object" && !Array.isArray(value);
 
+export const retiredPresentationProps = ["density", "surface", "bleed", "align"] as const;
+
+/** Migrate saved component lines without changing screen or theme settings. */
+export function migrateLine<T extends Record<string, unknown>>(line: T, options?: MigrationOptions) {
+  const migrated = migrateLegacyLine(line, options);
+  if (typeof migrated.c !== "string" || !retiredPresentationProps.some((key) => Object.hasOwn(migrated, key)))
+    return migrated;
+  const { density: _density, surface: _surface, bleed: _bleed, align: _align, ...props } = migrated;
+  return { ...props, c: migrated.c };
+}
+
 /** Preserve component ids, state, links, tones and time ordering while migrating the retired shape. */
-export function migrateLine<T extends Record<string, unknown>>(
+function migrateLegacyLine<T extends Record<string, unknown>>(
   line: T,
   { variantComponents = adoptedVariants, variantOnly = false, includeSavedRing }: MigrationOptions = {},
 ): T | (Record<string, unknown> & { c: string }) {
@@ -73,7 +86,8 @@ export function migrateLine<T extends Record<string, unknown>>(
   }
   if (
     variantOnly ||
-    legacyTarget(String(line.c)) !== "Timeline" ||
+    (line.c !== "Timeline" && legacyTarget(String(line.c)) !== "Timeline") ||
+    (line.c === "Timeline" && Object.hasOwn(line, "items")) ||
     !Array.isArray(line.blocks) ||
     !line.blocks.every(isBlock)
   )

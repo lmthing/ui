@@ -17,14 +17,16 @@ export {
   allowsDestination,
   bindParentGatePart,
   createParentGate,
+  createScannerBrightnessAdapter,
   type HostCommandAdapter,
   type HostCommandResult,
   type ParentGate,
   type ParentGateProof,
+  type ScannerBrightnessAdapter,
 } from "./host";
-export { createReveal, type AuthenticateReveal } from "./reveal";
 export {
-  createPrivateValues,
+  createPrivateControls,
+  type AuthenticateReveal,
   type PrivateValuesHost,
   type PrivateResult,
   type PrivateStatus,
