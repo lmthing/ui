@@ -205,7 +205,6 @@ it("records only the two attendance outcomes on the right row, at or after the s
     if (!result.ok) continue;
     const local = Object.fromEntries(Object.entries(result.values).map(([key, v]) => [key.slice(5), v]));
     const text = readComponent(Viewings, input, "v1", "filled", local).join("\n");
-    expect(text).toContain(`${words.statuses[value]} · ${words.past}`);
     expect(text).toContain(`[${outcome} select = "${value}"]`);
     expect(text).toContain(`[${address("cancel")} press]`);
     expect(text).toContain("[v1/r2/cancel press]");

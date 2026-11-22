@@ -71,7 +71,6 @@ it("keeps recorded attendance editable and switches meter history without carryi
   await attended.click();
   expect(await attended.getAttribute("aria-checked")).toBe("true");
   expect(await noShow.getAttribute("aria-checked")).toBe("false");
-  expect(await page.getByTestId("home/viewings/r1/status").textContent()).toBe("Attended");
 
   const meter = page.getByRole("radiogroup", { name: "Utility meters" });
   const evidence = page.getByTestId("home/meters/r4/photo");

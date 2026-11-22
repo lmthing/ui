@@ -2,7 +2,7 @@ import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 // prettier-ignore
-import { orderedViewings, outcomes, viewingActions, viewingGates, viewingReading, viewingStatus, viewingTimes, type Viewing } from "../copy";
+import { orderedViewings, outcomes, viewingActions, viewingGates, viewingReading, viewingTimes, type Viewing } from "../copy";
 import { propertyWordsFor } from "../lang";
 import { dateTime, distinct, ref, seedLabels, seedTime } from "../seeds";
 import { prompt } from "../../../entry/prompt-Viewings.generated";
@@ -39,8 +39,7 @@ export const meta = {
     },
   },
   readSuccess: true,
-  read: (input, state, lang, _data, _currency, liveValue) =>
-    viewingReading((input as { viewings: Viewing[] }).viewings, state, lang, liveValue),
+  read: (input, state, lang) => viewingReading((input as { viewings: Viewing[] }).viewings, state, lang),
 } as const satisfies c.Meta;
 
 // prettier-ignore
@@ -119,8 +118,11 @@ function RecordAction({ part, label, goto, loading }: {
 }
 
 // prettier-ignore
-function ViewingControls({ row, density, loading, selected }: RowProps & { loading: boolean; selected: Viewing["status"] }) {
+function ViewingControls({ row, density, loading = false }: RowProps & { loading?: boolean }) {
   const { words: { viewings: words } } = kit.useWords(propertyWordsFor);
+  const { screen, component } = kit.usePartContext();
+  const value = kit.useControlValue<unknown>(`${screen}/${component}/${row.id}/outcome`, row.status);
+  const selected = value === "attended" || value === "no_show" ? value : row.status;
   const recorded = selected === "attended" || selected === "no_show";
   const outcomeLabel = recorded ? words.editOutcome : words.outcome;
   const { confirm, invite, edit, cancel } = viewingActions(row);
@@ -156,10 +158,7 @@ function ViewingDetails({ row, density, state, lang, words }: RowProps & {
   state: c.StateName; lang: string; words: ReturnType<typeof propertyWordsFor>["viewings"];
 }) {
   const { startLabel, endLabel } = viewingTimes(row.start, row.minutes, lang);
-  const { screen, component } = kit.usePartContext();
-  const value = kit.useControlValue<unknown>(`${screen}/${component}/${row.id}/outcome`, row.status);
-  const selected = viewingStatus(row, value);
-  const badge = <kit.KitTrail kind="badge" part="status" value={words.statuses[selected]} tone={statusTone[selected]} {...{ density }} />;
+  const badge = <kit.KitTrail kind="badge" part="status" value={words.statuses[row.status]} tone={statusTone[row.status]} {...{ density }} />;
   const loading = state === "loading";
   return <>
     <kit.KitGrid fitLast {...{ density }}>
@@ -177,7 +176,7 @@ function ViewingDetails({ row, density, state, lang, words }: RowProps & {
       {row.active && !row.upcoming && <kit.KitText part="past" role="label" tone="muted" {...{ density }}>{words.past}</kit.KitText>}
       {row.note && <kit.KitText part="note" role="body" tone="muted" {...{ density }}>{row.note}</kit.KitText>}
     </kit.KitContent>}
-    {(state === "filled" || loading) && <ViewingControls {...{ row, density, loading, selected }} />}
+    {(state === "filled" || loading) && <ViewingControls {...{ row, density, loading }} />}
   </>;
 }
 

@@ -48,16 +48,7 @@ export function viewingGates({ start, status }: Pick<Viewing, "start" | "status"
   return { active, upcoming: active && future, canRecord: !future && status !== "cancelled" };
 }
 
-export function viewingStatus(row: Viewing, outcome: unknown): ViewingStatus {
-  return row.canRecord && (outcome === "attended" || outcome === "no_show") ? outcome : row.status;
-}
-
-export function viewingReading(
-  rows: readonly (Viewing & { id?: string })[],
-  state: string,
-  lang?: string,
-  liveValue?: (part: string) => unknown,
-) {
+export function viewingReading(rows: readonly (Viewing & { id?: string })[], state: string, lang?: string) {
   const words = propertyWordsFor(lang).viewings;
   const sorted = orderedViewings(rows.map((row, index) => ({ ...row, id: row.id ?? `r${index + 1}` })));
   return [
@@ -75,7 +66,7 @@ export function viewingReading(
         end,
         startLabel,
         endLabel,
-        words.statuses[viewingStatus(row, liveValue?.(`${row.id}/outcome`))],
+        words.statuses[row.status],
         row.active && !row.upcoming ? words.past : undefined,
         row.note,
         ...(state === "filled" && row.canRecord
