@@ -2,6 +2,7 @@ export const words = {
   roster: {
     staff: "Staff",
     empty: "No shifts scheduled",
+    unassigned: "No station assigned",
     scrollHint: "Scroll sideways for all seven days",
     week: (date: string) => `Week of ${date}`,
     time: (from: string, to: string) => `${from}–${to}`,

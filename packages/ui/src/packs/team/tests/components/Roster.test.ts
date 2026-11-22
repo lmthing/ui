@@ -76,6 +76,68 @@ describe("Roster schema and boundaries", () => {
     expect(props.safeParse({ ...first, shifts: [{ ...shift, ...input }] }).success).toBe(false);
   });
 });
+
+it("refreshes the mounted day schedule at local midnight without remounting", () => {
+  const midnight = new Date(2026, 10, 17).getTime();
+  vi.useFakeTimers();
+  vi.setSystemTime(midnight - 1_000);
+  const wire = { ...first, style: "day", shifts: [shift, { ...shift, day: 1, role: "Packing" }] };
+  const runtime = createScreenController({
+    screen: { id: "home", components: [{ ...wire, id: "rota", c: "Roster" }] },
+    defs: components,
+  });
+  const parsed = stampItemIds(meta, props.parse(wire));
+  const refresh = vi.fn(() => runtime.liveControls(meta, parsed, "rota"));
+  const unsubscribe = runtime.store.subscribe(refresh);
+  try {
+    runtime.mount();
+    expect(refresh()).toMatchObject({ rosterDate: "2026-11-16", shifts: [{ id: "r1" }] });
+    refresh.mockClear();
+    vi.advanceTimersByTime(1_000);
+    expect(refresh).toHaveBeenCalledTimes(1);
+    expect(refresh.mock.results[0]?.value).toMatchObject({
+      rosterDate: "2026-11-17",
+      shifts: [{ id: "r2" }],
+    });
+    expect(runtime.read()).toContain("Packing");
+    expect(runtime.press("rota/r1").ok).toBe(false);
+    expect(runtime.press("rota/r2").ok).toBe(true);
+  } finally {
+    unsubscribe();
+    runtime.dispose();
+    vi.useRealTimers();
+  }
+});
+
+it("takes the local day or a selected date, groups shifts by station, and preserves action addresses", () => {
+  const input = {
+    ...first,
+    style: "day",
+    shifts: [first.shifts[2]!, { ...shift, station: "Greenhouse" }, first.shifts[1]!],
+  };
+  vi.setSystemTime(new Date(2026, 10, 16, 12));
+  try {
+    const html = view(input);
+    const parts = addressedElements(html);
+    expect(html).toContain("Greenhouse");
+    expect(html).toContain("No station assigned");
+    expect(parts.has("home/c1/r1/root")).toBe(false);
+    expect(parts.has("home/c1/r2/root")).toBe(true);
+    const runtime = createScreenController({
+      screen: { id: "home", components: [{ ...input, id: "rota", c: "Roster" }] },
+      defs: components,
+    });
+    expect(runtime.read()).toContain("Greenhouse: Anna 07:00–12:00 Watering (r2)");
+    expect(runtime.press("rota/r1").ok).toBe(false);
+    expect(runtime.press("rota/r2").ok).toBe(true);
+    runtime.dispose();
+    expect(addressedElements(view({ ...input, date: "2026-11-18" })).has("home/c1/r1/root")).toBe(true);
+    expect(view({ ...input, date: "2026-11-22" })).toContain("No shifts scheduled");
+    expect(props.safeParse({ ...input, date: "2026-11-23" }).success).toBe(false);
+  } finally {
+    vi.useRealTimers();
+  }
+});
 describe("Roster fallback and metadata", () => {
   it("uses bounded cast names or the shared neutral placeholder, without inventing shifts", () => {
     const cast: CastLike = {

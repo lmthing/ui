@@ -166,6 +166,13 @@ describe("RentRoll states and parts", () => {
   });
 });
 
+it("groups receipt dates with their unit before the amount and control", () => {
+  const drawn = [...parts(ledger).keys()].filter((key) => key.startsWith("home/c1/r2/"));
+  expect(drawn.slice(0, 6)).toEqual(
+    ["root", "unit", "date", "method", "amount", "void"].map((part) => `home/c1/r2/${part}`),
+  );
+});
+
 describe("RentRoll read and act", () => {
   it("opens the receipt form, exposes the reminder tier and confirms only an active receipt void", () => {
     const onAction = vi.fn();

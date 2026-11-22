@@ -110,7 +110,10 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
-  read("Mark Anna's note about the ferns as seen", { address: "h1/r1/seen", action: "check" }),
+  read("Check the acknowledgment box on Anna's fern note, which hasn't been marked seen yet.", {
+    address: "h1/r1/seen",
+    action: "check",
+  }),
 ] satisfies c.Probe[];
 
 type HandoverProps = c.Props<typeof props, typeof meta>;
@@ -124,11 +127,19 @@ function HandoverNote({ note, detail, density }: NoteProps) {
   const { words } = kit.useWords(teamWordsFor);
   const { by, time, text, flag, seen } = note;
   const { markSeen, seenNote } = words.handover;
+  const checkLabel = (
+    <kit.KitLayoutText
+      line={{ text: seen ? words.handover.seen : words.handover.unseen, role: "meta", tone: "muted" }}
+      density={density}
+    />
+  );
   const check = (
-    <kit.KitCheck part="seen" done={seen} readonly={seen} label={seen ? seenNote(text) : markSeen(text)} />
+    <kit.KitContent lead={checkLabel} leadingAlign="row" density={density}>
+      <kit.KitCheck part="seen" done={seen} readonly={seen} label={seen ? seenNote(text) : markSeen(text)} />
+    </kit.KitContent>
   );
   return (
-    <kit.KitRow item={note.id} label={by} inline lineRole="label" trailing={check} density={density}>
+    <kit.KitRow item={note.id} label={by} inset="none" lineRole="body" trailing={check} density={density}>
       <kit.KitGrid fitLast density={density}>
         <kit.KitText part="by" role="label" tone="muted" density={density}>
           {by}
@@ -145,16 +156,17 @@ function HandoverNote({ note, detail, density }: NoteProps) {
           </kit.KitText>
         )}
       </kit.KitGrid>
-      {detail === "full" && (
-        <kit.KitText part="time" role="label" tone="muted" density={density} tabular>
-          {time}
-        </kit.KitText>
-      )}
-      <kit.KitContent density={density} group="response">
-        <kit.KitText part="text" role="body" density={density} emphasis="strong">
-          {text}
-        </kit.KitText>
-      </kit.KitContent>
+      <kit.KitMetaLine
+        title={{
+          text: detail === "full" ? time : undefined,
+          part: "time",
+          role: "meta",
+          tone: "muted",
+          tabular: true,
+        }}
+        meta={{ text, part: "text", role: "body", tone: "text", strong: true }}
+        density={density}
+      />
     </kit.KitRow>
   );
 }
@@ -167,15 +179,13 @@ export function Handover(input: HandoverProps) {
   const { notes } = kit.useLiveControls(meta, input) as HandoverProps;
   return (
     <kit.KitCard part="root" padded={state === "filled"} surface={surface} density={density}>
-      {state === "filled" ? (
-        <kit.KitGrid arrange="rows" list listRowGap="cards" density={density}>
+      <kit.KitState part="message" icon="clipboard_list" density={density}>
+        <kit.KitRowGroup density={density}>
           {notes.map((note) => (
             <HandoverNote key={note.id} {...{ note, detail, density }} />
           ))}
-        </kit.KitGrid>
-      ) : (
-        <kit.KitEmpty part="message" icon="clipboard_list" decorativeIcon />
-      )}
+        </kit.KitRowGroup>
+      </kit.KitState>
     </kit.KitCard>
   );
 }

@@ -7,3 +7,7 @@
 `Approval.test.ts` covers staff request details, portrait variants, decision dispatch and decline confirmation.
 `Handover.test.ts` covers shift notes, flags, timestamp visibility and one-way acknowledgements.
 `Roster.test.ts` covers weekly shift cells, cover, states, grouped readings and shift dispatch.
+`LeaveBalance.test.ts` covers leave balances, visible breakdowns, states and request dispatch.
+`PayStub.test.ts` covers statement totals, itemization, empty/error states and service export.
+`TeamDirectory.test.ts` covers live search, stable row addresses and contact actions.
+`TeamNotice.test.ts` covers bulletin variants, notice links and one-way read receipts.
