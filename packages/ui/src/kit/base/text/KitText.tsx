@@ -1,6 +1,6 @@
 import { Text, isWeb, styled, useTheme } from "tamagui";
 import { Children, createContext, isValidElement, useContext, type ReactNode } from "react";
-import { fontFamilies, motion, space, type as typography, variants } from "../../../catalog";
+import { fontFamilies, motion, size, space, type as typography, variants } from "../../../catalog";
 import { useSignatureProgress, countText } from "../../motion";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
@@ -32,6 +32,17 @@ const Frame = styled(Text, {
     },
   } as const,
 });
+
+// Reserve space in the paragraph rather than extending a hit area across adjacent text.
+const webLinkSlot = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: size.control.md,
+  minWidth: size.control.md,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+} as const;
 
 export type TextTone = "text" | "muted" | "accent" | "onAccent" | "good" | "warn" | "bad";
 
@@ -133,9 +144,21 @@ function maskRuns(children: ReactNode) {
   );
 }
 
+function useRunTypography(role: TextRole, { density, emphasis }: TextProps, strong: boolean) {
+  const finish = emphasis === "strong" || emphasis === "emphasis" ? "normal" : (emphasis ?? "normal");
+  const stepOf = useTextStep({ density, emphasis: finish });
+  const step = stepOf(role);
+  const heavier = variants.emphasis[finish][strong ? "strong" : "regular"]?.[step];
+  const weight =
+    emphasis === "strong" && (!heavier || Number(heavier) < Number(typography.display.weight))
+      ? typography.display.weight
+      : heavier;
+  return { step, weight, numberStep: stepOf("body") };
+}
+
 function TextRun(props: TextProps) {
   const { children, role = "body", tone = "text", align = "start", part = "root", lines } = props;
-  const { tabular = false, numberScale = "display", strike = false, emphasis, density, goto } = props;
+  const { tabular = false, numberScale = "display", strike = false, emphasis, goto } = props;
   const style = useKitStyle();
   const theme = useTheme();
   // Some hosts omit Tamagui's root class; keep the local theme's foreground as a CSS fallback.
@@ -143,24 +166,16 @@ function TextRun(props: TextProps) {
   const count = useSignatureProgress("count_up");
   const spin = useSignatureProgress("timer_spin");
   const state = usePartContext().state;
-  const inline = emphasis === "strong" || emphasis === "emphasis";
   const loading = useRunLoading(props);
   const nested = loading && Children.toArray(children).some(isValidElement);
   const linked = Boolean(goto && part !== null && state !== "empty" && !loading && children);
   const target = useTextLink(part, linked ? goto : undefined, !loading);
-  const finish = inline ? "normal" : (emphasis ?? "normal");
-  const stepOf = useTextStep({ density, emphasis: finish });
-  const step = stepOf(role);
-  const numberStep = stepOf("body");
-  const heavier = variants.emphasis[finish][style.strong ? "strong" : "regular"]?.[step];
-  const weight =
-    emphasis === "strong" && (!heavier || Number(heavier) < Number(typography.display.weight))
-      ? typography.display.weight
-      : heavier;
+  const { step, numberStep, weight } = useRunTypography(role, props, style.strong);
   const content = role === "number" && typeof children === "string" ? countText(children, count) : children;
-  return (
+  const webLink = linked && isWeb;
+  const text = (
     <Frame
-      {...target}
+      {...(!webLink ? target : {})}
       textRole={step}
       {...(part === "time" && spin < 1 ? { rotate: `${-motion.spinAngle * (1 - spin)}deg` } : {})}
       color={
@@ -188,6 +203,13 @@ function TextRun(props: TextProps) {
     >
       {nested ? maskRuns(children) : loading && isWeb ? <Text opacity={0}>{content}</Text> : content}
     </Frame>
+  );
+  return webLink ? (
+    <Text {...target} style={webLinkSlot as never}>
+      {text}
+    </Text>
+  ) : (
+    text
   );
 }
 
