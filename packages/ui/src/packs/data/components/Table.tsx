@@ -17,6 +17,7 @@ export const meta = {
     'Each row has exactly one cell per column, in the same order. For example, text, number and date columns take cells ["Fern", 4, "2026-11-20"]. text and status take strings up to 24 characters; number and money take numbers; date takes YYYY-MM-DD.',
     "sort is a zero-based column index; omit it when no sort is requested. selectable enables row checkboxes.",
     'For grouped rows use group "sections" (first status column, or the first column if there is no status); otherwise use null. For explicitly tighter rows use density "compact".',
+    'Compact density changes spacing only. If the row count should remain visible, leave detail null; do not set detail to "full" or "brief".',
     'Set summaryRow to "sum" or "avg" for numeric and money totals or averages, or "count" for a record count. Set exportable true only when an export button is requested.',
   ],
   region: "body", weight: 3, dense: true, tier: "phone",
@@ -120,7 +121,7 @@ export const probes = [
   },
   read("Tick the checkbox beside Boston fern.", { address: "s1/r1/pick", action: "check" }),
   {
-    ...write("Show a table of route names and walk counts: Canal 8, Hill 5. No checkboxes. Make the rows and spacing compact."),
+    ...write("Show a table of route names and walk counts: Canal 8, Hill 5. No checkboxes. Tighten the spacing only; keep the standard row count footer and do not group the rows."),
     variant: { axis: "density", value: "compact" },
   },
   {
