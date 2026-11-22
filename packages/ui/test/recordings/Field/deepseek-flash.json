@@ -2340,7 +2340,7 @@
     "reply": "{\"address\": \"f1/field\", \"action\": \"type\"}",
     "replies": [
       "{\"address\": \"f1/field\", \"action\": \"type\"}",
-      "{\"address\": \"f1\", \"action\": \"type\"}",
+      "{\"address\": \"f1/field\", \"action\": \"type\"}",
       "{\"address\": \"f1/field\", \"action\": \"type\"}"
     ]
   },
