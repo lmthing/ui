@@ -1,14 +1,17 @@
-import { numberLine } from "../../../catalog";
+import { localeOf, numberLine } from "../../../catalog";
 import { sportsWordsFor } from "../lang";
 
 type Mode = "win_prob" | "momentum";
 type Point = { clock: string; value: number; event?: string | undefined };
-type Reading = {
+type Match = {
   mode: Mode;
   home: string;
   away: string;
+};
+type Reading = Match & {
+  detail?: "full" | "brief";
   points: readonly Point[];
-  samples: readonly (Point & { id: string })[];
+  samples: readonly (Point & { id: string; selected?: boolean })[];
 };
 
 export function momentumSummary(mode: Mode, value: number) {
@@ -18,21 +21,86 @@ export function momentumSummary(mode: Mode, value: number) {
   return { baseline, delta, side } as const;
 }
 
-export function momentumReading(input: Reading, lang?: string): string[] {
+export function momentumValue(mode: Mode, value: number, lang?: string): string {
+  const figure = numberLine(value, lang);
+  if (mode === "momentum") return figure;
+  // Keep the supplied percentage points without rounding or re-scaling a floating-point value.
+  return new Intl.NumberFormat(localeOf(lang), { style: "percent" })
+    .formatToParts(0)
+    .map((part) => (part.type === "integer" ? figure : part.value))
+    .join("");
+}
+
+export function momentumFigure(input: Match, point: Point, lang?: string) {
   const words = sportsWordsFor(lang).momentumChart;
-  const value = (point: Point) =>
-    input.mode === "win_prob"
-      ? new Intl.NumberFormat(lang, { style: "percent", maximumFractionDigits: 2 }).format(point.value / 100)
-      : numberLine(point.value, lang);
-  const last = input.points.at(-1)!;
-  const { delta, side } = momentumSummary(input.mode, last.value);
+  const { delta, side } = momentumSummary(input.mode, point.value);
   const advantage =
     side === "even"
       ? words.even
       : words.advantage(input[side], numberLine(Math.abs(delta), lang), input.mode);
+  return { value: momentumValue(input.mode, point.value, lang), advantage };
+}
+
+export function momentumExtent(mode: Mode, points: readonly Pick<Point, "value">[]): number {
+  return points.reduce(
+    (extent, { value }) => Math.max(extent, Math.abs(momentumSummary(mode, value).delta)),
+    0,
+  );
+}
+
+function scaleLimits(mode: Mode, points: readonly Pick<Point, "value">[]) {
+  const { baseline } = momentumSummary(mode, 0);
+  const extent = momentumExtent(mode, points);
+  return [baseline - extent, baseline, baseline + extent] as const;
+}
+
+export function momentumScale(mode: Mode, points: readonly Pick<Point, "value">[], lang?: string) {
+  const words = sportsWordsFor(lang).momentumChart;
+  const [low, even, high] = scaleLimits(mode, points).map((value) => momentumValue(mode, value, lang));
+  return words.scale(low!, high!, even!);
+}
+
+export function selectedEvent<T extends Point & { selected?: boolean }>(samples: readonly T[]) {
+  let latest: T | undefined;
+  for (const point of samples) {
+    if (!point.event) continue;
+    if (point.selected) return point;
+    latest = point;
+  }
+  return latest;
+}
+
+function elapsedMinute(clock: string) {
+  const match = /^(\d{1,3})(?:\+(\d{1,2}))?[′']?$/.exec(clock);
+  return match ? Number(match[1]) + Number(match[2] ?? 0) : NaN;
+}
+
+/** Unstructured or restarting clocks preserve feed order instead of implying elapsed time. */
+export function momentumTimes(samples: readonly Pick<Point, "clock">[]): number[] {
+  const minutes = samples.map(({ clock }) => elapsedMinute(clock));
+  return minutes.every((minute, index) => Number.isFinite(minute) && (!index || minute > minutes[index - 1]!))
+    ? minutes
+    : samples.map((_, index) => index);
+}
+
+export function momentumReading(input: Reading, lang?: string): string[] {
+  const words = sportsWordsFor(lang).momentumChart;
+  const last = input.points.at(-1)!;
+  const { value, advantage } = momentumFigure(input, last, lang);
+  const active = selectedEvent(input.samples);
   return [
     words.title[input.mode],
-    words.current(last.clock, value(last), advantage),
-    ...input.samples.map((point) => words.event(point.id, point.clock, value(point), point.event)),
+    words.teams(input.home, input.away),
+    words.current(last.clock, value, advantage),
+    words.latest(last.clock, advantage),
+    input.points[0]!.clock,
+    words.homeSeries(input.home),
+    ...(input.detail === "brief"
+      ? [momentumScale(input.mode, input.points, lang)]
+      : scaleLimits(input.mode, input.points).map((value) => String(Number(value.toPrecision(4))))),
+    ...(active ? [words.selected(active.id)] : []),
+    ...input.samples.map((point) =>
+      words.event(point.id, point.clock, momentumValue(input.mode, point.value, lang), point.event),
+    ),
   ];
 }
