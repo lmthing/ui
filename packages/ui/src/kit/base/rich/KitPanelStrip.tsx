@@ -1,9 +1,9 @@
 import { useLayoutEffect, useState, type ReactNode } from "react";
-import { isWeb, YStack } from "tamagui";
+import { isWeb, ScrollView, YStack } from "tamagui";
 import { component, formatAddress } from "../../../catalog";
 import { PartContext, usePart, usePartContext, usePartDisabled } from "../../part";
 import { useKit, useWords } from "../../provider";
-import { PanelPage, PanelViewport } from "./panel-viewport";
+import { PanelViewport } from "./panel-viewport";
 import { RichEmpty, safeRatio, type Drawing, type Target } from "./rich-drawing";
 
 type Panel = { id: string; ratio: number; content: ReactNode };
@@ -15,9 +15,58 @@ type PanelProps = Drawing & {
 };
 const placeholder: Panel = { id: "placeholder", ratio: component.base.tallRatio, content: null };
 
+function PanelPage({
+  children,
+  width,
+  height,
+  viewHeight,
+  strip,
+  loading,
+  active,
+}: {
+  children: ReactNode;
+  width: number;
+  height: number;
+  viewHeight: number;
+  strip: boolean;
+  loading: boolean;
+  active: boolean;
+}) {
+  const drawing = (
+    <YStack width={width} height={height} backgroundColor={loading ? "$line" : undefined}>
+      {!loading && children}
+    </YStack>
+  );
+  const overflow = !strip && height > viewHeight;
+  return (
+    <YStack
+      width={width}
+      height={strip ? height : viewHeight}
+      flexShrink={component.base.none}
+      accessibilityRole={loading ? undefined : "listitem"}
+      aria-current={!loading && active ? true : undefined}
+      {...(isWeb
+        ? {
+            style: { scrollSnapAlign: strip ? undefined : "start", overflowY: overflow ? "auto" : "hidden" },
+            dir: "auto",
+            ...(overflow && active && !loading ? { tabIndex: 0 } : {}),
+          }
+        : {})}
+    >
+      {!isWeb && overflow ? (
+        <ScrollView nestedScrollEnabled scrollEnabled={!loading}>
+          {drawing}
+        </ScrollView>
+      ) : (
+        drawing
+      )}
+    </YStack>
+  );
+}
+
 function panelGeometry(panels: readonly Panel[], width: number, strip: boolean) {
-  let total = 0,
-    tallest = 0;
+  let total = 0;
+  let tallest = 0;
   const offsets: number[] = [];
   const heights = panels.map(({ ratio }, index) => {
     const height = width / safeRatio(ratio);
