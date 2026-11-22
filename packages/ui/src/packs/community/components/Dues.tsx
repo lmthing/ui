@@ -9,9 +9,7 @@ import { distinct, ref, seedDate, seedTitle } from "../seeds";
 // Core first: Amount/default shows a figure, not assessments reconciled against multiple receipts.
 // prettier-ignore
 export const meta = {
-  id: "Dues",
-  status: "ready" as "ready" | "draft",
-  group: "data",
+  id: "Dues", status: "ready" as "ready" | "draft", group: "data",
   purpose: "Reconcile members' subscription assessments and receipts for one period.",
   pick: "Collect and reconcile one period of membership dues against dated receipts. Not a single figure (Amount), personal bills (Bills), a client invoice (Invoice) or one client's payment status (PaymentStatus).",
   writeHints: [
@@ -19,17 +17,13 @@ export const meta = {
     'Use style "ledger" for the treasurer. Use "member" only for a signed-in member and seed only that member’s assessments and receipts.',
     "Only set cadence for a stated schedule. Put waived and householdId on assessments, not on receipts. Keep the original assessment amount for a waiver.",
   ],
-  region: "body",
-  weight: 3,
-  dense: true,
-  tier: "phone",
+  region: "body", weight: 3, dense: true, tier: "phone",
   realPath:
     "The treasurer keeps a local ledger; messaging sends reminders and only a payment service's confirmed receipt changes the ledger.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"] },
   parts: ["root", "period", "cadence", "assessed", "collected", "outstanding", "empty"],
   items: {
-    key: "entries",
-    visibleWhen: { visible: true },
+    key: "entries", visibleWhen: { visible: true },
     parts: [
       "root", "member", "amount", "due", "paid", "outstanding", "credit",
       "status", "household", "date", "method", "voided", "record", "remind", "pay", "void",
@@ -46,19 +40,14 @@ export const meta = {
       void: { kind: "receipt", style: "ledger", treasurer: true, voided: false },
     },
   },
-  partTiers: { remind: "service", pay: "service" },
-  confirmParts: ["void"],
-  live: { derive: duesProjection() },
-  read: duesReading,
+  partTiers: { remind: "service", pay: "service" }, confirmParts: ["void"],
+  live: { derive: duesProjection() }, read: duesReading,
 } as const satisfies c.Meta;
 
+// prettier-ignore
 const assessment = z.strictObject({
-  id: ref,
-  memberId: ref,
-  amount: z.number().nonnegative(),
-  due: c.isoDate,
-  waived: z.boolean().optional(),
-  householdId: ref.optional(),
+  id: ref, memberId: ref, amount: z.number().nonnegative(), due: c.isoDate,
+  waived: z.boolean().optional(), householdId: ref.optional(),
 });
 // prettier-ignore
 const receipt = z.strictObject({

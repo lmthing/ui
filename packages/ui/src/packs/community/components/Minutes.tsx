@@ -9,9 +9,7 @@ import { dateTime, distinct, ref, seedDate, seedTitle } from "../seeds";
 // Core first: Checklist/default tracks jobs, not approved decisions linked to motions and owned follow-up.
 // prettier-ignore
 export const meta = {
-  id: "Minutes",
-  status: "ready" as "ready" | "draft",
-  group: "content",
+  id: "Minutes", status: "ready" as "ready" | "draft", group: "content",
   purpose: "Record agreed decisions and follow-up actions with owners and sign-off.",
   pick: "Official meeting minutes with agreed decisions, linked motions, owned follow-up and approval. Not a draft note (Composer), personal jobs (Checklist), long prose (Article) or a change audit (ActivityLog).",
   writeHints: [
@@ -19,10 +17,7 @@ export const meta = {
     'Set both approval fields together or neither; approvedAt is an offset ISO datetime. Use style "actions" only for follow-up with decision links, not the official record.',
     "Write attendance only if taken. Use presentIds and apologiesIds for distinct membership ids; use an empty array when nobody belongs to a list.",
   ],
-  region: "body",
-  weight: 3,
-  dense: true,
-  tier: "people",
+  region: "body", weight: 3, dense: true, tier: "people",
   realPath:
     "A shared record links stored motions and members; chair approval locks decisions, but actions can still progress.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"] },
@@ -34,8 +29,7 @@ export const meta = {
   },
   states: ["filled", "empty", "loading", "success", "error"],
   actions: {
-    parts: { approve: ["press"] },
-    items: { root: ["press"], done: ["check"] },
+    parts: { approve: ["press"] }, items: { root: ["press"], done: ["check"] },
     when: {
       approve: { approved: false, can_approve: true },
       root: { kind: "decision", linked: true },
@@ -59,8 +53,7 @@ const followUp = z.strictObject({
 const schema = z.strictObject({
   ...c.variantProps(meta.variants), title: c.text(40), date: c.isoDate, chairId: ref,
   decisions: z.array(decision).min(1).max(8), actions: z.array(followUp).min(0).max(12),
-  approvedAt: dateTime.optional(), approvedBy: ref.optional(),
-  attendance: attendanceSchema.optional(),
+  approvedAt: dateTime.optional(), approvedBy: ref.optional(), attendance: attendanceSchema.optional(),
   style: z.enum(["record", "actions"]).default("record"),
 });
 
