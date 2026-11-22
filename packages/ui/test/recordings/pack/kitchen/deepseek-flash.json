@@ -31193,6 +31193,823 @@
       "{\n  \"id\": \"groceries_pantry\",\n  \"title\": null,\n  \"components\": [\n    {\n      \"id\": \"header_pantry\",\n      \"c\": \"Header\",\n      \"style\": \"large\",\n      \"title\": \"My Pantry\",\n      \"sub\": \"What’s at home, what to use soon\",\n      \"action\": {\n        \"icon\": \"plus\",\n        \"label\": \"Add item\",\n        \"goto\": \"add_pantry_item\"\n      }\n    },\n    {\n      \"id\": \"segmented_pantry_view\",\n      \"c\": \"Segmented\",\n      \"options\": [\n        { \"label\": \"All\" },\n        { \"label\": \"Fridge\" },\n        { \"label\": \"Freezer\" },\n        { \"label\": \"Cupboard\" }\n      ],\n      \"at\": 0\n    },\n    {\n      \"id\": \"pantry_items\",\n      \"c\": \"Pantry\",\n      \"items\": [\n        { \"name\": \"Milk\", \"qty\": \"1 L\", \"place\": \"fridge\", \"useBy\": \"2026-05-18\", \"goto\": \"item_details\" },\n        { \"name\": \"Chicken breast\", \"qty\": \"500 g\", \"place\": \"fridge\", \"useBy\": \"2026-05-16\", \"goto\": \"item_details\" },\n        { \"name\": \"Frozen peas\", \"qty\": \"1 bag\", \"place\": \"freezer\", \"useBy\": \"2027-01-01\", \"goto\": \"item_details\" },\n        { \"name\": \"Rice\", \"qty\": \"2 kg\", \"place\": \"cupboard\", \"useBy\": \"2027-03-01\", \"goto\": \"item_details\" },\n        { \"name\": \"Tomato sauce\", \"qty\": \"1 jar\", \"place\": \"cupboard\", \"useBy\": \"2026-12-31\", \"goto\": \"item_details\" }\n      ]\n    },\n    {\n      \"id\": \"btn_go_shopping\",\n      \"c\": \"Button\",\n      \"label\": \"Go shopping\",\n      \"kind\": \"primary\",\n      \"icon\": \"shopping_cart\",\n      \"goto\": \"shopping_list\"\n    , \"confirm\": null}\n  ]\n}"
     ]
   },
+  "compose%2Ffood%2Fday%2F/44bc24e831c2669c/706fbea40205bb34": {
+    "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: food/day. Job: What I ate.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot_1\",\"allow\":[\"Progress\"],\"min\":1,\"max\":1},{\"id\":\"slot_2\",\"allow\":[\"FoodLog\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { density?: comfortable|compact, emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: Use style \"back\" only when a back button is needed. To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis and density to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nProgress: See measured progress toward one or more targets.\nprops: { density?: comfortable|compact, figures?: exact|short=\"exact\", emphasis?: normal|hero=\"normal\", detail?: full|brief=\"full\", style?: bars|ring=\"bars\", bars: [1..5 { label: text≤24, value: num 0.., of: number, unit?: text≤8, tone?: warn|good|bad=\"warn\", goto?: id snake_case }], sub?: text≤48 }\nRule: Use style \"ring\" for one circular goal. Put its label (up to 24 characters), value and of in one bars entry. Leave unit, tone and goto null. Set style \"bars\" for requested bars or null for an ordinary ratio; either way, shorten every horizontal bar label to at most 20 characters.\nRule: For a ring, always set figures to null. Write a requested caption verbatim in sub, even when asked to hide it with detail \"brief\". Use emphasis \"hero\" only for a large focal ring. Send null for all other unrequested axes and row options.\nRule: Set figures to \"short\" only to abbreviate bar counts without changing stored numbers. A bar crossing a target does not by itself request a special tone.\nexample: {\"c\":\"Progress\",\"bars\":[{\"label\":\"Watered this week\",\"value\":3,\"of\":5,\"unit\":\"plants\"},{\"label\":\"Fed this month\",\"value\":1,\"of\":4,\"unit\":\"plants\"}]}\nweight: 2\n\nFoodLog: Record foods eaten by meal and see their calories against a daily target.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", meals: [1..4 { meal: breakfast|lunch|dinner|snack, items: [0..6 { name: text≤28, kcal: num 0..10000, amount?: text≤12 }] }], target?: num 1..20000, goto: id snake_case }\nRule: Write calories per food, never meal or day totals. Each meal occurs once. goto is the add-food screen; a database lookup there needs a service.\nRule: To hide portions, set detail to \"brief\", but keep amount in the data. Write null for density unless explicitly asked for spacing; hiding portions does not change density.\nexample: {\"c\":\"FoodLog\",\"meals\":[{\"meal\":\"dinner\",\"items\":[{\"name\":\"Lasagne\",\"kcal\":520,\"amount\":\"1 slice\"}]},{\"meal\":\"snack\",\"items\":[]}],\"target\":2000,\"goto\":\"food_add\"}\nweight: 3\n\nA valid default for this layout: {\"id\":\"food_day\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Item one\"},{\"id\":\"p1\",\"c\":\"Progress\",\"bars\":[{\"label\":\"Item one\",\"value\":0,\"of\":1},{\"label\":\"Item two\",\"value\":0,\"of\":1}]},{\"id\":\"f1\",\"c\":\"FoodLog\",\"meals\":[{\"meal\":\"dinner\",\"items\":[{\"name\":\"Item one\",\"kcal\":0},{\"name\":\"Item two\",\"kcal\":0},{\"name\":\"Item three\",\"kcal\":0}]}],\"goto\":\"details\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing. Reply with JSON only.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_screen",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Header",
+                        "enum": [
+                          "Header"
+                        ]
+                      },
+                      "density": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "comfortable",
+                              "compact"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "back"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "action": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "icon": {
+                                "type": "string",
+                                "enum": [
+                                  "dot",
+                                  "leaf",
+                                  "drop",
+                                  "dog",
+                                  "cat",
+                                  "calendar",
+                                  "calendar_days",
+                                  "clock",
+                                  "check",
+                                  "chevron_right",
+                                  "plus",
+                                  "minus",
+                                  "close",
+                                  "search",
+                                  "settings",
+                                  "bell",
+                                  "bell_off",
+                                  "heart",
+                                  "star",
+                                  "bookmark",
+                                  "share",
+                                  "send",
+                                  "message",
+                                  "mail",
+                                  "phone",
+                                  "camera",
+                                  "image",
+                                  "video",
+                                  "mic",
+                                  "music",
+                                  "play",
+                                  "pause",
+                                  "square",
+                                  "undo",
+                                  "timer",
+                                  "alarm_clock",
+                                  "sun",
+                                  "moon",
+                                  "cloud",
+                                  "cloud_rain",
+                                  "thermometer",
+                                  "wind",
+                                  "flame",
+                                  "zap",
+                                  "battery",
+                                  "wifi",
+                                  "pin",
+                                  "map",
+                                  "navigation",
+                                  "compass",
+                                  "home",
+                                  "building",
+                                  "store",
+                                  "shopping_cart",
+                                  "shopping_bag",
+                                  "tag",
+                                  "gift",
+                                  "credit_card",
+                                  "wallet",
+                                  "banknote",
+                                  "piggy_bank",
+                                  "receipt",
+                                  "trending_up",
+                                  "trending_down",
+                                  "bar_chart",
+                                  "pie_chart",
+                                  "activity",
+                                  "target",
+                                  "trophy",
+                                  "medal",
+                                  "award",
+                                  "flag",
+                                  "user",
+                                  "users",
+                                  "user_plus",
+                                  "baby",
+                                  "smile",
+                                  "dumbbell",
+                                  "bike",
+                                  "footprints",
+                                  "heart_pulse",
+                                  "pill",
+                                  "stethoscope",
+                                  "apple",
+                                  "coffee",
+                                  "utensils",
+                                  "wine",
+                                  "pizza",
+                                  "carrot",
+                                  "sprout",
+                                  "flower",
+                                  "tree",
+                                  "mountain",
+                                  "waves",
+                                  "car",
+                                  "bus",
+                                  "plane",
+                                  "train",
+                                  "briefcase",
+                                  "graduation_cap",
+                                  "book_open",
+                                  "book",
+                                  "pencil",
+                                  "file_text",
+                                  "clipboard",
+                                  "clipboard_list",
+                                  "checklist",
+                                  "lock",
+                                  "unlock",
+                                  "key",
+                                  "shield",
+                                  "eye",
+                                  "link",
+                                  "paperclip",
+                                  "download",
+                                  "upload",
+                                  "trash",
+                                  "edit",
+                                  "filter",
+                                  "sliders",
+                                  "info",
+                                  "alert",
+                                  "help",
+                                  "sparkles",
+                                  "lightbulb",
+                                  "palette",
+                                  "scissors",
+                                  "wrench",
+                                  "hammer",
+                                  "package",
+                                  "truck",
+                                  "recycle",
+                                  "globe",
+                                  "languages",
+                                  "gamepad",
+                                  "ticket",
+                                  "paw",
+                                  "shirt",
+                                  "bed",
+                                  "bath",
+                                  "sofa",
+                                  "lamp",
+                                  "chevron_left",
+                                  "arrow_left",
+                                  "more",
+                                  "external_link",
+                                  "quote",
+                                  "circle_check"
+                                ]
+                              },
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "icon",
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "density",
+                      "emphasis",
+                      "detail",
+                      "style",
+                      "title",
+                      "sub",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Progress",
+                        "enum": [
+                          "Progress"
+                        ]
+                      },
+                      "density": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "comfortable",
+                              "compact"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "figures": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "exact",
+                              "short"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "hero"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "bars"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "bars": {
+                        "minItems": 1,
+                        "maxItems": 5,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "label": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20
+                            },
+                            "value": {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            "of": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            },
+                            "unit": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 8
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "tone": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "warn",
+                                    "good",
+                                    "bad"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "goto": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_]*$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "label",
+                            "value",
+                            "of",
+                            "unit",
+                            "tone",
+                            "goto"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 48
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "density",
+                      "figures",
+                      "emphasis",
+                      "detail",
+                      "style",
+                      "bars",
+                      "sub"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Progress",
+                        "enum": [
+                          "Progress"
+                        ]
+                      },
+                      "density": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "comfortable",
+                              "compact"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "figures": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "exact",
+                              "short"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "hero"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "type": "string",
+                        "enum": [
+                          "ring"
+                        ]
+                      },
+                      "bars": {
+                        "minItems": 1,
+                        "maxItems": 1,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "label": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 24
+                            },
+                            "value": {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            "of": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            },
+                            "unit": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 8
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "tone": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "warn",
+                                    "good",
+                                    "bad"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "goto": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_]*$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "label",
+                            "value",
+                            "of",
+                            "unit",
+                            "tone",
+                            "goto"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 48
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "density",
+                      "figures",
+                      "emphasis",
+                      "detail",
+                      "style",
+                      "bars",
+                      "sub"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "FoodLog",
+                        "enum": [
+                          "FoodLog"
+                        ]
+                      },
+                      "density": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "comfortable",
+                              "compact"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "meals": {
+                        "minItems": 1,
+                        "maxItems": 4,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "meal": {
+                              "type": "string",
+                              "enum": [
+                                "breakfast",
+                                "lunch",
+                                "dinner",
+                                "snack"
+                              ]
+                            },
+                            "items": {
+                              "minItems": 0,
+                              "maxItems": 6,
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 28
+                                  },
+                                  "kcal": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 10000
+                                  },
+                                  "amount": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 12
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "kcal",
+                                  "amount"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
+                          },
+                          "required": [
+                            "meal",
+                            "items"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "target": {
+                        "anyOf": [
+                          {
+                            "type": "number",
+                            "minimum": 1,
+                            "maximum": 20000
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "goto": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "density",
+                      "detail",
+                      "meals",
+                      "target",
+                      "goto"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "components"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"id\": \"food_day\",\n  \"title\": \"What I ate\",\n  \"components\": [\n    {\n      \"id\": \"header_food_day\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"What I ate\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"progress_daily_calories\",\n      \"c\": \"Progress\",\n      \"density\": null,\n      \"figures\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"bars\": [\n        {\n          \"label\": \"Daily calories\",\n          \"value\": 0,\n          \"of\": 1,\n          \"unit\": null,\n          \"tone\": null,\n          \"goto\": null\n        }\n      ],\n      \"sub\": null\n    },\n    {\n      \"id\": \"food_log_meals\",\n      \"c\": \"FoodLog\",\n      \"density\": null,\n      \"detail\": null,\n      \"meals\": [\n        {\n          \"meal\": \"breakfast\",\n          \"items\": []\n        },\n        {\n          \"meal\": \"lunch\",\n          \"items\": []\n        },\n        {\n          \"meal\": \"dinner\",\n          \"items\": []\n        },\n        {\n          \"meal\": \"snack\",\n          \"items\": []\n        }\n      ],\n      \"target\": null,\n      \"goto\": \"food_add\"\n    }\n  ]\n}",
+    "replies": [
+      "{\n  \"id\": \"food_day\",\n  \"title\": \"What I ate\",\n  \"components\": [\n    {\n      \"id\": \"header_food_day\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"What I ate\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"progress_daily_calories\",\n      \"c\": \"Progress\",\n      \"density\": null,\n      \"figures\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"bars\": [\n        {\n          \"label\": \"Daily calories\",\n          \"value\": 0,\n          \"of\": 1,\n          \"unit\": null,\n          \"tone\": null,\n          \"goto\": null\n        }\n      ],\n      \"sub\": null\n    },\n    {\n      \"id\": \"food_log_meals\",\n      \"c\": \"FoodLog\",\n      \"density\": null,\n      \"detail\": null,\n      \"meals\": [\n        {\n          \"meal\": \"breakfast\",\n          \"items\": []\n        },\n        {\n          \"meal\": \"lunch\",\n          \"items\": []\n        },\n        {\n          \"meal\": \"dinner\",\n          \"items\": []\n        },\n        {\n          \"meal\": \"snack\",\n          \"items\": []\n        }\n      ],\n      \"target\": null,\n      \"goto\": \"food_add\"\n    }\n  ]\n}",
+      "{\n  \"id\": \"food_day\",\n  \"title\": \"What I ate\",\n  \"components\": [\n    {\n      \"id\": \"header\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": \"full\",\n      \"style\": null,\n      \"title\": \"What I ate\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"progress\",\n      \"c\": \"Progress\",\n      \"density\": null,\n      \"figures\": null,\n      \"emphasis\": null,\n      \"detail\": \"full\",\n      \"style\": \"bars\",\n      \"bars\": [\n        {\n          \"label\": \"Calories today\",\n          \"value\": 0,\n          \"of\": 2000,\n          \"unit\": null,\n          \"tone\": \"warn\",\n          \"goto\": null\n        }\n      ],\n      \"sub\": null\n    },\n    {\n      \"id\": \"food_log\",\n      \"c\": \"FoodLog\",\n      \"density\": null,\n      \"detail\": \"full\",\n      \"meals\": [\n        {\n          \"meal\": \"breakfast\",\n          \"items\": []\n        },\n        {\n          \"meal\": \"lunch\",\n          \"items\": []\n        },\n        {\n          \"meal\": \"dinner\",\n          \"items\": [\n            {\n              \"name\": \"Lasagna\",\n              \"kcal\": 520,\n              \"amount\": \"1 slice\"\n            },\n            {\n              \"name\": \"Caesar salad\",\n              \"kcal\": 350,\n              \"amount\": \"1 bowl\"\n            }\n          ]\n        },\n        {\n          \"meal\": \"snack\",\n          \"items\": []\n        }\n      ],\n      \"target\": 2000,\n      \"goto\": \"add_food\"\n    }\n  ]\n}",
+      "{\n  \"id\": \"food_day\",\n  \"title\": \"What I ate\",\n  \"components\": [\n    {\n      \"id\": \"h1\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": \"brief\",\n      \"style\": null,\n      \"title\": \"What I ate\",\n      \"sub\": \"Daily food log\",\n      \"action\": null\n    },\n    {\n      \"id\": \"progress_1\",\n      \"c\": \"Progress\",\n      \"density\": null,\n      \"figures\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": \"bars\",\n      \"bars\": [\n        {\n          \"label\": \"Calories\",\n          \"value\": 0,\n          \"of\": 2000,\n          \"unit\": \"kcal\",\n          \"tone\": null,\n          \"goto\": null\n        }\n      ],\n      \"sub\": null\n    },\n    {\n      \"id\": \"food_log_1\",\n      \"c\": \"FoodLog\",\n      \"density\": null,\n      \"detail\": \"full\",\n      \"meals\": [\n        {\n          \"meal\": \"breakfast\",\n          \"items\": []\n        },\n        {\n          \"meal\": \"lunch\",\n          \"items\": []\n        },\n        {\n          \"meal\": \"dinner\",\n          \"items\": []\n        },\n        {\n          \"meal\": \"snack\",\n          \"items\": []\n        }\n      ],\n      \"target\": 2000,\n      \"goto\": \"food_add\"\n    }\n  ]\n}"
+    ]
+  },
   "d2bf9ece13ae88f7": {
     "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: mealweek/week. Job: The week's meals.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot_1\",\"allow\":[\"MealPlan\"],\"min\":1,\"max\":1},{\"id\":\"slot_2\",\"allow\":[\"Button\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nLayout rule: Keep Header, MealPlan and Button in order even with no cast. MealPlan may use its neutral Monday week, a dinner column and empty cells. Return the complete screen object, not only MealPlan props.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { density?: comfortable|compact, emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: Use style \"back\" only when a back button is needed. To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis and density to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nMealPlan: Plan recipes across the week's days and meals.\nprops: { media?: thumb|none=\"thumb\", week: date YYYY-MM-DD, meals: [1..4 breakfast|lunch|dinner|snack], cells: [0..28 { day: int 0..6, meal: breakfast|lunch|dinner|snack, title: text≤24, photo?: photo lib:<tag>|local:<n>, goto: id snake_case }] }\nRule: week is a real Monday date. List each meal column once. Every filled cell has one unique day/meal pair and its meal is a listed column. Empty add cells are computed, not written.\nRule: Use media \"none\" only when asked for a text-only week or to hide recipe photos. Leave media null otherwise.\nexample: {\"c\":\"MealPlan\",\"week\":\"2026-11-16\",\"meals\":[\"lunch\",\"dinner\"],\"cells\":[{\"day\":3,\"meal\":\"dinner\",\"title\":\"Nonna's lasagne\",\"photo\":\"lib:food\",\"goto\":\"recipe_overview\"}]}\nweight: 3\n\nButton: One main thing the person does next.\nprops: { label: text≤24, kind?: primary|secondary|quiet|danger=\"primary\", icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, goto?: id snake_case, confirm?: text≤60 }\nexample: {\"c\":\"Button\",\"label\":\"Log watering\",\"kind\":\"primary\",\"icon\":\"drop\"}\nweight: 1\n\nA valid default for this layout: {\"id\":\"mealweek_week\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Item one\"},{\"id\":\"m1\",\"c\":\"MealPlan\",\"week\":\"2026-11-16\",\"meals\":[\"dinner\"],\"cells\":[{\"day\":0,\"meal\":\"dinner\",\"title\":\"Item one\",\"goto\":\"details\"},{\"day\":1,\"meal\":\"dinner\",\"title\":\"Item two\",\"goto\":\"details\"},{\"day\":2,\"meal\":\"dinner\",\"title\":\"Item three\",\"goto\":\"details\"}]},{\"id\":\"b1\",\"c\":\"Button\",\"label\":\"Continue\",\"kind\":\"primary\"}]}\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. Reply with JSON only.",
     "format": {
