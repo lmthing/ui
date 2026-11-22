@@ -6,6 +6,7 @@ import { PartContext, useComponentState, usePart, usePartContext } from "../../p
 import { KitIcon } from "../text";
 import { KitText } from "../text";
 import { shifted } from "../text";
+import { useTileBuzz } from "./tile-buzz";
 
 const Badge = styled(YStack, {
   width: size.avatar.md,
@@ -29,6 +30,7 @@ type TileProps = {
   disabled?: boolean;
   detail?: ReactNode;
   action?: "press" | "toggle" | "start" | "stop";
+  touchTarget?: "buzz";
   density?: ThemeDensity | undefined;
   /** Reserve space for the selected border and use a neutral badge when off. */
   distinctSelection?: boolean;
@@ -121,11 +123,12 @@ function useTileFinish({ density, detail, distinctSelection, on }: Omit<TileProp
 }
 
 function Tile(props: Omit<TileProps, "item">) {
-  const { label, goto, on, disabled = false, action } = props;
+  const { label, goto, on, disabled = false, action, touchTarget } = props;
   const kit = useKit();
   const ks = useKitStyle();
-  const part = usePart();
+  const part = usePart(touchTarget);
   const loading = useComponentState() === "loading";
+  const timed = useTileBuzz(part.testID, touchTarget !== undefined, disabled || loading);
   const finish = useTileFinish(props);
   const press = () => {
     if (kit.controller)
@@ -143,15 +146,18 @@ function Tile(props: Omit<TileProps, "item">) {
       minHeight={size.control.lg}
       borderRadius={shifted("md", ks.radiusShift)}
       backgroundColor={on ? "$accentSoft" : undefined}
-      accessibilityRole={loading ? undefined : goto && !action ? "link" : "button"}
+      {...(!isWeb && touchTarget && !loading ? { accessible: true } : {})}
+      accessibilityRole={loading ? undefined : goto && !action && !touchTarget ? "link" : "button"}
       accessibilityLabel={loading ? undefined : label}
       aria-pressed={on}
       aria-disabled={disabled || undefined}
       aria-busy={loading || undefined}
       {...(disabled || loading
         ? { tabIndex: -1, ...(!isWeb ? { accessibilityState: { disabled: true } } : {}) }
-        : {})}
-      {...((kit.interactive && !disabled && !loading && (kit.controller || goto)
+        : touchTarget && isWeb && kit.interactive && kit.controller
+          ? { tabIndex: 0 }
+          : {})}
+      {...((!touchTarget && kit.interactive && !disabled && !loading && (kit.controller || goto)
         ? {
             onPress: press,
             onKeyDown: (event: { key: string; preventDefault(): void }) => {
@@ -162,6 +168,7 @@ function Tile(props: Omit<TileProps, "item">) {
             },
           }
         : {}) as object)}
+      {...(timed as object)}
     >
       <TileContent {...props} {...{ disabled, loading }} />
     </YStack>
@@ -170,7 +177,7 @@ function Tile(props: Omit<TileProps, "item">) {
 
 /**
  * One pressable item tile: an icon in a soft round badge over a centred label, the whole tile one
- * address (`<item>/root`, with `icon` and `label` parts). For quick-action grids (`Actions`).
+ * address (`<item>/root` or the optional `<item>/buzz`, with `icon` and `label` parts).
  */
 export function KitTile({ item, ...props }: TileProps) {
   const context = usePartContext();

@@ -1,24 +1,6 @@
 [
   {
     "file": "test/probes.test.ts",
-    "test": "shared variant probes on deepseek-flash > replays every requested and plain brief with a passing majority",
-    "reason": "The current shared variant prompts are missing from the DeepSeek Flash recording.",
-    "owner": "ui-fix-variant-probes"
-  },
-  {
-    "file": "test/probes.test.ts",
-    "test": "probes on deepseek-flash > List passes its probes",
-    "reason": "The recorded write chooses an unrequested density variant.",
-    "owner": "ui-fix-list-probes"
-  },
-  {
-    "file": "test/probes.test.ts",
-    "test": "probes on deepseek-flash > Scale passes its probes",
-    "reason": "The recorded write chooses an unrequested density variant.",
-    "owner": "ui-fix-scale-probes"
-  },
-  {
-    "file": "test/probes.test.ts",
     "test": "pack probes on deepseek-flash > booking passes selection, component and composition probes",
     "reason": "Missing current pack recording.",
     "owner": "ui-refresh-pack-booking"

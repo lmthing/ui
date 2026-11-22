@@ -7,6 +7,7 @@ import type { DeviceData, ScreenLike, Values } from "./index";
 import { projectDeviceFlags, projectDeviceRows } from "./device-data";
 import { isAdjustOnlyItem } from "./affordances";
 import { projectDraw } from "./draw";
+import { projectBuzz } from "./buzz";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
 import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
@@ -115,8 +116,7 @@ export function parseControlProps(def: Definition, input: unknown, get?: (part: 
 }
 /** Keep runtime-only selection flags out of the kit screen's wire projection. */
 export function projectControls(meta: Meta, props: Values, get: Get, mode?: "live" | "wire"): Values {
-  const projected = projectNested(meta, projectSelection(meta, props, get, mode), get);
-  return projectComponentSets(meta, projected, get);
+  return projectComponentSets(meta, projectNested(meta, projectSelection(meta, props, get, mode), get), get);
 }
 /** Preserve parsed values for component setters already applied to the wire. */
 export function projectParsedControls(meta: Meta, props: Values, get: Get, runtime: boolean): Values {
@@ -150,7 +150,7 @@ export function liveProps(
     const state = get("$state");
     if (state !== undefined) props = { ...props, state };
   }
-  props = projectDraw(meta, props, get);
+  props = projectBuzz(meta, projectDraw(meta, props, get), get);
   props = projectLiveInputs(meta, props, instance, get, data, validated);
   props = projectRecordRuntime(meta, props, instance, values, data, now);
   // Reapply to rows that a live or host projection may have replaced.
