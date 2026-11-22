@@ -61,6 +61,8 @@ function usesLiveState(meta: Meta) {
     meta.recordRuntime ||
     meta.linkedEdits ||
     meta.selectionBinding ||
+    meta.dateSpan ||
+    meta.jump ||
     hasRuntimeSets(meta) ||
     meta.deviceDataFlags ||
     items?.deviceData ||

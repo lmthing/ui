@@ -44,6 +44,7 @@ export type ActResult =
       localEvent?: true;
       media?: MediaOffer[];
       sequence?: true;
+      datePicks?: ActStep[];
       anchors?: { address: string; action: "focus" | "jump" }[];
     }
   | { ok: false; code: ActCode; at: number; hint?: string };
@@ -84,6 +85,7 @@ function recordControlResult(
         ? { attachments: found.send.attachments.map((part) => `${screen.id}/${part}`) }
         : {}),
     });
+  if (found.dateSpan) (plan.datePicks ??= []).push(resolved);
   const { address, action } = resolved;
   plan.changed.push(
     `${address} ${action}${key in plan.values ? ` = ${JSON.stringify(plan.values[key])}` : ""}`,

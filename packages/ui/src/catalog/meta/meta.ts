@@ -1,11 +1,8 @@
-import type { ActionName, ActionSpec, Component, ComponentId, StateName, Tier } from "../types";
-import type { PackProbe, ChooseProbe } from "../probes";
-import type { PackId } from "./pack-ids";
+import type { ActionName, ActionSpec, StateName, Tier } from "../types";
 import type { ClockMeta } from "./clocks";
 import type { RecordEdits } from "./record-edits";
 import type { ItemVariants, Session, VariantParts, Variants } from "../types";
-import type { DeviceData, HostCommandMeta, ItemEditPath, ItemEdits, ScreenLike } from "../agent";
-import type { Issue } from "../rules";
+import type { DateSpanSelection, DeviceData, HostCommandMeta, ItemEditPath, ItemEdits } from "../agent";
 import type * as LiveMeta from "./live";
 import type { Choice, NamedCollection, NestedGroups, NestedPart } from "./collections";
 import type { DriveBindings, NumericRange } from "./runtime";
@@ -141,6 +138,9 @@ export type Meta = {
   /** Optional independent, addressable collections alongside the legacy items. */
   collections?: Readonly<Record<string, NamedCollection>>;
   select?: SelectMeta; // Flags with runtime: true never enter wire snapshots.
+  dateSpan?: DateSpanSelection;
+  /** Declared component press parts that signal an in-screen drawing to reveal a local anchor. */
+  jump?: readonly string[];
   /** Bind to item checks on a same-screen component. Without an instance id, require a unique source. */
   selectionBinding?: LiveMeta.SelectionBinding;
   /** Named component parts with independent destinations and explicit offers. */
@@ -172,28 +172,4 @@ export type Meta = {
   /** Built by code (e.g. TabBar); stays readable but has no choose/write prompts or probes. */
   codeOwned?: boolean;
 } & HostCommandMeta;
-/** Pure check over canonical entries with parsed props. Report stable `S.*` codes. */
-export type PackScreenValidator = (screen: ScreenLike) => readonly Issue[];
-export type PackMeta = {
-  id: PackId;
-  example: string;
-  probes: readonly (PackProbe | ChooseProbe)[];
-  screenValidators?: readonly PackScreenValidator[];
-  hostRecords?: LiveMeta.HostRecords;
-};
-export type Slot = {
-  allow: readonly ComponentId[];
-  required: boolean;
-  min?: number;
-  max?: number;
-  variant?: string;
-};
-export type ArchetypeMeta = {
-  id: string;
-  job: string;
-  layouts: Record<
-    string,
-    { recipe: readonly Slot[]; defaults: readonly Component[]; writeHints?: readonly string[] }
-  >;
-  defaultLayout: string;
-};
+export type { ArchetypeMeta, PackMeta, PackScreenValidator, Slot } from "./pack-meta";

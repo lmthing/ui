@@ -86,6 +86,7 @@ export function prepareStep(
       input,
       defs: ctx.defs,
       selected,
+      plannedDate: plan.datePicks?.[0],
       links: plan.links,
       anchors: plan.anchors,
       send: plan.sends?.[0],

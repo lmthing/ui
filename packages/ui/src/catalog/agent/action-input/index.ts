@@ -1,4 +1,8 @@
 export { partsOf } from "./affordance-parts";
+import { jumpKey } from "./jump";
+import { nestedSpec } from "./nested-spec";
+export { jumpKey } from "./jump";
+export { nestedSpec } from "./nested-spec";
 import type { Definition } from "../../probes";
 import { stampItemIds } from "../../lines";
 import { repairVariants } from "../../rules";
@@ -65,17 +69,6 @@ export function validateStep(
       return { result: { code: found.blocked, hint: "Turn off an active choice first" }, edit, limits };
   }
   return { result, edit, limits };
-}
-
-export function nestedSpec(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
-  const [id, ...parts] = address.split("/");
-  const entry = screen.components.find((item) => item.id === id);
-  const def = entry && defs[entry.c];
-  if (!def?.meta.items?.nested) return undefined;
-  const { id: _id, c: _c, state: _state, ...raw } = entry!;
-  const spec = nestedAt(def.meta, parseControlProps(def, raw), parts.join("/"))?.spec;
-  if (!spec) return;
-  return spec.action === "set" || spec.action === "toggle" ? spec : {};
 }
 
 function setStep(
@@ -190,7 +183,11 @@ export function stageValue(
     next[key] = Number(next[key] ?? 0) + (action === "increment" ? 1 : -1);
   } else if (action === "press" || action === "select") {
     if (detail.startsWith("→")) links.push({ goto: detail.slice(1), address: key });
-    if (action === "select") next[key] = value;
+    if (action === "select" && !found.dateSpan) next[key] = value;
+    if (found.jump) {
+      const slot = jumpKey(key);
+      next[slot] = Number(next[slot] ?? 0) + 1;
+    }
   } else {
     next[key] = value;
     if (edit?.set) next[`${screenId}/${edit.id}/${edit.slot}`] = value;

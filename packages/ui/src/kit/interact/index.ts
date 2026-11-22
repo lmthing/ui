@@ -28,6 +28,7 @@ export {
 } from "./use-control";
 export { useSwipe, swipeDirection } from "./use-swipe";
 export { useLocalAnchor, useNumericControl } from "./runtime-controls";
+export { useAddressedJump } from "./use-addressed-jump";
 export { actionDelivery, type ActionEvent } from "./actions";
 export { controlStep, selectedStep, stageConfirmedClear, type ControlChange } from "./control-step";
 export { projectScreen, valueKey, type TimerState } from "./live-screen";

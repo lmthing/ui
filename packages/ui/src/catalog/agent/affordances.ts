@@ -10,6 +10,7 @@ import { sendDraft, type LiveInput } from "./live-inputs";
 import type { SendDraft } from "./act";
 import { boundActionAvailable, isItemOffer } from "./selection-binding";
 import { itemActionOffer, partsOf } from "./action-input";
+import { activeDateSpan, dateSpanOffer } from "./date-span";
 import { collectionOffers } from "./collections";
 import type { HostActionPolicy, HostIntent } from "./host-commands";
 import { deviceTimeOf, type DeviceData } from "./device-data";
@@ -38,6 +39,8 @@ export type Affordance = {
   blocked?: "max_active";
   togglePeers?: readonly string[];
   nestedStep?: { key: string; next: number };
+  jump?: true;
+  dateSpan?: true;
   move?: { current: string | null; choices: string[] };
   hostIntent?: HostIntent;
   localEvent?: Omit<LocalStateEvent, "value">;
@@ -74,18 +77,26 @@ function actionsForItem(
   const id = String(item.id);
   return partsOf(items, item, `${instance}/${id}`, when, { ...props, $first: first }, meta, true, data, wire)
     .filter(({ part, action }) => {
+      if (!dateSpanOffer(meta, props, part, action, item)) return false;
       const picker = Object.hasOwn(meta.items?.pickers ?? {}, part);
       const needsChoices =
         (picker && action === "press") ||
         (action === "select" && (picker || meta.items?.edits?.[part]?.action === "select"));
       return !needsChoices || Boolean(choiceValues(meta, props, `${id}/${part}`)?.length);
     })
-    .flatMap((offer) => itemActionOffer(meta, props, item, offer, schema));
+    .flatMap((offer) =>
+      offer.part === "root" && offer.action === "select" && activeDateSpan(meta, props)
+        ? [{ ...offer, dateSpan: true as const }]
+        : itemActionOffer(meta, props, item, offer, schema),
+    );
 }
 
 function actionsForComponent(meta: Meta, props: Props, instance: string, values: Props) {
   const { parts, when } = meta.actions ?? {};
   return partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
+    if (!dateSpanOffer(meta, props, a.part, a.action)) return [];
+    if (a.action === "press" && meta.jump?.includes(a.part))
+      return [{ ...a, detail: "", jump: true as const }];
     if (a.action === "move" && meta.items?.move) return [];
     const send = a.action === "send" ? sendDraft(meta, props, a.part, instance, values) : undefined;
     if (send !== undefined) return send ? [{ ...a, send }] : [];

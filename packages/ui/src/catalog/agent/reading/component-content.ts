@@ -38,6 +38,7 @@ function readingProps(
     meta.live ||
     meta.localState ||
     meta.sequence ||
+    meta.dateSpan ||
     meta.collections ||
     hasNestedCollectionControls(meta) ||
     meta.select?.runtime ||

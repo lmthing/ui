@@ -5,7 +5,8 @@ import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { KitIcon, KitText, shifted, surfaceOf } from "../text";
 import { KitRow } from "../surface";
-import { MatrixContent, MatrixScroll } from "./matrix-drawing";
+import { MatrixContent } from "./matrix-drawing";
+import { MatrixScroll } from "./matrix-scroll";
 import { useMoveFocus } from "../../interact";
 import type { Drawing } from "./matrix-layout";
 

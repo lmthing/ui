@@ -162,3 +162,30 @@ it("retains the same geometry during loading and removes addresses, labels and t
   expect(await cellGrid.getByRole("gridcell", { name: "1, 1", exact: true }).count()).toBe(1);
   expect(await page.getByTestId("test/cells/r2/root").count()).toBe(0);
 });
+
+it("reads class, exit, axis and reveal marks without turning unavailable cells into controls", async () => {
+  await page.getByRole("button", { name: "Marked" }).click();
+  const seats = page.getByRole("grid", { name: "Front" });
+  const premium = seats.getByRole("gridcell", { name: "A2, Premium" });
+  expect(await premium.locator("svg").count()).toBe(1);
+  expect(await premium.getAttribute("aria-disabled")).toBe("true");
+  expect(await seats.getByRole("rowheader", { name: "A, Exit row" }).locator("svg").count()).toBe(1);
+  const grid = page.getByTestId("test/cells/board").getByRole("grid");
+  expect(await grid.getAttribute("aria-rowcount")).toBe("10");
+  expect(await grid.getAttribute("aria-colcount")).toBe("10");
+  expect(await grid.getByRole("columnheader", { name: "2 1" }).getAttribute("aria-colindex")).toBe("2");
+  expect(await grid.getByRole("rowheader", { name: "2 1" }).count()).toBe(1);
+  expect(await grid.getByRole("gridcell", { name: "1, 7, correct, Flagged" }).locator("svg").count()).toBe(2);
+  await grid.getByRole("gridcell", { name: /1, 2, draft/ }).focus();
+  await page.keyboard.press("ArrowRight");
+  expect(await active()).toBe("1, 3, blocked");
+  const blocked = grid.getByRole("gridcell", { name: "1, 3, blocked" });
+  expect(await blocked.getAttribute("aria-disabled")).toBe("true");
+  expect(await blocked.getAttribute("data-testid")).toBeNull();
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("Space");
+  await blocked.tap({ force: true });
+  expect(await presses()).toEqual([]);
+  await page.keyboard.press("ArrowRight");
+  expect(await active()).toBe("1, 4, present, P");
+});

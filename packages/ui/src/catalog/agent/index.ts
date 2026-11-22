@@ -48,7 +48,8 @@ export { visibleItems } from "./visibility";
 export { credentialToggleOn } from "./credential-toggle";
 export { pickerAt, pickerKey, projectLiveInputs } from "./live-inputs";
 export { linkedEditKey } from "./linked-edits";
-export { itemMoveOffer } from "./action-input";
+export { dateSpanChoice, dateSpanItem, dateSpanKey, type DateSpanSelection } from "./date-span";
+export { itemMoveOffer, jumpKey } from "./action-input";
 export { slotMoveOffer } from "./collections";
 export {
   defineLocalState,

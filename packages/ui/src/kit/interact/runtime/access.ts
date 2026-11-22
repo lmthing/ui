@@ -190,7 +190,6 @@ export function createAccess(
     },
   };
 }
-
 function canPress(ctx: ControllerContext, address: string, ignoreDisabledPart = false) {
   const offered = actionsAt(ctx, address, false, ignoreDisabledPart);
   const local = ctx.relative(address);

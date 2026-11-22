@@ -73,3 +73,14 @@ it("uses the same footprint for empty, used and loading, with no QR matrix", () 
   expect(styleAt(loading, plate)).toContain(`height:${component.base.ringLg}px`);
   expect(render({ ...input, part: null })).not.toContain("data-testid=");
 });
+
+it("uses its rectangular barcode plate only for a drawable, available payload", () => {
+  const barcode = { label: input.label, value: "TEST-042", kind: "barcode" } as const;
+  const html = render(barcode);
+  expect(html).toContain('viewBox="0 0 143 48"');
+  expect(html).toContain(`fill="${component.swatch.black}"`);
+  expect(html).not.toContain(barcode.value);
+  for (const options of [{ used: true }, { unavailable: true }, { loading: true }, { value: "æ" }]) {
+    expect(render({ ...barcode, ...options })).not.toContain(`fill="${component.swatch.black}"`);
+  }
+});

@@ -27,6 +27,7 @@ export type ActionContext = {
   input: Values;
   defs: Record<string, Definition>;
   selected: ActStep;
+  plannedDate?: ActStep | undefined;
   links: { goto: string; address: string }[];
   anchors?: Extract<ActResult, { ok: true }>["anchors"];
   send?: SendDraft | undefined;

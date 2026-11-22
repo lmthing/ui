@@ -58,7 +58,7 @@ export function useDeviceData() {
 export function useLiveControls(meta: Meta, props: Values): Values {
   const { controller: host } = useKit();
   const { screen, component } = usePartContext();
-  const controller = meta.linkedEdits || meta.selectionBinding ? host : undefined;
+  const controller = meta.linkedEdits || meta.selectionBinding || meta.dateSpan ? host : undefined;
   const data = useContext(DeviceDataContext);
   const subscribe = controller?.store.subscribe ?? subscribeNone;
   useSyncExternalStore(
@@ -78,9 +78,16 @@ export function useLiveControls(meta: Meta, props: Values): Values {
       ? JSON.stringify(controller?.liveControls(meta, props, component).$selection)
       : undefined;
   useSyncExternalStore(subscribe, selectionSnapshot, selectionSnapshot);
+  const spanSnapshot = () => {
+    const span = meta.dateSpan;
+    if (!span || !controller) return;
+    const live = controller.liveControls(meta, props, component);
+    return JSON.stringify([live[span.start], live[span.end], span.when && live[span.when.prop]]);
+  };
+  useSyncExternalStore(subscribe, spanSnapshot, spanSnapshot);
   return (
     host?.liveControls(meta, props, component) ??
-    (meta.select?.runtime || meta.localState || meta.collections
+    (meta.select?.runtime || meta.localState || meta.collections || meta.dateSpan
       ? liveProps(meta, props, component, {}, true, data)
       : projectLiveInputs(meta, props, component, () => undefined, data))
   );

@@ -176,6 +176,7 @@ export function introducedPart(
       (hasNestedCollectionControls(meta) && isNestedTarget(meta, target)) ||
       (isNestedTarget(meta, target) && (action.action === "increment" || action.action === "decrement")) ||
       meta.select?.runtime ||
+      meta.dateSpan ||
       meta.linkedEdits ||
       meta.items?.visibleWhen ||
       meta.items?.edits ||

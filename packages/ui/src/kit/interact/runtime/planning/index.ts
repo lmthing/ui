@@ -27,7 +27,7 @@ function runControl({ state, context, localEvent }: PreparedAction, selected: Ac
   const { links, screen } = context;
   return (localEvent ? navigationAction : handlerFor(selected.action))(
     state,
-    { ...selected, address },
+    { ...(context.plannedDate ?? selected), address },
     { ...context, links: links.map((link) => ({ ...link, address: `${screen.id}/${address}` })) },
   );
 }

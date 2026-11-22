@@ -306,7 +306,7 @@ Folder names below are under `src/kit/base/`; each has an `index.ts` door.
 | `diagram` | `KitPath` | Winding linked nodes with distinct done, current and locked drawings; optional milestone mark and node action. | `part?`, `loading?`, `nodes` ({id,label,content,state,milestone?,target?}); states done/current/locked. Target item defaults to the node id. |
 | `diagram` | `KitPitch` | Marked pitch with numbered player lines or a grouped list, optional substitutes, and inert loading that keeps the supplied formation. | `part?`, `loading?`, `lines` (each `{id,players}`, each player `{id,label,number,namePart?,numberPart?,target?}`), `substitutes?: ReactNode`, `substitutesHeight?: number` (token-derived slot height for a custom bench on first load), `style?: "pitch" \| "list"` (default `pitch`). Target is `{item?,part}`; the root and text parts use `target.item` or the player id. Omit text part names or pass `null` to leave the slots unaddressed. Loading placeholders have no text parts. |
 | `diagram` | `KitBracket` | Sideways rounds of paired tie cards with optional scores, winner marks, selected ties and supplied links. Loading keeps the supplied rounds and links. | `part?`, `loading?`, `rounds` (each `{id,label,ties}`, each tie `{id,roundPart?,sides:[Side,Side],selected?,target?,winner?}`, each `Side` is `{label,score?,labelPart?,scorePart?}`), `links: readonly { from: string; to: string }[]`; use unique tie ids across rounds. When `winner` is `0` or `1`, supply a localized `winnerLabel: string` for the tie's accessible name. Target is `{item?,part}`; the root and optional parts use `target.item` or the tie id. `roundPart` addresses the shared round heading under each opted-in tie. Omit part names or pass `null` to leave slots unaddressed; blank scores and loading placeholders have no parts. |
-| `codes` | `KitCode` | Fixed-contrast QR symbol with a quiet zone. Empty, used and loading drawings are not scannable. | `part?`, `loading?`, `value?: string`, `label: string`, `used?`. |
+| `codes` | `KitCode` | Fixed-contrast QR or 1D barcode with a quiet zone. Invalid, unavailable, used and loading drawings are not scannable. | `part?`, `loading?`, `value?: string`, `label: string`, `used?`, `unavailable?`, `kind?: "qr" \| "barcode"` (default QR). Barcode supports Code 128 B (1–10 printable ASCII characters) and C (even digit counts up to 20). It refuses unsupported issuer payloads instead of falling back to QR. Keep real credentials host-owned and out of agent copy. |
 | `composition` | `KitTicket` | Perforated card/pass with separate code slot and optional addressed body. | `part?`, `loading?`, `children: ReactNode`, `code?: ReactNode`, `style?` card/pass, `used?`, `target?: { item?, part }`, `label: string`. |
 | `data` | `KitJar` | Token-sized jar outline, normalized soft fill and centred caller content; zero, partial, full and geometry-preserving loading drawings. | `part?`, `loading?`, `ratio: number`, `label: string`, `children?: ReactNode`; finite ratio clamped to 0–1. |
 | `input` | `KitAction` | Declared actions and values go through the shared controller's validation; existing implicit press and disabled behaviour remain. | `action?` press/dismiss/play/pause/toggle/select/check/set/type/increment/decrement/start/stop/send/scan/copy; `value?: string \| number \| boolean`. A copy button binds its nonempty string `value` to its part; the wire action takes no value. Supply localized `copiedLabel?` for text and accessibility feedback after the current text is copied. |
@@ -329,6 +329,15 @@ Folder names below are under `src/kit/base/`; each has an `index.ts` door.
 | `input` | `KitScaleTrack` | A single accessible mood face; an unset value leaves its slot empty, and loading preserves the slot. | `single?: boolean` (only with `readonly` and `style="mood"`), `part?: string \| null` (default unaddressed). |
 | `text` | `KitContent` | A response group starts a larger token gap after preceding content; normal content spacing stays unchanged. | `group` content/response (default content; response adds `space.md - space.xs` before the group, making a parent's `space.xs` gap `space.md`) |
 | `helpers` | `KitSkeleton` | Media captions can match the filled content's small gap. Neutral control frames draw a visible, role-coloured child bar. | `contentGap` xs/sm (media only, default sm); Gallery uses xs |
+
+| Folder | Base | Use | Key props |
+| --- | --- | --- | --- |
+| `boards` | `KitSeatGrid` (marks) | Orthogonal class and row marks, such as premium, accessibility and exit marks. | `seatClass?` on seats and `mark?` on rows take `{icon,label}`. They do not change availability or addresses. |
+| `boards` | `KitCellGrid` (marks) | Blocked cells, reveal marks and row/column clues. Blocked cells remain readable and reachable like given cells but never activate. | Cell `state: "blocked"`, cell `mark?: {icon,label}` and grid `clues?: {rows?, columns?}`. Each clue axis is a complete array of short strings or `null` for blanks; an axis of the wrong length is ignored independently. |
+| `time` | `KitDay` (date span) | Selected-span fill and an inert muted day without changing its address. | `inSpan?`, `disabled?`; derive both from the live span, pass localized status in `name`. |
+| `matrix` | `KitTable` (timeline) | Fixed-width time slots and pinned row labels. Each program spans slots without duplicating its address. | Set `timeline={{}}`, or supply `timeline.jump: {part,column}` (a column id). Cells require zero-based integer `start` and positive integer `span`; `label?` names the target. Use unique cell ids and explicit stamped `target.item`. Unused slots are blank; conflicting or out-of-bounds cells do not draw. Validate layout on input so the reader offers only rendered programs. |
+| `media` | `KitPhotoCompare` | Two-photo wipe with an addressed slider; both images use the same full rectangle. An unresolved photo cannot be compared. | `beforePhoto?`, `afterPhoto?` (host refs), `beforeLabel`, `afterLabel`, `label` (slider name), `split` (0–100), `part?` (root), `sliderPart?` (`split`), `aspect?` (wide/square/tall), `disabled?`. Declare integer `set` bounds 0–100 and feed the live value back as `split`. |
+| `media` | `KitMapTile` (underlay) | Host-resolved image behind the same bounded pins. Missing frames fall back to the schematic. No fetching or playback logic in the base. | `underlay?` is the opaque reference at the caller's validated frame index. Use consistently registered frames fitting the map rectangle and pins in the existing normalized bounds. The underlay is decorative; read the live frame's timestamp and layer. |
 
 If the view needs something no base does, the task
 says which new base to add under `src/kit/base/` (or `helpers/`) and its exact props. Never draw it
@@ -355,6 +364,22 @@ also accept optional `speed` and `loop`; when neither is set, their playback set
 | Discrete playback | Declare `sequence` with `cursor`, ordered `meta.items` (or `count`, a literal or parsed field), and optional `first: 1` for one-based pages. Configure `seek` for an explicit integer target, with `seekAction: "set"` for a `KitSlider` that emits `set`. A declared `item` seek part takes no value or its exact index. `steps.previous`/`steps.next` work with `press` or `decrement`/`increment`; `KitAction` supports pointer and keyboard. `controls: { part, intervalMs, start? }` use `play`, `pause`, and optional `stop` (back to the first index). `start: true` or `{ prop, equals }` starts on mount only. The clock pauses at the end; `useLiveControls` projects the cursor and `sequencePlaying`, and snapshots retain the bounded schema-owned cursor. |
 
 Media tokens are 1–128 ASCII letters, digits, underscores or hyphens. Hosts keep bytes, file paths, provider errors and scan details out of Writer props, read output and snapshots. Use a Core Camera or FileList link instead when the component only needs navigation.
+
+For a range calendar, declare `meta.dateSpan: { start, end, date, available?, minNights?, clear?, when? }`.
+`start`, `end` and `minNights` name component props; `date` and `available` name fields on the day rows.
+Use ISO dates and a minimum of 1–30 nights (default 1). Every calendar date from start through end,
+including checkout, must be present once and available. Declare item root `select` and the optional
+named `clear` press. `when: { prop, equals }` restricts the range to one mode. Read the runtime
+endpoints via `useLiveControls` and `meta.read`. Use `dateSpanChoice(meta, live, day.date)` to gate the
+drawn day exactly as the dispatcher does. After a completed span the next pick starts a new span;
+an earlier available pick moves a pending start, while an invalid end leaves it unchanged.
+
+For an in-screen jump, declare the named part as a normal component `press` and add it to `meta.jump`.
+Mount its addressed button and pass that part to the drawing's jump option, or use `useAddressedJump`
+for another local anchor. The planner emits a runtime cue only on acceptance. Use `actions.when` if the
+destination can be absent. A local jump does not inherit the component's `goto`. Native hosts supply
+`NativeHost.focusAccessibility(element)` to move the screen reader to a revealed anchor. Keep board marks in `meta.read`, and
+gate unavailable seat and cell actions using the same facts that determine their drawing.
 
 ## Tests: `<Id>.test.ts`
 

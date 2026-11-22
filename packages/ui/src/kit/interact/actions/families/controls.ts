@@ -19,9 +19,10 @@ export function controlsAction(state: ActionState, action: ActStep, ctx: ActionC
     ctx.input,
     ctx.defs,
     state.values,
-    ctx.selected,
+    ctx.plannedDate ?? ctx.selected,
     ctx.now(),
     ctx.options.lang,
+    Boolean(ctx.plannedDate),
   );
   if (control.error)
     return rejected(state, ctx.at, control.disabled ? "disabled" : "invalid_value", control.error);

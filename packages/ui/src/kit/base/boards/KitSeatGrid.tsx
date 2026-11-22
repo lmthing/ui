@@ -1,17 +1,24 @@
 import { XStack, YStack, isWeb } from "tamagui";
-import { component, radius, size, space, type as typography } from "../../../catalog";
+import { component, radius, size, space } from "../../../catalog";
 import { usePart } from "../../part";
 import { useKitStyle } from "../../provider";
 import { KitText, shifted } from "../text";
 import { BoardCell, BoardGrid, type Target } from "./board-navigation";
+import { BoardGlyph, type BoardMark } from "./board-mark";
+import { SeatHeading } from "./seat-heading";
 
 type Seat = {
   id: string;
   label: string;
   kind: "free" | "taken" | "selected" | "aisle";
+  seatClass?: BoardMark;
   target?: Target;
 };
-type Section = { id: string; label: string; rows: readonly { label: string; seats: readonly Seat[] }[] };
+type Section = {
+  id: string;
+  label: string;
+  rows: readonly { label: string; mark?: BoardMark; seats: readonly Seat[] }[];
+};
 type SeatGridProps = {
   part?: string;
   loading?: boolean;
@@ -34,41 +41,6 @@ const skeletonSections: readonly Section[] = [
   },
 ];
 
-function SeatHeading({
-  label,
-  loading,
-  screen = false,
-}: {
-  label: string;
-  loading: boolean;
-  screen?: boolean;
-}) {
-  return (
-    <YStack
-      minHeight={screen ? size.control.sm : typography.label.lineHeight}
-      paddingHorizontal={screen ? space.md : undefined}
-      alignItems={screen ? "center" : "flex-start"}
-      justifyContent="center"
-      borderRadius={screen ? radius.pill : undefined}
-      backgroundColor={screen ? "$raised" : undefined}
-      aria-hidden={loading || undefined}
-    >
-      {loading ? (
-        <YStack
-          width={size.control.lg}
-          height={space.sm}
-          borderRadius={radius.pill}
-          backgroundColor="$line"
-        />
-      ) : (
-        <KitText part={null} role="label" lines={1} tone={screen ? "muted" : "text"}>
-          {label}
-        </KitText>
-      )}
-    </YStack>
-  );
-}
-
 function SeatTile({ seat, row, col, loading }: { seat: Seat; row: number; col: number; loading: boolean }) {
   const ks = useKitStyle();
   const selected = !loading && seat.kind === "selected";
@@ -80,7 +52,7 @@ function SeatTile({ seat, row, col, loading }: { seat: Seat; row: number; col: n
         col,
         id: seat.id,
         target: seat.target,
-        label: seat.label,
+        label: seat.seatClass ? `${seat.label}, ${seat.seatClass.label}` : seat.label,
         loading,
         selected,
         disabled: taken || undefined,
@@ -106,6 +78,7 @@ function SeatTile({ seat, row, col, loading }: { seat: Seat; row: number; col: n
           {seat.label}
         </KitText>
       )}
+      {!loading && seat.seatClass && <BoardGlyph mark={seat.seatClass} />}
     </BoardCell>
   );
 }
@@ -127,6 +100,9 @@ function SeatRow({
         width={size.control.md}
         height={size.control.md}
         justifyContent="center"
+        aria-label={!loading && row.mark ? `${row.label}, ${row.mark.label}` : undefined}
+        accessibilityLabel={!loading && row.mark ? `${row.label}, ${row.mark.label}` : undefined}
+        accessible={!loading && row.mark ? true : undefined}
         {...(isWeb && !loading ? { role: "rowheader", "aria-colindex": 1 } : {})}
       >
         {loading ? (
@@ -136,6 +112,7 @@ function SeatRow({
             {row.label}
           </KitText>
         )}
+        {!loading && row.mark && <BoardGlyph mark={row.mark} />}
       </YStack>
       {columns.map((width, col) => {
         const seat = row.seats[col];
