@@ -83,6 +83,7 @@ export const en = {
   creditScore: {
     label: "Credit score",
     scale: "Credit score range",
+    zone: (label: string, from: string, to: string) => `${label} (${from}–${to})`,
     factors: "What affects your score",
     rating: { excellent: "Excellent", good: "Good", fair: "Fair", poor: "Poor" },
     impact: { high: "High impact", medium: "Medium impact", low: "Low impact" },
@@ -91,6 +92,7 @@ export const en = {
     empty: "No credit report available",
     error: "Couldn’t reach the credit bureau",
     refresh: "Refresh score",
+    refreshing: "Refreshing score",
   },
   loanLabels: {
     balance: "Remaining balance",
