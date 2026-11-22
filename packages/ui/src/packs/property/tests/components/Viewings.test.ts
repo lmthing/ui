@@ -10,6 +10,7 @@ import {
   type Props,
   type StateName,
 } from "@lmthing/ui/catalog";
+import { createScreenController } from "@lmthing/ui/kit";
 import { addressedElements, renderInstance } from "../../../../../test/render";
 import { pack } from "../..";
 import { propertyWordsFor } from "../../lang";
@@ -126,13 +127,44 @@ describe("Viewings parts and states", () => {
     );
     expect(read({ ...input, detail: "brief" })).not.toContain(confirmed.note);
   });
-  it.each(["empty", "loading", "success", "error"] as const)("draws %s without offering actions", (state) => {
+  it.each(["empty", "loading", "success", "error"] as const)(
+    "draws %s with only its available actions",
+    (state) => {
+      const input = { viewings: [upcoming] };
+      const html = render(input, state);
+      const parts = addressedElements(html);
+      expect(parts.has("home/v1/root")).toBe(true);
+      expect(parts.has("home/v1/retry")).toBe(state === "error");
+      expect(
+        readComponent(Viewings, input, "v1", state)
+          .join("\n")
+          .match(/\[v1\/[^\]]+\]/g),
+      ).toEqual(state === "error" ? ["[v1/retry press]"] : null);
+      expect(html).toContain(state === "loading" ? 'aria-busy="true"' : words[state]);
+      if (state === "success" || state === "error") {
+        for (const label of Object.values(words.actions)) expect(html).toContain(`>${label}<`);
+        for (const part of Object.keys(words.actions)) expect(parts.has(`home/${address(part)}`)).toBe(false);
+      }
+    },
+  );
+  it("sends retry to the host in place only when the viewing update is in error", () => {
+    const onAction = vi.fn();
+    const onLink = vi.fn();
     const input = { viewings: [upcoming] };
-    const html = render(input, state);
-    expect(addressedElements(html).has("home/v1/root")).toBe(true);
-    expect(html).not.toContain('role="button"');
-    expect(readComponent(Viewings, input, "v1", state).join("\n")).not.toMatch(/\[v1\//);
-    expect(html).toContain(state === "loading" ? 'aria-busy="true"' : words[state]);
+    for (const state of ["error", "filled", "success"] as const) {
+      const screen = { id: "home", components: [{ id: "v1", c: "Viewings", ...input, state }] };
+      const controller = createScreenController({
+        screen,
+        defs: { Viewings },
+        requireMounted: false,
+        onAction,
+        onLink,
+      });
+      expect(controller.press("v1/retry").ok).toBe(state === "error");
+      controller.dispose();
+    }
+    expect(onAction).toHaveBeenCalledExactlyOnceWith({ address: "home/v1/retry", action: "press" });
+    expect(onLink).not.toHaveBeenCalled();
   });
 });
 
