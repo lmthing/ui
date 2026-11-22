@@ -30,6 +30,8 @@ export function actionFixture(c: string, input: Values, action: ActStep) {
     playMedia: vi.fn(),
     seekMedia: vi.fn(),
     requestPhoto: vi.fn(),
+    mediaEffect: vi.fn(),
+    attachmentReference: vi.fn(),
   };
   const state: ActionState = { values: {}, sheet: undefined, confirmation: undefined, changes: ["planned"] };
   return { ctx, state, options };

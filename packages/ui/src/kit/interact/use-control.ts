@@ -10,14 +10,18 @@ import { isWeb } from "tamagui";
 import {
   activeParentId,
   emptyDeviceData,
+  hasNestedCollectionControls,
   linkedEditKey,
   liveProps,
   nestedControls,
+  nestedCapacityBlocked,
   nestedRemaining,
   projectControls,
   projectLiveInputs,
   validateActionValue,
+  visibleItems,
   type DeviceData,
+  type Definition,
   type Meta,
   type Values,
 } from "../../catalog";
@@ -26,9 +30,20 @@ import { useKit } from "../provider";
 const subscribeNone = () => () => {};
 export const DeviceDataContext = createContext<DeviceData | undefined>(undefined);
 
+export { useActionPress, useAuthenticatedReveal, useRevealControl } from "./use-reveal";
+
 /** Host currency, if configured on the same controller that reads this screen. */
 export function useAppCurrency() {
   return useKit().controller?.currency;
+}
+
+/** Live acknowledgements for this component and its currently identified rows. */
+export function useHostOperations() {
+  const { component } = usePartContext();
+  const { controller } = useKit();
+  const snapshot = controller?.hostOperationVersion ?? (() => 0);
+  useSyncExternalStore(controller?.store.subscribe ?? subscribeNone, snapshot, snapshot);
+  return controller?.hostOperations(component) ?? [];
 }
 
 /** Get the host's declared records for the current component, outside its parsed props. */
@@ -43,7 +58,7 @@ export function useDeviceData() {
 export function useLiveControls(meta: Meta, props: Values): Values {
   const { controller: host } = useKit();
   const { screen, component } = usePartContext();
-  const controller = meta.linkedEdits || meta.selectionBinding ? host : undefined;
+  const controller = meta.linkedEdits || meta.selectionBinding || meta.dateSpan ? host : undefined;
   const data = useContext(DeviceDataContext);
   const subscribe = controller?.store.subscribe ?? subscribeNone;
   useSyncExternalStore(
@@ -63,9 +78,16 @@ export function useLiveControls(meta: Meta, props: Values): Values {
       ? JSON.stringify(controller?.liveControls(meta, props, component).$selection)
       : undefined;
   useSyncExternalStore(subscribe, selectionSnapshot, selectionSnapshot);
+  const spanSnapshot = () => {
+    const span = meta.dateSpan;
+    if (!span || !controller) return;
+    const live = controller.liveControls(meta, props, component);
+    return JSON.stringify([live[span.start], live[span.end], span.when && live[span.when.prop]]);
+  };
+  useSyncExternalStore(subscribe, spanSnapshot, spanSnapshot);
   return (
     host?.liveControls(meta, props, component) ??
-    (meta.select?.runtime
+    (meta.select?.runtime || meta.localState || meta.collections || meta.dateSpan
       ? liveProps(meta, props, component, {}, true, data)
       : projectLiveInputs(meta, props, component, () => undefined, data))
   );
@@ -100,25 +122,29 @@ export function useDateEdit(address: string, committed: string | undefined, enab
 }
 
 /** PhoneScreen subscribes to the controller store; static renderers use their parsed props. */
-export function useNestedControls(meta: Meta, props: Values) {
+export function useNestedControls(meta: Meta, props: Values, schema?: Definition["props"]) {
   const { controller } = useKit();
   const { screen, component } = usePartContext();
   const get = (part: string) => controller?.store.get(`${screen}/${component}/${part}`);
-  const live = projectControls(meta, props, get);
-  const controls = nestedControls(meta, live, get);
+  const grouped = hasNestedCollectionControls(meta);
+  const live =
+    grouped && controller
+      ? controller.liveControls(meta, props, component)
+      : projectControls(meta, props, get);
+  const visible =
+    grouped && meta.items?.visibleWhen ? new Set(visibleItems(meta, live).map((row) => row.id)) : undefined;
+  const controls = nestedControls(meta, live, get, controller?.defs[meta.id]?.props ?? schema, props);
   const remaining = nestedRemaining(meta, live, controls);
   return {
     parent: activeParentId(meta, live, get),
     remaining,
     controls: controls
-      .filter(({ enabled }) => enabled)
+      .filter(({ enabled, target }) => enabled && (!visible || visible.has(target.split("/")[0])))
       .map((control) => ({
         ...control,
         disabled:
           (control.step !== undefined && control.step.next === undefined) ||
-          (remaining !== undefined &&
-            remaining < (control.togglePeers?.length ?? 0) &&
-            control.item[control.spec.prop] !== true),
+          nestedCapacityBlocked(control, remaining),
       })),
   };
 }

@@ -64,6 +64,7 @@ Expired toggles the person's verification vote.
   Relative verified age and success ratio are computed by code.
 - Styles: `feed` (default, merchant cards with copyable code box, terms, and votes), `compact` (tight store
   and code rows).
+- Renderer: use `FeedRow` for merchant, discount, verification time, terms and copy/vote accessories. Perks owns code and voting policy.
 - Parts → actions: coupons `code copy`, coupons `up toggle`, coupons `down toggle`, coupons `visit press`
   (when `storeUrl` is present). `meta.partTiers: { visit: "service" }`.
 - States: filled, empty (no matching store coupons), loading, success (code copied to clipboard), error (feed

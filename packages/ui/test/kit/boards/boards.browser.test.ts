@@ -82,14 +82,16 @@ it("KitSeatGrid aligns aisle gaps, reads taken seats, and moves or activates by 
   expect(farSeat.x + farSeat.width).toBeLessThanOrEqual(390);
   await page.keyboard.press("Space");
   await seat("A15").tap();
-  expect(await presses()).toEqual([
-    { address: "test/seats/r1/root", ok: true },
-    { address: "test/seats/r3/root", ok: true },
-    { address: "test/seats/r3/root", ok: true },
-  ]);
   expect(await grid.locator('[tabindex="0"]').count()).toBe(1);
   await page.keyboard.press("Tab");
   expect(await active()).toBe("C1");
+  await page.keyboard.press("Space");
+  expect(await presses()).toEqual([
+    { address: "test/seats/r1/root", ok: true, via: "toggle" },
+    { address: "test/seats/r3/root", ok: true, via: "press" },
+    { address: "test/seats/r3/root", ok: true, via: "press" },
+    { address: "test/single/r1/root", ok: true, via: "select" },
+  ]);
 });
 
 it("KitCellGrid draws scored states, clues and notes and reaches every coordinate", async () => {
@@ -128,8 +130,8 @@ it("KitCellGrid draws scored states, clues and notes and reaches every coordinat
   await page.keyboard.press("Control+Home");
   expect(await active()).toBe("1, 1, given, G");
   expect(await presses()).toEqual([
-    { address: "test/cells/r2/root", ok: true },
-    { address: "test/cells/r4/root", ok: true },
+    { address: "test/cells/r2/root", ok: true, via: "press" },
+    { address: "test/cells/r4/root", ok: true, via: "press" },
   ]);
   await page.keyboard.press("Control+End");
   const compact = page.getByRole("button", { name: "Compact" });
@@ -161,4 +163,31 @@ it("retains the same geometry during loading and removes addresses, labels and t
   expect(await cellGrid.getByRole("gridcell").count()).toBe(81);
   expect(await cellGrid.getByRole("gridcell", { name: "1, 1", exact: true }).count()).toBe(1);
   expect(await page.getByTestId("test/cells/r2/root").count()).toBe(0);
+});
+
+it("reads class, exit, axis and reveal marks without turning unavailable cells into controls", async () => {
+  await page.getByRole("button", { name: "Marked" }).click();
+  const seats = page.getByRole("grid", { name: "Front" });
+  const premium = seats.getByRole("gridcell", { name: "A2, Premium" });
+  expect(await premium.locator("svg").count()).toBe(1);
+  expect(await premium.getAttribute("aria-disabled")).toBe("true");
+  expect(await seats.getByRole("rowheader", { name: "A, Exit row" }).locator("svg").count()).toBe(1);
+  const grid = page.getByTestId("test/cells/board").getByRole("grid");
+  expect(await grid.getAttribute("aria-rowcount")).toBe("10");
+  expect(await grid.getAttribute("aria-colcount")).toBe("10");
+  expect(await grid.getByRole("columnheader", { name: "2 1" }).getAttribute("aria-colindex")).toBe("2");
+  expect(await grid.getByRole("rowheader", { name: "2 1" }).count()).toBe(1);
+  expect(await grid.getByRole("gridcell", { name: "1, 7, correct, Flagged" }).locator("svg").count()).toBe(2);
+  await grid.getByRole("gridcell", { name: /1, 2, draft/ }).focus();
+  await page.keyboard.press("ArrowRight");
+  expect(await active()).toBe("1, 3, blocked");
+  const blocked = grid.getByRole("gridcell", { name: "1, 3, blocked" });
+  expect(await blocked.getAttribute("aria-disabled")).toBe("true");
+  expect(await blocked.getAttribute("data-testid")).toBeNull();
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("Space");
+  await blocked.tap({ force: true });
+  expect(await presses()).toEqual([]);
+  await page.keyboard.press("ArrowRight");
+  expect(await active()).toBe("1, 4, present, P");
 });

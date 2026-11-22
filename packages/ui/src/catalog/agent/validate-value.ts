@@ -1,17 +1,17 @@
-// Checks the value an action carries, before anything changes. Errors say the allowed format in
-// under 10 words (plan 4.12).
+/** Checks carried values before mutation; hints describe the allowed format (plan 4.12). */
 import { z } from "zod";
 import { localeOf } from "../lang";
-import type { Meta } from "../meta";
+import type { Meta, NumericLimits as Range } from "../meta";
 import type { Values } from "./act";
 import { itemEditAt } from "./report-edits";
 import { pickerAt } from "./live-inputs";
-
+import { numericError } from "./clocks";
+import { validateSequenceSeek, type SeekLimits } from "./media";
 export type ValueError = { code: "invalid_value"; hint: string };
 type SetSpec = NonNullable<Meta["set"]>[string];
 type StringLimits =
   Omit<Extract<SetSpec, { type: "date" }>, "prop"> | Omit<Extract<SetSpec, { type: "choice" }>, "prop">;
-type NumericLimits = { type?: "number"; numeric?: true; min?: number; max?: number; integer?: boolean };
+type NumericLimits = Range & { type?: "number"; numeric?: true; integer?: boolean };
 
 const invalid = (hint: string): ValueError => ({ code: "invalid_value", hint });
 const calendarDate = z.iso.date();
@@ -76,6 +76,8 @@ const rules: Record<string, [check: (value: unknown) => boolean, hint: string]> 
   press: [none, "press takes no value"],
   start: [none, "start takes no value"],
   stop: [none, "stop takes no value"],
+  focus: [none, "focus takes no value"],
+  jump: [none, "jump takes no value"],
   dismiss: [none, "dismiss takes no value"],
   send: [none, "send takes no value"],
   play: [none, "play takes no value"],
@@ -98,7 +100,9 @@ export function validateActionValue(
   action: string,
   value: unknown,
   limits?: NumericLimits | StringLimits,
+  seek?: SeekLimits,
 ): ValueError | null {
+  if (seek && (action === "seek" || action === "set")) return validateSequenceSeek(value, seek);
   const rule = rules[action];
   if (!rule) return { code: "invalid_value", hint: `unknown action ${action}` };
   if (!rule[0](value)) return { code: "invalid_value", hint: rule[1] };
@@ -115,16 +119,15 @@ export function validateActionValue(
       : invalid("Use one of the declared choices");
   if (
     limits &&
-    (limits.type || limits.numeric || limits.min !== undefined || limits.max !== undefined || limits.integer)
+    (limits.type ||
+      limits.numeric ||
+      limits.min !== undefined ||
+      limits.max !== undefined ||
+      limits.integer ||
+      limits.step !== undefined)
   ) {
-    if (typeof value !== "number" || !Number.isFinite(value))
-      return { code: "invalid_value", hint: "set takes a finite number" };
-    if (limits.integer && !Number.isInteger(value))
-      return { code: "invalid_value", hint: "set takes an integer" };
-    if (limits.min !== undefined && value < limits.min)
-      return { code: "invalid_value", hint: `set takes ${limits.min} or more` };
-    if (limits.max !== undefined && value > limits.max)
-      return { code: "invalid_value", hint: `set takes ${limits.max} or less` };
+    const hint = numericError(value, limits);
+    if (hint) return invalid(hint);
   }
   return null;
 }
@@ -136,7 +139,25 @@ export function selectionOffer(meta: Meta, target: string) {
     return { prop: meta.select!.prop, choices: choices[target]!, runtime: false as const, clear: undefined };
 }
 
-type ChoiceOption = { value: string | number; label?: string };
+export type ChoiceOption = { value: string | number; label?: string };
+
+export function normalizeChoices(allowed: unknown): ChoiceOption[] {
+  if (!Array.isArray(allowed)) return [];
+  return (allowed as unknown[]).flatMap((option): ChoiceOption[] => {
+    if (isChoiceValue(option)) return [{ value: option }];
+    if (
+      option &&
+      typeof option === "object" &&
+      "value" in option &&
+      isChoiceValue(option.value) &&
+      "label" in option &&
+      typeof option.label === "string" &&
+      option.label.length > 0
+    )
+      return [{ value: option.value, label: option.label }];
+    return [];
+  });
+}
 
 /** Undefined means no explicit offer declaration; an empty list means there are no offered choices. */
 export function choiceOptions(meta: Meta, props: Values, target: string): ChoiceOption[] | undefined {
@@ -148,22 +169,7 @@ export function choiceOptions(meta: Meta, props: Values, target: string): Choice
   if ("row" in source && !meta.items?.deviceData) return [];
   const allowed =
     "row" in source ? item?.row[source.row] : "prop" in source ? (picker?.row ?? props)[source.prop] : source;
-  const choices: ChoiceOption[] = [];
-  if (Array.isArray(allowed)) {
-    for (const option of allowed as unknown[]) {
-      if (isChoiceValue(option)) choices.push({ value: option });
-      else if (
-        option &&
-        typeof option === "object" &&
-        "value" in option &&
-        isChoiceValue(option.value) &&
-        "label" in option &&
-        typeof option.label === "string" &&
-        option.label.length > 0
-      )
-        choices.push({ value: option.value, label: option.label });
-    }
-  }
+  const choices = normalizeChoices(allowed);
   if (
     "clear" in offer &&
     typeof offer.clear === "string" &&

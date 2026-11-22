@@ -1,6 +1,6 @@
-import { useRef } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 import { isWeb } from "tamagui";
-import { size } from "../../../catalog";
+import { size, snapNumber } from "../../../catalog";
 import { useKit } from "../../provider";
 
 type SliderControl = {
@@ -11,9 +11,15 @@ type SliderControl = {
   max: number;
   step?: number;
   disabled?: boolean;
+  declared?: boolean;
+  inset?: number;
+  action?: "set" | "seek" | undefined;
 };
-function webHandlers({ min, max, value, step = 1 }: SliderControl, dispatch: (next: number) => void) {
-  const thumb = size.icon.lg;
+function webHandlers(
+  { min, max, value, step = 1, inset = size.icon.lg }: SliderControl,
+  dispatch: (next: number) => void,
+  drag: RefObject<(() => void) | null>,
+) {
   return {
     tabIndex: 0,
     onKeyDown: (event: KeyboardEvent) => {
@@ -33,18 +39,28 @@ function webHandlers({ min, max, value, step = 1 }: SliderControl, dispatch: (ne
       }
     },
     onPointerDown: (event: PointerEvent) => {
+      if (event.isPrimary === false || drag.current) return;
       const node = event.currentTarget as HTMLElement;
       const rect = node.getBoundingClientRect();
+      const pointer = event.pointerId;
       const position = (x: number) =>
-        min + ((x - rect.left - thumb / 2) / Math.max(1, rect.width - thumb)) * (max - min);
+        min + ((x - rect.left - inset / 2) / Math.max(1, rect.width - inset)) * (max - min);
       dispatch(position(event.clientX));
-      const move = (next: PointerEvent) => dispatch(position(next.clientX));
-      const up = () => {
+      const move = (next: PointerEvent) => {
+        if (next.pointerId === pointer) dispatch(position(next.clientX));
+      };
+      const up = (next: PointerEvent) => {
+        if (next.pointerId === pointer) drag.current?.();
+      };
+      drag.current = () => {
         document.removeEventListener("pointermove", move);
         document.removeEventListener("pointerup", up);
+        document.removeEventListener("pointercancel", up);
+        drag.current = null;
       };
       document.addEventListener("pointermove", move);
-      document.addEventListener("pointerup", up, { once: true });
+      document.addEventListener("pointerup", up);
+      document.addEventListener("pointercancel", up);
     },
   };
 }
@@ -52,6 +68,22 @@ export function useSlider(control: SliderControl) {
   const { address, part, value, min, max, step = 1, disabled = false } = control;
   const kit = useKit();
   const width = useRef(0);
+  const drag = useRef<(() => void) | null>(null);
+  useEffect(
+    () => () => drag.current?.(),
+    [
+      address,
+      disabled,
+      kit.controller,
+      kit.interactive,
+      min,
+      max,
+      step,
+      control.declared,
+      control.inset,
+      control.action,
+    ],
+  );
   const dispatch = (next: number) => {
     if (disabled || !Number.isFinite(next)) return;
     const interval = Number.isFinite(step) && step > 0 ? step : 1;
@@ -59,15 +91,17 @@ export function useSlider(control: SliderControl) {
     const index = Math.min(last, Math.max(0, Math.round((next - min) / interval)));
     return kit.controller?.act({
       address,
-      action: part === "scrubber" ? "seek" : "set",
-      value: Number((min + index * interval).toPrecision(15)),
+      action: control.action ?? (part === "scrubber" ? "seek" : "set"),
+      value: control.declared
+        ? snapNumber(next, min, max, interval)
+        : Number((min + index * interval).toPrecision(15)),
     });
   };
   const handlers =
     disabled || !kit.interactive || !kit.controller
       ? {}
       : isWeb
-        ? webHandlers(control, dispatch)
+        ? webHandlers(control, dispatch, drag)
         : {
             onStartShouldSetResponder: () => true,
             onResponderGrant: (event: { nativeEvent: { locationX: number } }) =>

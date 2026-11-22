@@ -1,6 +1,8 @@
 import {
   drawRole,
   isNestedTarget,
+  hasNestedCollectionControls,
+  isLocalAnchorAction,
   planAct,
   privateMarkKey,
   reportConfirmation,
@@ -14,15 +16,28 @@ import {
   type Values,
 } from "../../../../catalog";
 import { planHostAct } from "../../../../catalog/agent/action-input";
-import type { ControllerContext, ScreenComponent } from "../index";
-import { deliverSend, type ActionContext } from "../../actions";
+import type { ControllerContext, ScreenComponent, MediaRuntime } from "../index";
+import {
+  actionFailure,
+  deliverSend,
+  type ActionContext,
+  type ActionResult,
+  type ActionState,
+} from "../../actions";
 
-export function drivenPartBlock(ctx: ControllerContext, address: string) {
+export function drivenPartBlock(ctx: ControllerContext, address: string, action?: string) {
   if (ctx.privateMarks.has(address) || ctx.store.get(privateMarkKey(ctx.screen.id, address)))
     return { code: "not_actionable", hint: "Private control" };
   if (ctx.disabledParts.has(address)) return { code: "disabled", hint: "This control is disabled" };
+  if (action && isLocalAnchorAction(action) && !ctx.anchors.has(address))
+    return { code: "not_mounted", hint: "This anchor is not mounted" };
   if (ctx.options.requireMounted && !ctx.mounted.has(address))
     return { code: "not_mounted", hint: "This control is not mounted" };
+}
+
+export function driveAccess(ctx: ControllerContext) {
+  return (part: string, observe?: true, action?: string) =>
+    observe ? !ctx.privateMarks.has(part) : !drivenPartBlock(ctx, part, action);
 }
 
 export function confirmReport(
@@ -42,14 +57,29 @@ export function confirmReport(
   );
 }
 
+export function runAnchor(
+  ctx: ControllerContext,
+  before: ActionState,
+  state: ActionState,
+  address: string,
+  action: "focus" | "jump",
+  at: number,
+): ActionResult {
+  const block = drivenPartBlock(ctx, address, action);
+  if (block) return { state: before, effects: [], error: actionFailure(at, block.code, block.hint) };
+  return { state, effects: [() => ctx.anchors.get(address)?.(action)] };
+}
+
 export function needsConfirmation(ctx: ControllerContext, { entry, selected }: ActionContext) {
   if (!ctx.standalone) return true;
   const meta = ctx.defs[entry.c]!.meta;
   const { successActions, errorActions, live } = meta;
   const part = selected.address.split("/").slice(1).join("/") || "root";
+  if (meta.draw?.kind === "deck" && drawRole(meta, part, selected.action) === "reset") return true;
   if (selected.action === "press" && meta.items?.reset === part) return true;
   if (reportConfirmation(meta, part, selected.action)) return true;
-  if (successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits) return true;
+  if (successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits || meta.localState)
+    return true;
   return Boolean(sessionEvent(meta, part, selected.action));
 }
 
@@ -79,6 +109,8 @@ export function dispatchPlan(
     random,
     ctx.standalone ? "planner" : "controller",
     ctx.options.deviceData,
+    ctx.now(),
+    ctx.touchNow,
   );
 }
 
@@ -87,20 +119,29 @@ export function hostCaptureEffects({ selected, screen, options }: ActionContext)
   return [() => options.onAction?.({ ...selected, address: `${screen.id}/${selected.address}` })];
 }
 
-export function standaloneEffects({ links, send, options }: ActionContext) {
+export function standaloneEffects({ links, anchors, send, options }: ActionContext) {
   const effects = links.map(
     ({ goto, address }) =>
       () =>
         options.onLink?.(goto, address),
   );
   if (send) effects.push(() => deliverSend(send, options.onSend));
+  for (const { address, action } of anchors ?? []) effects.push(() => options.onAnchor?.(address, action));
   return effects;
 }
 
 export function inactive(ctx: ControllerContext, entry: ScreenComponent) {
   if (ctx.standalone || !entry.state || entry.state === "filled") return false;
-  const { draw, emptyActions, errorActions, session, successActions } = ctx.defs[entry.c]!.meta;
-  return !draw && !emptyActions?.length && !errorActions?.length && !session && !successActions?.length;
+  const { draw, emptyActions, errorActions, loadingActions, session, successActions } =
+    ctx.defs[entry.c]!.meta;
+  return (
+    !draw &&
+    !emptyActions?.length &&
+    !errorActions?.length &&
+    !loadingActions?.length &&
+    !session &&
+    !successActions?.length
+  );
 }
 
 /** Releasing a private hold cannot be blocked by an unrelated confirmation. */
@@ -132,8 +173,13 @@ export function introducedPart(
   const prefix = `${ctx.screen.id}/${entry.id}/`;
   const gated =
     (meta.live?.derive ||
+      meta.live?.toggles ||
+      meta.localState ||
+      meta.collections ||
+      (hasNestedCollectionControls(meta) && isNestedTarget(meta, target)) ||
       (isNestedTarget(meta, target) && (action.action === "increment" || action.action === "decrement")) ||
       meta.select?.runtime ||
+      meta.dateSpan ||
       meta.linkedEdits ||
       meta.items?.visibleWhen ||
       meta.items?.edits ||
@@ -144,4 +190,14 @@ export function introducedPart(
   const source = ctx.liveScreen(initial, sheet, Boolean(sheet));
   const plan = dispatchPlan(ctx, source, initial, action, null);
   return !plan.ok && (Boolean(session) || plan.code === "not_actionable");
+}
+
+export function mediaContext(media: MediaRuntime) {
+  return {
+    playMedia: media.playMedia,
+    seekMedia: media.seekMedia,
+    requestPhoto: media.requestPhoto,
+    mediaEffect: media.effect,
+    attachmentReference: media.attachmentReference,
+  };
 }

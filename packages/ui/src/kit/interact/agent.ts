@@ -26,9 +26,11 @@ type AgentOptions = {
   currency?: AppCurrency | undefined;
   store: InteractionStore;
   random?: RandomSource | undefined;
+  touchNow?: (() => number) | undefined;
   deviceData?: DeviceData | undefined;
   current: () => ScreenLike;
   onLink?: (goto: string, address: string) => void;
+  onAnchor?: (address: string, action: "focus" | "jump") => void;
   onSend?: SendHandler;
   writeClipboard?: ClipboardWriter;
   resolveClipboardText?: ClipboardText;
@@ -41,6 +43,8 @@ function requiresStandalone(options: AgentOptions, screen: ScreenLike) {
     if (!meta) return false;
     return (
       meta.recordRuntime ||
+      meta.buzz ||
+      meta.draw?.kind === "deck" ||
       meta.items?.reset ||
       hasReportConfirmation(meta) ||
       (meta.confirmParts?.length &&
@@ -112,6 +116,7 @@ export function createAgentAccess(options: AgentOptions) {
       if (opts.dryRun) return { ...reply, dryRun: true };
       store.setMany(plan.values);
       for (const link of plan.links) onLink?.(link.goto, link.address);
+      for (const { address, action } of plan.anchors ?? []) options.onAnchor?.(address, action);
       for (const send of plan.sends ?? []) deliverSend(send, options.onSend);
       for (const step of list) log.push({ ...step, at: Date.now() });
       return { ...reply, dryRun: false };

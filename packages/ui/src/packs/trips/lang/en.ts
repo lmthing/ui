@@ -1,4 +1,13 @@
 export const en = {
+  cabinSeats: {
+    seat: (row: string, col: string) => `${row}${col}`,
+    status: { open: "Available", occupied: "Occupied", extra: "Extra legroom", selected: "Selected" },
+    exit: "Exit row",
+    details: (...details: (string | undefined)[]) => details.filter(Boolean).join(" · "),
+    legend: "Star: extra legroom or exit row",
+    upgrade: (fee: string) => `Upgrade fee: ${fee}`,
+    confirm: "Confirm seat",
+  },
   clocks: {
     home: "Home",
     day: "Daytime",

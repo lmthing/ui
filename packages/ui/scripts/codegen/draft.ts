@@ -12,7 +12,7 @@ export function draftComponent(doc: string, scope: string, name: string) {
     section.sections.get("Variants") ?? "",
   );
   const fields = readFields(section.sections.get("Writes")!, styles, axes);
-  const meta = readMeta(name, section, fields, axes);
+  const { meta, rowGroups } = readMeta(name, section, fields, axes);
   const near = nearMiss(section.sections.get("Pick") ?? "");
   const catalog = core ? "../catalog" : "../../../catalog";
   const kebab = name.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
@@ -26,7 +26,7 @@ export function draftComponent(doc: string, scope: string, name: string) {
       [`${base}/${core ? "components" : "tests"}/${name}.test.ts`]: testSource(meta, fields, core),
       [`${labelBase}/copy/${core ? kebab : name}.ts`]: labels.copy,
       [`${labelBase}/lang/${kebab}.ts`]: labels.lang,
-      [view]: componentSource(meta, fields, catalog, near, !core),
+      [view]: componentSource(meta, fields, rowGroups, catalog, near, !core),
     },
   };
 }

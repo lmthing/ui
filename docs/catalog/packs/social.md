@@ -113,6 +113,7 @@ Grouped social notifications organized under time headings such as "Today" and "
 - States: filled, empty, loading.
 - Real path: activity notifications aggregated from member interactions in a shared social app.
 - Density: `meta.dense: true`, weight 3; activity streams hold up to twelve grouped notifications across time buckets.
+- Renderer: use `DateRows` for the owner-supplied time buckets and `FeedRow` for actor, timestamp and independently addressed follow/request actions.
 
 ### `Groups` · planned · content · people
 Community, subreddit, or starter-pack discovery cards or rows displaying each group's icon or cover photo, name, topic tags, member and online counts, privacy pill ("Public", "Restricted", "Private"), and an inline Join or Joined toggle. Tapping a group opens its community feed or overview screen.
