@@ -156,7 +156,7 @@ export function planAct(
     const preview = planAct(input, defs, values, steps, null, clockOwner, data, now);
     if (!preview.ok) return preview;
   }
-  const migrated = migrateScreen(input, { variantOnly: true });
+  const migrated = migrateScreen(input);
   const plan: Extract<ActResult, { ok: true }> = { ok: true, values: { ...values }, changed: [], links: [] };
   const { values: next, changed, links } = plan;
   for (const [at, original] of steps.entries()) {

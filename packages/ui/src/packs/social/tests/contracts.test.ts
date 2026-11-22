@@ -8,7 +8,7 @@ const core = {
   Poll: "Choice",
   Stories: "People",
   EventCard: "Card",
-  Challenge: "Ring",
+  Challenge: "Progress",
   Invite: "People",
 } as const;
 const ids = Object.keys(core) as (keyof typeof core)[];

@@ -4,13 +4,13 @@ import * as kit from "../../../kit";
 import { challengeCopy, challengeReading } from "../copy";
 import { socialWordsFor } from "../lang";
 
-// Core first: Ring/default cannot show a group total, a personal contribution and top contributors together.
+// Core first: Progress/ring cannot show a group total, a personal contribution and top contributors together.
 export const meta = {
   id: "Challenge",
   status: "ready",
   group: "data",
   purpose: "Join a shared goal and track the group’s and your own progress.",
-  pick: "A group challenge with a shared goal, deadline, group total, personal contribution and up to three leaders. Not a personal goal (Ring) or a full leaderboard (List).",
+  pick: "A group challenge with a shared goal, deadline, group total, personal contribution and up to three leaders. Not a personal goal (Progress) or a full leaderboard (List).",
   writeHints: [
     "goal must be positive. total, mine and top values are measured in the same unit. top is ordered highest first; use [] when no leaders are given. Write the ending date, not days remaining.",
     'Use JSON null for density and surface unless explicitly asked to change spacing or finish. Do not write "comfortable" or "card" just because they are defaults.',
@@ -87,7 +87,7 @@ export const probes = [
   ),
   choose(
     "Show just my personal watering goal as a circle that fills up as I finish. No group or other people.",
-    "Ring",
+    "Progress",
   ),
   write(
     "Make a November group goal to root 30 cuttings by 2026-11-30. We have 18 plants together, four from me. I’ve joined; open log_cuttings when I log more.",

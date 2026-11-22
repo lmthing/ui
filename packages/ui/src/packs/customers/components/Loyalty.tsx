@@ -34,7 +34,7 @@ export const meta = {
   status: "ready",
   group: "data",
   purpose: "Reward repeat clients with stamps toward a redeemable free thing.",
-  pick: "A business client's four-to-twelve stamp reward card, with stamp and redeem actions. Not a habit streak (Streak) or a personal goal (Ring).",
+  pick: "A business client's four-to-twelve stamp reward card, with stamp and redeem actions. Not a habit streak (Streak) or a personal goal (Progress).",
   writeHints: [
     "stamps is a whole count from zero through of; of is a whole number from four through twelve. Code enables redeem only when full.",
     'If asked only to hide the client name, use {"density":null,"surface":null,"detail":"brief"} and keep the name in the data. Otherwise detail is null.',

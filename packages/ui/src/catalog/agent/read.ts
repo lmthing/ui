@@ -176,7 +176,7 @@ export function readScreen(
   canDrive?: CanDrive,
 ): string {
   const appCurrency = parseAppCurrency(currency);
-  const migrated = migrateScreen(screen, { variantOnly: true });
+  const migrated = migrateScreen(screen);
   deviceData = withRecordScreen(captureDeviceTime(defs, deviceData), migrated);
   const snapshot = projectDeviceData(deviceData, redactPrivateMarks(values).values);
   const local = Object.fromEntries(

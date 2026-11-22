@@ -64,7 +64,9 @@ export function matches(
 
 export function addressedItems(meta: Meta, props: Values): Values[] {
   const key = meta.items?.key;
-  return key && Array.isArray(props[key]) ? (props[key] as Values[]) : [];
+  return key && matches(meta.items?.addressedWhen, props, props) && Array.isArray(props[key])
+    ? (props[key] as Values[])
+    : [];
 }
 
 /** Filter already addressed items without compacting the original address space. */

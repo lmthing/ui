@@ -1,5 +1,6 @@
 import type { ScreenLike } from "../agent";
 import { legacyTarget, normalizeComponentId } from "./aliases";
+import { migrateRingV1 } from "./progress-ring";
 import {
   effectiveLegacyList,
   migrateProgressItems,
@@ -37,7 +38,6 @@ const adoptedVariants: readonly string[] = [
   "Profile",
   "Sheet",
   "Amount",
-  "Ring",
   "Progress",
   "Player",
   "Button",
@@ -51,6 +51,10 @@ export function migrateLine<T extends Record<string, unknown>>(
   line: T,
   { variantComponents = adoptedVariants, variantOnly = false }: MigrationOptions = {},
 ): T | (Record<string, unknown> & { c: string }) {
+  if (!variantOnly) {
+    const retired = migrateRingV1(line);
+    if (retired !== line) return retired;
+  }
   const { c: name, ...props } = line;
   const c =
     typeof name === "string"

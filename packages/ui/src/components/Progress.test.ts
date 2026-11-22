@@ -21,6 +21,9 @@ describe("Progress schema", () => {
   it("applies defaults, trims text and derives root presence", () => {
     expect(props.parse({ bars: [{ label: " Protein ", value: 1, of: 2 }] })).toEqual({
       figures: "exact",
+      style: "bars",
+      emphasis: "normal",
+      detail: "full",
       bars: [{ label: "Protein", value: 1, of: 2, tone: "warn", root: undefined }],
     });
     expect((props.parse({ bars: [{ ...bar, goto: "macros" }] }).bars[0] as { root?: string }).root).toBe(
@@ -111,10 +114,13 @@ describe("Progress fallback and metadata", () => {
   it("has a real path and well-formed choose, write and read probes", () => {
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
-    for (const near of ["Ring", "Bars", "Steps"]) expect(meta.pick).toContain(near);
+    for (const near of ["ActivityRings", "Bars", "Stats", "Steps"]) expect(meta.pick).toContain(near);
     expect(probes.filter((probe) => probe.kind === "choose").map((probe) => probe.expect)).toEqual([
       "Progress",
-      "Ring",
+      "Progress",
+      "Progress",
+      "Stats",
+      "Steps",
     ]);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Progress" });
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
@@ -126,12 +132,53 @@ describe("Progress fallback and metadata", () => {
       for (const name of [meta.id]) expect(wording).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
     }
   });
-  it("resolves its ids and leaves the id to Progress, not Ring", () => {
+  it("does not expose the retired id in the live registry", () => {
     const registry = createRegistry();
     expect(registry.resolve("progress")).toBe("Progress");
     expect(registry.resolve("p-r-o-g-r-e-s-s")).toBe("Progress");
-    expect(registry.resolve("p-r-o-g-r-e-s-s")).toBe("Progress");
-    expect(registry.resolve("r-i-n-g")).toBe("Ring");
+    expect(registry.resolve("r-i-n-g")).toBeUndefined();
+  });
+});
+
+describe("Progress ring", () => {
+  const goal = { label: "A".repeat(24), value: 8, of: 5 };
+  const ring = { style: "ring", bars: [goal], sub: "Two to go" } as const;
+
+  it("accepts one long label, rejects row actions and preserves the stored caption", () => {
+    const brief = { ...ring, detail: "brief" };
+    expect(props.parse(brief).sub).toBe(ring.sub);
+    for (const bars of [
+      [goal, goal],
+      [{ ...goal, goto: "details" }],
+      [{ ...goal, unit: "km" }],
+      [{ ...goal, tone: "good" }],
+      [{ ...goal, label: "A".repeat(25) }],
+    ]) {
+      expect(props.safeParse({ ...ring, bars }).success).toBe(false);
+    }
+    expect(affordancesOf(meta, stampItemIds(meta, props.parse(brief)), "p1")).toEqual([]);
+    expect(readComponent(components.Progress, brief, "p1")).toEqual([
+      `p1 Progress[ring] 8 of 5 — "${goal.label}"`,
+    ]);
+  });
+
+  it.each(["filled", "empty", "loading"] as const)("draws only the applicable parts in %s", (state) => {
+    const html = renderInstance("Progress", ring, state, theme);
+    expect(html).toContain('data-testid="home/c1/root"');
+    expect(html).not.toContain("home/c1/r1/");
+    expect(html).not.toMatch(/role="(?:link|button)"/);
+    for (const part of ["ring", "value", "label", "sub"])
+      expect(html.includes(`data-testid="home/c1/${part}"`)).toBe(state === "filled");
+    if (state === "filled") {
+      const [filled, total] = html.match(/stroke-dasharray="([^"]+)"/)?.[1]?.split(" ") ?? [];
+      expect(Number(filled) / Number(total)).toBeCloseTo(1);
+    }
+  });
+
+  it("offers no linked bar in the empty state", () => {
+    const input = { bars: [{ ...bar, goto: "details" }] };
+    expect(renderInstance("Progress", input, "empty", theme)).not.toMatch(/role="link"/);
+    expect(readComponent(components.Progress, input, "p1", "empty")).toEqual(["p1 Progress (empty)"]);
   });
 });
 

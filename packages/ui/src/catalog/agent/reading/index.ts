@@ -12,6 +12,7 @@ export type ReadSchema = {
   properties?: Record<string, ReadSchema>;
   items?: ReadSchema;
   kind?: string;
+  read?: false;
   default?: unknown;
   type?: string;
   anyOf?: ReadSchema[];
@@ -52,7 +53,7 @@ export function itemTexts(
 
 function textsOf(schema: ReadSchema | undefined, value: Props, omit?: string): string[] {
   return Object.entries(schema?.properties ?? {}).flatMap(([key, field]) => {
-    if (key === omit) return [];
+    if (key === omit || field.read === false) return [];
     const v = value[key];
     if (field.kind === "text" && typeof v === "string") return [JSON.stringify(v)];
     if (field.kind === "photo" && typeof v === "string") return [`photo:${v.replace(/^lib:/, "")}`];

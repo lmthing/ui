@@ -801,7 +801,7 @@ Before retiring a catalog id, record its replacement, saved-input migration, add
 mapping, compatibility fixtures, canonical recipe changes, and choose/write/read/compose deltas.
 Update live recipes and probes at the cutover; do not advertise a legacy alias to the Writer.
 
-##### Progress family (approved 2026-11-21; pending)
+##### Progress family (approved 2026-11-21; core cutover implemented, health follow-up)
 
 | Legacy id                | Saved line migration                                                                                                                                                                                   | Addresses and actions                                                                                                                                            |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
