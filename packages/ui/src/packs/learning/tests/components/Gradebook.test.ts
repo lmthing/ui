@@ -86,7 +86,8 @@ describe("Gradebook parts and states", () => {
   it("keeps the grade in summary and removes only dates and term in brief", () => {
     expect(draw(summary)).toContain("4.00 GPA");
     expect(read(summary)).toContain("4.00 GPA");
-    expect(read(summary)).not.toMatch(/Practice walk|Field assessment|\[g1\/r/);
+    expect(read(summary)).toContain("Field assessment");
+    expect(read(summary)).not.toMatch(/Practice walk|\[g1\/r/);
     const brief = { ...filled, detail: "brief" };
     const nodes = addressedElements(draw(brief));
     expect(nodes.has("home/c1/r1/item_1")).toBe(true);

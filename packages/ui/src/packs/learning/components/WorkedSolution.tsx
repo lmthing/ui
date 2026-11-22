@@ -35,7 +35,7 @@ export const meta = {
   actions: {
     parts: { next: ["press"], all: ["press"], copy: ["copy"], tutor: ["press"], solve: ["press"] },
     items: { copy: ["copy"] },
-    when: { next: { moreSteps: true }, all: { moreSteps: true }, copy: { copyReady: true } },
+    when: { next: { moreSteps: true }, all: { moreSteps: true }, copy: { copyReady: true }, tutor: { hasTutor: true } },
   },
   states: ["filled", "empty", "loading", "success", "error"],
   successActions: ["copy.copy", "tutor.press", "solve.press"],
@@ -184,7 +184,7 @@ function SolutionBody({ input, density, shown, photo }: { input: View; density: 
 // prettier-ignore
 export function WorkedSolution(input: View) {
   const scope = kit.usePartContext(), state = kit.useComponentState();
-  const { words: { workedSolution: words } } = kit.useWords(learningWordsFor);
+  const { lang, words: { workedSolution: words } } = kit.useWords(learningWordsFor);
   const density = kit.useVariant("density", meta.variants.density, input.density),
     surface = kit.useVariant("surface", meta.variants.surface, input.surface),
     media = kit.useVariant("media", meta.variants.media, input.media),
@@ -193,7 +193,7 @@ export function WorkedSolution(input: View) {
   const shown = solutionProgress(input.steps.length, overflow, live.revealedSteps, state);
   const body = <SolutionBody {...{ input, density, shown }} photo={media === "cover"} />;
   const complete = state === "success" || (state === "filled" && shown === input.steps.length);
-  const message = state === "error" ? words.error : complete ? words.success : words.empty;
+  const message = state === "error" ? words.error : complete ? words.success : scope.thing ? c.emptyLine(scope.thing, lang) : words.empty;
   return <kit.KitCard part="root" padded {...{ surface, density }}>
     <kit.PartContext.Provider value={{ ...scope, state: complete ? "success" : state }}>
       <kit.KitState part="status" {...{ message, density }} icon={state === "error" ? "alert" : "book"} retain={complete} loading={body}>{body}</kit.KitState>

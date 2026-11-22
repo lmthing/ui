@@ -54,6 +54,7 @@ export function projectSolution(input: Readonly<Values>): Values {
     answer: done ? input.answer : undefined,
     moreSteps: !done,
     copyReady: done,
+    hasTutor: Boolean(input.tutorGoto),
     tutor: input.tutorGoto ? { goto: input.tutorGoto } : undefined,
     sourcePhoto: input.problemPhoto,
     problemPhoto: input.media === "none" ? undefined : input.problemPhoto,
@@ -82,17 +83,23 @@ export function solutionIdentity(input: Readonly<Values>) {
 }
 
 export const solutionRead: NonNullable<Meta["read"]> = (input, state, lang) => {
-  const { shown, count, finalAnswer, answer } = input as {
+  const { shown, count, finalAnswer, answer, steps, tutor } = input as {
     shown: number;
     count: number;
     finalAnswer: string;
     answer?: string;
+    steps: { title: string; formula?: string }[];
+    tutor?: { goto: string };
   };
   const words = learningWordsFor(lang).workedSolution;
   const visible = state === "success" ? count : shown;
   return [
     stepLine(visible, count, lang),
     ...(visible === count ? [words.success] : [words.next, words.all]),
+    ...steps.map((step, index) => workedStepTitle(step.title, index, lang)),
+    ...(steps.some((step) => step.formula) ? [words.work] : []),
+    ...(visible === count ? [words.answer] : []),
+    ...(tutor ? [words.tutor] : []),
     ...(state === "success" && !answer ? [words.answerReading(finalAnswer)] : []),
   ];
 };

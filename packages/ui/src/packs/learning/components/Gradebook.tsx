@@ -34,6 +34,7 @@ export const meta = {
   select: { prop: "expanded", value: "index", mode: "flags", runtime: true },
   actions: {
     items: { root: ["toggle"], ...Object.fromEntries(itemParts.map((part) => [part, ["press"] as const])) },
+    when: { root: { canExpand: true } },
   },
   states: ["filled", "empty", "loading", "error"],
   live: { derive: (value) => projectGradebook(value, itemParts) },
@@ -132,26 +133,27 @@ function GradeItems({ row, density, detail, loading }: Finish & { row: Category;
 }
 
 // prettier-ignore
-function GradeCategory({ row, loading, density, detail }: Finish & { row: Category; loading: boolean }) {
+function GradeCategory({ row, loading, density, detail, disclose }: Finish & { row: Category; loading: boolean; disclose: boolean }) {
   const { lang, words: { gradebook: words } } = kit.useWords(learningWordsFor);
   const { screen, component } = kit.usePartContext();
   const expanded = kit.useControlValue(c.formatAddress({ screen, component, item: row.id }), row.expanded);
   const { ratio, amount, label } = categoryGrade(row, lang);
   return <kit.KitContent density={density}>
-    <kit.KitRow item={row.id} part={loading ? null : "root"} role={loading ? "group" : "button"}
-      label={words.categoryReading(label, amount)} {...(loading ? {} : { expanded })} inline density={density}
-      leading={<kit.KitIcon name={expanded ? "minus" : "plus"} scale="sm" decorative loading={loading} />}
+    <kit.KitRow item={row.id} part={loading ? null : "root"} role={!loading && disclose ? "button" : "group"}
+      label={words.categoryReading(label, amount)} {...(!loading && disclose ? { expanded } : {})} inline fitContent={!disclose} density={density}
+      {...(disclose ? { leading: <kit.KitIcon name={expanded ? "minus" : "plus"} scale="sm" decorative loading={loading} /> } : {})}
       trailing={<kit.KitLayoutText {...{ density }} line={{ text: amount, part: "amount", role: "figure", compact: true, tabular: true }} />}>
       <kit.KitLayoutText {...{ density }} line={{ text: label, strong: true }} />
     </kit.KitRow>
-    <kit.KitMeter label="" amount="" ratio={loading ? 0 : ratio ?? 0} slim addressed={false} />
-    {expanded && <GradeItems {...{ row, density, detail, loading }} />}
+    {disclose && <kit.KitMeter label="" amount="" ratio={loading ? 0 : ratio ?? 0} slim addressed={false} />}
+    {disclose && expanded && <GradeItems {...{ row, density, detail, loading }} />}
   </kit.KitContent>;
 }
 
 // prettier-ignore
 export function Gradebook(input: View) {
   const state = kit.useComponentState();
+  const thing = kit.useEmptyThing();
   const { lang, words: { gradebook: words } } = kit.useWords(learningWordsFor);
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
@@ -161,15 +163,15 @@ export function Gradebook(input: View) {
     {...(detail === "full" && input.term ? { meta: { text: input.term, role: "body", part: "term" } } : {})} />
     <kit.KitFigure density={density} value={{ text: grade?.primary ?? words.ungraded, part: "grade" }}
       caption={<kit.KitLayoutText density={density} line={{ text: grade?.secondary, role: "body", tone: "muted" }} />} />
-    {input.style === "categories" && <kit.KitRowGroup density={density} spacing="groups">
+    <kit.KitRowGroup density={density} spacing="groups">
       {input.categories.map((row, index) => <GradeCategory key={row.id} row={{ ...row, expanded: index === 0 }}
-        {...{ density, detail }} loading={state === "loading"} />)}
-    </kit.KitRowGroup>}
+        {...{ density, detail }} disclose={input.style === "categories"} loading={state === "loading"} />)}
+    </kit.KitRowGroup>
   </>;
   return <kit.KitCard part="root" padded {...{ density, surface }}>
     {state === "filled" && !grade
       ? <kit.KitEmpty title={words.empty} icon="book" part="status" decorativeIcon prominence="body" {...{ density }} />
-      : <kit.KitState part="status" message={state === "error" ? words.error : words.empty} icon={state === "error" ? "alert" : "book"}
+      : <kit.KitState part="status" message={state === "error" ? words.error : thing ? c.emptyLine(thing, lang) : words.empty} icon={state === "error" ? "alert" : "book"}
         loading={body} density={density}>{body}</kit.KitState>}
   </kit.KitCard>;
 }

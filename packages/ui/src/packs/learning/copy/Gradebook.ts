@@ -89,16 +89,18 @@ export function projectGradebook(value: Readonly<Values>, parts: readonly string
   const { categories, style } = value as Grades;
   if (!categories) return {};
   const overallRatio = courseRatio(categories);
-  const breakdown = style !== "summary" && overallRatio !== undefined;
+  const breakdown = overallRatio !== undefined;
+  const canExpand = breakdown && style !== "summary";
   return {
     overallRatio,
     breakdown,
+    canExpand,
     categories: categories.map((row) => ({
       ...row,
       ...Object.fromEntries(
         parts.map((part, index) => {
           const item = row.items[index];
-          return [part, breakdown && row.expanded && item?.goto ? item : undefined];
+          return [part, canExpand && row.expanded && item?.goto ? item : undefined];
         }),
       ),
     })),
@@ -116,7 +118,7 @@ export const gradebookRead: NonNullable<Meta["read"]> = (input, state, lang) => 
     const { label, amount } = categoryGrade(row, lang);
     return [
       words.categoryReading(label, amount),
-      ...(row.expanded
+      ...(value.style !== "summary" && row.expanded
         ? row.items.map((item) => {
             const { score, date } = gradeItemCopy(item, value.detail, lang);
             return words.itemReading(item.title, score, date);
@@ -124,5 +126,5 @@ export const gradebookRead: NonNullable<Meta["read"]> = (input, state, lang) => 
         : []),
     ];
   });
-  return [grade.primary, grade.secondary, ...(value.style === "summary" ? [] : breakdown)];
+  return [grade.primary, grade.secondary, ...breakdown];
 };
