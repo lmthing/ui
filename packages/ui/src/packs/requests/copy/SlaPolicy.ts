@@ -85,9 +85,10 @@ export function slaReading(input: LiveTargets, lang?: string) {
 }
 
 export function readSla(raw: unknown, state: StateName, lang?: string) {
-  const input = raw as LiveTargets & { requestRef: string; detail: string };
+  const input = raw as LiveTargets & { requestRef: string; detail: string; policyGoto?: string };
   const { response, resolutionText, state: derived, words } = slaReading(input, lang);
-  if (state === "success" && derived !== "success") return [words.success];
+  const policy = input.policyGoto ? [words.policy] : [];
+  if (state === "success" && derived !== "success") return [words.success, ...policy];
   const status =
     state === "success" || derived === "success"
       ? words.success
@@ -99,6 +100,9 @@ export function readSla(raw: unknown, state: StateName, lang?: string) {
     ...(input.detail === "brief"
       ? []
       : [input.requestRef, documentFieldLine(words.response, words[response], lang)]),
-    documentFieldLine(words.resolution, resolutionText, lang),
+    ...(input.detail === "brief" && derived === "success"
+      ? []
+      : [documentFieldLine(words.resolution, resolutionText, lang)]),
+    ...policy,
   ];
 }

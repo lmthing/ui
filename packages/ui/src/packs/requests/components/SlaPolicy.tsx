@@ -16,7 +16,7 @@ export const meta = {
     'When both targets should be visible, output detail null; the default is the full tracker. Only if the brief explicitly asks for a single badge/countdown row, set detail to "brief". Keep every timestamp. Set surface and density to null unless separately requested.',
   ],
   variants: { detail: ["full", "brief"], surface: ["card", "outlined"], density: ["comfortable", "compact"] },
-  variantParts: { "detail.brief": { hides: ["request", "response", "meter"] } },
+  variantParts: { "detail.brief": { hides: ["request", "response", "meter", "status"] } },
   parts: ["root", "request", "tier", "response", "resolution", "meter", "status", "policy", "policy_label"],
   actions: { parts: { policy: ["press"] }, when: { policy: { hasPolicy: true } } },
   successActions: ["policy.press"],
@@ -139,7 +139,7 @@ export function SlaPolicy(input: SlaProps) {
   const policy = input.policyGoto && { goto: input.policyGoto, label: words.policy, density };
   return <kit.KitCard padded {...{ density, surface }}>
     <kit.PartScope {...context} state={rowState}>
-      <kit.KitState {...{ retain, density, message }} part="status"
+      <kit.KitState {...{ retain, density, message }} part={brief ? null : "status"}
         loading={<>{targets}{policy && <PolicyRow {...policy} loading />}</>}>
         {showTargets && targets}
       </kit.KitState>

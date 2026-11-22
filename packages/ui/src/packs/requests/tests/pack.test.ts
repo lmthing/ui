@@ -52,7 +52,7 @@ it("registers only core and Requests drafts until the whole pack is ready", () =
       .map(([id]) => id)
       .sort(),
   ).toEqual([...ids].sort());
-  expect(scoped.ids.filter((id) => !core.ids.includes(id))).toEqual(expect.arrayContaining(ids));
+  expect(scoped.ids.filter((id) => !core.ids.includes(id))).toEqual(expect.arrayContaining([...ids]));
   expect(scoped.ids).toHaveLength(core.ids.length + ids.length);
   const draftFormat = JSON.stringify(writerFormat(scoped));
   const liveFormat = JSON.stringify(writerFormat(live));
@@ -81,7 +81,7 @@ it("validates pack metadata and every worked example line, including the single 
   expect(new Set(lines.map(({ id }) => id)).size).toBe(lines.length);
   for (const { c, id, ...props } of lines)
     expect(scoped.schema(c)?.safeParse(props).success, `${id}/${c}`).toBe(true);
-  expect(lines.map(({ c }) => c)).toEqual(expect.arrayContaining(ids));
+  expect(lines.map(({ c }) => c)).toEqual(expect.arrayContaining([...ids]));
   const defs = components as Record<string, Definition>;
   expect(lines.flatMap(({ c }) => defs[c]?.meta.signature ?? [])).toEqual(["count_up"]);
 });
