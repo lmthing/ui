@@ -37,7 +37,7 @@ function sampleReply(hit: Evidence | undefined, sample: number) {
   return hit?.replies?.[sample] ?? (sample === 0 ? hit?.reply : undefined);
 }
 
-/** Changed pack prompts get new samples; unchanged prompts keep their original evidence. */
+/** Changed pack requests get new samples; reused samples are recorded under the current probe key. */
 export function recordingCall(model: string, book: Book, live: CallModel, resume = false): ProbeCall {
   const exact = new Map<string, string[]>();
   if (resume)
@@ -52,13 +52,12 @@ export function recordingCall(model: string, book: Book, live: CallModel, resume
     const request = requestHash(key);
     const previous = book[key];
     const versions = exact.get(request) ?? [];
-    if (resume) {
-      const cached =
-        sampleReply(previous, sample) ??
-        versions.map((version) => sampleReply(book[version], sample)).find((reply) => reply !== undefined);
-      if (cached !== undefined) return cached;
-    }
-    const reply = await live(prompt, sample, format);
+    const current = resume ? sampleReply(previous, sample) : undefined;
+    if (current !== undefined) return current;
+    const cached = resume
+      ? versions.map((version) => sampleReply(book[version], sample)).find((reply) => reply !== undefined)
+      : undefined;
+    const reply = cached ?? (await live(prompt, sample, format));
     const replies = [
       ...(!resume && sample === 0
         ? []
