@@ -52,6 +52,7 @@ describe("PassReveal", () => {
     const lines = readComponent(components.PassReveal, examples[0], "p1").join("\n");
     expect(lines).toContain("Anna");
     expect(lines).toContain("Find your garden role");
+    expect(lines).toContain("Player 1 of 3");
     for (const hidden of ["Seed keeper", "Save a seed", "Rain maker", "Trail finder", "Ben", "Sam"]) {
       expect(lines).not.toContain(hidden);
     }
@@ -86,10 +87,11 @@ it.each(["hold", "curtain"] as const)(
       expect(runtime.press("p1/restart").ok).toBe(false);
       expect(runtime.act({ address: "p1/reveal", action: hold ? "press" : "start" }).ok).toBe(false);
       expect(runtime.act({ address: "p1/reveal", action: "flip" }).ok).toBe(false);
-      for (const name of ["Anna", "Ben", "Sam"]) {
+      for (const [index, name] of ["Anna", "Ben", "Sam"].entries()) {
         expect(reveal()).toBe(true);
         const text = runtime.read();
         expect(text).toContain(name);
+        expect(text).toContain(`Player ${index + 1} of 3`);
         expect(text).not.toMatch(secrets);
         for (const other of ["Anna", "Ben", "Sam"].filter((player) => player !== name))
           expect(text).not.toContain(other);

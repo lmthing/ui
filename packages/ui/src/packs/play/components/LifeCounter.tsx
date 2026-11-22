@@ -9,6 +9,7 @@ const lifeBounds = { min: -999, max: 9999 };
 const counterBounds = { min: 0, max: 99 };
 const lifeAdjust = { prop: "life", ...lifeBounds };
 const counterStep = { prop: "value", step: 1, ...counterBounds };
+const quickSteps = [-5, 5] as const;
 
 // Core first: Counter/default supports one fixed-step total, not opposing seats with separate resources.
 export const meta = {
@@ -79,6 +80,7 @@ export const meta = {
     return [
       ...(state === "success" ? [resultLine(setup, words)] : []),
       ...lifeCounterLines(setup, lang),
+      ...quickSteps.map((delta) => quickStepLabel(delta, words, lang)),
       words.reset,
     ];
   },
@@ -181,13 +183,25 @@ function resultLine(input: Match, words: Words) {
   return result?.winner ? words.winner(result.winner) : words.complete;
 }
 
-function BigStep({ delta, value, disabled }: { delta: -5 | 5; value: number; disabled: boolean }) {
+function quickStepLabel(delta: number, words: Words, lang?: string) {
+  return words.step(delta > 0, c.numberLine(Math.abs(delta), lang));
+}
+
+function BigStep({
+  delta,
+  value,
+  disabled,
+}: {
+  delta: (typeof quickSteps)[number];
+  value: number;
+  disabled: boolean;
+}) {
   const {
     lang,
     words: { lifeCounter: words },
   } = kit.useWords(playWordsFor);
   const gain = delta > 0;
-  const label = words.step(gain, c.numberLine(Math.abs(delta), lang));
+  const label = quickStepLabel(delta, words, lang);
   return (
     <kit.KitAction
       part={gain ? "life_plus_5" : "life_minus_5"}
@@ -218,7 +232,6 @@ function LifeControls({
     words: { lifeCounter: words },
   } = kit.useWords(playWordsFor);
   const one = c.numberLine(1, lang);
-  const steps = [-5, 5] as const;
   return (
     <kit.KitContent align="center">
       <kit.KitContent rhythm="flush">
@@ -242,7 +255,7 @@ function LifeControls({
           )}
         </kit.KitContent>
         <kit.KitGrid>
-          {steps.map((delta) =>
+          {quickSteps.map((delta) =>
             loading ? (
               <kit.KitSkeleton key={delta} shape="control" kind="quiet" />
             ) : (

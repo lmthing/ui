@@ -44,16 +44,21 @@ export const meta = {
     restart: "restart",
     actionProps: (item) => ({ roundOver: !item.name }),
   },
+  live: {
+    derive: ({ players }) => ({ playerCount: (players as readonly unknown[]).length }),
+  },
   read: (input, state, lang): string[] => {
     const words = playWordsFor(lang).passReveal;
     if (state === "success") return [words.ready, words.restart];
     if (state !== "filled") return [];
-    const value = input as z.output<typeof props> & { [c.sessionKey]?: c.SessionState };
+    const value = input as Setup & { [c.sessionKey]?: c.SessionState; playerCount: number };
     const round = value[c.sessionKey];
     const name = value.players[0]?.name;
-    return round?.kind === "rounds" && round.revealed
+    if (round?.kind !== "rounds") return [];
+    const face = round.revealed
       ? [...(name ? [name] : []), value.style === "hold" ? words.release : words.hide]
       : [...passRevealCurtain(name, value.prompt, lang), value.style === "hold" ? words.hold : words.reveal];
+    return [roundProgress(round.index, value.playerCount, words, lang), ...face];
   },
   actions: {
     parts: { reveal: ["press", "start", "stop"], hide: ["press"], restart: ["press"] },
@@ -148,6 +153,11 @@ export const probes = [
 type Setup = c.Props<typeof props, typeof meta>;
 type Player = Setup["players"][number];
 type VisiblePlayer = Omit<Player, "role"> & { role?: string };
+type Words = ReturnType<typeof playWordsFor>["passReveal"];
+
+function roundProgress(index: number, count: number, words: Words, lang?: string) {
+  return words.progress(c.numberLine(index + 1, lang), c.numberLine(count, lang));
+}
 
 function CurtainFace({ player, prompt, icon }: { player: VisiblePlayer; prompt: string; icon: boolean }) {
   return (
@@ -245,10 +255,7 @@ function RevealCard({
   const tapOpen = !hold && current.revealed;
   const label = hold ? (current.revealed ? words.release : words.hold) : words.reveal;
   const curtain = { player, prompt: input.prompt ?? words.prompt, icon: media === "icon" };
-  const step = words.progress(
-    c.numberLine(current.index + 1, lang),
-    c.numberLine(input.players.length, lang),
-  );
+  const step = roundProgress(current.index, input.players.length, words, lang);
   return (
     <kit.KitContent group="response">
       <kit.KitLayoutText

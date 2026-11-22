@@ -48,6 +48,7 @@ const domainEmpty: Readonly<Record<string, string>> = {
   CannedReplies: "No saved replies yet",
   CreditScore: "No credit report available",
   LeaveBalance: "No leave balances assigned",
+  PassReveal: "Add at least three players to start",
   PayStub: "No pay statements issued yet",
   TeamDirectory: "No teammates in the directory yet",
   Transcript: "No transcript available",
