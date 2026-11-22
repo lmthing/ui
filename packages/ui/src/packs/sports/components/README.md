@@ -13,6 +13,7 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `Squad.tsx`
 - `Bracket.tsx`
 - `MatchStats.tsx`
+- `BoxScore.tsx`
 
 Rules:
 - Same file shape as `src/components/`: exports `meta`, `props`, `fallback`, `examples`, `probes`, view.

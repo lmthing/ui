@@ -1,4 +1,14 @@
 export const en = {
+  boxScore: {
+    title: "Box score",
+    team: "Team",
+    players: "Player",
+    total: "Total",
+    period: "Period",
+    columns: ["A", "B", "C"],
+    switchTeam: "Choose team",
+    empty: "The box score has not been recorded yet.",
+  },
   matchStats: {
     title: "Match stats",
     period: "Match period",
