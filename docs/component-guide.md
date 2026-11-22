@@ -422,6 +422,13 @@ also accept optional `speed` and `loop`; when neither is set, their playback set
 | Non-Player playback | Declare `media.playback` on the component or its items, keyed by the playback part, and declare `play`, `pause`, and optional `stop` at that address. The host's pure `resolvePlayback(address)` returns an opaque token for the media adapter. Use `KitPlayback part="…"`, with the item's `PartScope` for row playback. Stop releases the clip; starting another addressed clip releases the old one. Omit `part` for the existing Player mount. |
 | Discrete playback | Declare `sequence` with `cursor`, ordered `meta.items` (or `count`, a literal or parsed field), and optional `first: 1` for one-based pages. Configure `seek` for an explicit integer target, with `seekAction: "set"` for a `KitSlider` that emits `set`. A declared `item` seek part takes no value or its exact index. `steps.previous`/`steps.next` work with `press` or `decrement`/`increment`; `KitAction` supports pointer and keyboard. `controls: { part, intervalMs, start? }` use `play`, `pause`, and optional `stop` (back to the first index). `start: true` or `{ prop, equals }` starts on mount only. The clock pauses at the end; `useLiveControls` projects the cursor and `sequencePlaying`, and snapshots retain the bounded schema-owned cursor. |
 
+For playhead-driven rows, pass `KitScroll follow={{ address, enabled }}`. Use the mounted child's full
+part address (for example, `home/c1/r4/root` for an addressed `KitRow`). The kit reveals the active
+child at the nearest edge along the scroll axis without moving keyboard or accessibility focus.
+It moves immediately in calm or reduced motion. With follow off, no active address, or during
+manual scrolling, updates do not move the viewport. Updates skipped during scrolling are not
+replayed; a later address change can follow again after scrolling settles.
+
 Media tokens are 1–128 ASCII letters, digits, underscores or hyphens. Hosts keep bytes, file paths, provider errors and scan details out of Writer props, read output and snapshots. Use a Core Camera or FileList link instead when the component only needs navigation.
 
 Core Composer still requires a text draft. Its accepted send consumes the picked file once and

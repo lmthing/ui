@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
+import { useCallback, useContext, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from "react";
 import type { TamaguiElement } from "tamagui";
 import { formatAddress } from "../../catalog";
 import { useKit } from "../provider";
 import { usePartContext } from "./part-context";
+import { PartRefScope } from "./part-ref-scope";
 
 const subscribeNone = () => () => {};
 export function usePartDisabled(address: string | undefined) {
@@ -25,6 +26,7 @@ type Measurable = {
 export function usePart(part = "root", enabled = true) {
   const { screen, component, item, rev } = usePartContext();
   const { parts, root, controller } = useKit();
+  const registerRef = useContext(PartRefScope);
   const ref = useRef<TamaguiElement>(null);
   const frame = useRef<number | null>(null);
   const address = formatAddress({ screen, component, ...(item ? { item } : {}), part });
@@ -62,5 +64,9 @@ export function usePart(part = "root", enabled = true) {
     [parts, screen, rev, address, enabled],
   );
   useEffect(() => (enabled ? controller?.registerPart(address) : undefined), [controller, address, enabled]);
+  useLayoutEffect(
+    () => (enabled && ref.current ? registerRef?.(address, ref) : undefined),
+    [address, enabled, registerRef],
+  );
   return { ref, onLayout, testID: address };
 }

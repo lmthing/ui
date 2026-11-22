@@ -1,10 +1,13 @@
 import { Children, useRef, useState, type ReactNode } from "react";
-import { ScrollView, XStack, YStack, styled } from "tamagui";
+import { ScrollView, XStack, YStack, isWeb, styled } from "tamagui";
 import { ChevronDown, ChevronRight } from "@tamagui/lucide-icons";
 import { component, emptyLine, size, space, type as typography } from "../../../catalog";
-import { usePart, useEmptyThing } from "../../part";
+import { PartRefScope, usePart, useEmptyThing } from "../../part";
 import { useKit, useKitStyle, useWords } from "../../provider";
 import { KitIcon, KitText, shifted, surfaceOf } from "../text";
+import type { ScrollHandle } from "./scroll-follow";
+import { scrollKey } from "./scroll-web";
+import { useScrollFollow } from "./use-scroll-follow";
 const Bar = styled(YStack, { height: size.icon.sm, backgroundColor: "$line" });
 type ScrollProps = {
   part?: string;
@@ -13,37 +16,9 @@ type ScrollProps = {
   label: string;
   axis?: "vertical" | "horizontal";
   bounded?: boolean;
+  follow?: { address?: string | undefined; enabled: boolean };
 };
 
-function scrollKey(
-  event: { key: string; target: unknown; currentTarget: unknown; preventDefault(): void },
-  horizontal: boolean,
-) {
-  if (event.target !== event.currentTarget) return;
-  const node = event.currentTarget as HTMLElement;
-  const page = horizontal ? node.clientWidth : node.clientHeight;
-  const paging: [number, number] = horizontal ? [page, 0] : [0, page];
-  const moves: Record<string, [number, number]> = {
-    ArrowDown: [0, size.control.md],
-    ArrowUp: [0, -size.control.md],
-    ArrowRight: [size.control.md, 0],
-    ArrowLeft: [-size.control.md, 0],
-    PageDown: paging,
-    PageUp: [-paging[0], -paging[1]],
-    " ": paging,
-  };
-  if (event.key === "Home" || event.key === "End") {
-    event.preventDefault();
-    node.scrollBy({
-      top: (event.key === "Home" ? 0 : node.scrollHeight) - node.scrollTop,
-      left: (event.key === "Home" ? 0 : node.scrollWidth) - node.scrollLeft,
-    });
-  } else if (moves[event.key]) {
-    event.preventDefault();
-    const [left, top] = moves[event.key]!;
-    node.scrollBy({ left, top });
-  }
-}
 function ScrollLoading({ horizontal }: { horizontal: boolean }) {
   const ks = useKitStyle();
   const fieldHeight = size.control.md + component.base.borderWidth * 2;
@@ -116,13 +91,18 @@ function focusScroll(target: HTMLElement, node?: HTMLElement) {
 
 function useScrollGeometry(horizontal: boolean) {
   const [view, setView] = useState({ width: 0, height: 0 });
+  const layout = useRef(view);
   const [content, setContent] = useState({ width: 0, height: 0 });
   const axis = horizontal ? "width" : "height";
   return {
+    layout,
+    ready: isWeb || view[axis] > 0,
     viewport: view.width,
     overflow: content[axis] > view[axis] + component.base.borderWidth,
-    onLayout: (event: { nativeEvent: { layout: { width: number; height: number } } }) =>
-      setView(event.nativeEvent.layout),
+    onLayout: (event: { nativeEvent: { layout: { width: number; height: number } } }) => {
+      layout.current = event.nativeEvent.layout;
+      setView(layout.current);
+    },
     onContentSizeChange: (width: number, height: number) => setContent({ width, height }),
   };
 }
@@ -151,13 +131,22 @@ export function KitScroll({
   label,
   axis = "vertical",
   bounded = true,
+  follow,
 }: ScrollProps) {
   const ks = useKitStyle(),
     kit = useKit();
   const address = usePart(part);
-  const scroll = useRef<{ getScrollableNode?: () => HTMLElement }>(null);
+  const scroll = useRef<ScrollHandle>(null);
   const horizontal = axis === "horizontal";
-  const { viewport, overflow, ...geometry } = useScrollGeometry(horizontal);
+  const { viewport, overflow, layout, ready, ...geometry } = useScrollGeometry(horizontal);
+  const { register, manualKey, nativeProps } = useScrollFollow(
+    follow,
+    scroll,
+    layout,
+    ready && !loading,
+    horizontal,
+    kit.motion === "lively",
+  );
   const empty = Children.toArray(children).length === 0;
   return (
     <YStack
@@ -175,6 +164,7 @@ export function KitScroll({
         showsVerticalScrollIndicator
         showsHorizontalScrollIndicator
         scrollEnabled={!loading}
+        {...nativeProps}
         contentContainerStyle={{ minWidth: "100%" }}
         {...geometry}
         {...(bounded ? { maxHeight: component.base.emptyMinHeight } : {})}
@@ -182,7 +172,7 @@ export function KitScroll({
           role: "region",
           tabIndex: loading || empty ? -1 : 0,
           "aria-label": label,
-          onKeyDown: (event: Parameters<typeof scrollKey>[0]) => scrollKey(event, horizontal),
+          onKeyDown: (event: Parameters<typeof scrollKey>[0]) => scrollKey(event, horizontal, manualKey),
         } as object)}
         onFocus={(event: { target: unknown }) => {
           const node = scroll.current?.getScrollableNode?.();
@@ -190,9 +180,11 @@ export function KitScroll({
           else kit.nativeHost?.ensureVisible?.(event.target);
         }}
       >
-        <ScrollContent loading={loading} horizontal={horizontal} viewport={viewport}>
-          {children}
-        </ScrollContent>
+        <PartRefScope.Provider value={register}>
+          <ScrollContent loading={loading} horizontal={horizontal} viewport={viewport}>
+            {children}
+          </ScrollContent>
+        </PartRefScope.Provider>
       </ScrollView>
       {overflow && <ScrollCue horizontal={horizontal} />}
     </YStack>
