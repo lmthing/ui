@@ -160,7 +160,7 @@ function ItineraryDay({ day, initial, density, detail }: DayProps & { day: Itine
       kind: "rail", part: stopParts[index]!, goto: stop.goto,
       slots: {
         title: { part: null, text: stop.title }, icon: icons[stop.kind],
-        time: { part: timeParts[index]!, text: time ?? words.itinerary.untimedLabel },
+        time: { part: timeParts[index]!, text: time ?? words.itinerary.untimed },
         ...(duration ? { detail: { part: durationParts[index]!, text: duration } } : {}),
       },
     };
@@ -177,11 +177,13 @@ export function Itinerary(input: ItineraryProps) {
   return (
     <kit.KitCard {...{ density, surface }} padded={!empty} part="root">
       <kit.KitState icon="calendar_days" part="title" density={density}>
-        <kit.KitRowGroup density={density} spacing="groups" separators={false}>
+        <kit.KitContent density={density}>
           {days.map((day, index) => (
-            <ItineraryDay key={day.id} {...{ day, density, detail }} initial={index === current} />
+            <kit.KitContent key={day.id} density={density} group={index > 0 ? "response" : "content"}>
+              <ItineraryDay {...{ day, density, detail }} initial={index === current} />
+            </kit.KitContent>
           ))}
-        </kit.KitRowGroup>
+        </kit.KitContent>
       </kit.KitState>
     </kit.KitCard>
   );
