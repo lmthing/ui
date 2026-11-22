@@ -19,6 +19,23 @@ type SharePoint = {
 
 type Legend = { icons: boolean; actions: boolean };
 
+function LegendMark({ icon, index }: { icon: SharePoint["icon"]; index: number }) {
+  return icon ? (
+    <YStack opacity={fade(index)}>
+      <KitIcon name={icon} decorative tone="accent" />
+    </YStack>
+  ) : (
+    <YStack
+      width={component.base.dot}
+      height={component.base.dot}
+      borderRadius={radius.pill}
+      backgroundColor="$accent"
+      opacity={fade(index)}
+      aria-hidden
+    />
+  );
+}
+
 function LegendRow({ press, label, children }: { press: boolean; label: string; children: ReactNode }) {
   const address = usePart();
   const { controller, interactive } = useKit();
@@ -56,20 +73,7 @@ function Entry({
   const { lang } = useWords();
   const address = usePart("root", !actions);
   const { label, value, icon, press = false } = point;
-  const leading = icon ? (
-    <YStack opacity={fade(index)}>
-      <KitIcon name={icon} decorative tone="accent" />
-    </YStack>
-  ) : (
-    <YStack
-      width={component.base.dot}
-      height={component.base.dot}
-      borderRadius={radius.pill}
-      backgroundColor="$accent"
-      opacity={fade(index)}
-      aria-hidden
-    />
-  );
+  const leading = <LegendMark {...{ icon, index }} />;
   const percentage = (
     <KitText role="body" tone="muted" tabular part={null}>
       {percent}

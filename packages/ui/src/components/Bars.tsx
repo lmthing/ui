@@ -149,8 +149,8 @@ export const probes = [
   },
   { ...write("Compare arrivals at 8am: 3 and 9am: 8. Under the title, show the status Busier than usual."), expectProps: { status: "Busier than usual" },
   },
-  { ...write("Use one stacked share bar, not columns, for 40 walking minutes: Park 15, River 25. Show a tree icon by Park and waves by River. Tapping Park opens the screen whose ID is park."),
-    expectProps: { style: "share", points: [{ label: "Park", icon: "tree", goto: "park" }, { label: "River", icon: "waves" }] } },
+  { ...write('Use one stacked share bar. The first legend label must be exactly "Park", with a separate value of 15 minutes and a tree icon. The second label must be exactly "River", with a separate value of 25 minutes and a waves icon. Park opens the screen whose ID is park.'),
+    expectProps: { style: "share", points: [{ label: "Park", value: 15, icon: "tree", goto: "park" }, { label: "River", value: 25, icon: "waves" }] } },
   read("Open Park", { address: "c1/r1", action: "press" }, 6),
 ] satisfies Probe[];
 type TotalProps = { value: number; unit?: string | undefined; compact?: boolean; density: ThemeDensity };
