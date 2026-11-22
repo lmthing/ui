@@ -6,7 +6,7 @@ Built in step U7 (drafts in U3), wave 3 of the catalog plan. Read `docs/catalog/
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
-- `components/`: `Itinerary.tsx` `Reservation.tsx` `PackingList.tsx` `Weather.tsx` `TravelDocs.tsx` `Converter.tsx` `Clocks.tsx` `FlightStatus.tsx` `BagTracker.tsx`
+- `components/`: `Itinerary.tsx` `Reservation.tsx` `PackingList.tsx` `Weather.tsx` `TravelDocs.tsx` `Converter.tsx` `Clocks.tsx` `FlightStatus.tsx` `BagTracker.tsx` `CabinSeats.tsx`
 - `archetypes/`: `trips-all.ts` `trip.ts` `day.ts` `bookings.ts` `prep.ts`
 
 Rules:
