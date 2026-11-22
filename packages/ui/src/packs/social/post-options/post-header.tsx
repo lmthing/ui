@@ -2,7 +2,6 @@ import { postCountParts, type PostExtras } from "../copy";
 import type { IconName, ThemeDensity } from "../../../catalog";
 import * as kit from "../../../kit";
 import { socialWordsFor } from "../lang";
-import * as postView from "./view";
 
 type Author = { name: string; photo: string; time: string };
 
@@ -42,8 +41,8 @@ type Finish = { density: ThemeDensity; loading: boolean };
 type Counts = { name: string; likes: number; comments: number; liked: boolean };
 
 // prettier-ignore
-function PostCountAction({ part, count, label, on, density, loading }: Finish & {
-  part: "like" | "comment"; count: string; label: string; on?: boolean;
+function PostCountAction({ part, count, label, on, density, loading, voteLabel }: Finish & {
+  part: "like" | "comment"; count: string; label: string; on?: boolean; voteLabel?: string | undefined;
 }) {
   const target = loading ? null : part;
   const { words } = kit.useWords();
@@ -53,6 +52,9 @@ function PostCountAction({ part, count, label, on, density, loading }: Finish & 
     <kit.KitContent inset="md" density={density}>
       <kit.KitRow part={null} role={loading ? "text" : "group"} label={label} inline leading={icon} density={density}>
         {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["number", count, "start", "compact"]]} density={density} /> :
+          voteLabel ? <kit.KitFigure density={density}
+            value={{ text: count, part: "likes", compact: true, tone: on ? "accent" : "muted" }}
+            unit={{ text: voteLabel, part: "vote" }} /> :
           <kit.KitText part={part === "like" ? "likes" : "comments"} role="number" numberScale="compact"
             tone={on ? "accent" : "muted"} tabular lines={1} density={density}>{count}</kit.KitText>}
       </kit.KitRow>
@@ -62,17 +64,17 @@ function PostCountAction({ part, count, label, on, density, loading }: Finish & 
 
 // prettier-ignore
 export function PostReactions({ input, density, loading }: Finish & { input: Counts & PostExtras }) {
-  const { lang, words: { feed, post } } = kit.useWords(socialWordsFor);
+  const { lang, words: { feed, post, postOptions } } = kit.useWords(socialWordsFor);
   const { testID } = kit.usePart("like", false);
   const liked = kit.useControlValue(testID, input.liked);
   const [likes, comments] = postCountParts(input, lang);
-  const like = <PostCountAction part="like" count={likes.count} on={liked}
+  const like = <PostCountAction part="like" count={likes.count} on={liked} voteLabel={input.vote && postOptions.voted[input.vote]}
     label={post.withCount(feed.reaction(input.name, liked), likes.line)} {...{ density, loading }} />;
   const comment = <PostCountAction part="comment" count={comments.count}
     label={post.withCount(post.comment, comments.line)} {...{ density, loading }} />;
   return <kit.KitGrid fitLast density={density}>
     <kit.KitContent density={density} leadingAlign="row" lead={like}>
-      <kit.KitContent density={density} leadingAlign="row" lead={comment}><postView.PostVote value={input} density={density} /></kit.KitContent>
+      <kit.KitContent density={density} leadingAlign="row" lead={comment}>{null}</kit.KitContent>
     </kit.KitContent>
     {loading ? <kit.KitSkeleton shape="control" kind="quiet" /> :
       <PostIconAction part="share" icon="share" label={post.share} density={density} />}
