@@ -107,28 +107,33 @@ function withoutBindings(node: ts.Statement, names: readonly string[]) {
   return ts.createPrinter().printNode(ts.EmitHint.Unspecified, declaration, node.getSourceFile());
 }
 
+function mergeDeclarations(prefix: string, group: readonly ts.Statement[], imports = false) {
+  if (!group.length) return prefix;
+  const incoming = group.map(dependencySource).join("\n");
+  const names = group.flatMap(dependencyNames);
+  const current = parseSource(group[0]!.getSourceFile().fileName, prefix);
+  const conflicts = current.statements.filter((node) =>
+    dependencyNames(node).some((name) => names.includes(name)),
+  );
+  if (!conflicts.length)
+    return (imports ? [incoming, prefix] : [prefix, incoming]).filter(Boolean).join("\n");
+  return applyEdits(
+    prefix,
+    conflicts.map((node, index) => ({
+      start: node.getStart(),
+      end: node.getEnd(),
+      text: [withoutBindings(node, names), index === 0 ? incoming : ""].filter(Boolean).join("\n"),
+    })),
+  );
+}
+
 function mergeSupport(prefix: string, support: readonly ts.Statement[]) {
-  for (const dependency of support) {
-    const incoming = dependencySource(dependency);
-    const names = dependencyNames(dependency);
-    const current = parseSource(dependency.getSourceFile().fileName, prefix);
-    const conflicts = current.statements.filter((node) =>
-      dependencyNames(node).some((name) => names.includes(name)),
-    );
-    if (!conflicts.length) {
-      prefix = [prefix, incoming].filter(Boolean).join("\n");
-      continue;
-    }
-    prefix = applyEdits(
-      prefix,
-      conflicts.map((node, index) => ({
-        start: node.getStart(),
-        end: node.getEnd(),
-        text: [withoutBindings(node, names), index === 0 ? incoming : ""].filter(Boolean).join("\n"),
-      })),
-    );
-  }
-  return prefix;
+  // Keep the original initialization order, including new helpers used by a replaced declaration.
+  const withImports = mergeDeclarations(prefix, support.filter(ts.isImportDeclaration), true);
+  return mergeDeclarations(
+    withImports,
+    support.filter((node) => !ts.isImportDeclaration(node)),
+  );
 }
 
 export function fragmentSource(

@@ -1,6 +1,8 @@
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { runInNewContext } from "node:vm";
+import ts from "typescript";
 import { afterEach, expect, it } from "vitest";
 import { parsePrompt } from "../build/entries";
 import { splitSources } from "./split";
@@ -110,16 +112,23 @@ it("replaces a changed helper and deduplicates overlapping type imports", async 
     en,
     `
 import type { Label, More } from "../../../catalog";
-const suffix = "?";
+const tone = "?";
+const suffix = tone;
 ${(await get(en)).replace("...SlotsWords,", "...SlotsWords, slotLabel: (name: Label, _other?: More) => name + suffix,")}
 `,
   );
   expect(await splitSources(root)).toBe(2);
   const fragment = await get(slotWords);
   expect(fragment.match(/const suffix/g)).toHaveLength(1);
-  expect(fragment).toContain('const suffix = "?"');
+  expect(fragment).toContain("const suffix = tone");
   expect(fragment.match(/import type \{ Label/g)).toHaveLength(1);
   expect(fragment).toContain('import type { Label, More } from "../../../../catalog"');
+  const compiled = ts.transpileModule(fragment, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+  });
+  const exports = {} as { words: { slotLabel: (name: string) => string } };
+  runInNewContext(compiled.outputText, { exports });
+  expect(exports.words.slotLabel("Time")).toBe("Time?");
   expect(await splitSources(root)).toBe(0);
 });
 
