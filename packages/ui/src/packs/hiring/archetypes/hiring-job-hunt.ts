@@ -38,6 +38,18 @@ export const hiring_job_hunt = {
         { id: "n1", c: "Note" },
       ],
     },
+    hiring_resume: {
+      recipe: [
+        { allow: ["Header"], required: true },
+        { allow: ["ResumeProfile"], required: true },
+        { allow: ["Button"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header" },
+        { id: "r1", c: "ResumeProfile" },
+        { id: "b1", c: "Button" },
+      ],
+    },
   },
 } as const satisfies ArchetypeMeta;
 
@@ -55,5 +67,12 @@ export const probes = [
     layout: "hiring_application",
     brief:
       "Use a back header titled Summer dog walker. Show only my Trot application in a card, applied 2027-04-06, active at interview, last contact 2027-04-12. Show past contact as a history timeline: Apr 6 Applied; Apr 12 Met Jo. I have no offer yet. End with a note: Send a thank-you on Apr 13.",
+  },
+  {
+    kind: "compose",
+    archetype: "hiring_job_hunt",
+    layout: "hiring_resume",
+    brief:
+      "Head the screen My résumé. Show Sam Patel, open to work, headline Dog walker. Sam started at Trot in 2025 and has an Animal Care Certificate from North College in 2023. Include Pet first aid and Group handling, the Sam Patel CV attachment, and a Done button back to the tracker.",
   },
 ] satisfies ComposeProbe[];

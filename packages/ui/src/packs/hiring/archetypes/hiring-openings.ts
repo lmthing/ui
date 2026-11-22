@@ -7,20 +7,20 @@ export const hiring_openings = {
   layouts: {
     hiring_roles: {
       writeHints: [
-        'Use one flat List with "style":null and "trail":"badge" at the component level. Put each status label in the row value, not the shelf-only badge field. Give each row a short title and a goto; leave row trail and badge null.',
+        'Use JobFeed for structured openings with employer, workplace, posting date or pay. For a flat list with only title, status and destination, use List with "style":null and "trail":"badge" at the component level. Put each status in its row value, not in the shelf-only badge field; leave row trail and badge null.',
       ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Search"], required: true },
         { allow: ["Chips"], required: true },
-        { allow: ["List"], required: true },
+        { allow: ["JobFeed", "List"], required: true },
         { allow: ["Button"], required: true },
       ],
       defaults: [
         { id: "h1", c: "Header" },
         { id: "s1", c: "Search" },
         { id: "c1", c: "Chips" },
-        { id: "l1", c: "List", trail: "badge" },
+        { id: "f1", c: "JobFeed" },
         { id: "b1", c: "Button" },
       ],
     },
@@ -45,7 +45,7 @@ export const probes = [
     archetype: "hiring_openings",
     layout: "hiring_roles",
     brief:
-      "Head the screen Open roles. Add search for roles and filter chips All and Summer. List Summer dog walker with an Open badge and Weekend walker with a Draft badge; link both openings. Finish with a New role button.",
+      "Head the screen Open roles. Add role search and filter chips All and Summer. List Trot’s open Summer dog walker role, on-site in North Park, posted 2026-11-20, paying 18 to 22 per hour with easy apply, and Coast Dogs’ open hybrid Assistant trainer role, posted 2026-11-17 without easy apply. Neither is saved. Link both details and finish with a Saved openings button.",
   },
   {
     kind: "compose",

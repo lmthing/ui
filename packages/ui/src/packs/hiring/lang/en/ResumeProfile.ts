@@ -1,0 +1,20 @@
+export const words = {
+  resumeProfile: {
+    open: "Open to work",
+    notOpen: "Not open to work",
+    experience: "Experience",
+    education: "Education",
+    skills: "Skills",
+    present: "Present",
+    dateRange: (start: string, end: string) => `${start}–${end}`,
+    metaLine: (name: string, date: string) => `${name} · ${date}`,
+    edit: "Edit profile",
+    editShort: "Edit",
+    preview: (file: string) => `Open ${file}`,
+    share: "Share profile",
+    shareShort: "Share",
+    empty: "No résumé details yet",
+    success: "Profile updated",
+    error: "Couldn’t update the profile",
+  },
+};

@@ -7,6 +7,8 @@ export const words = {
     reviewLine: (criterion: string, finding: string) => `${criterion}: ${finding}`,
     interview: "Interview",
     offer: "Offer",
+    panel: "Interviewer findings",
+    resume: "View résumé",
     history: { interview: "View interview", offer: "View offer" },
     hire: "Record hire",
     reject: "Reject",

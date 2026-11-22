@@ -7,8 +7,29 @@ type Application = {
   outcome: keyof HiringWords["outcomes"];
 };
 type EvidenceReview = Application & {
-  criteria: readonly { label: string; finding: keyof HiringWords["candidate"]["findings"] }[];
+  criteria: readonly {
+    label: string;
+    finding: Finding;
+    panelFindings?: readonly PanelFinding[] | undefined;
+  }[];
+  detail?: "full" | "brief" | undefined;
+  style?: "panel" | undefined;
+  resumeGoto?: string | undefined;
 };
+type Finding = keyof HiringWords["candidate"]["findings"];
+type PanelFinding = { interviewer: string; finding: Finding; evidence?: string | undefined };
+
+export function panelFindingCopy(
+  { interviewer, finding, evidence }: PanelFinding,
+  detail: EvidenceReview["detail"],
+  lang?: string,
+) {
+  return {
+    interviewer,
+    finding: hiringWordsFor(lang).candidate.findings[finding],
+    evidence: detail === "brief" ? undefined : evidence,
+  };
+}
 
 export function candidateCopy({ applied, stage, outcome }: Application, lang?: string) {
   const words = hiringWordsFor(lang);
@@ -26,8 +47,23 @@ export function candidateReading(input: EvidenceReview, lang?: string) {
     applied,
     stage,
     outcome,
-    ...input.criteria.map(({ label, finding }) => candidate.reviewLine(label, candidate.findings[finding])),
+    ...input.criteria.flatMap(({ label, finding, panelFindings }) => [
+      candidate.reviewLine(label, candidate.findings[finding]),
+      ...(input.style === "panel" && panelFindings
+        ? [
+            candidate.panel,
+            ...panelFindings.flatMap((row) => {
+              const panel = panelFindingCopy(row, input.detail, lang);
+              return [
+                candidate.reviewLine(panel.interviewer, panel.finding),
+                ...(panel.evidence ? [panel.evidence] : []),
+              ];
+            }),
+          ]
+        : []),
+    ]),
     ...Object.values(candidate.findings),
+    ...(input.resumeGoto ? [candidate.resume] : []),
     ...(input.outcome === "active"
       ? [candidate.interview, candidate.offer, candidate.hire, candidate.reject, candidate.withdraw]
       : Object.values(candidate.history)),

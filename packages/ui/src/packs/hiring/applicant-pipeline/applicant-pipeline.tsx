@@ -5,8 +5,9 @@ import {
   KitLayoutText,
   KitState,
   useComponentState,
-  useWords,
   useKit,
+  useVariant,
+  useWords,
 } from "../../../kit";
 import { StageBoard, type StageCard } from "../../../kit/renderers";
 import { ApplicantPipeline } from "../components";
@@ -47,15 +48,10 @@ function applicantCard(
 }
 
 /** Active stages draw through StageBoard; the owner supplies the legal move values. */
-export function ApplicantLanes({
-  applicants,
-  title,
-  style,
-
-  moves,
-}: Input & { moves?: Moves }) {
+export function ApplicantLanes({ applicants, title, arrange, moves }: Input & { moves?: Moves }) {
   const { lang, words } = useWords(hiringWordsFor);
   const density = useKit().density;
+  const layout = useVariant("arrange", ApplicantPipeline.meta.variants.arrange, arrange);
   const state = useComponentState();
   const loading = state === "loading";
   const active = applicants.filter(({ outcome }) => outcome === "active");
@@ -79,7 +75,8 @@ export function ApplicantLanes({
       <KitHeader title={{ part: "title", text: title }} density={density} />
       <StageBoard
         part={null}
-        {...{ loading, style, density }}
+        {...{ loading, density }}
+        style={layout === "rows" ? "stack" : "columns"}
         lanes={columns}
         cards={active.map((applicant) => applicantCard(applicant, density, lang, words, moves))}
         {...(moves ? { move: { caption: words.pipeline.move, label: words.pipeline.destination } } : {})}

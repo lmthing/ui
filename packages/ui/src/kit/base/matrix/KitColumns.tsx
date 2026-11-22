@@ -21,12 +21,33 @@ type ColumnItem = {
 type ColumnMove = {
   cards: readonly ColumnItem[];
   caption: string;
+  inlineCards?: boolean;
+  reserveTargets?: boolean;
   /** Accessible name for the button that moves this card to the given column. */
   label: (destination: string, card: string) => string;
 };
-type DestinationProps = { destination: string; name: string; press?: (() => void) | undefined };
-function Destination({ destination, name, press }: DestinationProps) {
+type DestinationProps = {
+  destination: string;
+  name: string;
+  loading: boolean;
+  press?: (() => void) | undefined;
+};
+function Destination({ destination, name, loading, press }: DestinationProps) {
   const ks = useKitStyle();
+  const onKeyDown = (event: { key: string; preventDefault(): void }) => {
+    if (!press || (event.key !== "Enter" && event.key !== " ")) return;
+    event.preventDefault();
+    press();
+  };
+  const text = (
+    <KitText role="label" part={null}>
+      {destination}
+    </KitText>
+  );
+  const web =
+    isWeb && !loading
+      ? { "data-step-action": "move", tabIndex: press ? 0 : -1, ...(press && { onKeyDown }) }
+      : {};
   return (
     <XStack
       maxWidth="100%"
@@ -36,24 +57,13 @@ function Destination({ destination, name, press }: DestinationProps) {
       alignItems="center"
       justifyContent="center"
       borderRadius={shifted("sm", ks.radiusShift)}
-      backgroundColor="$raised"
-      accessibilityRole="button"
-      accessibilityLabel={name}
-      {...(isWeb ? { "data-step-action": "move", tabIndex: press ? 0 : -1 } : {})}
+      backgroundColor={loading ? "$line" : "$raised"}
+      accessibilityRole={loading ? undefined : "button"}
+      accessibilityLabel={loading ? undefined : name}
+      {...(web as object)}
       onPress={press}
-      {...((isWeb && press
-        ? {
-            onKeyDown: (event: { key: string; preventDefault(): void }) => {
-              if (event.key !== "Enter" && event.key !== " ") return;
-              event.preventDefault();
-              press();
-            },
-          }
-        : {}) as object)}
     >
-      <KitText role="label" tone="text" part={null}>
-        {destination}
-      </KitText>
+      {loading ? <YStack opacity={component.base.none}>{text}</YStack> : text}
     </XStack>
   );
 }
@@ -65,7 +75,7 @@ type ItemProps = {
   move: ColumnMove;
   focus: RefObject<string | null>;
 };
-function ColumnItemRoot({ card, destinations, move: { caption, label }, loading, focus }: ItemProps) {
+function ColumnItemRoot({ card, destinations, move, loading, focus }: ItemProps) {
   const address = usePart("root", !loading);
   const { controller, interactive } = useKit();
   const runMove = useMoveFocus(focus, address.testID, address.ref);
@@ -78,6 +88,7 @@ function ColumnItemRoot({ card, destinations, move: { caption, label }, loading,
       label={card.label}
       goto={card.goto}
       inset="none"
+      inline={move.inlineCards ?? false}
       trailing={card.goto && <KitIcon name="chevron_right" decorative />}
     >
       {card.children}
@@ -91,17 +102,20 @@ function ColumnItemRoot({ card, destinations, move: { caption, label }, loading,
         : {})}
     >
       <MatrixContent loading={loading}>{row}</MatrixContent>
-      {!loading && destinations.length > 0 && (!interactive || !controller || offered) && (
+      {destinations.length > 0 && (loading ? move.reserveTargets : !active || offered) && (
         <YStack gap={space.xs}>
-          <KitText role="caption" tone="muted" part={null}>
-            {caption}
-          </KitText>
+          <MatrixContent loading={loading}>
+            <KitText role="caption" tone="muted" part={null}>
+              {move.caption}
+            </KitText>
+          </MatrixContent>
           <XStack gap={space.xs} flexWrap="wrap">
             {destinations.map(({ value, label: destination }) => (
               <Destination
                 key={value}
                 destination={destination}
-                name={label(destination, card.label)}
+                name={move.label(destination, card.label)}
+                loading={loading}
                 press={offered ? () => press(value) : undefined}
               />
             ))}
@@ -119,6 +133,11 @@ type ColumnsProps = Omit<Drawing, "part"> & {
     part?: string;
     label: string;
     count: string;
+    countPart?: string;
+    headingRole?: "body";
+    /** Move value and button label each default to the column label. */
+    moveValue?: string;
+    moveLabel?: string;
     summary?: ReactNode;
     children?: ReactNode;
   }[];
@@ -152,11 +171,15 @@ function ColumnCard({ column, loading, stack, pageWidth, items }: CardProps) {
       <MatrixContent loading={loading}>
         <XStack gap={space.md} alignItems="center" justifyContent="space-between">
           <YStack flex={component.base.bodyFlex}>
-            <KitText role="heading" part={null}>
+            <KitText
+              role={column.headingRole ?? "heading"}
+              emphasis={column.headingRole ? "strong" : undefined}
+              part={null}
+            >
               {column.label}
             </KitText>
           </YStack>
-          <KitText role="number" numberScale="compact" tabular part={null}>
+          <KitText role="number" numberScale="compact" tabular part={column.countPart ?? null}>
             {column.count}
           </KitText>
         </XStack>
@@ -199,10 +222,13 @@ export function KitColumns({
   const [position, setPosition] = useState(0);
   const stack = style === "stack" || columns.length < 2;
   const labels = columns.map((column) => column.label);
+  const choices = columns.map((c) => ({ label: c.moveLabel ?? c.label, value: c.moveValue ?? c.label }));
+  const values = choices.map(({ value }) => value);
   const cards = columns.map((column, index) => {
-    const defaults = labels
-      .filter((label, at) => label && at !== index && labels.indexOf(label) === labels.lastIndexOf(label))
-      .map((label) => ({ value: label, label }));
+    const defaults = choices.filter(
+      ({ label, value }, at) =>
+        label && value && at !== index && values.indexOf(value) === values.lastIndexOf(value),
+    );
     const items = move?.cards
       .filter((card) => card.column === index)
       .map((card) => (

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { candidateCopy, candidateReading } from "../copy";
+import { candidateCopy, candidateReading, panelFindingCopy } from "../copy";
 import { hiringWordsFor } from "../lang";
 import { activeStages, outcomes, seedApplicationId, seedDate, seedGoto, seedJobId, seedRows } from "../seeds";
 import { prompt } from "../../../entry/prompt-Candidate.generated";
@@ -25,10 +25,10 @@ export const meta = {
   // prettier-ignore
   parts: ["root", "name", "photo", "role", "applied", "stage", "outcome", "interview", "interview_label",
     "offer", "offer_label", "hire", "hire_label", "reject", "reject_label", "withdraw", "withdraw_label",
-    "success", "error"],
+    "success", "error", "resume", "resume_label"],
   items: {
     key: "criteria",
-    parts: ["root", "label", "finding", "evidence"],
+    parts: ["root", "label", "finding", "evidence", "panel"],
     // prettier-ignore
     edits: {
       finding: { action: "select", prop: "finding", choices: findings.map((value) => ({ value, label: findingLabels[value] })) },
@@ -39,17 +39,19 @@ export const meta = {
   states: ["filled", "loading", "success", "error"],
   actions: {
     // prettier-ignore
-    parts: { interview: ["press"], offer: ["press"], hire: ["press"], reject: ["press"], withdraw: ["press"] },
+    parts: { interview: ["press"], offer: ["press"], hire: ["press"], reject: ["press"], withdraw: ["press"], resume: ["press"] },
     items: { finding: ["select"], evidence: ["type"] },
     // prettier-ignore
     when: { hire: { outcome: "active" }, reject: { outcome: "active" }, withdraw: { outcome: "active" },
-      evidence: { detail: "full" } },
+      evidence: { detail: "full" }, resume: { hasResume: true } },
   },
   live: {
     // prettier-ignore
     derive: (input): c.Values => ({
       interview: { goto: input.interviewGoto },
       offer: { goto: input.offerGoto },
+      hasResume: typeof input.resumeGoto === "string",
+      resume: input.resumeGoto ? { goto: input.resumeGoto } : undefined,
       ...(input.detail === "brief" ? { criteria: (input.criteria as z.output<typeof props>["criteria"])
         .map((row) => ({ ...row, evidence: undefined })) } : {}),
     }),
@@ -67,8 +69,13 @@ export const props = z.strictObject({
   stage: z.enum(activeStages), outcome: z.enum(outcomes),
   criteria: z.array(z.strictObject({
     label: c.text(32), finding: z.enum(findings).default("unreviewed"), evidence: c.text(80).optional(),
+    panelFindings: z.array(z.strictObject({
+      interviewer: c.text(24), finding: z.enum(findings), evidence: c.text(80).optional(),
+    })).min(2).max(4).optional(),
   })).min(1).max(6),
   interviewGoto: c.screenId, offerGoto: c.screenId,
+  resumeGoto: c.screenId.optional(),
+  style: z.literal("panel").optional(),
 });
 
 // prettier-ignore
@@ -120,6 +127,28 @@ export const examples = [
     interviewGoto: "mara_interview",
     offerGoto: "mara_offer",
   },
+  {
+    applicationId: "imani",
+    jobId: "walker",
+    name: "Imani Cole",
+    role: "Summer dog walker",
+    applied: "2027-04-07",
+    stage: "interview",
+    outcome: "active",
+    style: "panel",
+    criteria: [
+      {
+        label: "Group handling",
+        panelFindings: [
+          { interviewer: "Jo Ellis", finding: "meets", evidence: "Led the practice walk." },
+          { interviewer: "Ari Lane", finding: "needs_evidence", evidence: "Ask about larger groups." },
+        ],
+      },
+    ],
+    interviewGoto: "imani_interview",
+    offerGoto: "imani_offer",
+    resumeGoto: "imani_resume",
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Candidate");
@@ -140,50 +169,109 @@ export const probes: c.Probe[] = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
+  {
+    ...write(
+      "Show side-by-side interviewer findings for Imani Cole's active Summer dog walker application from 2027-04-07, at interview. For Group handling, Jo Ellis marked Meets after Imani led the practice walk and Ari Lane marked Needs evidence. Do not set a final finding. Link to the interview and offer.",
+    ),
+    expectProps: { style: "panel" },
+    fields: {
+      "criteria.0.panelFindings.0.interviewer": "Jo Ellis",
+      "criteria.0.panelFindings.0.finding": "meets",
+      "criteria.0.panelFindings.1.interviewer": "Ari Lane",
+      "criteria.0.panelFindings.1.finding": "needs_evidence",
+    },
+  },
+  {
+    ...write(
+      "Review Sam Patel's active Summer dog walker application from 2027-04-06 at interview. Group handling is unreviewed. Link to the interview and offer and add a View résumé link to the sam_resume screen.",
+    ),
+    expectProps: { resumeGoto: "sam_resume" },
+  },
   read("Reject Sam Patel's application.", { address: "c1/reject", action: "press" }),
 ] satisfies c.Probe[];
 
 type Review = c.Props<typeof props, typeof meta>;
-type ReviewAction = "interview" | "offer" | "hire" | "reject" | "withdraw";
+type ReviewAction = "interview" | "offer" | "hire" | "reject" | "withdraw" | "resume";
+type CriterionRow = Review["criteria"][number];
+
+function PanelFindings({
+  row,
+  detail,
+  density,
+  lang,
+}: {
+  row: CriterionRow;
+  detail: Review["detail"];
+  density: c.ThemeDensity;
+  lang: string;
+}) {
+  const loading = kit.useComponentState() === "loading";
+  if (!row.panelFindings) return null;
+  const { candidate: words } = hiringWordsFor(lang);
+  return (
+    <kit.KitRow
+      part={loading ? null : "panel"}
+      label={words.panel}
+      inset="none"
+      inline
+      fitContent
+      density={density}
+    >
+      <kit.KitLayoutText line={{ text: words.panel, role: "meta", tone: "muted" }} density={density} />
+      <kit.KitGrid density={density}>
+        {row.panelFindings.map((review, index) => {
+          const { interviewer, finding, evidence } = panelFindingCopy(review, detail, lang);
+          return (
+            <kit.KitMetaLine
+              key={index}
+              title={{ text: interviewer, strong: true }}
+              meta={[{ text: finding, tone: "text" }, { text: evidence }]}
+              density={density}
+            />
+          );
+        })}
+      </kit.KitGrid>
+    </kit.KitRow>
+  );
+}
 
 function Criterion({
   row,
   detail,
   density,
+  panel,
 }: {
-  row: Review["criteria"][number];
+  row: CriterionRow;
   detail: Review["detail"];
   density: c.ThemeDensity;
+  panel: boolean;
 }) {
   const {
+    lang,
     words: { candidate: words },
   } = kit.useWords(hiringWordsFor);
-  const { screen, component } = kit.usePartContext();
-  const finding = kit.useControlValue(`${screen}/${component}/${row.id}/finding`, row.finding);
+  const loading = kit.useComponentState() === "loading";
+  const comparison = panel && row.panelFindings;
   return (
-    <kit.KitRow item={row.id} label={row.label} inset="none" {...{ density }}>
-      <kit.KitText part="label" role="heading" {...{ density }}>
-        {row.label}
-      </kit.KitText>
-      <kit.KitTrack part="finding" role="radiogroup" label={row.label}>
-        <kit.KitGrid {...{ density }}>
-          {findings.map((value) => (
-            <kit.KitChip
-              key={value}
-              item={null}
-              role="radio"
-              look="box"
-              label={words.findings[value]}
-              on={value === finding}
-              {...{ value }}
-            />
-          ))}
-        </kit.KitGrid>
-      </kit.KitTrack>
+    <kit.KitRow
+      item={row.id}
+      label={row.label}
+      inset="none"
+      density={density}
+      {...(loading && { part: null })}
+    >
+      <kit.KitLayoutText
+        line={{ part: "label", text: row.label, role: "body", strong: true }}
+        density={density}
+      />
+      {comparison && <PanelFindings {...{ row, detail, density, lang }} />}
+      <kit.KitContent group={comparison ? "response" : "content"} density={density}>
+        <FindingChoices {...{ row, density, loading }} />
+      </kit.KitContent>
       {detail === "full" && (
-        <kit.KitContent group="response" {...{ density }}>
+        <kit.KitContent group="response" density={density}>
           <kit.KitInput
-            part="evidence"
+            part={loading ? null : "evidence"}
             label={words.evidenceFor(row.label)}
             hint={words.evidence}
             value={row.evidence}
@@ -191,6 +279,44 @@ function Criterion({
         </kit.KitContent>
       )}
     </kit.KitRow>
+  );
+}
+
+function FindingChoices({
+  row,
+  density,
+  loading,
+}: {
+  row: CriterionRow;
+  density: c.ThemeDensity;
+  loading: boolean;
+}) {
+  const {
+    words: { candidate: words },
+  } = kit.useWords(hiringWordsFor);
+  const { screen, component } = kit.usePartContext();
+  const finding = kit.useControlValue(`${screen}/${component}/${row.id}/finding`, row.finding);
+  const choices = (
+    <kit.KitGrid density={density}>
+      {findings.map((value) => (
+        <kit.KitChip
+          key={value}
+          item={null}
+          role="radio"
+          look="box"
+          label={words.findings[value]}
+          on={value === finding}
+          value={value}
+        />
+      ))}
+    </kit.KitGrid>
+  );
+  return loading ? (
+    choices
+  ) : (
+    <kit.KitTrack part="finding" role="radiogroup" label={row.label}>
+      {choices}
+    </kit.KitTrack>
   );
 }
 
@@ -212,15 +338,16 @@ function ReviewActions({
     return loading ? (
       <kit.KitSkeleton shape="control" {...{ label, kind }} full />
     ) : (
-      <kit.KitAction {...{ part, label, kind, goto }} full />
+      <kit.KitAction {...{ part, label, kind, goto }} tone={kind === "quiet" ? "neutral" : "accent"} full />
     );
   };
   return (
     <kit.KitContent group="response" {...{ density }}>
       <kit.KitGrid arrange="rows" list listRowGap="cards" {...{ density }}>
+        {input.resumeGoto && action("resume", "quiet", input.resumeGoto)}
         <kit.KitGrid {...{ density }}>
-          {action("interview", "secondary", input.interviewGoto)}
-          {action("offer", "secondary", input.offerGoto)}
+          {action("interview", "quiet", input.interviewGoto)}
+          {action("offer", "quiet", input.offerGoto)}
         </kit.KitGrid>
         {active && action("hire", "primary")}
         {active && (
@@ -235,94 +362,53 @@ function ReviewActions({
 }
 
 type CandidateCopy = ReturnType<typeof candidateCopy>;
-type CandidateWords = ReturnType<typeof hiringWordsFor>["candidate"];
-
-function CandidateLoading(
-  input: Review,
-  { applied, stage, outcome }: CandidateCopy,
-  detail: Review["detail"],
-  density: c.ThemeDensity,
-  words: CandidateWords,
-) {
-  return (
-    <>
-      <kit.KitContent
-        leadingAlign="row"
-        {...{ density }}
-        lead={input.photo && <kit.KitPhoto shape="round" part="photo" />}
-      >
-        <kit.KitSkeleton
-          shape="figure"
-          inset="none"
-          content={[
-            ["title", input.name],
-            ["body", input.role],
-          ]}
-        />
-      </kit.KitContent>
-      <kit.KitSkeleton
-        shape="figure"
-        inset="none"
-        content={[
-          ["label", applied],
-          ["label", stage],
-          ["label", outcome],
-        ]}
-        {...{ density }}
-      />
-      {input.criteria.map(({ id, label }) => (
-        <kit.KitContent key={id} group="response" {...{ density }}>
-          <kit.KitSkeleton shape="figure" inset="none" content={[["heading", label]]} {...{ density }} />
-          <kit.KitGrid {...{ density }}>
-            {findings.map((value) => (
-              <kit.KitSkeleton key={value} shape="control" label={words.findings[value]} full />
-            ))}
-          </kit.KitGrid>
-          {detail === "full" && <kit.KitSkeleton shape="control" label={words.evidence} full />}
-        </kit.KitContent>
-      ))}
-      <ReviewActions {...{ input, density }} loading />
-    </>
-  );
-}
-
-function CandidateDetails(
-  input: Review,
-  { applied, stage, outcome }: CandidateCopy,
-  detail: Review["detail"],
-  density: c.ThemeDensity,
-) {
+function CandidateDetails({
+  input,
+  copy: { applied, stage, outcome },
+  detail,
+  density,
+}: {
+  input: Review;
+  copy: CandidateCopy;
+  detail: Review["detail"];
+  density: c.ThemeDensity;
+}) {
+  const loading = kit.useComponentState() === "loading";
   return (
     <>
       <kit.KitContent
         leadingAlign="row"
         {...{ density }}
         lead={
-          input.photo && <kit.KitPhoto photo={input.photo} shape="round" part="photo" label={input.name} />
+          input.photo && (
+            <kit.KitPhoto
+              photo={input.photo}
+              shape="round"
+              part="photo"
+              label={input.name}
+              loading={loading}
+            />
+          )
         }
       >
-        <kit.KitText part="name" role="title" density="comfortable">
-          {input.name}
-        </kit.KitText>
-        <kit.KitText part="role" tone="muted" {...{ density }}>
-          {input.role}
-        </kit.KitText>
+        <kit.KitHeader
+          title={{ part: "name", text: input.name }}
+          meta={{ part: "role", text: input.role, role: "body" }}
+          density={density}
+        />
       </kit.KitContent>
       <kit.KitContent group="response" {...{ density }}>
-        <kit.KitText part="applied" role="label" tone="muted" {...{ density }}>
-          {applied}
-        </kit.KitText>
-        <kit.KitText part="stage" role="label" {...{ density }}>
-          {stage}
-        </kit.KitText>
-        <kit.KitText part="outcome" role="label" {...{ density }}>
-          {outcome}
-        </kit.KitText>
+        <kit.KitLayoutText
+          line={{ part: "applied", text: applied, role: "meta", tone: "muted" }}
+          density={density}
+        />
+        <kit.KitLayoutText line={{ part: "stage", text: stage, role: "meta" }} density={density} />
+        <kit.KitLayoutText line={{ part: "outcome", text: outcome, role: "meta" }} density={density} />
       </kit.KitContent>
       {input.criteria.map((row) => (
-        <Criterion key={row.id} {...{ row, detail, density }} />
+        <Criterion key={row.id} {...{ row, detail, density }} panel={input.style === "panel"} />
       ))}
-      <ReviewActions {...{ input, density }} />
+      <ReviewActions {...{ input, density, loading }} />
     </>
   );
 }
@@ -336,20 +422,17 @@ export function Candidate(input: Review) {
   const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const copy = candidateCopy(input, lang);
+  const details = <CandidateDetails {...{ input, copy, detail, density }} />;
   return (
     <kit.KitCard part="root" padded {...{ density }}>
-      {state === "loading" ? (
-        CandidateLoading(input, copy, detail, density, words)
-      ) : state === "success" || state === "error" ? (
-        <kit.KitEmpty
-          part={state}
-          title={state === "success" ? words.success : words.error}
-          icon={state === "success" ? "check" : "info"}
-          decorativeIcon
-        />
-      ) : (
-        CandidateDetails(input, copy, detail, density)
-      )}
+      <kit.KitState
+        density={density}
+        loading={details}
+        part={state === "success" || state === "error" ? state : null}
+        message={state === "success" || state === "error" ? words[state] : undefined}
+      >
+        {details}
+      </kit.KitState>
     </kit.KitCard>
   );
 }

@@ -1,12 +1,17 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
-import { payPeriods, seedGoto, seedJobId, seedRows } from "../seeds";
+import * as kit from "../../../kit";
+import { jobAcceptsApplications, jobPostCopy, jobPostReading } from "../copy";
+import { hiringWordsFor } from "../lang";
+import { payPeriods, seedGoto, seedJobId } from "../seeds";
 import { prompt } from "../../../entry/prompt-JobPost.generated";
+
+const benefitParts = ["benefit_1", "benefit_2", "benefit_3", "benefit_4"] as const;
 
 // Core first: Card/card can spotlight a role but cannot show structured pay terms and an application window.
 export const meta = {
   id: "JobPost",
-  status: "draft",
+  status: "ready",
   group: "content",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -16,21 +21,12 @@ export const meta = {
   partTiers: { publish: "service" },
   realPath:
     "An opening and its save state live on the phone, while publishing needs a job board or website service.",
-  parts: [
-    "root",
-    "title",
-    "employer",
-    "place",
-    "workplace",
-    "contract",
-    "pay",
-    "about",
-    "requirements",
-    "closes",
-    "save",
-    "apply",
-    "publish",
-  ],
+  variants: { detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["about"] } },
+  // prettier-ignore
+  parts: ["root", "title", "employer", "place", "workplace", "contract", "pay", "about", "requirements",
+    "closes", "save", "apply", "apply_label", "publish", "publish_label", "success", "error",
+    "benefits", "benefit_chips", ...benefitParts, "easy_apply"],
   states: ["filled", "loading", "success", "error"],
   actions: {
     parts: { save: ["toggle"], apply: ["press"], publish: ["press"] },
@@ -38,17 +34,19 @@ export const meta = {
     noGoto: { parts: ["publish"] },
   },
   live: {
-    derive: ({ closes }) => {
-      const now = new Date();
-      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-      return { acceptingApplications: typeof closes !== "string" || closes >= today };
-    },
+    derive: ({ closes, detail }) => ({
+      acceptingApplications: jobAcceptsApplications(closes),
+      ...(detail === "brief" ? { about: undefined } : {}),
+    }),
   },
+  read: (input, state, lang, _data, currency): string[] =>
+    state === "filled" ? jobPostReading(input as z.output<typeof props>, currency, lang) : [],
   writeHints: prompt.writeHints,
 } as const satisfies c.Meta;
 
 export const props = z.strictObject({
-  jobId: c.text(32),
+  ...c.variantProps(meta.variants),
+  jobId: c.text(32).meta({ kind: "id" }),
   title: c.text(32),
   employer: c.text(32),
   place: c.text(36).optional(),
@@ -64,21 +62,26 @@ export const props = z.strictObject({
     .optional(),
   about: c.text(400),
   requirements: z.array(c.text(80)).min(1).max(6),
+  benefits: z.array(c.text(24)).max(benefitParts.length).optional(),
+  easyApply: z.boolean().optional(),
   closes: c.isoDate.optional(),
   saved: z.boolean(),
   goto: c.screenId,
 });
 
-export function fallback(input: c.FallbackInput): z.input<typeof props> {
-  const [row] = seedRows(input, 1);
+export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
+  const thing = c.thingOf(cast);
+  const [row] = c.itemsOf(cast, 1);
+  const neutral = c.wordsFor(lang).placeholderDetail;
+  const detail = (max: number) => (row && c.detailOf(row, max, thing)) ?? c.clip(neutral, max);
   return {
     jobId: seedJobId,
-    title: row!.title(32),
-    employer: row!.detail(32),
+    title: (row && c.titleOf(row, 32, thing)) ?? c.clip(c.placeholderTitle(0, lang), 32),
+    employer: detail(32),
     workplace: "onsite",
     contract: "casual",
-    about: row!.detail(400),
-    requirements: [row!.detail(80)],
+    about: detail(400),
+    requirements: [detail(80)],
     saved: false,
     goto: seedGoto,
   };
@@ -107,8 +110,22 @@ export const examples: z.input<typeof props>[] = [
     contract: "permanent",
     about: "Edit two short newsletters each week.",
     requirements: ["A recent editing sample"],
+    closes: "2026-10-01",
     saved: true,
     goto: "editor_apply",
+  },
+  {
+    jobId: "trainer",
+    title: "Assistant trainer",
+    employer: "Coast Dogs",
+    workplace: "hybrid",
+    contract: "permanent",
+    about: "Help deliver small-group training classes.",
+    requirements: ["Experience working with dogs"],
+    benefits: ["Training", "Travel", "Flex time", "Paid leave"],
+    easyApply: true,
+    saved: false,
+    goto: "trainer_apply",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -124,5 +141,130 @@ export const probes: c.Probe[] = [
   write(
     "Post Trot's on-site, fixed-term Summer dog walker role in North Park, paying 18 to 22 an hour. Lead weekday group walks; group handling experience is required. Closes 2027-04-30. It is not saved; link to the apply form.",
   ),
+  {
+    ...write(
+      "Show Harbour Press's permanent remote Copy editor opening. Keep 'Edit two short newsletters each week.' in the record, but don't display the job description. Ask for a recent editing sample, mark the posting saved and link to the application form.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
+  {
+    ...write(
+      "Post Coast Dogs' permanent hybrid Assistant trainer opening. Help deliver small-group classes; experience working with dogs is required. Show two benefits: Paid training and Travel allowance. Not saved; link to the application form.",
+    ),
+    expectProps: { benefits: ["Paid training", "Travel allowance"] },
+  },
+  {
+    ...write(
+      "Post Coast Dogs' permanent hybrid Assistant trainer opening. Help deliver small-group classes; experience working with dogs is required. Mark the opening as Easy apply. It is not saved; link to the application form.",
+    ),
+    expectProps: { easyApply: true },
+  },
   read("Bookmark this opening on my phone.", { address: "j1/save", action: "toggle" }),
 ] satisfies c.Probe[];
+
+type Job = c.Props<typeof props, typeof meta>;
+type Density = c.ThemeDensity;
+
+// prettier-ignore
+function JobActions({ input, open, loading, density }: { input: Job; open: boolean; loading: boolean; density: Density }) {
+  const { words: { jobPost: words } } = kit.useWords(hiringWordsFor);
+  return <kit.KitContent group="response" {...{ density }}>
+    <kit.KitRow label={words.save} inline {...{ density }}
+      trailing={<kit.KitTrail kind="toggle" part="save" on={input.saved} />}>
+      {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.save]]} {...{ density }} /> :
+        <kit.KitText part={null} role="label" {...{ density }}>{words.save}</kit.KitText>}
+    </kit.KitRow>
+    {open && (loading ? <kit.KitSkeleton shape="control" label={words.apply} kind="secondary" full /> :
+      <kit.KitAction part="apply" label={words.apply} goto={input.goto} kind="secondary" full />)}
+    <kit.KitContent group="response" {...{ density }}>
+      {loading ? <kit.KitSkeleton shape="control" label={words.publish} kind="quiet" full /> :
+        <kit.KitAction part="publish" label={words.publish} kind="quiet" full />}
+    </kit.KitContent>
+  </kit.KitContent>;
+}
+
+function JobBenefits({ copy, density }: { copy: ReturnType<typeof jobPostCopy>; density: Density }) {
+  if (!copy.benefits.length) return null;
+  return (
+    <kit.KitContent group="response" rhythm="flush" density={density}>
+      <kit.KitLayoutText
+        line={{ part: "benefits", text: copy.benefitsLabel, role: "meta", strong: true }}
+        density={density}
+      />
+      <kit.KitTrack part="benefit_chips" label={copy.benefitsLabel}>
+        {copy.benefits.map((label, index) => (
+          <kit.KitTrail
+            key={benefitParts[index]}
+            kind="badge"
+            part={benefitParts[index]!}
+            tone="muted"
+            value={label}
+            density={density}
+          />
+        ))}
+      </kit.KitTrack>
+    </kit.KitContent>
+  );
+}
+
+// prettier-ignore
+function JobBody({ input, density }: { input: Job; density: Density }) {
+  const loading = kit.useComponentState() === "loading";
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  const { lang, words: { jobPost: words } } = kit.useWords(hiringWordsFor);
+  const copy = jobPostCopy(input, kit.useAppCurrency(), lang);
+  const line = (part: string | null, value: string | undefined, role: kit.TextRole, tone: kit.TextTone = "text") =>
+    value === undefined ? null : loading ?
+      <kit.KitSkeleton shape="figure" inset="none" content={[[role, value, "start", "compact"]]} {...{ density }} /> :
+      <kit.KitText {...{ part, role, tone, density }} numberScale="compact" tabular={role === "number"}>{value}</kit.KitText>;
+  const terms = loading ? line(null, [copy.workplace, copy.contract].join(words.termSeparator), "label") :
+    <kit.KitText part="workplace" role="label" tone="muted" {...{ density }}>
+      {copy.workplace}{words.termSeparator}{line("contract", copy.contract, "label", "muted")}
+    </kit.KitText>;
+  return <>
+      <kit.KitHeader title={{ part: "title", text: input.title }} density={density}
+        meta={[{ part: "employer", text: input.employer, role: "body", tone: "text" },
+          { part: "place", text: input.place }]} />
+      <kit.KitContent group="response" density={density}>
+        {copy.easyApply ? <kit.KitGrid fitLast density={density}>
+          {terms}
+          <kit.KitTrail kind="badge" part="easy_apply" tone="muted" value={copy.easyApply} density={density} />
+        </kit.KitGrid> : terms}
+        {line("pay", copy.pay, "number")}
+      </kit.KitContent>
+      <JobBenefits {...{ copy, density }} />
+      {detail === "full" && <kit.KitContent group="response" {...{ density }}>
+        {line("about", input.about, "body")}
+      </kit.KitContent>}
+      <kit.KitContent group="response" {...{ density }}>
+        {line("requirements", words.requirements, "label", "muted")}
+        {copy.requirements.map((requirement, index) =>
+          <kit.KitContent key={index} {...{ density }}>{line(null, requirement, "body")}</kit.KitContent>)}
+      </kit.KitContent>
+      {copy.closes && <kit.KitContent group="response" {...{ density }}>
+        {line("closes", copy.closes, "label", copy.open ? "muted" : "warn")}
+      </kit.KitContent>}
+      <JobActions {...{ input, loading, density }} open={copy.open} />
+    </>;
+}
+
+export function JobPost(input: Job) {
+  const state = kit.useComponentState();
+  const {
+    words: { jobPost: words },
+  } = kit.useWords(hiringWordsFor);
+  const density = kit.useKit().density;
+  const body = <JobBody {...{ input, density }} />;
+  return (
+    <kit.KitCard part="root" padded density={density}>
+      <kit.KitState
+        density={density}
+        loading={body}
+        part={state === "success" || state === "error" ? state : null}
+        message={state === "success" || state === "error" ? words[state] : undefined}
+      >
+        {body}
+      </kit.KitState>
+    </kit.KitCard>
+  );
+}

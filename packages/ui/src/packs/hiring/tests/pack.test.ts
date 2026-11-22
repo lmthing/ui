@@ -20,11 +20,20 @@ import {
 } from "@lmthing/ui/catalog";
 import { example } from "..";
 
-const ids = ["JobPost", "ApplicantPipeline", "Candidate", "Interview", "Offer", "Applications"] as const;
+const ids = [
+  "JobFeed",
+  "JobPost",
+  "ApplicantPipeline",
+  "Candidate",
+  "Interview",
+  "Offer",
+  "Applications",
+  "ResumeProfile",
+] as const;
 const cast: CastLike = { things: [], items: [] };
 
 describe("hiring scaffold", () => {
-  it("loads all six generated entries only in a registry scoped to hiring", () => {
+  it("loads all eight generated entries only in a registry scoped to hiring", () => {
     const core = createRegistry();
     const hiring = createRegistry({ packs: ["hiring"], includeDrafts: true });
     const live = createRegistry({ packs: ["hiring"] });
@@ -51,7 +60,27 @@ describe("hiring scaffold", () => {
 });
 
 describe("hiring recipes and worked example", () => {
-  it("checks all nine recipes, neutral defaults and compose probes", () => {
+  it("keeps JobFeed as the openings default and accepts a legacy flat status List", () => {
+    const hiring = createRegistry({ packs: ["hiring"], includeDrafts: true });
+    const screen = hiring.defaultLines("hiring_openings", "hiring_roles", cast);
+    expect(screen.components.some(({ c }) => c === "JobFeed")).toBe(true);
+    const rows = [
+      { title: "Summer dog walker", value: "Open", goto: "summer" },
+      { title: "Weekend walker", value: "Draft", goto: "weekend" },
+    ];
+    const layout = hiring.packComposeArchetypes.find(({ id }) => id === "hiring_openings")!;
+    const flat = {
+      ...screen,
+      components: screen.components.map((component) =>
+        component.c === "JobFeed" ? { id: component.id, c: "List", trail: "badge", rows } : component,
+      ),
+    };
+    expect(scoreComposition(JSON.stringify(flat), layout, "hiring_roles", components).issues).toEqual([]);
+  });
+});
+
+describe("hiring composition", () => {
+  it("checks all ten recipes, neutral defaults and compose probes", () => {
     expect(checkPacks({ components, packs, packOf, packExamples, packArchetypes })).toEqual([]);
     expect(checkArchetypes({ components, packOf, packArchetypes, archetypes })).toEqual([]);
     const hiring = createRegistry({ packs: ["hiring"], includeDrafts: true });
@@ -59,7 +88,7 @@ describe("hiring recipes and worked example", () => {
     const keys = hiring.packComposeArchetypes.flatMap((meta) =>
       Object.keys(meta.layouts).map((layout) => `${meta.id}/${layout}`),
     );
-    expect(keys).toHaveLength(9);
+    expect(keys).toHaveLength(10);
     expect(packComposeProbes.hiring.map(({ archetype, layout }) => `${archetype}/${layout}`).sort()).toEqual(
       [...keys].sort(),
     );
@@ -97,11 +126,13 @@ it("validates each worked-example line and shares one consistent application rec
     expect(id).toMatch(/^[a-z][a-z0-9_]*$/);
     expect(defs[c]!.props.safeParse(props).success).toBe(true);
   }
-  const [, job, pipeline, candidate, interview, offer, tracker] = lines;
+  const [, feed, job, pipeline, candidate, interview, offer, tracker, resume] = lines;
   expect(pipeline).toMatchObject({ jobId: job.jobId, title: job.title });
   expect(pipeline.applicants).toHaveLength(8);
   const { applicationId, name, role, applied, outcome, stage } = candidate;
   expect(candidate).toMatchObject({ jobId: job.jobId, role: job.title });
+  expect(feed.jobs).toContainEqual(expect.objectContaining({ jobId: job.jobId, title: job.title }));
+  expect(resume).toMatchObject({ name, openToWork: true });
   expect(pipeline.applicants).toContainEqual(
     expect.objectContaining({ applicationId, name, applied, outcome, stage }),
   );
