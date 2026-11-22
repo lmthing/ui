@@ -19,7 +19,7 @@ import {
 } from "@lmthing/ui/catalog";
 
 const workedExampleIds = ["Library", "Collection", "Playlist", "ChapterList", "Highlights"];
-const ids = [...workedExampleIds, "MiniPlayer", "Transcript"];
+const ids = [...workedExampleIds, "MiniPlayer", "Transcript", "AudioMatch"];
 const core = createRegistry();
 const scoped = createRegistry({ packs: ["media"], includeDrafts: true });
 const defs: Record<string, Definition> = components;
@@ -47,6 +47,7 @@ const recipes = {
   "reader/article": ["Header", "Article", "SectionTitle", "List"],
   "reader/listen": ["Header", "Player", "ChapterList"],
   "reader/transcript": ["Header", "Player", "Transcript"],
+  "reader/identify": ["Header", "AudioMatch", "Note"],
   "reader/highlights": ["Header", "Search", "Highlights"],
 };
 
@@ -84,9 +85,11 @@ it("has valid examples and neutral fallbacks for the pack definitions", () => {
     for (const sample of [cast, populatedCast, malformedCast]) {
       const result = def.fallback({ cast: sample });
       expect(def.props.safeParse(result).success, id).toBe(true);
-      expect(JSON.stringify(result), id).toContain(
-        JSON.stringify(sample === populatedCast ? "Morning reading" : placeholderTitle(0)),
-      );
+      if (id === "AudioMatch") expect(result).toEqual({ history: [] });
+      else
+        expect(JSON.stringify(result), id).toContain(
+          JSON.stringify(sample === populatedCast ? "Morning reading" : placeholderTitle(0)),
+        );
     }
     const kinds = def.probes.map((probe) => probe.kind);
     expect(kinds, id).toContain("read");

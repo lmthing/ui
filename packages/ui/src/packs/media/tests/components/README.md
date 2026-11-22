@@ -7,3 +7,4 @@
 - `Highlights.test.ts` covers excerpt bounds, fallback, note visibility, address stability and source navigation.
 - `ChapterList.test.ts` covers chapter bounds, timestamp rows, current marking and same-screen seeks.
 - `Transcript.test.ts` covers line bounds, fallback, seek availability and playback readings.
+- `AudioMatch.test.ts` covers track and history bounds, fallback and recognition controls.

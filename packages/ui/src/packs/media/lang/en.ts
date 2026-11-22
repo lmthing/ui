@@ -3,6 +3,22 @@ import type { LDMLPluralRule } from "../../../catalog";
 const progress = "Progress";
 
 export const en = {
+  audioMatch: {
+    title: "Identify music",
+    start: "Start listening",
+    stop: "Stop and identify",
+    retry: "Try again",
+    open: "Open track",
+    recent: "Recent matches",
+    artwork: "Cover artwork",
+    empty: "Listen to identify music playing nearby",
+    listening: "Listening for music",
+    matching: "Finding a match",
+    success: "Track identified",
+    error: "Could not identify the track",
+    track: (title: string, artist: string, album?: string) =>
+      `${title} · ${artist}${album ? ` · ${album}` : ""}`,
+  },
   chapterList: {
     line: (time: string, title: string, current: boolean) =>
       `${time} ${title}${current ? " · Current chapter" : ""}`,
