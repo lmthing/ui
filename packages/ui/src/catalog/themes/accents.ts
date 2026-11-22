@@ -3,7 +3,7 @@ import type { AccentMeta } from "../meta";
 export const moss = {
   id: "moss",
   light: { accent: "#3e6d30", accentSoft: "#e4eedd", onAccent: "#ffffff" },
-  dark: { accent: "#8fc178", accentSoft: "#26331f", onAccent: "#10170c" },
+  dark: { accent: "#8fc178", accentSoft: "#354b2c", onAccent: "#10170c" },
 } as const satisfies AccentMeta;
 export const forest = {
   id: "forest",

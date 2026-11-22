@@ -381,7 +381,7 @@ The unified `pnpm build:catalog` check runs `scripts/build/contrast.ts` for all 
 text on background must reach 7:1, muted text and text on accent must reach 4.5:1, and semantic
 tints must retain their existing contrast.
 
-**Shapes.** Presets are plain data: id, mood, font, numbers, weight, shape, density, surface and
+**Shapes.** Presets are plain data: id, mood, font, optional heading font, numbers, weight, shape, density, surface and
 light/dark base roles. Current surfaces are `soft`, `solid`, `hairline`; `weight` is `regular` or
 `strong`. Accents supply `accent`, `accentSoft` and `onAccent`. Generated themes merge those role sets.
 Raw colours belong only in tokens and themes.

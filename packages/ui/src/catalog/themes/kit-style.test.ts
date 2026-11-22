@@ -5,6 +5,7 @@ import {
   calm,
   editorial,
   kitStyleOf,
+  paper,
   playful,
   presets,
   soft,
@@ -40,6 +41,13 @@ describe("kit styles and theme names", () => {
       fonts: { text: "grotesk", heading: "grotesk", number: "condensed" },
     });
   });
+  it("uses the text serif for Paper headings but the display serif for Editorial", () => {
+    expect(kitStyleOf(paper).fonts).toEqual({ text: "serif", heading: "serif", number: "serif" });
+    expect(kitStyleOf(editorial).fonts.heading).toBe("serifHeading");
+  });
+});
+
+describe("theme choices", () => {
   it("names every preset, mode and accent combination uniquely", () => {
     expect(presets.map(({ id }) => id)).toEqual([
       "calm",

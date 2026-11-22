@@ -61,4 +61,10 @@ describe("themeRoles control labels", () => {
     expect(resolved.onAccent).not.toBe(darkOnDark.light.onAccent);
     expect(contrast(resolved.onAccent, resolved.accent)).toBeGreaterThanOrEqual(4.5);
   });
+
+  it.each(["fresh", "playful", "soft"] as const)("separates dark Moss controls from %s cards", (id) => {
+    const preset = presets.find((preset) => preset.id === id)!;
+    const roles = themeRoles(preset, accents[0], "dark");
+    expect(contrast(roles.accentSoft, roles.surface)).toBeGreaterThanOrEqual(1.4);
+  });
 });
