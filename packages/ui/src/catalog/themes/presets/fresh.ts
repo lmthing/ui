@@ -24,7 +24,7 @@ export const fresh = {
     dark: {
       bg: "#102027",
       surface: "#19313b",
-      raised: "#213e48",
+      raised: "#1e363f",
       line: "#3d5c66",
       text: "#edfbff",
       muted: "#b8d5de",

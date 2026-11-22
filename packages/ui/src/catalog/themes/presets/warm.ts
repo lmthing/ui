@@ -13,7 +13,7 @@ export const warm = {
     light: {
       bg: "#f2e8db",
       surface: "#fff6e8",
-      raised: "#ecddc9",
+      raised: "#f1e2ce",
       line: "#cfbaa2",
       text: "#34231a",
       muted: "#665142",
