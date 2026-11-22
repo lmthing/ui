@@ -3393,11 +3393,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk with Pip\",\"body\":null,\"meta\":\"18:30\",\"badge\":\"Due today\",\"icon\":null,\"photo\":null,\"goto\":null}",
+    "reply": "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk with Pip\",\"body\":\"18:30\",\"meta\":null,\"badge\":\"Due today\",\"icon\":null,\"photo\":null,\"goto\":null}",
     "replies": [
-      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk with Pip\",\"body\":null,\"meta\":\"18:30\",\"badge\":\"Due today\",\"icon\":null,\"photo\":null,\"goto\":null}",
       "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk with Pip\",\"body\":\"18:30\",\"meta\":null,\"badge\":\"Due today\",\"icon\":null,\"photo\":null,\"goto\":null}",
-      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk with Pip\",\"body\":\"18:30\",\"meta\":null,\"badge\":\"Due today\",\"icon\":null,\"photo\":null,\"goto\":null}"
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk with Pip\",\"body\":\"18:30 · Park loop\",\"meta\":null,\"badge\":\"Due today\",\"icon\":null,\"photo\":null,\"goto\":null}",
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":\"card\",\"media\":null,\"detail\":null,\"tone\":null,\"title\":\"Evening walk with Pip\",\"body\":null,\"meta\":\"18:30\",\"badge\":\"Due today\",\"icon\":null,\"photo\":null,\"goto\":null}"
     ]
   },
   "Card%2Fwrite%2FShow%20Fern%20with%20lib%3Aplants%20as%20a%20wide%20photo%20at%20the%20top.%20Below%20it%20show%20Bathroom%20and%20then%20Water%20today.%20Tap%20to%20open%20fern./47ae1a1e616173e9/43a43a56fec0c310": {
@@ -3756,7 +3756,7 @@
     "replies": [
       "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom\",\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
       "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom\",\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
-      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}"
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom\",\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}"
     ]
   },
   "cd8c21cfdc9157f5": {

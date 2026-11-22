@@ -288,11 +288,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Canvas\",\"surface\":\"outlined\",\"caption\":\"Guess the dog breed! Tap a photo, type your answer, and earn points.\"}",
+    "reply": "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Guess the Dog Breed — pick one of 4 options, +10 points per correct guess\"}",
     "replies": [
-      "{\"c\":\"Canvas\",\"surface\":\"outlined\",\"caption\":\"Guess the dog breed! Tap a photo, type your answer, and earn points.\"}",
-      "{\"c\":\"Canvas\",\"surface\":\"outlined\",\"caption\":\"Guess the dog breed and earn points!\"}",
-      "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Guess the Dog Breed!\"}"
+      "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Guess the Dog Breed — pick one of 4 options, +10 points per correct guess\"}",
+      "{\"c\":\"Canvas\",\"surface\":\"outlined\",\"caption\":\"Guess the dog breed! Tap a photo, type your answer, earn points.\"}",
+      "{\"c\":\"Canvas\",\"surface\":\"outlined\",\"caption\":\"Guess the Dog Breed Game\"}"
     ]
   },
   "Canvas%2Fwrite%2FI%20want%20a%20drawing%20pad%20to%20sketch%20where%20each%20plant%20goes.%20Don't%20put%20an%20outline%20or%20card%20around%20it./bdf461023abf1914/e27d048d57c2f0bf": {
@@ -341,10 +341,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Sketch plant placement here\"}",
+    "reply": "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Sketch where each plant goes\"}",
     "replies": [
-      "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Sketch plant placement here\"}",
-      "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Sketch plant placements\"}",
+      "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Sketch where each plant goes\"}",
+      "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Sketch planting layout here\"}",
       "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Sketch where each plant goes\"}"
     ]
   },

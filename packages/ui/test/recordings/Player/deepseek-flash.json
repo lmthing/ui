@@ -2508,7 +2508,7 @@
     "reply": "{\"address\": \"p1/play pause\", \"action\": \"pause\"}",
     "replies": [
       "{\"address\": \"p1/play pause\", \"action\": \"pause\"}",
-      "{\"address\": \"p1/play\", \"action\": \"pause\"}",
+      "{\"address\": \"p1/play pause\", \"action\": \"pause\"}",
       "{\"address\": \"p1/play pause\", \"action\": \"pause\"}"
     ]
   },
@@ -2717,7 +2717,7 @@
     "replies": [
       "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":null}",
       "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":null}",
-      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":null}"
+      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"mode\":\"audio\",\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":null}"
     ]
   },
   "Player%2Fwrite%2FPlay%20the%2038-second%20Park%20walk%20recap%20from%20lib%3Avoice_note%20explicitly%20as%20a%20podcast%2C%20with%20a%20single%20compact%20audio%20row.%20Use%201.5%C3%97%20speed%2C%20mark%20it%20liked%20and%20loop%20it.%20Leave%20shuffle%20and%20repeat%20off./3fbde0df45da6f84/d1f29cbec875fe0c": {
@@ -2921,11 +2921,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":null,\"repeat\":null,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}",
+    "reply": "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":false,\"repeat\":false,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}",
     "replies": [
-      "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":null,\"repeat\":null,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}",
-      "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":null,\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":false,\"repeat\":false,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}",
-      "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":null,\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":null,\"repeat\":null,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":0}"
+      "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":false,\"repeat\":false,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}",
+      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":null,\"repeat\":null,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}",
+      "{\"c\":\"Player\",\"density\":\"compact\",\"detail\":\"brief\",\"style\":\"compact\",\"mode\":\"podcast\",\"speed\":1.5,\"liked\":true,\"shuffle\":false,\"repeat\":false,\"loop\":true,\"media\":\"lib:voice_note\",\"title\":\"Park walk recap\",\"sub\":null,\"photo\":null,\"seconds\":38,\"at\":null}"
     ]
   },
   "Player%2Fwrite%2FPlay%20the%20recording%20Evening%20wind-down%20by%20Guided%20breathing%2C%2012%20minutes%20long%2C%20already%204%20minutes%20in/d972ad12d4e5d4ec/566b241937e5cce9": {
@@ -3129,11 +3129,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
+    "reply": "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}",
     "replies": [
-      "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
       "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}",
-      "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}"
+      "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
+      "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"mode\":null,\"speed\":null,\"liked\":null,\"shuffle\":null,\"repeat\":null,\"loop\":null,\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":4}"
     ]
   }
 }
