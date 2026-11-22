@@ -1,13 +1,38 @@
 import { z } from "zod";
-// prettier-ignore
-import { icon, isoDate, itemsOf, placeholderTitle, probesFor, repeatOptions, screenId, text,
-  thingOf, titleOf, detailOf, type FallbackInput, type Meta, type Probe, type Props,
+import {
+  icon,
+  isoDate,
+  itemsOf,
+  placeholderTitle,
+  probesFor,
+  repeatOptions,
+  screenId,
+  text,
+  thingOf,
+  titleOf,
+  detailOf,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
   type SurfaceFinish,
   variantProps,
 } from "../../../catalog";
-// prettier-ignore
-import { KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitIcon, KitRow, KitText, KitTrack,
-  PartContext, useComponentState, usePartContext, useWords } from "../../../kit";
+import {
+  KitAction,
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitGrid,
+  KitIcon,
+  KitRow,
+  KitText,
+  KitTrack,
+  PartContext,
+  useComponentState,
+  usePartContext,
+  useWords,
+} from "../../../kit";
 import { careCategories, careCategory, careLines, careReading, careTaskLabel, careToday } from "../copy";
 import { homeWordsFor } from "../lang";
 import { prompt } from "../../../entry/prompt-CareSchedule.generated";
@@ -60,8 +85,8 @@ export const props = z
   // Give the completion press its own target so it does not inherit the row's navigation.
   .overwrite((value) => ({ ...value, tasks: value.tasks.map((task) => ({ ...task, done: {} })) }));
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
-  const thing = thingOf(cast),
-    items = itemsOf(cast, 12);
+  const thing = thingOf(cast);
+  const items = itemsOf(cast, 12);
   return {
     tasks: (items.length ? items : [undefined]).map((item, index) => ({
       title: item
@@ -76,19 +101,41 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     })),
   };
 }
-// prettier-ignore
 const plantCare = {
-    tasks: [
-      { title: "Water", for: "Fern", icon: "leaf", repeat: "weekly", every: 1, last: "2026-11-11", goto: "fern" },
-      { title: "Feed", for: "Monstera", icon: "leaf", repeat: "weekly", every: 2, last: "2026-11-04", goto: "monstera" },
-    ],
+  tasks: [
+    {
+      title: "Water",
+      for: "Fern",
+      icon: "leaf",
+      repeat: "weekly",
+      every: 1,
+      last: "2026-11-11",
+      goto: "fern",
+    },
+    {
+      title: "Feed",
+      for: "Monstera",
+      icon: "leaf",
+      repeat: "weekly",
+      every: 2,
+      last: "2026-11-04",
+      goto: "monstera",
+    },
+  ],
 } satisfies z.input<typeof props>;
-// prettier-ignore
 export const examples = [
   plantCare,
   {
     tasks: [
-      { title: "Flea treatment", for: "Clover", icon: "heart", repeat: "monthly", every: 1, last: "2026-10-19", goto: "clover" },
+      {
+        title: "Flea treatment",
+        for: "Clover",
+        icon: "heart",
+        repeat: "monthly",
+        every: 1,
+        last: "2026-10-19",
+        goto: "clover",
+      },
     ],
   },
   { ...plantCare, arrange: "rows" },
@@ -117,8 +164,17 @@ export const probes = [
 ] satisfies Probe[];
 type CareProps = Props<typeof props, typeof meta>;
 type CareTask = CareProps["tasks"][number];
-// prettier-ignore
-function CareTile({ task, today, wide, surface }: { task: CareTask; today: string; wide: boolean; surface: SurfaceFinish }) {
+function CareTile({
+  task,
+  today,
+  wide,
+  surface,
+}: {
+  task: CareTask;
+  today: string;
+  wide: boolean;
+  surface: SurfaceFinish;
+}) {
   const context = usePartContext();
   const {
     lang,
@@ -157,14 +213,17 @@ function CareTile({ task, today, wide, surface }: { task: CareTask; today: strin
               {task.for}
             </KitText>
           )}
-          {category && <KitText role="caption" tone="muted" part="category">{category}</KitText>}
+          {category && (
+            <KitText role="caption" tone="muted" part="category">
+              {category}
+            </KitText>
+          )}
         </KitRow>
         {wide ? <KitGrid fitLast>{summary}</KitGrid> : summary}
       </KitCard>
     </PartContext.Provider>
   );
 }
-// prettier-ignore
 export function CareSchedule({ tasks, arrange }: CareProps) {
   const surface = "card";
   const state = useComponentState();
@@ -187,7 +246,13 @@ export function CareSchedule({ tasks, arrange }: CareProps) {
     <CareTile key={task.id} {...{ task, today, surface }} wide={index >= pairs} />
   ));
   if (arrange === "rows")
-    return <KitCard style="cards" part="root"><KitGrid arrange={arrange} list listRowGap="cards">{tiles}</KitGrid></KitCard>;
+    return (
+      <KitCard style="cards" part="root">
+        <KitGrid arrange={arrange} list listRowGap="cards">
+          {tiles}
+        </KitGrid>
+      </KitCard>
+    );
   return (
     <KitTrack>
       {pairs > 0 && <KitGrid columns={2}>{tiles.slice(0, pairs)}</KitGrid>}

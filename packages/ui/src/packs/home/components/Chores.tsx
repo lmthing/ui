@@ -1,12 +1,39 @@
-// prettier-ignore
-import { isoDate, itemsOf, itemVariantProps, photo, placeholderTitle, probesFor, repeatOptions, screenId, text,
-  thingOf, titleOf, detailOf, type FallbackInput, type Meta, type Probe, type Props,
+import {
+  isoDate,
+  itemsOf,
+  itemVariantProps,
+  photo,
+  placeholderTitle,
+  probesFor,
+  repeatOptions,
+  screenId,
+  text,
+  thingOf,
+  titleOf,
+  detailOf,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
   type ThemeDensity,
   variantProps,
 } from "../../../catalog";
-// prettier-ignore
-import { KitCard, KitCheck, KitContent, KitEmpty, KitGrid, KitIcon, KitPhoto, KitRow,
-  KitText, KitTrail, PartContext, useComponentState, usePartContext, useWords, useVariant,
+import {
+  KitCard,
+  KitCheck,
+  KitContent,
+  KitEmpty,
+  KitGrid,
+  KitIcon,
+  KitPhoto,
+  KitRow,
+  KitText,
+  KitTrail,
+  PartContext,
+  useComponentState,
+  usePartContext,
+  useWords,
+  useVariant,
   useKit,
 } from "../../../kit";
 import { choreIsDone, choreLines, choreReading } from "../copy";
@@ -62,8 +89,8 @@ export const props = z.strictObject({
     .overwrite((chores) => chores.map((chore) => ({ ...chore, done: choreIsDone(chore) }))),
 });
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
-  const thing = thingOf(cast),
-    items = itemsOf(cast, 6);
+  const thing = thingOf(cast);
+  const items = itemsOf(cast, 6);
   return {
     chores: (items.length ? items : [undefined]).map((item, index) => ({
       title: (item && titleOf(item, 28, thing)) ?? placeholderTitle(index, lang),
@@ -74,14 +101,20 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     })),
   };
 }
-// prettier-ignore
 const plantChores = {
-    chores: [
-      { title: "Mist the fern", who: "Sam", repeat: "daily", every: 1, last: "2026-11-16", points: 5, goto: "fern" },
-      { title: "Dust shelves", who: "Alex", repeat: "weekly", every: 1, points: 10, goto: "shelves" },
-    ],
+  chores: [
+    {
+      title: "Mist the fern",
+      who: "Sam",
+      repeat: "daily",
+      every: 1,
+      last: "2026-11-16",
+      points: 5,
+      goto: "fern",
+    },
+    { title: "Dust shelves", who: "Alex", repeat: "weekly", every: 1, points: 10, goto: "shelves" },
+  ],
 } satisfies z.input<typeof props>;
-// prettier-ignore
 export const examples = [
   plantChores,
   {
@@ -107,12 +140,15 @@ export const probes = [
   read("Mark Sam's misting job done", { address: "c1/r1/done", action: "check" }),
 ] satisfies Probe[];
 type Chore = Props<typeof props, typeof meta>["chores"][number];
-// prettier-ignore
 function ChoreDetails({ copy, brief }: { copy: ReturnType<typeof choreLines>; brief: boolean }) {
   return (
     <KitGrid>
       <>
-        {!brief && <KitText part="repeat" role="caption" tone="muted">{copy.repeat}</KitText>}
+        {!brief && (
+          <KitText part="repeat" role="caption" tone="muted">
+            {copy.repeat}
+          </KitText>
+        )}
         {copy.points && (
           <KitText part="points" role="caption" tone="muted">
             <KitText part={null} role="number" numberScale="compact" tone="muted" tabular>
@@ -136,8 +172,19 @@ function ChoreDetails({ copy, brief }: { copy: ReturnType<typeof choreLines>; br
   );
 }
 type ChoresProps = Props<typeof props, typeof meta>;
-// prettier-ignore
-function ChoreRow({ chore, first, brief, density, marked }: { chore: Chore; first: boolean; brief: boolean; density: ThemeDensity; marked: boolean }) {
+function ChoreRow({
+  chore,
+  first,
+  brief,
+  density,
+  marked,
+}: {
+  chore: Chore;
+  first: boolean;
+  brief: boolean;
+  density: ThemeDensity;
+  marked: boolean;
+}) {
   const context = usePartContext();
   const { lang } = useWords(homeWordsFor);
   const copy = choreLines(chore, undefined, lang);
@@ -152,7 +199,14 @@ function ChoreRow({ chore, first, brief, density, marked }: { chore: Chore; firs
   return (
     <PartContext.Provider value={{ ...context, item: chore.id }}>
       <KitContent group={first || density === "compact" || marked ? "content" : "response"} {...{ density }}>
-        <KitRow label={copy.label} inline={!marked} leadingAlign="row" leading={leading} mark={chore.mark} {...{ density }}>
+        <KitRow
+          label={copy.label}
+          inline={!marked}
+          leadingAlign="row"
+          leading={leading}
+          mark={chore.mark}
+          {...{ density }}
+        >
           <KitRow label={copy.label} inline lineRole="heading" trailing={done}>
             <KitRow
               part="root"
@@ -177,9 +231,8 @@ function ChoreRow({ chore, first, brief, density, marked }: { chore: Chore; firs
   );
 }
 
-// prettier-ignore
 export function Chores(input: ChoresProps) {
-  const { chores, detail  } = input;
+  const { chores, detail } = input;
   const surface = "card";
   const density = useKit().density;
   const marked = chores.some((chore) => chore.mark === "highlight");
@@ -190,7 +243,14 @@ export function Chores(input: ChoresProps) {
   return (
     <KitCard part="root" padded={state === "filled"} {...{ density, surface }}>
       {state === "filled" ? (
-        chores.map((chore, index) => <ChoreRow key={chore.id} {...{ chore, density, marked }} first={index === 0} brief={detail === "brief"} />)
+        chores.map((chore, index) => (
+          <ChoreRow
+            key={chore.id}
+            {...{ chore, density, marked }}
+            first={index === 0}
+            brief={detail === "brief"}
+          />
+        ))
       ) : (
         <KitEmpty part="message" decorativeIcon {...success} />
       )}
