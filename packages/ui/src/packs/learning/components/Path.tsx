@@ -138,12 +138,12 @@ function PathUnit({ unit, milestone, density, brief }: {
   const statusRole = unit.state === "current" ? "label" : "caption";
   return (
     <kit.KitContent density={density}>
-      <kit.KitGrid fitLast density="compact">
+      <kit.KitRow part={null} label={unit.title} inline fitContent density={density}
+        trailing={<kit.KitIcon name={unit.icon} scale="sm" />}>
         <kit.KitText part="title" density={density} tone={unit.state === "locked" ? "muted" : "text"}>
           {unit.title}
         </kit.KitText>
-        <kit.KitIcon name={unit.icon} scale="sm" />
-      </kit.KitGrid>
+      </kit.KitRow>
       {(!brief || copy.milestone) && (
         <kit.KitContent density={density}>
           <kit.KitText part={brief ? null : "state"} role={statusRole} tone={tone} density={density}>

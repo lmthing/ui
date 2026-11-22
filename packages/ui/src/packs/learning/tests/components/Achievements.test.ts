@@ -117,60 +117,82 @@ describe("Achievements fallback and empty state", () => {
   });
 });
 
-describe("Achievements parts and read/act", () => {
-  it("draws the title, icon and correct detail at each stable badge address", () => {
-    const draw = (axes = {}) =>
-      addressedElements(
-        renderInstance("Achievements", { ...mixed, ...axes }, "filled", theme, { lang: "en-US" }),
-      );
-    const parts = draw();
-    const row = (at: number, part: string) => parts.get(`home/c1/r${at}/${part}`);
-    for (const at of [1, 2, 3]) {
-      expect(row(at, "root")?.attributes).toContain('role="button"');
-      expect(row(at, "root")?.attributes).not.toContain("aria-disabled");
-      expect(row(at, "title")?.text).toEqual([mixed.badges[at - 1]!.title]);
-      expect(row(at, "icon")).toBeDefined();
-    }
-    expect(row(1, "earned")?.text).toEqual(["Oct 4, 2026"]);
-    expect(row(1, "how")).toBeUndefined();
-    expect(row(2, "earned")).toBeUndefined();
-    expect(row(2, "how")?.text).toEqual(["Complete the practice."]);
-    expect(row(3, "how")?.text).toEqual(["Locked"]);
-    expect([...draw({ arrange: "rows" }).keys()]).toEqual([...parts.keys()]);
-  });
-  it("shares the visible text and accepts a press for each badge, not its detail", () => {
-    const lines = readComponent(Achievements, mixed, "a1", "filled", {}, "en-US").join("\n");
-    for (const text of ["Oct 4, 2026", "Complete the practice.", "Locked"]) expect(lines).toContain(text);
-    expect(lines).not.toContain("Previous criterion");
-    const stamped = stampItemIds(meta, props.parse(mixed));
-    expect(affordancesOf(meta, stamped, "a1").map(({ address, action }) => `${address} ${action}`)).toEqual([
-      "a1/r1 press",
-      "a1/r2 press",
-      "a1/r3 press",
-    ]);
-    for (const at of [1, 2, 3]) expect(lines).toContain(`[a1/r${at} press]`);
-    const screen = { id: "home", components: [{ id: "a1", c: "Achievements", badges: [...mixed.badges] }] };
-    expect(planAct(screen, { Achievements }, {}, [{ address: "a1/r2", action: "press" }])).toMatchObject({
-      ok: true,
-      changed: ["a1/r2 press"],
-      values: {},
-      links: [],
-    });
-    for (const address of ["a1/r2/how", "a1/r4"]) {
-      expect(planAct(screen, { Achievements }, {}, [{ address, action: "press" }])).toMatchObject({
-        ok: false,
-        code: "not_actionable",
-      });
-    }
-  });
+function checkCriterionPhrase(arrange: "grid" | "rows") {
+  const input = { ...first, arrange };
+  const criterion = first.badges[1]!.how!;
+  const html = renderInstance("Achievements", input, "filled", theme);
+  expect(html).toContain(`aria-label="${criterion}"`);
+  const part = addressedElements(html).get("home/c1/r2/how");
+  expect([...part!.text, ...part!.children.flatMap((child) => child.text)].join("")).toBe(criterion);
+  expect(readComponent(Achievements, input, "a1").join("\n")).toContain(criterion);
+}
 
-  it.each(["grid", "rows"] as const)("dispatches the locked badge press to the host in %s", (arrange) => {
-    const onAction = vi.fn();
-    const screen = { id: "home", components: [{ id: "a1", c: "Achievements", ...first, arrange }] };
-    const controller = createScreenController({ screen, defs: { Achievements }, onAction });
-    const address = "home/a1/r2";
-    expect(controller.act({ address: `${address}/root`, action: "press" })).toMatchObject({ ok: true });
-    expect(onAction).toHaveBeenCalledExactlyOnceWith({ address, action: "press" });
-    expect(controller.confirmation).toBeUndefined();
+function checkStableBadgeParts() {
+  const draw = (axes = {}) =>
+    addressedElements(
+      renderInstance("Achievements", { ...mixed, ...axes }, "filled", theme, { lang: "en-US" }),
+    );
+  const parts = draw();
+  const row = (at: number, part: string) => parts.get(`home/c1/r${at}/${part}`);
+  for (const at of [1, 2, 3]) {
+    expect(row(at, "root")?.attributes).toContain('role="button"');
+    expect(row(at, "root")?.attributes).not.toContain("aria-disabled");
+    expect(row(at, "title")?.text).toEqual([mixed.badges[at - 1]!.title]);
+    expect(row(at, "icon")).toBeDefined();
+  }
+  expect(row(1, "earned")?.text).toEqual(["Oct 4, 2026"]);
+  expect(row(1, "how")).toBeUndefined();
+  expect(row(2, "earned")).toBeUndefined();
+  expect(row(2, "how")?.text).toEqual(["Complete the practice."]);
+  expect(row(3, "how")?.text).toEqual(["Locked"]);
+  expect([...draw({ arrange: "rows" }).keys()]).toEqual([...parts.keys()]);
+}
+
+function checkBadgeReadAndAct() {
+  const lines = readComponent(Achievements, mixed, "a1", "filled", {}, "en-US").join("\n");
+  for (const text of ["Oct 4, 2026", "Complete the practice.", "Locked"]) expect(lines).toContain(text);
+  expect(lines).not.toContain("Previous criterion");
+  const stamped = stampItemIds(meta, props.parse(mixed));
+  expect(affordancesOf(meta, stamped, "a1").map(({ address, action }) => `${address} ${action}`)).toEqual([
+    "a1/r1 press",
+    "a1/r2 press",
+    "a1/r3 press",
+  ]);
+  for (const at of [1, 2, 3]) expect(lines).toContain(`[a1/r${at} press]`);
+  const screen = { id: "home", components: [{ id: "a1", c: "Achievements", badges: [...mixed.badges] }] };
+  expect(planAct(screen, { Achievements }, {}, [{ address: "a1/r2", action: "press" }])).toMatchObject({
+    ok: true,
+    changed: ["a1/r2 press"],
+    values: {},
+    links: [],
   });
+  for (const address of ["a1/r2/how", "a1/r4"]) {
+    expect(planAct(screen, { Achievements }, {}, [{ address, action: "press" }])).toMatchObject({
+      ok: false,
+      code: "not_actionable",
+    });
+  }
+}
+
+function checkLockedBadgeDispatch(arrange: "grid" | "rows") {
+  const onAction = vi.fn();
+  const screen = { id: "home", components: [{ id: "a1", c: "Achievements", ...first, arrange }] };
+  const controller = createScreenController({ screen, defs: { Achievements }, onAction });
+  const address = "home/a1/r2";
+  expect(controller.act({ address: `${address}/root`, action: "press" })).toMatchObject({ ok: true });
+  expect(onAction).toHaveBeenCalledExactlyOnceWith({ address, action: "press" });
+  expect(controller.confirmation).toBeUndefined();
+}
+
+describe("Achievements parts and read/act", () => {
+  it.each(["grid", "rows"] as const)(
+    "exposes the complete styled criterion as one phrase in %s",
+    checkCriterionPhrase,
+  );
+  it("draws the title, icon and correct detail at each stable badge address", checkStableBadgeParts);
+  it("shares the visible text and accepts a press for each badge, not its detail", checkBadgeReadAndAct);
+  it.each(["grid", "rows"] as const)(
+    "dispatches the locked badge press to the host in %s",
+    checkLockedBadgeDispatch,
+  );
 });

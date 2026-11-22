@@ -1,4 +1,4 @@
-import { accents, presets, themeRoles, type ThemeChoice } from "@lmthing/ui/catalog";
+import { accents, presets, themeRoles, type ComponentName, type ThemeChoice } from "@lmthing/ui/catalog";
 
 // Offline image placeholders use the host theme's soft surfaces, leaving text readable.
 function hash(text: string): number {
@@ -22,6 +22,7 @@ const coverMotifs: Readonly<Record<string, string>> = {
 export function resolvePhoto(
   ref: string,
   theme: ThemeChoice = { preset: "calm", accent: "moss", mode: "light" },
+  component?: ComponentName,
 ): string {
   const preset = presets.find((entry) => entry.id === theme.preset) ?? presets[0];
   const accent = accents.find((entry) => entry.id === theme.accent) ?? accents[0];
@@ -31,7 +32,8 @@ export function resolvePhoto(
   const start = value % colors.length;
   const end = (start + 1 + (Math.floor(value / colors.length) % (colors.length - 1))) % colors.length;
   const [from, to] = [colors[start], colors[end]];
-  const motif = coverMotifs[ref];
+  // Flashcard's fern cue uses the same motif as the fern book, without changing its Writer example.
+  const motif = coverMotifs[component === "Flashcard" && ref === "lib:plants" ? "lib:fern_shelf" : ref];
   if (motif) {
     const cover = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 90" color="${roles.accent}"><rect width="120" height="90" fill="${from}"/><rect x="10" y="10" width="100" height="70" rx="4" fill="${to}"/>${motif}</svg>`;
     return `data:image/svg+xml;base64,${btoa(cover)}`;

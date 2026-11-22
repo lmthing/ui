@@ -150,7 +150,7 @@ function ReviewCard({ card, finish, flipped, loading, remaining, binary, index }
       back={<KitText part="back" role="title" {...{ align, density }}>{card.back}</KitText>}
     />
     {!flipped && card.audio && <KitContent {...{ align, density }}>
-      <audioView.PromptAudio density={density} part={roundAudioPart(index)} />
+      <audioView.PromptAudio density={density} part={roundAudioPart(index)} kind="quiet" />
     </KitContent>}
     {flipped && !loading && (binary ? <KitContent {...{ align, density }}><KitActionFooter density={density}>
       <KitAction part="again" contentParts={{}} kind="danger" label={words.stillLearning} />
