@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { squadReading, squadSummary } from "../copy";
 import { sportsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Squad.generated";
 
 const replies = ["yes", "maybe", "no"] as const;
 // Core first: People/stack lists people, not availability replies or the coach's selection for a match.
@@ -10,12 +11,7 @@ export const meta = {
   id: "Squad",
   status: "ready",
   group: "input",
-  purpose: "See who can play and let the coach pick the side.",
-  pick: "Players' availability for one upcoming match: yes, maybe or no, an optional reason, and coach selection. Not an ordinary player directory (People), who plays where (Lineup), guest RSVPs (GuestList), or staff shifts (Roster).",
-  writeHints: [
-    "Put the current player's own row first; only that row offers a reply. Picked is the coach's selection, separate from the answer. Do not write totals.",
-    'To show replies without reasons, write detail "brief" and still supply any known reasons. Write density: null unless the person asks to change spacing.',
-  ],
+  ...prompt,
   region: "body",
   weight: 3,
   dense: true,

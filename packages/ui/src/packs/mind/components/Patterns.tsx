@@ -3,14 +3,14 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { patternReport, readFindings, seededJournal } from "../copy";
 import { mindWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Patterns.generated";
 
 // Core first: Bars/columns can plot supplied values but cannot derive with-and-without comparisons from journal entries.
 export const meta = {
   id: "Patterns",
   status: "ready",
   group: "data",
-  purpose: "Find which logged daily factors tend to go with better or worse moods.",
-  pick: "Derive findings from a mood journal by comparing days with and without a tagged factor after at least two weeks. Choose this for journal-derived comparisons even when findings also use paired bars. Not plotting values the person already supplied (Bars) or a single time trend (Sparkline).",
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "phone",
@@ -24,10 +24,6 @@ export const meta = {
   parts: ["root", "title", "days_left", "empty"],
   items: { key: "findings", parts: ["root", "finding", "with", "without"] },
   states: ["filled", "empty"],
-  writeHints: [
-    "Use factor labels from the same screen's Factors when available. Only choose labels and minDays; never invent findings or write mood averages or bar values.",
-    'Leave density, surface and detail null unless requested. When asked for finding sentences without comparison charts, set detail to "brief".',
-  ],
   deviceData: ["journal_entries"],
   previewDeviceData: ({ input, state }): c.DeviceData => ({
     journal_entries: seededJournal(props.parse(input), state),

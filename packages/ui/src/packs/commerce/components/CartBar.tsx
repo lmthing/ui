@@ -3,15 +3,14 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { basketSummary, cartBarLines, cartBarReading } from "../copy";
 import { commerceWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-CartBar.generated";
 
 // Core first: Button/secondary cannot read the live basket count and total or hide itself when the basket is empty.
 export const meta = {
   id: "CartBar",
   status: "ready",
   group: "action",
-  purpose: "Return to a nonempty basket from a shopping screen.",
-  pick: "A persistent bottom shortcut to the basket with its live count and total, hidden when empty. Not a lone action without live basket data (Button) or the editable basket itself (Cart).",
-  writeHints: ["Supply the basket screen id in goto. The host supplies the basket count and total."],
+  ...prompt,
   region: "bottom",
   weight: 2,
   tier: "phone",

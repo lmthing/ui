@@ -13,15 +13,12 @@ import {
   type Props,
 } from "../catalog";
 import { KitAction, KitBlock, KitText, useVariant } from "../kit";
+import { prompt } from "../entry/prompt-SectionTitle.generated";
 
 export const meta = {
   id: "SectionTitle",
   group: "structure",
-  purpose: "Label a group of content and offer one optional link to more.",
-  pick: "A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).",
-  writeHints: [
-    'A request for a See all link means show it: write link and keep detail null. Only a request to hide the link uses detail "brief", keeping the link label and target in link. Keep density null unless explicitly asked to change spacing.',
-  ],
+  ...prompt,
   region: "body",
   weight: 1,
   tier: "phone",

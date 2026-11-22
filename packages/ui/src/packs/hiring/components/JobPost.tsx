@@ -1,14 +1,14 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import { payPeriods, seedGoto, seedJobId, seedRows } from "../seeds";
+import { prompt } from "../../../entry/prompt-JobPost.generated";
 
 // Core first: Card/card can spotlight a role but cannot show structured pay terms and an application window.
 export const meta = {
   id: "JobPost",
   status: "draft",
   group: "content",
-  purpose: "Read, save or open an application for one job opening.",
-  pick: "The full terms and application window of one job opening: work arrangement, pay, requirements and deadline. Not a photo-and-teaser preview linking to the terms elsewhere (Card), a list of openings (List), an available shift (OpenShift), or goods for sale (Product).",
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "phone",
@@ -44,9 +44,6 @@ export const meta = {
       return { acceptingApplications: typeof closes !== "string" || closes >= today };
     },
   },
-  writeHints: [
-    "Pay is optional, numeric, and min must be at most max. Do not write currency or whether the opening is closed. Apply opens the form, not an outbound submission.",
-  ],
 } as const satisfies c.Meta;
 
 export const props = z.strictObject({

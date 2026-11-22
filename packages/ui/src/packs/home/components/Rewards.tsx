@@ -7,17 +7,13 @@ import { KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitIcon, KitJar, Kit
   KitText, PartScope, useComponentState, usePartContext, useWords } from "../../../kit";
 import { rewardAmount, rewardBalanceParts, rewardJarRatio, rewardReading, rewardShortfall } from "../copy";
 import { homeWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Rewards.generated";
 // Core first: Progress/ring tracks one goal, not children's points spent on claimable prizes.
 export const meta = {
   id: "Rewards",
   status: "ready",
   group: "data",
-  purpose: "Keep children's earned points or pocket money and claim prizes they can afford.",
-  pick: "Children's points earned and spent on prizes with costs. Not one person's goal (Progress), a business stamp card (Loyalty), or milestone badges (Achievements).",
-  writeHints: [
-    "Write stored points and prize costs as nonnegative numbers. Claimability and balances after a claim are computed, never written. money means pocket money; never write a currency.",
-    'Use detail "brief" only when asked to hide the amount still needed for unaffordable prizes. Keep the costs and disabled controls. Write surface:null unless an outlined card is requested.',
-  ],
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "phone",

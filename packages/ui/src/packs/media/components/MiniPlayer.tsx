@@ -3,14 +3,14 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { miniPlayerTiming } from "../copy";
 import { mediaWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-MiniPlayer.generated";
 
 // Core first: Player/density compact cannot follow playback across screens above the tab bar.
 export const meta = {
   id: "MiniPlayer",
   status: "ready",
   group: "action",
-  purpose: "Keep the current recording within reach while moving between screens.",
-  pick: "Host-built persistent playback bar above the tabs, hidden on the full player screen. Never choose or write it; use Player for a recording on one screen.",
+  ...prompt,
   region: "bottom",
   weight: 1,
   tier: "phone",

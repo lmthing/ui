@@ -5,11 +5,12 @@ import * as kit from "../../../kit";
 import * as home from "..";
 import { deviceRange, deviceValue, focusedDevice, thermostatCopy } from "../copy";
 import { homeWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Devices.generated";
 // Core first: Field/slider stores a preference, not live device commands, readings or scenes.
 export const meta = {
   id: "Devices",
   status: "ready",
-  writeHints: home.deviceWriteHints,
+  ...prompt,
   ...home.deviceControls,
   read: home.readDevices,
 } as const satisfies Meta;

@@ -11,22 +11,19 @@ import {
 } from "../copy";
 import { eventsWordsFor } from "../lang";
 import { seedTitles } from "../seeds";
+import { prompt } from "../../../entry/prompt-GuestList.generated";
 
 // Core first: People/rows cannot group invitations by party or track replies, plus-ones and diets.
 export const meta = {
   id: "GuestList",
   status: "ready",
   group: "data",
-  purpose: "Track who is invited, who is coming and what each party needs.",
-  pick: "An event's invitation roster with party groups, RSVP statuses, plus-ones and dietary needs. Not a plain roster of people (People), a guest sending their own reply (RSVP), clients (ClientCard) or a squad's availability (Squad).",
+  ...prompt,
   region: "body",
   weight: 3,
   dense: true,
   tier: "people",
   realPath: "The organiser keeps the list on the device; reminders are sent by message or email.",
-  writeHints: [
-    'Set detail to "brief" only when dietary notes should not be displayed. Keep supplied diet in the data. Set density and surface to JSON null unless explicitly requested.',
-  ],
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["diet"] } },
   parts: ["root", "counts", "remind", "remind_label", "empty"],

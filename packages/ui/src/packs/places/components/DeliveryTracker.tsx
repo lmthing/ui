@@ -3,18 +3,14 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { deliveryCopy, deliveryPreview, deliveryReading } from "../copy";
 import { placesWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-DeliveryTracker.generated";
 
 // Core first: Route/default shows ordered stops, not a live courier, destination and delivery ETA.
 export const meta = {
   id: "DeliveryTracker",
   status: "ready",
   group: "data",
-  purpose: "Follow a delivery on its way and contact the courier.",
-  pick: "Live courier and destination together on a map with delivery ETA and current step. Not order steps without a map (OrderStatus) or a path through planned stops (Route).",
-  writeHints: [
-    "Write the current step only. Never write an ETA or map positions; the delivery service supplies them.",
-    'Hiding the courier photo only changes media: use "media":"none","density":null. Keep the photo reference. Leave density and surface null unless specifically requested.',
-  ],
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "service",

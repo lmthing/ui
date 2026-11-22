@@ -5,6 +5,7 @@ import * as kit from "../../../kit";
 import { amountPadKeys, amountPadText, projectTransfer, transferCopy, transferModes, transferReading,
   transferSources, transferSpeeds, transferTabs, transferChoices, type TransferInput } from "../copy";
 import { moneyWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-MoneyTransfer.generated";
 
 // Core first: Field/number edits one value, not a routed payment with funding, fees and confirmation.
 const maxMoney = 999_999.99;
@@ -14,17 +15,11 @@ export const meta = {
   id: "MoneyTransfer",
   status: "ready",
   group: "action",
-  purpose: "Send money to or request money from someone, with the cost shown before confirmation.",
-  pick: "Send or request money with a named recipient, funding account and speed, or show a personal payment QR. Not entering a local expense (AmountPad, Field), settling group costs (Split), or paying a business invoice (PaymentStatus).",
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "service",
   realPath: "A payment service executes transfers; scanning needs camera permission and requests reach another person.",
-  writeHints: [
-    'Use style "qr" only for the personal code tab; copy only an explicitly supplied demo QR payload.',
-    'To hide the memo, set detail "brief" and leave density and surface null. Never write surface "card" or a density unless explicitly requested.',
-    "Write amounts as positive numbers to two decimal places, without a currency. Total and confirmation wording are computed.",
-  ],
   variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "outlined"] },
   variantParts: { "detail.brief": { hides: ["memo"] } },
   parts: ["root", "mode", "tab", "recipient", "photo", "handle", "source", "balance", "label", "value", "pad",

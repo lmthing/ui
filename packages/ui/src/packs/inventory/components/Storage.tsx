@@ -3,18 +3,14 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { ancestorDestination, storageCount, storageReading } from "../copy";
 import { inventoryWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Storage.generated";
 
 // Core first: List with style "cards" cannot distinguish an ancestor path, child spots and contents here.
 export const meta = {
   id: "Storage",
   status: "ready",
   group: "content",
-  purpose: "Find things stored inside rooms, shelves and boxes.",
-  pick: "Browse nested physical storage with a breadcrumb, child locations and contents kept here. Not flat linked names (List), geographic pins (MapPins), or stock records (Things).",
-  writeHints: [
-    'Path is ancestor labels in outer-to-inner order. Ancestor screen ids must match their labels in lowercase snake_case (Potting bench → potting_bench). Prefix numeric or reserved ids with "spot_".',
-    'Spots are child locations; here lists what is kept in the current location. Never write counts. To hide counts use detail "brief", density null and surface null. For the default view leave all three axes null.',
-  ],
+  ...prompt,
   region: "body",
   weight: 3,
   dense: true,

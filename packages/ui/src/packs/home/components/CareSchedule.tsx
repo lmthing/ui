@@ -7,18 +7,13 @@ import { KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitIcon, KitRow, Kit
   PartContext, useComponentState, usePartContext, useWords } from "../../../kit";
 import { careCategories, careCategory, careLines, careReading, careTaskLabel, careToday } from "../copy";
 import { homeWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-CareSchedule.generated";
 // Core first: Checklist/default cannot advance recurring care from the last completion date.
 export const meta = {
   id: "CareSchedule",
   status: "ready",
   group: "input",
-  purpose: "Keep recurring care for pets, plants, cars or a house and log each completion.",
-  pick: "Recurring care with last completion and code-derived next due dates. Not today's one-off jobs (Checklist), shared household points (Chores), a person's medicine (Medication), or provider appointments (Appointment).",
-  writeHints: [
-    "Write last, repeat and every. Next due, overdue and due-today are computed; never write them. Repeat uses the same enum as Field.",
-    "Set category on each task explicitly described as pet, plant, car or house care; otherwise leave category null.",
-    'Use arrange "rows" only when asked for one task per line. Keep the repeat, last completion, next due and Done control in either layout; leave surface null unless explicitly requested.',
-  ],
+  ...prompt,
   region: "body",
   weight: 3,
   dense: true,

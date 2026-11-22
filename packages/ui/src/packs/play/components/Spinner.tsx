@@ -3,17 +3,13 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { spinnerLines } from "../copy";
 import { playWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Spinner.generated";
 
 // Core first: Choice/default cannot draw an equal-probability random option or exhaust a draw pool.
 // prettier-ignore
 export const meta = {
   id: "Spinner", status: "ready", group: "action",
-  purpose: "Draw one named option at random, with or without repeats.",
-  pick: "Pick one labelled option randomly. Not deliberate choices (Choice, Chips), numbered dice (Dice), balanced teams (TeamPicker), or votes (Poll).",
-  writeHints: [
-    "Write 2–6 distinct option labels. Never write selected index, used options, remaining count or stored draws.",
-    'To hide only the draw-pool legend write {"detail":"brief","density":null,"surface":null}; keep every option label. Never spell out comfortable or card as defaults.',
-  ],
+  ...prompt,
   region: "body", weight: 2, tier: "phone",
   confirmParts: ["reset"],
   realPath: "Equal-probability draws are stored on the device; without repeats each option is used once.",

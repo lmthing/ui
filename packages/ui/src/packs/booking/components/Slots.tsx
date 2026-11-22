@@ -7,19 +7,14 @@ import { z } from "zod";
 import { clock, clockLine, detailOf, durationLine, emptyLine, itemsOf, placeholderValue, probesFor,
   text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
 import { slotDetailLine, slotLoadingLine, slotRangeLine } from "../copy";
+import { prompt } from "../../../entry/prompt-Slots.generated";
 
 // Core first: Calendar/week selects dates, not free and taken times within a day.
 export const meta = {
   id: "Slots",
   status: "ready",
   group: "input",
-  purpose: "Pick an available appointment start time, such as 09:00.",
-  pick: "Select free HH:MM start times, keeping taken times disabled. Not deciding which day, date or week to book: use Calendar for that, even in a booking app. Not working hours (Availability).",
-  writeHints: [
-    "Times are unique HH:MM start times. at, when present, must exactly match a free time; omit it if none is selected.",
-    'minutes is the appointment length, from 5 to 600. Only use arrange "rows" when asked for one row per time or for computed end times; otherwise leave arrange null.',
-    'Use style "ranges" for a single start–end span such as 09:00–09:45. Leave arrange null for ranges. Set timezone only when supplied; it labels the local times without converting them.',
-  ],
+  ...prompt,
   region: "body",
   weight: 3,
   dense: true,

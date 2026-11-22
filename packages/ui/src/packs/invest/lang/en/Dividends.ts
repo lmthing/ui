@@ -1,0 +1,20 @@
+export const words = {
+  dividends: {
+    unknown: "Unknown",
+    expected: "Expected",
+    received: (date: string) => `Received ${date}`,
+    payOn: (date: string) => `Pay date ${date}`,
+    entitledOn: (date: string) => `Entitled ${date}`,
+    perUnit: (amount: string) => `${amount} per unit`,
+    units: (amount: string) => `Units: ${amount}`,
+    gross: (amount: string) => `Gross ${amount}`,
+    withheld: (amount: string) => `Withheld ${amount}`,
+    net: "Net cash",
+    receive: "Record receipt",
+    reverse: "Reverse receipt",
+    saved: "Receipt recorded",
+    error: "Dividend receipts could not be reconciled.",
+    payReading: (id: string, payOn: string) => `${id}: ${payOn}`,
+    reading: (lines: readonly string[]) => lines.join(" · "),
+  },
+};

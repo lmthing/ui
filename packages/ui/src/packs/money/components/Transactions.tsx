@@ -3,19 +3,14 @@ import * as kit from "../../../kit";
 import { transactionCopy, transactionDay, transactionGroups, transactionReading } from "../copy";
 import { moneyWordsFor } from "../lang";
 import { z } from "zod";
+import { prompt } from "../../../entry/prompt-Transactions.generated";
 
 // Core first: Bars/share cannot show dated individual payees and signed amounts grouped by day.
 export const meta = {
   id: "Transactions",
   status: "ready",
   group: "data",
-  purpose: "See where your money went, entry by entry.",
-  pick: "Personal money in and out, grouped by day with payees and signed amounts. Not category totals (Bars), or a client's events (ClientHistory).",
-  writeHints: [
-    "Amounts are signed: negative spending, positive income. Dates use YYYY-MM-DD. Never write totals or currency. To hide icons alone, use lead none and keep each source icon.",
-    "Unrequested density, item tone and item mark must be null. Never infer tone from spending, a refund or income; the amount's sign has its own automatic treatment.",
-    "Write a status (posted, pending or disputed), a short note, or a receipt photo reference only when supplied. A receipt thumbnail takes the icon's place when leading visual cues are shown; the source icon is still required.",
-  ],
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "phone",

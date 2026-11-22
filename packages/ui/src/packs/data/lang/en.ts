@@ -1,3 +1,9 @@
+import { words as ActivityLogWords } from "./en/ActivityLog";
+import { words as BoardWords } from "./en/Board";
+import { words as BulkActionsWords } from "./en/BulkActions";
+import { words as LineChartWords } from "./en/LineChart";
+import { words as HeatmapWords } from "./en/Heatmap";
+import { words as TableWords } from "./en/Table";
 import type { LDMLPluralRule } from "../../../catalog";
 
 export type DataWords = {
@@ -31,35 +37,10 @@ export type DataWords = {
 };
 
 export const en = {
-  activityLabel: (who, text, time) => `${who}: ${text} (${time})`,
-  boardCard: (id, fields) => `${id}: ${fields.filter(Boolean).join(" · ")}`,
-  boardDestination: (destination, card) => `Move ${card} to ${destination}`,
-  boardMove: "Move to",
-  boardStage: (label, count, total) => `${label} (${count}${total ? `, Total ${total}` : ""})`,
-  boardTotal: "Total",
-  bulkSelectAll: "Select all",
-  bulkSelected: (count) => `${count} selected`,
-  chartLatest: "Latest values",
-  chartPlaceholder: (index) => ["One", "Two", "Three", "Four"][index]!,
-  chartPoints: (title) => `${title} data points`,
-  chartReading: (id, series, label, value) => `${id} ${series} · ${label} · ${value}`,
-  chartSelected: (series, label, value) => `${series} · ${label}: ${value}`,
-  chartSeriesPoints: (series) => `${series} data points`,
-  chartUnit: (unit) => `Unit: ${unit}`,
-  chartValue: (value, unit) => `${value} ${unit}`,
-  heatDay: (index, short) =>
-    (short
-      ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-      : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])[index]!,
-  heatDetail: (style) =>
-    style === "weeks" ? "Weeks start on Monday" : "Two-hour blocks · Scroll for later hours",
-  heatHour: (hour, short) => (short ? `${hour}h` : `${hour}:00`),
-  heatLegend: (unit) => `Intensity scale · ${unit}`,
-  heatReading: (label, values) => `${label}: ${values.join(" · ")}`,
-  heatValue: (day, slot, value, unit) => `${day}, ${slot}: ${value} ${unit}`,
-  heatWeek: (week, short) => (short ? `W${week}` : `Week ${week}`),
-  tableColumn: (label, position) => `${position}. ${label}`,
-  tableCount: (count, form) => (form === "one" ? `${count} row` : `${count} rows`),
-  tablePick: (label) => `Select ${label}`,
-  tableSort: "Sort by column",
+  ...ActivityLogWords,
+  ...BoardWords,
+  ...BulkActionsWords,
+  ...LineChartWords,
+  ...HeatmapWords,
+  ...TableWords,
 } satisfies DataWords;

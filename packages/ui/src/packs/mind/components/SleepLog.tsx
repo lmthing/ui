@@ -4,13 +4,13 @@ import * as kit from "../../../kit";
 // prettier-ignore
 import { nightMinutes, readSleepLog, sleepLogLines, sleepStageKeys, sleepStagePoints, wearableLines } from "../copy";
 import { mindWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-SleepLog.generated";
 
 // Core first: Timeline/hours lays out events, not overnight sleep versus awake time, quality and a weekly average.
 // prettier-ignore
 export const meta = {
   id: "SleepLog", status: "ready", group: "data",
-  purpose: "Review last night's sleep, its quality and the week's average.",
-  pick: "One night's bedtime and wake time with an asleep versus awake bar, quality face and weekly sleep average. Not a schedule of timed events (Timeline) or one rating alone (Scale).",
+  ...prompt,
   region: "body", weight: 2, tier: "phone",
   partTiers: { import: "ok" },
   realPath: "Sleep times are typed in or read from the phone's sleep data with permission.",
@@ -21,11 +21,6 @@ export const meta = {
   states: ["filled", "empty"],
   actions: { parts: { edit: ["press"] } },
   emptyActions: ["edit.press"],
-  writeHints: [
-    "Use 24-hour HH:MM for bed and wake. Awake minutes cannot exceed the interval from bed to wake across midnight. If supplied, week contains exactly seven hours values from 0 to 24; never write duration or average.",
-    'For a night with the weekly average hidden, use {"density":null,"surface":null,"detail":"brief"}. Keep the seven nights in week. Set unrequested finish axes to null, never "card" or "comfortable".',
-    'Only select style "stages" if a breakdown is requested. Never infer stages from bedtime, wake or awake time. Leave stages null unless all four actual durations are given; their total must match the night, and the two awake values must agree if both given. Leave unrequested style, hrAvg (bpm) and hrv (ms) null.',
-  ],
   read: (input, state, lang): string[] => {
     if (state === "empty") return [JSON.stringify(mindWordsFor(lang).sleep.log)];
     if (state !== "filled") return [];

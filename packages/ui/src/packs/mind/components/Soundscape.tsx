@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 // prettier-ignore
 import { levelValue, mixPresetOptions, mixRead, mixTimerParts, presetList, soundscapeMix, volumeMax } from "../copy";
 import { mindWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Soundscape.generated";
 
 // Core first: Player/audio plays one recording, not simultaneous loops with separate volume and a sleep timer.
 const timerMax = 120;
@@ -13,17 +14,10 @@ const levelSet = { prop: "level", min: 0, max: volumeMax, integer: true } as con
 // prettier-ignore
 export const meta = {
   id: "Soundscape", status: "ready", group: "input",
-  purpose: "Mix calming sound loops at individual volumes and set a sleep timer.",
-  pick: "Combine two to six looping background sounds such as rain and fire with independent volumes and a sleep timer. Not one recording (Player) or a list of tracks to play in turn (Playlist).",
+  ...prompt,
   region: "body", weight: 2, tier: "phone",
   realPath: "Bundled sound loops are mixed and played on the device.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], arrange: ["grid", "rows"] },
-  writeHints: [
-    'Leave unrequested density and surface null, even when arrange is requested: {"density":null,"surface":null,"arrange":"rows"}. Use compact or outlined only when explicitly asked for that finish.',
-    "Supply each loop with its own icon and a whole-number volume from 0 to 10; use 0 for muted. The sleep timer is whole minutes (0 means off).",
-    'Use arrange "rows" for a full-width stack with one sound per row, or null for the default two-column grid.',
-    "Only if asked for saved mixes, supply presets with unique labels and one level for every sound in the order written. Changes to the sliders customize the live mix, not the saved presets.",
-  ],
   parts: ["root", "mix", "mix_label", "mix_icon", "timer", "timer_label", "presets"],
   items: {
     key: "sounds",

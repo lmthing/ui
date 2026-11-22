@@ -1,14 +1,14 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import { payPeriods, seedApplicationId, seedDate, seedGoto, seedRows } from "../seeds";
+import { prompt } from "../../../entry/prompt-Offer.generated";
 
 // Core first: Amount/inline shows one pay number but cannot hold employment terms or their response.
 export const meta = {
   id: "Offer",
   status: "draft",
   group: "content",
-  purpose: "Review proposed employment terms and manage the offer and its response.",
-  pick: "An employment offer with pay, hours, start date, conditions, response deadline and status. Not pay alone (Amount), a discount (Promo), a client agreement (Agreement) or a quote (Invoice).",
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "phone",
@@ -46,9 +46,6 @@ export const meta = {
     },
     noGoto: { parts: ["accept", "decline", "withdraw"] },
   },
-  writeHints: [
-    "Write numeric pay in the brief's currency, not currency text. Record only a supplied response status; acceptance does not mean hired. Do not write a calculated expiry flag.",
-  ],
 } as const satisfies c.Meta;
 
 export const props = z.strictObject({

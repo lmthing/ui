@@ -10,18 +10,13 @@ import {
   totalLine, numberLine, wordsFor, variantProps, type ThemeDensity, type FallbackInput, type Meta,
   type Probe, type Props,
 } from "../catalog";
+import { prompt } from "../entry/prompt-Bars.generated";
 export const meta = {
   id: "Bars",
   status: "ready",
   signature: "bars_grow",
   group: "data",
-  purpose: "Compare counts or amounts across days or categories, using the actual counted or measured unit.",
-  pick: "Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).",
-  writeHints: [
-    'A plain comparison or share breakdown always leaves detail and density null, even if no total is mentioned. Only an explicit request to hide the combined total sets detail "brief"; keep all points and leave density null unless tighter spacing was also requested.',
-    "Columns compare one measured unit. Column point labels are at most four characters: abbreviate day/category names (Mon, Tue, Fern, Mons).",
-    'For "share", use labels up to sixteen characters; optionally give a point an icon or goto screen. In "columns", active is a zero-based index and status is a short subline.',
-  ],
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "phone",

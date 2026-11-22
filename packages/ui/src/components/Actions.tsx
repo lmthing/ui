@@ -14,15 +14,12 @@ import {
   type Props,
 } from "../catalog";
 import { KitCard, KitGrid, KitIcon, KitRow, KitText, KitTile } from "../kit";
+import { prompt } from "../entry/prompt-Actions.generated";
 
 export const meta = {
   id: "Actions",
   group: "action",
-  purpose: "Two to four shortcuts to different things the person can do next.",
-  pick: "Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).",
-  writeHints: [
-    'Vertically stacked shortcuts set arrange to "rows" only. The surface field must be null unless a specific surface treatment was requested; never write "card" as a default. If no arrangement is requested, use null for arrange.',
-  ],
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "phone",

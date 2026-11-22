@@ -13,18 +13,14 @@ import {
 } from "../copy";
 import { booksWordsFor } from "../lang";
 import { periodFields, ref, seedPeriod, validPeriod } from "../seeds";
+import { prompt } from "../../../entry/prompt-VatReturn.generated";
 
 // Core first: KeyValue/rows cannot map VAT boxes to reconciled evidence or save a reviewed period.
 export const meta = {
   id: "VatReturn",
   status: "ready",
   group: "data",
-  purpose: "Review VAT boxes against source records and save a local snapshot.",
-  pick: "A local preview of prescribed VAT boxes: output tax, recoverable input tax, and payable or refundable VAT with evidence. Not a short set of arbitrary facts (KeyValue), money set aside (Progress), or taxable profit (ProfitLoss).",
-  writeHints: [
-    "Write ordered dates spanning at most 366 days and a snake_case schemeRef. Box labels and amounts come from the rule and records, not Writer props.",
-    'Use style "reconcile" only to trace box sources and exclusions; otherwise use "boxes". Saving is local, never filing or paying.',
-  ],
+  ...prompt,
   region: "body",
   weight: 3,
   dense: true,

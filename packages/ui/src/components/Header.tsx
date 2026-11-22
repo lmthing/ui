@@ -14,15 +14,12 @@ import {
   type Props,
 } from "../catalog";
 import { KitAction, KitBlock, KitText, useVariant } from "../kit";
+import { prompt } from "../entry/prompt-Header.generated";
 
 export const meta = {
   id: "Header",
   group: "structure",
-  purpose: "Name the screen and offer one optional shortcut.",
-  pick: "The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).",
-  writeHints: [
-    'Use style "back" only when a back button is needed. To hide a subtitle, use detail "brief" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis and density to null unless the brief explicitly asks for those changes.',
-  ],
+  ...prompt,
   region: "top",
   weight: 1,
   tier: "phone",

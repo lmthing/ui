@@ -1,209 +1,61 @@
-import type { LDMLPluralRule } from "./plural";
-import { coreOptions } from "./core-options";
-
-function pluralThing(word: string) {
-  if (/(s|x|z|ch|sh)$/.test(word)) return `${word}es`;
-  if (/[^aeiou]y$/.test(word)) return `${word.slice(0, -1)}ies`;
-  return `${word}s`;
-}
+import { words as SwipeStackWords } from "./en/SwipeStack";
+import { words as SparklineWords } from "./en/Sparkline";
+import { words as StepsWords } from "./en/Steps";
+import { words as PlayerWords } from "./en/Player";
+import { words as packWords } from "./en/pack";
+import { words as SearchWords } from "./en/Search";
+import { words as ComposerWords } from "./en/Composer";
+import { words as SheetWords } from "./en/Sheet";
+import { words as CalendarWords } from "./en/Calendar";
+import { words as SuccessWords } from "./en/Success";
+import { words as FieldWords } from "./en/Field";
+import { words as KeyValueWords } from "./en/KeyValue";
+import { words as PeopleWords } from "./en/People";
+import { words as MapPinsWords } from "./en/MapPins";
+import { words as BarsWords } from "./en/Bars";
+import { words as CounterWords } from "./en/Counter";
+import { words as ListWords } from "./en/List";
+import { words as TimerWords } from "./en/Timer";
+import { words as StreakWords } from "./en/Streak";
+import { words as CameraWords } from "./en/Camera";
+import { words as BubblesWords } from "./en/Bubbles";
+import { words as AmountWords } from "./en/Amount";
+import { words as RouteWords } from "./en/Route";
+import { words as FilterBarWords } from "./en/FilterBar";
+import { words as ReviewWords } from "./en/Review";
+import { words as ArticleWords } from "./en/Article";
+import { words as PassCardWords } from "./en/PassCard";
+import { words as FileListWords } from "./en/FileList";
 
 export const en = {
-  tag: "en",
-  dateTag: "en-GB",
-  pluralThing,
-  empty: (things: string) => `No ${things} yet`,
-  nothing: "Nothing here yet",
-  search: (things: string) => (things ? `Search ${things}` : "Search"),
-  loadingLabel: "Loading",
-  codeLabels: { block: "Code", copy: "Copy", copied: "Copied" },
-  panelLabels: { reader: "Panel reader", controls: "Toggle reader controls" },
-  photoLabels: { add: "Add photo", take: "Take photo", scan: "Scan" },
-  sendLabel: "Send",
-  closeLabel: "Close",
-  confirmNote: "asks first",
-  confirmLabel: "Confirm",
-  cancelLabel: "Cancel",
-  mediaUnavailable: "Recording unavailable",
-  swipeCard: "swipe card",
-  thisMonth: "This month",
-  saved: "Saved",
-  operationFailed: "Something went wrong",
-  checkValue: "Check this value",
-  fieldToggle: { on: "on", off: "off" },
-  fieldChoiceError: "Choose an available field option",
-  fieldDateError: "Use a real date in YYYY-MM-DD",
-  fieldTimeError: "Use a time in HH:MM",
-  fieldValueError: "The value does not fit this field",
-  secretValue: {
-    mask: "••••••",
-    reveal: (label: string) => `Show ${label}`,
-    hide: (label: string) => `Hide ${label}`,
-    copy: (label: string) => `Copy ${label}`,
-    copied: "Copied",
-  },
-  onlineLabel: "Online",
-  userLocationLabel: "Your location",
-  chosen: (label: string) => `${label} chosen`,
-  hoursLabel: (start: string, end: string, title: string) => `${start} to ${end}, ${title}`,
-  swipeLabels: { left: "Skip", right: "Keep" },
-  allLabel: "All",
-  historyDetailLine: (kind: string, date: string) => `${kind} · ${date}`,
-  loyaltyLabels: { stamp: "Add stamp", redeem: "Redeem reward", earned: "Reward earned" },
-  placeholderTitles: ["Item one", "Item two", "Item three", "Item four", "Item five", "Item six"],
-  placeholderDetail: "Details",
-  placeholderLabel: "Continue",
-  placeholderValue: "0",
-  goal: (of: string) => `of ${of}`,
-  step: (at: string, count: string) => `Step ${at} of ${count}`,
-  total: (total: string, unit?: string) => (unit ? `Total ${total} ${unit}` : `Total ${total}`),
-  trend: { rising: "rising", falling: "falling", steady: "steady" },
-  stepLabels: { less: "One less", more: "One more" },
-  messageLabels: { retry: "Try again", undo: "Undo", dismiss: "Dismiss" },
-  more: (count: string) => `+${count}`,
-  moreRead: (count: string) => `+${count} more`,
-  peekCount: (count: string) => `and ${count} more`,
-  peekMore: "See all",
-  peekLess: "Show less",
-  badgeOverflow: (max: string) => `${max}+`,
-  charCount: (used: string, max: string) => `${used} / ${max}`,
-  weekdayInitials: ["M", "T", "W", "T", "F", "S", "S"],
-  weekdayNames: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-  weekdayShort: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-  duration: (minutes: string) => `${minutes} min`,
-  timerLabels: { start: "Start", stop: "Stop" },
-  days: (count: string, form: LDMLPluralRule) => `${count} ${form === "one" ? "day" : "days"}`,
-  streakDone: (days: readonly string[]) => (days.length ? `done ${days.join(", ")}` : "none done this week"),
-  daysLeft: (days: string) => `${days} left`,
-  hoursLeft: (hours: string) => `${hours} h left`,
-  minutesLeft: (minutes: string) => `${minutes} min left`,
-  passed: "Passed",
-  repeatLabels: {
-    never: "Never",
-    daily: "Daily",
-    weekdays: "Weekdays",
-    weekly: "Weekly",
-    monthly: "Monthly",
-    yearly: "Yearly",
-  },
-  mediaLabels: { play: "Play", pause: "Pause", back: "Back 15 seconds", forward: "Forward 15 seconds" },
-  playbackOptions: {
-    mode: { audio: "Audio", music: "Music", podcast: "Podcast", video: "Video", live: "Live" },
-    speed: (value: string) => `${value}×`,
-    liked: "Liked",
-    shuffle: "Shuffle",
-    loop: "Loop",
-    playing: "Playing",
-    paused: "Paused",
-  },
-  captureLabels: {
-    start: "Start recording",
-    stop: "Stop recording",
-    front: "Scan front",
-    back: "Scan back",
-    backHint: "Turn it over and fit the back in the frame",
-    complete: "Both sides scanned",
-  },
-  listLabels: { progress: "Progress", unread: "Unread", pinned: "Pinned" },
-  bubbleLabels: {
-    status: { sent: "Sent", delivered: "Delivered", read: "Read" },
-    attachment: { photo: "Photo", voice: "Voice message", file: "File" },
-    broadcast: "Broadcast",
-    reply: (value: string) => `Reply to: ${value}`,
-  },
-  perWords: {
-    hour: "hr",
-    day: "day",
-    night: "night",
-    week: "week",
-    month: "month",
-    year: "year",
-    each: "each",
-    person: "person",
-  },
-  perAmount: (amount: string, per: string) => `${amount} / ${per}`,
-  moneyLabels: { total: "Total" },
-  ...coreOptions,
-  debtControlLabels: {
-    edit: "Open terms editor",
-    strategy: "Repayment priority",
-    high_rate: "Highest rate first",
-    small_balance: "Smallest balance first",
-    extra: "Extra monthly repayment",
-  },
-  documentLabels: {
-    invoice: "Invoice",
-    quote: "Quote",
-    to: "To",
-    date: "Issued",
-    due: "Due",
-    subtotal: "Subtotal",
-    tax: "Tax",
-    total: "Total",
-    draft: "Draft",
-    sent: "Sent",
-    paid: "Paid",
-    overdue: "Overdue",
-    send: "Send",
-    resend: "Resend",
-    accept: "Accept",
-    decline: "Decline",
-  },
-  documentHeading: (kind: string, number: string) => `${kind} ${number}`,
-  quantity: (qty: string) => `Qty ${qty}`,
-  documentField: (label: string, value: string) => `${label} · ${value}`,
-  documentTax: (label: string, percent: string) => `${label} (${percent})`,
-  kitchenLabels: { newItem: "Type a new grocery item", timer: "Cooking timer" },
-  filterClear: "Clear filters",
-  filterCount: (count: string, form: LDMLPluralRule) =>
-    form === "one" ? `${count} active filter` : `${count} active filters`,
-  filterLabel: "Name",
-  filterList: "Filter fields",
-  filterOptions: (id: string, label: string, options: readonly string[], value?: string) =>
-    `${id} ${value === undefined ? label : `${label}: ${value}`} (${options.join(" · ")})`,
-  filterSort: (label: string) => `Sort: ${label}`,
-  reviews: (count: string, form: LDMLPluralRule) => `${count} ${form === "one" ? "review" : "reviews"}`,
-  stars: (count: string, form: LDMLPluralRule) => `${count} ${form === "one" ? "star" : "stars"}`,
-  reviewLabels: {
-    reply: "Reply",
-    response: "Business reply",
-    verified: "Verified",
-    showSpoiler: "Show spoiler",
-    hideSpoiler: "Hide spoiler",
-    photo: (index: string) => `Review photo ${index}`,
-    fit: (value: number) =>
-      ["Runs very small", "Runs small", "True to size", "Runs large", "Runs very large"][value - 1]!,
-  },
-  article: {
-    byline: (name: string) => `By ${name}`,
-    readingTime: (minutes: string) => `${minutes} min read`,
-    metadataSeparator: " · ",
-    bullet: "• ",
-    ordinal: (number: string) => `${number}. `,
-    quote: ["“", "”"] as [string, string],
-    callout: "Note: ",
-  },
-  passCard: {
-    invalid: "This code can’t be read",
-    qr: "Pass QR code",
-    copy: "Copy code",
-    copied: "Code copied",
-    reveal: "Show member ID",
-    hide: "Hide member ID",
-    mask: (tail: string) => `••••${tail ? ` ${tail}` : ""}`,
-    expiry: (date: string) => `Expires ${date}`,
-    balance: "Balance",
-    ready: "Ready to scan",
-    used: "Used",
-  },
-  fileList: {
-    error: "Attachments unavailable",
-    format: { pdf: "PDF", doc: "DOC", sheet: "XLS", zip: "ZIP", audio: "AUD", other: "File" },
-    pages: (count: string, form: LDMLPluralRule) => `${count} ${form === "one" ? "page" : "pages"}`,
-    status: { ready: "", downloading: "Downloading", missing: "File missing" },
-    download: (name: string) => `Download ${name}`,
-    remove: (name: string) => `Remove ${name}`,
-    separator: " · ",
-  },
+  ...SwipeStackWords,
+  ...SparklineWords,
+  ...StepsWords,
+  ...PlayerWords,
+  ...packWords,
+  ...SearchWords,
+  ...ComposerWords,
+  ...SheetWords,
+  ...CalendarWords,
+  ...SuccessWords,
+  ...FieldWords,
+  ...KeyValueWords,
+  ...PeopleWords,
+  ...MapPinsWords,
+  ...BarsWords,
+  ...CounterWords,
+  ...ListWords,
+  ...TimerWords,
+  ...StreakWords,
+  ...CameraWords,
+  ...BubblesWords,
+  ...AmountWords,
+  ...RouteWords,
+  ...FilterBarWords,
+  ...ReviewWords,
+  ...ArticleWords,
+  ...PassCardWords,
+  ...FileListWords,
 };
 
 export type Words = typeof en;

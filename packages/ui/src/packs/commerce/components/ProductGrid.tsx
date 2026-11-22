@@ -3,19 +3,14 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { dealBadge, dealsReading, offerClock, offerRemaining, productAmounts } from "../copy";
 import { commerceWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-ProductGrid.generated";
 
 // Core first: Gallery/grid shows photos, not prices, sale badges and a quick add per item.
 export const meta = {
   id: "ProductGrid",
   status: "ready",
   group: "content",
-  purpose: "Browse products with prices and quickly add the ones you want.",
-  pick: "Browse several priced goods with a quick add per product, as photo cards or food menu rows. Not photos without prices (Gallery), timed services (ServiceMenu), or owned things (Things).",
-  writeHints: [
-    'Use arrange "grid" for two-column product cards. Use "rows" for menu rows with a right-hand photo and optional sub line; omit sub for grid.',
-    "Leave density null when only the arrangement is requested; menu rows do not imply a change of spacing.",
-    'Use style "deals" for flash-sale cards, claimed per item as a percentage from 0 to 100, and ends plus optional endsAt for the shared deadline. Use was for the previous price to compute a discount, or supply badge text.',
-  ],
+  ...prompt,
   region: "body",
   weight: 3,
   dense: true,

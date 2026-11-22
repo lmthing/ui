@@ -4,18 +4,14 @@ import * as kit from "../../../kit";
 import { StageBoard, type StageCard } from "../../../kit/renderers";
 import { boardReading, boardStages } from "../copy";
 import { dataWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Board.generated";
 
 // Core first: Checklist/default can tick off jobs but cannot move cards between named stages.
 export const meta = {
   id: "Board",
   status: "ready",
   group: "data",
-  purpose: "See records by stage and move them between stages.",
-  pick: "Move cards between two to five named stage columns with counts and optional totals. Not ticking off jobs in one list (Checklist), working a service request queue (RequestQueue), or a week of shifts (Roster).",
-  writeHints: [
-    "card.column is a zero-based index into columns. Use unique stage labels because the move action takes the destination label. Counts and totals are computed; never write them.",
-    'Use arrange "rows" for stages stacked vertically, otherwise null. Leave density and surface null unless requested.',
-  ],
+  ...prompt,
   region: "body",
   weight: 3,
   dense: true,

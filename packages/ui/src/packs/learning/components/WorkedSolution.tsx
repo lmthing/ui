@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 // prettier-ignore
 import { projectSolution, solutionIdentity, solutionProgress, solutionRead, solutionState, workedStepTitle } from "../copy";
 import { learningWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-WorkedSolution.generated";
 
 const stepLimit = 10;
 
@@ -11,15 +12,9 @@ const stepLimit = 10;
 // prettier-ignore
 export const meta = {
   id: "WorkedSolution", status: "ready", group: "content", tier: "phone",
-  pick: "Show how a specific problem is solved, with numbered derivation steps and an answer. Not general teaching (Lesson), quizzes (Quiz), recipes (CookSteps), or a bare step position (Steps).",
-  purpose: "Work through a problem one derivation step at a time.",
+  ...prompt,
   region: "body", weight: 3, dense: true,
   realPath: "Pre-authored derivations run on the device or an external solver generates them on request.",
-  writeHints: [
-    "Put the specific question in problem, then the ordered derivation steps in steps. Use formula only for exact math or code. Put the result in answer; the app counts steps and reveals the result.",
-    'Use overflow "all" only when asked to show every step immediately; otherwise use null, even for one step. The default card and spacing are null, not "card" or "comfortable".',
-    'Null media shows a supplied problemPhoto by default. To turn photo display off, retain the exact problemPhoto reference and write media "none"; null does not hide it. If there is no photo, use null for media.',
-  ],
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["cover", "none"], overflow: ["page", "all"] },
   variantParts: {
     "media.none": { hides: ["photo"] },

@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 import { interviewActions, interviewCopy, interviewReading } from "../copy";
 import { hiringWordsFor } from "../lang";
 import { seedApplicationId, seedDate, seedGoto, seedRows, seedTime } from "../seeds";
+import { prompt } from "../../../entry/prompt-Interview.generated";
 
 const httpsUrl = z.url({ protocol: /^https$/, hostname: /.+/ });
 
@@ -12,8 +13,7 @@ export const meta = {
   id: "Interview",
   status: "ready",
   group: "content",
-  purpose: "View and manage one job interview already arranged for an applicant.",
-  pick: "One arranged hiring interview with interviewers, time, format, link and confirmation or cancellation. Not a day's agenda (Timeline), available times (Slots), or a service appointment (Appointment).",
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "phone",
@@ -43,9 +43,6 @@ export const meta = {
   },
   read: (input, state, lang): string[] =>
     state === "filled" ? interviewReading(input as z.output<typeof props>, lang) : [],
-  writeHints: [
-    "Use the agreed local date and 24-hour time, plus minutes; do not write a calculated end time or past flag. Link is optional and must use HTTPS.",
-  ],
 } as const satisfies c.Meta;
 
 export const props = z.strictObject({

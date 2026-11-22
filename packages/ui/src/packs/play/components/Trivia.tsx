@@ -12,17 +12,13 @@ import {
 } from "../../../kit";
 import { triviaPointsCopy } from "../copy";
 import { playWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Trivia.generated";
 
 // Core first: Choice/default cannot run a host-led question/reveal sequence without grading submissions.
 // prettier-ignore
 export const meta = {
   id: "Trivia", status: "ready", group: "content",
-  purpose: "Host questions aloud, reveal answers and advance without grading submitted responses.",
-  pick: "Host-controlled question and answer reveals for players answering aloud or on paper. Not private option selection (Choice), graded submissions (Quiz), or spaced recall (Flashcard).",
-  writeHints: [
-    "Write seed question, answer, optional explanation/photo and points. Never write submissions, grades, awarded scores, current index or reveal state.",
-    'To hide photos alone use {"media":"none","emphasis":null,"density":null}. Keep the supplied photo in the question data. Use hero only when the user separately asks for large question text.',
-  ],
+  ...prompt,
   region: "body", weight: 2, tier: "phone",
   confirmParts: ["restart"],
   realPath: "A local deck uses host-controlled reveals; awarded points are recorded separately.",

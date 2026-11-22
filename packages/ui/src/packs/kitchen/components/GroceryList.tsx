@@ -31,17 +31,13 @@ import {
 } from "../../../kit";
 import { groceryRead } from "../copy";
 import { kitchenWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-GroceryList.generated";
 // Core first: Checklist/default cannot group groceries by aisle with quantities and shared authors.
 export const meta = {
   id: "GroceryList",
   status: "ready",
   group: "input",
-  purpose: "Buy groceries by aisle and tick off what is in the bag.",
-  pick: "Shopping for food grouped by aisle, with quantities and optional people who added it. Not general jobs (Checklist), recipe amounts (Ingredients), or an online basket (Cart).",
-  writeHints: [
-    "Each aisle has 1–12 items; use 1–8 aisles. got is a stored check state. Do not write totals or computed sorting.",
-    'If asked to hide who added items, set detail to "brief" and keep the author data. Otherwise leave detail null.',
-  ],
+  ...prompt,
   region: "body",
   weight: 3,
   dense: true,

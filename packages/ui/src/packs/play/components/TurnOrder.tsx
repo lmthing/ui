@@ -7,16 +7,12 @@ import {
 import * as kit from "../../../kit";
 import { turnOrderLines } from "../copy";
 import { playWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-TurnOrder.generated";
 // Core first: People/default cannot track a game turn cursor, laps, skips or reversed direction.
 // prettier-ignore
 export const meta = {
   id: "TurnOrder", status: "ready", group: "data",
-  purpose: "Track the current game player, lap and direction with next, skip and reverse.",
-  pick: "Game turns, laps and play direction. Not a plain roster (People), scheduled events (Timeline), or rotating household duties (Turns).",
-  writeHints: [
-    "first is a zero-based index into players. Optional laps bounds the game; omit it for open-ended rotation. Never write current player, lap, completed turns or skips.",
-    'To hide only the lap and direction line write {"detail":"brief","density":null}; keep any lap limit. Never write comfortable as the default.',
-  ],
+  ...prompt,
   region: "body", weight: 2, tier: "phone",
   confirmParts: ["restart"],
   realPath: "An ordered roster and turn events live on one device without accounts or remote replies.",

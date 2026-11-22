@@ -3,18 +3,14 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { loanDates, loanReading, loanToday } from "../copy";
 import { inventoryWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Loans.generated";
 
 // Core first: List with style "cards" cannot record lending direction, due dates, returns and reminders.
 export const meta = {
   id: "Loans",
   status: "ready",
   group: "data",
-  purpose: "See who has borrowed your things and when to return theirs.",
-  pick: "Physical things lent to or borrowed from people, with due-back dates, returns or reminders. Not a plain directory (List), debts (Split), or booked time (Appointment).",
-  writeHints: [
-    "Use lent for my item with someone else and borrowed for someone else's item with me. YYYY-MM-DD dates only; never write overdue.",
-    'Use detail "brief" only when asked to hide the dates loans started; still write since. For that request use density:null and surface:null. Otherwise leave all unrequested axes null.',
-  ],
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "phone",

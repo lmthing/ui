@@ -1,16 +1,13 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import { prompt } from "../../../entry/prompt-CardControls.generated";
 
 // Core first: List with toggle trails cannot manage a single issuer card's freeze, channel limits and protected details.
 export const meta = {
   id: "CardControls",
   status: "draft",
   group: "input",
-  purpose: "Freeze a payment card and control where and how much it can spend.",
-  pick: "Freeze one payment card or control its spending channels and cap. Not ordinary app settings (List), account balances (AccountCard), or paying bills (Bills).",
-  writeHints: [
-    "Use a demo card reference and four trailing digits only. Never invent or ask for a card number or CVV. A spend cap needs a positive maxCap at least as large as spendCap.",
-  ],
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "service",

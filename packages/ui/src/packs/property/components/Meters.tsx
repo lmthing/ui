@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 import { historyRows, meterEntries, meterSeries, meterSummary, readMeters, validMeterSeries } from "../copy";
 import { propertyWordsFor } from "../lang";
 import { dateTime, distinct, ref, seedLabels } from "../seeds";
+import { prompt } from "../../../entry/prompt-Meters.generated";
 
 // Core first: Field/number cannot validate cumulative readings or derive consumption over each meter's history.
 // prettier-ignore
@@ -11,13 +12,7 @@ export const meta = {
   id: "Meters",
   status: "ready",
   group: "input",
-  purpose: "Record cumulative utility readings and compare usage between readings for each meter.",
-  pick: "Cumulative utility meter readings and computed consumption between dated readings by meter. Not entering one number (Field), a short trend (Sparkline), body measurements (Measurements), or smart device controls (Devices).",
-  writeHints: [
-    "Use snake_case refs. Each reading points to a meter in this line; no duplicate instants or decreasing values on the same meter. A replacement or reset requires a different meterRef.",
-    'Write cumulative values (not differences or estimated bills), offset datetimes and an addGoto. Use "history" for interval readings, otherwise the meter register.',
-    'Write null for all unrequested variant axes, not their defaults. For a register that hides the previous cumulative value, use detail "brief"; keep all readings. If only brief detail is requested, write density null and surface null.',
-  ],
+  ...prompt,
   region: "body",
   weight: 3,
   dense: true,

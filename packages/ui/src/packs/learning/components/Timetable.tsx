@@ -3,18 +3,14 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { currentPeriod, readTimetable, timetableDays, weekdays, type Weekday } from "../copy";
 import { learningWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Timetable.generated";
 
 // Core first: Timeline/hours cannot group repeating classes by weekday and show room and teacher per period.
 export const meta = {
   id: "Timetable",
   status: "ready",
   group: "data",
-  purpose: "See the week's repeating classes and where to go for each period.",
-  pick: "A student's repeating week of class periods with subject, room and teacher. Not a one-day schedule (Timeline), staff shifts (Roster), bookable slots (Slots) or family events (Agenda).",
-  writeHints: [
-    "Write each scheduled weekday once. For each period, write a 24-hour start time and subject, with room, teacher and semantic tone if supplied. Leave selected_day null; it is for the locally selected view. Never write the current period.",
-    'Leave density, surface and detail null unless requested. For start times and subjects only, use detail "brief" and retain any rooms and teachers in the data.',
-  ],
+  ...prompt,
   region: "body",
   weight: 3,
   dense: true,

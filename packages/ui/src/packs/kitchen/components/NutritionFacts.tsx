@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import * as copy from "../copy";
 import { kitchenWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-NutritionFacts.generated";
 
 // Core first: KeyValue/arrange:rows displays static facts, not serving-scaled amounts or macro shares.
 const { min, max, step } = copy.nutritionBounds;
@@ -12,12 +13,7 @@ export const meta = {
   id: "NutritionFacts",
   status: "ready",
   group: "data",
-  purpose: "Read a food's nutrition label and recalculate calories, protein, carbs and fat for any portion.",
-  pick: "One food or recipe's nutrition label: calories, protein, carbs and fat that update with the serving count, plus nutrients and allergens. Choose for scaled nutrition, not ingredient amounts to cook with (Ingredients). Not flat facts (KeyValue), daily targets (Progress), or a day's meals (FoodLog).",
-  writeHints: [
-    "Write nutrition amounts for exactly one serving, even when the opening number of servings is different. Never write scaled amounts or macro percentages.",
-    'Set detail to "brief" only when asked to hide the secondary nutrient rows and allergen pills. Keep their data. Leave density and surface null unless requested.',
-  ],
+  ...prompt,
   region: "body",
   weight: 3,
   dense: true,

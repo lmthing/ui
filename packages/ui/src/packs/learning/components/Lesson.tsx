@@ -3,18 +3,14 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { lessonReading } from "../copy";
 import { learningWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Lesson.generated";
 
 // Core first: Note/body cannot teach with a title, explanation, illustrated example and continue action.
 export const meta = {
   id: "Lesson",
   status: "ready",
   group: "content",
-  purpose: "Learn one idea from a short explanation and worked example before practising it.",
-  pick: "Teach one idea with a titled explanation, an optional illustrated example and a continue action. Not a short supporting sentence (Note), long-form reading (Article) or an assessed question (Quiz).",
-  writeHints: [
-    "Put the explanation in text and the scenario in example. For any unrequested axis use null, not its default enum value.",
-    'To hide a saved example, fill example and emit "detail":"brief". Unless explicitly requested, emit "density":null, "surface":null, "emphasis":null. Keeping the usual spacing, card or heading is not a request for those axes.',
-  ],
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "phone",

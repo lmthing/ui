@@ -1,74 +1,18 @@
+import { words as BracketWords } from "./en/Bracket";
+import { words as ScoreboardWords } from "./en/Scoreboard";
+import { words as FixturesWords } from "./en/Fixtures";
+import { words as LineupWords } from "./en/Lineup";
+import { words as MatchFeedWords } from "./en/MatchFeed";
+import { words as SquadWords } from "./en/Squad";
+import { words as StandingsWords } from "./en/Standings";
 export const en = {
-  bracket: {
-    title: "Knockout bracket",
-    winner: (team: string) => `${team} wins`,
-    side: (team: string, score: string) => `${team} ${score}`,
-    tie: (id: string, round: string, a: string, b: string) => `${id}: ${round}, ${a} · ${b}`,
-    outcome: (tie: string, winner: string) => `${tie} · ${winner}`,
-  },
-  matchGoal: "Goal",
-  scoreboard: {
-    status: { upcoming: "Not started", live: "Live", break: "Half time", final: "Full time" },
-    score: (home: string, homeScore: string, awayScore: string, away: string) =>
-      `${home} ${homeScore}–${awayScore} ${away}`,
-    add: (team: string) => `Add a goal for ${team}`,
-    undo: (team: string) => `Undo a goal for ${team}`,
-    start: "Start clock",
-    stop: "Stop clock",
-  },
-  fixtureHome: "Home",
-  fixtureAway: "Away",
-  fixtureMeet: (time: string) => `Meet at ${time}`,
-  fixtureKit: (kit: string) => `Kit: ${kit}`,
-  fixtureResults: { win: "Win", draw: "Draw", loss: "Loss" },
-  fixtureScore: (us: string, them: string) => `${us}–${them}`,
-  fixtureSeparator: " · ",
-  lineup: {
-    title: "Starting lineup",
-    bench: "Substitutes",
-    separator: "–",
-    player: (name: string, number: string) => `${name}, shirt ${number}`,
-    read: (id: string, name: string, number: string) => `${id}: ${name} #${number}`,
-  },
-  matchFeed: {
-    title: "Match events",
-    add: "Add event",
-    sides: { home: "Home", away: "Away" },
-    kinds: { goal: "Goal", card_yellow: "Yellow card", card_red: "Red card", sub: "Sub", note: "Note" },
-    minute: (value: string) => `${value}′`,
-    event: (minute: string, side: string, kind: string, text: string) =>
-      `${minute} ${side} · ${kind}: ${text}`,
-  },
-  squad: {
-    available: "Available to play",
-    reply: "Your availability",
-    answers: { yes: "yes", maybe: "maybe", no: "no", none: "No reply" },
-    selection: (name: string) => `Pick ${name}`,
-    picked: "Picked",
-    separator: " · ",
-    row: (name: string, answer: string) => `${name}: ${answer}`,
-  },
-  standings: {
-    title: "League table",
-    scroll: "Scroll for more stats",
-    position: "#",
-    team: "Team",
-    summary: "Played, goal difference",
-    results: "Won, drawn, lost",
-    pointsSuffix: "pts",
-    played: "P",
-    difference: "GD",
-    won: "W",
-    drawn: "D",
-    lost: "L",
-    form: "Form",
-    noForm: "–",
-    outcomes: { w: "W", d: "D", l: "L" },
-    separator: " · ",
-    formSeparator: " ",
-    reading: (id: string, team: string) => `${id}: ${team}`,
-    rowSummary: (position: string, points: string) => `#${position} · ${points} pts`,
-  },
+  ...BracketWords,
+  ...ScoreboardWords,
+  ...FixturesWords,
+  ...LineupWords,
+  ...MatchFeedWords,
+  ...SquadWords,
+  ...StandingsWords,
 };
 
 export type SportsWords = typeof en;

@@ -4,18 +4,14 @@ import * as kit from "../../../kit";
 import { doorReading, doorSearchMax, doorSummary, projectDoor } from "../copy";
 import { eventsWordsFor } from "../lang";
 import { seedTitles } from "../seeds";
+import { prompt } from "../../../entry/prompt-Door.generated";
 
 // Core first: Camera/scan cannot reconcile arrivals or manually check in a named guest.
 export const meta = {
   id: "Door",
   status: "ready",
   group: "action",
-  purpose: "Admit people by scanning tickets or finding names, and track arrivals.",
-  pick: "Admission at an event entrance: scan tickets to check people in, look up a guest for manual check-in and see arrivals. Not a standalone photo or code capture (Camera), a guest's own pass (Ticket) or pre-event replies (GuestList).",
-  writeHints: [
-    "Write only the instruction hint. Expected arrivals, scans and search results are host data, not props.",
-    'Set detail to "brief" only if asked to hide recent arrivals. Leave other axes null unless explicitly requested.',
-  ],
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "ok",

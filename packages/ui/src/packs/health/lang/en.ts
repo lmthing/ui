@@ -1,86 +1,20 @@
+import { words as ActivityRingsWords } from "./en/ActivityRings";
+import { words as SymptomLogWords } from "./en/SymptomLog";
+import { words as VitalsWords } from "./en/Vitals";
+import { words as MedicationWords } from "./en/Medication";
+import { words as CycleWords } from "./en/Cycle";
+import { words as MeasurementsWords } from "./en/Measurements";
+import { words as ExerciseWords } from "./en/Exercise";
+import { words as WorkoutWords } from "./en/Workout";
 export const en = {
-  activityRing: (label: string, value: string, goal: string | undefined, unit: string) =>
-    `${label}: ${value}${goal === undefined ? "" : ` ${goal}`} ${unit}`,
-  symptomLevel: (value: string, max: string) => `${value}/${max}`,
-  symptomSeverity: (label: string, level: string) => `${label} · ${level}`,
-  vitalPair: (value: string) => ` / ${value}`,
-  vitalUnit: (unit: string, value?: string) => (value === undefined ? unit : `/ ${value} ${unit}`),
-  vitalReading: (label: string, value: string, unit: string, range: string, status: string, at?: string) =>
-    `${label}: ${value} ${unit} · ${range} · ${status}${at === undefined ? "" : ` · ${at}`}`,
-  vitalLabels: {
-    add: "Add reading",
-    outside: "Outside range",
-    normal: "In range",
-    systolic: (status: string) => `Systolic: ${status}`,
-    range: (low: string, high: string, paired: boolean) =>
-      `${paired ? "Systolic reference" : "Reference"} ${low}–${high}`,
-  },
-  medicationLabels: {
-    due: "Due",
-    taken: "Taken",
-    skipped: "Skipped",
-    skip: "Skip",
-    success: "All doses taken",
-  },
-  medicationStock: (count: string) => `${count} left`,
-  medicationRefill: (names: readonly string[]) => `Refill: ${names.join(", ")}`,
-  medicationReading: (name: string, time: string, status: string) => `${name}: ${time} · ${status}`,
-  cycleDay: (day: string) => `Day ${day}`,
-  cycleNotStarted: "Not started",
-  cycleNext: (date: string) => `Next period · ${date} (est.)`,
-  cycleWindow: (dates: string) => `Fertile window (est.) · ${dates}`,
-  measurementChange: (value: string, unit: string) => `${value} ${unit} since first reading`,
-  measurementGoal: (value: string, unit: string) => `Goal ${value} ${unit}`,
-  measurementValue: (value: string, unit: string) => `${value} ${unit}`,
-  exerciseDetail: (label: string, value: string) => `${label}: ${value}`,
-  exerciseStart: (label: string) => `start button: ${label}`,
-  cycleLabels: {
-    log: "Log period",
-    disclaimer: "Predictions are not a method\u00a0of\u00a0contraception.",
-    empty: "Log a period to see cycle\u00a0estimates.",
-    upcoming: "Upcoming period",
-    period: "Period",
-    follicular: "Follicular phase",
-    ovulation: "Ovulation estimate",
-    luteal: "Luteal phase",
-  },
-  exerciseLabels: {
-    muscles: "Muscles",
-    cues: "Form cues",
-    equipment: "Equipment",
-    best: "Best",
-    last: "Last",
-    start: "Add to workout",
-  },
-  measurementLabels: {
-    add: "Add measurement",
-    ranges: "Time range",
-    month: "Month",
-    quarter: "3 months",
-    year: "Year",
-    start: "Start",
-    latest: "Latest",
-    empty: "No measurements yet",
-  },
-  workout: {
-    elapsed: "Elapsed time",
-    timeLine: (time: string) => `Elapsed time · ${time}`,
-    set: (position: string) => `Set ${position}`,
-    timedSet: (label: string, time: string) => `${label} · ${time}`,
-    completeSet: (label: string) => `Complete ${label.toLowerCase()}`,
-    weight: (unit: string) => `Weight (${unit})`,
-    units: { kg: "kg", lb: "lb" },
-    reps: "Reps",
-    duration: (time: string) => `Duration · ${time}`,
-    remaining: (time: string) => `Rest · ${time}`,
-    stopRest: "Stop rest",
-    finish: "Finish workout",
-    success: "Workout complete",
-    done: "Complete",
-    pending: "Not complete",
-    field: (label: string, value?: string) => (value === undefined ? label : `${label} ${value}`),
-    reading: (parts: readonly string[]) => parts.join(" · "),
-  },
+  ...ActivityRingsWords,
+  ...SymptomLogWords,
+  ...VitalsWords,
+  ...MedicationWords,
+  ...CycleWords,
+  ...MeasurementsWords,
+  ...ExerciseWords,
+  ...WorkoutWords,
 };
 
 export type HealthWords = typeof en;

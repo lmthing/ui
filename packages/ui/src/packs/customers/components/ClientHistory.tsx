@@ -3,19 +3,14 @@ import { useWords, KitCard, KitEmpty, KitIcon, KitRow, KitSkeleton, KitText, use
 // prettier-ignore
 import { wordsFor, changeLine, isoDate, itemVariantProps, itemsOf, placeholderTitle, probesFor, screenId, text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
 import { z } from "zod";
+import { prompt } from "../../../entry/prompt-ClientHistory.generated";
 
 // Core first: Timeline/history cannot distinguish client visits, orders, payments and notes with numeric amounts.
 export const meta = {
   id: "ClientHistory",
   status: "ready",
   group: "data",
-  purpose: "Recall one client's visits, orders, payments, notes and messages together.",
-  pick: "One client's past events across visits, orders, payments, notes and messages, newest first. Not a plan in time order (Timeline), personal banking (Transactions), or staff changes (ActivityLog).",
-  writeHints: [
-    "Write entries newest first. Amounts are numeric records, never currency text.",
-    'If asked only to hide the icons, use {"density":null,"surface":null,"lead":"none"}; keep each event kind and date and set each row tone and mark to null.',
-    "Ordinary visits, orders and payments do not request a row tone or mark. When asked to highlight, mark at most one in three rows.",
-  ],
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "phone",

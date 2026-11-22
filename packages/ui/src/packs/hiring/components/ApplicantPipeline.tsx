@@ -1,14 +1,14 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import { activeStages, outcomes, seedDate, seedGoto, seedJobId, seedRows } from "../seeds";
+import { prompt } from "../../../entry/prompt-ApplicantPipeline.generated";
 
 // Core first: List/badge can show a stage label but cannot move active applicants across counted hiring stages.
 export const meta = {
   id: "ApplicantPipeline",
   status: "draft",
   group: "data",
-  purpose: "Manage counted hiring lanes and move active applicants between stages for one opening.",
-  pick: "A hiring board: each stage has its own lane and count, with active applicants movable between lanes. Not one vertical list of names, static status badges and profile links (List), a generic board (Board), or the seeker's tracker (Applications).",
+  ...prompt,
   region: "body",
   weight: 3,
   dense: true,
@@ -24,9 +24,6 @@ export const meta = {
   },
   states: ["filled", "empty", "loading", "error"],
   actions: { items: { root: ["press", "move"] }, when: { root: { outcome: "active" } } },
-  writeHints: [
-    "Write one record per applicant. Stage is the last active stage even for a terminal outcome; do not write stage counts, outcome counts or column objects.",
-  ],
   read: (input, state): string[] => {
     const { applicants } = input as z.output<typeof props>;
     return state === "filled"

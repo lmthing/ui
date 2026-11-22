@@ -10,13 +10,13 @@ import {
   type FallbackInput, type Meta, type Probe, type Props,
 } from "../catalog";
 import { z } from "zod";
+import { prompt } from "../entry/prompt-Composer.generated";
 
 export const meta = {
   id: "Composer",
   status: "ready",
   group: "input",
-  purpose: "Write several lines of text: an entry, a note, a review or a reply.",
-  pick: "Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).",
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "phone",
@@ -27,10 +27,6 @@ export const meta = {
     "The text is saved to one record on the device. A reply goes through the shared app the conversation lives in.",
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["count"] } },
-  writeHints: [
-    '“No character counter below the entry box” means detail "brief". Keep the limit in max; do not show the count or move the limit into label or hint. Otherwise use null, including for replies.',
-    'Use style "prompt" for a multiline prompt with a run button. Use attach and voice to enable the picker and microphone, attachments for prelisted chips with label, and replyingTo for reply context.',
-  ],
   items: { key: "attachments", parts: ["root", "label"] },
   parts: ["root", "label", "field", "count", "send", "attach", "picked", "voice", "replying_to", "sent"],
   states: ["filled", "empty", "success"],

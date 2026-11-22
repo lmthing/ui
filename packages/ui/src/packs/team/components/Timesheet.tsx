@@ -3,18 +3,14 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { timesheetReading, timesheetRow } from "../copy";
 import { teamWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Timesheet.generated";
 
 // Core first: Bars/columns charts quantities but cannot show hours by person and day or approve a row.
 export const meta = {
   id: "Timesheet",
   status: "ready",
   group: "data",
-  purpose: "Review and approve the hours each person worked during a week.",
-  pick: "Review each worker's actual hours for seven days and approve their weekly row. Not a chart of daily totals (Bars), a planned rota (Roster), or a generic table (Table).",
-  writeHints: [
-    "Give seven daily hours, Monday first, using zero for days not worked. Do not write totals or overtime.",
-    'When asked to hide the daily breakdown, write detail "brief" and still supply all seven hours. Use null for unrequested density, surface and detail.',
-  ],
+  ...prompt,
   region: "body",
   weight: 3,
   dense: true,

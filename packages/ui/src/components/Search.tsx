@@ -12,18 +12,17 @@ import {
   type Props,
 } from "../catalog";
 import { KitRow, KitInput, useVariant } from "../kit";
+import { prompt } from "../entry/prompt-Search.generated";
 
 export const meta = {
   id: "Search",
   group: "input",
-  purpose: "Find one thing among many by typing words from its name.",
-  pick: "Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).",
+  ...prompt,
   region: "top",
   weight: 1,
   tier: "phone",
   realPath: "A text query over a list of things in the on-device database.",
   variants: { density: ["comfortable", "compact"] },
-  writeHints: ['Use density "compact" only when asked for a tighter search bar.'],
   parts: ["root", "field"],
   states: ["filled"],
   actions: { parts: { field: ["type"] } },

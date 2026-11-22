@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { isLowStock, thingCopy, thingsReading } from "../copy";
 import { inventoryWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Things.generated";
 
 // Core first: List/cards cannot adjust owned quantities or flag stock at its minimum.
 const maxQuantity = Number.MAX_SAFE_INTEGER;
@@ -10,12 +11,7 @@ export const meta = {
   id: "Things",
   status: "ready",
   group: "content",
-  purpose: "See what you own, where it is kept and what needs restocking.",
-  pick: "Owned or stocked items with editable quantities, storage locations or a per-item low-stock minimum. Not a directory of plain links (List), goods for sale (ProductGrid), food at home (Pantry), or a media library (Library).",
-  writeHints: [
-    'qty and min are nonnegative whole counts. A minimum marks low stock automatically. Use filter "all" unless asked to show only low stock, and always keep all records.',
-    'For rows without other styling requests, write arrange "rows", density null and surface null. Leave all three axes null when no presentation is requested.',
-  ],
+  ...prompt,
   region: "body",
   weight: 3,
   dense: true,

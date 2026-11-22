@@ -3,18 +3,14 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { collectionReading, collectionSummary } from "../copy";
 import { mediaWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Collection.generated";
 
 // Core first: Hero/media cover cannot combine collection credits, computed totals, play-all and follow.
 export const meta = {
   id: "Collection",
   status: "ready",
   group: "content",
-  purpose: "See one show's details, start the whole series and follow new releases.",
-  pick: "The overview at the top of one show, album, book or course, with artwork, credits, play-all and follow. Not a photo and headline (Hero), a person (Profile), one recording (Player), or owned things (Things).",
-  writeHints: [
-    "Count and duration come from Playlist on this screen; never write either value.",
-    'Use detail "brief" only when asked to hide the description. Keep it in about and leave density and aspect null unless explicitly requested.',
-  ],
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "phone",

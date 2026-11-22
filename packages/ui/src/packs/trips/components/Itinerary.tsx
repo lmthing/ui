@@ -8,6 +8,7 @@ import * as kit from "../../../kit";
 import { TimelineRail, type TimelineRailRow } from "../../../kit/timeline";
 import { initialItineraryDay, itineraryDate, itineraryStopCopy, readItinerary } from "../copy";
 import { tripsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Itinerary.generated";
 
 const positions = [1, 2, 3, 4, 5, 6] as const;
 const stopParts = positions.map((n) => `stop_${n}` as const);
@@ -21,12 +22,7 @@ export const meta = {
   id: "Itinerary",
   status: "ready",
   group: "data",
-  purpose: "See the whole trip day by day, including stops and travel between them.",
-  pick: "A whole trip grouped into foldable dated days with places, timed stops and travel legs. Not a single day's time order (Timeline), a path through places (Route), or a family week (Agenda).",
-  writeHints: [
-    "Use 1–14 dated days and 1–6 stops per day. Give each stop a title and a goto screen id. Only a travel stop may have minutes.",
-    'Leave density and surface null unless requested. To hide travel durations, set only detail to "brief" and keep minutes on travel stops.',
-  ],
+  ...prompt,
   region: "body",
   weight: 3,
   dense: true,

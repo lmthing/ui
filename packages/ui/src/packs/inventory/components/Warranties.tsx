@@ -3,18 +3,14 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { warrantyCopy, warrantyReading } from "../copy";
 import { inventoryWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Warranties.generated";
 
 // Core first: KeyValue/default shows static facts, not purchase records with receipt and expiry states.
 export const meta = {
   id: "Warranties",
   status: "ready",
   group: "data",
-  purpose: "Find proof of purchase and see which warranties are ending.",
-  pick: "Owned items' proof of purchase with receipt photos and warranty dates. Not static facts (KeyValue), travel documents (TravelDocs), or bills to pay (Bills).",
-  writeHints: [
-    "Use YYYY-MM-DD dates. Never write warranty status or a receipt URL; status follows from ends and a receipt is a photo reference.",
-    'Use detail "brief" only when asked to hide purchase dates and prices; still write the supplied record fields. For that request set density:null and surface:null. On other requests set unrequested axes to null, not their default values.',
-  ],
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "phone",

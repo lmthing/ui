@@ -3,6 +3,7 @@ import * as catalog from "../../../catalog";
 import * as kit from "../../../kit";
 import * as copy from "../copy";
 import { kitchenWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Ingredients.generated";
 // Core first: Checklist/default cannot scale numeric ingredient amounts by servings or switch units.
 // prettier-ignore
 const allergenParts = ["allergen_1", "allergen_2", "allergen_3", "allergen_4", "allergen_5", "allergen_6"] as const;
@@ -10,13 +11,7 @@ export const meta = {
   id: "Ingredients",
   status: "ready",
   group: "input",
-  purpose: "Scale a recipe's grouped ingredient amounts and tick what you have while cooking.",
-  pick: "Recipe ingredient amounts with a servings stepper and metric or US switch. Not general tasks (Checklist), food to buy (GroceryList), or stored food (Pantry).",
-  writeHints: [
-    "Amounts are the seed quantities for the written servings. Never write scaled amounts, conversions, item ids or check states.",
-    'If asked to hide preparation notes, set detail to "brief" and keep notes in the data. Otherwise leave detail null.',
-    'Write explicitly provided allergens and a swap on the ingredient they apply to. Use style "prep" only for a preparation-led layout.',
-  ],
+  ...prompt,
   region: "body",
   weight: 3,
   dense: true,

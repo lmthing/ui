@@ -1,17 +1,13 @@
 import { z } from "zod";
 import * as c from "../catalog";
 import * as kit from "../kit";
+import { prompt } from "../entry/prompt-FileList.generated";
 
 export const meta = {
   id: "FileList",
   status: "ready",
   group: "content",
-  purpose: "Show attached files and let people preview, download, or remove them.",
-  pick: "One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).",
-  writeHints: [
-    'Use only the supplied opaque fileRef, never a download URL or device path. Give sizeBytes in bytes. Use status "ready" for available demo or attached files; use "downloading" or "missing" only when stated. Keep goto null unless a preview screen id is supplied.',
-    'Use detail "brief" only if asked to hide the page count; keep pages in the data. Use style "cards" for stacked preview tiles, otherwise null for rows. Leave other axes null unless requested.',
-  ],
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "ok",

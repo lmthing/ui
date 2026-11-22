@@ -3,19 +3,15 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import * as copy from "../copy";
 import { bookingWordsFor, type BookingWords } from "../lang";
+import { prompt } from "../../../entry/prompt-ClassRoster.generated";
 
 // Core first: Progress/compact shows capacity, not who arrived, missed class, or can be admitted.
 // prettier-ignore
 export const meta = {
   id: "ClassRoster", status: "ready", group: "action",
-  purpose: "Check attendees in to a group class and fill newly open places.",
-  pick: "Take attendance for named attendees at a scheduled group class, admit walk-ins or promote waitlisted guests. Not capacity bars alone (Progress), read-only avatars (People), or staff shifts (Roster).",
+  ...prompt,
   region: "body", weight: 3, dense: true, tier: "people",
   realPath: "A shared class roster synced across instructor and front-desk devices.",
-  writeHints: [
-    'Give each attendee a unique id. Use an ISO timestamp with timezone such as "2026-11-21T10:00:00-05:00".',
-    'To hide the date, time and payment labels, set only detail to "brief". Keep the timestamp and paid flags in the data. Write "density":null and "surface":null unless explicitly asked for tighter spacing or an outlined card; never emit "comfortable" or "card" as defaults.',
-  ],
   parts: ["root", "title", "at", "attendance", "spaces", "waiting", "feedback", "empty", "walkin", "promote"],
   items: { key: "attendees", parts: ["root", "name", "photo", "status", "paid", "checkin", "noshow"] },
   states: ["filled", "empty", "loading", "success", "error"],

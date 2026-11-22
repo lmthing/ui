@@ -1,5 +1,6 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import { prompt } from "../../../entry/prompt-CreditScore.generated";
 
 // Core first: Progress/ring shows progress to one goal, not a bureau score with rating bands and contributing factors.
 const score = z.number().int().min(300).max(850);
@@ -8,12 +9,7 @@ export const meta = {
   id: "CreditScore",
   status: "draft",
   group: "data",
-  purpose: "See your credit score, how it changed, and which factors affect it.",
-  pick: "See a bureau credit score and its rated factors. Not progress toward a savings goal (Progress), category budgets (Progress), or body measurements (Vitals).",
-  writeHints: [
-    "Write only the reported score, its optional previous score, the bureau, its date and the supplied factors. Never write the calculated tier or delta.",
-    'Use detail "brief" only when asked to hide the band gauge while keeping the score and its factors.',
-  ],
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "service",

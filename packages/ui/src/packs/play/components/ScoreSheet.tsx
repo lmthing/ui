@@ -11,6 +11,7 @@ import {
 } from "../../../kit";
 import { scoreCopy, scoreReading } from "../copy";
 import { playWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-ScoreSheet.generated";
 
 // Core first: Counter/default cannot store several players' numeric round cells and compute totals.
 const scoreMin = -999;
@@ -19,12 +20,7 @@ const roundKey = (index: number) => String(index + 1);
 // prettier-ignore
 export const meta = {
   id: "ScoreSheet", status: "ready", group: "input",
-  purpose: "Record players' round scores and compute totals, ranks and tied winners.",
-  pick: "An editable scorecard: enter each player's points for each game round, hand or hole and calculate totals and tied winners. Not one running number (Counter), final ranking (List[ranked]), a live match (Scoreboard), or arbitrary records (Table).",
-  writeHints: [
-    "Each round's points has exactly one entry per player, in roster order: integer -999–999 or null for unplayed. Never write totals, ranks, winners or selected round.",
-    'When asked only for one round at a time write {"overflow":"page","density":null}. Keep every round in the data. Never write comfortable as a default.',
-  ],
+  ...prompt,
   region: "body", weight: 3, dense: true, tier: "phone",
   partTiers: { share: "people" }, confirmParts: ["reset"], clearItems: { reset: "score" },
   realPath: "Round scores are saved on the device; sharing publishes a versioned snapshot to a shared app.",

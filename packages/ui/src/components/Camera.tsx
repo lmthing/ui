@@ -23,22 +23,18 @@ import {
   type Props,
 } from "../catalog";
 import { z } from "zod";
+import { prompt } from "../entry/prompt-Camera.generated";
 
 export const meta = {
   id: "Camera",
   status: "ready",
   group: "beyond",
-  purpose: "Aim at something to take a photo, record video, or scan it.",
-  pick: "Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).",
+  ...prompt,
   region: "body",
   weight: 3,
   tier: "ok",
   realPath: "With permission, the device camera takes a photo or scans a code.",
   variants: { surface: ["plain", "card"] },
-  writeHints: [
-    'Use surface "card" only when asked for one card around the viewfinder and shutter together.',
-    'Kind "video" records a new clip; kind "document_dual" guides capture of two sides of one document. Keep the hint applicable to both sides.',
-  ],
   parts: ["root", "viewfinder", "hint", "shutter"],
   states: ["filled"],
   actions: {

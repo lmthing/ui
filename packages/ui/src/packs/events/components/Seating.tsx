@@ -1,17 +1,14 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import { seedTitles } from "../seeds";
+import { prompt } from "../../../entry/prompt-Seating.generated";
 
 // Core first: MapPins/default cannot represent round and long tables, seat capacity or guest moves.
 export const meta = {
   id: "Seating",
   status: "draft",
   group: "input",
-  purpose: "Arrange guests at tables and see who still needs a seat.",
-  pick: "A seating plan of round or long tables with guest initials, available seats and a tray of unseated guests. Not locations on a geographic map (MapPins), an invitation roster (GuestList) or a staff rota (Roster).",
-  writeHints: [
-    "Each table's guests array may be empty and cannot exceed seats. Table labels must be distinct; unseated is an array of names, not a number.",
-  ],
+  ...prompt,
   region: "body",
   weight: 3,
   dense: true,

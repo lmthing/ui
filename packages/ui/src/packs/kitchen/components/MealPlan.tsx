@@ -3,18 +3,13 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { mealPlanDaysFor, mealPlanReading, mealPlanToday, mealPlanTotals, mealPlanWeek } from "../copy";
 import { kitchenWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-MealPlan.generated";
 // Core first: Calendar/week cannot place recipe names in a seven-day by meal matrix with empty add cells.
 export const meta = {
   id: "MealPlan",
   status: "ready",
   group: "input",
-  purpose: "Plan recipes across the week's days and meals.",
-  pick: "A week matrix of recipes by day and meal, with empty cells to add meals. Not calendar marks (Calendar), staff shifts (Roster), or class periods (Timetable).",
-  writeHints: [
-    "week is a real Monday date. List each meal column once. Every filled cell has one unique day/meal pair and its meal is a listed column. Empty add cells are computed, not written.",
-    'Use media "none" only when asked for a text-only week or to hide recipe photos. Leave media null otherwise.',
-    'Write kcal on individual recipes only when supplied, never daily totals. Use style "day" for a stacked agenda grouped by day.',
-  ],
+  ...prompt,
   region: "body",
   weight: 3,
   dense: true,

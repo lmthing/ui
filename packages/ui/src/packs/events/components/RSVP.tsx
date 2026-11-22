@@ -4,21 +4,18 @@ import * as kit from "../../../kit";
 import { rsvpFields, rsvpNoteMax, rsvpOptions, rsvpReading } from "../copy";
 import { eventsWordsFor } from "../lang";
 import { seedDate, seedTitles } from "../seeds";
+import { prompt } from "../../../entry/prompt-RSVP.generated";
 
 // Core first: Choice/cards cannot collect an invitation reply, companions, meal and note together.
 export const meta = {
   id: "RSVP",
   status: "ready",
   group: "input",
-  purpose: "Reply to an event invitation with attendance, companions and a meal choice.",
-  pick: "A guest answers one invitation: yes or no, plus-ones, meal, note and send. Not a standalone choice with explanations (Choice), a poll (Poll), booking a time (Slots), or tracking all replies (GuestList).",
+  ...prompt,
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "The guest sends their reply to the organiser through a shared app or link.",
-  writeHints: [
-    'Set detail to "brief" only for an invitation reply without a note field. Set density and surface to JSON null unless explicitly requested; do not fill in their defaults.',
-  ],
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["note"] } },
   parts: [

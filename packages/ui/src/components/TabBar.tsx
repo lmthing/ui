@@ -16,13 +16,13 @@ import {
   type Props,
 } from "../catalog";
 import { KitTabBar } from "../kit";
+import { prompt } from "../entry/prompt-TabBar.generated";
 
 const trails = ["badge", "none"] as const;
 export const meta = {
   id: "TabBar",
   group: "structure",
-  purpose: "Move between the app's main sections.",
-  pick: "Host-built navigation between main sections. Not views of one screen (Segmented) or quick task shortcuts (Actions).",
+  ...prompt,
   region: "bottom",
   weight: 1,
   tier: "phone",
