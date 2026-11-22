@@ -11,4 +11,5 @@
 - `MatchStats.test.ts` covers comparison bounds, rendering and live period selection.
 - `MatchStats.browser.test.ts` checks period chips and missing slices in Chromium.
 - `BoxScore.test.ts` covers line scores, player tables, states, roster switching and profile links.
-- `MomentumChart.test.ts` covers the draft point schema, event selection and fallback.
+- `MomentumChart.test.ts` covers chart bounds, variants, fallback and marker selection.
+- `MomentumChart.browser.test.ts` checks marker activation by pointer and keyboard.

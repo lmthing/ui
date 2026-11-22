@@ -1,12 +1,22 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
-import { momentumReading } from "../copy";
+import * as kit from "../../../kit";
+import {
+  momentumExtent,
+  momentumFigure,
+  momentumReading,
+  momentumSummary,
+  momentumTimes,
+  momentumValue,
+  selectedEvent,
+} from "../copy";
 import { prompt } from "../../../entry/prompt-MomentumChart.generated";
+import { sportsWordsFor } from "../lang";
 
 // Core first: Sparkline/default shows a quick personal trend, not an even-split axis or selectable match events.
 export const meta = {
   id: "MomentumChart",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -21,7 +31,7 @@ export const meta = {
   parts: ["root", "plot", "event"],
   items: { key: "samples", parts: ["root"], visibleWhen: { inspectable: true } },
   states: ["filled", "empty", "loading"],
-  select: { prop: "selectedPoint", value: { field: "ref" } },
+  select: { prop: "selected", value: { field: "ref" }, mode: "flags", runtime: true },
   actions: { items: { root: ["select"] }, when: { root: { inspectable: true } } },
   read: (input, state, lang): string[] =>
     state === "filled" ? momentumReading(input as Parameters<typeof momentumReading>[0], lang) : [],
@@ -52,12 +62,17 @@ const schema = z
   });
 
 function withSamples(input: z.output<typeof schema>) {
+  const lastEvent =
+    input.detail === "full"
+      ? input.points.reduce((last, { event }, index) => (event ? index : last), -1)
+      : -1;
   return {
     ...input,
-    samples: input.points.map(({ id: ref, ...row }) => ({
+    samples: input.points.map(({ id: ref, ...row }, index) => ({
       ...row,
       ref,
       inspectable: input.detail === "full" && !!row.event,
+      selected: index === lastEvent,
     })),
   };
 }
@@ -131,6 +146,108 @@ export const probes = [
   read("Inspect the point where Fern House equalizes at 42 minutes.", { address: "c1/r4", action: "select" }),
 ] satisfies c.Probe[];
 
-export function MomentumChart(_input: c.Props<typeof props, typeof meta>) {
-  return null;
+type ChartProps = c.Props<typeof props, typeof meta>;
+
+function MatchPlot({
+  input,
+  selected,
+  brief,
+  loading,
+  lang,
+}: {
+  input: ChartProps;
+  selected?: string;
+  brief: boolean;
+  loading: boolean;
+  lang: string;
+}) {
+  const { mode, home, samples } = input;
+  const { baseline } = momentumSummary(mode, 0);
+  const words = sportsWordsFor(lang).momentumChart;
+  const extent = momentumExtent(mode, samples);
+  const times = momentumTimes(samples);
+  const points = samples.map(({ clock, value, ref }, index) => ({
+    id: ref,
+    x: times[index]!,
+    value,
+    label: clock,
+  }));
+  // Keep endpoint tick labels as clocks, even when an endpoint has an event.
+  const series = [{ id: "match", label: words.homeSeries(home), points }];
+  const targets = brief
+    ? []
+    : samples
+        .filter(({ inspectable }) => inspectable)
+        .map(({ id, ref }) => ({
+          point: ref,
+          target: { item: id, part: "root" },
+        }));
+  return (
+    <kit.KitLinePlot
+      part="plot"
+      {...{ series, targets, loading, baseline }}
+      center={baseline}
+      style={brief ? "compact" : "full"}
+      targetPlacement={targets.length ? "marker" : "below"}
+      {...(brief
+        ? {
+            unit: words.scale(
+              momentumValue(mode, baseline - extent, lang),
+              momentumValue(mode, baseline + extent, lang),
+              momentumValue(mode, baseline, lang),
+            ),
+          }
+        : {})}
+      {...(selected ? { selected } : {})}
+    />
+  );
+}
+
+export function MomentumChart(input: ChartProps) {
+  const {
+    words: { momentumChart: words },
+    lang,
+  } = kit.useWords(sportsWordsFor);
+  const loading = kit.useComponentState() === "loading";
+  const brief = kit.useVariant("detail", meta.variants.detail, input.detail) === "brief";
+  const { samples } = kit.useLiveControls(meta, input) as ChartProps;
+  const event = brief ? undefined : selectedEvent(samples);
+  const latest = input.points.at(-1)!;
+  const { value, advantage } = momentumFigure(input, latest, lang);
+  const body = (
+    <>
+      <kit.KitHeader
+        title={{ text: words.title[input.mode] }}
+        meta={{ text: words.teams(input.home, input.away), role: "caption" }}
+      />
+      <kit.KitFigure
+        value={{ text: value }}
+        caption={
+          <kit.KitLayoutText
+            line={{ text: words.latest(latest.clock, advantage), role: "caption", tone: "muted" }}
+          />
+        }
+      />
+      <MatchPlot
+        {...{ input, brief, loading, lang }}
+        {...(event && !loading ? { selected: event.ref } : {})}
+      />
+      {event && (
+        <kit.KitMetaLine
+          title={{ text: event.event, part: "event", role: "caption", strong: true }}
+          meta={{
+            text: words.at(event.clock, momentumValue(input.mode, event.value, lang)),
+            role: "caption",
+          }}
+        />
+      )}
+    </>
+  );
+  return (
+    <kit.KitCard part="root" padded>
+      <kit.KitState message={words.empty} loading={body}>
+        {body}
+      </kit.KitState>
+    </kit.KitCard>
+  );
 }
