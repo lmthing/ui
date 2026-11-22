@@ -184,7 +184,7 @@ export function Loans(input: LoansProps) {
   if (state === "empty")
     return (
       <kit.KitCard part="root" {...{ density, surface }}>
-        <kit.KitState part="empty" icon="package" density={density} />
+        <kit.KitState part="empty" icon="package" />
       </kit.KitCard>
     );
   const today = loanToday();

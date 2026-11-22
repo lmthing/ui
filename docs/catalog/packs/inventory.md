@@ -157,7 +157,7 @@ renewal is in 40 days; a tenant's leaking-tap `Request` moves from new to booked
 ## Tiers
 
 `Request` needs tenant and landlord on a shared app; contacting about a `Listing` and loan reminders are
-`service` parts. Everything else is `phone`.
+`service` parts. The `Things` scan link is `ok`; everything else is `phone`.
 
 ## Build notes
 

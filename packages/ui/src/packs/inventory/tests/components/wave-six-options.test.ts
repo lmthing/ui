@@ -23,6 +23,16 @@ function setup(c: Name, input: object, state: StateName = "filled") {
   return { controller, onLink };
 }
 
+it.each([
+  ["Loans", { loans: [loan] }],
+  ["Storage", storage],
+  ["Things", { items: [row] }],
+] as const)("%s keeps the standard empty message treatment under a local density override", (id, input) => {
+  expect(draw(id, { ...input, density: "compact" }, "empty").get(at("empty"))).toEqual(
+    draw(id, input, "empty").get(at("empty")),
+  );
+});
+
 describe("Things options", () => {
   it("projects the missing checklist from live counts without changing addresses", () => {
     const input = {
@@ -79,6 +89,17 @@ describe("Things options", () => {
     expect(setup("Things", { items: [row] }).controller.press("x/scan").ok).toBe(false);
   });
 
+  it("announces a shaped audit loading state without offering quantity or scan targets", () => {
+    const input = { style: "audit", scan, items: [{ ...row, expected: 8 }] };
+    const html = renderInstance("Things", input, "loading", theme, { component: "x" });
+    expect(html).toContain('role="progressbar"');
+    expect(html).toContain('aria-label="Loading"');
+    expect([...addressedElements(html).keys()]).toEqual([at("root"), at("r1/tile")]);
+    const { controller } = setup("Things", input, "loading");
+    expect(controller.actionsAt("x/r1/qty")).toEqual([]);
+    expect(controller.actionsAt("x/scan")).toEqual([]);
+  });
+
   it("bounds audit and metadata fields and accepts only a local screen id for scanning", () => {
     const { props } = components.Things;
     expect(
@@ -107,8 +128,7 @@ describe("Storage options", () => {
     expect(parts.get(at("status"))?.text).toEqual(["In transit"]);
     expect(parts.get(at("fragile"))?.text).toEqual(["Fragile"]);
     const { controller } = setup("Storage", input);
-    for (const text of ["In transit", "Fragile", "Box code: TROT-08"])
-      expect(controller.read()).toContain(text);
+    expect(controller.read()).toContain("Box code: TROT-08 — In transit — Fragile — Stored here");
     expect(controller.press("x/qr").ok).toBe(false);
     expect(draw("Storage", input, "empty").has(at("qr"))).toBe(false);
     expect(draw("Storage", { ...input, fragile: false }).has(at("fragile"))).toBe(false);

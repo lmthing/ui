@@ -162,7 +162,7 @@ export function Storage(input: StorageProps) {
   const path = rows.filter((row) => row.ancestor);
   const spots = rows.filter((row) => !row.ancestor);
   return <kit.KitCard part="root" padded {...{ density, surface }}>
-    {state === "empty" ? <kit.KitState part="empty" icon="package" density={density} /> :
+    {state === "empty" ? <kit.KitState part="empty" icon="package" /> :
       !rows.length && !here.length && !box.code && !box.status && !box.fragile ?
         <kit.KitEmpty part="empty" icon="package" decorativeIcon title={words.emptyHere} /> : <>
         {path.length > 0 && <Breadcrumbs rows={path} density={density} />}

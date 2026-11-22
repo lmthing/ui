@@ -168,15 +168,15 @@ export function Things(input: ThingsProps) {
   const scan = input.scan && context.state === "filled" && <kit.KitAction
     part="scan" kind="secondary" icon="camera" label={words.things.scan} goto={input.scan.goto} />;
   if (context.state === "empty") return <kit.KitCard part="root" {...{ surface, density }}>
-    <kit.KitState part="empty" icon="package" density={density} />
+    <kit.KitState part="empty" icon="package" />
   </kit.KitCard>;
   if (!items.length) return <kit.KitCard part="root" {...{ surface, density }}>
     <kit.KitEmpty part="empty" decorativeIcon {...thingsEmpty(input.filter, lang, context.thing)} />
     {scan && <kit.KitActionFooter density={density}>{scan}</kit.KitActionFooter>}
   </kit.KitCard>;
-  const Tile = context.state === "loading" ? tile.ThingLoading : tile.ThingTile;
-  return <kit.KitCard part="root" style="cards" density={density}>
-    <kit.KitGrid list listRowGap="cards" density={density} arrange={layout === "grid" ? "grid" : "rows"}>
+  const loading = context.state === "loading";
+  const Tile = loading ? tile.ThingLoading : tile.ThingTile;
+  const grid = <kit.KitGrid list listRowGap="cards" density={density} arrange={layout === "grid" ? "grid" : "rows"}>
       {items.map((item, index) => (
         <kit.PartScope key={item.id} {...context} item={item.id}>
           <kit.KitCard part="tile" padded {...{ surface, density }}>
@@ -184,7 +184,9 @@ export function Things(input: ThingsProps) {
           </kit.KitCard>
         </kit.PartScope>
       ))}
-    </kit.KitGrid>
+    </kit.KitGrid>;
+  return <kit.KitCard part="root" style="cards" density={density}>
+    {loading && audit ? <kit.KitState loading={grid} density={density} /> : grid}
     {scan && <kit.KitActionFooter density={density}>{scan}</kit.KitActionFooter>}
   </kit.KitCard>;
 }

@@ -70,7 +70,7 @@ export function storageReading(
   const indexed = (index: number, name: string) => `r${index + 1} ${JSON.stringify(name)}`;
   return [
     ...path.map((name, index) => indexed(index, name)),
-    ...[status, fragile].flatMap((line) => line ?? []),
+    ...[code, status, fragile].flatMap((line) => line ?? []),
     ...(spots.length ? [words.spots] : []),
     ...spots.map(({ name, goto }, index) => {
       const line = indexed(path.length + index, name);
@@ -79,6 +79,5 @@ export function storageReading(
     }),
     words.here,
     ...(here.length ? here.map((name) => JSON.stringify(name)) : [words.emptyHere]),
-    ...(code ? [code] : []),
   ];
 }
