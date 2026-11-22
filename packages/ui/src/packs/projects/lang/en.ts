@@ -1,4 +1,12 @@
 export const en = {
+  projectStatus: {
+    status: { on_track: "On track", at_risk: "At risk", blocked: "Blocked" },
+    wins: "Wins",
+    blockers: "Blockers",
+    milestone: "Next milestone",
+    update: "Post check-in",
+    empty: "No status update posted yet",
+  },
   scope: {
     revision: (revision: string) => `Revision ${revision}`,
     count: (count: string, total: string) => `${count} of ${total}`,
