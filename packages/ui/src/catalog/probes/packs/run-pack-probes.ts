@@ -2,7 +2,7 @@ import type { PackId, PackMeta } from "../../meta";
 import { probePackIndex } from "./probe-pack-index";
 import { packSelectionProbes } from "./pack-selection-probes";
 import { scorePack } from "./score-pack";
-import type { CallModel, ProbeResult } from "..";
+import type { ProbeCall, ProbeResult, ReplayProbe } from "..";
 
 const selectionInstructions = [
   "Choose the domain packs this app needs from the index below.",
@@ -13,10 +13,28 @@ const selectionInstructions = [
   "Do not add another pack for details the chosen pack already covers.",
 ].join(" ");
 
+const selectionPrompt = (index: string, idea: string) =>
+  `${selectionInstructions}\n\n${index}\n\nIdea: ${idea}\nReply with a JSON array of up to 3 pack ids, or [] when none fit.`;
+
+function selectionReplayProbe(
+  id: PackId,
+  index: string,
+  probe: ReturnType<typeof packSelectionProbes>[number],
+): ReplayProbe {
+  const ids = [...new Set([id, ...probe.expect, ...(probe.allow ?? [])])];
+  const listing = index.split("\n").filter((line) => ids.some((pack) => line.startsWith(`- ${pack}: `)));
+  return {
+    id: `${id}/pack/${probe.idea}`,
+    definition: probe,
+    localPrompt: selectionPrompt(listing.join("\n"), probe.idea),
+    listing: { ids },
+  };
+}
+
 /** Director probes use the complete index, even when only one pack's probes are selected. */
 export async function runPackProbes(options: {
   packs: Partial<Record<PackId, PackMeta>>;
-  callModel: CallModel;
+  callModel: ProbeCall;
   only?: readonly string[];
   samples?: number;
 }): Promise<ProbeResult[]> {
@@ -25,10 +43,11 @@ export async function runPackProbes(options: {
   const index = probePackIndex(packs);
   for (const id of index.ids.filter((id) => (only?.length ? only.includes(id) : packs[id]))) {
     for (const probe of packSelectionProbes(id, packs[id])) {
-      const prompt = `${selectionInstructions}\n\n${index.prompt}\n\nIdea: ${probe.idea}\nReply with a JSON array of up to 3 pack ids, or [] when none fit.`;
+      const prompt = selectionPrompt(index.prompt, probe.idea);
+      const replayProbe = { ...selectionReplayProbe(id, index.prompt, probe), samples };
       const runs = [];
       for (let sample = 0; sample < samples; sample++) {
-        const reply = await callModel(prompt, sample);
+        const reply = await callModel(prompt, sample, undefined, replayProbe);
         runs.push({ reply, ...scorePack(reply, index.ids, probe.expect, probe.allow) });
       }
       const passed = runs.filter((run) => run.pass).length;

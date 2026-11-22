@@ -71,6 +71,7 @@ export type CommerceWords = {
   };
   savedList: {
     move: string;
+    readActions: string;
     remove: (name: string) => string;
     claim: string;
     claimItem: (name: string) => string;
@@ -132,8 +133,8 @@ export const en = {
   checkout: {
     fulfillment: "Fulfillment",
     payment: "Payment",
-    modes: { pickup: "pickup", delivery: "delivery", table: "table" },
-    methods: { card: "card", cash: "cash", wallet: "wallet" },
+    modes: { pickup: "Pickup", delivery: "Delivery", table: "Table" },
+    methods: { card: "Card", cash: "Cash", wallet: "Wallet" },
     time: "Time",
     address: "Delivery address",
     addAddress: "Add delivery address",
@@ -163,6 +164,8 @@ export const en = {
   },
   savedList: {
     move: "To basket",
+    readActions:
+      "To move a product into the basket, press its /move action. A press on the row itself opens the product page.",
     remove: (name) => `Remove ${name} from saved items`,
     claim: "Claimed",
     claimItem: (name) => `Claim ${name}`,

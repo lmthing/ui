@@ -19,6 +19,22 @@ the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs
 
 ## The file, in order
 
+For a new catalog entry, start with `pnpm gen:component <pack|core> <Name>` from `packages/ui`
+(or `pnpm --filter @lmthing/ui gen:component <pack|core> <Name>` from the workspace root).
+It reads the named section of `docs/catalog/`, writes a `draft` component and test, and
+creates component-specific copy and English label keys. It leaves existing components,
+including their probes, alone. For a pack, it also wires the component through the pack door.
+Use explicit types (`text(n)`, `number`, `integer`, `boolean`, dates and references),
+backticked enum choices, and explicit array bounds (`items` of fields, `1–6`). Name
+shared axes in `Styles`, for example `density: comfortable, compact` with the values
+in backticks. Ambiguous shorthand, nested repeated collections, conditional schemas
+and custom runtime state names may need to be scaffolded by hand.
+
+Check the draft against the full entry before building the view: supply real examples,
+replace the probe prompts and check the read address, implement conditional actions and
+variant part changes, and move the label keys into the owning `lang/en.ts` dictionary.
+The generated view is only a placeholder, not evidence for the model or visual gates.
+
 1. **Imports.** Only `zod`, `../catalog` and `../kit`. Never `tamagui`, `react-native` or lucide
    directly: those live behind kit bases.
 2. **`meta`**: a plain object, `as const satisfies Meta`.
@@ -33,6 +49,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs
      (the 2026-11-18 design). Renamed or merged ids keep migration aliases through `legacyTarget`.
    - `select` declares the selected prop, row value (`index`, `position`, or `{ field }`), optional row `flags` mode and fixed named `parts` values.
    - `items.toggles: { save: "saved" }` maps a named item toggle at `rN/save` to a boolean row field. Also declare `save: ["toggle"]` in `actions.items`. The store value overlays the addressed row before `live.derive` and `items.visibleWhen`; it does not change wire props. Use `useLiveControls` to draw from the same live rows.
+   - For a masked credential, declare the value with `kind: "secret"` and bind the named component toggle with `actions.credentialToggles: { reveal: "memberId" }`. Use `credentialToggleOn` with the control value and current credential; an old or serialized grant does not disclose a different credential. The read exposes the action and its state, never the full credential.
    - `clocks` on meta, items or items.nested declares time sources, live props, start/stop/reset and zero behavior. `adjust` on meta or items maps `"part.action"` to `{ prop, delta, min?, max? }` for a numeric prop or live clock; see `src/catalog/meta/README.md` and keep projected values inside the prop schema's bounds.
    - `items.nested: { key, parts: { [part]: { action: "toggle" | "set", prop, min?, max?, integer?, when? } } }` declares `rN/<part>_M` controls projected into sub-items; `when` names a boolean part on the same sub-item.
    - `read` may use its optional final argument to read the current instance's control values. Keep those values out of Writer props and wire snapshots.
@@ -103,6 +120,35 @@ Choose only axes and values that visibly change this component. These are candid
 
 See `src/components/Card.tsx` for Card finish and content axes and `src/components/List.tsx` for
 List's grouped rows, peek disclosure, inherited trail and per-row tone and mark.
+
+## Reusing a core renderer in a pack
+
+A view may also import an internal renderer through its kit folder's `index.ts`, such as
+`src/kit/timeline`. Pass named, typed data slots, not a second component definition, arbitrary
+children or model-supplied layout. The adapter formats copy, resolves variants and state, and
+supplies the owner's existing part names and stamped row ids. A missing slot adds no addressed
+part; an all-day label is an explicit time slot, not the default for a missing time.
+
+Keep the parent screen/component context. For a bounded list inside an item, use that item's
+stamped id and one declared part per position (for example `r1/stop_2`), never a synthetic child
+component or item id. Bind actions with the ordinary kit bases to the parent's controller.
+The owner keeps fallback, reading, action metadata, live values, tier and host data; even fold
+state is resolved by the owner and passed into the renderer.
+
+Keep the strict Writer schema and existing recipes unchanged. Test legacy recipe replay, drawn
+parts and action verbs at the old addresses, including hidden or absent slots. The Timeline
+pilot shares event rows and date/rail layout without replacing Agenda or Itinerary on the wire.
+
+| Internal renderer | Owner supplies |
+| --- | --- |
+| `SeatPlan` | Grid sections, optional marker, badges, preview/total and footer; or tables and an unassigned guest tray. Grid targets select or toggle as declared by the owner; table and guest targets retain their separate press/move policies. |
+| `StageBoard` | Ordered lanes, localized headings/counts, stamped cards and optional move presentation. Terminal outcomes, locks and eligible destinations are owner policy. A read-only queue passes no move presentation. |
+| `FeedRow`, `DateRows` | Named author, timestamp, payload, hierarchy and accessory slots. Date groups preserve the caller's order and distinguish explicit time labels from missing time; independently addressed accessories are not nested in a row link. |
+
+Pass seat activation as `target.action` (`select` or `toggle`); the owner decides which seats
+receive a target and when to confirm. Lane destinations carry both their dispatched `value`
+and display `label`. To expose a seat or feed action's label or icon as separate parts, name
+them in `contentParts`; these recipes do not derive additional address names.
 
 ## Words and language
 
@@ -253,6 +299,7 @@ Folder names below are under `src/kit/base/`; each has an `index.ts` door.
 | `helpers` | `KitTrail` | Pending switches retain their state without actions; status pills use the corresponding semantic foreground and soft fill. | `disabled?: boolean`, `tone?: TextTone`; both optional, existing defaults retained. |
 | `surface` | `KitCard` | Fixed swatch surface with a scoped readable foreground for child text, including muted text, without changing unswatched cards. | `swatch?: Swatch`; foreground uses existing black/white theme tokens and meets 4.5:1 contrast for every fixed swatch. |
 | `surface` | `KitTile` | Selected and disabled item tiles with caller-supplied detail; declared root actions and existing links use the shared controller. | `on?: boolean`, `disabled?: boolean`, `detail?: ReactNode`, `action?: "press" \| "toggle" \| "start" \| "stop"`. |
+| `surface` | `KitTile` | Timed pad uses the named item target instead of the root press. Pointer/touch start (or keyboard/accessibility activation) submits to the shared controller immediately. | `touchTarget?: "buzz"`; declare the item `buzz` press. Disabled and loading pads do not submit. Omit the option for the ordinary root press. |
 | `input` | `KitScaleTrack` | Compact readonly stars retain a single accessible rating without control-sized cells. | `compact` boolean (default false; applies only with `readonly` and `style="stars"`) |
 | `surface` | `KitRow` | Current-row outline and status tint without moving the row's slots. Dark inset rows soften the tint and add a narrow status rule. Use a padded card around individually surfaced rows; compose caller empty and loading content. | `selected?: boolean`, `tone?: TextTone`; `part` also accepts `null` to leave the row unaddressed. |
 | `surface` | `KitRow` | Shifts the leading and text slots one level without moving the row surface or trailing edge. | `indent?: 0 \| 1` (default 0). |
@@ -268,6 +315,11 @@ Folder names below are under `src/kit/base/`; each has an `index.ts` door.
 If the view needs something no base does, the task
 says which new base to add under `src/kit/base/` (or `helpers/`) and its exact props. Never draw it
 inside the component file. A new base is themed only through tokens, roles and `useKitStyle()`.
+
+| Opt-in runtime | Declaration | Live state and actions |
+| --- | --- | --- |
+| Finite deck | `meta.draw: { kind: "deck", pool, count, press, reset }` names the parsed array and integer (1–3) props and two component press parts. Offer the draw in `emptyActions`. | `$draw` has `drawn` (latest face-up indices), `discard` (all drawn indices, including that batch), and `remaining`. Each press takes up to `count` remaining cards without replacement and commits once to the instance store. A confirmed reset returns all discards and clears the reveal. Never put the runtime state in Writer props. |
+| Buzzer round | `meta.buzz: { press, reset }` names an item press part and a component reset press part. Offer both in `successActions` so players can still buzz after a winner is locked. | `$buzz` is absent before the first press, after reset, or after the roster changes. Otherwise it is `{ winner, deltas }`, keyed by stamped item ids (`winner` is the first id, its delta is zero). Later first presses retain their elapsed milliseconds. `touchNow` on the controller injects a monotonic millisecond clock, separate from the wall clock. Use `readSuccess: true` if the component's read summary describes the winner and deltas. |
 
 `KitPlayback` accepts an optional `overlay` of controls for an in-frame video toolbar. The toolbar
 remains visible when the host replaces the fallback artwork with its video. Browser media elements

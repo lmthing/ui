@@ -84,7 +84,8 @@ Cinema auditorium seat grid positioned under a curved Screen header bar, renderi
 - Styles: `map` (default, full auditorium seat grid under screen bar), `summary` (chosen seats and subtotal strip).
 - Parts → actions: seats `root toggle`, `clear press`.
 - States: filled, empty, loading, error (seat hold expired or already claimed).
-- Real path: fetches live auditorium geometry and seat holds from a cinema service via `KitSeatGrid` during booking.
+- Real path: fetches live auditorium geometry and seat holds from a cinema service during booking.
+- Renderer: adapt auditorium rows, badges, screen marker and subtotal to `SeatPlan` / `KitSeatGrid`. Watch owns multi-toggle limits and seat holds; it does not reuse CabinSeats' single-select/confirm policy.
 - Density: `meta.dense: true`, weight 3; auditorium seat grid renders up to 12 rows by 16 columns with aisles.
 
 ## Archetypes (4)
@@ -111,7 +112,7 @@ For a Friday theater outing, `cinema_book/watch_times` picks Friday on core `Cal
 ## Build notes
 
 - Order: `TitleHero`, `WatchQueue`, `SeasonEpisodes`, `ChannelGuide`, `Showtimes`, `SeatPicker`, `RemoteControl`; all remain planned.
-- New kit bases: `RemoteControl` requires `KitRemotePad`, and `SeatPicker` requires `KitSeatGrid` (shared later with `trips/CabinSeats`, never `KitSeatMap`). `ChannelGuide` reuses `KitTable` and `Showtimes` reuses `KitSlotGrid`.
+- New kit bases: `RemoteControl` requires `KitRemotePad`; `SeatPicker` shares the grid branch of `SeatPlan` with `trips/CabinSeats`. `ChannelGuide` reuses `KitTable` and `Showtimes` reuses `KitSlotGrid`.
 - `SeasonEpisodes`, `ChannelGuide` and `SeatPicker` are `dense` (`weight 3`); the remaining four components are weight 2.
 - Writers use strict `writerFormat(registry)` for core plus `watch`; no aliases or off-pack fallbacks. Never write remaining minutes, ticket subtotals or EPG spans as pre-formatted strings.
 - Each component later ships two domain examples, choose/write/read probes and declared part/state tests, plus a three-preset `example.jsonl`.

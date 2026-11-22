@@ -6,6 +6,7 @@ import type { ScreenLike } from "./read";
 import {
   actionValueAddress,
   controlsAreValid,
+  expireProgress,
   findAction,
   localValues,
   type selectStep,
@@ -14,8 +15,8 @@ import {
   stageValue,
   validateStep,
 } from "./action-input";
-import { deviceRandom, drawKey, staleDraw, type RandomSource } from "./draw";
-import { sessionKey, staleSession } from "./session";
+import { deviceRandom, type RandomSource } from "./draw";
+import { monotonicNow } from "./buzz";
 import { clockChanges, clockControlDeclared } from "./clocks";
 import {
   captureDeviceTime,
@@ -28,6 +29,7 @@ import { stageLinkedEdit } from "./linked-edits";
 import { stageReportEdit } from "./report-edits";
 import { stageInlinePress } from "./live-inputs";
 import { stageRecordAction, withRecordScreen } from "./record-runtime";
+import { stageCredentialToggle } from "./credential-toggle";
 export type ActStep = { address: string; action: string; value?: unknown; recordTarget?: string };
 export type Values = Record<string, unknown>;
 export type SendDraft = { address: string; text: string; audience?: string };
@@ -42,7 +44,6 @@ export type ActResult =
       driven?: ActStep[];
     }
   | { ok: false; code: ActCode; at: number; hint?: string };
-
 /** A mounted controller already stages clocks through its action table. */
 function stageStandaloneClock(
   screen: ScreenLike,
@@ -69,27 +70,9 @@ function stageStandaloneClock(
   const changes = clockChanges(meta, props, get, target, step, now);
   for (const [part, value] of Object.entries(changes)) next[`${screen.id}/${id}/${part}`] = value;
 }
-
 function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
   const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
   return liveProps(def.meta, parsed, id, local, true, data);
-}
-
-function expireProgress(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  values: Values,
-  data?: DeviceData,
-) {
-  for (const { id, c, state: _state, ...raw } of screen.components) {
-    const def = defs[c];
-    const draw = `${screen.id}/${id}/${drawKey}`;
-    const session = `${screen.id}/${id}/${sessionKey}`;
-    if (!def || (values[draw] === undefined && values[session] === undefined)) continue;
-    const props = liveInput(def, raw, id, localValues(screen.id, values), data);
-    if (def.meta.draw && staleDraw(def.meta, props, values[draw])) values[draw] = undefined;
-    if (staleSession(def.meta, props, values[session])) values[session] = undefined;
-  }
 }
 
 function stepProgress(
@@ -101,12 +84,14 @@ function stepProgress(
   random: RandomSource | null,
   snapshot: DeviceData | undefined,
   now: number,
+  touchNow: () => number,
 ) {
   const record = stageRecord(screen, defs, next, step, snapshot, now);
   if (record !== undefined) return record ? "" : false;
   return (
+    stageCredentialToggle(screen, defs, next, step) ??
     stageLinkedEdit(screen, defs, next, found, step.value) ??
-    stageProgress(screen, defs, step.address, step, next, random, snapshot)
+    stageProgress(screen, defs, step.address, step, next, random, snapshot, touchNow)
   );
 }
 
@@ -150,10 +135,11 @@ export function planAct(
   clockOwner: "planner" | "controller" = "planner",
   data?: DeviceData,
   now = deviceTimeOf(data) ?? Date.now(),
+  touchNow = monotonicNow,
 ): ActResult {
   data = captureDeviceTime(defs, data, now);
   if (random && steps.length > 1) {
-    const preview = planAct(input, defs, values, steps, null, clockOwner, data, now);
+    const preview = planAct(input, defs, values, steps, null, clockOwner, data, now, () => 0);
     if (!preview.ok) return preview;
   }
   const migrated = migrateScreen(input, { variantOnly: true });
@@ -179,7 +165,9 @@ export function planAct(
     const record = stageRecordAction(screen, defs, next, resolved, now, snapshot);
     if (record && "error" in record) return { ok: false, code: "invalid_value", at, hint: record.error };
     try {
-      const progress = record ? "" : stepProgress(screen, defs, next, resolved, found, random, snapshot, now);
+      const progress = record
+        ? ""
+        : stepProgress(screen, defs, next, resolved, found, random, snapshot, now, touchNow);
       if (progress === false)
         return { ok: false, code: "invalid_value", at, hint: "Invalid record mutation" };
       if (progress !== undefined) {
