@@ -3,12 +3,13 @@ import { isWeb, type TamaguiElement } from "tamagui";
 import type { PartRefScope } from "../../part";
 import {
   manualScrollActive,
+  measureNativeOffset,
   revealNativePart,
   type NativePart,
   type ScrollActivity,
   type ScrollHandle,
 } from "./scroll-follow";
-import { listenForWebScroll, revealWebPart, stopWebFollow } from "./scroll-web";
+import { listenForWebScroll, revealWebPart, stopWebFollow, type WebScrollMotion } from "./scroll-web";
 
 type Follow = { address?: string | undefined; enabled: boolean };
 type Layout = { width: number; height: number };
@@ -26,7 +27,6 @@ export function useScrollFollow(
     dragging: false,
     momentum: false,
     lastManual: -Infinity,
-    offset: 0,
   });
   const auto = useRef({ until: 0, animating: false });
   const optedIn = follow !== undefined;
@@ -38,7 +38,11 @@ export function useScrollFollow(
     };
   }, []);
   useLayoutEffect(() => {
-    const node = isWeb && optedIn ? scroll.current?.getScrollableNode?.() : undefined;
+    if (!optedIn) {
+      activity.current = { dragging: false, momentum: false, lastManual: -Infinity };
+      return;
+    }
+    const node = isWeb ? scroll.current?.getScrollableNode?.() : undefined;
     if (node) return listenForWebScroll(node, activity.current, auto.current);
   }, [scroll, optedIn]);
   const animation = useRef(animated);
@@ -55,20 +59,11 @@ export function useScrollFollow(
       auto.current.until = 0;
       activity.current.lastManual = performance.now();
     },
-    nativeProps: optedIn && !isWeb ? nativeScrollEvents(activity.current, horizontal) : {},
+    nativeProps: optedIn && !isWeb ? nativeScrollEvents(activity) : {},
   };
 }
 
-function useFollowRequest({
-  address,
-  scroll,
-  layout,
-  horizontal,
-  animation,
-  activity,
-  refs,
-  auto,
-}: {
+type FollowRequest = {
   address: string | undefined;
   scroll: RefObject<ScrollHandle | null>;
   layout: RefObject<Layout>;
@@ -76,8 +71,11 @@ function useFollowRequest({
   animation: RefObject<boolean>;
   activity: RefObject<ScrollActivity>;
   refs: RefObject<Map<string, RefObject<TamaguiElement | null>>>;
-  auto: RefObject<{ until: number; animating: boolean }>;
-}) {
+  auto: RefObject<WebScrollMotion>;
+};
+
+function useFollowRequest(request: FollowRequest) {
+  const { address, scroll, layout, horizontal, animation, activity, refs, auto } = request;
   useLayoutEffect(() => {
     if (!address || manualScrollActive(activity.current, performance.now())) return;
     let active = true;
@@ -96,15 +94,30 @@ function useFollowRequest({
         revealWebPart(node, target as HTMLElement, horizontal, animation.current, auto.current);
         stop = () => stopWebFollow(node, auto.current);
       } else {
-        const interrupt = revealNativePart(handle, target as NativePart, horizontal, animation.current, () =>
-          canReveal()
-            ? {
-                offset: activity.current.offset,
-                extent: horizontal ? layout.current.width : layout.current.height,
+        const reveal = () => {
+          const interrupt = revealNativePart(
+            handle,
+            target as NativePart,
+            horizontal,
+            animation.current,
+            () => {
+              const offset = activity.current.offset;
+              if (offset && canReveal()) {
+                return { offset, extent: horizontal ? layout.current.width : layout.current.height };
               }
-            : undefined,
-        );
-        stop = () => interrupt?.(activity.current.offset);
+            },
+          );
+          stop = () => {
+            if (activity.current.offset) interrupt?.(activity.current.offset);
+          };
+        };
+        if (activity.current.offset) reveal();
+        else
+          measureNativeOffset(handle, (offset) => {
+            if (!canReveal()) return;
+            activity.current.offset ??= offset;
+            reveal();
+          });
       }
     });
     return () => {
@@ -115,29 +128,29 @@ function useFollowRequest({
   }, [address, horizontal, layout, scroll, animation, activity, refs, auto]);
 }
 
-function nativeScrollEvents(activity: ScrollActivity, horizontal: boolean) {
-  const manual = () => (activity.lastManual = performance.now());
+function nativeScrollEvents(state: RefObject<ScrollActivity>) {
+  const manual = () => (state.current.lastManual = performance.now());
   return {
     scrollEventThrottle: 16,
     onScroll: ({ nativeEvent }: { nativeEvent: { contentOffset: { x: number; y: number } } }) => {
-      activity.offset = horizontal ? nativeEvent.contentOffset.x : nativeEvent.contentOffset.y;
-      if (manualScrollActive(activity, performance.now())) manual();
+      state.current.offset = nativeEvent.contentOffset;
+      if (manualScrollActive(state.current, performance.now())) manual();
     },
     onScrollBeginDrag: () => {
-      activity.dragging = true;
-      activity.momentum = false;
+      state.current.dragging = true;
+      state.current.momentum = false;
       manual();
     },
     onScrollEndDrag: () => {
-      activity.dragging = false;
+      state.current.dragging = false;
       manual();
     },
     onMomentumScrollBegin: () => {
-      activity.momentum = manualScrollActive(activity, performance.now());
+      state.current.momentum = manualScrollActive(state.current, performance.now());
     },
     onMomentumScrollEnd: () => {
-      if (activity.momentum) manual();
-      activity.momentum = false;
+      if (state.current.momentum) manual();
+      state.current.momentum = false;
     },
   };
 }

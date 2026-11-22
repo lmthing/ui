@@ -1,5 +1,10 @@
 import { expect, it, vi } from "vitest";
-import { manualScrollActive, nearestScrollDelta, revealNativePart } from "./scroll-follow";
+import {
+  manualScrollActive,
+  measureNativeOffset,
+  nearestScrollDelta,
+  revealNativePart,
+} from "./scroll-follow";
 
 it.each([
   [20, 60, 100, 0],
@@ -23,8 +28,8 @@ it("gives precedence to manual drag, momentum and the interval after the latest 
 });
 
 it.each([
-  [false, false, { x: 0, y: 130, animated: false }],
-  [true, true, { x: 60, y: 0, animated: true }],
+  [false, false, { x: 40, y: 130, animated: false }],
+  [true, true, { x: 60, y: 40, animated: true }],
 ] as const)(
   "measures against native scroll content and moves only the requested axis",
   (axis, animated, expected) => {
@@ -33,9 +38,16 @@ it.each([
     const target = {
       measureLayout: vi.fn((_parent, done: (...box: number[]) => void) => done(120, 180, 40, 50)),
     };
-    revealNativePart(scroll, target, axis, animated, () => ({ offset: 40, extent: 100 }));
+    const stop = revealNativePart(scroll, target, axis, animated, () => ({
+      offset: { x: 40, y: 40 },
+      extent: 100,
+    }));
     expect(target.measureLayout).toHaveBeenCalledWith(content, expect.any(Function), expect.any(Function));
     expect(scroll.scrollTo).toHaveBeenCalledExactlyOnceWith(expected);
+    if (animated) {
+      stop?.({ x: 50, y: 65 });
+      expect(scroll.scrollTo).toHaveBeenLastCalledWith({ x: 50, y: 65, animated: false });
+    }
   },
 );
 
@@ -52,9 +64,34 @@ it("does not use an outstanding native measurement after the request is invalida
     },
     false,
     false,
-    () => (current ? { offset: 0, extent: 100 } : undefined),
+    () => (current ? { offset: { x: 0, y: 0 }, extent: 100 } : undefined),
   );
   current = false;
   measured!(0, 180, 40, 50);
   expect(scroll.scrollTo).not.toHaveBeenCalled();
+});
+
+it("seeds both native offsets from the live viewport and content before the first scroll event", () => {
+  type Measure = (x: number, y: number) => void;
+  let viewport!: Measure, content!: Measure;
+  const measured = vi.fn();
+  measureNativeOffset(
+    {
+      getNativeScrollRef: () => ({
+        measureInWindow: (done) => {
+          viewport = done;
+        },
+      }),
+      getInnerViewRef: () => ({
+        measureInWindow: (done) => {
+          content = done;
+        },
+      }),
+    },
+    measured,
+  );
+  content(-10, -150);
+  expect(measured).not.toHaveBeenCalled();
+  viewport(20, 50);
+  expect(measured).toHaveBeenCalledExactlyOnceWith({ x: 30, y: 200 });
 });

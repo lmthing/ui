@@ -1,6 +1,16 @@
 import { size } from "../../../catalog";
 import { nearestScrollDelta, type ScrollActivity } from "./scroll-follow";
 
+export function focusScroll(target: HTMLElement, node: HTMLElement) {
+  if (target === node || !target.getBoundingClientRect) return;
+  const box = target.getBoundingClientRect(),
+    viewport = node.getBoundingClientRect();
+  node.scrollBy({
+    top: box.bottom > viewport.bottom ? box.bottom - viewport.bottom : Math.min(0, box.top - viewport.top),
+    left: box.right > viewport.right ? box.right - viewport.right : Math.min(0, box.left - viewport.left),
+  });
+}
+
 export function scrollKey(
   event: { key: string; target: unknown; currentTarget: unknown; preventDefault(): void },
   horizontal: boolean,
@@ -47,34 +57,13 @@ export function stopWebFollow(node: HTMLElement, auto: WebScrollMotion) {
 export function listenForWebScroll(node: HTMLElement, activity: ScrollActivity, auto: WebScrollMotion) {
   const abort = new AbortController();
   const options = { passive: true, signal: abort.signal };
-  let pointer: number | undefined;
   const manual = () => {
     stopWebFollow(node, auto);
     auto.until = 0;
     activity.lastManual = performance.now();
   };
-  const release = (event?: PointerEvent) => {
-    if (pointer === undefined || (event && pointer !== event.pointerId)) return;
-    pointer = undefined;
-    activity.dragging = false;
-    manual();
-  };
+  listenForWebDrag(node, activity, manual, options);
   node.addEventListener("wheel", manual, options);
-  node.addEventListener("touchmove", manual, options);
-  node.addEventListener(
-    "pointerdown",
-    (event) => {
-      if (event.pointerType !== "touch" && event.target !== node) return;
-      pointer = event.pointerId;
-      activity.dragging = true;
-      manual();
-    },
-    options,
-  );
-  const window = node.ownerDocument.defaultView;
-  window?.addEventListener("pointerup", release, options);
-  window?.addEventListener("pointercancel", release, options);
-  window?.addEventListener("blur", () => release(), options);
   node.addEventListener(
     "scroll",
     () => {
@@ -93,9 +82,66 @@ export function listenForWebScroll(node: HTMLElement, activity: ScrollActivity, 
     options,
   );
   return () => {
-    release();
+    activity.dragging = false;
     abort.abort();
   };
+}
+
+function listenForWebDrag(
+  node: HTMLElement,
+  activity: ScrollActivity,
+  manual: () => void,
+  options: AddEventListenerOptions,
+) {
+  let pointer: number | undefined;
+  const touches = new Set<number>();
+  const mark = () => {
+    activity.dragging = pointer !== undefined || touches.size > 0;
+    manual();
+  };
+  const window = node.ownerDocument.defaultView;
+  const releasePointer = (event: PointerEvent) => {
+    if (pointer !== event.pointerId) return;
+    pointer = undefined;
+    mark();
+  };
+  const releaseTouch = (event: TouchEvent) => {
+    let ended = false;
+    for (const touch of Array.from(event.changedTouches)) ended = touches.delete(touch.identifier) || ended;
+    if (ended) mark();
+  };
+  node.addEventListener(
+    "pointerdown",
+    (event) => {
+      if (event.pointerType === "touch" || event.target !== node) return;
+      pointer = event.pointerId;
+      mark();
+    },
+    options,
+  );
+  // A browser cancels the pointer when native panning takes over, before the finger leaves.
+  node.addEventListener(
+    "touchstart",
+    (event) => {
+      for (const touch of Array.from(event.changedTouches)) touches.add(touch.identifier);
+      mark();
+    },
+    options,
+  );
+  window?.addEventListener("pointerup", releasePointer, options);
+  window?.addEventListener("pointercancel", releasePointer, options);
+  window?.addEventListener("touchend", releaseTouch, options);
+  window?.addEventListener("touchcancel", releaseTouch, options);
+  window?.addEventListener(
+    "blur",
+    () => {
+      if (!activity.dragging) return;
+      pointer = undefined;
+      touches.clear();
+      mark();
+    },
+    options,
+  );
 }
 
 export function revealWebPart(

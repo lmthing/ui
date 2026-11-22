@@ -6,7 +6,7 @@ import { PartRefScope, usePart, useEmptyThing } from "../../part";
 import { useKit, useKitStyle, useWords } from "../../provider";
 import { KitIcon, KitText, shifted, surfaceOf } from "../text";
 import type { ScrollHandle } from "./scroll-follow";
-import { scrollKey } from "./scroll-web";
+import { focusScroll, scrollKey } from "./scroll-web";
 import { useScrollFollow } from "./use-scroll-follow";
 const Bar = styled(YStack, { height: size.icon.sm, backgroundColor: "$line" });
 type ScrollProps = {
@@ -79,16 +79,6 @@ function ScrollContent({
   );
 }
 
-function focusScroll(target: HTMLElement, node?: HTMLElement) {
-  if (!node || target === node || !target.getBoundingClientRect) return;
-  const box = target.getBoundingClientRect(),
-    viewport = node.getBoundingClientRect();
-  node.scrollBy({
-    top: box.bottom > viewport.bottom ? box.bottom - viewport.bottom : Math.min(0, box.top - viewport.top),
-    left: box.right > viewport.right ? box.right - viewport.right : Math.min(0, box.left - viewport.left),
-  });
-}
-
 function useScrollGeometry(horizontal: boolean) {
   const [view, setView] = useState({ width: 0, height: 0 });
   const layout = useRef(view);
@@ -123,6 +113,36 @@ function ScrollCue({ horizontal }: { horizontal: boolean }) {
   );
 }
 
+function useScrollViewport(horizontal: boolean, loading: boolean, follow: ScrollProps["follow"]) {
+  const kit = useKit();
+  const scroll = useRef<ScrollHandle>(null);
+  const { viewport, overflow, layout, ready, ...geometry } = useScrollGeometry(horizontal);
+  const { register, manualKey, nativeProps } = useScrollFollow(
+    follow,
+    scroll,
+    layout,
+    ready && !loading,
+    horizontal,
+    kit.motion === "lively",
+  );
+  return {
+    viewport,
+    overflow,
+    register,
+    manualKey,
+    scrollProps: {
+      ref: scroll as never,
+      ...nativeProps,
+      ...geometry,
+      onFocus: (event: { target: unknown }) => {
+        const node = scroll.current?.getScrollableNode?.();
+        if (node) focusScroll(event.target as HTMLElement, node);
+        else kit.nativeHost?.ensureVisible?.(event.target);
+      },
+    },
+  };
+}
+
 /** A labelled, token-bounded scroll region; a visible cue appears only when content overflows. */
 export function KitScroll({
   part = "root",
@@ -133,19 +153,13 @@ export function KitScroll({
   bounded = true,
   follow,
 }: ScrollProps) {
-  const ks = useKitStyle(),
-    kit = useKit();
+  const ks = useKitStyle();
   const address = usePart(part);
-  const scroll = useRef<ScrollHandle>(null);
   const horizontal = axis === "horizontal";
-  const { viewport, overflow, layout, ready, ...geometry } = useScrollGeometry(horizontal);
-  const { register, manualKey, nativeProps } = useScrollFollow(
-    follow,
-    scroll,
-    layout,
-    ready && !loading,
+  const { viewport, overflow, register, manualKey, scrollProps } = useScrollViewport(
     horizontal,
-    kit.motion === "lively",
+    loading,
+    follow,
   );
   const empty = Children.toArray(children).length === 0;
   return (
@@ -159,14 +173,12 @@ export function KitScroll({
       aria-busy={loading}
     >
       <ScrollView
-        ref={scroll as never}
+        {...scrollProps}
         horizontal={horizontal}
         showsVerticalScrollIndicator
         showsHorizontalScrollIndicator
         scrollEnabled={!loading}
-        {...nativeProps}
         contentContainerStyle={{ minWidth: "100%" }}
-        {...geometry}
         {...(bounded ? { maxHeight: component.base.emptyMinHeight } : {})}
         {...({
           role: "region",
@@ -174,11 +186,6 @@ export function KitScroll({
           "aria-label": label,
           onKeyDown: (event: Parameters<typeof scrollKey>[0]) => scrollKey(event, horizontal, manualKey),
         } as object)}
-        onFocus={(event: { target: unknown }) => {
-          const node = scroll.current?.getScrollableNode?.();
-          if (node) focusScroll(event.target as HTMLElement, node);
-          else kit.nativeHost?.ensureVisible?.(event.target);
-        }}
       >
         <PartRefScope.Provider value={register}>
           <ScrollContent loading={loading} horizontal={horizontal} viewport={viewport}>

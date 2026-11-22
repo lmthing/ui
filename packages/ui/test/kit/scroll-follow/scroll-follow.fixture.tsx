@@ -35,7 +35,7 @@ function Fixture() {
             <Stack>
               {rows.map((number) => (
                 <YStack key={number} width={horizontal ? component.base.emptyMinHeight : undefined}>
-                  <KitRow item={`r${number}`} label={`Row ${number}`} selected={row === number}>
+                  <KitRow item={`r${number}`} role="button" label={`Row ${number}`} selected={row === number}>
                     <KitText part={null}>Row {number}</KitText>
                   </KitRow>
                 </YStack>

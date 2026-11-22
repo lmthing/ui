@@ -57,6 +57,8 @@ async function open(horizontal = false) {
 
 it("reveals active rows at the nearest edge without focusing them, including consecutive updates", async () => {
   await open();
+  await row(1).focus();
+  expect(await row(1).evaluate((node) => node === document.activeElement)).toBe(true);
   await button("Keep focus here").focus();
   await update(14);
   expect(await edge(14, "bottom")).toBeCloseTo(0, 0);
@@ -68,6 +70,39 @@ it("reveals active rows at the nearest edge without focusing them, including con
   await update(21);
   expect(await offset()).toBe(top);
   expect(await button("Keep focus here").evaluate((node) => node === document.activeElement)).toBe(true);
+});
+
+it("does not follow while a native browser touch pan is paused with the finger still down", async () => {
+  const devtools = await page.context().newCDPSession(page);
+  await devtools.send("Emulation.setTouchEmulationEnabled", { enabled: true });
+  try {
+    await open();
+    const box = (await region().boundingBox())!;
+    await region().evaluate((node) => {
+      node.addEventListener("pointercancel", () => node.setAttribute("data-pan-claimed", ""), { once: true });
+    });
+    const touch = (type: "touchStart" | "touchMove" | "touchEnd", y?: number) =>
+      devtools.send("Input.dispatchTouchEvent", {
+        type,
+        touchPoints: y === undefined ? [] : [{ x: box.x + box.width / 2, y: box.y + y }],
+      });
+    await touch("touchStart", box.height * 0.75);
+    await touch("touchMove", box.height * 0.5);
+    await touch("touchMove", box.height * 0.25);
+    await expect.poll(offset).toBeGreaterThan(0);
+    expect(await region().getAttribute("data-pan-claimed")).toBe("");
+    await page.waitForTimeout(300);
+    const paused = await offset();
+    await update(18);
+    expect(await offset()).toBe(paused);
+    await touch("touchEnd");
+    await page.waitForTimeout(300);
+    await update(19);
+    expect(await edge(19, "bottom")).toBeCloseTo(0, 0);
+  } finally {
+    await devtools.send("Emulation.setTouchEmulationEnabled", { enabled: false });
+    await devtools.detach();
+  }
 });
 
 it("does not scroll when follow is off and does not replay updates skipped during wheel scrolling", async () => {
