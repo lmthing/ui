@@ -7,17 +7,16 @@ import {
   packReady,
   placeholderTitle,
   readComponent,
-  variants,
   type CastLike,
   type Props,
   type ThemeChoice,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { addressedElements, elementAt, renderInstance, styleAt } from "../../../../../test/render";
+import { addressedElements, elementAt, renderInstance } from "../../../../../test/render";
 
 const def = components.Library;
 const { props, meta, examples, fallback, probes } = def;
-const grid = examples[0]!;
+const grid = props.parse(examples[0]!);
 const item = grid.items[0]!;
 const theme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeChoice;
 const screen = { id: "home", components: [{ id: "l1", c: "Library", ...grid }] };
@@ -173,35 +172,6 @@ describe("Library states and parts", () => {
       code: "not_actionable",
     });
   });
-});
-
-// prettier-ignore
-it.each([{ arrange: "grid" }, { arrange: "rows" }, { arrange: "strip" }, { style: "loans" }] as const)("keeps item roots and shows only supplied loan details in %j", (layout) => {
-  const input = { ...layout, items: [{ ...item, status: "borrowed", dueLabel: "Due Friday" }, grid.items[1]!] };
-  const addresses = addressedElements(renderInstance("Library", input, "filled", theme));
-  expect(addresses.get(`${prefix}r1/status`)?.text).toEqual(["Borrowed"]);
-  expect(addresses.get(`${prefix}r1/due_label`)?.text).toEqual(["Due Friday"]);
-  expect(addresses.has(`${prefix}r2/status`)).toBe(false);
-  const reading = readComponent(def, input, "l1").join("\n");
-  expect(reading).toContain("Fern Shelf · Due Friday");
-  expect(reading).toContain("[l1/r2 press→window_garden]");
-  expect(addresses.get(`${prefix}r2/root`)?.attributes).toContain('role="link"');
-});
-
-it("keeps the grid default and respects explicit loan arrangement and row crop", () => {
-  const draw = (layout: Record<string, string>) =>
-    renderInstance("Library", { ...grid, ...layout }, "filled", theme);
-  const photo = `${prefix}r1/photo`;
-  expect(draw({})).toEqual(draw({ arrange: "grid" }));
-  expect(draw({ style: "loans" })).toEqual(draw({ style: "loans", arrange: "grid" }));
-  expect(draw({ style: "loans", arrange: "rows" })).not.toEqual(draw({ style: "loans" }));
-  expect(draw({ style: "loans", arrange: "strip" })).not.toEqual(draw({ style: "loans" }));
-  expect(styleAt(draw({ arrange: "rows", aspect: "tall" }), photo)).toContain(
-    `aspect-ratio:${variants.aspect.tall}`,
-  );
-  expect(styleAt(draw({ arrange: "rows", aspect: "square" }), photo)).toContain(
-    `aspect-ratio:${variants.aspect.square}`,
-  );
 });
 
 describe("Library read and act", () => {

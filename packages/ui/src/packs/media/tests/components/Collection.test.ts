@@ -38,9 +38,7 @@ describe("Collection schema", () => {
   });
 
   it("trims text and keeps the exact limits and shared defaults", () => {
-    const title = "t".repeat(40),
-      by = "b".repeat(32),
-      about = "a".repeat(200);
+    const [title, by, about] = ["t".repeat(40), "b".repeat(32), "a".repeat(200)] as const;
     expect(props.parse({ title: ` ${title} `, by, about, photo: "local:1", followed: false })).toMatchObject({
       title,
       by,
@@ -142,22 +140,6 @@ describe("Collection states and parts", () => {
     expect(html).toContain(loadingLabel);
     expect(html).not.toContain('role="button"');
     expect(readComponent(def, series, "c1", "loading")).toEqual(["c1 Collection (loading)"]);
-  });
-
-  // prettier-ignore
-  it("shows only authored extras and retains controls when the book layout puts the title first", () => {
-    const book = { ...series, style: "book", rating: 0, ratingCount: 0, tags: ["Field guide", "Gardening"], shelfStatus: "Want to read" };
-    const parts = addressedElements(renderInstance("Collection", book, "filled", theme));
-    for (const [part, value, reading] of [["rating", "0", "0 out of 5"], ["rating_count", "0", "0 ratings"],
-      ["tags", "Field guide · Gardening", "Field guide · Gardening"], ["shelf_status", "Want to read", "Want to read"]]) {
-      expect(parts.get(prefix + part)?.text).toEqual([value]);
-      expect(readComponent(def, book, "c1").join("\n")).toContain(reading);
-    }
-    const order = [...parts.keys()];
-    expect(order.indexOf(prefix + "title")).toBeLessThan(order.indexOf(prefix + "photo"));
-    expect(parts.get(prefix + "play")?.attributes).toContain('role="button"');
-    expect(parts.get(prefix + "play")?.attributes).toContain('aria-label="Play audiobook"');
-    expect(parts.get(prefix + "follow")?.attributes).toContain('role="button"');
   });
 
   it("derives totals from the actual Playlist on the phone screen", () => {

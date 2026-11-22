@@ -153,7 +153,7 @@ function LibraryTile({ item, density, aspect, style, row, loading }: TileProps) 
   const badge = { text: item.badge, part: "badge", role: "caption", tone: "accent", strong: true } as const;
   const photo = <kit.KitPhoto photo={item.photo} part="photo" aspect={aspect} label={item.title} loading={loading} />;
   const title = <kit.KitMetaLine title={{ text: item.title, part: "title" }}
-    meta={style === "loans" ? undefined : [badge, by, status, due]} density={density} />;
+    meta={style === "loans" ? [] : [badge, by, status, due]} density={density} />;
   const heading = style === "loans" ? <kit.KitContent density={density}>
     {title}
     {(status.text || due.text) && <kit.KitContent rhythm="flush" density={density}>
@@ -191,7 +191,7 @@ export function Library(input: LibraryProps) {
   </kit.PartScope>);
   const content = row ? <kit.KitRowGroup density={density}>{tiles}</kit.KitRowGroup> :
     <kit.KitGrid list arrange={arrange} density={density}>{tiles}</kit.KitGrid>;
-  return <kit.KitCard part="root" padded density={density}>
+  return <kit.KitCard part="root" surface={arrange === "strip" && context.state !== "empty" ? "plain" : "card"} padded density={density}>
     <kit.KitState density={density} loading={content} icon="book_open" part="empty"
       message={context.thing ? undefined : words.library.empty}>{content}</kit.KitState>
   </kit.KitCard>;
