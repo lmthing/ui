@@ -18,14 +18,14 @@ import {
   type ArchetypeMeta,
 } from "@lmthing/ui/catalog";
 
-const ids = ["GuestList", "RSVP", "Seating", "Vendors", "Ticket", "Door", "Registry", "FindDate"];
+const ids = ["GuestList", "RSVP", "Seating", "Vendors", "Ticket", "Door", "Registry", "FindDate", "Sessions"];
 const cast = { things: [], items: [] };
 const draft = createRegistry({ packs: ["events"], includeDrafts: true });
 const layouts = {
   plan_event: ["overview"],
   guests: ["list", "seating", "reply"],
   suppliers: ["vendors", "gifts"],
-  on_the_day: ["door", "ticket", "date"],
+  on_the_day: ["door", "ticket", "sessions", "date"],
 };
 
 describe("events pack scaffold", () => {

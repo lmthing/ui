@@ -123,19 +123,25 @@ function meterDisplay(input: MetersProps, selection: unknown): Pick<MetersProps,
 // prettier-ignore
 function MeterRegister({ input, density, detail, lang }: { input: MetersProps; density: Density; detail: string; lang: string }) {
   const loading = kit.useComponentState() === "loading";
+  const { words: { meters: words } } = kit.useWords(propertyWordsFor);
   return input.entries.map((row) => {
     if (row.entryKind !== "meter") return null;
     const { latest, previous, usage } = meterSummary(meterSeries(input.readings, row.meterRef), row.unit, lang);
     if (loading) return <kit.KitRow key={row.id} label={row.title} inline density={density}>
       <kit.KitSkeleton shape="figure" density={density} inset="none" content={[
-        ["body", row.title], ["number", latest, "start", "compact"], ["label", detail === "full" ? previous : undefined], ["label", usage],
+        ["body", row.title], ["label", latest ? words.latestLabel : undefined],
+        [latest ? "number" : "label", latest ?? words.noReadings, "start", "compact"],
+        ["label", detail === "full" ? previous : undefined], ["label", usage],
       ]} />
     </kit.KitRow>;
     return <kit.KitRow key={row.id} item={row.id} role="button" label={row.title} density={density} inline
       trailing={<kit.KitIcon name="chevron_right" decorative tone="muted" />}>
       <kit.KitContent density={density}>
         <kit.KitText part="title" role="body" density={density}>{row.title}</kit.KitText>
-        <kit.KitText part="latest" role="number" numberScale="compact" density={density} tabular>{latest}</kit.KitText>
+        {latest ? <kit.KitContent rhythm="flush" {...{ density }}>
+          <kit.KitText part={null} role="label" tone="muted" {...{ density }}>{words.latestLabel}</kit.KitText>
+          <kit.KitText part="latest" role="number" numberScale="compact" tabular {...{ density }}>{latest}</kit.KitText>
+        </kit.KitContent> : <kit.KitText part="latest" role="label" tone="muted" {...{ density }}>{words.noReadings}</kit.KitText>}
         {detail === "full" && previous && <kit.KitText part="previous" role="label" density={density} tone="muted">{previous}</kit.KitText>}
         {usage && <kit.KitText part="usage" role="label" density={density} tone="muted">{usage}</kit.KitText>}
       </kit.KitContent>
@@ -149,17 +155,20 @@ function MeterHistory({ input, selection, density, lang, words }: { input: Meter
   return <>
     <kit.KitTrack part="selector" role="radiogroup" label={words.register}>
       {input.entries.map((row) => row.entryKind === "meter" &&
-        <kit.KitChip key={row.id} item={row.id} role="radio" labelPart="title" label={row.title} on={row.meterRef === (selection ?? input.meters[0]!.meterRef)} />)}
+        <kit.KitChip key={row.id} item={row.id} role="radio" look="segment" labelPart="title" label={row.title} on={row.meterRef === (selection ?? input.meters[0]!.meterRef)} />)}
     </kit.KitTrack>
     {!rows.length && <kit.KitText part="empty" tone="muted" role="body">{words.noReadings}</kit.KitText>}
     {rows.map((row) => <kit.KitRow key={row.id} item={row.id} label={row.date} density={density} inset="none">
       <kit.KitContent density={density}>
-        <kit.KitText part="at" role="label" tone="muted" density={density}>{row.date}</kit.KitText>
-        <kit.KitText part="value" role="number" numberScale="compact" density={density} tabular>{row.amount}</kit.KitText>
+        <kit.KitGrid fitLast {...{ density }}>
+          <kit.KitText part="at" role="label" tone="muted" {...{ density }}>{row.date}</kit.KitText>
+          <kit.KitText part="value" role="number" numberScale="compact" align="end" tabular {...{ density }}>{row.amount}</kit.KitText>
+        </kit.KitGrid>
         {row.usage && <kit.KitText part="usage" role="label" tone="muted" density={density}>{row.usage}</kit.KitText>}
-        {row.photo && <kit.KitRow part="photo" role="button" inline label={words.photo} leadingAlign="row"
-          leading={<kit.KitPhoto part="evidence" photo={row.photo} label={words.photo} />}>
-          <kit.KitRow inline label={words.photo}><kit.KitText part={null} role="label" tone="accent">{words.photo}</kit.KitText></kit.KitRow>
+        {row.photo && <kit.KitRow part="photo" role="button" inline label={words.photo} {...{ density }}>
+          <kit.KitContent lead={<kit.KitPhoto part="evidence" photo={row.photo} label={words.photo} />} leadingAlign="row" {...{ density }}>
+            <kit.KitRow part={null} inline label={words.photo}><kit.KitText part={null} role="label" tone="accent" {...{ density }}>{words.photo}</kit.KitText></kit.KitRow>
+          </kit.KitContent>
         </kit.KitRow>}
       </kit.KitContent>
     </kit.KitRow>)}

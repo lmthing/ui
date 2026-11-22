@@ -4,6 +4,8 @@ export const words = {
     blockers: { none: "none", information: "information", access: "access", parts: "parts", other: "other" },
     number: (id: string) => `Work order ${id}`,
     request: (id: string) => `Request ${id}`,
+    asset: (id: string) => `Asset ${id}`,
+    signOff: "Sign off on work",
     assignee: (name: string) => `Assigned to ${name}`,
     window: (date: string, from: string, to: string) => `${date} · ${from}–${to}`,
     checks: "Work checks",

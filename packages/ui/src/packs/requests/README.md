@@ -7,7 +7,7 @@ Built in step U5 (drafts in U3), wave to be decided of the catalog plan. Read `d
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
-- `components/`: `RequestQueue.tsx` `RequestTriage.tsx` `RequestThread.tsx` `WorkOrder.tsx` `RequestResolution.tsx`
+- `components/`: `RequestQueue.tsx` `RequestTriage.tsx` `RequestThread.tsx` `WorkOrder.tsx` `RequestResolution.tsx` `SlaPolicy.tsx` `CannedReplies.tsx`
 - `archetypes/`: `report_issue.ts` `queue.ts` `request_detail.ts`
 
 Rules:

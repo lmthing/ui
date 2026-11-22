@@ -145,7 +145,7 @@ export function RentRoll(input: RollProps) {
       meta={{ text: copy.month(totals.month), part: "month" }} {...{ density }} /></kit.KitRow> :
       <kit.KitHeader title={{ text: copy.month(totals.month), part: "month" }} />}
     <kit.KitGrid {...{ density }}>{copy.summary(totals).map((field) =>
-      <rent.Metric key={field.part} {...field} {...{ density }} focal={field.part === "outstanding"} alignEnd />)}</kit.KitGrid>
+      <rent.Metric key={field.part} {...field} {...{ density }} focal={field.part === "outstanding"} />)}</kit.KitGrid>
     {!groups.length && !loading && <kit.KitEmpty part="notice" title={words.noCharges} decorativeIcon />}
     {groups.map(({ charge, receipts }) => <kit.KitContent key={charge.id} group="response" {...{ density }}>
       <rent.ChargeRow line={charge} {...finish} />

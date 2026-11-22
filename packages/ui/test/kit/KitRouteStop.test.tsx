@@ -5,12 +5,18 @@ import { TamaguiProvider } from "tamagui";
 import { describe, expect, it, vi } from "vitest";
 import { size, themeName, type StateName } from "@lmthing/ui/catalog";
 import { KitProvider, KitRouteStop, KitText, PartScope, type ScreenController } from "@lmthing/ui/kit";
-import { addressedElements, config, elementAt, styleAt } from "../render";
+import { addressedElements, config, elementAt, styleAt, type RenderedElement } from "../render";
+import { visibleTexts } from "../variants";
 
 vi.mock("react/jsx-dev-runtime", { spy: true });
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const item = "r2";
 const root = "home/c1/r2/root";
+
+function loadingRow(element: RenderedElement): RenderedElement | undefined {
+  if (element.attributes.includes('aria-busy="true"')) return element;
+  return element.children.map(loadingRow).find(Boolean);
+}
 
 function draw(
   props: Partial<ComponentProps<typeof KitRouteStop>> = {},
@@ -99,10 +105,10 @@ it("reserves cold loading lines from the caller's text without rendering its lin
   expect(html).not.toContain('role="link"');
   expect(html).toContain(">Handoff</span>");
   expect(html).toContain(">Additional context</span>");
-  const bars = (markup: string) =>
-    markup
-      .split("</style>")
-      .at(-1)!
-      .match(/_backgroundColor-line/g)?.length ?? 0;
-  expect(bars(html)).toBe(bars(draw({}, "loading")) + 1);
+  expect(visibleTexts(html)).toEqual([]);
+  const lineSlots = (markup: string) =>
+    loadingRow(elementAt(`<div data-testid="fixture">${markup}</div>`, "fixture"))!.children[1]!.children
+      .length;
+  expect(lineSlots(draw({}, "loading"))).toBe(1);
+  expect(lineSlots(html)).toBe(2);
 });
