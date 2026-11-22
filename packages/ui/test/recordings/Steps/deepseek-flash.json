@@ -967,11 +967,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":\"numbered\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}",
+    "reply": "{\"c\":\"Steps\",\"density\":null,\"detail\":null,\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}",
     "replies": [
-      "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":\"numbered\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}",
+      "{\"c\":\"Steps\",\"density\":null,\"detail\":null,\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}",
       "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}",
-      "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}"
+      "{\"c\":\"Steps\",\"density\":null,\"detail\":null,\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}"
     ]
   },
   "Steps%2Fwrite%2FI'm%20on%20the%20second%20screen%20of%20four%20in%20plant%20setup.%20Show%20only%20my%20position%20in%20that%20sequence%2C%20not%20the%20task%20name%20Set%20a%20watering%20reminder./47b4bd2aeea4d356/82ea2bce9e3c00ae": {
@@ -1074,7 +1074,7 @@
     "replies": [
       "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":\"dots\",\"count\":4,\"at\":2,\"label\":null}",
       "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":\"dots\",\"count\":4,\"at\":2,\"label\":null}",
-      "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":\"bar\",\"count\":4,\"at\":2,\"label\":null}"
+      "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":\"dots\",\"count\":4,\"at\":2,\"label\":null}"
     ]
   }
 }

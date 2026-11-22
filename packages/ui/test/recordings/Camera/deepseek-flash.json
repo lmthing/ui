@@ -648,11 +648,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"document_dual\",\"hint\":\"Scan front of Clover's vaccination card\"}",
+    "reply": "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"document_dual\",\"hint\":\"Scan the front of Clover's vaccination card\"}",
     "replies": [
-      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"document_dual\",\"hint\":\"Scan front of Clover's vaccination card\"}",
       "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"document_dual\",\"hint\":\"Scan the front of Clover's vaccination card\"}",
-      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"document_dual\",\"hint\":\"Scan front of Clover's vaccination card\"}"
+      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"document_dual\",\"hint\":\"Scan front side of Clover's vaccination card\"}",
+      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"document_dual\",\"hint\":\"Scan the front of Clover's vaccination card\"}"
     ]
   },
   "Camera%2Fwrite%2FLet%20me%20aim%20at%20my%20plant's%20leaves%20and%20take%20a%20new%20shot%2C%20with%20a%20short%20instruction/59b6c18e60b590e3/3c9e03f79befb489": {
@@ -718,10 +718,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"photo\",\"hint\":\"Aim at leaves, tap shutter\"}",
+    "reply": "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"photo\",\"hint\":\"Point at the leaves and shoot\"}",
     "replies": [
-      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"photo\",\"hint\":\"Aim at leaves, tap shutter\"}",
-      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"photo\",\"hint\":\"Aim at leaves and tap shutter\"}",
+      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"photo\",\"hint\":\"Point at the leaves and shoot\"}",
+      "{\"c\":\"Camera\",\"surface\":\"plain\",\"kind\":\"photo\",\"hint\":\"Aim at leaves, then tap shutter\"}",
       "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"photo\",\"hint\":\"Point at your plant's leaves\"}"
     ]
   },
@@ -788,11 +788,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"video\",\"hint\":\"Record Clover’s new clip\"}",
+    "reply": "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"video\",\"hint\":\"Record Clover now; tap shutter to start/stop\"}",
     "replies": [
-      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"video\",\"hint\":\"Record Clover’s new clip\"}",
-      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"video\",\"hint\":\"Start to record Clover, then stop when done\"}",
-      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"video\",\"hint\":\"Point at Clover to record a clip\"}"
+      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"video\",\"hint\":\"Record Clover now; tap shutter to start/stop\"}",
+      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"video\",\"hint\":\"Record Clover — tap to start/stop\"}",
+      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"video\",\"hint\":\"Record a new video of Clover — tap to start, tap\" }"
     ]
   },
   "Camera%2Fwrite%2FLet%20me%20take%20a%20photo%20of%20my%20fern.%20Put%20the%20viewfinder%20and%20shutter%20together%20inside%20one%20card./2232eccd21df99fd/49db0dbde3146bcd": {
@@ -858,11 +858,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern to frame it\"}",
+    "reply": "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern's fronds\"}",
     "replies": [
-      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern to frame it\"}",
-      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern's leaves\"}",
-      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern's leaves\"}"
+      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern's fronds\"}",
+      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern's fronds\"}",
+      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Aim at your fern\"}"
     ]
   },
   "d55b41efaad87789": {

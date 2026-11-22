@@ -769,10 +769,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"PassCard\",\"density\":null,\"detail\":\"brief\",\"issuer\":\"Fern Society\",\"title\":\"Grower Club\",\"memberName\":null,\"memberId\":null,\"masked\":true,\"code\":\"DEMO:FERN\",\"codeKind\":\"qr\",\"balance\":null,\"pointsLabel\":null,\"facts\":[{\"label\":\"Level\",\"value\":\"Seedling\"}],\"expiresAt\":null,\"used\":false,\"style\":null}",
+    "reply": "{\"c\":\"PassCard\",\"density\":null,\"detail\":\"brief\",\"issuer\":\"Fern Society\",\"title\":\"Grower Club\",\"memberName\":null,\"memberId\":null,\"masked\":null,\"code\":\"DEMO:FERN\",\"codeKind\":\"qr\",\"balance\":null,\"pointsLabel\":null,\"facts\":[{\"label\":\"Level\",\"value\":\"Seedling\"}],\"expiresAt\":null,\"used\":null,\"style\":null}",
     "replies": [
+      "{\"c\":\"PassCard\",\"density\":null,\"detail\":\"brief\",\"issuer\":\"Fern Society\",\"title\":\"Grower Club\",\"memberName\":null,\"memberId\":null,\"masked\":null,\"code\":\"DEMO:FERN\",\"codeKind\":\"qr\",\"balance\":null,\"pointsLabel\":null,\"facts\":[{\"label\":\"Level\",\"value\":\"Seedling\"}],\"expiresAt\":null,\"used\":null,\"style\":null}",
       "{\"c\":\"PassCard\",\"density\":null,\"detail\":\"brief\",\"issuer\":\"Fern Society\",\"title\":\"Grower Club\",\"memberName\":null,\"memberId\":null,\"masked\":true,\"code\":\"DEMO:FERN\",\"codeKind\":\"qr\",\"balance\":null,\"pointsLabel\":null,\"facts\":[{\"label\":\"Level\",\"value\":\"Seedling\"}],\"expiresAt\":null,\"used\":false,\"style\":null}",
-      "{\"c\":\"PassCard\",\"density\":null,\"detail\":null,\"issuer\":\"Fern Society\",\"title\":\"Grower Club\",\"memberName\":null,\"memberId\":null,\"masked\":true,\"code\":\"DEMO:FERN\",\"codeKind\":\"qr\",\"balance\":null,\"pointsLabel\":null,\"facts\":[{\"label\":\"Level\",\"value\":\"Seedling\"}],\"expiresAt\":null,\"used\":false,\"style\":null}",
       "{\"c\":\"PassCard\",\"density\":null,\"detail\":\"brief\",\"issuer\":\"Fern Society\",\"title\":\"Grower Club\",\"memberName\":null,\"memberId\":null,\"masked\":null,\"code\":\"DEMO:FERN\",\"codeKind\":\"qr\",\"balance\":null,\"pointsLabel\":null,\"facts\":[{\"label\":\"Level\",\"value\":\"Seedling\"}],\"expiresAt\":null,\"used\":null,\"style\":null}"
     ]
   },
@@ -1004,11 +1004,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"PassCard\",\"density\":null,\"detail\":null,\"issuer\":\"Pine Nursery\",\"title\":\"Grower Club\",\"memberName\":\"Alex\",\"memberId\":\"DEMO-1937\",\"masked\":true,\"code\":\"DEMO:PINE\",\"codeKind\":\"qr\",\"balance\":18,\"pointsLabel\":null,\"facts\":[],\"expiresAt\":null,\"used\":false,\"style\":null}",
+    "reply": "{\"c\":\"PassCard\",\"density\":null,\"detail\":null,\"issuer\":\"Pine Nursery\",\"title\":\"Grower Club\",\"memberName\":\"Alex\",\"memberId\":\"DEMO-1937\",\"masked\":true,\"code\":\"DEMO:PINE\",\"codeKind\":\"qr\",\"balance\":18,\"pointsLabel\":null,\"facts\":null,\"expiresAt\":null,\"used\":null,\"style\":null}",
     "replies": [
+      "{\"c\":\"PassCard\",\"density\":null,\"detail\":null,\"issuer\":\"Pine Nursery\",\"title\":\"Grower Club\",\"memberName\":\"Alex\",\"memberId\":\"DEMO-1937\",\"masked\":true,\"code\":\"DEMO:PINE\",\"codeKind\":\"qr\",\"balance\":18,\"pointsLabel\":null,\"facts\":null,\"expiresAt\":null,\"used\":null,\"style\":null}",
       "{\"c\":\"PassCard\",\"density\":null,\"detail\":null,\"issuer\":\"Pine Nursery\",\"title\":\"Grower Club\",\"memberName\":\"Alex\",\"memberId\":\"DEMO-1937\",\"masked\":true,\"code\":\"DEMO:PINE\",\"codeKind\":\"qr\",\"balance\":18,\"pointsLabel\":null,\"facts\":[],\"expiresAt\":null,\"used\":false,\"style\":null}",
-      "{\"c\":\"PassCard\",\"density\":null,\"detail\":null,\"issuer\":\"Pine Nursery\",\"title\":\"Grower Club\",\"memberName\":\"Alex\",\"memberId\":\"DEMO-1937\",\"masked\":true,\"code\":\"DEMO:PINE\",\"codeKind\":\"qr\",\"balance\":null,\"pointsLabel\":null,\"facts\":[],\"expiresAt\":null,\"used\":false,\"style\":null}",
-      "{\"c\":\"PassCard\",\"density\":null,\"detail\":null,\"issuer\":\"Pine Nursery\",\"title\":\"Grower Club\",\"memberName\":\"Alex\",\"memberId\":\"DEMO-1937\",\"masked\":true,\"code\":\"DEMO:PINE\",\"codeKind\":\"qr\",\"balance\":18,\"pointsLabel\":null,\"facts\":[],\"expiresAt\":null,\"used\":false,\"style\":null}"
+      "{\"c\":\"PassCard\",\"density\":null,\"detail\":null,\"issuer\":\"Pine Nursery\",\"title\":\"Grower Club\",\"memberName\":\"Alex\",\"memberId\":\"DEMO-1937\",\"masked\":true,\"code\":\"DEMO:PINE\",\"codeKind\":\"qr\",\"balance\":18,\"pointsLabel\":\"points\",\"facts\":[],\"expiresAt\":null,\"used\":false,\"style\":null}"
     ]
   }
 }

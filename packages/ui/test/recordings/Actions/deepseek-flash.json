@@ -1541,11 +1541,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Actions\",\"arrange\":\"grid\",\"surface\":\"card\",\"items\":[{\"icon\":\"dog\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
+    "reply": "{\"c\":\"Actions\",\"arrange\":\"grid\",\"surface\":null,\"items\":[{\"icon\":\"dog\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"bar_chart\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
     "replies": [
-      "{\"c\":\"Actions\",\"arrange\":\"grid\",\"surface\":\"card\",\"items\":[{\"icon\":\"dog\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
-      "{\"c\":\"Actions\",\"arrange\":\"grid\",\"surface\":null,\"items\":[{\"icon\":\"dog\",\"label\":\"Book walk\",\"goto\":\"book_dog_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"bar_chart\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
-      "{\"c\":\"Actions\",\"arrange\":\"grid\",\"surface\":null,\"items\":[{\"icon\":\"dog\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}"
+      "{\"c\":\"Actions\",\"arrange\":\"grid\",\"surface\":null,\"items\":[{\"icon\":\"dog\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"bar_chart\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
+      "{\"c\":\"Actions\",\"arrange\":null,\"surface\":null,\"items\":[{\"icon\":\"dog\",\"label\":\"Book dog walk\",\"goto\":\"book_dog_walk\"},{\"icon\":\"users\",\"label\":\"My clients\",\"goto\":\"my_clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
+      "{\"c\":\"Actions\",\"arrange\":\"grid\",\"surface\":null,\"items\":[{\"icon\":\"dog\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"mail\",\"label\":\"Messages\",\"goto\":\"messages\"}]}"
     ]
   },
   "Actions%2Fwrite%2FStack%20the%20Book%20walk%2C%20Clients%2C%20Earnings%20and%20Messages%20shortcuts%20vertically%2C%20one%20per%20row%2C%20each%20opening%20its%20own%20screen./f542d38073ec6a11/9582771dee9104d1": {
@@ -1783,11 +1783,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Actions\",\"arrange\":\"rows\",\"surface\":null,\"items\":[{\"icon\":\"book\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"banknote\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
+    "reply": "{\"c\":\"Actions\",\"arrange\":\"rows\",\"surface\":null,\"items\":[{\"icon\":\"book_open\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"bar_chart\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
     "replies": [
-      "{\"c\":\"Actions\",\"arrange\":\"rows\",\"surface\":null,\"items\":[{\"icon\":\"book\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"banknote\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
-      "{\"c\":\"Actions\",\"arrange\":\"rows\",\"surface\":null,\"items\":[{\"icon\":\"book_open\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
-      "{\"c\":\"Actions\",\"arrange\":\"rows\",\"surface\":null,\"items\":[{\"icon\":\"book_open\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"wallet\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}"
+      "{\"c\":\"Actions\",\"arrange\":\"rows\",\"surface\":null,\"items\":[{\"icon\":\"book_open\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"bar_chart\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
+      "{\"c\":\"Actions\",\"arrange\":\"rows\",\"surface\":null,\"items\":[{\"icon\":\"book_open\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"banknote\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
+      "{\"c\":\"Actions\",\"arrange\":\"rows\",\"surface\":null,\"items\":[{\"icon\":\"book\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"banknote\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}"
     ]
   },
   "bf1b5680960b2d9c": {
