@@ -11,6 +11,7 @@ import {
   type SkeletonItem,
 } from "./skeleton-content";
 import { Bar, SkeletonBars, SkeletonTrend, SkeletonRing, SkeletonMedia } from "./skeleton-shapes";
+import { inputRadius } from "../input";
 
 const Line = styled(YStack, { justifyContent: "center" });
 
@@ -212,6 +213,7 @@ function SkeletonOptions({ items = [], question, look = "cards" }: ShapeProps) {
 function SkeletonControl({ label, kind = "primary", full = false }: ShapeProps) {
   const { loadingLabel } = useWords().words;
   const ks = useKitStyle();
+  const corners = label || full ? inputRadius("text", ks.radiusShift) : radius.pill;
   return (
     <YStack
       accessibilityLabel={loadingLabel}
@@ -223,7 +225,7 @@ function SkeletonControl({ label, kind = "primary", full = false }: ShapeProps) 
       justifyContent="center"
       alignItems="center"
       backgroundColor="transparent"
-      borderRadius={label ? shifted("md", ks.radiusShift) : radius.pill}
+      borderRadius={corners}
       {...(kind === "danger" ? { borderWidth: component.base.borderWidth, borderColor: "$line" } : {})}
     >
       {kind !== "quiet" && (
@@ -233,7 +235,7 @@ function SkeletonControl({ label, kind = "primary", full = false }: ShapeProps) 
           bottom={component.base.none}
           left={component.base.none}
           right={component.base.none}
-          borderRadius={label ? shifted("md", ks.radiusShift) : radius.pill}
+          borderRadius={corners}
           aria-hidden
         />
       )}

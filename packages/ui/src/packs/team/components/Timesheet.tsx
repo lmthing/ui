@@ -141,23 +141,23 @@ type ViewProps = c.Props<typeof props, typeof meta>;
 type SheetRow = ViewProps["rows"][number] & ReturnType<typeof timesheetRow>;
 type MatrixProps = Pick<ViewProps, "rows"> & { brief: boolean; density: c.ThemeDensity };
 
-function SheetMatrix({ rows, brief, density }: MatrixProps) {
+function SheetCells(
+  people: SheetRow[],
+  context: ReturnType<typeof kit.usePartContext>,
+  brief: boolean,
+  density: c.ThemeDensity,
+) {
   type TableRow = Parameters<typeof kit.KitTable>[0]["rows"][number];
   type CellText = Parameters<typeof kit.KitText>[0];
-  const {
-    words: { timesheet: wording },
-    lang,
-  } = kit.useWords(teamWordsFor);
-  const context = kit.usePartContext();
-  const people = rows.map((row) => ({ ...row, ...timesheetRow(row.hours, lang) }));
-  const columns = SheetColumns(people, context);
   const text = (props: CellText) => <kit.KitText density={density} {...props} />;
   const label = (children: string) => text({ children, part: null, tone: "muted", role: "label" });
   const value = (children: string, part: string | null, tone: CellText["tone"] = "text") =>
     text({ children, part, tone, align: "end", role: "number", numberScale: "compact", tabular: true });
-  // prettier-ignore
-  const separated = (children: CellText["children"]) =>
-    <kit.KitContent group="response" density={density}>{children}</kit.KitContent>;
+  const separated = (children: CellText["children"]) => (
+    <kit.KitContent group="response" density={density}>
+      {children}
+    </kit.KitContent>
+  );
   const line = (id: string, title: string, draw: (row: SheetRow) => CellText["children"]): TableRow => ({
     id,
     label: title,
@@ -171,6 +171,18 @@ function SheetMatrix({ rows, brief, density }: MatrixProps) {
       ),
     })),
   });
+  return { text, label, value, line };
+}
+
+function SheetMatrix({ rows, brief, density }: MatrixProps) {
+  const {
+    words: { timesheet: wording },
+    lang,
+  } = kit.useWords(teamWordsFor);
+  const context = kit.usePartContext();
+  const people = rows.map((row) => ({ ...row, ...timesheetRow(row.hours, lang) }));
+  const columns = SheetColumns(people, context);
+  const { text, label, value, line } = SheetCells(people, context, brief, density);
   const weekdays = c.wordsFor(lang).weekdayShort;
   const days = brief
     ? []
@@ -197,9 +209,16 @@ function SheetMatrix({ rows, brief, density }: MatrixProps) {
     ),
   );
   // Use the table directly: the days-down sheet has three separately labelled summary rows.
-  // prettier-ignore
-  return <kit.KitTable part="matrix" columns={columns} rows={[...days, total, overtime, approval]}
-    separators={brief ? [] : ["day_6"]} corner={label(wording.hours)} fitColumns={people.length <= 2} />;
+  return (
+    <kit.KitTable
+      part="matrix"
+      columns={columns}
+      rows={[...days, total, overtime, approval]}
+      separators={brief ? [] : ["day_6"]}
+      corner={label(wording.hours)}
+      fitColumns={people.length <= 2}
+    />
+  );
 }
 
 function SheetColumns(people: SheetRow[], context: ReturnType<typeof kit.usePartContext>) {
