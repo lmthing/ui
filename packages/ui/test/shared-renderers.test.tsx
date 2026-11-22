@@ -15,6 +15,7 @@ import { expect, it } from "vitest";
 import { DateRows, SeatPlan, StageBoard, type DateGroup } from "../src/kit/renderers";
 import { SeatingPlan } from "../src/packs/events/seating";
 import { ApplicantLanes } from "../src/packs/hiring/applicant-pipeline";
+import { pipelineWithClosed } from "../src/packs/hiring/tests/components/ApplicantPipeline.fixture";
 import { CabinSeats, type CabinSeatsView } from "../src/packs/trips/cabin-seats";
 import { addressedElements, config, elementAt, styleAt } from "./render";
 
@@ -122,9 +123,12 @@ it("keeps separate table and guest targets when owner-projected assignments chan
 });
 
 it("keeps terminal applicants out of counted lanes and preserves the active address", () => {
-  const { meta, props, examples } = components.ApplicantPipeline;
-  const input = stampItemIds(meta, props.parse(examples[0])) as Parameters<typeof ApplicantLanes>[0];
-  const html = render(<ApplicantLanes {...input} style="stack" />);
+  const { meta, props } = components.ApplicantPipeline;
+  const input = stampItemIds(meta, props.parse(pipelineWithClosed())) as Parameters<typeof ApplicantLanes>[0];
+  const html = render(<ApplicantLanes {...input} arrange="rows" />);
+  const stripLabel = 'aria-label="Applied, Screening, Interview, Offer"';
+  expect(html).not.toContain(stripLabel);
+  expect(render(<ApplicantLanes {...input} />)).toContain(stripLabel);
   expect(partText(html, "r1/name")).toBe("Sam Patel");
   expect(partText(html, "outcomes")).toContain("Withdrawn: 1");
   expect(html).not.toMatch(/Riley Chen|home\/c1\/r2|Move to/);

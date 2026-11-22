@@ -50,12 +50,13 @@ function applicantCard(
 export function ApplicantLanes({
   applicants,
   title,
-  style,
+  arrange,
   density: requestedDensity,
   moves,
 }: Input & { moves?: Moves }) {
   const { lang, words } = useWords(hiringWordsFor);
   const density = useVariant("density", ApplicantPipeline.meta.variants.density, requestedDensity);
+  const layout = useVariant("arrange", ApplicantPipeline.meta.variants.arrange, arrange);
   const state = useComponentState();
   const loading = state === "loading";
   const active = applicants.filter(({ outcome }) => outcome === "active");
@@ -79,7 +80,8 @@ export function ApplicantLanes({
       <KitHeader title={{ part: "title", text: title }} density={density} />
       <StageBoard
         part={null}
-        {...{ loading, style, density }}
+        {...{ loading, density }}
+        style={layout === "rows" ? "stack" : "columns"}
         lanes={columns}
         cards={active.map((applicant) => applicantCard(applicant, density, lang, words, moves))}
         {...(moves ? { move: { caption: words.pipeline.move, label: words.pipeline.destination } } : {})}
