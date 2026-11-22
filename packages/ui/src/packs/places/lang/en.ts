@@ -31,6 +31,20 @@ export const en = {
   departureDelay: (minutes: string) => `${minutes} min late`,
   departureLate: (hasTime: boolean) => (hasTime ? " · Late" : "Late"),
   departuresEmpty: "No departures to show",
+  stationRates: {
+    empty: "No rates reported for this station",
+    error: "Station feed unavailable",
+    success: "Cashback claimed",
+    claim: "Claim offer",
+    directions: "Directions",
+    updated: (time: string) => `Updated ${time}`,
+    rate: (price: string, unit: string) => `${price}/${unit}`,
+    power: (value: string) => `${value} kW`,
+    stalls: (open: string, total: string) => `${open} of ${total} open`,
+    stallsLabel: "Charging stalls",
+    cashback: (amount: string) => `${amount} cashback`,
+    reading: (label: string, value: string) => `${JSON.stringify(label)}: ${value}`,
+  },
   departureLabel: (line: string, to: string, time: string, delay?: string) =>
     `Line ${line} to ${to}, ${time}${delay ? `, ${delay}` : ""}`,
   departureReading: (line: string, to: string, time: string, delay?: string) =>
