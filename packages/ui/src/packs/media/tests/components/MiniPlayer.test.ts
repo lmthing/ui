@@ -119,8 +119,8 @@ describe("MiniPlayer states and parts", () => {
   });
 
   it.each([
-    [playing, "Pause", "0:45 · -7:15"],
-    [paused, "Play", "0:12 · -4:23"],
+    [playing, "Pause", "0:45 · 7:15 left"],
+    [paused, "Play", "0:12 · 4:23 left"],
   ] as const)("labels the transport control and shows elapsed and remaining time", (input, label, time) => {
     const html = renderInstance("MiniPlayer", input, "filled", theme);
     expect(elementAt(html, `${prefix}play`).attributes).toContain(`aria-label="${label}"`);
@@ -130,8 +130,8 @@ describe("MiniPlayer states and parts", () => {
 
 describe("MiniPlayer read and act", () => {
   it.each([
-    [playing, "pause", "play", "Playing — 0:45 · -7:15"],
-    [paused, "play", "pause", "Paused — 0:12 · -4:23"],
+    [playing, "pause", "play", "Playing — 0:45 · 7:15 left"],
+    [paused, "play", "pause", "Paused — 0:12 · 4:23 left"],
   ] as const)(
     "offers only the correct playback action, separate from navigation",
     (input, action, other, timing) => {

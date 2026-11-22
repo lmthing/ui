@@ -1,7 +1,16 @@
 import { appointmentDate } from "../../../catalog";
 import { inventoryWordsFor } from "../lang";
 
-type Loan = { since: string; due?: string | undefined; way: "lent" | "borrowed"; person: string };
+type Condition = { conditionOut?: string | undefined; conditionIn?: string | undefined };
+type Loan = Condition & { since: string; due?: string | undefined; way: "lent" | "borrowed"; person: string };
+
+export function loanCondition({ conditionOut, conditionIn }: Condition, lang?: string) {
+  const words = inventoryWordsFor(lang).loans;
+  return [
+    { part: "condition_out", text: conditionOut && words.conditionOut(conditionOut) },
+    { part: "condition_in", text: conditionIn && words.conditionIn(conditionIn) },
+  ] as const;
+}
 
 /** Loan dates are civil days on the device, not UTC deadlines. */
 export function loanToday(now = new Date()): string {
@@ -33,7 +42,16 @@ export function loanReading(
   const rows = loans.map((loan, index) => {
     const { since, due, overdue } = loanDates(loan, detail, lang, today);
     const reminder = words.remind[loan.way](loan.person);
-    const lines = [`${words.way[loan.way]}${loan.person}`, since, due, overdue, words.returned, reminder];
+    const notes = loanCondition(loan, lang).map(({ text }) => text);
+    const lines = [
+      `${words.way[loan.way]}${loan.person}`,
+      since,
+      due,
+      overdue,
+      ...notes,
+      words.returned,
+      reminder,
+    ];
     return `r${index + 1} ${words.reading(lines.filter((line): line is string => Boolean(line)))}`;
   });
   return rows;
