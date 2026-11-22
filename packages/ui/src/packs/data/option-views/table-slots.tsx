@@ -35,25 +35,32 @@ function TableCell(cell: Row["cells"][number], { kind }: Column, index: number, 
 }
 
 // prettier-ignore
-function TableHeading(row: Row, column: Column, { selectable, density, loading, lang, grouped }: {selectable: boolean; density: c.ThemeDensity; loading: boolean; lang: string; grouped: boolean}) {
-  const cell = row.cells[0]!, label = tableCell(cell, column.kind, lang), inline = density === "compact";
-  if (selectable && loading) return <kit.KitSkeleton lead="box" inset="none" density={density} items={[{ title: label }]} />;
-  const wrap = !loading && (row.goto || selectable || !inline || column.kind === "status");
-  const value = TableCell(cell, column, 0, density, loading, lang, wrap ? null : "root");
-  if (!wrap) return !loading && column.kind === "text" ? <kit.KitContent inset="md">{value}</kit.KitContent> : value;
-  const link = <kit.KitRow inline={selectable || inline} inset="none" density={density} part="root"
-    goto={row.goto} label={label}>{value}</kit.KitRow>;
+function TableHeading(row: Row, column: Column, { selectable, density, loading, lang }: {selectable: boolean; density: c.ThemeDensity; loading: boolean; lang: string}) {
+  const cell = row.cells[0]!, label = tableCell(cell, column.kind, lang);
+  const compact = selectable && column.kind === "text" ? "compact" : density;
+  if (selectable && loading) return <kit.KitSkeleton lead="box" inset="none" density="compact"
+    items={[{ lines: [{ text: label, role: numericKind(column.kind) ? "number" : "body",
+      numberScale: "compact", density: compact }] }]} />;
+  const wrap = !loading && (row.goto || selectable || column.kind === "status");
+  const value = TableCell(cell, column, 0, compact, loading, lang, wrap ? null : "root");
+  const content = !selectable && (column.kind === "text" || column.kind === "date")
+    ? <kit.KitContent inset="md">{value}</kit.KitContent> : value;
+  if (!wrap) return content;
+  const link = <kit.KitRow inline inset="none" density={density} part="root" fitContent={!row.goto && !selectable}
+    goto={row.goto} label={label}>{content}</kit.KitRow>;
   if (!selectable) return link;
   const pick = <kit.KitCheck part="pick" done={false} label={dataWordsFor(lang).tablePick(label)} />;
-  return <kit.KitRow inline={inline || grouped} density={density} inset="none"
+  return <kit.KitRow inline density={density} inset="none"
     leadingAlign="row" label={label} leading={pick}>{link}</kit.KitRow>;
 }
 
 // prettier-ignore
-function TableHeader(label: string, kind: Column["kind"], on: boolean, loading: boolean, pending: boolean) {
+function TableHeader(label: string, kind: Column["kind"], on: boolean, loading: boolean, pending: boolean, density: c.ThemeDensity) {
   const align = numericKind(kind) ? "end" : kind === "status" ? "center" : "start";
-  const chip = <kit.KitChip item={null} look="segment" role="radio" label={label} on={on && !loading}
-    disabled={loading ? false : pending || undefined} />;
+  if (loading) return <kit.KitContent inset="md">
+    <kit.KitLayoutText line={{ text: label, role: "meta" }} {...{ align, density }} />
+  </kit.KitContent>;
+  const chip = <kit.KitChip item={null} look="segment" role="radio" label={label} on={on} disabled={pending} />;
   if (align === "center") return chip;
   if (align === "end") return <kit.KitGrid fitLast><kit.KitContent>{null}</kit.KitContent>{chip}</kit.KitGrid>;
   return <kit.KitRow inline fitContent part={null} label={label} leadingAlign="row" leading={chip}>{null}</kit.KitRow>;
@@ -66,12 +73,12 @@ export function TableMatrix({ input, density, loading, lang, pending }: {
   const scope = kit.usePartContext();
   const headers = tableChoices(columns).map(({ label, value }) => ({
     id: String(value), label,
-    header: TableHeader(label, columns[value]!.kind, value === sort, loading, pending),
+    header: TableHeader(label, columns[value]!.kind, value === sort, loading, pending, density),
   }));
   const drawing = tableSections(rows, columns, group, sort, lang).flatMap(({ label, rows }, section) => {
     const records = rows.map((row) => ({
       id: row.id, label: tableCell(row.cells[0]!, columns[0]!.kind, lang),
-      heading: TableHeading(row, columns[0]!, { selectable, density, loading, lang, grouped: group === "sections" }),
+      heading: TableHeading(row, columns[0]!, { selectable, density, loading, lang }),
       cells: columns.slice(1).map((column, i) => ({
         id: headers[i + 1]!.id, content: TableCell(row.cells[i + 1]!, column, i + 1, density, loading, lang),
       })),
@@ -79,7 +86,7 @@ export function TableMatrix({ input, density, loading, lang, pending }: {
     if (label) records.unshift({
       id: `section_${section}`, label, cells: [],
       heading: <kit.PartScope {...scope} item={rows[0]!.id}>
-        <kit.KitContent inset="md"><kit.KitLayoutText density={density}
+        <kit.KitContent inset="md" group="response"><kit.KitLayoutText density={density}
           line={{ text: label, part: "group_heading", role: "meta", tone: "muted", strong: true }} /></kit.KitContent>
       </kit.PartScope>,
     });
