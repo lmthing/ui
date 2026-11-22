@@ -9,7 +9,17 @@ import {
 } from "../../../catalog";
 import { teamWordsFor } from "../lang";
 
-type Input = { on: boolean; since?: string | undefined; shift?: string | undefined; detail?: string };
+type Input = {
+  on: boolean;
+  since?: string | undefined;
+  shift?: string | undefined;
+  detail?: string;
+  style?: string;
+  verification?: "geofence" | "pin" | undefined;
+  breakTimer?: boolean | undefined;
+  liveBreakSeconds?: number;
+  liveBreakRunning?: boolean;
+};
 const snapshot = z.strictObject({
   asOf: z.int().nonnegative(),
   dayStart: z.int().nonnegative(),
@@ -31,7 +41,7 @@ function clockSummary(data: DeviceData, on: boolean, state: StateName) {
   if (dayStart > asOf) return;
   let started: number | undefined;
   let finished: number | undefined;
-  let onBreak = false;
+  let breakStart: number | undefined;
   let breaks = 0;
   let last = 0;
   for (const { at, kind } of events) {
@@ -43,11 +53,11 @@ function clockSummary(data: DeviceData, on: boolean, state: StateName) {
       finished = undefined;
     } else if (kind === "out" && active) {
       finished = at;
-      onBreak = false;
-    } else if (kind === "break_start" && active && !onBreak) {
-      onBreak = true;
+      breakStart = undefined;
+    } else if (kind === "break_start" && active && breakStart === undefined) {
+      breakStart = at;
       if (at >= dayStart) breaks++;
-    } else if (kind === "break_end" && active && onBreak) onBreak = false;
+    } else if (kind === "break_end" && active && breakStart !== undefined) breakStart = undefined;
     else return;
   }
   const active = started !== undefined && finished === undefined;
@@ -56,7 +66,11 @@ function clockSummary(data: DeviceData, on: boolean, state: StateName) {
     started !== undefined && (active || state === "success")
       ? ((finished ?? asOf) - started) / millisPerSecond
       : undefined;
-  return { elapsed, breaks, onBreak };
+  return { elapsed, breaks, breakStart, asOf };
+}
+
+export function activeBreakStart(data: DeviceData, input: Readonly<Record<string, unknown>>) {
+  return clockSummary(data, input.on === true, "filled")?.breakStart;
 }
 
 export function timeClockDisplay(
@@ -68,7 +82,7 @@ export function timeClockDisplay(
 ) {
   const success = state === "success";
   const summary = clockSummary(data, input.on, state);
-  const onBreak = summary?.onBreak ?? false;
+  const onBreak = summary?.breakStart !== undefined;
   const elapsed = summary?.elapsed;
   return {
     shift: input.shift ?? words.shift,
@@ -79,11 +93,24 @@ export function timeClockDisplay(
         : undefined,
     elapsed: elapsed === undefined ? undefined : clockLine(elapsed, lang),
     elapsedLabel: elapsed === undefined ? undefined : words.elapsed,
+    breakElapsed:
+      input.breakTimer && summary?.breakStart !== undefined
+        ? clockLine(
+            Math.max(
+              (summary.asOf - summary.breakStart) / millisPerSecond,
+              input.liveBreakRunning ? (input.liveBreakSeconds ?? 0) : 0,
+            ),
+            lang,
+          )
+        : undefined,
+    breakElapsedLabel: input.breakTimer && onBreak ? words.breakElapsed : undefined,
     breaks: summary
       ? words.breaks(numberLine(summary.breaks, lang), pluralForm(summary.breaks, lang))
       : undefined,
     clockAction: success ? undefined : input.on ? words.clockOut : words.clockIn,
     breakAction: !success && input.on ? (onBreak ? words.endBreak : words.startBreak) : undefined,
+    verification:
+      !success && input.style === "kiosk" ? words.verification[input.verification ?? "kiosk"] : undefined,
   };
 }
 
@@ -108,11 +135,8 @@ export function timeClockPreview({
   const events: Snapshot["events"] = [];
   const asOf = at(575);
   if (input.on || state === "success") {
-    events.push(
-      { at: at(420), kind: "in" },
-      { at: at(540), kind: "break_start" },
-      { at: at(555), kind: "break_end" },
-    );
+    events.push({ at: at(420), kind: "in" }, { at: at(540), kind: "break_start" });
+    if (!input.breakTimer || state === "success") events.push({ at: at(555), kind: "break_end" });
     if (state === "success") events.push({ at: asOf, kind: "out" });
   }
   return { shiftClock: [{ asOf, dayStart, events } satisfies Snapshot] };

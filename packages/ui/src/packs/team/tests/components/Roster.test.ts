@@ -76,6 +76,36 @@ describe("Roster schema and boundaries", () => {
     expect(props.safeParse({ ...first, shifts: [{ ...shift, ...input }] }).success).toBe(false);
   });
 });
+
+it("takes the local day or a selected date, groups shifts by station, and preserves action addresses", () => {
+  const input = {
+    ...first,
+    style: "day",
+    shifts: [first.shifts[2]!, { ...shift, station: "Greenhouse" }, first.shifts[1]!],
+  };
+  vi.setSystemTime(new Date(2026, 10, 16, 12));
+  try {
+    const html = view(input);
+    const parts = addressedElements(html);
+    expect(html).toContain("Greenhouse");
+    expect(html).toContain("No station assigned");
+    expect(parts.has("home/c1/r1/root")).toBe(false);
+    expect(parts.has("home/c1/r2/root")).toBe(true);
+    const runtime = createScreenController({
+      screen: { id: "home", components: [{ ...input, id: "rota", c: "Roster" }] },
+      defs: components,
+    });
+    expect(runtime.read()).toContain("Greenhouse: Anna 07:00–12:00 Watering (r2)");
+    expect(runtime.press("rota/r1").ok).toBe(false);
+    expect(runtime.press("rota/r2").ok).toBe(true);
+    runtime.dispose();
+    expect(addressedElements(view({ ...input, date: "2026-11-18" })).has("home/c1/r1/root")).toBe(true);
+    expect(view({ ...input, date: "2026-11-22" })).toContain("No shifts scheduled");
+    expect(props.safeParse({ ...input, date: "2026-11-23" }).success).toBe(false);
+  } finally {
+    vi.useRealTimers();
+  }
+});
 describe("Roster fallback and metadata", () => {
   it("uses bounded cast names or the shared neutral placeholder, without inventing shifts", () => {
     const cast: CastLike = {

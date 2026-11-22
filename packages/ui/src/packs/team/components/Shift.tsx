@@ -139,42 +139,51 @@ function ShiftHeader({
   density: c.ThemeDensity;
   loading: boolean;
 }) {
-  const compact = density === "compact";
-  const labels = (
-    <kit.KitGrid fitLast density={density}>
-      {loading
-        ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", date]]} />
-        : <kit.KitText part="date" role="label" tone="muted" density={density}>{date}</kit.KitText>}
-      {loading
-        ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", status]]} />
-        : <kit.KitText part="status" role="label" tone="muted" density={density}>{status}</kit.KitText>}
-    </kit.KitGrid>
-  );
   return (
-    <kit.KitContent group="response" density={density}>
-      {loading
+    <kit.KitFigure density={density}
+      media={loading
         ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["number", range]]} />
         : <kit.KitText part={null} role="number" lines={1} tabular density={density}>
             <kit.KitText part="from" role="number" tabular density={density}>{from}</kit.KitText>
             {separator}
             <kit.KitText part="to" role="number" tabular density={density}>{to}</kit.KitText>
           </kit.KitText>}
-      <kit.KitContent group={compact ? "content" : "response"} density={density}>
-        {labels}
-      </kit.KitContent>
-    </kit.KitContent>
+      caption={<kit.KitGrid fitLast density={density}>
+        <kit.KitLayoutText line={{ text: date, part: "date", role: "meta", tone: "muted" }} density={density} />
+        <kit.KitLayoutText line={{ text: status, part: "status", role: "meta", tone: "muted" }} density={density} />
+      </kit.KitGrid>} />
   );
 }
 
 export function Shift(input: c.Props<typeof props, typeof meta>) {
   const loading = kit.useComponentState() === "loading";
-  const { lang, words } = kit.useWords(teamWordsFor);
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  return (
+    <kit.KitCard part="root" padded density={density}>
+      <kit.KitState density={density} loading={<ShiftBody {...{ input, detail, density, loading }} />}>
+        <ShiftBody {...{ input, detail, density, loading }} />
+      </kit.KitState>
+    </kit.KitCard>
+  );
+}
+
+function ShiftBody({
+  input,
+  detail,
+  density,
+  loading,
+}: {
+  input: c.Props<typeof props, typeof meta>;
+  detail: c.AxisValue<"detail">;
+  density: c.ThemeDensity;
+  loading: boolean;
+}) {
+  const { lang, words } = kit.useWords(teamWordsFor);
   const labels = shiftActionLabels(input.status, lang);
   const { canSwap, canOffer } = shiftActionFlags(input.status);
   return (
-    <kit.KitCard part="root" padded density={density}>
+    <>
       <ShiftHeader
         schedule={shiftSchedule(input, lang)}
         status={words.shiftStatus[input.status]}
@@ -182,12 +191,10 @@ export function Shift(input: c.Props<typeof props, typeof meta>) {
         {...{ density, loading }}
       />
       <ShiftDetails details={shiftDetails({ ...input, detail }, lang)} {...{ density, loading }} />
-      <kit.KitContent group="response" density={density}>
-        <kit.KitGrid density={density}>
-          <kit.KitAction part="swap" kind="secondary" label={labels.swap} disabled={!canSwap} full />
-          <kit.KitAction part="offer" kind="quiet" label={labels.offer} disabled={!canOffer} full />
-        </kit.KitGrid>
-      </kit.KitContent>
-    </kit.KitCard>
+      <kit.KitActionFooter density={density}>
+        <kit.KitAction part="swap" kind="secondary" label={labels.swap} disabled={!canSwap} />
+        <kit.KitAction part="offer" kind="quiet" label={labels.offer} disabled={!canOffer} />
+      </kit.KitActionFooter>
+    </>
   );
 }

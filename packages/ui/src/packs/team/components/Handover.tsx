@@ -131,7 +131,7 @@ function HandoverNote({ note, detail, density }: NoteProps) {
     <kit.KitCheck part="seen" done={seen} readonly={seen} label={seen ? seenNote(text) : markSeen(text)} />
   );
   return (
-    <kit.KitRow item={note.id} label={by} inline lineRole="label" trailing={check} density={density}>
+    <kit.KitRow item={note.id} label={by} inset="none" lineRole="body" trailing={check} density={density}>
       <kit.KitGrid fitLast density={density}>
         <kit.KitText part="by" role="label" tone="muted" density={density}>
           {by}
@@ -148,16 +148,17 @@ function HandoverNote({ note, detail, density }: NoteProps) {
           </kit.KitText>
         )}
       </kit.KitGrid>
-      {detail === "full" && (
-        <kit.KitText part="time" role="label" tone="muted" density={density} tabular>
-          {time}
-        </kit.KitText>
-      )}
-      <kit.KitContent density={density} group="response">
-        <kit.KitText part="text" role="body" density={density} emphasis="strong">
-          {text}
-        </kit.KitText>
-      </kit.KitContent>
+      <kit.KitMetaLine
+        title={{
+          text: detail === "full" ? time : undefined,
+          part: "time",
+          role: "meta",
+          tone: "muted",
+          tabular: true,
+        }}
+        meta={{ text, part: "text", role: "body", tone: "text", strong: true }}
+        density={density}
+      />
     </kit.KitRow>
   );
 }
@@ -170,15 +171,13 @@ export function Handover(input: HandoverProps) {
   const { notes } = kit.useLiveControls(meta, input) as HandoverProps;
   return (
     <kit.KitCard part="root" padded={state === "filled"} surface={surface} density={density}>
-      {state === "filled" ? (
-        <kit.KitGrid arrange="rows" list listRowGap="cards" density={density}>
+      <kit.KitState part="message" icon="clipboard_list" density={density}>
+        <kit.KitRowGroup spacing="groups" density={density}>
           {notes.map((note) => (
             <HandoverNote key={note.id} {...{ note, detail, density }} />
           ))}
-        </kit.KitGrid>
-      ) : (
-        <kit.KitEmpty part="message" icon="clipboard_list" decorativeIcon />
-      )}
+        </kit.KitRowGroup>
+      </kit.KitState>
     </kit.KitCard>
   );
 }
