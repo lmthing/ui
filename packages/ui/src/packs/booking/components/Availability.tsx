@@ -5,7 +5,15 @@ import { KitCard, KitContent, KitGrid, KitInput, KitLayoutText, KitRow, KitRowGr
 import { clock, isoDate, probesFor, variantProps, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
 import { z } from "zod";
 import { bookingWordsFor } from "../lang";
-import { availabilityDefaults, availabilityReading, breakLine, bufferLine, dateOverrideLine } from "../copy";
+import {
+  availabilityDayLabel,
+  availabilityDefaults,
+  availabilityReading,
+  bookingWeekdays,
+  breakLine,
+  bufferLine,
+  dateOverrideLine,
+} from "../copy";
 // Core first: Field/time edits one time, not a seven-day working week with switches and breaks.
 export const meta = {
   id: "Availability",
@@ -32,7 +40,7 @@ export const meta = {
   read: (input, state, lang): string[] =>
     state === "filled" ? availabilityReading(input as z.output<typeof props>, lang) : [],
 } as const satisfies Meta;
-const weekdays = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
+const weekdays = bookingWeekdays;
 export const props = z
   .strictObject({
     ...variantProps(meta.variants),
@@ -130,15 +138,14 @@ export const probes = [
 ] satisfies Probe[];
 // prettier-ignore
 function DayFields({ day }: { day: Props<typeof props, typeof meta>["days"][number] }) {
-  const { lang, words: { weekdayNames } } = useWords();
-  const weekday = weekdayNames[weekdays.indexOf(day.day)]!;
-  const { availabilityLabels } = bookingWordsFor(lang);
+  const { lang, words: { availabilityLabels } } = useWords(bookingWordsFor);
   const toggle = usePart("toggle", false);
   const on = useControlValue(toggle.testID, day.on);
   return (
     <>
-      <KitRow inline label={weekday} trailing={<KitTrail kind="toggle" on={day.on} part="toggle" />}>
-        <KitLayoutText line={{ text: on ? weekday : availabilityLabels.off(weekday),
+      <KitRow inline label={availabilityDayLabel(day.day, true, lang)}
+        trailing={<KitTrail kind="toggle" on={day.on} part="toggle" />}>
+        <KitLayoutText line={{ text: availabilityDayLabel(day.day, on, lang),
           part: "day", strong: on, tone: on ? "text" : "muted" }} />
       </KitRow>
       <KitGrid columns={2}>

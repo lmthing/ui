@@ -14,21 +14,13 @@ function slotEnd(time: string, minutes: number, lang?: string): string {
 export const slotEndLine = (time: string, minutes: number, lang?: string): string =>
   `→ ${slotEnd(time, minutes, lang)}`;
 
-export const slotRangeLine = (time: string, minutes: number, lang?: string): string =>
-  `${time}–${slotEnd(time, minutes, lang)}`;
-
-/** Read the status in the grid and the computed end and status in rows. */
-export function slotDetailLine(
+/** Keep the numeric line separate from the availability status in every layout. */
+export function slotLabelLine(
   time: string,
   minutes: number,
-  arrange: "grid" | "rows",
-  taken: boolean,
+  layout: "grid" | "rows" | "ranges",
   lang?: string,
 ): string {
-  const { slotLabels } = bookingWordsFor(lang);
-  return arrange === "grid"
-    ? taken
-      ? slotLabels.taken
-      : slotLabels.free
-    : `${slotEndLine(time, minutes, lang)}${taken ? ` · ${slotLabels.taken}` : ""}`;
+  if (layout === "ranges") return `${time}–${slotEnd(time, minutes, lang)}`;
+  return layout === "rows" ? `${time} ${slotEndLine(time, minutes, lang)}` : time;
 }

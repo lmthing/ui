@@ -7,7 +7,7 @@ import { z } from "zod";
 // prettier-ignore
 import { clock, clockLine, detailOf, durationLine, emptyLine, itemsOf, placeholderValue, probesFor,
   text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
-import { slotDetailLine, slotEndLine, slotRangeLine } from "../copy";
+import { slotLabelLine } from "../copy";
 
 // Core first: Calendar/week selects dates, not free and taken times within a day.
 export const meta = {
@@ -40,14 +40,11 @@ export const meta = {
     return [
       durationLine(minutes, lang),
       ...(timezone ? [timezone] : []),
-      ...times.flatMap(({ time, taken }) =>
-        style === "ranges"
-          ? [slotRangeLine(time, minutes, lang), taken ? slotLabels.taken : slotLabels.free]
-          : [
-              `${time}${taken ? ` (${slotLabels.taken})` : ""}`,
-              slotDetailLine(time, minutes, arrange, taken, lang),
-            ],
-      ),
+      ...times.flatMap(({ time, taken }) => [
+        slotLabelLine(time, minutes, style ?? arrange, lang),
+        taken ? slotLabels.taken : slotLabels.free,
+        ...(taken && !style && arrange === "grid" ? [`${time} (${slotLabels.taken})`] : []),
+      ]),
     ];
   },
 } as const satisfies Meta;
@@ -194,15 +191,12 @@ export function Slots(input: Props<typeof props, typeof meta>) {
   const thing = useEmptyThing();
   const duration = durationLine(minutes, lang);
   const list = ranges || arrange === "rows";
-  const slots = times.map(({ id, time, taken }) => {
-    return {
-      id,
-      taken,
-      label: ranges ? slotRangeLine(time, minutes, lang)
-        : list ? `${time} ${slotEndLine(time, minutes, lang)}` : time,
-      sub: taken ? slotLabels.taken : slotLabels.free,
-    };
-  });
+  const slots = times.map(({ id, time, taken }) => ({
+    id,
+    taken,
+    label: slotLabelLine(time, minutes, input.style ?? arrange, lang),
+    sub: taken ? slotLabels.taken : slotLabels.free,
+  }));
   const selected = times.find(({ time }) => time === at);
   const body = <>
     {timezone && <KitContent leadingAlign="row"
