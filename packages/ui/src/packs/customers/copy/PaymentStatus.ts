@@ -30,12 +30,15 @@ export function installmentLine(row: Installment, lang?: string) {
   };
 }
 
-export function paymentPaid({ paid, installments }: Payment): number | undefined {
-  if (paid !== undefined || !installments?.length) return paid;
+export function installmentTotal(installments: readonly Installment[] | undefined): number | undefined {
+  if (!installments?.length) return undefined;
   const total = installments.reduce((sum, { amount }) => sum + amount, 0);
   // Remove floating-point noise without multiplying sums at extreme magnitudes.
   return Number(total.toFixed(2));
 }
+
+export const paymentPaid = ({ paid, installments }: Payment): number | undefined =>
+  paid ?? installmentTotal(installments);
 
 export const paymentToday = (): string => new Date().toISOString().slice(0, 10);
 export const paymentAmountLine = (amount: number, lang?: string): string =>

@@ -5,9 +5,8 @@ import { z } from "zod";
 // prettier-ignore
 import { compactMoneyLine, isoDate, probesFor, text, variantProps, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
 // prettier-ignore
-import { installmentLine, paymentDetails, paymentFallback, paymentPaid, paymentReading, paymentStatus } from "../copy";
+import { installmentLine, installmentTotal, paymentDetails, paymentFallback, paymentPaid, paymentReading, paymentStatus } from "../copy";
 
-// Core first: Amount/large cannot derive one client payment's settlement and expose mark/remind actions.
 export const meta = {
   id: "PaymentStatus",
   status: "ready",
@@ -31,6 +30,7 @@ export const meta = {
   items: { key: "installments", parts: ["root", "date", "amount"] },
   partTiers: { remind: "service", copy: "service", share: "service" },
   states: ["filled", "success"],
+  emptyActions: [], // Use the displayed state when planning detached actions.
   actions: {
     parts: { mark: ["press"], remind: ["press"], copy: ["copy"], share: ["press"] },
     // prettier-ignore
@@ -63,7 +63,10 @@ export const props = z
     installments: z.array(z.strictObject({ date: isoDate, amount: z.number().positive().multipleOf(0.01) })).min(1).max(6).optional(),
   })
   .refine((value) => (value.style === "link") === (value.paymentLink !== undefined), { path: ["paymentLink"] })
-  .refine((value) => Number.isFinite(paymentPaid(value) ?? 0), { path: ["installments"] })
+  .refine(({ installments, paid }) => {
+    const total = installmentTotal(installments);
+    return total === undefined || (Number.isFinite(total) && (paid === undefined || paid >= total));
+  }, { path: ["installments"] })
   // Code-owned action presence, never a Writer-supplied status or balance.
   .overwrite((value) => {
     const outstanding = (paymentPaid(value) ?? 0) < value.amount;
@@ -168,9 +171,8 @@ function PaymentLink({ link, density }: { link: string; density: PaymentProps["d
 
 // prettier-ignore
 export function PaymentStatus(input: PaymentProps) {
-  const { lang, words } = useWords(customersWordsFor);
-  const { moneyLabels } = useWords().words;
-  const { paymentLabels } = words;
+  const { lang, words: { paymentLabels } } = useWords(customersWordsFor);
+  const { words: { moneyLabels } } = useWords();
   const { surface, installments, paymentLink } = input;
   const density = useVariant("density", meta.variants.density, input.density);
   const state = useComponentState();

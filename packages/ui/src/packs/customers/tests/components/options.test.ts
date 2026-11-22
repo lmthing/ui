@@ -1,5 +1,5 @@
 import { expect, it, vi } from "vitest";
-import { components, readComponent } from "@lmthing/ui/catalog";
+import { components, planAct, readComponent } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { addressedElements, elementAt, renderInstance } from "../../../../../test/render";
 
@@ -91,6 +91,9 @@ it("computes invoice savings, discounted tax, and balance after deposit; cadence
     expect(text).toContain(value);
   }
   expect(text).toContain("[c1/download press !needs-service]");
+  expect(partText(renderInstance("Invoice", { ...input, status: "paid" }, "filled", theme), "balance")).toBe(
+    "$0",
+  );
   for (const state of ["filled", "success"] as const) {
     const { controller, onAction } = control("Invoice", { ...input, state });
     expect(controller.press("c1/download")).toMatchObject({ ok: true });
@@ -163,8 +166,10 @@ it("retains addressed installment rows and derives settlement without double cou
   expect(reading("PaymentStatus", input)).toContain("Installment history");
   expect(reading("PaymentStatus", input)).toContain("17 Nov 2026");
   expect(reading("PaymentStatus", input)).not.toContain("c1/mark");
-  expect(reading("PaymentStatus", { ...input, paid: 20 })).toContain("Received $20");
-  expect(reading("PaymentStatus", { ...input, paid: 20 })).toContain("c1/mark");
+  const withPriorPayment = { ...payment, installments, paid: 25 };
+  expect(reading("PaymentStatus", withPriorPayment)).toContain("Received $25");
+  expect(reading("PaymentStatus", withPriorPayment)).toContain("c1/mark");
+  expect(components.PaymentStatus.props.safeParse({ ...input, paid: 20 }).success).toBe(false);
   expect(renderInstance("PaymentStatus", input, "success", theme)).toContain("home/c1/r2/amount");
   for (const rows of [
     [],
@@ -173,4 +178,20 @@ it("retains addressed installment rows and derives settlement without double cou
     Array.from({ length: 7 }, () => installments[0]),
   ])
     expect(components.PaymentStatus.props.safeParse({ ...payment, installments: rows }).success).toBe(false);
+});
+
+it("rejects hidden service actions even when planned without a mounted view", () => {
+  const screen = {
+    id: "home",
+    components: [
+      { ...client, c: "ClientCard", id: "client", email: true, state: "loading" as const },
+      { ...payment, ...link, c: "PaymentStatus", id: "payment", state: "success" as const },
+    ],
+  };
+  for (const [address, action] of [
+    ["client/email", "press"],
+    ["payment/share", "press"],
+    ["payment/copy", "copy"],
+  ] as const)
+    expect(planAct(screen, components, {}, [{ address, action }]).ok).toBe(false);
 });

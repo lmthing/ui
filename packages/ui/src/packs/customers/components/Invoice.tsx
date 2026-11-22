@@ -4,7 +4,6 @@ import { z } from "zod";
 // prettier-ignore
 import { isoDate, documentTotals, itemsOf, moneyLine, placeholderTitle, probesFor, quantityLine, text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
 import { invoiceCopy, invoiceReading } from "../copy";
-// Core first: KeyValue/rows cannot show quantity-price lines, computed tax totals and bill/quote actions.
 export const meta = {
   id: "Invoice",
   status: "ready",
@@ -67,6 +66,7 @@ export const props = z
       ctx.addIssue({ code: "custom", path: ["deposit"], message: "Deposit cannot exceed total." });
   })
   .overwrite((value) => (value.detail === "brief" ? { ...value, note: undefined } : value));
+const draft = "draft" as const;
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const item = itemsOf(cast, 1)[0],
     thing = thingOf(cast);
@@ -75,22 +75,19 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     to: (item && titleOf(item, 28, thing)) || placeholderTitle(0, lang),
     date: "2026-11-18",
     lines: [{ item: (item && titleOf(item, 32, thing)) || placeholderTitle(0, lang), qty: 1, price: 0 }],
-    status: "draft",
+    status: draft,
   };
 }
 // prettier-ignore
 const variantExample = {
-  number: "T-043", to: "Ben Carter", date: "2026-11-19", due: "2026-12-03", status: "draft",
+  number: "T-043", to: "Ben Carter", date: "2026-11-19", due: "2026-12-03", status: draft,
   lines: [{ item: "Afternoon river walks", qty: 6, price: 18 }],
   note: "Thank you for booking with Trot.",
 } satisfies z.input<typeof props>;
 // prettier-ignore
 export const examples = [
   {
-    number: "L-042",
-    to: "Anna Patel",
-    date: "2026-11-18",
-    due: "2026-12-02",
+    number: "L-042", to: "Anna Patel", date: "2026-11-18", due: "2026-12-02",
     lines: [
       { item: "Plant care visit", qty: 2, price: 20 },
       { item: "Repotting", qty: 1, price: 30 },

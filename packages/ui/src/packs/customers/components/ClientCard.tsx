@@ -15,7 +15,7 @@ export const meta = {
   pick: "One business client's page head with tenure, next booking or order, tags and contact actions. Not another kind of identity (Profile), multiple clients as tappable rows (List), or plain labelled phone and address details without contact buttons (KeyValue). All clients with a photo and last-visit detail on each row remain List, never this one-client page head.",
   writeHints: [
     'A portrait request is photo data, not a media option: write the photo reference and media: null. Never write media: "thumb" for the default photo. Use media: "none" only when asked to omit the photo.',
-    'To hide only tenure, next booking and tags, set detail: "brief" and keep those values. Write null for every other unrequested axis, including media.',
+    'To hide only tenure, next booking and tags, use {"density":null,"surface":null,"media":null,"detail":"brief"} and keep those values. A client card does not request surface: "card"; only an explicit outlined request sets surface.',
     "Only include company if known. For a balance badge, use billing with known charged and paid amounts; the card computes the difference. Set email true only to offer an email button for a client with email contact.",
   ],
   region: "body",
@@ -36,6 +36,7 @@ export const meta = {
   parts: ["root", "photo", "name", "since", "next", "tags", "call", "message", "directions", "company", "balance", "email"],
   partTiers: { call: "service", message: "service", directions: "service", email: "service" },
   states: ["filled", "loading"],
+  emptyActions: [], // Use the displayed state when planning detached actions.
   actions: {
     parts: { call: ["press"], message: ["press"], directions: ["press"], email: ["press"] },
     when: { call: { phone: true }, directions: { address: true }, email: { email: true } },

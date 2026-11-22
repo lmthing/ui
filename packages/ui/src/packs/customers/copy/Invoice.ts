@@ -23,10 +23,11 @@ function invoiceAmounts(input: Invoice, amounts: Amount[], lang?: string): Amoun
   );
   if (deposit === undefined) return result;
   const { total } = documentTotals(input);
+  const balance = input.status === "paid" ? 0 : Math.max(0, total - deposit);
   return [
     ...result,
     { part: "deposit", label: w.deposit, value: money(deposit, lang) },
-    { part: "balance", label: w.balance, value: money(Math.max(0, total - deposit), lang) },
+    { part: "balance", label: w.balance, value: money(balance, lang) },
   ];
 }
 
