@@ -15,15 +15,14 @@ import {
 } from "../catalog";
 import { z } from "zod";
 import { KitBlock, KitIcon, KitText } from "../kit";
+import { prompt } from "../entry/prompt-Banner.generated";
 
 export const meta = {
   id: "Banner",
   group: "content",
-  purpose: "Something important to notice now, with an optional link to act.",
-  pick: "A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).",
-  writeHints: [
-    'Warnings use the default surface and tone: set both fields to null unless a different finish is explicitly requested. To hide the icon, set only media to "none"; otherwise use null for media and put a custom icon in icon.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "top",
   weight: 2,
   tier: "phone",

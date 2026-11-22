@@ -26,16 +26,15 @@ import {
   useComponentState,
   useVariant,
 } from "../kit";
+import { prompt } from "../entry/prompt-Stats.generated";
 
 export const meta = {
   id: "Stats",
   signature: "count_up",
   group: "data",
-  purpose: "Two to four independent summary numbers, with labels, units and optional change arrows.",
-  pick: "Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).",
-  writeHints: [
-    'Leave density and arrange null unless explicitly requested. For one metric per line with its label on the left and number on the right, set arrange "rows".',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

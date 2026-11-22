@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { storiesReading } from "../copy";
 import { socialWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Stories.generated";
 
 // Core first: People/roster cannot distinguish seen updates from unseen ones or add a story.
 export const meta = {
   id: "Stories",
   status: "ready",
   group: "content",
-  purpose: "Tap through people’s short-lived updates and add one of your own.",
-  pick: "Short-lived stories from people, opened from seen or unseen avatar rings, with an optional add button first. Not a member roster (People) or a photo collection (Gallery).",
-  writeHints: [
-    'For an add button set "mine":true. Never insert an add entry or a "Me" story in people: the button renders separately. List only the existing stories from the brief, in order, with their goto links and seen flags.',
-    'For explicitly hiding captions write "detail":"brief" and preserve the names. Otherwise write "detail":null. If no density or surface is requested, write "density":null and "surface":null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

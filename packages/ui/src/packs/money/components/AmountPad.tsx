@@ -27,17 +27,16 @@ import {
 } from "../../../kit";
 import { amountPadDisplay, amountPadKeys, amountPadReading, amountPadText } from "../copy";
 import { moneyWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-AmountPad.generated";
 
 // Core first: Field/number cannot provide a screen-dominant amount with a decimal keypad and backspace.
 export const meta = {
   id: "AmountPad",
   status: "ready",
   group: "input",
-  purpose: "Enter a money amount quickly with a large keypad.",
-  pick: "Entering money is the main screen task: large live amount, decimal keypad and optional note. Not a number among form fields (Field), or a count to step (Counter).",
-  writeHints: [
-    "value and max are nonnegative numbers; value must not exceed max. note enables input, never note text. For a hidden enabled note use note true, detail brief. If no border or surface requested, write surface null, not card.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

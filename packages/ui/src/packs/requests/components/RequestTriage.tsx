@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 import { triageReading } from "../copy";
 import { requestsWordsFor } from "../lang";
 import { urgency } from "./RequestQueue";
+import { prompt } from "../../../entry/prompt-RequestTriage.generated";
 
 // prettier-ignore
 const maxChoices = 6, maxReason = 120;
@@ -12,12 +13,9 @@ const maxChoices = 6, maxReason = 120;
 // prettier-ignore
 export const meta = {
   id: "RequestTriage", status: "ready", group: "input",
-  purpose: "Prioritise and route a report, or link it to an existing request.",
-  pick: "Triage one incoming service report: compare reported urgency with impact, set effective priority and route it or link a duplicate. Not a simple form dropdown (Field) or manager permission (Approval).",
-  writeHints: [
-    "at and duplicateAt are zero-based indices. A chosen duplicate needs a reason and must not have the report's own number.",
-    'For the decision only, set detail "brief" and density null. Keep the report number and title in the data. Only set density when spacing is requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath: "A routing decision saved with the request on the operator's device.",
   variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },

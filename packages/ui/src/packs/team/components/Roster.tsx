@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 // prettier-ignore
 import { rosterCover, rosterDays, rosterPortrait, rosterReading, rosterShift, rosterToday, rosterWeek, shiftsByPerson } from "../copy";
 import { teamWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Roster.generated";
 
 // prettier-ignore
 const portraits = ["portrait_1", "portrait_2", "portrait_3", "portrait_4",
@@ -14,12 +15,9 @@ export const meta = {
   id: "Roster",
   status: "ready",
   group: "data",
-  purpose: "See who works each day this week and spot gaps in cover.",
-  pick: "A weekly grid comparing staff shift times across people and days. Not one person's daily schedule (Timeline), one shift (Shift), bookable hours (Availability), a sports lineup (Lineup), or class periods (Timetable).",
-  writeHints: [
-    "week is the Monday date. Use the person's zero-based index in people. Day indices: Mon 0, Tue 1, Wed 2, Thu 3, Fri 4, Sat 5, Sun 6. Omit shifts on days off, write roles only when provided, and do not write cover flags.",
-    'When asked to show times without role labels, write detail "brief" and keep the roles in the data. Use null for unrequested density, surface and detail.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

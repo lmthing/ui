@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { eventCopy, eventReading } from "../copy";
 import { socialWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-EventCard.generated";
 
 // Core first: Card/feature cannot show an event's date block, attendees and two RSVP actions.
 export const meta = {
   id: "EventCard",
   status: "ready",
   group: "content",
-  purpose: "See a community event and say whether you’re going or interested.",
-  pick: "An event to join in a community, with its date block, attendees and Going or Interested controls. Not organising one's own gathering (events), a provider booking (Appointment), or a featured preview without RSVPs (Card).",
-  writeHints: [
-    "Use YYYY-MM-DD and 24-hour HH:MM. Set going to the full attendance count and list up to five names from that total in attendees.",
-    'Leave density, surface and media null unless requested. When asked to hide a supplied cover, set media to "none" and keep the photo reference in photo.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",

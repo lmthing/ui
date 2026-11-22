@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { pollDate, pollReading, pollResults } from "../copy";
 import { socialWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Poll.generated";
 
 // Core first: Choice/cards stores a personal choice, not a group vote with results.
 export const meta = {
   id: "Poll",
   status: "ready",
   group: "input",
-  purpose: "Ask a group to vote and see how everyone voted.",
-  pick: "A shared question with voting options and group results. Not a choice for oneself (Choice), a quiz with right answers (Quiz), or coordinating a date via availability (FindDate).",
-  writeHints: [
-    "voted is a zero-based index, omitted until the person votes. Write each option's vote count; total and shares are derived. closes uses YYYY-MM-DD.",
-    'Hide only the closing date with "detail":"brief","density":null,"surface":null,"emphasis":null. Keep closes in the data and keep the results. For unrequested variants output null, never a named default.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",

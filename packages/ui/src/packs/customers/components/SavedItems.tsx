@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { savedItemDetails, savedItemGroups } from "../copy";
 import { customersWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-SavedItems.generated";
 
 // Core first: List/trail value shows a price but cannot add a reusable billable entry with its unit and tax defaults.
 export const meta = {
   id: "SavedItems",
   status: "ready",
   group: "content",
-  purpose: "Reuse saved billable rates with their units and tax defaults while quoting or invoicing.",
-  pick: "A reusable rate card of saved billable line items with quick-add into an invoice or estimate. Not a bill for one client (Invoice), bookable services (ServiceMenu), retail stock (ProductGrid), or a simple list with values (List).",
-  writeHints: [
-    "Use a unique short id for every saved item, a nonnegative numeric rate and an optional unit or category. Use taxable:false only for a nontaxable item. Don't put prices in titles or compute invoice totals.",
-    'If asked for category headings, use exactly {"density":null,"surface":null,"group":"sections"} for the axes. Keep category on each categorized item. Leave all axes null unless requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

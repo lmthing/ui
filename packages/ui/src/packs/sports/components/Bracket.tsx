@@ -3,18 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { bracketDrawing, bracketReading } from "../copy";
 import { sportsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Bracket.generated";
 
 // Core first: List/lead:number orders entrants, not head-to-head ties and winners advancing across rounds.
 export const meta = {
   id: "Bracket",
   status: "ready",
   group: "data",
-  purpose: "Follow knockout ties and see who advances to the next round.",
-  pick: "A knockout cup as paired teams per round, with winners advancing. Only use it for actual head-to-head ties; a top-scorers ranking is List, even in a cup. Not a league table (Standings) or a sequence of matches (Fixtures).",
-  writeHints: [
-    "Write rounds earliest to latest, and ties in bracket order. Do not write winners or connectors. Later rounds use the team names already known to advance; omit scores for ties not played.",
-    'For team names and winner markers without printed scores, write "detail":"brief" and keep the known scores in data. Otherwise write "detail":null. Always write "density":null and "surface":null unless the person specifically requests a change to spacing or the card treatment.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

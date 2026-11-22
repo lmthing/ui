@@ -5,19 +5,16 @@ import * as kit from "../../../kit";
 import { isCompletedRequest, requestGroups, queueCounts, queueSnapshot, requestLines, requestSkeleton,
   requestQueueReading, requestStatuses, requestUrgencies, type QueueRecord } from "../copy";
 import { requestsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-RequestQueue.generated";
 
 // Core first: List/trail badge cannot switch lifecycle views or order by urgency and deadline.
 export const meta = {
   id: "RequestQueue",
   status: "ready",
   group: "data",
-  purpose: "Find the next service request to work on by urgency and deadline.",
-  pick: "An operator's active and completed service tickets, grouped by lifecycle status and ordered by urgency and deadline. Not a short tappable badge list (List), arbitrary stages (Board), or one rental repair (Request).",
-  writeHints: [
-    'Write 1–6 records across both views, only from the brief. An explicit request for one flat queue with no status headings requires group "none", not null. Only set density when spacing is requested.',
-    "Never write display order, age, overdue or counts.",
-    "Use date and HH:MM for opening; dueAt requires due. Omit both if there is no deadline.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
