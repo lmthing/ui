@@ -1,4 +1,6 @@
 import type { Definition } from "../probes";
+import type { Affordance } from "./affordances";
+import type { Values } from "./act";
 
 /** An exact text draft, not an amount. Length and characters count Unicode code points. */
 export type KeypadProfile = Readonly<{ characters: string; maxLength: number }>;
@@ -14,13 +16,35 @@ export function isKeypadPart(schema: Definition["props"] | undefined, part: stri
   return Boolean(keypadProfileAt(schema, part)) || (Array.isArray(parts) && parts.includes(part));
 }
 
+export function keypadOffers(
+  offers: Affordance[],
+  schema: Definition["props"] | undefined,
+  instance: string,
+  props: Values,
+  items: Values[],
+) {
+  if (!schema?.meta()?.keypadProfiles) return offers;
+  return offers.map((offer) => {
+    if (offer.hostSecret || offer.action !== "type") return offer;
+    const profile = keypadProfileAt(schema, offer.part);
+    if (!profile) return offer;
+    const own = offer.part === "root" ? instance : `${instance}/${offer.part}`;
+    const item = offer.address.split("/")[1];
+    const initial = (offer.address === own ? props : items.find(({ id }) => id === item))?.value;
+    return { ...offer, keypad: { profile, initial: typeof initial === "string" ? initial : "" } };
+  });
+}
+
 export function resolveTextKeypad(value: unknown, current: unknown, profile: KeypadProfile) {
-  const allowed = new Set(profile.characters);
-  const before = typeof current === "string" ? current : "";
   const invalid = {
     code: "invalid_value",
     hint: "Use the declared keypad characters or a keypad edit",
   } as const;
+  const { characters, maxLength } = profile;
+  if (typeof characters !== "string" || !characters || !Number.isSafeInteger(maxLength) || maxLength < 1)
+    return invalid;
+  const allowed = new Set(characters);
+  const before = typeof current === "string" ? current : "";
   let text: string;
   if (typeof value === "string") text = value;
   else if (value && typeof value === "object" && Object.keys(value).length === 1) {
@@ -30,15 +54,11 @@ export function resolveTextKeypad(value: unknown, current: unknown, profile: Key
     else if ("clear" in value && value.clear === true) text = "";
     else return invalid;
   } else return invalid;
-  const chars = [...text];
-  if (
-    !allowed.size ||
-    !Number.isSafeInteger(profile.maxLength) ||
-    profile.maxLength < 1 ||
-    chars.some((char) => !allowed.has(char))
-  )
-    return invalid;
-  if (chars.length > profile.maxLength)
-    return { code: "invalid_value" as const, hint: `Use at most ${profile.maxLength} characters` };
+  let length = 0;
+  for (const char of text) {
+    if (!allowed.has(char)) return invalid;
+    if (++length > maxLength)
+      return { code: "invalid_value" as const, hint: `Use at most ${maxLength} characters` };
+  }
   return { value: text };
 }

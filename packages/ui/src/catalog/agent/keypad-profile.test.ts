@@ -39,6 +39,7 @@ it("reads a declared text profile and plans exact drafts without applying decima
   };
   const defs = { PublicPad: publicPad };
   const step = (value: unknown) => ({ address: "dial/pad", action: "type", value });
+  expect(readScreen(screen, defs)).toContain('[dial/pad type = "+0"; chars "0123456789*#+"; length 5]');
   const result = planAct(screen, defs, {}, [
     step({ append: "*" }),
     step({ append: "#" }),

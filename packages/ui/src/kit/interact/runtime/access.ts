@@ -146,12 +146,14 @@ export function createAccess(
   ctx: ControllerContext,
   act: Act,
   currency?: AppCurrency,
-  revokeReveal?: (address: string) => void,
+  revoke?: (address: string) => void,
 ) {
   const refresh = driveRefresh(ctx);
   return {
     registerCopyTarget: ctx.clipboard.register,
     copiedAt: ctx.clipboard.copiedAt,
+    registerHostCopyTarget: ctx.clipboard.registerHostTarget,
+    hostCopiedAt: ctx.clipboard.hostCopiedAt,
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>
       actionsAt(ctx, address, false, options?.ignoreDisabledPart),
     numericControl: (address: string) => numericControlAt(ctx, address),
@@ -172,8 +174,7 @@ export function createAccess(
       }
       return result;
     },
-    registerPart: (address: string) =>
-      registerPart(ctx.mounted, ctx.relative(address), revokeReveal, refresh),
+    registerPart: (address: string) => registerPart(ctx.mounted, ctx.relative(address), revoke, refresh),
     registerAnchor: (address: string, handler: (action: "focus" | "jump") => void) =>
       registerEntry(ctx.anchors, ctx.relative(address), handler, refresh),
     isPartDisabled: (address: string) => ctx.disabledParts.has(ctx.relative(address)),
@@ -182,7 +183,7 @@ export function createAccess(
       const local = ctx.relative(address);
       const remove = ctx.disabledRegistry.register(local);
       refresh();
-      revokeReveal?.(local);
+      revoke?.(local);
       return () => {
         remove();
         refresh();
@@ -193,9 +194,10 @@ export function createAccess(
 function canPress(ctx: ControllerContext, address: string, ignoreDisabledPart = false) {
   const offered = actionsAt(ctx, address, false, ignoreDisabledPart);
   const local = ctx.relative(address);
+  const playback = address.endsWith("/play") && offered.includes("play");
   return (
     Boolean(clipTap(ctx, local, offered)) ||
-    offered.some((action) => isPressAction(ctx, local, action)) ||
-    (address.endsWith("/play") && offered.includes("play"))
+    playback ||
+    offered.some((action) => isPressAction(ctx, local, action))
   );
 }

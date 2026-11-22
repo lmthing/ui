@@ -98,13 +98,6 @@ function relativeAddress(screen: string, address: string) {
   const local = address.startsWith(`${screen}/`) ? address.slice(screen.length + 1) : address;
   return local.replace(/\/root$/, "");
 }
-function createClipboard(
-  { writeClipboard, resolveClipboardText }: ControllerOptions,
-  store: InteractionStore,
-  disposed: () => boolean,
-) {
-  return clipboardRuntime(store, disposed, writeClipboard, resolveClipboardText);
-}
 type RuntimeOptions = ControllerOptions & { clipboard?: ReturnType<typeof clipboardRuntime> };
 function createValues(
   options: ControllerOptions,
@@ -150,6 +143,7 @@ export function createControllerContext(options: RuntimeOptions, standalone = fa
     store.setMany({}),
   );
   const { withPolicy, ...projection } = host;
+  const { writeClipboard, resolveClipboardText } = options;
   return {
     standalone,
     options,
@@ -158,7 +152,7 @@ export function createControllerContext(options: RuntimeOptions, standalone = fa
     now,
     touchNow,
     store,
-    clipboard: createClipboard(options, store, () => status.disposed),
+    clipboard: clipboardRuntime(store, () => status.disposed, writeClipboard, resolveClipboardText),
     status,
     valuesOf,
     ...projection,

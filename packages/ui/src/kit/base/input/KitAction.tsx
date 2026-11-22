@@ -71,8 +71,8 @@ type ActionProps = {
 };
 
 function useCopyState(address: string | undefined, value: unknown, hostCopy: boolean, disabled: boolean) {
-  const local = useCopyFeedback(hostCopy ? undefined : address, value, disabled);
-  const host = usePrivateStatusAt(hostCopy ? address : undefined, "copy", disabled);
+  const local = useCopyFeedback(address, hostCopy ? undefined : value, disabled, hostCopy);
+  const host = usePrivateStatusAt(hostCopy ? address : undefined, "copy");
   return {
     missing: Boolean(address && !hostCopy && (typeof value !== "string" || !value.length)),
     copied: local || host === "approved",

@@ -28,6 +28,7 @@ import type { Confirmation, ControllerContext } from "./context";
 import type { PrivateMarks } from "../../../catalog/agent/action-input";
 import { commandForConfirmation } from "./host";
 import { matchesMediaConfirmation } from "./media";
+import { hasKeypads, withKeypadDrafts } from "./read-keypad-drafts";
 
 export function isKeypad(ctx: ControllerContext, full: string) {
   const address = parseAddress(full);
@@ -84,7 +85,7 @@ export function visibleConfirmation(
 
 // Match quoted content as one token so a label cannot be mistaken for an affordance.
 const controlTokens =
-  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (?:(type|set|increment|decrement|focus|jump|press|copy)(?: = (?:"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?))?(?:; (?:min|max|step) [-+\de.]+(?:, (?:min|max|step) [-+\de.]+)*)?(?:; range [01]\.\.\d+)?(?:; chars "(?:\\.|[^"\\])*"; length \d+)?|(?:press|scan):(?:(?:pick|scan|preview|export)(?::(?:pending|ready|error))?|next|previous)|(?:play|pause|stop):(?:playing|paused|stopped|error)|seek(?::\d+| = \d+; range [01]\.\.\d+))(?: !needs-[a-z]+)?\]/g;
+  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (?:(type|set|increment|decrement|focus|jump|press)(?: = (?:"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?))?(?:; (?:min|max|step) [-+\de.]+(?:, (?:min|max|step) [-+\de.]+)*)?(?:; range [01]\.\.\d+)?(?:; chars "(?:\\.|[^"\\])*"; length \d+)?|(?:press|scan):(?:(?:pick|scan|preview|export)(?::(?:pending|ready|error))?|next|previous)|(?:play|pause|stop):(?:playing|paused|stopped|error)|seek(?::\d+| = \d+; range [01]\.\.\d+))(?: !needs-[a-z]+)?\]/g;
 
 function isBuzzOffer(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
   const [id, ...parts] = address.split("/");
@@ -93,45 +94,15 @@ function isBuzzOffer(screen: ScreenLike, defs: Record<string, Definition>, addre
   return !!meta && Boolean(buzzTarget(meta, parts.join("/"), "press"));
 }
 
-function projectValue(input: Values, address: string, parts: readonly string[], values: Values): Values {
-  for (const part of parts) {
-    const draft = values[part === "root" ? address : `${address}/${part}`];
-    if (typeof draft === "string") return { ...input, value: draft };
-  }
-  return input;
-}
-
-/** Project exact keypad drafts only into `meta.read`, not into numeric wire props. */
-function withKeypadDrafts(def: Definition, address: string, values: Values): Definition {
-  const read = def.meta.read;
-  const keypad = (part: string) =>
-    isKeypadPart(def.props, part) && !Object.hasOwn(def.meta.actions?.privateInput ?? {}, part);
-  if (!read) return def;
+function readPolicy(screen: ScreenLike, disabled?: ReadonlyMap<string, unknown>) {
+  const source = withDisabledSelectionChecks(screen, disabled);
+  if (!disabled?.size) return source;
+  const host = source[hostActionPolicy];
   return {
-    ...def,
-    meta: {
-      ...def.meta,
-      read: (input, state, lang, deviceData, currency, get) => {
-        const own = Object.keys(def.meta.actions?.parts ?? {}).filter(keypad);
-        const projected = projectValue(input as Values, address, own, values);
-        const items = def.meta.items?.key;
-        const rows = items && projected[items];
-        if (!items || !Array.isArray(rows)) return read(projected, state, lang, deviceData, currency, get);
-        const itemParts = Object.keys(def.meta.actions?.items ?? {}).filter(keypad);
-        return read(
-          {
-            ...projected,
-            [items]: rows.map((row: Values) =>
-              projectValue(row, `${address}/${String(row.id)}`, itemParts, values),
-            ),
-          },
-          state,
-          lang,
-          deviceData,
-          currency,
-          get,
-        );
-      },
+    ...source,
+    [hostActionPolicy]: {
+      ...host,
+      isDisabled: (address: string) => disabled.has(address) || !!host?.isDisabled?.(address),
     },
   };
 }
@@ -147,25 +118,15 @@ export function readControls(
   canDrive?: CanDrive,
   privateMarks?: PrivateMarks,
 ): string {
-  const source = withDisabledSelectionChecks(screen, disabled);
+  const source = readPolicy(screen, disabled);
   const migrated = migrateScreen(source, { variantOnly: true });
-  const hasKeypads = migrated.components.some(({ c }) => {
-    const schema = defs[c]?.props.meta();
-    return Array.isArray(schema?.keypadParts) || Boolean(schema?.keypadProfiles);
-  });
-  const read = hasKeypads
+  const read = migrated.components.some(({ c }) => hasKeypads(defs[c]))
     ? readKeypads(migrated, defs, values, lang, deviceData, currency, canDrive)
     : readScreen(source, defs, values, lang, deviceData, currency, canDrive);
   return disabled?.size || privateMarks?.size || canDrive
     ? read.replace(controlTokens, (token, address, action) => {
         if (action === "set" && privateMarks?.has(address)) return "";
-        if (
-          disabled?.has(address) &&
-          (action === "copy"
-            ? token.endsWith(" !needs-ok]")
-            : action !== "press" || isBuzzOffer(migrated, defs, address))
-        )
-          return "";
+        if (disabled?.has(address) && (action !== "press" || isBuzzOffer(migrated, defs, address))) return "";
         if (isLocalAnchorAction(action) && canDrive?.(address, undefined, action) === false) return "";
         return token;
       })

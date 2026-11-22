@@ -13,16 +13,13 @@ type SetSpec = NonNullable<Meta["set"]>[string];
 type StringLimits =
   Omit<Extract<SetSpec, { type: "date" }>, "prop"> | Omit<Extract<SetSpec, { type: "choice" }>, "prop">;
 type NumericLimits = Range & { type?: "number"; numeric?: true; integer?: boolean };
-
 const invalid = (hint: string): ValueError => ({ code: "invalid_value", hint });
 const calendarDate = z.iso.date();
 // The decimal keypad uses ASCII decimal drafts, not localized display notation.
 const plainDecimal = new Intl.NumberFormat(localeOf(), { useGrouping: false, maximumSignificantDigits: 21 });
-
 function decimalText(value: number) {
   return plainDecimal.format(value === 0 ? 0 : value);
 }
-
 function exceeds(text: string, max: number) {
   if (max < 0) return true;
   // Compare decimal digits so rounding cannot hide an amount just over max.

@@ -58,10 +58,13 @@ export function validateStep(
   const limits = found.move
     ? { type: "choice" as const, choices: found.move.choices }
     : (edit?.set?.spec ?? nestedSpec(screen, defs, found.address));
-  const keypad = step.action === "type" ? keypadInput(screen, defs, found, values) : undefined;
-  let result = keypad
-    ? resolveKeypadValue(step.value, values[key] ?? keypad.value, keypad, found.keypadProfile)
-    : (validateActionValue(step.action, step.value, limits) ?? { value: step.value });
+  const keypad =
+    step.action === "type" && !found.keypad ? keypadInput(screen, defs, found, values) : undefined;
+  let result = found.keypad
+    ? resolveKeypadValue(step.value, values[key] ?? found.keypad.initial, {}, found.keypad.profile)
+    : keypad
+      ? resolveKeypadValue(step.value, values[key] ?? keypad.value, keypad)
+      : (validateActionValue(step.action, step.value, limits) ?? { value: step.value });
   if (!("code" in result)) {
     const max = found.input?.kind === "text" ? found.input.max : undefined;
     if (max !== undefined && typeof result.value === "string" && result.value.length > max)

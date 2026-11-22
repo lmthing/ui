@@ -15,7 +15,9 @@ function setup() {
   );
   const writeClipboard = vi.fn();
   const copyPrivate = vi.fn(() => "approved" as const);
-  const check = vi.fn((input: string) => (input === fixturePin ? "approved" : "denied") as PrivateResult);
+  const check = vi.fn((input: string): PrivateResult | Promise<PrivateResult> =>
+    input === fixturePin ? "approved" : "denied",
+  );
   const privateValues = {
     copy: { [copy.address]: copyPrivate, "home/vault/r1": copyPrivate },
     verify: { [verify.address]: check },
@@ -145,4 +147,42 @@ it("leaves generated output on ordinary clipboard copy without reading or retain
   expect(writeClipboard).toHaveBeenCalledExactlyOnceWith(secretOutput);
   expect(agent.read()).not.toContain(secretOutput);
   expect(JSON.stringify([runtime.store.snapshot(), agent.log()])).not.toContain(secretOutput);
+});
+
+it("hides disabled private offers and refuses the same addressed actions", () => {
+  const { runtime, agent, authenticateReveal, check } = setup();
+  for (const step of [copy, verify]) {
+    const part = step.address.replace("home/", "");
+    const label = `[${part} ${step.action} !needs-ok]`;
+    expect(agent.read()).toContain(label);
+    const enable = runtime.registerDisabledPart(step.address);
+    expect(agent.read()).not.toContain(label);
+    expect(runtime.act(step)).toMatchObject({ ok: false, code: "disabled" });
+    enable();
+    expect(agent.read()).toContain(label);
+  }
+  expect(authenticateReveal).not.toHaveBeenCalled();
+  expect(check).not.toHaveBeenCalled();
+});
+
+it("rejects a second submission while checking without consuming its new draft", async () => {
+  const { runtime, check } = setup();
+  let finish!: (result: PrivateResult) => void;
+  check.mockImplementationOnce(
+    () =>
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+  );
+  runtime.privateKeypadEdit(pad, { append: "1" });
+  expect(runtime.act(verify)).toMatchObject({ ok: true });
+  runtime.privateKeypadEdit(pad, { append: "2" });
+  expect(runtime.act(verify)).toMatchObject({ ok: false, code: "not_actionable" });
+  expect(check).toHaveBeenCalledExactlyOnceWith("1");
+  expect(runtime.privateKeypadLength(pad)).toBe(1);
+  finish("denied");
+  await expect.poll(() => runtime.privateStatus(verify.address, "verify")).toBe("denied");
+  expect(runtime.act(verify)).toMatchObject({ ok: true });
+  expect(check).toHaveBeenLastCalledWith("2");
+  expect(runtime.privateKeypadLength(pad)).toBe(0);
 });

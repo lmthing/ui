@@ -93,6 +93,8 @@ function runVerify(
   ops: Operations,
   drafts: Drafts,
 ) {
+  if (ops.status(address, "verify") === "pending")
+    return actionFailure(0, "not_actionable", "Private verification is pending");
   const { id, part, spec } = partSpec(ctx, address);
   const source = spec?.privateVerify?.[part];
   const input = source && partAddress(id, source);
@@ -156,6 +158,11 @@ export function createPrivateValues(ctx: ControllerContext) {
     const spec = ctx.defs[c]?.meta.actions;
     return spec?.privateInput || spec?.privateVerify || spec?.authenticatedCopy;
   });
+  let unsubscribe: (() => void) | undefined;
+  if (hasControls)
+    ops.subscribe(() => {
+      if (!ctx.status.disposed) unsubscribe ??= ctx.store.subscribe(reconcile);
+    });
   return {
     dispatch: (act: Act) => (hasControls ? privateDispatch(ctx, act, ops, drafts) : act),
     revoke(address: string) {
@@ -167,7 +174,7 @@ export function createPrivateValues(ctx: ControllerContext) {
       drafts.clear();
       ops.clear();
     },
-    dispose: hasControls ? ctx.store.subscribe(reconcile) : () => {},
+    dispose: () => unsubscribe?.(),
     view: {
       subscribePrivateValues: ops.subscribe,
       isPrivateVerification(full: string) {

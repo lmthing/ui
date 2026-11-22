@@ -1,15 +1,10 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { TamaguiProvider } from "tamagui";
-import {
-  KitAction,
-  KitNumberPad,
-  PhoneScreen,
-  usePrivateStatus,
-  type PrivateValuesHost,
-} from "@lmthing/ui/kit";
+import { KitAction, KitNumberPad, usePrivateStatus, type PrivateValuesHost } from "@lmthing/ui/kit";
+import { PhoneScreen } from "../../../src/kit";
 import { config } from "../../render";
-import { copy, defs, fixturePin, screen, verify } from "./private-values.fixture";
+import { copy, defs, fixturePin, generated, screen, verify } from "./private-values.fixture";
 
 const privateValues: PrivateValuesHost = {
   copy: { [copy.address]: () => "approved" },
@@ -28,6 +23,13 @@ function PrivateFixture() {
       <KitNumberPad label="Private input" value="" keys={keys} displayPart="value" target={{ part: "pad" }} />
       <KitAction part="verify" action="press" label="Verify input" />
       <KitAction part="copy" action="copy" hostCopy label="Copy protected value" copiedLabel="Copied" />
+      <KitAction
+        part="generated"
+        action="copy"
+        hostCopy
+        label="Copy generated value"
+        copiedLabel="Generated value copied"
+      />
       <output>{status}</output>
     </>
   );
@@ -40,6 +42,10 @@ createRoot(document.getElementById("root")!).render(
     <PhoneScreen
       {...{ defs, screen, theme, renderers, privateValues }}
       authenticateReveal={async () => "approved"}
+      resolveClipboardText={(address) =>
+        address === generated.address ? "synthetic-generated-output" : undefined
+      }
+      writeClipboard={() => {}}
     />
   </TamaguiProvider>,
 );
