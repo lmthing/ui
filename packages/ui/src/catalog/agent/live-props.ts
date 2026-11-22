@@ -3,18 +3,20 @@ import type { Meta } from "../meta";
 import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
 import { repairVariants } from "../rules";
-import type { DeviceData, ScreenLike, Values } from "./index";
+import type { DeviceData, Values } from "./index";
 import { projectDeviceFlags, projectDeviceRows } from "./device-data";
-import { isAdjustOnlyItem } from "./affordances";
 import { projectDraw } from "./draw";
+import { projectBuzz } from "./buzz";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
 import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
-import { projectDerivedMoves, projectMoves } from "./action-input";
-import { hasWireNestedControls } from "./nested";
-import { projectRecordRuntime } from "./record-runtime";
+import { projectCollections, projectDerivedMoves, projectMoves } from "./action-input";
+import { hasWireNestedControls, nestedChoiceSeed } from "./nested";
+import { dateSpanKey, projectDateSpan } from "./date-span";
+import { projectSequence } from "./media";
+import { projectLocalState, projectRecordRuntime } from "./record-runtime";
 import {
-  adjustmentAt,
+  hasLiveAdjustments,
   projectAdjustments,
   projectComponentSets,
   projectLiveClocks,
@@ -38,7 +40,7 @@ function defaultInput(field: unknown) {
 }
 const fieldOf = (schema: unknown, key: string) =>
   schema instanceof z.ZodObject ? schema.shape[key] : undefined;
-function wireAdjustmentKey(def: Definition, key: string) {
+export function wireAdjustmentKey(def: Definition, key: string) {
   const rows = unwrapField(fieldOf(def.props, def.meta.items!.key));
   if (rows instanceof z.ZodPipe) return; // A collection transform can change stamped row positions.
   const prop = key.slice(key.lastIndexOf("/") + 1);
@@ -85,7 +87,7 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
   const seeded = Object.fromEntries(
     [...keys].map((key) => [key, source[key] ?? defaultInput(fieldOf(def.props, key))]),
   );
-  const nested = projectNested(meta, seeded, get);
+  const nested = projectNested(meta, seeded, get, nestedChoiceSeed(meta, def.props, source));
   const wireGet = (part: string) => get(controlValueKey(def, part));
   const adjusted = projectWireAdjustments(def, nested, get);
   const projected = items.set
@@ -115,15 +117,35 @@ export function parseControlProps(def: Definition, input: unknown, get?: (part: 
 }
 /** Keep runtime-only selection flags out of the kit screen's wire projection. */
 export function projectControls(meta: Meta, props: Values, get: Get, mode?: "live" | "wire"): Values {
-  const projected = projectNested(meta, projectSelection(meta, props, get, mode), get);
-  return projectComponentSets(meta, projected, get);
+  return projectComponentSets(meta, projectNested(meta, projectSelection(meta, props, get, mode), get), get);
 }
 /** Preserve parsed values for component setters already applied to the wire. */
 export function projectParsedControls(meta: Meta, props: Values, get: Get, runtime: boolean): Values {
   const selected = meta.select?.choices ? props : projectLegacySelection(meta, props, get);
   const nested = projectNested(meta, selected, get);
-  return runtime || meta.items?.set || meta.items?.adjust ? projectAdjustments(meta, nested, get) : nested;
+  return runtime || meta.items?.set || meta.items?.adjust || hasLiveAdjustments(meta)
+    ? projectAdjustments(meta, nested, get)
+    : nested;
 }
+
+/** Compose addressed rows and staged edits before resolving clock inputs. */
+export function projectLiveControlInput(
+  meta: Meta,
+  validated: Values,
+  get: Get,
+  wireApplied: boolean,
+  data?: DeviceData,
+) {
+  const moved = projectDerivedMoves(meta, validated, get);
+  const addressed = projectRecordIds(meta, projectDeviceRows(meta, moved, data), get);
+  const runtime = Boolean(get("$runtime"));
+  if (wireApplied) return projectParsedControls(meta, addressed, get, runtime);
+  const props = projectControls(meta, addressed, get);
+  return meta.items?.set || meta.items?.adjust || runtime || hasLiveAdjustments(meta)
+    ? projectAdjustments(meta, props, get)
+    : props;
+}
+
 /** Runtime-only presentation keeps the validated wire data and stable item ids intact. */
 export function liveProps(
   meta: Meta,
@@ -135,27 +157,29 @@ export function liveProps(
   now?: number,
 ): Values {
   const get = (part: string) => values[`${instance}/${part}`];
-  const moved = projectDerivedMoves(meta, validated, get);
-  const addressed = projectRecordIds(meta, projectDeviceRows(meta, moved, data), get);
   const { draw, emptyActions, errorActions, successActions, session } = meta;
   const runtime = Boolean(get("$runtime"));
-  let props = wireApplied
-    ? projectParsedControls(meta, addressed, get, runtime)
-    : projectControls(meta, addressed, get);
-  if (!wireApplied && (meta.items?.set || meta.items?.adjust || runtime))
-    props = projectAdjustments(meta, props, get);
-  const timed = projectLiveClocks(meta, props, get, runtime || !!(meta.live || meta.recordRuntime?.actions));
+  let props = projectLiveControlInput(meta, validated, get, wireApplied, data);
+  const timed = projectLiveClocks(
+    meta,
+    props,
+    get,
+    runtime || !!(meta.live || meta.recordRuntime?.actions),
+    data,
+  );
   if (timed !== props) props = timed;
   else if (draw || emptyActions?.length || errorActions?.length || successActions?.length || session) {
     const state = get("$state");
     if (state !== undefined) props = { ...props, state };
   }
-  props = projectDraw(meta, props, get);
+  props = projectLocalState(meta, projectDraw(meta, props, get), validated, get);
   props = projectLiveInputs(meta, props, instance, get, data, validated);
   props = projectRecordRuntime(meta, props, instance, values, data, now);
+  props = projectCollections(meta, props, get);
   // Reapply to rows that a live or host projection may have replaced.
   if (meta.select?.runtime) props = projectLegacySelection(meta, props, get);
   props = projectDeviceFlags(meta, props, data);
+  props = projectDateSpan(meta, projectSequence(meta, props, get), get(dateSpanKey));
   if (runtime && meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
     props = { ...props, minus: undefined };
   if (meta.id === "Field" || meta.id === "Search") {
@@ -164,37 +188,12 @@ export function liveProps(
       props = { ...props, value: String(value) };
   }
   const key = meta.items?.key;
-  if (!key || !Array.isArray(props[key])) return props;
+  if (!key || !Array.isArray(props[key])) return projectBuzz(meta, props, get);
   let items = props[key] as Values[];
   if (meta.items?.visible === "first") items = items.slice(Number(values[`${instance}/$cursor`] ?? 0));
   if (meta.id === "List" && props.style === "expand")
     items = items.map((item) =>
       values[`${instance}/${String(item.id)}`] === false ? { ...item, body: undefined } : item,
     );
-  return { ...props, [key]: items };
-}
-export function stageItemAdjustment(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  address: string,
-  action: string,
-  values: Values,
-): boolean | undefined {
-  if (action !== "increment" && action !== "decrement") return;
-  const [id, ...parts] = address.split("/");
-  const entry = screen.components.find((item) => item.id === id);
-  const def = entry && defs[entry.c];
-  if (!entry || !def?.meta.items?.adjust) return;
-  const { id: _id, c: _c, state: _state, ...raw } = entry;
-  const base = `${screen.id}/${id}`;
-  const get = (part: string) => values[`${base}/${part}`];
-  const props = parseControlProps(def, raw, get);
-  const now = Number(get("$now") ?? Date.now());
-  const adjustment = adjustmentAt(def.meta, props, parts.join("/"), action, get, now);
-  if (!isAdjustOnlyItem(adjustment, action)) return;
-  const slot = wireAdjustmentKey(def, adjustment.key);
-  if (adjustment.next === undefined || !slot) return false;
-  values[`${base}/${slot}`] = adjustment.next;
-  values[`${screen.id}/${address}`] = adjustment.next;
-  return true;
+  return projectBuzz(meta, { ...props, [key]: items }, get);
 }

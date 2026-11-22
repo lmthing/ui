@@ -1,7 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { basename, join, relative } from "node:path";
 import ts from "typescript";
-import { packIds, type PackId } from "../../../src/catalog";
+import { packIds, type PackId } from "../../../src/catalog/meta";
 
 export const dataExports = ["meta", "props", "fallback", "examples", "probes"] as const;
 const overrideName = "archetypeOverrides";

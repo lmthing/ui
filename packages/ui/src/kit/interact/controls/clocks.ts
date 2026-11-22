@@ -5,6 +5,10 @@ import {
   clockSeed,
   clockTime,
   clockEnded,
+  clockMax,
+  selectDeviceData,
+  timestampReading,
+  type DeviceData,
   type ClockState,
   type Meta,
   type Values,
@@ -13,7 +17,7 @@ import {
 export function initialClocks(meta: Meta, props: Values, now: number): Values {
   return Object.fromEntries(
     clockTargets(meta, props)
-      .filter((clock) => clock.spec.kind !== "until")
+      .filter((clock) => clock.spec.kind !== "until" && !clock.spec.timestamp)
       .map((clock) => [
         clockKey(clock),
         {
@@ -27,9 +31,21 @@ export function initialClocks(meta: Meta, props: Values, now: number): Values {
 }
 export { clockChanges } from "../../../catalog";
 /** Materialise a tick; timestamps, not interval counts, determine the reading. */
-export function tickClocks(meta: Meta, props: Values, get: (part: string) => unknown, now: number): Values {
+export function tickClocks(
+  meta: Meta,
+  props: Values,
+  get: (part: string) => unknown,
+  now: number,
+  data?: DeviceData,
+): Values {
   const changes: Values = {};
   for (const clock of clockTargets(meta, props)) {
+    if (clock.spec.timestamp) {
+      const reading = timestampReading(clock, selectDeviceData(meta, data), now, clockMax(clock));
+      const key = clockKey(clock);
+      if (get(key) !== reading?.seconds) changes[key] = reading?.seconds;
+      continue;
+    }
     const state = get(clockKey(clock)) as ClockState | undefined;
     if (clock.spec.kind === "until") {
       const tick = Math.floor(now / 60000);
@@ -39,7 +55,7 @@ export function tickClocks(meta: Meta, props: Values, get: (part: string) => unk
     if (!state?.running) continue;
     const seconds = clockTime(clock, state, get(clockPropKey(clock)), now);
     if (clock.spec.prop && get(clockPropKey(clock)) !== seconds) changes[clockPropKey(clock)] = seconds;
-    if (clockEnded(clock, seconds)) {
+    if (!clock.spec.journal && clockEnded(clock, seconds)) {
       changes[clockKey(clock)] = { ...state, running: false, from: now, seconds };
       const zero = clock.spec.zero;
       if (zero && zero !== "stop" && "state" in zero) changes.$state = zero.state;

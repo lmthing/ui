@@ -48,6 +48,7 @@ Marketplace seat listings for one event showing section, row, ticket quantity, a
 - Parts → actions: `allIn toggle`, listings `root press` (linked), listings `view press` (inspects seat view).
 - States: filled, empty, loading, error (listing sold out or hold expired).
 - Real path: live primary and secondary ticket offers fetched from a marketplace service; picking a listing holds seats briefly for checkout.
+- Renderer: use the List row/card recipe for offers. `SeatPlan` is for seat geometry, not a list of offers.
 
 ### `TicketWallet` · planned · content · phone
 Purchased live-event passes drawn as perforated tickets with event name, date, time, venue, gate, section, row and seat header, paired with a scannable entry barcode/QR and Transfer or Sell buttons. Rotating anti-fraud barcodes display live refresh status; past or scanned passes mark as used.

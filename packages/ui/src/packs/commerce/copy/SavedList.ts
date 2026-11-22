@@ -60,11 +60,12 @@ export function savedListReading(
       savedList.target,
       target,
       shared && savedList.claim,
-      savedList.move,
+      item.stock !== 0 && savedList.move,
     ]
       .filter(Boolean)
       .join(receiptSeparator);
   });
   if (!items.length) lines.push(emptyLine(undefined, lang));
+  else if (items.some(({ stock }) => stock !== 0)) lines.unshift(savedList.readActions);
   return state === "success" || moved ? [savedList.success, ...lines] : lines;
 }

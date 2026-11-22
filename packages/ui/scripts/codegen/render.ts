@@ -1,8 +1,10 @@
 import { quote } from "./doc-section";
-import { seedObject, type Field } from "./shape";
+import { indexChecks, seedObject, type Field } from "./shape";
 import type { readMeta } from "./metadata";
+import { rowProjection } from "./render-rows";
+import type { RowGroup } from "./row-sources";
 
-type Metadata = ReturnType<typeof readMeta>;
+type Metadata = ReturnType<typeof readMeta>["meta"];
 
 function fallback(fields: Field[]) {
   const seed = seedObject(fields, "0");
@@ -55,6 +57,7 @@ function probeCode(meta: Metadata, near: string | undefined) {
 export function componentSource(
   meta: Metadata,
   fields: Field[],
+  rowGroups: RowGroup[],
   catalog: string,
   near: string | undefined,
   pack: boolean,
@@ -80,7 +83,7 @@ export function componentSource(
 import { ${[...helpers, "type FallbackInput", "type Meta", "type Probe", "type Props"].join(", ")} } from ${quote(catalog)};
 
 ${pack ? `// Core first: ${meta.pick}\n` : ""}export const meta = ${quote(meta)} as const satisfies Meta;
-export const props = z.strictObject({ ${schema.join("\n")} });
+export const props = z.strictObject({ ${schema.join("\n")} })${indexChecks(fields)}${rowProjection(meta.items?.key ?? "", rowGroups)};
 ${seed.code}
 
 // TODO: Replace the neutral seed with two real examples covering styles and optional fields.
@@ -108,7 +111,7 @@ export function testSource(meta: Metadata, fields: Field[], core: boolean) {
 ${importComponent}
 
 const cast = { things: [], items: [] };
-const valid = props.parse(fallback({ cast }));
+const valid = fallback({ cast });
 const invalid: unknown[] = [{ ...valid, unknown: "invalid" }, ${invalid.join(",")}];
 
 it.each(examples)("accepts a draft example", (example) => {

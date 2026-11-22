@@ -1,7 +1,9 @@
-import type { ActStep, DeviceData } from "../../agent";
+import { z } from "zod";
+import { driveTarget, type ActStep, type DeviceData, type ScreenLike } from "../../agent";
+import { media, text } from "../../props";
 import type { Meta } from "../../meta";
 import type { StateName } from "../../types";
-import type { ReadProbe } from "../types";
+import type { Definition, ReadProbe } from "../types";
 
 /** A setup action relative to the example component, performed before reading the screen. */
 export type ReadProbeFixture = Omit<ActStep, "address"> & { part: string };
@@ -43,4 +45,65 @@ export function readFixtureFor(component: string, probe: ReadProbe): ReadProbeFi
       fixture.expect.address === probe.expect.address &&
       fixture.expect.action === probe.expect.action,
   )?.setup;
+}
+
+export type ReadProbeComposition = {
+  siblings: NonNullable<ReadProbe["siblings"]>;
+  defs: readonly Definition[];
+};
+
+export function mountReadSiblings(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  composition: ReadProbeComposition,
+) {
+  for (const { id, c, state, ...wire } of composition.siblings) {
+    if (screen.components.some((entry) => entry.id === id))
+      throw new Error(`Duplicate read probe instance ${id}`);
+    const def = composition.defs.find((entry) => entry.meta.id === c);
+    if (!def) throw new Error(`Unknown read probe sibling ${c}`);
+    def.props.parse(wire);
+    defs[c] = def;
+    screen.components.push({ ...wire, id, c, ...(state ? { state } : {}) });
+  }
+}
+
+/** Read fixtures are data-only. A drive target must offer seek and cover the example's offsets. */
+export function mountSeekTarget(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  def: Definition,
+  input: object,
+  data?: DeviceData,
+) {
+  const c = def.meta.drives;
+  if (typeof c !== "string") return;
+  if (Object.hasOwn(defs, c)) throw new Error(`Conflicting seek target for ${def.meta.id} read fixture`);
+  let id = "target";
+  for (let n = 2; screen.components.some((entry) => entry.id === id); n++) id = `target${n}`;
+  const parsed = def.props.parse(input) as Record<string, unknown>;
+  const rows = parsed[def.meta.items?.key ?? ""];
+  const seconds = Math.max(1, ...(Array.isArray(rows) ? rows.map((row) => Number(row.at) || 0) : []));
+  const wire = { media: "lib:fixture", title: "Recording", seconds };
+  defs[c] = {
+    meta: {
+      id: c,
+      group: "content",
+      purpose: "Play one recording.",
+      pick: "Seek target for a read fixture.",
+      region: "body",
+      weight: 1,
+      tier: "phone",
+      realPath: "Read a recording on this device.",
+      parts: ["scrubber"],
+      actions: { parts: { scrubber: ["seek"] } },
+    },
+    props: z.strictObject({ media, title: text(40), seconds: z.int().positive() }),
+    fallback: () => wire,
+    examples: [wire],
+    probes: [],
+  };
+  screen.components.unshift({ ...wire, id, c });
+  if (!driveTarget(def.meta, screen, defs, {}, data))
+    throw new Error(`No seek offer for ${c} in ${def.meta.id} read fixture`);
 }

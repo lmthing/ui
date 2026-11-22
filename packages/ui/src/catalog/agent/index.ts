@@ -5,8 +5,30 @@ export {
   partTierAt,
   type Affordance,
 } from "./affordances";
-export { checkDriveDeclaration, driveAffordances, driveTarget, type CanDrive } from "./drives";
+export {
+  checkDriveDeclaration,
+  driveAffordances,
+  driveTarget,
+  isLocalAnchorAction,
+  projectDriveObservation,
+  type CanDrive,
+} from "./drives";
 export { readComponent, readScreen, type ScreenLike } from "./read";
+export {
+  hostActionPolicy,
+  hostRecords,
+  hostSubjects,
+  type CommandRequest,
+  type ExternalRequest,
+  type HostActionPolicy,
+  type HostCommandMeta,
+  type HostCommands,
+  type HostFields,
+  type HostIntent,
+  type HostOperation,
+  type HostRecords,
+  type HostRequest,
+} from "./host-commands";
 export { hostOnlyParts, hostOnlyAddresses, privateMarkKey, redactPrivateMarks } from "./action-input";
 export { appCurrencySchema, moneyFractionDigits, parseAppCurrency, type AppCurrency } from "./app-currency";
 export {
@@ -26,8 +48,11 @@ export { visibleItems } from "./visibility";
 export { credentialToggleOn } from "./credential-toggle";
 export { pickerAt, pickerKey, projectLiveInputs } from "./live-inputs";
 export { linkedEditKey } from "./linked-edits";
-export { itemMoveOffer } from "./action-input";
+export { dateSpanChoice, dateSpanItem, dateSpanKey, type DateSpanSelection } from "./date-span";
+export { itemMoveOffer, jumpKey } from "./action-input";
+export { slotMoveOffer } from "./collections";
 export {
+  defineLocalState,
   isRecordJournal,
   isRecordPress,
   recordActionAt,
@@ -59,11 +84,27 @@ export {
 } from "./validate-value";
 export { planAct, type ActStep, type ActResult, type SendDraft, type Values } from "./act";
 export {
+  attachmentKey,
+  attachmentOwner,
+  attachmentRowIdentity,
+  attachmentSource,
+  clipKey,
+  mediaHostKey,
+  mediaOffer,
+  validMediaReference,
+  type AttachmentStatus,
+  type MediaHostGate,
+  type MediaOffer,
+} from "./media";
+export { sequenceKey, sequenceState, type SequenceState } from "./media";
+export {
   controlValueKey,
   liveProps,
   parseControlProps,
   projectControlInput,
   projectControls,
+  projectLiveControlInput,
+  wireAdjustmentKey,
 } from "./live-props";
 export {
   drawKey,
@@ -75,7 +116,8 @@ export {
   type RandomSource,
 } from "./draw";
 export { selectionAt, selectionError, selectionChanges, projectSelection } from "./selection";
-export { itemCounterReset } from "./nested";
+export { hasNestedCollectionControls, itemCounterReset, nestedCapacityBlocked } from "./nested";
+export { buzzKey, buzzRound, buzzStatus, buzzTarget, monotonicNow, staleBuzz, type BuzzRound } from "./buzz";
 export {
   projectSelectionBinding,
   selectionBindingFor,
@@ -85,6 +127,7 @@ export {
 export {
   activeParentId,
   isNestedTarget,
+  nestedPart,
   nestedControls,
   nestedAt,
   nestedRemaining,
@@ -102,6 +145,9 @@ export {
 } from "./session";
 export {
   clockTargets,
+  clockMax,
+  hasTimestampClock,
+  timestampReading,
   clockKey,
   clockPropKey,
   clockSeed,
@@ -109,6 +155,8 @@ export {
   clockEnded,
   clockTriggerTarget,
   numericSetAt,
+  declaresNumericLimits,
+  snapNumber,
   adjustmentAt,
   clearItemSets,
   projectAdjustments,

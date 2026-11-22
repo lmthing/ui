@@ -2,6 +2,7 @@ import type { Meta } from "../../meta";
 import type { Definition } from "../../probes";
 import { stampItemIds } from "../../lines";
 import type { ScreenLike, Values } from "../index";
+import { hasRecordClock, hasTimestampClock } from "../clocks";
 export { inLocalWeek } from "./local-week";
 export {
   projectDeviceData,
@@ -34,7 +35,10 @@ export function captureDeviceTime(
   now = Date.now(),
 ): DeviceData | undefined {
   return data?.[deviceTime] === undefined &&
-    Object.values(defs).some(({ meta }) => meta.deviceDataFlags || meta.recordRuntime)
+    Object.values(defs).some(
+      ({ meta }) =>
+        meta.deviceDataFlags || meta.recordRuntime || hasRecordClock(meta) || hasTimestampClock(meta),
+    )
     ? atDeviceTime(data, now)
     : data;
 }

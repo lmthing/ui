@@ -24,6 +24,7 @@ export type Seat = {
   id: string;
   label: string;
   initials?: string;
+  namePart?: string;
   selected?: boolean;
   target?: Target;
   move?: { destinations: readonly string[]; label: (destination: string) => string };

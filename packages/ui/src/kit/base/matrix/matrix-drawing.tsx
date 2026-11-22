@@ -1,10 +1,10 @@
-import { Children, isValidElement, useRef, type ReactNode } from "react";
-import { ScrollView, XStack, YStack } from "tamagui";
+import { Children, isValidElement, type ReactNode } from "react";
+import { XStack, YStack } from "tamagui";
 import { component, radius, size, space, type as typography } from "../../../catalog";
-import { useKit, useKitStyle } from "../../provider";
+import { useKitStyle } from "../../provider";
 import { KitText, shifted, type TextRole } from "../text";
 import { KitRow } from "../surface";
-import { loadingGeometry, loadingRadius, matrixKey } from "./matrix-layout";
+import { loadingGeometry, loadingRadius } from "./matrix-layout";
 
 type ContentProps = Parameters<typeof loadingGeometry>[0] & {
   children?: ReactNode;
@@ -152,46 +152,5 @@ export function MatrixContent({ children, loading }: { children: ReactNode; load
     </YStack>
   ) : (
     <>{children}</>
-  );
-}
-export function MatrixScroll({
-  children,
-  loading = false,
-  label,
-}: {
-  children: ReactNode;
-  loading?: boolean | undefined;
-  label: string;
-}) {
-  const scroll = useRef<{ getScrollableNode?: () => HTMLElement }>(null);
-  const kit = useKit();
-  return (
-    <ScrollView
-      ref={scroll as never}
-      horizontal
-      minWidth={component.base.none}
-      showsHorizontalScrollIndicator
-      contentContainerStyle={{ minWidth: "100%" }}
-      {...({
-        role: "region",
-        tabIndex: loading ? -1 : 0,
-        "aria-label": label,
-        onKeyDown: matrixKey,
-      } as object)}
-      onFocus={(event: { target: unknown }) => {
-        const node = scroll.current?.getScrollableNode?.();
-        const target = event.target as HTMLElement;
-        if (!node || !target.getBoundingClientRect) kit.nativeHost?.ensureVisible?.(event.target);
-        else {
-          const box = target.getBoundingClientRect(),
-            view = node.getBoundingClientRect();
-          node.scrollBy({
-            left: box.right > view.right ? box.right - view.right : Math.min(0, box.left - view.left),
-          });
-        }
-      }}
-    >
-      <XStack>{children}</XStack>
-    </ScrollView>
   );
 }

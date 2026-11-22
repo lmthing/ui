@@ -4,6 +4,7 @@ import { TamaguiProvider } from "tamagui";
 import { z } from "zod";
 import { type Definition } from "@lmthing/ui/catalog";
 import { createScreenController, KitCellGrid, KitProvider, KitSeatGrid, PartScope } from "@lmthing/ui/kit";
+import { SeatPlan } from "../../../src/kit/renderers";
 import { config } from "../../render";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -18,7 +19,7 @@ const sections: Sections = [
       {
         label: "A",
         seats: [
-          { id: "r1", label: "A1", kind: "free", target },
+          { id: "r1", label: "A1", kind: "free", target: { ...target, action: "toggle" } },
           { id: "aisle", label: "Not a seat", kind: "aisle", target },
           { id: "r2", label: "A2", kind: "taken", target },
           { id: "display-only", label: "A3", kind: "free", target },
@@ -40,7 +41,18 @@ const sections: Sections = [
       },
     ],
   },
-  { id: "rear", label: "Rear", rows: [{ label: "C", seats: [{ id: "c1", label: "C1", kind: "free" }] }] },
+];
+const rear: Sections = [
+  {
+    id: "rear",
+    label: "Rear",
+    rows: [
+      {
+        label: "C",
+        seats: [{ id: "r1", label: "C1", kind: "free", target: { ...target, action: "select" } }],
+      },
+    ],
+  },
 ];
 
 const cells: Cells = [
@@ -60,6 +72,26 @@ const cells: Cells = [
   { id: "r3", row: 0, col: 5, value: "X", notes: ["0"], state: "conflict", selected: true, target },
   { id: "r4", row: 8, col: 8, state: "empty", target },
   { id: "outside", row: 9, col: 0, value: "Outside grid", state: "given" },
+];
+
+const markedSeats: Sections = sections.map((section, index) =>
+  index
+    ? section
+    : {
+        ...section,
+        rows: section.rows.map((row) => ({
+          ...row,
+          mark: { icon: "flag", label: "Exit row" },
+          seats: row.seats.map((seat) =>
+            seat.id === "r2" ? { ...seat, seatClass: { icon: "star", label: "Premium" } } : seat,
+          ),
+        })),
+      },
+);
+const markedCells: Cells = [
+  ...cells.filter((cell) => cell.id !== "correct" && cell.id !== "r4"),
+  { id: "r4", row: 0, col: 2, state: "blocked", target },
+  { id: "marked", row: 0, col: 6, state: "correct", mark: { icon: "flag", label: "Flagged" } },
 ];
 
 const definition = {
@@ -96,6 +128,7 @@ const controller = createScreenController({
     id: "test",
     components: [
       { id: "seats", c: definition.meta.id, items: Array.from({ length: 3 }, () => ({ on: false })) },
+      { id: "single", c: cellDef.meta.id, items: [{ on: false }] },
       { id: "cells", c: cellDef.meta.id, items: Array.from({ length: 4 }, () => ({ on: false })) },
     ],
   },
@@ -104,19 +137,28 @@ const controller = createScreenController({
 
 declare global {
   interface Window {
-    boardPresses: { address: string; ok: boolean }[];
+    boardPresses: { address: string; ok: boolean; via: string }[];
   }
 }
 window.boardPresses = [];
 const press = controller.press;
 controller.press = (address) => {
   const result = press(address);
-  window.boardPresses.push({ address, ok: result.ok });
+  window.boardPresses.push({ address, ok: result.ok, via: "press" });
+  return result;
+};
+const act = controller.act;
+controller.act = (...args) => {
+  const result = act(...args);
+  const step = args[0];
+  if ("address" in step) window.boardPresses.push({ address: step.address, ok: result.ok, via: step.action });
   return result;
 };
 
 function Fixture() {
-  const [mode, setMode] = useState<"filled" | "loading" | "empty" | "compact">("filled");
+  const [mode, setMode] = useState<"filled" | "loading" | "empty" | "compact" | "marked">("filled");
+  const marked = mode === "marked";
+  const clues = Array.from({ length: 9 }, (_, at) => (at === 0 ? "2 1" : null));
   return (
     <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss">
       <button type="button" onClick={() => setMode("loading")}>
@@ -128,24 +170,32 @@ function Fixture() {
       <button type="button" onClick={() => setMode("empty")}>
         Empty
       </button>
+      <button type="button" onClick={() => setMode("marked")}>
+        Marked
+      </button>
       <button type="button" onClick={() => setMode("compact")}>
         Compact
       </button>
       <KitProvider theme={theme} controller={controller} interactive>
         <PartScope screen="test" component="seats" rev={1} state="filled">
-          <KitSeatGrid
+          <SeatPlan
+            kind="grid"
             part="map"
             screenLabel="Screen"
-            sections={mode === "empty" ? [] : sections}
+            sections={mode === "empty" ? [] : marked ? markedSeats : sections}
             loading={mode === "loading"}
           />
+        </PartScope>
+        <PartScope screen="test" component="single" rev={1} state="filled">
+          <SeatPlan kind="grid" sections={mode === "empty" ? [] : rear} loading={mode === "loading"} />
         </PartScope>
         <PartScope screen="test" component="cells" rev={1} state="filled">
           <KitCellGrid
             part="board"
             rows={mode === "compact" ? 4 : 9}
             cols={mode === "compact" ? 4 : 9}
-            cells={mode === "empty" ? [] : cells}
+            cells={mode === "empty" ? [] : marked ? markedCells : cells}
+            {...(marked ? { clues: { rows: clues, columns: clues } } : {})}
             loading={mode === "loading"}
           />
         </PartScope>
