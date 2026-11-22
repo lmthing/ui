@@ -17,7 +17,7 @@ export function kitStyleOf(preset: PresetMeta, density: ThemeDensity = "comforta
     radiusShift: shifts[preset.shape],
     fonts: {
       text: preset.font,
-      heading: preset.font === "serif" ? "serifHeading" : preset.font,
+      heading: preset.heading ?? (preset.font === "serif" ? "serifHeading" : preset.font),
       number: preset.numbers === "condensed" ? "condensed" : preset.font,
     },
     density: variants.density[density][preset.density],

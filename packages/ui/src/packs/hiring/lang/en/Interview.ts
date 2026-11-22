@@ -8,8 +8,10 @@ export const words = {
     interviewers: (names: string) => `With ${names}`,
     past: "Meeting date passed",
     link: "Call link added",
+    prep: "Interview prep",
     actions: {
       edit: "Edit interview",
+      reschedule: "Reschedule",
       invite: "Send invite",
       join: "Join call",
       complete: "Mark complete",

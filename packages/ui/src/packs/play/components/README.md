@@ -1,5 +1,12 @@
 # play components
 
-Data-only drafts in heading order: ScoreSheet, Dice, Spinner, Trivia, TurnOrder, TeamPicker.
-Each exports metadata, bounded props, a neutral fallback, examples and probes, with no view.
+Components in heading order: ScoreSheet, Dice, Spinner, Trivia, TurnOrder, TeamPicker.
+
+Wave 6 drafts export metadata, bounded props, a neutral fallback, examples and probes:
+
+- `LifeCounter`: live table totals and resource counters.
+- `PassReveal`: private roles on a shared phone.
+- `CardDeck`: finite random draws and discard piles.
+- `BuzzerPad`: first tap and reaction gaps on one phone.
+
 Tests live in the sibling `tests/` folder.

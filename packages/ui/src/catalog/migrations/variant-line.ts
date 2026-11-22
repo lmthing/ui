@@ -114,6 +114,9 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
   Amount: [{ from: "style", values: { large: { emphasis: "hero" } } }],
   Ring: [{ from: "style", values: { md: {}, lg: { emphasis: "hero" } } }],
   Player: [{ from: "style", values: { compact: { detail: "brief" } } }],
+  ApplicantPipeline: [
+    { from: "style", values: { columns: { arrange: "strip" }, stack: { arrange: "rows" } } },
+  ],
   Progress: [{ from: "style", values: { stack: {}, compact: {} } }],
   Hero: [{ from: "style", values: { statement: {}, photo: { media: "cover" } } }],
   Header: [{ from: "style", values: { large: {}, inline: { emphasis: "quiet" } } }],

@@ -5,6 +5,10 @@ export const words = {
     total: "Total",
     rounds: "Rounds",
     unplayed: "—",
+    bid: (value: string) => `Bid ${value}`,
+    made: "Made",
+    target: "Target: ",
+    reached: (names: readonly string[]) => `Reached by ${names.join(", ")}`,
     reset: "Reset scores",
     share: "Share scores",
   },
@@ -13,6 +17,7 @@ export const words = {
   scorePlace: (rank: string) => `Rank ${rank}`,
   scoreWinner: "Winner",
   scoreTie: "Tied winner",
-  scoreCell: (player: string, round: string) => `${player}, ${round}`,
+  scoreCell: (player: string, round: string, metric?: string) =>
+    `${player}, ${round}${metric ? `, ${metric}` : ""}`,
   scoreReadCell: (player: string, round: string, points: string) => `${player}, ${round}: ${points}`,
 };

@@ -1,0 +1,1025 @@
+{
+  "CardDeck%2Fchoose%2FDraw%20three%20prompt%20cards%20per%20tap%20from%20my%20shuffled%20deck%20and%20never%20repeat%20a%20card%20until%20I%20reshuffle%20the%20discards./8467864e8cd4c9cc/fce0d528889e006f": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- BuzzerPad: Lock in the first player to buzz and show how much later others tapped. Pick: Arbitrate who buzzes first in an in-person quiz or reaction round on one phone. Not one elapsed time (Timer), ordered turns (TurnOrder), random picks (Spinner), or question display (Trivia).\n- CardDeck: Draw cards at random without replacement and reshuffle the discards when needed. Pick: Randomly draw one to three cards without replacement from a finite deck. Not keep-or-skip sorting (SwipeStack), a spinner with repeats (Spinner), or host-read questions (Trivia).\n- Dice: Roll numbered dice and hold individual faces while rerolling the others. Pick: Random numbered dice with optional holds and a computed sum. Not manual counting (Counter), named random options (Spinner), or a loading indicator.\n- LifeCounter: Track each player's live total and resource counters around a shared table. Pick: Live life or point totals and resource counters for multiple tabletop players. Not one isolated number (Counter), round history (ScoreSheet), or a sports match (Scoreboard).\n- PassReveal: Privately reveal a different secret to each player on a shared phone. Pick: Pass one phone around so each player privately reveals their own secret role, word, or prompt. Not ordinary private selection (Choice), host-read questions (Trivia), or spaced recall (Flashcard).\n- ScoreSheet: Record players' round scores and compute totals, ranks and tied winners. Pick: An editable scorecard: enter each player's points for each game round, hand or hole and calculate totals and tied winners. Not one running number (Counter), final ranking (List[ranked]), a live match (Scoreboard), or arbitrary records (Table).\n- Spinner: Draw one named option at random, with or without repeats. Pick: Pick one labelled option randomly. Not deliberate choices (Choice, Chips), numbered dice (Dice), balanced teams (TeamPicker), or votes (Poll).\n- TeamPicker: Split players into balanced random teams while preserving optional locked placements. Pick: Randomly allocate every player to balanced named teams with optional locks. Not deliberate selection (Choice[multi]), one random option (Spinner), or sports positions (Squad, Lineup).\n- Trivia: Host questions aloud, reveal answers and advance without grading submitted responses. Pick: Host-controlled question and answer reveals for players answering aloud or on paper. Not private option selection (Choice), graded submissions (Quiz), or spaced recall (Flashcard).\n- TurnOrder: Track the current game player, lap and direction with next, skip and reverse. Pick: Game turns, laps and play direction. Not a plain roster (People), scheduled events (Timeline), or rotating household duties (Turns).\n\nNeed, in the person's words: \"Draw three prompt cards per tap from my shuffled deck and never repeat a card until I reshuffle the discards.\"\nReply with only the component id, nothing else.",
+    "reply": "CardDeck",
+    "replies": [
+      "CardDeck",
+      "CardDeck",
+      "CardDeck"
+    ]
+  },
+  "CardDeck%2Fchoose%2FDraw%20three%20prompt%20cards%20per%20tap%20from%20my%20shuffled%20deck%20and%20never%20repeat%20a%20card%20until%20I%20reshuffle%20the%20discards./ac8801b22357fe60/fce0d528889e006f": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- BuzzerPad: Lock in the first player to buzz and show how much later others tapped. Pick: Arbitrate who buzzes first in an in-person quiz or reaction round on one phone. Not one elapsed time (Timer), ordered turns (TurnOrder), random picks (Spinner), or question display (Trivia).\n- CardDeck: Draw cards at random without replacement and reshuffle the discards when needed. Pick: Randomly draw one to three cards without replacement from a finite deck. Not keep-or-skip sorting (SwipeStack), a spinner with repeats (Spinner), or host-read questions (Trivia).\n- Dice: Roll numbered dice and hold individual faces while rerolling the others. Pick: Random numbered dice with optional holds and a computed sum. Not manual counting (Counter), named random options (Spinner), or a loading indicator.\n- LifeCounter: Track each player's live total and resource counters around a shared table. Pick: Live life or point totals and resource counters for multiple tabletop players. Not one isolated number (Counter), round history (ScoreSheet), or a sports match (Scoreboard).\n- PassReveal: Privately reveal a different secret to each player on a shared phone. Pick: Pass one phone around so each player privately reveals their own secret role, word, or prompt. Not ordinary private selection (Choice), host-read questions (Trivia), or spaced recall (Flashcard).\n- ScoreSheet: Record players' round scores and compute totals, ranks and tied winners. Pick: An editable scorecard: enter each player's points for each game round, hand or hole and calculate totals and tied winners. Not one running number (Counter), final ranking (List[ranked]), a live match (Scoreboard), or arbitrary records (Table).\n- Spinner: Draw one named option at random, with or without repeats. Pick: Pick one labelled option randomly. Not deliberate choices (Choice, Chips), numbered dice (Dice), balanced teams (TeamPicker), or votes (Poll).\n- TeamPicker: Split players into balanced random teams while preserving optional locked placements. Pick: Randomly allocate every player to balanced named teams with optional locks. Not deliberate selection (Choice[multi]), one random option (Spinner), or sports positions (Squad, Lineup).\n- Trivia: Host questions aloud, reveal answers and advance without grading submitted responses. Pick: Host-controlled question and answer reveals for players answering aloud or on paper. Not private option selection (Choice), graded submissions (Quiz), or spaced recall (Flashcard).\n- TurnOrder: Track the current game player, lap and direction with next, skip and reverse. Pick: Game turns, laps and play direction. Not a plain roster (People), scheduled events (Timeline), or rotating household duties (Turns).\n\nNeed, in the person's words: \"Draw three prompt cards per tap from my shuffled deck and never repeat a card until I reshuffle the discards.\"\nReply with only the component id, nothing else.",
+    "reply": "CardDeck",
+    "replies": [
+      "CardDeck",
+      "CardDeck",
+      "CardDeck"
+    ]
+  },
+  "CardDeck%2Fchoose%2FDraw%20three%20prompt%20cards%20per%20tap%20from%20my%20shuffled%20deck%20and%20never%20repeat%20a%20card%20until%20I%20reshuffle%20the%20discards./ff26fe744c237267/fce0d528889e006f": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- BuzzerPad: Lock in the first player to buzz and show how much later others tapped. Pick: Arbitrate who buzzes first in an in-person quiz or reaction round on one phone. Not one elapsed time (Timer), ordered turns (TurnOrder), random picks (Spinner), or question display (Trivia).\n- CardDeck: Draw cards at random without replacement and reshuffle the discards when needed. Pick: Randomly draw one to three cards without replacement from a finite deck. Not keep-or-skip sorting (SwipeStack), a spinner with repeats (Spinner), or host-read questions (Trivia).\n- Dice: Roll numbered dice and hold individual faces while rerolling the others. Pick: Random numbered dice with optional holds and a computed sum. Not manual counting (Counter), named random options (Spinner), or a loading indicator.\n- LifeCounter: Track each player's live total and resource counters around a shared table. Pick: Live life or point totals and resource counters for multiple tabletop players. Not one isolated number (Counter), round history (ScoreSheet), or a sports match (Scoreboard).\n- PassReveal: Privately reveal a different secret to each player on a shared phone. Pick: Pass one phone around so each player privately reveals their own secret role, word, or prompt. Not ordinary private selection (Choice), host-read questions (Trivia), or spaced recall (Flashcard).\n- ScoreSheet: Record players' round scores and compute totals, ranks and tied winners. Pick: An editable scorecard: enter each player's points for each game round, hand or hole and calculate totals and tied winners. Not one running number (Counter), final ranking (List[ranked]), a live match (Scoreboard), or arbitrary records (Table).\n- Spinner: Draw one named option at random, with or without repeats. Pick: Pick one labelled option randomly. Not deliberate choices (Choice, Chips), numbered dice (Dice), balanced teams (TeamPicker), or votes (Poll).\n- TeamPicker: Split players into balanced random teams while preserving optional locked placements. Pick: Randomly allocate every player to balanced named teams with optional locks. Not deliberate selection (Choice[multi]), one random option (Spinner), or sports positions (Squad, Lineup).\n- Trivia: Host questions aloud, reveal answers and advance without grading submitted responses. Pick: Host-controlled question and answer reveals for players answering aloud or on paper. Not private option selection (Choice), graded submissions (Quiz), or spaced recall (Flashcard).\n- TurnOrder: Track the current game player, lap and direction with next, skip and reverse. Pick: Game turns, laps and play direction. Not a plain roster (People), scheduled events (Timeline), or rotating household duties (Turns).\n\nNeed, in the person's words: \"Draw three prompt cards per tap from my shuffled deck and never repeat a card until I reshuffle the discards.\"\nReply with only the component id, nothing else.",
+    "reply": "CardDeck",
+    "replies": [
+      "CardDeck",
+      "CardDeck",
+      "CardDeck"
+    ]
+  },
+  "CardDeck%2Fchoose%2FShow%20these%20cards%20in%20order%20so%20I%20can%20swipe%20each%20one%20to%20keep%20it%20or%20skip%20it./7c4682c8f1ee6248/c8c6fcb4c36c3a15": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- BuzzerPad: Lock in the first player to buzz and show how much later others tapped. Pick: Arbitrate who buzzes first in an in-person quiz or reaction round on one phone. Not one elapsed time (Timer), ordered turns (TurnOrder), random picks (Spinner), or question display (Trivia).\n- CardDeck: Draw cards at random without replacement and reshuffle the discards when needed. Pick: Randomly draw one to three cards without replacement from a finite deck. Not keep-or-skip sorting (SwipeStack), a spinner with repeats (Spinner), or host-read questions (Trivia).\n- Dice: Roll numbered dice and hold individual faces while rerolling the others. Pick: Random numbered dice with optional holds and a computed sum. Not manual counting (Counter), named random options (Spinner), or a loading indicator.\n- LifeCounter: Track each player's live total and resource counters around a shared table. Pick: Live life or point totals and resource counters for multiple tabletop players. Not one isolated number (Counter), round history (ScoreSheet), or a sports match (Scoreboard).\n- PassReveal: Privately reveal a different secret to each player on a shared phone. Pick: Pass one phone around so each player privately reveals their own secret role, word, or prompt. Not ordinary private selection (Choice), host-read questions (Trivia), or spaced recall (Flashcard).\n- ScoreSheet: Record players' round scores and compute totals, ranks and tied winners. Pick: An editable scorecard: enter each player's points for each game round, hand or hole and calculate totals and tied winners. Not one running number (Counter), final ranking (List[ranked]), a live match (Scoreboard), or arbitrary records (Table).\n- Spinner: Draw one named option at random, with or without repeats. Pick: Pick one labelled option randomly. Not deliberate choices (Choice, Chips), numbered dice (Dice), balanced teams (TeamPicker), or votes (Poll).\n- TeamPicker: Split players into balanced random teams while preserving optional locked placements. Pick: Randomly allocate every player to balanced named teams with optional locks. Not deliberate selection (Choice[multi]), one random option (Spinner), or sports positions (Squad, Lineup).\n- Trivia: Host questions aloud, reveal answers and advance without grading submitted responses. Pick: Host-controlled question and answer reveals for players answering aloud or on paper. Not private option selection (Choice), graded submissions (Quiz), or spaced recall (Flashcard).\n- TurnOrder: Track the current game player, lap and direction with next, skip and reverse. Pick: Game turns, laps and play direction. Not a plain roster (People), scheduled events (Timeline), or rotating household duties (Turns).\n\nNeed, in the person's words: \"Show these cards in order so I can swipe each one to keep it or skip it.\"\nReply with only the component id, nothing else.",
+    "reply": "SwipeStack",
+    "replies": [
+      "SwipeStack",
+      "SwipeStack",
+      "SwipeStack"
+    ]
+  },
+  "CardDeck%2Fchoose%2FShow%20these%20cards%20in%20order%20so%20I%20can%20swipe%20each%20one%20to%20keep%20it%20or%20skip%20it./80bed92328a134a2/c8c6fcb4c36c3a15": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- BuzzerPad: Lock in the first player to buzz and show how much later others tapped. Pick: Arbitrate who buzzes first in an in-person quiz or reaction round on one phone. Not one elapsed time (Timer), ordered turns (TurnOrder), random picks (Spinner), or question display (Trivia).\n- CardDeck: Draw cards at random without replacement and reshuffle the discards when needed. Pick: Randomly draw one to three cards without replacement from a finite deck. Not keep-or-skip sorting (SwipeStack), a spinner with repeats (Spinner), or host-read questions (Trivia).\n- Dice: Roll numbered dice and hold individual faces while rerolling the others. Pick: Random numbered dice with optional holds and a computed sum. Not manual counting (Counter), named random options (Spinner), or a loading indicator.\n- LifeCounter: Track each player's live total and resource counters around a shared table. Pick: Live life or point totals and resource counters for multiple tabletop players. Not one isolated number (Counter), round history (ScoreSheet), or a sports match (Scoreboard).\n- PassReveal: Privately reveal a different secret to each player on a shared phone. Pick: Pass one phone around so each player privately reveals their own secret role, word, or prompt. Not ordinary private selection (Choice), host-read questions (Trivia), or spaced recall (Flashcard).\n- ScoreSheet: Record players' round scores and compute totals, ranks and tied winners. Pick: An editable scorecard: enter each player's points for each game round, hand or hole and calculate totals and tied winners. Not one running number (Counter), final ranking (List[ranked]), a live match (Scoreboard), or arbitrary records (Table).\n- Spinner: Draw one named option at random, with or without repeats. Pick: Pick one labelled option randomly. Not deliberate choices (Choice, Chips), numbered dice (Dice), balanced teams (TeamPicker), or votes (Poll).\n- TeamPicker: Split players into balanced random teams while preserving optional locked placements. Pick: Randomly allocate every player to balanced named teams with optional locks. Not deliberate selection (Choice[multi]), one random option (Spinner), or sports positions (Squad, Lineup).\n- Trivia: Host questions aloud, reveal answers and advance without grading submitted responses. Pick: Host-controlled question and answer reveals for players answering aloud or on paper. Not private option selection (Choice), graded submissions (Quiz), or spaced recall (Flashcard).\n- TurnOrder: Track the current game player, lap and direction with next, skip and reverse. Pick: Game turns, laps and play direction. Not a plain roster (People), scheduled events (Timeline), or rotating household duties (Turns).\n\nNeed, in the person's words: \"Show these cards in order so I can swipe each one to keep it or skip it.\"\nReply with only the component id, nothing else.",
+    "reply": "SwipeStack",
+    "replies": [
+      "SwipeStack",
+      "SwipeStack",
+      "SwipeStack"
+    ]
+  },
+  "CardDeck%2Fchoose%2FShow%20these%20cards%20in%20order%20so%20I%20can%20swipe%20each%20one%20to%20keep%20it%20or%20skip%20it./9448d74d0e010bf1/c8c6fcb4c36c3a15": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- BuzzerPad: Lock in the first player to buzz and show how much later others tapped. Pick: Arbitrate who buzzes first in an in-person quiz or reaction round on one phone. Not one elapsed time (Timer), ordered turns (TurnOrder), random picks (Spinner), or question display (Trivia).\n- CardDeck: Draw cards at random without replacement and reshuffle the discards when needed. Pick: Randomly draw one to three cards without replacement from a finite deck. Not keep-or-skip sorting (SwipeStack), a spinner with repeats (Spinner), or host-read questions (Trivia).\n- Dice: Roll numbered dice and hold individual faces while rerolling the others. Pick: Random numbered dice with optional holds and a computed sum. Not manual counting (Counter), named random options (Spinner), or a loading indicator.\n- LifeCounter: Track each player's live total and resource counters around a shared table. Pick: Live life or point totals and resource counters for multiple tabletop players. Not one isolated number (Counter), round history (ScoreSheet), or a sports match (Scoreboard).\n- PassReveal: Privately reveal a different secret to each player on a shared phone. Pick: Pass one phone around so each player privately reveals their own secret role, word, or prompt. Not ordinary private selection (Choice), host-read questions (Trivia), or spaced recall (Flashcard).\n- ScoreSheet: Record players' round scores and compute totals, ranks and tied winners. Pick: An editable scorecard: enter each player's points for each game round, hand or hole and calculate totals and tied winners. Not one running number (Counter), final ranking (List[ranked]), a live match (Scoreboard), or arbitrary records (Table).\n- Spinner: Draw one named option at random, with or without repeats. Pick: Pick one labelled option randomly. Not deliberate choices (Choice, Chips), numbered dice (Dice), balanced teams (TeamPicker), or votes (Poll).\n- TeamPicker: Split players into balanced random teams while preserving optional locked placements. Pick: Randomly allocate every player to balanced named teams with optional locks. Not deliberate selection (Choice[multi]), one random option (Spinner), or sports positions (Squad, Lineup).\n- Trivia: Host questions aloud, reveal answers and advance without grading submitted responses. Pick: Host-controlled question and answer reveals for players answering aloud or on paper. Not private option selection (Choice), graded submissions (Quiz), or spaced recall (Flashcard).\n- TurnOrder: Track the current game player, lap and direction with next, skip and reverse. Pick: Game turns, laps and play direction. Not a plain roster (People), scheduled events (Timeline), or rotating household duties (Turns).\n\nNeed, in the person's words: \"Show these cards in order so I can swipe each one to keep it or skip it.\"\nReply with only the component id, nothing else.",
+    "reply": "SwipeStack",
+    "replies": [
+      "SwipeStack",
+      "SwipeStack",
+      "SwipeStack"
+    ]
+  },
+  "CardDeck%2Fread%2FDraw%20cards%20without%20putting%20them%20back/6ea3354b47e96a3d/bb2c1e7479b4512e": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 CardDeck (empty) Draw pile: 6 — Discard pile: 0 — No cards drawn yet — Draw cards — remaining=6 — discard=0 — \"Garden challenge deck\" [c1/draw press]\n\nTask: Draw cards without putting them back\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"c1/draw\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"c1/draw\", \"action\": \"press\"}",
+      "{\"address\": \"c1/draw\", \"action\": \"press\"}",
+      "{\"address\": \"c1/draw\", \"action\": \"press\"}"
+    ]
+  },
+  "CardDeck%2Fread%2FDraw%20cards%20without%20putting%20them%20back/dc02dcad8d9f2298/bb2c1e7479b4512e": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 CardDeck (empty) Draw pile: 6 — Discard pile: 0 — No cards drawn yet — Draw cards — remaining=6 — discard=0 — \"Garden challenge deck\" [c1/draw press]\n\nTask: Draw cards without putting them back\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"c1/draw\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"c1/draw\", \"action\": \"press\"}",
+      "{\"address\": \"c1/draw\", \"action\": \"press\"}",
+      "{\"address\": \"c1/draw\", \"action\": \"press\"}"
+    ]
+  },
+  "CardDeck%2Fread%2FDraw%20cards%20without%20putting%20them%20back/f574e6d8429b3b53/bb2c1e7479b4512e": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 CardDeck (empty) Draw pile: 6 — Discard pile: 0 — No cards drawn yet — Draw cards — remaining=6 — discard=0 — \"Garden challenge deck\" [c1/draw press]\n\nTask: Draw cards without putting them back\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"c1/draw\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"c1/draw\", \"action\": \"press\"}",
+      "{\"address\": \"c1/draw\", \"action\": \"press\"}",
+      "{\"address\": \"c1/draw\", \"action\": \"press\"}"
+    ]
+  },
+  "CardDeck%2Fwrite%2FMake%20a%20finite%20shuffled%20Garden%20challenge%20deck%20with%20six%20cards%3A%20Find%20a%20leaf%2C%20Name%20a%20seed%2C%20Check%20the%20soil%2C%20Spot%20a%20fern%2C%20Turn%20a%20pot%2C%20Look%20for%20roots.%20Draw%20without%20replacement%20and%20show%20only%20the%20draw%20pile%20count%2C%20not%20the%20discard%20count./a93ed7c83088dbdc/17c6ea4d0e0684c0": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCardDeck: Draw cards at random without replacement and reshuffle the discards when needed.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", title: text≤32, cards: [6..30 { title: text≤36, body?: text≤160, tag?: text≤16 }], drawCount?: int 1..3=1, style?: stack|fan=\"stack\" }\nRule: Write the authored deck and draw size. Never write shuffle order, current draws, or pile counts.\nRule: Write at least six authored cards. Use detail=brief only when asked to omit the discard count.\nexample: {\"c\":\"CardDeck\",\"title\":\"Garden challenge deck\",\"cards\":[{\"title\":\"Check the fern\",\"body\":\"Feel the soil before you water.\",\"tag\":\"Care\"},{\"title\":\"Find a new leaf\"},{\"title\":\"Look for roots\"},{\"title\":\"Turn a pot\"},{\"title\":\"Name a seed\"},{\"title\":\"Find a shaded spot\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Make a finite shuffled Garden challenge deck with six cards: Find a leaf, Name a seed, Check the soil, Spot a fern, Turn a pot, Look for roots. Draw without replacement and show only the draw pile count, not the discard count.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "CardDeck",
+              "enum": [
+                "CardDeck"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "cards": {
+              "minItems": 6,
+              "maxItems": 30,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 36
+                  },
+                  "body": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 160
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "tag": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 16
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "body",
+                  "tag"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "drawCount": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 3
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "stack",
+                    "fan"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "title",
+            "cards",
+            "drawCount",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"CardDeck\",\"density\":null,\"surface\":\"card\",\"detail\":null,\"title\":\"Garden challenge deck\",\"cards\":[{\"title\":\"Find a leaf\",\"body\":null,\"tag\":null},{\"title\":\"Name a seed\",\"body\":null,\"tag\":null},{\"title\":\"Check the soil\",\"body\":null,\"tag\":null},{\"title\":\"Spot a fern\",\"body\":null,\"tag\":null},{\"title\":\"Turn a pot\",\"body\":null,\"tag\":null},{\"title\":\"Look for roots\",\"body\":null,\"tag\":null}],\"drawCount\":1,\"style\":\"fan\"}",
+    "replies": [
+      "{\"c\":\"CardDeck\",\"density\":null,\"surface\":\"card\",\"detail\":null,\"title\":\"Garden challenge deck\",\"cards\":[{\"title\":\"Find a leaf\",\"body\":null,\"tag\":null},{\"title\":\"Name a seed\",\"body\":null,\"tag\":null},{\"title\":\"Check the soil\",\"body\":null,\"tag\":null},{\"title\":\"Spot a fern\",\"body\":null,\"tag\":null},{\"title\":\"Turn a pot\",\"body\":null,\"tag\":null},{\"title\":\"Look for roots\",\"body\":null,\"tag\":null}],\"drawCount\":1,\"style\":\"fan\"}",
+      "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Garden challenge deck\",\"cards\":[{\"title\":\"Find a leaf\",\"body\":null,\"tag\":null},{\"title\":\"Name a seed\",\"body\":null,\"tag\":null},{\"title\":\"Check the soil\",\"body\":null,\"tag\":null},{\"title\":\"Spot a fern\",\"body\":null,\"tag\":null},{\"title\":\"Turn a pot\",\"body\":null,\"tag\":null},{\"title\":\"Look for roots\",\"body\":null,\"tag\":null}],\"drawCount\":null,\"style\":null}",
+      "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Garden challenge deck\",\"cards\":[{\"title\":\"Find a leaf\",\"body\":null,\"tag\":null},{\"title\":\"Name a seed\",\"body\":null,\"tag\":null},{\"title\":\"Check the soil\",\"body\":null,\"tag\":null},{\"title\":\"Spot a fern\",\"body\":null,\"tag\":null},{\"title\":\"Turn a pot\",\"body\":null,\"tag\":null},{\"title\":\"Look for roots\",\"body\":null,\"tag\":null}],\"drawCount\":1,\"style\":\"fan\"}"
+    ]
+  },
+  "CardDeck%2Fwrite%2FMake%20a%20finite%20shuffled%20Garden%20challenge%20deck%20with%20six%20cards%3A%20Find%20a%20leaf%2C%20Name%20a%20seed%2C%20Check%20the%20soil%2C%20Spot%20a%20fern%2C%20Turn%20a%20pot%2C%20Look%20for%20roots.%20Draw%20without%20replacement%20and%20show%20only%20the%20draw%20pile%20count%2C%20not%20the%20discard%20count./d707ec77ee88ec27/1890b1d5a8a55a14": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCardDeck: Draw cards at random without replacement and reshuffle the discards when needed.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", title: text≤32, cards: [6..30 { title: text≤36, body?: text≤160, tag?: text≤16 }], drawCount?: int 1..3=1, style?: stack|fan=\"stack\" }\nRule: Write the authored deck and draw size. Never write shuffle order, current draws, or pile counts.\nRule: Write at least six authored cards. If asked to show only the draw pile count and hide the discard count, write {\"detail\":\"brief\"}. Otherwise leave detail unset.\nexample: {\"c\":\"CardDeck\",\"title\":\"Garden challenge deck\",\"cards\":[{\"title\":\"Check the fern\",\"body\":\"Feel the soil before you water.\",\"tag\":\"Care\"},{\"title\":\"Look for roots\",\"body\":\"Check the drainage holes before repotting.\",\"tag\":\"Care\"},{\"title\":\"Find a new leaf\"},{\"title\":\"Turn a pot\"},{\"title\":\"Name a seed\"},{\"title\":\"Find a shaded spot\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Make a finite shuffled Garden challenge deck with six cards: Find a leaf, Name a seed, Check the soil, Spot a fern, Turn a pot, Look for roots. Draw without replacement and show only the draw pile count, not the discard count.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "CardDeck",
+              "enum": [
+                "CardDeck"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "cards": {
+              "minItems": 6,
+              "maxItems": 30,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 36
+                  },
+                  "body": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 160
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "tag": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 16
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "body",
+                  "tag"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "drawCount": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 3
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "stack",
+                    "fan"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "title",
+            "cards",
+            "drawCount",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"CardDeck\",\"density\":null,\"surface\":\"card\",\"detail\":\"brief\",\"title\":\"Garden challenge deck\",\"cards\":[{\"title\":\"Find a leaf\",\"body\":null,\"tag\":null},{\"title\":\"Name a seed\",\"body\":null,\"tag\":null},{\"title\":\"Check the soil\",\"body\":null,\"tag\":null},{\"title\":\"Spot a fern\",\"body\":null,\"tag\":null},{\"title\":\"Turn a pot\",\"body\":null,\"tag\":null},{\"title\":\"Look for roots\",\"body\":null,\"tag\":null}],\"drawCount\":1,\"style\":\"fan\"}",
+    "replies": [
+      "{\"c\":\"CardDeck\",\"density\":null,\"surface\":\"card\",\"detail\":\"brief\",\"title\":\"Garden challenge deck\",\"cards\":[{\"title\":\"Find a leaf\",\"body\":null,\"tag\":null},{\"title\":\"Name a seed\",\"body\":null,\"tag\":null},{\"title\":\"Check the soil\",\"body\":null,\"tag\":null},{\"title\":\"Spot a fern\",\"body\":null,\"tag\":null},{\"title\":\"Turn a pot\",\"body\":null,\"tag\":null},{\"title\":\"Look for roots\",\"body\":null,\"tag\":null}],\"drawCount\":1,\"style\":\"fan\"}",
+      "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"title\":\"Garden challenge deck\",\"cards\":[{\"title\":\"Find a leaf\",\"body\":null,\"tag\":null},{\"title\":\"Name a seed\",\"body\":null,\"tag\":null},{\"title\":\"Check the soil\",\"body\":null,\"tag\":null},{\"title\":\"Spot a fern\",\"body\":null,\"tag\":null},{\"title\":\"Turn a pot\",\"body\":null,\"tag\":null},{\"title\":\"Look for roots\",\"body\":null,\"tag\":null}],\"drawCount\":1,\"style\":\"stack\"}",
+      "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"title\":\"Garden challenge deck\",\"cards\":[{\"title\":\"Find a leaf\",\"body\":null,\"tag\":null},{\"title\":\"Name a seed\",\"body\":null,\"tag\":null},{\"title\":\"Check the soil\",\"body\":null,\"tag\":null},{\"title\":\"Spot a fern\",\"body\":null,\"tag\":null},{\"title\":\"Turn a pot\",\"body\":null,\"tag\":null},{\"title\":\"Look for roots\",\"body\":null,\"tag\":null}],\"drawCount\":1,\"style\":\"fan\"}"
+    ]
+  },
+  "CardDeck%2Fwrite%2FMake%20a%20finite%20shuffled%20Walk%20break%20deck.%20Draw%20without%20replacement%2C%20two%20cards%20at%20a%20time%3A%20Name%20a%20route%2C%20Take%20a%20water%20break%2C%20Find%20a%20shady%20loop%2C%20Spot%20a%20bench%2C%20Pick%20a%20park%2C%20Name%20a%20dog%20trick./2269ee274f408ea1/45d42602fdf27a5a": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCardDeck: Draw cards at random without replacement and reshuffle the discards when needed.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", title: text≤32, cards: [6..30 { title: text≤36, body?: text≤160, tag?: text≤16 }], drawCount?: int 1..3=1, style?: stack|fan=\"stack\" }\nRule: Write the authored deck and draw size. Never write shuffle order, current draws, or pile counts.\nRule: For a brief deck summary (show how many cards remain and hide the discard count), write {\"detail\":\"brief\",\"density\":null,\"surface\":null}. Null detail keeps both counts visible.\nexample: {\"c\":\"CardDeck\",\"title\":\"Garden challenge deck\",\"cards\":[{\"title\":\"Check the fern\",\"body\":\"Feel the soil before you water.\",\"tag\":\"Care\"},{\"title\":\"Look for roots\"},{\"title\":\"Find a new leaf\",\"body\":\"Look for a bright green tip near the top.\",\"tag\":\"Growth\"},{\"title\":\"Turn a pot\"},{\"title\":\"Name a seed\"},{\"title\":\"Find a shaded spot\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Make a finite shuffled Walk break deck. Draw without replacement, two cards at a time: Name a route, Take a water break, Find a shady loop, Spot a bench, Pick a park, Name a dog trick.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "CardDeck",
+              "enum": [
+                "CardDeck"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "cards": {
+              "minItems": 6,
+              "maxItems": 30,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 36
+                  },
+                  "body": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 160
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "tag": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 16
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "body",
+                  "tag"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "drawCount": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 3
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "stack",
+                    "fan"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "title",
+            "cards",
+            "drawCount",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Walk break deck\",\"cards\":[{\"title\":\"Name a route\",\"body\":null,\"tag\":null},{\"title\":\"Take a water break\",\"body\":null,\"tag\":null},{\"title\":\"Find a shady loop\",\"body\":null,\"tag\":null},{\"title\":\"Spot a bench\",\"body\":null,\"tag\":null},{\"title\":\"Pick a park\",\"body\":null,\"tag\":null},{\"title\":\"Name a dog trick\",\"body\":null,\"tag\":null}],\"drawCount\":2,\"style\":\"fan\"}",
+    "replies": [
+      "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Walk break deck\",\"cards\":[{\"title\":\"Name a route\",\"body\":null,\"tag\":null},{\"title\":\"Take a water break\",\"body\":null,\"tag\":null},{\"title\":\"Find a shady loop\",\"body\":null,\"tag\":null},{\"title\":\"Spot a bench\",\"body\":null,\"tag\":null},{\"title\":\"Pick a park\",\"body\":null,\"tag\":null},{\"title\":\"Name a dog trick\",\"body\":null,\"tag\":null}],\"drawCount\":2,\"style\":\"fan\"}",
+      "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Walk break deck\",\"cards\":[{\"title\":\"Name a route\",\"body\":null,\"tag\":null},{\"title\":\"Take a water break\",\"body\":null,\"tag\":null},{\"title\":\"Find a shady loop\",\"body\":null,\"tag\":null},{\"title\":\"Spot a bench\",\"body\":null,\"tag\":null},{\"title\":\"Pick a park\",\"body\":null,\"tag\":null},{\"title\":\"Name a dog trick\",\"body\":null,\"tag\":null}],\"drawCount\":2,\"style\":\"fan\"}",
+      "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Walk break deck\",\"cards\":[{\"title\":\"Name a route\",\"body\":null,\"tag\":null},{\"title\":\"Take a water break\",\"body\":null,\"tag\":null},{\"title\":\"Find a shady loop\",\"body\":null,\"tag\":null},{\"title\":\"Spot a bench\",\"body\":null,\"tag\":null},{\"title\":\"Pick a park\",\"body\":null,\"tag\":null},{\"title\":\"Name a dog trick\",\"body\":null,\"tag\":null}],\"drawCount\":2,\"style\":\"fan\"}"
+    ]
+  },
+  "CardDeck%2Fwrite%2FMake%20a%20finite%20shuffled%20Walk%20break%20deck.%20Draw%20without%20replacement%2C%20two%20cards%20at%20a%20time%3A%20Name%20a%20route%2C%20Take%20a%20water%20break%2C%20Find%20a%20shady%20loop%2C%20Spot%20a%20bench%2C%20Pick%20a%20park%2C%20Name%20a%20dog%20trick./3ef6a562ad15aa28/3ec1d22b2fa8284e": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCardDeck: Draw cards at random without replacement and reshuffle the discards when needed.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", title: text≤32, cards: [6..30 { title: text≤36, body?: text≤160, tag?: text≤16 }], drawCount?: int 1..3=1, style?: stack|fan=\"stack\" }\nRule: Write the authored deck and draw size. Never write shuffle order, current draws, or pile counts.\nRule: Write at least six authored cards. If asked to show only the draw pile count and hide the discard count, write {\"detail\":\"brief\"}. Otherwise leave detail unset.\nexample: {\"c\":\"CardDeck\",\"title\":\"Garden challenge deck\",\"cards\":[{\"title\":\"Check the fern\",\"body\":\"Feel the soil before you water.\",\"tag\":\"Care\"},{\"title\":\"Look for roots\",\"body\":\"Check the drainage holes before repotting.\",\"tag\":\"Care\"},{\"title\":\"Find a new leaf\"},{\"title\":\"Turn a pot\"},{\"title\":\"Name a seed\"},{\"title\":\"Find a shaded spot\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Make a finite shuffled Walk break deck. Draw without replacement, two cards at a time: Name a route, Take a water break, Find a shady loop, Spot a bench, Pick a park, Name a dog trick.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "CardDeck",
+              "enum": [
+                "CardDeck"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "cards": {
+              "minItems": 6,
+              "maxItems": 30,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 36
+                  },
+                  "body": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 160
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "tag": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 16
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "body",
+                  "tag"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "drawCount": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 3
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "stack",
+                    "fan"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "title",
+            "cards",
+            "drawCount",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Walk break deck\",\"cards\":[{\"title\":\"Name a route\",\"body\":null,\"tag\":null},{\"title\":\"Take a water break\",\"body\":null,\"tag\":null},{\"title\":\"Find a shady loop\",\"body\":null,\"tag\":null},{\"title\":\"Spot a bench\",\"body\":null,\"tag\":null},{\"title\":\"Pick a park\",\"body\":null,\"tag\":null},{\"title\":\"Name a dog trick\",\"body\":null,\"tag\":null}],\"drawCount\":2,\"style\":\"fan\"}",
+    "replies": [
+      "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Walk break deck\",\"cards\":[{\"title\":\"Name a route\",\"body\":null,\"tag\":null},{\"title\":\"Take a water break\",\"body\":null,\"tag\":null},{\"title\":\"Find a shady loop\",\"body\":null,\"tag\":null},{\"title\":\"Spot a bench\",\"body\":null,\"tag\":null},{\"title\":\"Pick a park\",\"body\":null,\"tag\":null},{\"title\":\"Name a dog trick\",\"body\":null,\"tag\":null}],\"drawCount\":2,\"style\":\"fan\"}",
+      "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Walk break deck\",\"cards\":[{\"title\":\"Name a route\",\"body\":\"Pick a street or path you know and give it a new name.\",\"tag\":\"Route\"},{\"title\":\"Take a water break\",\"body\":\"Stop and drink for a full minute.\",\"tag\":\"Break\"},{\"title\":\"Find a shady loop\",\"body\":\"Look for trees and circle back through their shade.\",\"tag\":\"Route\"},{\"title\":\"Spot a bench\",\"body\":\"Point out a bench you could rest on later.\",\"tag\":\"Sight\"},{\"title\":\"Pick a park\",\"body\":\"Choose a park you can see or remember nearby.\",\"tag\":\"Place\"},{\"title\":\"Name a dog trick\",\"body\":\"Invent a silly trick you’d teach a dog you meet.\",\"tag\":\"Fun\"}],\"drawCount\":2,\"style\":\"fan\"}",
+      "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Walk break deck\",\"cards\":[{\"title\":\"Name a route\",\"body\":null,\"tag\":null},{\"title\":\"Take a water break\",\"body\":null,\"tag\":null},{\"title\":\"Find a shady loop\",\"body\":null,\"tag\":null},{\"title\":\"Spot a bench\",\"body\":null,\"tag\":null},{\"title\":\"Pick a park\",\"body\":null,\"tag\":null},{\"title\":\"Name a dog trick\",\"body\":null,\"tag\":null}],\"drawCount\":2,\"style\":\"fan\"}"
+    ]
+  },
+  "CardDeck%2Fwrite%2FMake%20a%20finite%20shuffled%20Walk%20break%20deck.%20Draw%20without%20replacement%2C%20two%20cards%20at%20a%20time%3A%20Name%20a%20route%2C%20Take%20a%20water%20break%2C%20Find%20a%20shady%20loop%2C%20Spot%20a%20bench%2C%20Pick%20a%20park%2C%20Name%20a%20dog%20trick./49b291ed7a18b97a/050669d1a5cc7f7e": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCardDeck: Draw cards at random without replacement and reshuffle the discards when needed.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", title: text≤32, cards: [6..30 { title: text≤36, body?: text≤160, tag?: text≤16 }], drawCount?: int 1..3=1, style?: stack|fan=\"stack\" }\nRule: Write the authored deck and draw size. Never write shuffle order, current draws, or pile counts.\nRule: Write at least six authored cards. Use detail=brief only when asked to omit the discard count.\nexample: {\"c\":\"CardDeck\",\"title\":\"Garden challenge deck\",\"cards\":[{\"title\":\"Check the fern\",\"body\":\"Feel the soil before you water.\",\"tag\":\"Care\"},{\"title\":\"Find a new leaf\"},{\"title\":\"Look for roots\"},{\"title\":\"Turn a pot\"},{\"title\":\"Name a seed\"},{\"title\":\"Find a shaded spot\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Make a finite shuffled Walk break deck. Draw without replacement, two cards at a time: Name a route, Take a water break, Find a shady loop, Spot a bench, Pick a park, Name a dog trick.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "CardDeck",
+              "enum": [
+                "CardDeck"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "cards": {
+              "minItems": 6,
+              "maxItems": 30,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 36
+                  },
+                  "body": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 160
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "tag": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 16
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "body",
+                  "tag"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "drawCount": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 3
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "stack",
+                    "fan"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "title",
+            "cards",
+            "drawCount",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Walk break shuffle\",\"cards\":[{\"title\":\"Name a route\",\"body\":\"Pick a street you know and give it a new name.\" ,\"tag\":\"Route\"},{\"title\":\"Take a water break\",\"body\":\"Stop and sip for a full minute.\",\"tag\":\"Hydration\"},{\"title\":\"Find a shady loop\",\"body\":\"Look for a tree-lined path and walk it twice.\",\"tag\":\"Shade\"},{\"title\":\"Spot a bench\",\"body\":\"Point out the best sitting spot you see.\",\"tag\":\"Rest\"},{\"title\":\"Pick a park\",\"body\":\"Choose the next park to explore.\",\"tag\":\"Park\"},{\"title\":\"Name a dog trick\",\"body\":\"Invent a trick and teach it mentally.\",\"tag\":\"Fun\"}],\"drawCount\":2,\"style\":\"stack\"}",
+    "replies": [
+      "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Walk break shuffle\",\"cards\":[{\"title\":\"Name a route\",\"body\":\"Pick a street you know and give it a new name.\" ,\"tag\":\"Route\"},{\"title\":\"Take a water break\",\"body\":\"Stop and sip for a full minute.\",\"tag\":\"Hydration\"},{\"title\":\"Find a shady loop\",\"body\":\"Look for a tree-lined path and walk it twice.\",\"tag\":\"Shade\"},{\"title\":\"Spot a bench\",\"body\":\"Point out the best sitting spot you see.\",\"tag\":\"Rest\"},{\"title\":\"Pick a park\",\"body\":\"Choose the next park to explore.\",\"tag\":\"Park\"},{\"title\":\"Name a dog trick\",\"body\":\"Invent a trick and teach it mentally.\",\"tag\":\"Fun\"}],\"drawCount\":2,\"style\":\"stack\"}",
+      "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Walk break deck\",\"cards\":[{\"title\":\"Name a route\",\"body\":\"Pick a street or path you know.\" ,\"tag\":\"Route\"},{\"title\":\"Take a water break\",\"body\":\"Stop and sip for a minute.\",\"tag\":\"Hydrate\"},{\"title\":\"Find a shady loop\",\"body\":\"Look for trees or building shade.\",\"tag\":\"Shade\"},{\"title\":\"Spot a bench\",\"body\":\"Note a place to sit.\",\"tag\":\"Rest\"},{\"title\":\"Pick a park\",\"body\":\"Choose a green spot to enter.\",\"tag\":\"Park\"},{\"title\":\"Name a dog trick\",\"body\":\"Think of a fun one you’d teach.\",\"tag\":\"Fun\"}],\"drawCount\":2,\"style\":\"fan\"}",
+      "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":null,\"title\":\"Walk break deck\",\"cards\":[{\"title\":\"Name a route\",\"body\":null,\"tag\":null},{\"title\":\"Take a water break\",\"body\":null,\"tag\":null},{\"title\":\"Find a shady loop\",\"body\":null,\"tag\":null},{\"title\":\"Spot a bench\",\"body\":null,\"tag\":null},{\"title\":\"Pick a park\",\"body\":null,\"tag\":null},{\"title\":\"Name a dog trick\",\"body\":null,\"tag\":null}],\"drawCount\":2,\"style\":null}"
+    ]
+  },
+  "CardDeck%2Fwrite%2FMake%20a%20shuffled%20Garden%20challenge%20deck%20that%20draws%20without%20replacement.%20Use%20these%20cards%3A%20Find%20a%20leaf%2C%20Name%20a%20seed%2C%20Check%20the%20soil%2C%20Spot%20a%20fern%2C%20Turn%20a%20pot%2C%20Look%20for%20roots.%20Keep%20the%20deck%20summary%20brief%3A%20show%20how%20many%20cards%20remain%2C%20but%20hide%20the%20discard%20count./88b5f49778f0a502/1a5cf34e6d161a1f": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCardDeck: Draw cards at random without replacement and reshuffle the discards when needed.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", title: text≤32, cards: [6..30 { title: text≤36, body?: text≤160, tag?: text≤16 }], drawCount?: int 1..3=1, style?: stack|fan=\"stack\" }\nRule: Write the authored deck and draw size. Never write shuffle order, current draws, or pile counts.\nRule: For a brief deck summary (show how many cards remain and hide the discard count), write {\"detail\":\"brief\",\"density\":null,\"surface\":null}. Null detail keeps both counts visible.\nexample: {\"c\":\"CardDeck\",\"title\":\"Garden challenge deck\",\"cards\":[{\"title\":\"Check the fern\",\"body\":\"Feel the soil before you water.\",\"tag\":\"Care\"},{\"title\":\"Look for roots\"},{\"title\":\"Find a new leaf\",\"body\":\"Look for a bright green tip near the top.\",\"tag\":\"Growth\"},{\"title\":\"Turn a pot\"},{\"title\":\"Name a seed\"},{\"title\":\"Find a shaded spot\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Make a shuffled Garden challenge deck that draws without replacement. Use these cards: Find a leaf, Name a seed, Check the soil, Spot a fern, Turn a pot, Look for roots. Keep the deck summary brief: show how many cards remain, but hide the discard count.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "CardDeck",
+              "enum": [
+                "CardDeck"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "cards": {
+              "minItems": 6,
+              "maxItems": 30,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 36
+                  },
+                  "body": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 160
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "tag": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 16
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "body",
+                  "tag"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "drawCount": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 3
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "stack",
+                    "fan"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "title",
+            "cards",
+            "drawCount",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"title\":\"Garden challenge deck\",\"cards\":[{\"title\":\"Find a leaf\",\"body\":null,\"tag\":null},{\"title\":\"Name a seed\",\"body\":null,\"tag\":null},{\"title\":\"Check the soil\",\"body\":null,\"tag\":null},{\"title\":\"Spot a fern\",\"body\":null,\"tag\":null},{\"title\":\"Turn a pot\",\"body\":null,\"tag\":null},{\"title\":\"Look for roots\",\"body\":null,\"tag\":null}],\"drawCount\":1,\"style\":\"fan\"}",
+    "replies": [
+      "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"title\":\"Garden challenge deck\",\"cards\":[{\"title\":\"Find a leaf\",\"body\":null,\"tag\":null},{\"title\":\"Name a seed\",\"body\":null,\"tag\":null},{\"title\":\"Check the soil\",\"body\":null,\"tag\":null},{\"title\":\"Spot a fern\",\"body\":null,\"tag\":null},{\"title\":\"Turn a pot\",\"body\":null,\"tag\":null},{\"title\":\"Look for roots\",\"body\":null,\"tag\":null}],\"drawCount\":1,\"style\":\"fan\"}",
+      "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"title\":\"Garden challenge deck\",\"cards\":[{\"title\":\"Find a leaf\",\"body\":null,\"tag\":null},{\"title\":\"Name a seed\",\"body\":null,\"tag\":null},{\"title\":\"Check the soil\",\"body\":null,\"tag\":null},{\"title\":\"Spot a fern\",\"body\":null,\"tag\":null},{\"title\":\"Turn a pot\",\"body\":null,\"tag\":null},{\"title\":\"Look for roots\",\"body\":null,\"tag\":null}],\"drawCount\":1,\"style\":\"fan\"}",
+      "{\"c\":\"CardDeck\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"title\":\"Garden challenge deck\",\"cards\":[{\"title\":\"Find a leaf\",\"body\":null,\"tag\":null},{\"title\":\"Name a seed\",\"body\":null,\"tag\":null},{\"title\":\"Check the soil\",\"body\":null,\"tag\":null},{\"title\":\"Spot a fern\",\"body\":null,\"tag\":null},{\"title\":\"Turn a pot\",\"body\":null,\"tag\":null},{\"title\":\"Look for roots\",\"body\":null,\"tag\":null}],\"drawCount\":1,\"style\":\"stack\"}"
+    ]
+  }
+}

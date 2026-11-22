@@ -1,3 +1,12 @@
 export { calm } from "./calm";
+export { minimal } from "./minimal";
+export { warm } from "./warm";
+export { fresh } from "./fresh";
 export { bold } from "./bold";
+export { playful } from "./playful";
+export { soft } from "./soft";
 export { editorial } from "./editorial";
+export { paper } from "./paper";
+export { sport } from "./sport";
+export { night } from "./night";
+export { mono } from "./mono";

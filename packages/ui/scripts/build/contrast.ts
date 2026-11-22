@@ -42,6 +42,8 @@ export function checkContrast() {
       }),
     ),
   );
+  if (new Set(scores.map(({ name }) => name)).size !== 288 || scores.length !== 288)
+    throw new Error(`Expected 288 distinct themes, scored ${scores.length}`);
   console.log(
     `Contrast passed for ${scores.length} themes. Worst text ${Math.min(...scores.map((s) => s.text)).toFixed(2)}:1; muted ${Math.min(...scores.map((s) => s.muted)).toFixed(2)}:1; on-accent ${Math.min(...scores.map((s) => s.onAccent)).toFixed(2)}:1.`,
   );

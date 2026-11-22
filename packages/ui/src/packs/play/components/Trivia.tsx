@@ -54,7 +54,22 @@ export const meta = {
   realPath: "A local deck uses host-controlled reveals; awarded points are recorded separately.",
   variants: { emphasis: ["normal", "hero"], media: ["thumb", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
-  parts: ["root", "question", "answer", "explain", "photo", "points", "reveal", "next", "restart"],
+  parts: [
+    "root",
+    "question",
+    "answer",
+    "explain",
+    "photo",
+    "points",
+    "choices",
+    "choice_1",
+    "choice_2",
+    "choice_3",
+    "choice_4",
+    "reveal",
+    "next",
+    "restart",
+  ],
   states: ["filled", "loading", "success", "empty"],
   session: {
     kind: "rounds",
@@ -73,8 +88,10 @@ export const meta = {
     if (current?.kind !== "rounds" || !question) return [];
     const words = playWordsFor(lang).trivia;
     const primary = primaryAction(current);
+    const choices = visibleChoices(current);
     return [
       triviaPointsCopy(question.points, lang).line,
+      ...(choices ? [words.choices, ...choices.map((choice) => JSON.stringify(choice))] : []),
       ...(primary ? [words[primary]] : []),
       words.restart,
     ];
@@ -91,6 +108,7 @@ export const props = z
           explain: text(160).optional(),
           photo: photo.optional(),
           points: z.int().min(1).max(20).default(1),
+          choices: z.array(text(120)).min(2).max(4).optional(),
         }),
       )
       .min(1)
@@ -134,6 +152,11 @@ export const examples = [
   { questions: [{ question: "Why do dogs pant?", answer: "To cool down", points: 1 }] },
   { ...gardenDeck, media: "none" },
   { ...gardenDeck },
+  {
+    questions: [
+      { question: "What draws water?", answer: "Roots", points: 2, choices: ["Leaves", "Roots", "Flowers"] },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Trivia");
 export const probes = [
@@ -153,11 +176,21 @@ export const probes = [
     ),
     variant: { axis: "media", value: "none" },
   },
+  {
+    ...write(
+      "For host-led trivia ask What draws water? List Leaves, Roots and Flowers as display-only options. The host reveals Roots; players answer aloud, without taps or grading.",
+    ),
+    expectProps: { questions: [{ choices: ["Leaves", "Roots", "Flowers"], answer: "Roots" }] },
+  },
   read("Reveal the answer to the current question", { address: "t1/reveal", action: "press" }),
   read("Restart the question deck", { address: "t1/restart", action: "press" }),
 ] satisfies Probe[];
 type TriviaProps = Props<typeof props, typeof meta>;
 type VisibleQuestion = Omit<TriviaProps["questions"][number], "answer"> & { answer?: string };
+function visibleChoices(current: Extract<SessionState, { kind: "rounds" }>) {
+  return current.revealed ? undefined : (current.item as VisibleQuestion).choices;
+}
+
 function primaryAction(current: Extract<SessionState, { kind: "rounds" }>) {
   if (sessionAvailable(current, "reveal")) return "reveal";
   if (sessionAvailable(current, "next")) return "next";
@@ -216,6 +249,8 @@ function TriviaLoading(
   points: ReturnType<typeof triviaPointsCopy>,
   density: ReturnType<typeof useKit>["density"],
   emphasis: TriviaProps["emphasis"],
+  choices: VisibleQuestion["choices"],
+  choicesLabel: string,
 ) {
   return (
     <KitCard part="root" padded density={density}>
@@ -231,6 +266,16 @@ function TriviaLoading(
           ]}
         />
       </KitContent>
+      {choices && (
+        <KitSkeleton
+          shape="figure"
+          inset="none"
+          content={[
+            ["caption", choicesLabel],
+            ...choices.map((choice): ["body", string] => ["body", choice]),
+          ]}
+        />
+      )}
       <TriviaActions primary="reveal" loading grouped={Boolean(item.photo)} />
     </KitCard>
   );
@@ -250,6 +295,29 @@ function TriviaAnswer({ answer, explain }: VisibleQuestion, density: ReturnType<
         )}
       </KitContent>
     )
+  );
+}
+
+function TriviaChoices({
+  choices,
+  label,
+  density,
+}: {
+  choices: NonNullable<VisibleQuestion["choices"]>;
+  label: string;
+  density: ReturnType<typeof useKit>["density"];
+}) {
+  return (
+    <KitContent group="response" density={density}>
+      <KitText role="caption" tone="muted" part="choices">
+        {label}
+      </KitText>
+      {choices.map((choice, index) => (
+        <KitText key={index} role="body" part={`choice_${index + 1}`}>
+          {choice}
+        </KitText>
+      ))}
+    </KitContent>
   );
 }
 
@@ -275,9 +343,10 @@ export function Trivia(input: TriviaProps) {
       </KitCard>
     );
   const item = current.item as VisibleQuestion;
+  const choices = visibleChoices(current);
   const points = triviaPointsCopy(item.points, lang);
   const { emphasis } = input;
-  if (state === "loading") return TriviaLoading(item, points, density, emphasis);
+  if (state === "loading") return TriviaLoading(item, points, density, emphasis, choices, trivia.choices);
   return (
     <KitCard part="root" padded density={density}>
       <KitContent
@@ -302,6 +371,7 @@ export function Trivia(input: TriviaProps) {
           {points.after}
         </KitText>
       </KitContent>
+      {choices && <TriviaChoices choices={choices} label={trivia.choices} density={density} />}
       {TriviaAnswer(item, density)}
       <TriviaActions primary={primaryAction(current)} />
     </KitCard>

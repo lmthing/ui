@@ -67,6 +67,9 @@ describe("Dice contract and boundaries", () => {
       expect.objectContaining({ kind: "choose", expect: "Counter" }),
       expect.objectContaining({ kind: "write", expect: "Dice" }),
       expect.objectContaining({ kind: "write", variant: { axis: "detail", value: "brief" } }),
+      expect.objectContaining({ kind: "write", expectProps: { mod: -3 } }),
+      expect.objectContaining({ kind: "write", expectProps: { drop: "low" } }),
+      expect.objectContaining({ kind: "write", expectProps: { style: "pool" } }),
       expect.objectContaining({ kind: "read", expect: roll }),
     ]);
     expect(createRegistry({ packs: ["play"] }).ids.includes("Dice")).toBe(packReady("play"));
