@@ -217,44 +217,60 @@ function MatchMetric({
     tabular: true,
     tone: value > other ? ("accent" as const) : ("muted" as const),
   });
+  const labelLine = { text: label, role: "meta" } as const;
+  const homeLine = figure(homeValue, awayValue);
+  const awayLine = figure(awayValue, homeValue);
+  if (brief)
+    return (
+      <kit.KitGrid columns={3}>
+        <kit.KitLayoutText line={labelLine} />
+        <MetricFigure line={homeLine} />
+        <MetricFigure line={awayLine} />
+      </kit.KitGrid>
+    );
   return (
     <kit.KitContent rhythm="flush">
-      <kit.KitLayoutText line={{ text: label, role: "meta" }} align="center" />
+      <kit.KitLayoutText line={labelLine} align="center" />
       <kit.KitGrid>
-        <MetricSide line={figure(homeValue, awayValue)} ratio={loading ? 0 : homeRatio} {...{ brief }} home />
-        <MetricSide line={figure(awayValue, homeValue)} ratio={loading ? 0 : awayRatio} {...{ brief }} />
+        <MetricSide line={homeLine} ratio={loading ? 0 : homeRatio} home />
+        <MetricSide line={awayLine} ratio={loading ? 0 : awayRatio} />
       </kit.KitGrid>
     </kit.KitContent>
   );
 }
 
-function MetricSide({
-  line,
-  ratio,
-  brief,
-  home = false,
-}: {
-  line: kit.LayoutLine;
-  ratio: number;
-  brief: boolean;
-  home?: boolean;
-}) {
+function MetricFigure({ line }: { line: kit.LayoutLine }) {
+  return (
+    <kit.KitGrid columns={3}>
+      <></>
+      <kit.KitLayoutText line={line} align="end" />
+    </kit.KitGrid>
+  );
+}
+
+function MetricSide({ line, ratio, home = false }: { line: kit.LayoutLine; ratio: number; home?: boolean }) {
   return (
     <kit.KitContent rhythm="flush">
-      <kit.KitGrid>
-        <kit.KitLayoutText line={line} align="end" />
-      </kit.KitGrid>
-      {!brief && (
-        <kit.KitMeter
-          label=""
-          amount=""
-          ratio={ratio}
-          fillFrom={home ? "end" : "start"}
-          slim
-          addressed={false}
-        />
-      )}
+      <MetricFigure line={line} />
+      <kit.KitMeter
+        label=""
+        amount=""
+        ratio={ratio}
+        fillFrom={home ? "end" : "start"}
+        slim
+        addressed={false}
+      />
     </kit.KitContent>
+  );
+}
+
+function TeamHeadings({ home, away, brief }: { home: string; away: string; brief: boolean }) {
+  return (
+    <kit.KitGrid columns={brief ? 3 : 2}>
+      {brief && <></>}
+      <kit.KitLayoutText line={{ text: home, role: "meta", strong: true }} align="center" />
+      <kit.KitLayoutText line={{ text: away, role: "meta", strong: true }} align="center" />
+    </kit.KitGrid>
   );
 }
 
@@ -288,10 +304,7 @@ export function MatchStats(input: MatchStatsProps) {
       )}
       {metrics.length > 0 ? (
         <>
-          <kit.KitGrid>
-            <kit.KitLayoutText line={{ text: input.home, role: "meta", strong: true }} align="center" />
-            <kit.KitLayoutText line={{ text: input.away, role: "meta", strong: true }} align="center" />
-          </kit.KitGrid>
+          <TeamHeadings home={input.home} away={input.away} {...{ brief }} />
           <kit.KitRowGroup spacing="groups" separators={false}>
             {metrics.map((metric, index) => (
               <MatchMetric key={index} {...{ metric, brief, loading, lang }} />
