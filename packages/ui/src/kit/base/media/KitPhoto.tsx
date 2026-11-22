@@ -41,6 +41,29 @@ type PhotoProps = {
   loading?: boolean;
 };
 
+function PhotoInitials({
+  value,
+  avatar,
+  decorative,
+}: {
+  value: string;
+  avatar: boolean;
+  decorative: boolean;
+}) {
+  const text = (
+    <KitText role={avatar ? "heading" : "label"} tone="text" align="center" part={null} lines={1}>
+      {value}
+    </KitText>
+  );
+  return decorative ? (
+    <YStack aria-hidden accessibilityElementsHidden>
+      {text}
+    </YStack>
+  ) : (
+    text
+  );
+}
+
 /**
  * A photo by reference (`lib:<tag>` or `local:<n>`), resolved by the host. `thumb` and `round` sit
  * beside text; `wide` fills the width at 16:9 for a hero or card image. A tinted block until loaded.
@@ -85,16 +108,8 @@ export function KitPhoto(props: PhotoProps) {
       alignItems="center"
       justifyContent="center"
     >
-      {!loading && !layer && initials && (
-        <KitText
-          role={shape === "avatar" ? "heading" : "label"}
-          tone="text"
-          align="center"
-          part={null}
-          lines={1}
-        >
-          {initials}
-        </KitText>
+      {!loading && !layer && initials && (!photo || circle) && (
+        <PhotoInitials value={initials} avatar={shape === "avatar"} decorative={Boolean(photo)} />
       )}
       {layer && <PhotoLayer {...layer} />}
     </Frame>

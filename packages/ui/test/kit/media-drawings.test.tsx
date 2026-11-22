@@ -55,7 +55,10 @@ it("keeps an unresolved portrait's address, label and supplied initials without 
   } as const;
   const filled = render(<KitPhoto {...props} />, resolve);
   expect(elementAt(filled, "home/c1/photo").attributes).toContain('aria-label="Bea Gray"');
+  expect(elementAt(filled, "home/c1/photo").children[0]!.attributes).toContain('aria-hidden="true"');
   expect(filled).toContain(">BG<");
+  const nonportrait = render(<KitPhoto {...props} shape="thumb" />);
+  expect(nonportrait).not.toContain(">BG<");
   expect(resolve).toHaveBeenCalledExactlyOnceWith("lib:portrait");
   const loading = render(<KitPhoto {...props} loading />, resolve);
   expect(loading).not.toMatch(/Bea Gray|>BG</);
