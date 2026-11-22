@@ -1,9 +1,18 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-// prettier-ignore
-import { projectSpeechCheck, readSpeechCheck, speechAttempts, speechFluencyScore, speechMatchedLine,
-  speechReveal, speechScoreLine, speechWordLimit, speechWordLine, speechWordStatus } from "../copy";
+import {
+  projectSpeechCheck,
+  readSpeechCheck,
+  speechAttempts,
+  speechFluencyScore,
+  speechMatchedLine,
+  speechReveal,
+  speechScoreLine,
+  speechWordLimit,
+  speechWordLine,
+  speechWordStatus,
+} from "../copy";
 import { learningWordsFor } from "../lang";
 import { prompt } from "../../../entry/prompt-SpeechCheck.generated";
 
@@ -77,31 +86,63 @@ const fern = {
   referenceAudio: "lib:water-the-fern",
   words: [{ text: "Arrosez" }, { text: "la" }, { text: "fougère" }],
 };
-// prettier-ignore
 export const examples = [
-  { ...fern, fluencyScore: 78, words: [
-    { text: "Arrosez", status: "correct" }, { text: "la", status: "correct" }, { text: "fougère", status: "close" },
-  ] },
-  { style: "listen", phrase: "Put on the leash.", phonetic: "put on thuh leesh",
-    referenceAudio: "lib:put-on-the-leash", words: [{ text: "Put" }, { text: "on" }, { text: "the" }, { text: "leash" }] },
+  {
+    ...fern,
+    fluencyScore: 78,
+    words: [
+      { text: "Arrosez", status: "correct" },
+      { text: "la", status: "correct" },
+      { text: "fougère", status: "close" },
+    ],
+  },
+  {
+    style: "listen",
+    phrase: "Put on the leash.",
+    phonetic: "put on thuh leesh",
+    referenceAudio: "lib:put-on-the-leash",
+    words: [{ text: "Put" }, { text: "on" }, { text: "the" }, { text: "leash" }],
+  },
   { ...fern },
   { ...fern },
   { ...fern, detail: "brief" },
-  { ...fern, fluencyScore: 46, words: [
-    { text: "Arrosez", status: "close" }, { text: "la", status: "correct" }, { text: "fougère", status: "missed" },
-  ] },
+  {
+    ...fern,
+    fluencyScore: 46,
+    words: [
+      { text: "Arrosez", status: "close" },
+      { text: "la", status: "correct" },
+      { text: "fougère", status: "missed" },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("SpeechCheck");
-// prettier-ignore
 export const probes = [
-  choose("I want to hear a native speaker say a fixed phrase, say it into my mic, and see which words I pronounced correctly."),
-  choose("Play the 45-second audio recording from my last lesson with pause and a scrubber. I am only listening to the recording.", "Player"),
-  { ...write('Let me hear "Put on the leash." from lib:put-on-the-leash before seeing the phrase. Then record me saying the four words Put, on, the, leash and check how I pronounce them. There is no result yet.'),
-    expectProps: { style: "listen", referenceAudio: "lib:put-on-the-leash" } },
-  { ...write('Let me see and say "Arrosez la fougère." and check my pronunciation word by word. Store the hint "ah-roh-zay lah foo-zhehr" and translation "Water the fern.", but explicitly hide both optional hints; do not hide the target phrase.'),
-    variant: { axis: "detail", value: "brief" } },
-  read("Show the hidden words of the phrase without starting an audio recording.", { address: "s1/reveal", action: "press" }, 1),
+  choose(
+    "I want to hear a native speaker say a fixed phrase, say it into my mic, and see which words I pronounced correctly.",
+  ),
+  choose(
+    "Play the 45-second audio recording from my last lesson with pause and a scrubber. I am only listening to the recording.",
+    "Player",
+  ),
+  {
+    ...write(
+      'Let me hear "Put on the leash." from lib:put-on-the-leash before seeing the phrase. Then record me saying the four words Put, on, the, leash and check how I pronounce them. There is no result yet.',
+    ),
+    expectProps: { style: "listen", referenceAudio: "lib:put-on-the-leash" },
+  },
+  {
+    ...write(
+      'Let me see and say "Arrosez la fougère." and check my pronunciation word by word. Store the hint "ah-roh-zay lah foo-zhehr" and translation "Water the fern.", but explicitly hide both optional hints; do not hide the target phrase.',
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
+  read(
+    "Show the hidden words of the phrase without starting an audio recording.",
+    { address: "s1/reveal", action: "press" },
+    1,
+  ),
 ] satisfies c.Probe[];
 
 type View = c.Props<typeof props, typeof meta>;
@@ -113,27 +154,125 @@ type Live = ReturnType<typeof projectSpeechCheck> & {
 type Words = ReturnType<typeof learningWordsFor>["speechCheck"];
 const wordTone = { correct: "good", close: "warn", missed: "bad" } as const;
 
-// prettier-ignore
-function SpeechFeedback({ live, words, lang, density }: { live: Live; words: Words; lang: string; density: c.ThemeDensity }) {
+function SpeechFeedback({
+  live,
+  words,
+  lang,
+  density,
+}: {
+  live: Live;
+  words: Words;
+  lang: string;
+  density: c.ThemeDensity;
+}) {
   const loading = kit.useComponentState() === "loading";
-  return <kit.KitContent group="response" density={density}>
-    {live.fluencyScore !== undefined && <kit.KitFigure density={density}
-      value={{ text: speechScoreLine(live.fluencyScore, lang), part: "score", compact: true }}
-      unit={{ text: words.fluency }} />}
-    <kit.KitLayoutText density={density} line={{ text: speechMatchedLine(live.words, lang), part: "matched", role: "meta", tone: "muted" }} />
-    <kit.KitTrack part="words" label={words.words}>
-      {live.words.map(({ id, text, status }) => {
-        const label = speechWordLine(text, status, words), tone = status ? wordTone[status] : "muted";
-        const badge = <kit.KitContent inset="md" density={density}><kit.KitLayoutText line={{ text: label, role: "caption", tone }} density={density} /></kit.KitContent>;
-        return <kit.KitRow key={id} item={id} part="root" label={label} lineRole="title" inline fitContent
-          surface={loading ? "plain" : "tinted"} tone={loading ? undefined : tone} density={density} leadingAlign="row" leading={badge}>{null}</kit.KitRow>;
-      })}
-    </kit.KitTrack>
-  </kit.KitContent>;
+  return (
+    <kit.KitContent group="response" density={density}>
+      {live.fluencyScore !== undefined && (
+        <kit.KitFigure
+          density={density}
+          value={{ text: speechScoreLine(live.fluencyScore, lang), part: "score", compact: true }}
+          unit={{ text: words.fluency }}
+        />
+      )}
+      <kit.KitLayoutText
+        density={density}
+        line={{ text: speechMatchedLine(live.words, lang), part: "matched", role: "meta", tone: "muted" }}
+      />
+      <kit.KitTrack part="words" label={words.words}>
+        {live.words.map(({ id, text, status }) => {
+          const label = speechWordLine(text, status, words),
+            tone = status ? wordTone[status] : "muted";
+          const badge = (
+            <kit.KitContent inset="md" density={density}>
+              <kit.KitLayoutText line={{ text: label, role: "caption", tone }} density={density} />
+            </kit.KitContent>
+          );
+          return (
+            <kit.KitRow
+              key={id}
+              item={id}
+              part="root"
+              label={label}
+              lineRole="title"
+              inline
+              fitContent
+              surface={loading ? "plain" : "tinted"}
+              tone={loading ? undefined : tone}
+              density={density}
+              leadingAlign="row"
+              leading={badge}
+            >
+              {null}
+            </kit.KitRow>
+          );
+        })}
+      </kit.KitTrack>
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
-function SpeechControls({ live, words, density, loading }: { live: Live; words: Words; density: c.ThemeDensity; loading: boolean }) {
+function SpeechReference(listenLabel: string, playing: boolean, loading: boolean) {
+  return (
+    <kit.KitPlayback part="listen" style="audio" loading={loading}>
+      <kit.KitContent
+        density="compact"
+        leadingAlign="row"
+        lead={
+          <kit.KitAction
+            part="listen"
+            contentParts={{}}
+            action={playing ? "pause" : "play"}
+            kind="secondary"
+            a11y={listenLabel}
+            icon={playing ? "pause" : "play"}
+          />
+        }
+      >
+        <kit.KitRow part={null} inline label={listenLabel} lineRole="label">
+          <kit.KitLayoutText line={{ text: listenLabel, role: "meta" }} />
+        </kit.KitRow>
+      </kit.KitContent>
+    </kit.KitPlayback>
+  );
+}
+
+function SpeechCapture(live: Live, words: Words, loading: boolean) {
+  return (
+    <kit.KitMicCapture
+      part="mic"
+      target={{ part: "mic" }}
+      loading={loading}
+      label={live.recording ? words.stopMic : words.mic}
+      recording={live.recording}
+      level={live.level}
+      {...(live.elapsedSeconds === undefined ? {} : { elapsedSeconds: live.elapsedSeconds })}
+    />
+  );
+}
+
+function SpeechRevealRow(label: string, density: c.ThemeDensity, loading: boolean) {
+  return (
+    <kit.KitRow
+      part={loading ? null : "reveal"}
+      role="button"
+      label={label}
+      inline
+      density={density}
+      leadingAlign="row"
+    >
+      <kit.KitLayoutText line={{ text: label, role: "meta", tone: "accent" }} density={density} />
+    </kit.KitRow>
+  );
+}
+
+type SpeechControlsProps = {
+  live: Live;
+  words: Words;
+  density: c.ThemeDensity;
+  loading: boolean;
+};
+function SpeechControls({ live, words, density, loading }: SpeechControlsProps) {
   const { screen, component } = kit.usePartContext();
   const { controller } = kit.useKit();
   const key = `${screen}/${component}`;
@@ -141,59 +280,95 @@ function SpeechControls({ live, words, density, loading }: { live: Live; words: 
   const [operation] = kit.useHostOperations();
   const listenLabel = playback === true ? words.pause : words.listen;
   const pending = operation?.status === "pending";
-  const note = pending ? words.loading : operation?.status === "rejected" ? words.error :
-    operation?.status === "cancelled" ? words.cancelled : live.canEvaluate ? words.recorded : undefined;
-  return <>
-    {live.hasReference && <kit.KitPlayback part="listen" style="audio" loading={loading}>
-      <kit.KitContent density="compact" leadingAlign="row" lead={
-        <kit.KitAction part="listen" contentParts={{}} action={playback === true ? "pause" : "play"}
-          kind="secondary" a11y={listenLabel} icon={playback === true ? "pause" : "play"} />}>
-        <kit.KitRow part={null} inline label={listenLabel} lineRole="label">
-          <kit.KitLayoutText line={{ text: listenLabel, role: "meta" }} />
-        </kit.KitRow>
-      </kit.KitContent>
-    </kit.KitPlayback>}
-    {playback === "error" && <kit.KitLayoutText line={{ text: words.audioUnavailable, part: "audio_status", role: "meta", tone: "bad" }} />}
-    {live.canCapture && <kit.KitMicCapture part="mic" target={{ part: "mic" }} loading={loading}
-      label={live.recording ? words.stopMic : words.mic} recording={live.recording} level={live.level}
-      {...(live.elapsedSeconds === undefined ? {} : { elapsedSeconds: live.elapsedSeconds })} />}
-    {note && <kit.KitLayoutText line={{ text: note, part: "operation_status", role: "meta", tone: operation?.status === "rejected" ? "bad" : "muted" }} />}
-    {live.canReveal && <kit.KitRow part={loading ? null : "reveal"} role="button" label={words.reveal} inline density={density} leadingAlign="row">
-      <kit.KitLayoutText line={{ text: words.reveal, role: "meta", tone: "accent" }} density={density} />
-    </kit.KitRow>}
-    <kit.KitActionFooter density={density}>
-      {!pending && controller?.actionsAt(`${key}/evaluate`).includes("press") && <kit.KitAction part="evaluate" contentParts={{}} label={words.evaluate} action="press" />}
-      {!pending && controller?.actionsAt(`${key}/retry`).includes("press") && <kit.KitAction part="retry" contentParts={{}} label={words.retry} action="press" kind="danger" />}
-    </kit.KitActionFooter>
-  </>;
+  const note = pending
+    ? words.loading
+    : operation?.status === "rejected"
+      ? words.error
+      : operation?.status === "cancelled"
+        ? words.cancelled
+        : live.canEvaluate
+          ? words.recorded
+          : undefined;
+  return (
+    <>
+      {live.hasReference && SpeechReference(listenLabel, playback === true, loading)}
+      {playback === "error" && (
+        <kit.KitLayoutText
+          line={{ text: words.audioUnavailable, part: "audio_status", role: "meta", tone: "bad" }}
+        />
+      )}
+      {live.canCapture && SpeechCapture(live, words, loading)}
+      {note && (
+        <kit.KitLayoutText
+          line={{
+            text: note,
+            part: "operation_status",
+            role: "meta",
+            tone: operation?.status === "rejected" ? "bad" : "muted",
+          }}
+        />
+      )}
+      {live.canReveal && SpeechRevealRow(words.reveal, density, loading)}
+      <kit.KitActionFooter density={density}>
+        {!pending && controller?.actionsAt(`${key}/evaluate`).includes("press") && (
+          <kit.KitAction part="evaluate" contentParts={{}} label={words.evaluate} action="press" />
+        )}
+        {!pending && controller?.actionsAt(`${key}/retry`).includes("press") && (
+          <kit.KitAction part="retry" contentParts={{}} label={words.retry} action="press" kind="danger" />
+        )}
+      </kit.KitActionFooter>
+    </>
+  );
 }
 
-// prettier-ignore
 export function SpeechCheck(input: View) {
   const scope = kit.usePartContext();
   const state = kit.useComponentState();
-  const { lang, words: { speechCheck: words } } = kit.useWords(learningWordsFor);
+  const {
+    lang,
+    words: { speechCheck: words },
+  } = kit.useWords(learningWordsFor);
   const density = kit.useKit().density;
   const surface = "card";
   const live = kit.useLiveControls(meta, input) as Live;
-  const result = state === "filled" && live.outcome ? (live.outcome === "success" ? "success" : "error") : state;
+  const result =
+    state === "filled" && live.outcome ? (live.outcome === "success" ? "success" : "error") : state;
   const hintLines = [
     ...(live.phonetic ? [{ text: live.phonetic, part: "phonetic" }] : []),
     ...(live.translation ? [{ text: live.translation, part: "translation" }] : []),
   ];
-  const body = <kit.KitContent density={density}>
-    <kit.KitLayoutText density={density} line={{ text: words.label, part: "label", role: "meta", tone: "muted" }} />
-    {live.phrase ? <kit.KitHeader density={density} title={{ text: live.phrase, part: "phrase" }} meta={hintLines} />
-      : <kit.KitHeader density={density} title={{ text: words.audioFirst, part: "instruction" }} />}
-    {live.showWords && <SpeechFeedback {...{ live, words, lang, density }} />}
-    <kit.KitContent group="response" density={density}>
-      <SpeechControls {...{ live, words, density }} loading={state === "loading"} />
+  const body = (
+    <kit.KitContent density={density}>
+      <kit.KitLayoutText
+        density={density}
+        line={{ text: words.label, part: "label", role: "meta", tone: "muted" }}
+      />
+      {live.phrase ? (
+        <kit.KitHeader density={density} title={{ text: live.phrase, part: "phrase" }} meta={hintLines} />
+      ) : (
+        <kit.KitHeader density={density} title={{ text: words.audioFirst, part: "instruction" }} />
+      )}
+      {live.showWords && <SpeechFeedback {...{ live, words, lang, density }} />}
+      <kit.KitContent group="response" density={density}>
+        <SpeechControls {...{ live, words, density }} loading={state === "loading"} />
+      </kit.KitContent>
     </kit.KitContent>
-  </kit.KitContent>;
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    <kit.PartContext.Provider value={{ ...scope, state: result }}>
-      <kit.KitState density={density} part="status" message={result === "success" ? words.success : live.outcome === "denied" ? words.denied : words.error}
-        retain={state !== "error"} loading={body}>{body}</kit.KitState>
-    </kit.PartContext.Provider>
-  </kit.KitCard>;
+  );
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      <kit.PartContext.Provider value={{ ...scope, state: result }}>
+        <kit.KitState
+          density={density}
+          part="status"
+          message={
+            result === "success" ? words.success : live.outcome === "denied" ? words.denied : words.error
+          }
+          retain={state !== "error"}
+          loading={body}
+        >
+          {body}
+        </kit.KitState>
+      </kit.PartContext.Provider>
+    </kit.KitCard>
+  );
 }
