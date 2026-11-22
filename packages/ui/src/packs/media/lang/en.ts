@@ -44,6 +44,16 @@ export const en = {
     timing: (duration: string, position: string) => `${duration} · ${position}`,
     timingReading: (title: string, timing: string) => `${title} · ${timing}`,
   },
+  transcript: {
+    empty: "No transcript available",
+    label: "Transcript",
+    follow: "Follow playback",
+    following: "Following playback",
+    notFollowing: "Not following playback",
+    save: "Save line",
+    line: (time: string, speaker: string | undefined, text: string, active: boolean) =>
+      `${time} ${speaker ? `${speaker}: ` : ""}${text}${active ? " · Current line" : ""}`,
+  },
 };
 
 export type MediaWords = typeof en;

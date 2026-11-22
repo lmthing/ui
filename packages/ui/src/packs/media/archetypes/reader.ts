@@ -34,6 +34,18 @@ export const reader = {
         { id: "c1", c: "ChapterList" },
       ],
     },
+    transcript: {
+      recipe: [
+        { allow: ["Header"], required: true, variant: "back" },
+        { allow: ["Player"], required: true },
+        { allow: ["Transcript"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header", style: "back" },
+        { id: "p1", c: "Player" },
+        { id: "t1", c: "Transcript", style: "spoken" },
+      ],
+    },
     highlights: {
       recipe: [
         { allow: ["Header"], required: true },
@@ -50,6 +62,13 @@ export const reader = {
 } as const satisfies ArchetypeMeta;
 
 export const probes = [
+  {
+    kind: "compose",
+    archetype: "reader",
+    layout: "transcript",
+    brief:
+      'Use a back heading and play A Quiet Morning (lib:quiet_morning, 1440 seconds). Below the scrubber put the actual spoken lines from Ada, synced to the audio: at 0 seconds "Take a moment to settle in." and at 5 seconds "Let the silence have its turn." Let me tap a line to jump to it.',
+  },
   {
     kind: "compose",
     archetype: "reader",
