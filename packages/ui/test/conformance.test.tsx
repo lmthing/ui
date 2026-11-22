@@ -43,8 +43,16 @@ function stampExampleItems(meta: Meta, props: Record<string, unknown>) {
   return stampItemIds(meta, props);
 }
 
+const domainEmpty: Readonly<Record<string, string>> = {
+  LeaveBalance: "No leave balances assigned",
+  PayStub: "No pay statements issued yet",
+  TeamDirectory: "No teammates in the directory yet",
+  TravelDocs: "No travel documents yet",
+};
+
 function expectEmptyCopy(meta: Meta, input: Record<string, unknown>, html: string, data?: DeviceData) {
-  if (meta.id === "TravelDocs") return expect(visibleTexts(html)).toContain("No travel documents yet");
+  const expected = domainEmpty[meta.id];
+  if (expected) return expect(visibleTexts(html)).toContain(expected);
   // Explicit empty screen reads only the state header; use the declared copy hook here.
   const lines = data || meta.id === "Flashcard" ? meta.read?.(input, "empty", undefined, data) : undefined;
   if (!lines?.length) return expect(html).toContain(emptyLine(meta.deviceDataVisible ? undefined : "walk"));

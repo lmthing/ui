@@ -120,11 +120,11 @@ export const probes = [
   ),
   choose("Show a horizontal progress bar for 3 of the 5 plants I wanted to water today.", "Progress"),
   write(
-    "Show Rae's PTO in hours: Vacation accrued 80, used 24, pending 8, cap 100; Sick leave accrued 40, used 8, pending 0.",
+    "Show Rae's full PTO breakdown and meters in hours: Vacation accrued 80, used 24, pending 8, cap 100; Sick leave accrued 40, used 8, pending 0. Use the default presentation, with variant fields null.",
   ),
   {
     ...write(
-      "Show Sam's vacation PTO in days: 18 accrued, 6 used, 2 pending. Display only the leave type and available balance; hide the breakdown and meter.",
+      "Show Sam's vacation PTO in days: 18 accrued, 6 used, 2 pending. Display only the leave type and available balance; hide the breakdown and meter. Keep density and surface null.",
     ),
     variant: { axis: "detail", value: "brief" },
   },
@@ -173,7 +173,7 @@ function BalanceRow({ row, unit, detail, density }: {
       <kit.KitContent density={density}>
         <kit.KitGrid fitLast density={density}>
           <kit.KitMetaLine title={{ text: row.label, part: "type", role: "body" }}
-            meta={full ? { text: words.leaveBalance.remaining(figures.lines.accrued) } : undefined} density={density} />
+            meta={full ? [{ text: words.leaveBalance.remaining(figures.lines.accrued) }] : []} density={density} />
           <kit.KitLayoutText line={{ text: figures.available, part: "available", role: "figure", tabular: true }} align="end" density={density} />
         </kit.KitGrid>
         {full && <>

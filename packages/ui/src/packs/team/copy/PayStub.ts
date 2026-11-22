@@ -65,6 +65,7 @@ export function payStubReading(
   const data = payStubDisplay(input, lang, currency);
   const line = ({ label, amount, note }: Entry) => words.line(label, amount, note);
   return [
+    words.title,
     ...(input.detail === "brief" ? [] : [data.employee, data.period]),
     data.paid,
     words.line(words.net, data.net),
@@ -77,5 +78,6 @@ export function payStubReading(
           ...(data.deductions.length ? [words.deductions, ...data.deductions.map(line)] : []),
           ...data.ytd.map(line),
         ]),
+    words.export,
   ];
 }

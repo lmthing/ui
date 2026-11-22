@@ -8,6 +8,7 @@ type Member = {
   role: string;
   department?: string | undefined;
   manager?: string | undefined;
+  photo?: string | undefined;
   availability: "on_shift" | "break" | "pto" | "off";
 };
 type Directory<T extends Member> = { departments: string[]; members: T[]; detail: "full" | "brief" };
@@ -62,14 +63,19 @@ export function directoryReading(input: Directory<Member>, lang?: string): strin
   const words = teamWordsFor(lang).teamDirectory;
   const groups = directoryGroups(input, lang);
   if (!groups.length) return [words.empty];
-  return groups.flatMap(({ department, members }) => [
-    ...(department ? [department] : []),
-    ...members.map((row) =>
-      words.summary(row.id, row.name, [
-        row.role,
-        words.status[row.availability],
-        ...(row.manager ? [words.manager(row.manager)] : []),
-      ]),
-    ),
-  ]);
+  return [
+    words.title,
+    words.search,
+    ...groups.flatMap(({ department, members }) => [
+      ...(department ? [department] : []),
+      ...members.map((row) =>
+        words.summary(row.id, row.name, [
+          row.role,
+          words.status[row.availability],
+          ...(!row.photo ? [directoryInitials(row.name)] : []),
+          ...(row.manager ? [words.manager(row.manager)] : []),
+        ]),
+      ),
+    ]),
+  ];
 }

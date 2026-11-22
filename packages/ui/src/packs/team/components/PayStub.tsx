@@ -127,7 +127,7 @@ export const probes = [
     "Amount",
   ),
   write(
-    "Show Rae's issued payslip for November 1 to 14, 2026, paid November 20, 2026. Regular hours: 72 hours at 16, amount 1152; tax deduction 153.60. Year-to-date gross 24208.",
+    "Show Rae's full itemized payslip for November 1 to 14, 2026, paid November 20, 2026. Regular hours: 72 hours at 16, amount 1152; tax deduction 153.60. Display year-to-date gross 24208. Use the default presentation with variant fields null.",
   ),
   {
     ...write(
@@ -152,7 +152,7 @@ function PayLine({ row, density }: { row: Entry; density: ViewProps["density"] }
       <kit.KitContent rhythm="flush" density={density}>
         <kit.KitGrid fitLast density={density}>
           <kit.KitLayoutText line={{ text: row.label, role: "body" }} density={density} />
-          <kit.KitLayoutText line={{ text: row.amount, part: row.part, role: "figure", compact: true, tabular: true }} align="end" density={density} />
+          <kit.KitLayoutText line={{ text: row.amount, part: row.part ?? null, role: "figure", compact: true, tabular: true }} align="end" density={density} />
         </kit.KitGrid>
         <kit.KitLayoutText line={{ text: row.note, role: "meta", tone: "muted" }} density={density} />
       </kit.KitContent>
@@ -202,7 +202,7 @@ function StatementBody({ data, brief, density }: { data: Display; brief: boolean
 export function PayStub(input: ViewProps) {
   const state = kit.useComponentState();
   const { lang, words: { payStub: words } } = kit.useWords(teamWordsFor);
-  const { currency } = kit.useKit();
+  const currency = kit.useAppCurrency();
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);

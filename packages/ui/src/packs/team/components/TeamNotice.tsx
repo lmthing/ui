@@ -69,8 +69,8 @@ export const props = z
     postedAt: text(16).meta({ read: false }),
     priority: z.enum(["info", "important", "urgent"]).default("info").meta({ read: false }),
     body: text(400).meta({ read: false }),
-    requireAck: z.boolean().default(true),
     acknowledged: z.boolean().default(false),
+    requireAck: z.boolean().default(true),
     readCount: z.int().min(0),
     totalMembers: z.int().min(1),
     goto: screenId.optional(),
@@ -128,7 +128,7 @@ export const probes = [
   ),
   choose("Put a short warning strip at the top of the screen: The park gate is closed.", "Banner"),
   write(
-    "Issue staff bulletin Greenhouse access update, by Anna Cole on 20 Nov at 09:30. Mark important. Body: Use the side entrance while the front steps are repaired. Require acknowledgment; I have not read it, and 14 of 18 members have.",
+    "Show the full staff bulletin Greenhouse access update, by Anna Cole on 20 Nov at 09:30, marked important. Body: 'Use the side entrance while the front steps are repaired.' Require acknowledgment; I have not read it, and 14 of 18 members have. Use the default presentation with variant fields null.",
   ),
   {
     ...write(
@@ -209,7 +209,7 @@ function NoticeContent({ input, brief, density }: { input: ViewProps; brief: boo
 
 // prettier-ignore
 export function TeamNotice(input: ViewProps) {
-  const { screen, component } = kit.usePartContext();
+  const { screen, component, state } = kit.usePartContext();
   const { words: { teamNotice: words } } = kit.useWords(teamWordsFor);
   kit.useControlValue(`${screen}/${component}/$localState/${meta.id}`, undefined);
   const live = kit.useLiveControls(meta, input) as ViewProps;
@@ -218,7 +218,7 @@ export function TeamNotice(input: ViewProps) {
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const content = <NoticeContent input={live} brief={detail === "brief"} density={density} />;
   return (
-    <kit.KitCard part="frame" style="inset" padded {...{ density, surface }}>
+    <kit.KitCard part={state === "loading" ? "root" : "frame"} style="inset" padded {...{ density, surface }}>
       <kit.KitState retain message={words.success} part="message" density={density} loading={content}>
         {content}
       </kit.KitState>

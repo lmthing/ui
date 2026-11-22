@@ -35,17 +35,18 @@ export function leaveBalanceFigures(row: Balance, unit: Unit, lang?: string) {
 }
 
 export function leaveBalanceReading(
-  input: { balances: Balance[]; unit: Unit; detail: "full" | "brief" },
+  input: { balances: Balance[]; employee?: string | undefined; unit: Unit; detail: "full" | "brief" },
   lang?: string,
 ) {
   const words = teamWordsFor(lang).leaveBalance;
-  return input.balances.map((row) => {
+  const balances = input.balances.map((row) => {
     const { available, lines, cap, expires } = leaveBalanceFigures(row, input.unit, lang);
     const summary = words.balance(row.label, available);
     return input.detail === "brief"
       ? summary
       : [
           summary,
+          words.remaining(lines.accrued),
           words.labeled(words.accrualLabel(cap), lines.accrued),
           words.labeled(words.used, lines.used),
           words.labeled(words.pending, lines.pending),
@@ -54,4 +55,5 @@ export function leaveBalanceReading(
           .filter(Boolean)
           .join(" · ");
   });
+  return [words.title, ...(input.employee ? [input.employee] : []), ...balances, words.request];
 }

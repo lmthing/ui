@@ -125,7 +125,7 @@ export const probes = [
     "People",
   ),
   write(
-    "Staff directory: Greenhouse department, Rae Price the Grower reports to Anna Cole and is on shift; Anna Cole is Grow lead and on break.",
+    "Group this staff directory by department and show the contact buttons. In Greenhouse, Rae Price the Grower reports to Anna Cole and is on shift; Anna Cole is Grow lead and on break. Use the default presentation with variant fields null.",
   ),
   {
     ...write(
