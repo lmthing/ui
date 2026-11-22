@@ -77,7 +77,7 @@ it("lands on the same discrete cursor from pointer, keyboard, and agent", async 
 it("keeps the active video mounted when the overlay changes", async () => {
   await page.getByRole("button", { name: "Play first clip" }).click();
   const video = page.getByTestId("first_clip");
-  await video.waitFor({ state: "attached" });
+  const original = await video.elementHandle();
   const overlay = page.getByRole("button", { name: "Toggle playback overlay" });
   await overlay.click();
   const toolbar = page.getByText("Overlay", { exact: true });
@@ -85,5 +85,6 @@ it("keeps the active video mounted when the overlay changes", async () => {
   expect(await toolbar.locator("../..").locator(":scope > div > video").count()).toBe(1);
   await overlay.click();
   await toolbar.waitFor({ state: "detached" });
-  await video.waitFor({ state: "attached" });
+  expect(await video.evaluate((element, initial) => element === initial, original)).toBe(true);
+  await original.dispose();
 });

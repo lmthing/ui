@@ -97,8 +97,10 @@ export function KitPlayback({ children, overlay, ...options }: PlaybackProps) {
     </>
   );
   if (overlay === undefined) return playback;
+  // Tamagui captures its initial ref. Keep React from reusing the frame as the playback mount.
   return (
     <YStack
+      key="playback-frame"
       position="relative"
       aspectRatio={variants.aspect.wide}
       borderRadius={radius.md}

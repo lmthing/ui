@@ -32,7 +32,7 @@ export function useActionPress(
     action
       ? controller.act({ address, action, ...(value === undefined || action === "copy" ? {} : { value }) })
       : controller.press(address);
-  if (!isWeb || (!reveal && !controller.mediaKeyTarget(address))) return { onPress };
+  if (!isWeb || (!reveal && !controller.mediaKeyTarget?.(address))) return { onPress };
   return {
     onPress,
     tabIndex: 0,
@@ -53,7 +53,7 @@ export function useActionPress(
 /** Disabled reveal buttons close the controller gate as well as removing their handlers. */
 export function useRevealControl(address: string, action: string | undefined, disabled: boolean) {
   const { controller, interactive } = useKit();
-  const reveal = interactive && (!action || action === "press") && controller?.isRevealControl(address);
+  const reveal = interactive && (!action || action === "press") && controller?.isRevealControl?.(address);
   useLayoutEffect(
     () => (reveal && disabled ? controller?.registerDisabledPart(address) : undefined),
     [address, controller, disabled, reveal],

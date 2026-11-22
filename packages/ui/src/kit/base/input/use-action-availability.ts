@@ -10,7 +10,7 @@ export function useActionAvailability(
 ) {
   const { interactive, controller } = useKit();
   const { component: id, item } = usePartContext();
-  const hostPart = part !== null && controller?.hasHostCommandsAt(id, part, item !== undefined) === true;
+  const hostPart = part !== null && controller?.hasHostCommandsAt?.(id, part, item !== undefined) === true;
   useLayoutEffect(
     () => (disabled && hostPart ? controller?.registerDisabledPart(address) : undefined),
     [address, controller, disabled, hostPart],
