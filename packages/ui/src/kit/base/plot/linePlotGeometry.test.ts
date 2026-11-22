@@ -154,25 +154,25 @@ describe("centred vertical scale", () => {
       expect(geometry.empty).toBe(!samples.length);
     }
   });
+});
 
-  it.each([0, -1e308])("preserves the centre even with %s and unrepresentable upper extent", (low) => {
-    const center = 1e308;
-    const series = [
-      {
-        id: "one",
-        label: "One",
-        points: [
-          { ...points[0]!, value: low },
-          { ...points[1]!, value: 1.5e308 },
-        ],
-      },
-    ];
-    const geometry = plotGeometry(series, undefined, undefined, center, center);
-    expect(geometry.ticks).toEqual([center, low]);
-    expect(geometry.y(center)).toBe(0.5);
-    expect(geometry.y(low)).toBe(1);
-    expect(geometry.y(1.5e308)).toBeCloseTo(low ? 0.375 : 0.25);
-  });
+it.each([0, -1e308])("preserves the centre even with %s and unrepresentable upper extent", (low) => {
+  const center = 1e308;
+  const series = [
+    {
+      id: "one",
+      label: "One",
+      points: [
+        { ...points[0]!, value: low },
+        { ...points[1]!, value: 1.5e308 },
+      ],
+    },
+  ];
+  const geometry = plotGeometry(series, undefined, undefined, center, center);
+  expect(geometry.ticks).toEqual([center, low]);
+  expect(geometry.y(center)).toBe(0.5);
+  expect(geometry.y(low)).toBe(1);
+  expect(geometry.y(1.5e308)).toBeCloseTo(low ? 0.375 : 0.25);
 });
 
 it("shares marker coordinates with the drawing and resolves overlapping hit areas by distance", () => {

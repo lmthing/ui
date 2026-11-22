@@ -12,18 +12,20 @@ vi.mock("tamagui", async (original) => ({
   isWeb: false,
 }));
 
+type NativeTarget = {
+  testID?: string;
+  accessible?: boolean;
+  accessibilityState?: unknown;
+  onAccessibilityTap?: () => void;
+  accessibilityActions?: { name: string }[];
+  onAccessibilityAction?: (event: { nativeEvent: { actionName: string } }) => void;
+};
+const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+
 it("uses an LTR plot coordinate space and accepts native accessibility activation", async () => {
   const address = "home/c1/r2/root";
   const act = vi.fn();
   const { jsxDEV } = await vi.importActual<typeof runtime>("react/jsx-dev-runtime");
-  type NativeTarget = {
-    testID?: string;
-    accessible?: boolean;
-    accessibilityState?: unknown;
-    onAccessibilityTap?: () => void;
-    accessibilityActions?: { name: string }[];
-    onAccessibilityAction?: (event: { nativeEvent: { actionName: string } }) => void;
-  };
   let target: NativeTarget | undefined;
   const spy = vi.spyOn(runtime, "jsxDEV").mockImplementation((...args) => {
     const props = args[1] as NativeTarget;
@@ -35,7 +37,6 @@ it("uses an LTR plot coordinate space and accepts native accessibility activatio
     }
     return jsxDEV(...args);
   });
-  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
   try {
     const html = renderToStaticMarkup(
       <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
