@@ -138,9 +138,8 @@ export function Door(input: View) {
   return <kit.KitCard part="root" padded {...{ density, surface }}>
     <kit.KitState part="feedback" retain message={summary.feedback} density={density}>
     <kit.KitFigure value={{ part: "arrivals", text: summary.arrivals, role: live.expected ? "figure" : "body" }}
-      density={density} caption={<kit.KitMetaLine density={density}
-        title={{ text: door.arrivals, role: "meta", tone: "muted" }}
-        meta={{ part: "recent", text: summary.recent }} />} />
+      unit={{ text: door.arrivals }} density={density}
+      caption={<kit.KitLayoutText line={{ part: "recent", text: summary.recent, role: "meta", tone: "muted" }} density={density} />} />
     {state !== "error" && <>
       <kit.KitContent group="response" density={density}>
         <kit.KitViewfinder kind="scan" hint={input.hint} hintPart="hint" />

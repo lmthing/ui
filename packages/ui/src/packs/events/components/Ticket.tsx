@@ -94,15 +94,11 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
-const { choose, write } = c.probesFor("Ticket");
+const { choose, write, read } = c.probesFor("Ticket");
+// prettier-ignore
 export const probes = [
-  choose(
-    "Show my issued admission pass for a benefit gala: my name, ticket type, venue and a big scannable code for entry.",
-  ),
-  choose(
-    "Show plain label/value facts about the hall: address, dress code and closing time. No issued pass or code.",
-    "KeyValue",
-  ),
+  choose("Show my issued admission pass for a benefit gala: my name, ticket type, venue and a big scannable code for entry."),
+  choose("Show plain label/value facts about the hall: address, dress code and closing time. No issued pass or code.", "KeyValue"),
   write(
     "Write my Adult admission pass for Harbour Benefit at Harbour Hall, 2027-04-09 at 18:30. Holder Imani Cole, ticket number HB0142.",
   ),
@@ -113,6 +109,7 @@ export const probes = [
     variant: { axis: "detail", value: "brief" },
   },
   ...optionProbes(),
+  read("Transfer Hugo Wells's Studio Open Night ticket to someone else.", { address: "t1/transfer", action: "press" }, 1),
 ] satisfies c.Probe[];
 
 // prettier-ignore
@@ -142,7 +139,7 @@ function TicketBody({ input, finish, used }: { input: TicketProps; finish: Finis
   const seat = ticketSeat(input, lang);
   return <>
     <kit.KitText part="type" role="caption" tone="muted" {...finish}>{input.type}</kit.KitText>
-    <kit.KitHeader title={{ part: "event", text: input.event, tone: used ? "muted" : "text" }} {...finish} />
+    <kit.KitHeader title={{ part: "event", text: input.event, ...(used ? { role: "body", tone: "muted" } : {}) }} {...finish} />
     <kit.KitContent group={finish.density === "compact" ? "content" : "response"} {...finish}>
       <kit.KitText part={null} tone="muted" {...finish}>
         <kit.KitText part="date" tone="muted" {...finish}>{stamp.date}</kit.KitText>
@@ -181,7 +178,7 @@ export function Ticket(input: TicketProps) {
     <kit.KitCode part="code" value={input.number} label={ticket.code(input.number)} />
     <kit.KitContent group="response" align="center" density={density}>
       <kit.KitText part={null} role="caption" tone="muted" align="center" density={density}>
-        <kit.KitText part="number" role="number" numberScale="compact" density={density} tabular>
+        <kit.KitText part="number" role="body" emphasis="strong" density={density} tabular>
           {input.number}
         </kit.KitText>
         {detail === "full" && <>{ticket.stampSeparator}<kit.KitText part="hint" role="caption"

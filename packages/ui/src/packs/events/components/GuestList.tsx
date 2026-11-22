@@ -36,6 +36,7 @@ export const meta = {
   actions: {
     parts: { remind: ["press"] },
     items: { root: ["press"], approve: ["press"], decline: ["press"] },
+    noGoto: { items: ["approve", "decline"] },
     // prettier-ignore
     when: { remind: { hasWaiting: true }, approve: { status: "pending_approval" }, decline: { status: "pending_approval" } },
   },
@@ -110,52 +111,50 @@ type Row = View["guests"][number];
 type Density = c.AxisValue<"density">;
 
 // prettier-ignore
-function GuestRow({ row, density, detail }: { row: Row; density: Density; detail: View["detail"] }) {
+function GuestRow({ row, density, detail, loading }: { row: Row; density: Density; detail: View["detail"]; loading: boolean }) {
   const { lang, words: { guestList } } = kit.useWords(eventsWordsFor);
   const { plus, diet, status, tone } = guestFacts(row, detail, lang);
-  const badge = <kit.KitTrail kind="badge" part="status" value={status} tone={tone} density={density} />;
-  return <kit.KitContent density={density}>
-    <kit.KitRow item={row.id} label={row.name} goto={row.goto} inline lineRole="body" trailing={badge} density={density}>
-    <kit.KitContent density={density}>
+  const badge = loading ? <kit.KitChip item={null} part={null} look="segment" role="radio" label={status} on={false} disabled={false} />
+    : <kit.KitTrail kind="badge" part="status" value={status} tone={tone} density={density} />;
+  const target = loading ? { part: null } : { item: row.id, goto: row.goto };
+  return <kit.KitContent density={density} rhythm="flush">
+    <kit.KitRow {...target} label={row.name} inline lineRole="body" trailing={badge} density={density}>
+    <kit.KitContent density={density} rhythm="flush">
       <kit.KitMetaLine title={{ part: "name", text: row.name }} density={density} />
-      {(plus || diet) && <kit.KitText part={null} role="label" tone="muted" density={density}>
+      {loading ? <kit.KitLayoutText density={density} line={{ role: "meta", text: [plus, diet].filter(Boolean).join(guestList.separator) }} />
+        : (plus || diet) && <kit.KitText part={null} role="label" tone="muted" density={density}>
         {plus && <kit.KitText part="plus" role="label" tone="muted" density={density}>{plus}</kit.KitText>}
         {plus && diet && guestList.separator}
         {diet && <kit.KitText part="diet" role="label" tone="muted" density={density}>{diet}</kit.KitText>}
       </kit.KitText>}
     </kit.KitContent>
     </kit.KitRow>
-    {row.status === "pending_approval" && <GuestDecisions {...{ row, density }} />}
+    {row.status === "pending_approval" && <GuestDecisions {...{ row, density, loading }} />}
   </kit.KitContent>;
 }
 
 // prettier-ignore
-function GuestDecisions({ row, density }: { row: Row; density: Density }) {
+function GuestDecisions({ row, density, loading }: { row: Row; density: Density; loading: boolean }) {
   const context = kit.usePartContext();
   const { words: { guestList } } = kit.useWords(eventsWordsFor);
   return <kit.PartContext.Provider value={{ ...context, item: row.id }}>
     <kit.KitActionFooter density={density}>
-      <kit.KitAction part="approve" kind="secondary" label={guestList.approve} />
-      <kit.KitAction part="decline" kind="danger" label={guestList.decline} />
+      <kit.KitAction part={loading ? null : "approve"} label={guestList.approve} />
+      <kit.KitAction part={loading ? null : "decline"} kind="danger" label={guestList.decline} />
     </kit.KitActionFooter>
   </kit.PartContext.Provider>;
 }
 
 // prettier-ignore
 function GuestGroups({ guests, density, detail, loading }: Pick<View, "guests" | "detail"> & { density: Density; loading: boolean }) {
-  const { lang, words: { guestList } } = kit.useWords(eventsWordsFor);
   const groups = groupGuests(guests);
   return groups.map(({ rows, party }, index) => <kit.KitContent key={rows[0]!.id}
-    group={index && (party || groups[index - 1]?.party) ? "response" : "content"}>
-    {party && (loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", party]]} density={density} />
+    group={index && (party || groups[index - 1]?.party || groups[index - 1]?.rows.at(-1)?.status === "pending_approval") ? "response" : "content"}>
+    {party && (loading ? <kit.KitLayoutText line={{ text: party, role: "meta" }} density={density} />
       : <kit.KitText item={rows[0]!.id} part="party" role="label" tone="muted" density={density}>{party}</kit.KitText>)}
-    {loading ? <kit.KitSkeleton shape="rows" inset="none" lead="none" rows={rows.length} items={rows.map((row) => {
-      const { status, plus, diet } = guestFacts(row, detail, lang);
-      const meta = [plus, diet].filter(Boolean).join(guestList.separator);
-      return { title: row.name, meta, trail: "badge", value: status };
-    })} density={density} /> : <kit.KitRowGroup spacing="groups" separators={false} density={density}>
-      {rows.map((row) => <GuestRow key={row.id} {...{ row, density, detail }} />)}
-    </kit.KitRowGroup>}
+    <kit.KitRowGroup spacing="groups" separators={false} density={density}>
+      {rows.map((row) => <GuestRow key={row.id} {...{ row, density, detail, loading }} />)}
+    </kit.KitRowGroup>
   </kit.KitContent>);
 }
 
@@ -172,14 +171,13 @@ export function GuestList(input: View) {
         <kit.KitRow part={loading ? null : "counts"} label={guestList.counts} inline density={density}>
           <kit.KitGrid density={density}>
             {stats.map(({ key, line, count }) => loading
-              ? <kit.KitSkeleton key={key} shape="figure" inset="none" density={density} content={[["body", line]]} />
+              ? <kit.KitLayoutText key={key} density={density} line={{ text: line, role: "meta" }} />
               : <GuestCount key={key} {...{ line, count, density }} />)}
           </kit.KitGrid>
         </kit.KitRow>
         <kit.KitContent group="response"><GuestGroups guests={input.guests} {...{ density, detail, loading }} /></kit.KitContent>
         {input.guests.some((row) => row.status === "waiting") && <kit.KitContent group="response" density={density}>
-          {loading ? <kit.KitSkeleton shape="control" inset="none" kind="secondary" label={guestList.remind} full />
-            : <kit.KitAction part="remind" kind="secondary" label={guestList.remind} full />}
+          <kit.KitAction part={loading ? null : "remind"} kind="secondary" label={guestList.remind} full />
         </kit.KitContent>}
       </>;
   return <kit.KitCard part="root" padded {...{ density, surface }}>

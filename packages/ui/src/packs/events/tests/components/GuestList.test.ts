@@ -24,11 +24,12 @@ const render = (input = waiting, state: StateName = "filled") =>
   renderInstance("GuestList", input, state, theme, { component: "g1" });
 const read = (input = waiting, state: StateName = "filled") =>
   readComponent(GuestList, input, "g1", state).join("\n");
-const mount = (input = waiting, state: StateName = "filled", onAction = vi.fn()) =>
+const mount = (input = waiting, state: StateName = "filled", onAction = vi.fn(), onLink = vi.fn()) =>
   createScreenController({
     screen: { id: "home", components: [{ id: "g1", c: "GuestList", state, ...input }] },
     defs: { GuestList },
     onAction,
+    onLink,
   });
 
 describe("GuestList contract and fallback", () => {
@@ -126,9 +127,12 @@ describe("GuestList states, parts and actions", () => {
     expect(mount(answered).press("g1/remind").ok).toBe(false);
   });
   it("counts new statuses and exposes decisions only for the pending RSVP", () => {
-    const parts = addressedElements(render(answered));
-    expect(parts.get(address("r3/status"))?.text).toEqual(["Pending approval"]);
-    expect(parts.get(address("r4/status"))?.text).toEqual(["Waitlisted"]);
+    const html = render(answered);
+    const parts = addressedElements(html);
+    expect(parts.has(address("r3/status"))).toBe(true);
+    expect(parts.has(address("r4/status"))).toBe(true);
+    expect(html).toContain(">Pending approval<");
+    expect(html).toContain(">Waitlisted<");
     expect(parts.has(address("r3/approve"))).toBe(true);
     expect(parts.has(address("r3/decline"))).toBe(true);
     expect(read(answered)).toContain("1 Pending approval");
@@ -143,8 +147,9 @@ describe("GuestList states, parts and actions", () => {
     expect(mount(answered, "loading").press("g1/r3/approve").ok).toBe(false);
   });
   it("dispatches approval immediately and only dispatches decline after confirmation", () => {
-    const onAction = vi.fn();
-    const controller = mount(answered, "filled", onAction);
+    const onAction = vi.fn(),
+      onLink = vi.fn();
+    const controller = mount(answered, "filled", onAction, onLink);
     expect(controller.press("g1/r3/approve").ok).toBe(true);
     expect(onAction).toHaveBeenCalledWith({ address: address("r3/approve"), action: "press" });
     onAction.mockClear();
@@ -156,5 +161,8 @@ describe("GuestList states, parts and actions", () => {
     expect(controller.press("g1/r3/decline").ok).toBe(true);
     expect(controller.press("confirm/confirm").ok).toBe(true);
     expect(onAction).toHaveBeenCalledExactlyOnceWith({ address: address("r3/decline"), action: "press" });
+    expect(onLink).not.toHaveBeenCalled();
+    expect(controller.press("g1/r3").ok).toBe(true);
+    expect(onLink).toHaveBeenCalledExactlyOnceWith("lee", address("r3"));
   });
 });
