@@ -89,3 +89,25 @@ it("cancels a pending replacement on send and never restores the consumed refere
   expect(runtime.read()).not.toContain("Attachment added");
   runtime.dispose();
 });
+
+it("does not let a late first pick attach to a new draft", async () => {
+  let signal: AbortSignal | undefined;
+  let complete: (() => void) | undefined;
+  const { onSend, runtime } = setup({
+    canRun: () => true,
+    run: (command) =>
+      new Promise((resolve) => {
+        signal = command.signal;
+        complete = () => resolve({ status: "accepted", reference: "late_first_pick" });
+      }),
+  });
+  expect(runtime.act({ address: attach, action: "press" }).ok).toBe(true);
+  expect(signal?.aborted).toBe(false);
+  expect(runtime.act(send(reply)).ok).toBe(true);
+  expect(signal?.aborted).toBe(true);
+  expect(onSend).toHaveBeenCalledExactlyOnceWith("Reply one", `${reply}/field`);
+  complete?.();
+  await Promise.resolve();
+  expect(runtime.attachmentReference(attach)).toBeUndefined();
+  runtime.dispose();
+});

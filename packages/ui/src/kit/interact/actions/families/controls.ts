@@ -19,10 +19,8 @@ function takeComposerAttachment(values: Values, ctx: ActionContext) {
   // a second send planned in the same batch cannot consume the host's reference twice.
   if (values[slot] === undefined) return;
   const reference = ctx.attachmentReference(ctx.key(ctx.entry.id, "attach"));
-  if (reference !== undefined) {
-    values[slot] = undefined;
-    return reference;
-  }
+  values[slot] = undefined;
+  return reference;
 }
 
 function sendEffect(message: SendDraft, composer: boolean, values: Values, ctx: ActionContext) {
