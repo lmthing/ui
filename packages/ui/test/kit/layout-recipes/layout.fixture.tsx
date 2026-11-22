@@ -267,6 +267,7 @@ function EdgeTable({ state }: { state: StateName }) {
   const rows = [
     { id: "r1", value: "9", label: "Detail" },
     { id: "r2", value: "109", label: "Sum", total: true },
+    { id: "r3", value: null, label: "Adjustment" },
   ].map(({ id, value, label, total }) => ({
     id,
     label,
@@ -276,11 +277,14 @@ function EdgeTable({ state }: { state: StateName }) {
     cells: [
       {
         id,
-        content: (
-          <KitText part="value" role="number" numberScale="compact">
-            {value}
-          </KitText>
-        ),
+        content:
+          value === null ? (
+            <KitInput part="adjustment" hint="" caption="Adjustment amount" />
+          ) : (
+            <KitText part="value" role="number" numberScale="compact">
+              {value}
+            </KitText>
+          ),
         target: { item: id, part: "cell" },
       },
     ],

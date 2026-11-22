@@ -4,6 +4,7 @@ import { component, fontFamilies, size, space, type as typography, type KitStyle
 import { useKitStyle, useVariantDensity } from "../../provider";
 import { useComponentState, usePart } from "../../part";
 import { KitIcon, KitText, shifted } from "../text";
+import { KitLayoutText } from "../layout";
 import { useInputBinding, type InputProps } from "./edit";
 
 export const inputRadius = (kind: InputProps["kind"], shift: KitStyle["radiusShift"]) =>
@@ -37,7 +38,7 @@ function TextControl({
   });
   return (
     <Input
-      {...(address as Record<string, unknown>)}
+      {...((!loading ? address : {}) as Record<string, unknown>)}
       flex={1}
       unstyled
       role={role as never}
@@ -81,9 +82,7 @@ export function KitInput(props: InputProps) {
     <YStack aria-busy={loading || undefined} aria-hidden={loading || undefined}>
       {!!caption && (
         <YStack paddingLeft={captionStart} paddingBottom={space.xs}>
-          <KitText role="caption" tone="muted" part={null}>
-            {caption}
-          </KitText>
+          <KitLayoutText line={{ text: caption, role: "caption", tone: "muted" }} />
         </YStack>
       )}
       <XStack

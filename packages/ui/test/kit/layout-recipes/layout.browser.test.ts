@@ -110,7 +110,13 @@ it("aligns an input with its caption and a neighbouring avatar row", async () =>
   expect(await amount.evaluate((el) => getComputedStyle(el).fontVariantNumeric)).toBe("tabular-nums");
   const skeleton = page.getByTestId("control-skeleton").locator(":scope > *");
   expect(await skeleton.evaluate((el) => getComputedStyle(el).borderRadius)).toBe(
-    await amount.evaluate((el) => getComputedStyle(el.parentElement!).borderRadius),
+    await amount.evaluate((el) => {
+      for (let parent = el.parentElement; parent; parent = parent.parentElement) {
+        const css = getComputedStyle(parent);
+        if (parseFloat(css.borderTopWidth)) return css.borderRadius;
+      }
+      return null;
+    }),
   );
 });
 
@@ -156,6 +162,7 @@ it("fits one numeric column beside its pinned rail and draws only one rule befor
   expect(total!.y).toBeCloseTo(detail!.y + detail!.height);
   expect(await edge("r1/cell").evaluate((el) => getComputedStyle(el).borderBottomWidth)).toBe("0px");
   expect(await edge("r2/cell").evaluate((el) => getComputedStyle(el).borderTopWidth)).toBe("2px");
+  expect(await edge("r2/cell").evaluate((el) => getComputedStyle(el).borderBottomWidth)).toBe("0px");
   for (const row of ["r1", "r2"]) {
     expect(await edge(`${row}/value`).evaluate((el) => getComputedStyle(el).textAlign)).toBe("right");
     expect(await edge(`${row}/value`).evaluate((el) => getComputedStyle(el).fontVariantNumeric)).toBe(
@@ -163,8 +170,11 @@ it("fits one numeric column beside its pinned rail and draws only one rule befor
     );
   }
   expect((await box(edge("r1/root"))).y - table!.y).toBeLessThanOrEqual(size.control.md);
+  expect(await edge("r3/adjustment").count()).toBe(1);
   await state("loading");
   expect(await edge("table").getByRole("button").count()).toBe(0);
+  expect(await edge("r3/adjustment").count()).toBe(0);
+  expect((await box(edge("table"))).height).toBeCloseTo(table!.height, 0);
 });
 
 it("draws a non-interactive outline inside the swatch without changing its footprint", async () => {

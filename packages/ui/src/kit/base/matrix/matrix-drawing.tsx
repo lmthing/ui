@@ -2,6 +2,8 @@ import { Children, isValidElement, type ReactNode } from "react";
 import { XStack, YStack } from "tamagui";
 import { component, radius, size, space, type as typography } from "../../../catalog";
 import { useKitStyle } from "../../provider";
+import { PartContext, usePartContext } from "../../part";
+import { KitInput } from "../input";
 import { KitText, shifted, type TextRole } from "../text";
 import { KitRow } from "../surface";
 import { loadingGeometry, loadingRadius } from "./matrix-layout";
@@ -91,12 +93,18 @@ function LoadingText({ children, role = "body", ...props }: ContentProps) {
   );
 }
 
+function LoadingInput({ children }: { children: ReactNode }) {
+  const scope = usePartContext();
+  return <PartContext.Provider value={{ ...scope, state: "loading" }}>{children}</PartContext.Provider>;
+}
+
 function loadingNode(node: ReactNode, shift: ReturnType<typeof useKitStyle>["radiusShift"]): ReactNode {
   if (typeof node === "string" || typeof node === "number") return <LoadingText>{node}</LoadingText>;
   if (!isValidElement<ContentProps>(node)) return null;
   const props = node.props;
   if (node.type === KitText) return <LoadingText {...props} />;
   if (node.type === KitRow) return <LoadingRow {...props} />;
+  if (node.type === KitInput) return <LoadingInput>{node}</LoadingInput>;
   const geometry = loadingGeometry(props);
   if (geometry)
     return (

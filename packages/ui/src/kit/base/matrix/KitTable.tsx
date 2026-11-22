@@ -94,30 +94,24 @@ function TableCell(props: CellProps) {
   const fill = highlight ? { backgroundColor: "$accentSoft" } : {};
   const rule = props.divider ? { borderLeftWidth: component.base.borderWidth, borderColor: "$line" } : {};
   const pad = props.fit ? space.xs : props.contentWidth && !props.rail ? space.sm : space.md;
+  const top = props.total ? component.base.strongBorder : component.base.none;
+  const bottom = props.cut
+    ? component.base.strongBorder
+    : props.last || props.total
+      ? component.base.none
+      : component.base.borderWidth;
+  const extra = Math.max(component.base.none, top + bottom - component.base.borderWidth);
   return (
     <YStack
       {...(target as object)}
-      minHeight={
-        props.height +
-        (props.total
-          ? component.base.strongBorder
-          : props.cut
-            ? component.base.borderWidth
-            : component.base.none)
-      }
+      minHeight={props.height + extra}
       minWidth={props.rail && !props.target ? component.base.none : size.control.md}
       paddingLeft={props.edge === "start" ? space.sm : pad}
       paddingRight={props.edge === "end" ? space.sm : pad}
       paddingVertical={props.header || props.fit ? space.xs : space[ks.density.rowPad]}
       justifyContent="center"
-      borderBottomWidth={
-        props.cut
-          ? component.base.strongBorder
-          : props.last
-            ? component.base.none
-            : component.base.borderWidth
-      }
-      borderTopWidth={props.total ? component.base.strongBorder : component.base.none}
+      borderBottomWidth={bottom}
+      borderTopWidth={top}
       borderTopColor="$muted"
       borderBottomColor={props.cut ? "$muted" : "$line"}
       {...(props.fit && !props.loading ? {} : { backgroundColor: highlight ? "$accentSoft" : "$surface" })}
@@ -230,7 +224,7 @@ type ColumnProps = {
   onLayout?: ReturnType<typeof useCompactMatrix>["onHeadingLayout"];
 };
 
-function columnEdge({ edge, columns }: TableProps, index: number) {
+function columnEdge({ edge, columns }: TableProps, index: number): CellProps["edge"] {
   if (edge !== "frame") return undefined;
   if (index < 0) return "start";
   if (index === columns.length - 1) return "end";
