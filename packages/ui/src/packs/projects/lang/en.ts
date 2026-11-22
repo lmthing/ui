@@ -42,6 +42,8 @@ export const en = {
   timeLog: {
     week: (date: string) => `Week of ${date}`,
     weekTotal: "Week total",
+    summary: "Time by project",
+    summaryEmpty: "No time logged this week",
     start: "Start timer",
     stop: "Stop and save",
     discard: "Discard timer",
@@ -80,6 +82,9 @@ export const en = {
     separator: " · ",
   },
   tasks: {
+    today: "Due today",
+    todayEmpty: "No tasks due today",
+    repeat: { daily: "Repeats daily", weekly: "Repeats weekly", monthly: "Repeats monthly" },
     assign: (title: string) => `Assign ${title}`,
     due: (date: string) => `Due ${date}`,
     overdue: (date: string) => `Overdue · ${date}`,

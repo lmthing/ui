@@ -16,13 +16,14 @@ export const meta = {
   writeHints: [
     "Week is a Monday. Use ISO date-times expressed in the log's local time with its UTC offset (Z only for UTC), with end after start and no overlap. Entries must fit the selected local week. Use projectRef on each entry and when setting a current taskRef. Do not write durations, totals or running states.",
     'For a week view, set style to "days" and day to null, even if there is only one entry. Use "single_day" only when the view is explicitly filtered to one day; supply its ISO date in day and at most six entries. To hide notes, set only detail to "brief" and retain notes in the data. Leave density null unless tighter rows are explicitly requested.',
+    'Use style "summary" instead of "days" for a weekly breakdown of billable and non-billable time by project. Keep the individual timestamped entries in the data and leave day null.',
   ],
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Timestamped work entries are stored on the device; export opens the phone share sheet without submitting payroll.",
   variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["note"] } },
   parts: ["root", "week", "day", "day_total", "week_total", "timer", "timer_label", "elapsed",
-    "discard", "discard_label", "add", "add_label", "export", "export_label", "empty", "status"],
+    "discard", "discard_label", "add", "add_label", "export", "export_label", "empty", "status", "summary"],
   items: {
     key: "entries", visibleWhen: { visible: true },
     parts: ["root", "title", "start", "end", "duration", "billable", "note", "remove", "remove_icon"],
@@ -54,12 +55,7 @@ export const meta = {
   readSuccess: true, read: log.timeLogReading,
   deviceData: ["project_calendar", "project_time_targets"],
   deviceDataFlags: { canStart: log.canStartTimeLog },
-  live: {
-    derive(input): Record<string, unknown> {
-      if (input.detail !== "brief" || !Array.isArray(input.entries)) return {};
-      return { entries: input.entries.map((row: object) => ({ ...row, note: undefined })) };
-    },
-  },
+  live: { derive: log.timeLogControls },
 } as const satisfies c.Meta;
 const ref = c.text(32).meta({ kind: undefined });
 const isoOffset = z.iso.datetime({ offset: true });
@@ -77,7 +73,7 @@ const entry = z.strictObject({
 export const props = z.strictObject({
   ...c.variantProps(meta.variants), week: c.isoDate, entries: z.array(entry).min(0).max(14),
   projectRef: ref.optional(), taskRef: ref.optional(), addGoto: c.screenId.optional(),
-  day: c.isoDate.optional(), style: z.enum(["days", "single_day"]).default("days"),
+  day: c.isoDate.optional(), style: z.enum(["days", "single_day", "summary"]).default("days"),
 })
   .refine(({ week }) => new Date(`${week}T00:00:00Z`).getUTCDay() === 1,
     { path: ["week"], message: "The week starts on Monday" })
@@ -114,6 +110,15 @@ export const examples = [
   { week: seedMonday, style: "single_day", day: "2026-11-19", detail: "brief", projectRef: "route_guide",
     entries: [{ projectRef: "route_guide", title: "Draw park route", billable: true,
       start: "2026-11-19T14:00:00Z", end: "2026-11-19T15:15:00Z", note: "Drafted two route options" }] },
+  { week: seedMonday, style: "summary", addGoto: "new_time",
+    entries: [
+      { projectRef: "route_guide", title: "Draw park route", billable: true,
+        start: "2026-11-19T14:00:00Z", end: "2026-11-19T15:15:00Z", note: "Drafted two route options" },
+      { projectRef: "route_guide", title: "Review route notes", billable: false,
+        start: "2026-11-19T15:15:00Z", end: "2026-11-19T15:45:00Z", note: "Checked crossing notes" },
+      { projectRef: "walker_onboarding", title: "Write safety handout", billable: true,
+        start: "2026-11-20T09:00:00Z", end: "2026-11-20T11:00:00Z", note: "Covered lead handling" },
+    ] },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("TimeLog");
@@ -126,10 +131,14 @@ export const probes = [
     ...write("For the week of 2026-11-16, show a saved billable Draw park route entry for project route_guide on Nov 19 from 14:00 to 15:15 UTC. Store the note Drafted two route options but hide the notes from the display."),
     variant: { axis: "detail", value: "brief" },
   },
+  {
+    ...write("Give me a weekly breakdown of billable and non-billable time for each project, not a daily entry list. Week of 2026-11-16: for route_guide, Draw park route is billable, 2026-11-19 14:00–15:15 UTC; for walker_onboarding, Review safety is non-billable, 2026-11-20 09:00–10:00 UTC."),
+    expectProps: { style: "summary", entries: [{ projectRef: "route_guide", billable: true }, { projectRef: "walker_onboarding", billable: false }] },
+  },
   read("Open the manual time entry form.", { address: "t1/add", action: "press" }),
 ] satisfies c.Probe[];
 type Input = c.Props<typeof props, typeof meta>;
-type View = Input & { timerRunning?: boolean; timerSeconds?: number; weekMs?: number };
+type View = Input & Omit<Parameters<typeof log.timeLogSummary>[0], keyof Input>;
 type Row = ReturnType<typeof log.timeLogCopy<Input["entries"][number]>>["days"][number]["rows"][number];
 type Words = ReturnType<typeof projectsWordsFor>["timeLog"];
 // prettier-ignore
@@ -159,14 +168,77 @@ function Entry({ copy, density, w, loading }: { copy: Row; density: Input["densi
       </kit.KitContent></kit.KitRow></kit.KitRow>;
 }
 // prettier-ignore
+function ProjectSummary({ copy, w, density }: { copy: ReturnType<typeof log.timeLogSummary>; w: Words; density: Input["density"] }) {
+  const scope = kit.usePartContext();
+  const figures = (project: typeof copy.projects[number]) => [
+    [w.billable, project.billable], [w.nonBillable, project.nonBillable],
+  ] as const;
+  const projects = <>
+    <kit.KitLayoutText line={{ text: w.summary, part: "summary", strong: true }} density={density} />
+    <kit.KitRowGroup spacing="groups" density={density}>
+      {copy.projects.map((project) => <kit.KitContent key={project.projectRef} density={density}>
+        <kit.KitMetaLine title={{ text: project.title, role: "body", strong: true }} density={density} />
+        <kit.KitGrid density={density}>{figures(project).map(([label, value]) =>
+          <kit.KitFigure key={label} value={{ text: value, compact: true }} align="end" density={density}
+            caption={<kit.KitLayoutText line={{ text: label, role: "caption", tone: "muted" }} align="end" density={density} />} />
+        )}</kit.KitGrid>
+      </kit.KitContent>)}
+    </kit.KitRowGroup>
+  </>;
+  return <>
+    {scope.state !== "empty" && <kit.KitFigure density={density} value={{ text: copy.total, part: "week_total" }}
+      caption={<kit.KitHeader title={{ text: copy.week, part: "week", role: "meta", tone: "muted" }}
+        meta={{ text: w.weekTotal, role: "caption", tone: "muted" }} density={density} />} />}
+    {scope.state === "success" && <kit.KitState retain part="status" message={w.saved} density={density} />}
+    <kit.PartScope {...scope} state={
+      !copy.projects.length && scope.state !== "loading" ? "empty" : scope.state === "success" ? "filled" : scope.state
+    }>
+      <kit.KitState part="empty" icon="clock" message={w.summaryEmpty} density={density} loading={projects}>
+        {projects}
+      </kit.KitState>
+    </kit.PartScope>
+  </>;
+}
+
+// prettier-ignore
+function LogFooter({ input, copy, w, density, empty }: { input: View; copy: { timer?: string | undefined };
+  w: Words; density: Input["density"]; empty: boolean }) {
+  const state = kit.useComponentState();
+  const exportable = state !== "empty" && input.entries.length > 0;
+  if (!copy.timer && !input.projectRef && !input.addGoto && !exportable) return null;
+  const footer = <>
+    {(input.projectRef || copy.timer) && <kit.KitAction part="timer" action={copy.timer ? "stop" : "start"}
+      label={copy.timer ? w.stop : w.start} kind={empty || copy.timer ? "primary" : "secondary"} full />}
+    {copy.timer && <kit.KitAction part="discard" kind="quiet" label={w.discard} full />}
+    {(input.addGoto || exportable) && <kit.KitGrid density={density} arrange={input.addGoto && exportable ? "grid" : "rows"}>
+      {input.addGoto && <kit.KitAction part="add" goto={input.addGoto} label={w.add} kind={empty ? "secondary" : "quiet"} full />}
+      {exportable && <kit.KitAction part="export" label={w.export} kind="quiet" full />}
+    </kit.KitGrid>}
+  </>;
+  return <kit.KitContent group="response" density={density}>
+    {copy.timer && state !== "loading" && <kit.KitText part="elapsed" role="number" tabular>{copy.timer}</kit.KitText>}
+    {input.style === "summary" ? <kit.KitActionFooter density={density}>
+      <kit.KitContent density={density}>{footer}</kit.KitContent>
+    </kit.KitActionFooter> : footer}
+  </kit.KitContent>;
+}
+
+// prettier-ignore
 export function TimeLog(seed: Input) {
   const input = kit.useLiveControls(meta, seed) as View, state = kit.useComponentState();
   const { lang, words: { timeLog: w } } = kit.useWords(projectsWordsFor);
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
-  const copy = log.timeLogCopy({ ...input, detail }, lang, kit.useDeviceData());
-  const loading = state === "loading", empty = state === "empty" || !copy.days.some(({ rows }) => rows.length);
-  const exportable = state !== "empty" && input.entries.length > 0;
+  const data = kit.useDeviceData(), loading = state === "loading";
+  if (input.style === "summary") {
+    const copy = log.timeLogSummary(input, lang);
+    return <kit.KitCard part="root" style="inset" padded density={density}>
+      <ProjectSummary {...{ copy, w, density }} />
+      <LogFooter {...{ input, copy, w, density }} empty={state === "empty" || !input.entries.length} />
+    </kit.KitCard>;
+  }
+  const copy = log.timeLogCopy({ ...input, detail }, lang, data);
+  const empty = state === "empty" || !copy.days.some(({ rows }) => rows.length);
   return <kit.KitCard part="root" style="inset" padded density={density} {...(loading ? { label: c.wordsFor(lang).loadingLabel } : {})}>
     {state !== "empty" && <kit.KitContent density={density}>
       {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
@@ -186,15 +258,6 @@ export function TimeLog(seed: Input) {
             <kit.KitText part={i ? null : "day_total"} role="number" numberScale="compact" tabular>{total}</kit.KitText>}
         </kit.KitGrid>{rows.map((row) => <Entry key={row.row.id} copy={row} {...{ density, w, loading }} />)}
       </kit.KitContent>)}
-    {(copy.timer || input.projectRef || input.addGoto || exportable) && <kit.KitContent group="response" density={density}>
-      {copy.timer && !loading && <kit.KitText part="elapsed" role="number" tabular>{copy.timer}</kit.KitText>}
-      {(input.projectRef || copy.timer) && <kit.KitAction part="timer" action={copy.timer ? "stop" : "start"}
-        label={copy.timer ? w.stop : w.start} kind={empty || copy.timer ? "primary" : "secondary"} full />}
-      {copy.timer && <kit.KitAction part="discard" kind="quiet" label={w.discard} full />}
-      {(input.addGoto || exportable) && <kit.KitGrid density={density} arrange={input.addGoto && exportable ? "grid" : "rows"}>
-        {input.addGoto && <kit.KitAction part="add" goto={input.addGoto} label={w.add} kind={empty ? "secondary" : "quiet"} full />}
-        {exportable && <kit.KitAction part="export" label={w.export} kind="quiet" full />}
-      </kit.KitGrid>}
-    </kit.KitContent>}
+    <LogFooter {...{ copy, input, w, density, empty }} />
   </kit.KitCard>;
 }
