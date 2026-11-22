@@ -29,7 +29,7 @@ export const meta = {
   ],
   region: "body",
   weight: 2,
-  realPath: "The app applies selected preset IDs to the local query and saves the current query on request.",
+  realPath: "The app applies selected presets to the local query and saves the current query on request.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["summary", "layout"] } },
   parts: ["root", "title", "track", "save", "save_label", "status"],
@@ -38,7 +38,7 @@ export const meta = {
     parts: { save: ["press"] }, items: { root: ["select"], remove: ["press"] },
     when: { save: { canSave: true }, remove: { style: "list" } },
   },
-  select: { prop: "active", value: { field: "viewId" }, mode: "flags", runtime: true },
+  select: { prop: "active", value: { field: "viewIndex" }, mode: "flags", runtime: true },
   confirmParts: ["remove"],
   states: ["filled", "empty", "loading", "success"],
   emptyActions: ["save.press"],
@@ -64,20 +64,20 @@ export const props = z.strictObject({
       z.strictObject({
         id: savedViewId,
         label: c.text(20),
-        summary: c.text(36).optional(),
+        summary: c.text(36).optional().meta({ read: false }),
         layout: z.enum(["table", "cards", "board"]).optional(),
       }),
     )
     .min(1)
     .max(savedViewLimit),
-  activeId: savedViewId.optional(),
+  activeId: savedViewId.optional().meta({ read: false }),
   canSave: z.boolean().default(true),
   style: z.enum(["chips", "list"]).default("chips"),
 }).refine(({ views }) => new Set(views.map(({ id }) => id)).size === views.length, { path: ["views"] })
   .refine(({ views, activeId }) => activeId === undefined || views.some(({ id }) => id === activeId),
     { path: ["activeId"] })
   .overwrite((input) => ({
-    ...input, views: input.views.map((row) => ({ ...row, viewId: row.id, active: row.id === input.activeId })),
+    ...input, views: input.views.map((row, viewIndex) => ({ ...row, viewIndex, viewId: row.id, active: row.id === input.activeId })),
   }));
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
@@ -139,7 +139,7 @@ function PresetRow({ row, copy, selected, loading, full, density }: {
     </kit.KitGrid>
     {details.some(({ text }) => text) && <kit.KitContent inset="md" density={density}>
       <kit.KitMetaLine title={{ ...details[0], role: "meta", tone: "muted" }}
-        meta={details[1]} density={density} />
+        meta={details.slice(1)} density={density} />
     </kit.KitContent>}
   </kit.PartScope>;
 }

@@ -77,7 +77,9 @@ it("draws the active radio and count, and keeps list descriptions and removal ou
   expect(parts.get(at("r2/root"))?.attributes).toContain('aria-checked="true"');
   expect(parts.get(at("r2/label"))?.text).toEqual(["This week · 16"]);
   expect(parts.has(at("r2/remove"))).toBe(false);
-  expect(readComponent(def, chips, "s1").join("\n")).not.toContain("/remove");
+  const chipsRead = readComponent(def, { ...list, style: "chips" }, "s1").join("\n");
+  for (const hidden of ["/remove", '"needs_water"', "Due today, soonest first", "Cards layout"])
+    expect(chipsRead).not.toContain(hidden);
   const full = addressedElements(
     renderExample("SavedViews", list, "filled", theme, { component: "s1" }).html,
   );
@@ -89,6 +91,9 @@ it("draws the active radio and count, and keeps list descriptions and removal ou
     renderInstance("SavedViews", { ...list, detail: "brief" }, "filled", theme, { component: "s1" }),
   );
   for (const part of ["summary", "layout"]) expect(brief.has(at(`r2/${part}`))).toBe(false);
+  const briefRead = readComponent(def, { ...list, detail: "brief" }, "s1").join("\n");
+  expect(briefRead).not.toContain("Due today, soonest first");
+  expect(briefRead).not.toContain("Cards layout");
 });
 
 it.each(["empty", "loading", "success"] as const)(
@@ -109,19 +114,19 @@ function runtime(input: object, state: StateName = "filled", onAction = vi.fn())
   return createScreenController({ screen, defs: components, onAction, requireMounted: false });
 }
 
-it("dispatches the selected durable preset ID and a host save request without changing wire props", () => {
+it("dispatches the selected preset address and a host save request without changing wire props", () => {
   const onAction = vi.fn();
   const controller = runtime(list, "filled", onAction);
   try {
-    expect(controller.act({ address: at("r1"), action: "select", value: "needs_water" }).ok).toBe(false);
+    expect(controller.act({ address: at("r1"), action: "select", value: 1 }).ok).toBe(false);
     expect(controller.press(at("r1/root"))).toMatchObject({ ok: true });
     expect(controller.store.get(at("r1"))).toBe(true);
     expect(controller.store.get(at("r2"))).toBe(false);
     expect(onAction).toHaveBeenCalledWith({ address: at("r1"), action: "select" });
-    expect(controller.act({ address: at("r3"), action: "select", value: "balcony" })).toMatchObject({
+    expect(controller.act({ address: at("r3"), action: "select", value: 2 })).toMatchObject({
       ok: true,
     });
-    expect(onAction).toHaveBeenCalledWith({ address: at("r3"), action: "select", value: "balcony" });
+    expect(onAction).toHaveBeenCalledWith({ address: at("r3"), action: "select", value: 2 });
     expect(controller.press(at("save")).ok).toBe(true);
     expect(onAction).toHaveBeenCalledWith({ address: at("save"), action: "press" });
     expect(controller.snapshotScreen().components[0]).toMatchObject(list);
@@ -142,6 +147,8 @@ it("confirms removal, leaves the preset on cancellation, and never renumbers oth
     expect(controller.read()).not.toContain("Needs water");
     expect(controller.read()).toContain("[s1/r3/remove press]");
     expect(controller.press(at("r2/remove")).ok).toBe(false);
+    expect(controller.act({ address: at("r3"), action: "select", value: 2 }).ok).toBe(true);
+    expect(controller.read()).toContain("[s1/r3 select = 2]");
   } finally {
     controller.dispose();
   }
