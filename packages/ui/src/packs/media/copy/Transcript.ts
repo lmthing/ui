@@ -1,4 +1,4 @@
-import { clockLine } from "../../../catalog";
+import { clockLine, type Values } from "../../../catalog";
 import { mediaWordsFor } from "../lang";
 
 type Reading = {
@@ -8,10 +8,25 @@ type Reading = {
   follow: boolean;
 };
 
-export function transcriptReading({ lines, current, playhead, follow }: Reading, lang?: string) {
+export function activeTranscriptIndex({ lines, current, playhead }: Omit<Reading, "follow">) {
+  if (playhead === undefined) return current ?? -1;
+  for (let i = lines.length - 1; i >= 0; i--) if (lines[i]!.at <= playhead) return i;
+  return -1;
+}
+
+/** Timestamp identifies the line within a transcript. Include a revision for replaced text. */
+export function transcriptLineIdentity({ at, speaker, text }: Readonly<Values>) {
+  if (typeof at !== "number" || typeof text !== "string") return;
+  const content = JSON.stringify([speaker, text]);
+  let revision = 2166136261;
+  for (let i = 0; i < content.length; i++) revision = Math.imul(revision ^ content.charCodeAt(i), 16777619);
+  return `${at}:${revision >>> 0}`;
+}
+
+export function transcriptReading(input: Reading, lang?: string) {
   const words = mediaWordsFor(lang).transcript;
-  const active =
-    playhead === undefined ? current : lines.reduce((last, { at }, i) => (at <= playhead ? i : last), -1);
+  const { follow, lines } = input;
+  const active = activeTranscriptIndex(input);
   return [
     follow ? words.following : words.notFollowing,
     ...lines.map(({ at, speaker, text }, i) => words.line(clockLine(at, lang), speaker, text, i === active)),

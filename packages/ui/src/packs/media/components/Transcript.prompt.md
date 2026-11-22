@@ -10,3 +10,4 @@ Continuous timed lyrics or verbatim spoken lines beside the recording, with line
 
 - Use only beside one Player on the same screen. Supply the actual lines in strictly increasing whole seconds, not chapter names. Use style "spoken" for dialogue or narration; lyrics is the default.
 - Use a zero-based current index only for an initial highlight. Follow scrolls to the active line by default.
+- If explicitly asked to hide the visible timestamps, set `detail` to `"brief"` but keep every `at` value for syncing and seeking. Otherwise leave `detail` null. Leave `density` and `surface` null unless requested.
