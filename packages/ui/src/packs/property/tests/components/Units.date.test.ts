@@ -40,9 +40,9 @@ it("projects date edits into the addressed field, rows and both readers, rejecti
   const controller = createScreenController({ screen, defs, currency: "GBP", requireMounted: false });
   const set = (value: unknown) => ({ address: "home/u1/date", action: "set", value });
   for (const [date, label, occupant] of [
-    ["2026-11-18", "reserved", undefined],
-    ["2026-11-19", "occupied", "Lee"],
-    ["2026-11-21", "vacant", undefined],
+    ["2026-11-18", "Reserved", undefined],
+    ["2026-11-19", "Occupied", "Lee"],
+    ["2026-11-21", "Vacant", undefined],
   ] as const) {
     const plan = planAct(screen, defs, {}, [set(date)]);
     expect(plan.ok).toBe(true);
@@ -50,7 +50,7 @@ it("projects date edits into the addressed field, rows and both readers, rejecti
     expect(controller.snapshotScreen().components[0]?.on).toBe(date);
     const parts = addressedElements(drawLive(controller));
     expect(parts.get("home/u1/date")?.attributes).toContain(`value="${date}"`);
-    expect(textOf(parts.get("home/u1/r1/occupancy"))).toBe(label[0]!.toUpperCase() + label.slice(1));
+    expect(textOf(parts.get("home/u1/r1/occupancy"))).toBe(label);
     expect(parts.get("home/u1/r1/occupant")?.text?.[0]).toBe(occupant);
     expect(parts.get("home/u1/r1/rent")?.text?.[0]).toBe(occupant ? "£85 / night" : undefined);
     const reading = readScreen(screen, defs, plan.ok ? plan.values : {}, undefined, undefined, "GBP");
@@ -124,7 +124,7 @@ it("filters vacancies on the live date and never renumbers or offers a hidden ro
 it("does not infer notice from an end date or count notice from a cancelled let", () => {
   const { props, examples } = components.Units;
   const example = examples[2]!;
-  const notice = example.lets[0]!;
+  const notice = props.parse(example).lets[0]!;
   for (const patch of [
     { end: undefined },
     { noticeGivenOn: notice.end },

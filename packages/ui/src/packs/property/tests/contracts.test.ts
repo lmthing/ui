@@ -49,8 +49,8 @@ it("uses half-open let dates, ignores cancelled lets and only opens linked unit 
   const [unit] = Units.examples[1]!.units;
   const [first, next] = Units.examples[1]!.lets;
   const input = { units: [unit!], lets: [first!, { ...next!, cancelled: false }], on: "2026-11-21" };
-  expect(readComponent(Units, input, "u1").join("\n")).toContain("occupied · Ivy");
-  expect(readComponent(Units, { ...input, lets: [first!, next!] }, "u1").join("\n")).toContain("vacant");
+  expect(readComponent(Units, input, "u1").join("\n")).toContain("Occupied · Ivy");
+  expect(readComponent(Units, { ...input, lets: [first!, next!] }, "u1").join("\n")).toContain("Vacant");
   expect(
     Units.props.safeParse({ ...input, lets: [first!, { ...next!, start: "2026-11-20", cancelled: false }] })
       .success,

@@ -56,7 +56,7 @@ const schema = z.strictObject({
   ...c.variantProps(meta.variants), month: z.string().regex(/^\d{4}-(?:0[1-9]|1[0-2])$/),
   charges: z.array(charge).min(1).max(24), receipts: z.array(receipt).min(0).max(48),
   style: z.enum(["ledger", "outstanding", "tenant"]).default("ledger"),
-  tenantLetRef: ref.optional(), autopay: z.boolean().optional(),
+  tenantLetRef: ref.meta({ kind: "ref" }).optional(), autopay: z.boolean().optional(),
 });
 const validate = schema
   .refine(({ charges }) => distinct(charges, ({ chargeRef }) => chargeRef), { path: ["charges"] })

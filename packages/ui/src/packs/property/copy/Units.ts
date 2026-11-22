@@ -97,12 +97,9 @@ export function unitReading(
     const { status, occupant, rent } = unitSnapshot(unit, lets, on, lang, currency);
     return words.unitReading(
       unit.id ?? `r${index + 1}`,
-      [
-        unit.title,
-        notice ? words.notice : (style === "vacancies" ? words.statusBadge : words.status)[status],
-        occupant,
-        rent,
-      ].filter((value) => value !== undefined),
+      [unit.title, notice ? words.notice : words.status[status], occupant, rent].filter(
+        (value) => value !== undefined,
+      ),
     );
   });
   return [

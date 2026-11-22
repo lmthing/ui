@@ -57,7 +57,7 @@ describe("Units snapshot", () => {
       "EUR",
     );
     expect(reading[0]).toContain("19. Nov. 2026");
-    expect(reading[1]).toMatch(/^r1 · North Cabin · occupied · Lee · 1\.234/);
+    expect(reading[1]).toMatch(/^r1 · North Cabin · Occupied · Lee · 1\.234/);
     expect(reading[1]).toContain("€");
   });
 });

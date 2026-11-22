@@ -30,7 +30,7 @@ export function UnitRow({ unit, snapshot, media, density, loading, notice }: {
       part={loading ? null : "root"} inset="none" leadingAlign="row" lineRole="heading"
       leading={photo ? loading ? <KitSkeleton shape="figure" inset="none" lead="box" density={density} />
         : <KitPhoto photo={photo} label={unit.title} part="photo" /> : undefined}
-      trailing={<KitTrail kind="badge" part="occupancy" value={notice ? words.units.notice : words.units.statusBadge[status]} tone={notice ? "warn" : statusTone[status]} density={density} />}
+      trailing={<KitTrail kind="badge" part="occupancy" value={notice ? words.units.notice : words.units.status[status]} tone={notice ? "warn" : statusTone[status]} density={density} />}
     >
       <KitGrid arrange="rows" {...{ density }}>
         {lines.map(({ part, text, role, tone }) => <KitLayoutText key={part} density={density}

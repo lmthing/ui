@@ -2150,7 +2150,25 @@
       "Units"
     ]
   },
+  "Units%2Fchoose%2FOn%20any%20date%2C%20see%20which%20rental%20flats%20are%20occupied%2C%20reserved%20or%20vacant%20from%20the%20agreed%20lets%20and%20see%20each%20flat's%20current%20rent/f883f443e940729d/ef299d2bb98617c5": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Inspections: Record and sign off dated room conditions and evidence for a unit. Pick: Dated room-by-room condition report with feature notes, photos, prior-report comparison and sign-off. Not jobs to tick (Checklist), photos alone (Gallery), or a repair to request (RequestQueue).\n- LeaseRenewal: Compare rent and term choices for an occupied unit and respond to the renewal offer. Pick: An occupied unit’s lease renewal proposal: compare current and offered rent, choose a renewal term and accept, counter or decline by a deadline. Not a standalone choice (Choice), a policy expiry reminder (Renewals), a monthly rent ledger (RentRoll), or existing lease terms (Lease).\n- Meters: Record cumulative utility readings and compare usage between readings for each meter. Pick: Cumulative utility meter readings and computed consumption between dated readings by meter. Not entering one number (Field), a short trend (Sparkline), body measurements (Measurements), or smart device controls (Devices).\n- RentRoll: Reconcile monthly rent charges and receipts across units, including part payments and arrears. Pick: Reconcile rent charges and allocated or voided receipts by unit and period, or show a resident their own rent ledger. Not one sum (Amount), one client's payment (PaymentStatus), an invoice (Invoice), or personal bills (Bills).\n- RentalApplication: Review prospective tenants, compare stated income to rent, and record a screening decision. Pick: Screening prospective tenants for a specific rental unit with move-in, household income against rent, verification checks and a waitlist, approval or decline. Not a static facts card (KeyValue), job recruiting (Candidate), viewing appointments (Viewings), or active tenancies (Units).\n- Units: See who occupies each rental unit and the agreed rent on a chosen date. Pick: A tenant directory of names and profile links is List, not Units. Choose Units only to calculate rental-unit occupancy or agreed rent on a date from tenancy or stay records. Not owned stock (Things), an advertised place (Listing), or one agreement (Lease).\n- Viewings: Arrange property viewings and track each prospect’s confirmation and attendance. Pick: Property viewing appointments with a unit, prospect, confirmation, invitation or attendance outcome. Not a day's timed agenda (Timeline), free slots (Slots), or a booked service (Appointment).\n\nNeed, in the person's words: \"On any date, see which rental flats are occupied, reserved or vacant from the agreed lets and see each flat's current rent\"\nReply with only the component id, nothing else.",
+    "reply": "Units",
+    "replies": [
+      "Units",
+      "Units",
+      "Units"
+    ]
+  },
   "Units%2Fchoose%2FShow%20a%20plain%20tenant%20directory%20of%20names%20linked%20to%20their%20profiles%2C%20with%20no%20occupancy%20or%20date%20calculations/154d5df0be785ee2/6d14d9b2d11b6103": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Inspections: Record and sign off dated room conditions and evidence for a unit. Pick: Dated room-by-room condition report with feature notes, photos, prior-report comparison and sign-off. Not jobs to tick (Checklist), photos alone (Gallery), or a repair to request (RequestQueue).\n- LeaseRenewal: Compare rent and term choices for an occupied unit and respond to the renewal offer. Pick: An occupied unit’s lease renewal proposal: compare current and offered rent, choose a renewal term and accept, counter or decline by a deadline. Not a standalone choice (Choice), a policy expiry reminder (Renewals), a monthly rent ledger (RentRoll), or existing lease terms (Lease).\n- Meters: Record cumulative utility readings and compare usage between readings for each meter. Pick: Cumulative utility meter readings and computed consumption between dated readings by meter. Not entering one number (Field), a short trend (Sparkline), body measurements (Measurements), or smart device controls (Devices).\n- RentRoll: Reconcile monthly rent charges and receipts across units, including part payments and arrears. Pick: Reconcile rent charges and allocated or voided receipts by unit and period, or show a resident their own rent ledger. Not one sum (Amount), one client's payment (PaymentStatus), an invoice (Invoice), or personal bills (Bills).\n- RentalApplication: Review prospective tenants, compare stated income to rent, and record a screening decision. Pick: Screening prospective tenants for a specific rental unit with move-in, household income against rent, verification checks and a waitlist, approval or decline. Not a static facts card (KeyValue), job recruiting (Candidate), viewing appointments (Viewings), or active tenancies (Units).\n- Units: See who occupies each rental unit and the agreed rent on a chosen date. Pick: A tenant directory of names and profile links is List, not Units. Choose Units only to calculate rental-unit occupancy or agreed rent on a date from tenancy or stay records. Not owned stock (Things), an advertised place (Listing), or one agreement (Lease).\n- Viewings: Arrange property viewings and track each prospect’s confirmation and attendance. Pick: Property viewing appointments with a unit, prospect, confirmation, invitation or attendance outcome. Not a day's timed agenda (Timeline), free slots (Slots), or a booked service (Appointment).\n\nNeed, in the person's words: \"Show a plain tenant directory of names linked to their profiles, with no occupancy or date calculations\"\nReply with only the component id, nothing else.",
+    "reply": "List",
+    "replies": [
+      "List",
+      "List",
+      "List"
+    ]
+  },
+  "Units%2Fchoose%2FShow%20a%20plain%20tenant%20directory%20of%20names%20linked%20to%20their%20profiles%2C%20with%20no%20occupancy%20or%20date%20calculations/24eb6e430a6883a7/6d14d9b2d11b6103": {
     "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search and narrow records by several fields, then clear the filters together. Pick: Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Show all the person's entries of one kind so they can scan and tap them, even if they will open only one. Not one featured thing (Card), pictures to browse (Gallery), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- Inspections: Record and sign off dated room conditions and evidence for a unit. Pick: Dated room-by-room condition report with feature notes, photos, prior-report comparison and sign-off. Not jobs to tick (Checklist), photos alone (Gallery), or a repair to request (RequestQueue).\n- LeaseRenewal: Compare rent and term choices for an occupied unit and respond to the renewal offer. Pick: An occupied unit’s lease renewal proposal: compare current and offered rent, choose a renewal term and accept, counter or decline by a deadline. Not a standalone choice (Choice), a policy expiry reminder (Renewals), a monthly rent ledger (RentRoll), or existing lease terms (Lease).\n- Meters: Record cumulative utility readings and compare usage between readings for each meter. Pick: Cumulative utility meter readings and computed consumption between dated readings by meter. Not entering one number (Field), a short trend (Sparkline), body measurements (Measurements), or smart device controls (Devices).\n- RentRoll: Reconcile monthly rent charges and receipts across units, including part payments and arrears. Pick: Reconcile rent charges and allocated or voided receipts by unit and period, or show a resident their own rent ledger. Not one sum (Amount), one client's payment (PaymentStatus), an invoice (Invoice), or personal bills (Bills).\n- RentalApplication: Review prospective tenants, compare stated income to rent, and record a screening decision. Pick: Screening prospective tenants for a specific rental unit with move-in, household income against rent, verification checks and a waitlist, approval or decline. Not a static facts card (KeyValue), job recruiting (Candidate), viewing appointments (Viewings), or active tenancies (Units).\n- Units: See who occupies each rental unit and the agreed rent on a chosen date. Pick: A tenant directory of names and profile links is List, not Units. Choose Units only to calculate rental-unit occupancy or agreed rent on a date from tenancy or stay records. Not owned stock (Things), an advertised place (Listing), or one agreement (Lease).\n- Viewings: Arrange property viewings and track each prospect’s confirmation and attendance. Pick: Property viewing appointments with a unit, prospect, confirmation, invitation or attendance outcome. Not a day's timed agenda (Timeline), free slots (Slots), or a booked service (Appointment).\n\nNeed, in the person's words: \"Show a plain tenant directory of names linked to their profiles, with no occupancy or date calculations\"\nReply with only the component id, nothing else.",
     "reply": "List",
     "replies": [
@@ -2184,6 +2202,15 @@
       "List",
       "Units",
       "List"
+    ]
+  },
+  "Units%2Fread%2FOpen%20Willow%20Flat%E2%80%99s%20details/24d831c53c470451/c238b1ff7a3a04e9": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nu1 Units Occupancy date: 18 Nov 2026 (2026-11-18) — r1 · Willow Flat · Occupied · Asha · $900 / month — r2 · Cedar Flat · Vacant · $1,050 / month [u1/date set]\n  r1 \"Willow Flat\" · \"14 Mill Lane\" [u1/r1 press→property_unit_detail]\n  r2 \"Cedar Flat\"\n\nTask: Open Willow Flat’s details\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"u1/r1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"u1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"u1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"u1/r1\", \"action\": \"press\"}"
     ]
   },
   "Units%2Fread%2FOpen%20Willow%20Flat%E2%80%99s%20details/2c2d9b2a2ca7509f/05ef650ee0bd6a86": {
@@ -2497,6 +2524,285 @@
     "reply": "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":null,\"units\":[{\"unitRef\":\"flat_a\",\"title\":\"Willow Flat\",\"address\":\"14 Mill Lane\",\"photo\":\"lib:home\",\"askingRent\":null,\"askingPer\":null,\"goto\":\"property_unit_detail\"},{\"unitRef\":\"flat_b\",\"title\":\"Cedar Flat\",\"address\":null,\"photo\":null,\"askingRent\":1050,\"askingPer\":\"month\",\"goto\":null}],\"lets\":[{\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"occupant\":\"Asha\",\"kind\":\"tenancy\",\"start\":\"2026-10-01\",\"end\":null,\"noticeGivenOn\":null,\"rent\":900,\"per\":\"month\",\"cancelled\":false}],\"on\":\"2026-11-18\",\"style\":\"register\"}",
     "replies": [
       "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":null,\"units\":[{\"unitRef\":\"flat_a\",\"title\":\"Willow Flat\",\"address\":\"14 Mill Lane\",\"photo\":\"lib:home\",\"askingRent\":null,\"askingPer\":null,\"goto\":\"property_unit_detail\"},{\"unitRef\":\"flat_b\",\"title\":\"Cedar Flat\",\"address\":null,\"photo\":null,\"askingRent\":1050,\"askingPer\":\"month\",\"goto\":null}],\"lets\":[{\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"occupant\":\"Asha\",\"kind\":\"tenancy\",\"start\":\"2026-10-01\",\"end\":null,\"noticeGivenOn\":null,\"rent\":900,\"per\":\"month\",\"cancelled\":false}],\"on\":\"2026-11-18\",\"style\":\"register\"}",
+      "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":null,\"units\":[{\"unitRef\":\"flat_a\",\"title\":\"Willow Flat\",\"address\":null,\"photo\":null,\"askingRent\":null,\"askingPer\":null,\"goto\":null},{\"unitRef\":\"flat_b\",\"title\":\"Cedar Flat\",\"address\":null,\"photo\":null,\"askingRent\":1050,\"askingPer\":\"month\",\"goto\":null}],\"lets\":[{\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"occupant\":\"Asha\",\"kind\":\"tenancy\",\"start\":\"2026-10-01\",\"end\":null,\"noticeGivenOn\":null,\"rent\":900,\"per\":\"month\",\"cancelled\":null}],\"on\":\"2026-11-18\",\"style\":\"register\"}",
+      "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":null,\"units\":[{\"unitRef\":\"flat_a\",\"title\":\"Willow Flat\",\"address\":null,\"photo\":null,\"askingRent\":null,\"askingPer\":null,\"goto\":null},{\"unitRef\":\"flat_b\",\"title\":\"Cedar Flat\",\"address\":null,\"photo\":null,\"askingRent\":1050,\"askingPer\":\"month\",\"goto\":null}],\"lets\":[{\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"occupant\":\"Asha\",\"kind\":\"tenancy\",\"start\":\"2026-10-01\",\"end\":null,\"noticeGivenOn\":null,\"rent\":900,\"per\":\"month\",\"cancelled\":false}],\"on\":\"2026-11-18\",\"style\":\"register\"}"
+    ]
+  },
+  "Units%2Fwrite%2FOn%202026-11-18%20show%20Willow%20Flat%20(flat_a)%20occupied%20under%20Asha%E2%80%99s%20monthly%20tenancy%20(asha_let)%20from%202026-10-01%20for%20900.%20Add%20vacant%20Cedar%20Flat%20(flat_b)%2C%20asking%201050%20per%20month./3b31a98e02db662e/f99c765c5bb4542c": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nUnits: See who occupies each rental unit and the agreed rent on a chosen date.\nprops: { density?: comfortable|compact, surface?: plain|card=\"plain\", media?: none|thumb=\"none\", units: [1..12 { unitRef: id snake_case, title: text≤32, address?: text≤36, photo?: photo lib:<tag>|local:<n>, askingRent?: num 0.., askingPer?: night|week|month, goto?: id snake_case }], lets: [0..48 { letRef: id snake_case, unitRef: id snake_case, occupant: text≤24, kind: tenancy|stay, start: date YYYY-MM-DD, end?: date YYYY-MM-DD, noticeGivenOn?: date YYYY-MM-DD, rent: num 0.., per: night|week|month, cancelled?: boolean=false }], on: date YYYY-MM-DD, style?: register|vacancies }\nRule: Use snake_case references. Every let must reference a unit in this line. Active lets for one unit must not overlap; the end date is exclusive, and cancelled lets do not count.\nRule: A stay requires an end date and per \"night\"; a tenancy uses \"week\" or \"month\". Supply askingRent and askingPer together, or omit both. Do not write occupancy or totals.\nRule: Do not copy unrequested photos, addresses or links from the example. A requested thumbnail sets only media to \"thumb\". Usual, regular or default spacing and surface mean null for density and surface, never explicit defaults.\nRule: For a Vacancies view (vacant and notice-given units), set style to \"vacancies\". Otherwise set style to \"register\". Always write every supplied unit and let, even in the Vacancies view: the view, not the Writer, filters their visibility.\nRule: For a tenancy described as on notice, write the given notice date in noticeGivenOn. Its end must be later than notice. Do not use a scheduled end alone as notice.\nexample: {\"c\":\"Units\",\"units\":[{\"unitRef\":\"flat_a\",\"title\":\"Willow Flat\",\"address\":\"14 Mill Lane\",\"photo\":\"lib:home\",\"goto\":\"property_unit_detail\"},{\"unitRef\":\"flat_b\",\"title\":\"Cedar Flat\",\"askingRent\":1050,\"askingPer\":\"month\"}],\"lets\":[{\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"occupant\":\"Asha\",\"kind\":\"tenancy\",\"start\":\"2026-10-01\",\"rent\":900,\"per\":\"month\"}],\"on\":\"2026-11-18\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: On 2026-11-18 show Willow Flat (flat_a) occupied under Asha’s monthly tenancy (asha_let) from 2026-10-01 for 900. Add vacant Cedar Flat (flat_b), asking 1050 per month.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Units",
+              "enum": [
+                "Units"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "plain",
+                    "card"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "thumb"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "units": {
+              "minItems": 1,
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "unitRef": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "address": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 36
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "askingRent": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "askingPer": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "night",
+                          "week",
+                          "month"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "unitRef",
+                  "title",
+                  "address",
+                  "photo",
+                  "askingRent",
+                  "askingPer",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "lets": {
+              "minItems": 0,
+              "maxItems": 48,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "letRef": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                  },
+                  "unitRef": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                  },
+                  "occupant": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "tenancy",
+                      "stay"
+                    ]
+                  },
+                  "start": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "end": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "noticeGivenOn": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "rent": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "per": {
+                    "type": "string",
+                    "enum": [
+                      "night",
+                      "week",
+                      "month"
+                    ]
+                  },
+                  "cancelled": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "letRef",
+                  "unitRef",
+                  "occupant",
+                  "kind",
+                  "start",
+                  "end",
+                  "noticeGivenOn",
+                  "rent",
+                  "per",
+                  "cancelled"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "on": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "register",
+                    "vacancies"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "media",
+            "units",
+            "lets",
+            "on",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":null,\"units\":[{\"unitRef\":\"flat_a\",\"title\":\"Willow Flat\",\"address\":null,\"photo\":null,\"askingRent\":null,\"askingPer\":null,\"goto\":null},{\"unitRef\":\"flat_b\",\"title\":\"Cedar Flat\",\"address\":null,\"photo\":null,\"askingRent\":1050,\"askingPer\":\"month\",\"goto\":null}],\"lets\":[{\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"occupant\":\"Asha\",\"kind\":\"tenancy\",\"start\":\"2026-10-01\",\"end\":null,\"noticeGivenOn\":null,\"rent\":900,\"per\":\"month\",\"cancelled\":false}],\"on\":\"2026-11-18\",\"style\":\"register\"}",
+    "replies": [
+      "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":null,\"units\":[{\"unitRef\":\"flat_a\",\"title\":\"Willow Flat\",\"address\":null,\"photo\":null,\"askingRent\":null,\"askingPer\":null,\"goto\":null},{\"unitRef\":\"flat_b\",\"title\":\"Cedar Flat\",\"address\":null,\"photo\":null,\"askingRent\":1050,\"askingPer\":\"month\",\"goto\":null}],\"lets\":[{\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"occupant\":\"Asha\",\"kind\":\"tenancy\",\"start\":\"2026-10-01\",\"end\":null,\"noticeGivenOn\":null,\"rent\":900,\"per\":\"month\",\"cancelled\":false}],\"on\":\"2026-11-18\",\"style\":\"register\"}",
       "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":null,\"units\":[{\"unitRef\":\"flat_a\",\"title\":\"Willow Flat\",\"address\":null,\"photo\":null,\"askingRent\":null,\"askingPer\":null,\"goto\":null},{\"unitRef\":\"flat_b\",\"title\":\"Cedar Flat\",\"address\":null,\"photo\":null,\"askingRent\":1050,\"askingPer\":\"month\",\"goto\":null}],\"lets\":[{\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"occupant\":\"Asha\",\"kind\":\"tenancy\",\"start\":\"2026-10-01\",\"end\":null,\"noticeGivenOn\":null,\"rent\":900,\"per\":\"month\",\"cancelled\":null}],\"on\":\"2026-11-18\",\"style\":\"register\"}",
       "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":null,\"units\":[{\"unitRef\":\"flat_a\",\"title\":\"Willow Flat\",\"address\":null,\"photo\":null,\"askingRent\":null,\"askingPer\":null,\"goto\":null},{\"unitRef\":\"flat_b\",\"title\":\"Cedar Flat\",\"address\":null,\"photo\":null,\"askingRent\":1050,\"askingPer\":\"month\",\"goto\":null}],\"lets\":[{\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"occupant\":\"Asha\",\"kind\":\"tenancy\",\"start\":\"2026-10-01\",\"end\":null,\"noticeGivenOn\":null,\"rent\":900,\"per\":\"month\",\"cancelled\":false}],\"on\":\"2026-11-18\",\"style\":\"register\"}"
     ]
@@ -3890,6 +4196,285 @@
       "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":\"thumb\",\"units\":[{\"unitRef\":\"north_cabin\",\"title\":\"North Cabin\",\"address\":null,\"photo\":\"lib:home\",\"askingRent\":null,\"askingPer\":null,\"goto\":null}],\"lets\":[],\"on\":\"2026-11-18\",\"style\":null}"
     ]
   },
+  "Units%2Fwrite%2FShow%20North%20Cabin%20(north_cabin)%20on%202026-11-18%20with%20thumbnail%20photo%20lib%3Ahome%3B%20there%20are%20no%20agreed%20lets.%20Keep%20the%20usual%20row%20surface%20and%20spacing./9ee4d0c559682347/1c015fb71f9ecddd": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nUnits: See who occupies each rental unit and the agreed rent on a chosen date.\nprops: { density?: comfortable|compact, surface?: plain|card=\"plain\", media?: none|thumb=\"none\", units: [1..12 { unitRef: id snake_case, title: text≤32, address?: text≤36, photo?: photo lib:<tag>|local:<n>, askingRent?: num 0.., askingPer?: night|week|month, goto?: id snake_case }], lets: [0..48 { letRef: id snake_case, unitRef: id snake_case, occupant: text≤24, kind: tenancy|stay, start: date YYYY-MM-DD, end?: date YYYY-MM-DD, noticeGivenOn?: date YYYY-MM-DD, rent: num 0.., per: night|week|month, cancelled?: boolean=false }], on: date YYYY-MM-DD, style?: register|vacancies }\nRule: Use snake_case references. Every let must reference a unit in this line. Active lets for one unit must not overlap; the end date is exclusive, and cancelled lets do not count.\nRule: A stay requires an end date and per \"night\"; a tenancy uses \"week\" or \"month\". Supply askingRent and askingPer together, or omit both. Do not write occupancy or totals.\nRule: Do not copy unrequested photos, addresses or links from the example. A requested thumbnail sets only media to \"thumb\". Usual, regular or default spacing and surface mean null for density and surface, never explicit defaults.\nRule: For a Vacancies view (vacant and notice-given units), set style to \"vacancies\". Otherwise set style to \"register\". Always write every supplied unit and let, even in the Vacancies view: the view, not the Writer, filters their visibility.\nRule: For a tenancy described as on notice, write the given notice date in noticeGivenOn. Its end must be later than notice. Do not use a scheduled end alone as notice.\nexample: {\"c\":\"Units\",\"units\":[{\"unitRef\":\"flat_a\",\"title\":\"Willow Flat\",\"address\":\"14 Mill Lane\",\"photo\":\"lib:home\",\"goto\":\"property_unit_detail\"},{\"unitRef\":\"flat_b\",\"title\":\"Cedar Flat\",\"askingRent\":1050,\"askingPer\":\"month\"}],\"lets\":[{\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"occupant\":\"Asha\",\"kind\":\"tenancy\",\"start\":\"2026-10-01\",\"rent\":900,\"per\":\"month\"}],\"on\":\"2026-11-18\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show North Cabin (north_cabin) on 2026-11-18 with thumbnail photo lib:home; there are no agreed lets. Keep the usual row surface and spacing.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Units",
+              "enum": [
+                "Units"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "plain",
+                    "card"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "thumb"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "units": {
+              "minItems": 1,
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "unitRef": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "address": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 36
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "askingRent": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "askingPer": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "night",
+                          "week",
+                          "month"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "unitRef",
+                  "title",
+                  "address",
+                  "photo",
+                  "askingRent",
+                  "askingPer",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "lets": {
+              "minItems": 0,
+              "maxItems": 48,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "letRef": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                  },
+                  "unitRef": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                  },
+                  "occupant": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "tenancy",
+                      "stay"
+                    ]
+                  },
+                  "start": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "end": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "noticeGivenOn": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "rent": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "per": {
+                    "type": "string",
+                    "enum": [
+                      "night",
+                      "week",
+                      "month"
+                    ]
+                  },
+                  "cancelled": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "letRef",
+                  "unitRef",
+                  "occupant",
+                  "kind",
+                  "start",
+                  "end",
+                  "noticeGivenOn",
+                  "rent",
+                  "per",
+                  "cancelled"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "on": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "register",
+                    "vacancies"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "media",
+            "units",
+            "lets",
+            "on",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":\"thumb\",\"units\":[{\"unitRef\":\"north_cabin\",\"title\":\"North Cabin\",\"address\":null,\"photo\":\"lib:home\",\"askingRent\":null,\"askingPer\":null,\"goto\":null}],\"lets\":[],\"on\":\"2026-11-18\",\"style\":\"register\"}",
+    "replies": [
+      "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":\"thumb\",\"units\":[{\"unitRef\":\"north_cabin\",\"title\":\"North Cabin\",\"address\":null,\"photo\":\"lib:home\",\"askingRent\":null,\"askingPer\":null,\"goto\":null}],\"lets\":[],\"on\":\"2026-11-18\",\"style\":\"register\"}",
+      "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":\"thumb\",\"units\":[{\"unitRef\":\"north_cabin\",\"title\":\"North Cabin\",\"address\":null,\"photo\":\"lib:home\",\"askingRent\":null,\"askingPer\":null,\"goto\":null}],\"lets\":[],\"on\":\"2026-11-18\",\"style\":\"register\"}",
+      "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":\"thumb\",\"units\":[{\"unitRef\":\"north_cabin\",\"title\":\"North Cabin\",\"address\":null,\"photo\":\"lib:home\",\"askingRent\":null,\"askingPer\":null,\"goto\":null}],\"lets\":[],\"on\":\"2026-11-18\",\"style\":\"register\"}"
+    ]
+  },
   "Units%2Fwrite%2FShow%20North%20Cabin%20(north_cabin)%20on%202026-11-18%20with%20thumbnail%20photo%20lib%3Ahome%3B%20there%20are%20no%20agreed%20lets.%20Keep%20the%20usual%20row%20surface%20and%20spacing./a33de451830627cd/1c015fb71f9ecddd": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nUnits: See who occupies each rental unit and the agreed rent on a chosen date.\nprops: { density?: comfortable|compact, surface?: plain|card=\"plain\", media?: none|thumb=\"none\", units: [1..12 { unitRef: id snake_case, title: text≤32, address?: text≤36, photo?: photo lib:<tag>|local:<n>, askingRent?: num 0.., askingPer?: night|week|month, goto?: id snake_case }], lets: [0..48 { letRef: id snake_case, unitRef: id snake_case, occupant: text≤24, kind: tenancy|stay, start: date YYYY-MM-DD, end?: date YYYY-MM-DD, noticeGivenOn?: date YYYY-MM-DD, rent: num 0.., per: night|week|month, cancelled?: boolean=false }], on: date YYYY-MM-DD, style?: register|vacancies }\nRule: Use snake_case references. Every let must reference a unit in this line. Active lets for one unit must not overlap; the end date is exclusive, and cancelled lets do not count.\nRule: A stay requires an end date and per \"night\"; a tenancy uses \"week\" or \"month\". Supply askingRent and askingPer together, or omit both. Do not write occupancy or totals.\nRule: Do not copy unrequested photos, addresses or links from the example. A requested thumbnail sets only media to \"thumb\". Usual, regular or default spacing and surface mean null for density and surface, never explicit defaults.\nRule: For a Vacancies view (vacant and notice-given units), set style to \"vacancies\". Otherwise set style to \"register\". Always write every supplied unit and let, even in the Vacancies view: the view, not the Writer, filters their visibility.\nRule: For a tenancy described as on notice, write the given notice date in noticeGivenOn. Its end must be later than notice. Do not use a scheduled end alone as notice.\nexample: {\"c\":\"Units\",\"units\":[{\"unitRef\":\"flat_a\",\"title\":\"Willow Flat\",\"address\":\"14 Mill Lane\",\"photo\":\"lib:home\",\"goto\":\"property_unit_detail\"},{\"unitRef\":\"flat_b\",\"title\":\"Cedar Flat\",\"askingRent\":1050,\"askingPer\":\"month\"}],\"lets\":[{\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"occupant\":\"Asha\",\"kind\":\"tenancy\",\"start\":\"2026-10-01\",\"rent\":900,\"per\":\"month\"}],\"on\":\"2026-11-18\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show North Cabin (north_cabin) on 2026-11-18 with thumbnail photo lib:home; there are no agreed lets. Keep the usual row surface and spacing.",
     "format": {
@@ -5279,6 +5864,285 @@
     "replies": [
       "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":null,\"units\":[{\"unitRef\":\"flat_a\",\"title\":\"Willow Flat\",\"address\":null,\"photo\":null,\"askingRent\":null,\"askingPer\":null,\"goto\":null},{\"unitRef\":\"flat_b\",\"title\":\"Cedar Flat\",\"address\":null,\"photo\":null,\"askingRent\":null,\"askingPer\":null,\"goto\":null}],\"lets\":[{\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"occupant\":\"Asha\",\"kind\":\"tenancy\",\"start\":\"2026-10-01\",\"end\":\"2026-12-01\",\"noticeGivenOn\":\"2026-11-10\",\"rent\":900,\"per\":\"month\",\"cancelled\":null}],\"on\":\"2026-11-18\",\"style\":\"vacancies\"}",
       "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":null,\"units\":[{\"unitRef\":\"flat_a\",\"title\":\"Willow Flat\",\"address\":\"14 Mill Lane\",\"photo\":\"lib:home\",\"askingRent\":null,\"askingPer\":null,\"goto\":null},{\"unitRef\":\"flat_b\",\"title\":\"Cedar Flat\",\"address\":null,\"photo\":null,\"askingRent\":null,\"askingPer\":null,\"goto\":null}],\"lets\":[{\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"occupant\":\"Asha\",\"kind\":\"tenancy\",\"start\":\"2026-10-01\",\"end\":\"2026-12-01\",\"noticeGivenOn\":\"2026-11-10\",\"rent\":900,\"per\":\"month\",\"cancelled\":false}],\"on\":\"2026-11-18\",\"style\":\"vacancies\"}",
+      "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":null,\"units\":[{\"unitRef\":\"flat_a\",\"title\":\"Willow Flat\",\"address\":null,\"photo\":null,\"askingRent\":null,\"askingPer\":null,\"goto\":null},{\"unitRef\":\"flat_b\",\"title\":\"Cedar Flat\",\"address\":null,\"photo\":null,\"askingRent\":null,\"askingPer\":null,\"goto\":null}],\"lets\":[{\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"occupant\":\"Asha\",\"kind\":\"tenancy\",\"start\":\"2026-10-01\",\"end\":\"2026-12-01\",\"noticeGivenOn\":\"2026-11-10\",\"rent\":900,\"per\":\"month\",\"cancelled\":false}],\"on\":\"2026-11-18\",\"style\":\"vacancies\"}"
+    ]
+  },
+  "Units%2Fwrite%2FUse%20the%20Vacancies%20view%20on%202026-11-18.%20Include%20both%20Willow%20Flat%20(flat_a)%20and%20Cedar%20Flat%20(flat_b)%20in%20the%20underlying%20register%20for%20date%20changes.%20Store%20Asha's%20tenancy%20asha_let%20for%20Willow%20Flat%2C%20900%20monthly%20from%202026-10-01%20to%202026-12-01.%20Asha%20already%20gave%20notice%20on%202026-11-10%3B%20retain%20that%20exact%20notice%20date%20on%20the%20tenancy.%20Cedar%20Flat%20has%20no%20lets./c7521d798ec4e6d3/206802f1838a0720": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nUnits: See who occupies each rental unit and the agreed rent on a chosen date.\nprops: { density?: comfortable|compact, surface?: plain|card=\"plain\", media?: none|thumb=\"none\", units: [1..12 { unitRef: id snake_case, title: text≤32, address?: text≤36, photo?: photo lib:<tag>|local:<n>, askingRent?: num 0.., askingPer?: night|week|month, goto?: id snake_case }], lets: [0..48 { letRef: id snake_case, unitRef: id snake_case, occupant: text≤24, kind: tenancy|stay, start: date YYYY-MM-DD, end?: date YYYY-MM-DD, noticeGivenOn?: date YYYY-MM-DD, rent: num 0.., per: night|week|month, cancelled?: boolean=false }], on: date YYYY-MM-DD, style?: register|vacancies }\nRule: Use snake_case references. Every let must reference a unit in this line. Active lets for one unit must not overlap; the end date is exclusive, and cancelled lets do not count.\nRule: A stay requires an end date and per \"night\"; a tenancy uses \"week\" or \"month\". Supply askingRent and askingPer together, or omit both. Do not write occupancy or totals.\nRule: Do not copy unrequested photos, addresses or links from the example. A requested thumbnail sets only media to \"thumb\". Usual, regular or default spacing and surface mean null for density and surface, never explicit defaults.\nRule: For a Vacancies view (vacant and notice-given units), set style to \"vacancies\". Otherwise set style to \"register\". Always write every supplied unit and let, even in the Vacancies view: the view, not the Writer, filters their visibility.\nRule: For a tenancy described as on notice, write the given notice date in noticeGivenOn. Its end must be later than notice. Do not use a scheduled end alone as notice.\nexample: {\"c\":\"Units\",\"units\":[{\"unitRef\":\"flat_a\",\"title\":\"Willow Flat\",\"address\":\"14 Mill Lane\",\"photo\":\"lib:home\",\"goto\":\"property_unit_detail\"},{\"unitRef\":\"flat_b\",\"title\":\"Cedar Flat\",\"askingRent\":1050,\"askingPer\":\"month\"}],\"lets\":[{\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"occupant\":\"Asha\",\"kind\":\"tenancy\",\"start\":\"2026-10-01\",\"rent\":900,\"per\":\"month\"}],\"on\":\"2026-11-18\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Use the Vacancies view on 2026-11-18. Include both Willow Flat (flat_a) and Cedar Flat (flat_b) in the underlying register for date changes. Store Asha's tenancy asha_let for Willow Flat, 900 monthly from 2026-10-01 to 2026-12-01. Asha already gave notice on 2026-11-10; retain that exact notice date on the tenancy. Cedar Flat has no lets.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Units",
+              "enum": [
+                "Units"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "plain",
+                    "card"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "thumb"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "units": {
+              "minItems": 1,
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "unitRef": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "address": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 36
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "askingRent": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "askingPer": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "night",
+                          "week",
+                          "month"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "unitRef",
+                  "title",
+                  "address",
+                  "photo",
+                  "askingRent",
+                  "askingPer",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "lets": {
+              "minItems": 0,
+              "maxItems": 48,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "letRef": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                  },
+                  "unitRef": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                  },
+                  "occupant": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "tenancy",
+                      "stay"
+                    ]
+                  },
+                  "start": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "end": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "noticeGivenOn": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "rent": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "per": {
+                    "type": "string",
+                    "enum": [
+                      "night",
+                      "week",
+                      "month"
+                    ]
+                  },
+                  "cancelled": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "letRef",
+                  "unitRef",
+                  "occupant",
+                  "kind",
+                  "start",
+                  "end",
+                  "noticeGivenOn",
+                  "rent",
+                  "per",
+                  "cancelled"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "on": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "register",
+                    "vacancies"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "media",
+            "units",
+            "lets",
+            "on",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":null,\"units\":[{\"unitRef\":\"flat_a\",\"title\":\"Willow Flat\",\"address\":null,\"photo\":null,\"askingRent\":null,\"askingPer\":null,\"goto\":null},{\"unitRef\":\"flat_b\",\"title\":\"Cedar Flat\",\"address\":null,\"photo\":null,\"askingRent\":null,\"askingPer\":null,\"goto\":null}],\"lets\":[{\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"occupant\":\"Asha\",\"kind\":\"tenancy\",\"start\":\"2026-10-01\",\"end\":\"2026-12-01\",\"noticeGivenOn\":\"2026-11-10\",\"rent\":900,\"per\":\"month\",\"cancelled\":null}],\"on\":\"2026-11-18\",\"style\":\"vacancies\"}",
+    "replies": [
+      "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":null,\"units\":[{\"unitRef\":\"flat_a\",\"title\":\"Willow Flat\",\"address\":null,\"photo\":null,\"askingRent\":null,\"askingPer\":null,\"goto\":null},{\"unitRef\":\"flat_b\",\"title\":\"Cedar Flat\",\"address\":null,\"photo\":null,\"askingRent\":null,\"askingPer\":null,\"goto\":null}],\"lets\":[{\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"occupant\":\"Asha\",\"kind\":\"tenancy\",\"start\":\"2026-10-01\",\"end\":\"2026-12-01\",\"noticeGivenOn\":\"2026-11-10\",\"rent\":900,\"per\":\"month\",\"cancelled\":null}],\"on\":\"2026-11-18\",\"style\":\"vacancies\"}",
+      "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":\"thumb\",\"units\":[{\"unitRef\":\"flat_a\",\"title\":\"Willow Flat\",\"address\":null,\"photo\":null,\"askingRent\":null,\"askingPer\":null,\"goto\":null},{\"unitRef\":\"flat_b\",\"title\":\"Cedar Flat\",\"address\":null,\"photo\":null,\"askingRent\":null,\"askingPer\":null,\"goto\":null}],\"lets\":[{\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"occupant\":\"Asha\",\"kind\":\"tenancy\",\"start\":\"2026-10-01\",\"end\":\"2026-12-01\",\"noticeGivenOn\":\"2026-11-10\",\"rent\":900,\"per\":\"month\",\"cancelled\":false}],\"on\":\"2026-11-18\",\"style\":\"vacancies\"}",
       "{\"c\":\"Units\",\"density\":null,\"surface\":null,\"media\":null,\"units\":[{\"unitRef\":\"flat_a\",\"title\":\"Willow Flat\",\"address\":null,\"photo\":null,\"askingRent\":null,\"askingPer\":null,\"goto\":null},{\"unitRef\":\"flat_b\",\"title\":\"Cedar Flat\",\"address\":null,\"photo\":null,\"askingRent\":null,\"askingPer\":null,\"goto\":null}],\"lets\":[{\"letRef\":\"asha_let\",\"unitRef\":\"flat_a\",\"occupant\":\"Asha\",\"kind\":\"tenancy\",\"start\":\"2026-10-01\",\"end\":\"2026-12-01\",\"noticeGivenOn\":\"2026-11-10\",\"rent\":900,\"per\":\"month\",\"cancelled\":false}],\"on\":\"2026-11-18\",\"style\":\"vacancies\"}"
     ]
   },
