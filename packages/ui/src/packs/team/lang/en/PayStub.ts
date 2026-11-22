@@ -1,0 +1,21 @@
+export const words = {
+  payStub: {
+    title: "Pay statement",
+    empty: "No pay statements issued yet",
+    error: "Pay statement unavailable",
+    export: "Export pay statement",
+    net: "Net pay",
+    gross: "Gross pay",
+    deducted: "Total deductions",
+    earnings: "Earnings",
+    deductions: "Deductions",
+    ytdGross: "Year-to-date gross",
+    ytdNet: "Year-to-date net",
+    period: (from: string, to: string) => `${from} – ${to}`,
+    paid: (date: string) => `Paid ${date}`,
+    hours: (count: string) => `${count} h`,
+    rate: (value: string) => `${value}/h`,
+    line: (label: string, value: string, note?: string) => `${label}: ${value}${note ? ` · ${note}` : ""}`,
+    pair: (lines: string[]) => lines.join(" · "),
+  },
+};

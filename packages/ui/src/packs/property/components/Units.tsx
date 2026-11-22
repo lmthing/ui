@@ -1,7 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 // prettier-ignore
-import { KitCard, KitContent, KitGrid, KitHeader, KitInput, KitLayoutText, KitRowGroup, KitSkeleton, KitState, useAppCurrency, useComponentState, useLiveControls, useVariant, useWords, useKit } from "../../../kit";
+import { KitCard, KitContent, KitGrid, KitInput, KitLayoutText, KitRowGroup, KitSkeleton, KitState, useAppCurrency, useComponentState, useLiveControls, useVariant, useWords, useKit } from "../../../kit";
 import * as unitView from "./unit-row";
 import { exclusiveLets, unitDisplay, unitReading, unitSnapshot } from "../copy";
 import { propertyWordsFor } from "../lang";
@@ -155,7 +155,6 @@ export function Units(input: UnitsProps) {
   const { words, lang } = useWords(propertyWordsFor);
   const currency = useAppCurrency();
   const density = useKit().density;
-  const surface = "plain";
   const media = useVariant("media", meta.variants.media, input.media);
   const rows = units.filter(({ visible }) => visible).map((unit) => <unitView.UnitRow key={unit.id} notice={unit.notice}
     snapshot={unitSnapshot(unit, lets, on, lang, currency)} inline={style === "vacancies"} {...{ unit, media, density, loading }} />);
@@ -166,13 +165,13 @@ export function Units(input: UnitsProps) {
         <KitInput part="date" kind="date" icon="calendar" action="set" label={words.units.date} hint={words.units.dateFormat} value={on} projected />}
     </KitContent>
     {style === "vacancies" ? <KitContent group="response" {...{ density }}>
-      <KitHeader title={{ text: words.units.vacancies, part: "vacancies" }} {...{ density }} />
+      <KitLayoutText line={{ text: words.units.vacancies, part: "vacancies", strong: true }} {...{ density }} />
       <KitRowGroup spacing="groups" {...{ density }}>{rows}</KitRowGroup>
     </KitContent> :
       <KitGrid arrange="rows" list={!loading} {...{ density }}>{rows}</KitGrid>}
     {!rows.length && !loading && <KitLayoutText line={{ text: words.units.noVacancies, part: "message", tone: "muted" }} {...{ density }} />}
   </>;
-  return <KitCard part="root" padded surface={state === "filled" || loading ? surface : "card"} {...{ density }}>
+  return <KitCard part="root" padded {...{ density }}>
     <KitState part="message" icon={state === "error" ? "alert" : "home"}
       message={state === "error" ? words.units.error : undefined} loading={content} {...{ density }}>{content}</KitState>
   </KitCard>;

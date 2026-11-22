@@ -1,7 +1,15 @@
 import { appointmentDate, timeOfDayLine, wordsFor } from "../../../catalog";
 import { teamWordsFor } from "../lang";
 
-type Shift = { person: number; day: number; from: string; to: string; role?: string | undefined };
+type Shift = {
+  id?: string;
+  person: number;
+  day: number;
+  from: string;
+  to: string;
+  role?: string | undefined;
+  station?: string | undefined;
+};
 type Schedule = { week: string; people: readonly { name: string }[]; shifts: readonly Shift[] };
 const oneLine = (value: string) => value.replace(/[\r\n\u2028\u2029]+/g, " ");
 
@@ -10,6 +18,52 @@ export const rosterPortrait = (name: string, photo: string) =>
 
 export const rosterWeek = (week: string, lang?: string) =>
   teamWordsFor(lang).roster.week(appointmentDate(week, lang));
+
+export const rosterDayHeading = (date: string, lang?: string) => appointmentDate(date, lang);
+
+function rosterLocalDate(now: Date) {
+  return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())).toISOString().slice(0, 10);
+}
+
+function dayOfWeek(week: string, date: string) {
+  return (Date.parse(`${date}T00:00:00Z`) - Date.parse(`${week}T00:00:00Z`)) / 86_400_000;
+}
+
+export function rosterDateInWeek(week: string, date: string) {
+  const day = dayOfWeek(week, date);
+  return day >= 0 && day < 7;
+}
+
+type DayInput<T> = { style?: string; week: string; date?: string | undefined; shifts: readonly T[] };
+
+export function projectRosterDay<T extends Shift>(
+  input: DayInput<T>,
+  now: number,
+): { rosterDate?: string; shifts?: T[] } {
+  if (input.style !== "day") return {};
+  const rosterDate = input.date ?? rosterLocalDate(new Date(now));
+  const day = dayOfWeek(input.week, rosterDate);
+  return { rosterDate, shifts: input.shifts.filter((shift) => shift.day === day) };
+}
+
+export function rosterDayWake(input: Readonly<Record<string, unknown>>, now: number) {
+  if (input.style !== "day" || input.date !== undefined) return;
+  return new Date(now).setHours(24, 0, 0, 0);
+}
+
+export function shiftsByStation<T extends Shift>(shifts: readonly T[]) {
+  const groups = new Map<string | undefined, T[]>();
+  for (const shift of shifts) {
+    const key = shift.station && oneLine(shift.station);
+    const group = groups.get(key);
+    if (group) group.push(shift);
+    else groups.set(key, [shift]);
+  }
+  return Array.from(groups, ([station, shifts]) => ({
+    station,
+    shifts: shifts.sort((a, b) => a.from.localeCompare(b.from)),
+  }));
+}
 
 export function rosterDays(shifts: readonly Shift[], lang?: string) {
   const { weekdayNames, weekdayShort } = wordsFor(lang);
@@ -49,8 +103,21 @@ export function rosterShift({ from, to, role }: Shift, brief: boolean, lang?: st
 }
 
 export function rosterReading(input: unknown, _state: unknown, lang?: string): string[] {
-  const { week, people, shifts, detail } = input as Schedule & { detail?: "full" | "brief" };
+  const { week, people, shifts, detail, rosterDate } = input as Schedule & {
+    detail?: "full" | "brief";
+    rosterDate?: string;
+  };
   const words = teamWordsFor(lang).roster;
+  if (rosterDate) {
+    const groups = shiftsByStation(shifts).map(({ station, shifts: rows }) => {
+      const names = rows.map((row) => {
+        const { time, role } = rosterShift(row, detail === "brief", lang);
+        return words.shiftReading(oneLine(people[row.person]!.name), words.shift(time, role), row.id ?? "");
+      });
+      return words.personReading(station ?? words.unassigned, names);
+    });
+    return [rosterDayHeading(rosterDate, lang), ...(groups.length ? groups : [words.empty])];
+  }
   if (!shifts.length) return [rosterWeek(week, lang), words.empty];
   const days = rosterDays(shifts, lang);
   const rows = shiftsByPerson(people, shifts).map((schedule, person) => {

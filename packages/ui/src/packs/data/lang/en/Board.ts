@@ -6,4 +6,15 @@ export const words = {
   boardMove: "Move to",
   boardStage: (label, count, total) => `${label} (${count}${total ? `, Total ${total}` : ""})`,
   boardTotal: "Total",
-} satisfies Pick<DataWords, "boardCard" | "boardDestination" | "boardMove" | "boardStage" | "boardTotal">;
+  boardStages: "Stages",
+  boardUnassigned: "Unassigned",
+} satisfies Pick<
+  DataWords,
+  | "boardCard"
+  | "boardDestination"
+  | "boardMove"
+  | "boardStage"
+  | "boardTotal"
+  | "boardStages"
+  | "boardUnassigned"
+>;

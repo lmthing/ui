@@ -84,3 +84,26 @@ it("filters, previews and inserts a full reply through the mounted phone screen"
   expect(await page.getByRole("button", { name: "Send reply" }).isEnabled()).toBe(true);
   expect(await page.locator("#events").textContent()).toBe("");
 });
+
+it("retries a failed reply, retains the history and opens a fresh composer after acknowledgement", async () => {
+  await page.goto(new URL(`${route}?retry`, server.resolvedUrls!.local[0]).href);
+  const original = components.RequestThread.examples[0]!.draft!;
+  const retry = page.getByRole("button", { name: "Retry reply" });
+  const draft = page.getByRole("textbox", { name: "Write a reply" });
+  const send = page.getByRole("button", { name: "Send reply" });
+  expect(await draft.inputValue()).toBe(original);
+  const audience = page.getByRole("radio", { name: "To requester" });
+  expect(await audience.isChecked()).toBe(true);
+  expect(await audience.isDisabled()).toBe(true);
+  await page.getByText("Assigned to Ella").waitFor({ state: "visible" });
+  await draft.fill(`${original} Please confirm.`);
+  await retry.click();
+  await page.getByText("Reply sent").waitFor({ state: "visible" });
+  expect(await page.getByTestId("desk/thread/r5/text").innerText()).toBe(`${original} Please confirm.`);
+  expect(await retry.count()).toBe(0);
+  expect(await draft.inputValue()).toBe("");
+  expect(await send.isDisabled()).toBe(true);
+  await draft.fill("I will confirm the arrival time.");
+  await send.click();
+  expect(await page.getByTestId("desk/thread/r6/text").innerText()).toBe("I will confirm the arrival time.");
+});

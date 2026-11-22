@@ -1,5 +1,6 @@
 export const words = {
   rating: (value: string, max: string) => `Rating ${value} out of ${max}`,
+  ratingLabel: (value: string, goal: string) => `${value} ${goal}`,
   ratingSkeleton: (value: string) => `${value}\u2004★\u2004★\u2004★\u2004★\u2004★`,
   priceLevel: (value: string, max: string) => `Price level ${value} out of ${max}`,
   openNow: "Open now",

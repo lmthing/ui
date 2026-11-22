@@ -83,13 +83,9 @@ export function placeCardCopy(place: Place, data?: DeviceData, lang?: string) {
   return {
     rating: formattedRating,
     ratingReading: formattedRating === undefined ? undefined : words.rating(formattedRating, ratingMax),
-    ratingLabels: ratingLevels.map((level) => `${numberLine(level, lang)} ${goalLine(maxRating, lang)}`) as [
-      string,
-      string,
-      string,
-      string,
-      string,
-    ],
+    ratingLabels: ratingLevels.map((level) =>
+      words.ratingLabel(numberLine(level, lang), goalLine(maxRating, lang)),
+    ) as [string, string, string, string, string],
     price:
       priceLevel === undefined
         ? undefined

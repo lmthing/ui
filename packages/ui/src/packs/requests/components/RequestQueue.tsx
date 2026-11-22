@@ -161,28 +161,23 @@ export function RequestQueue(input: QueueProps) {
   const { more, now } = queueSnapshot(kit.useDeviceData(), view, personal, rows.some(({ sla }) => Boolean(sla)));
   const counts = queueCounts(rows.length, more, lang);
   const empty = (personal ? queue.mineEmpty : queue.empty)[view];
+  const loading = state === "loading";
   return <kit.KitCard part="root" density={density} padded inset="none">
-    {state === "loading" ? <>
-      <kit.KitContent inset="md">
-        {personal && <kit.KitHeader title={{ text: queue.mine, part: "mine" }} density={density} />}
-        <kit.KitGrid columns={2} density={density}>
-          {meta.selections.view.choices.map((key) => <kit.KitSkeleton key={key} shape="control" full kind="secondary" label={queue.views[key]} />)}
-        </kit.KitGrid>
-        <kit.KitSkeleton shape="figure" inset="none" content={[["caption", counts.count]]} />
-      </kit.KitContent>
-      {rows.length ? <rowsView.QueueRows {...{ rows, now, density, grouped, personal }} loading /> : <kit.KitSkeleton rows={1} lead="none" density={density} />}
-    </> : state === "error" ? <kit.KitContent inset="md" align="center">
+    {state === "error" ? <kit.KitContent inset="md" align="center">
       <kit.KitEmpty title={queue.error} part="error" icon="clipboard_list" decorativeIcon />
       <kit.KitAction part="retry" label={queue.retry} kind="secondary" full />
     </kit.KitContent> : <>
       <kit.KitContent inset="md">
         {personal && <kit.KitHeader title={{ text: queue.mine, part: "mine" }} density={density} />}
         <kit.KitTrack look="segments" role="radiogroup" label={queue.viewLabel} part="view">
-          {meta.selections.view.choices.map((key) => <kit.KitChip key={key} item={null} role="radio" look="segment" label={queue.views[key]} on={view === key} value={key} />)}
+          {meta.selections.view.choices.map((key) => <kit.KitChip key={key} item={null} role="radio" look="segment"
+            label={queue.views[key]} on={view === key} value={key} disabled={loading || undefined} />)}
         </kit.KitTrack>
-        {state === "filled" && <kit.KitText part="count" role="caption" tone="muted">{counts.count}</kit.KitText>}
+        {(state === "filled" || loading) && <kit.KitLayoutText line={{ text: counts.count, part: "count", role: "caption", tone: "muted" }} />}
       </kit.KitContent>
-      {state === "empty" || !rows.length ? <kit.KitEmpty part="empty" icon="clipboard_list" decorativeIcon {...(state === "filled" || !thing ? { title: empty } : {})} /> : <rowsView.QueueRows {...{ rows, now, density, grouped, personal }} />}
+      {loading && !rows.length ? <kit.KitSkeleton rows={1} lead="none" density={density} />
+        : state === "empty" || !rows.length ? <kit.KitEmpty part="empty" icon="clipboard_list" decorativeIcon {...(state === "filled" || !thing ? { title: empty } : {})} />
+        : <rowsView.QueueRows {...{ rows, now, density, grouped, personal, loading }} />}
       {state === "filled" && counts.more && <kit.KitContent inset="md"><kit.KitText part="more" role="caption" tone="muted">{counts.more}</kit.KitText></kit.KitContent>}
     </>}
   </kit.KitCard>;

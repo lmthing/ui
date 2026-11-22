@@ -9,6 +9,8 @@ export const words = {
   chartSeriesPoints: (series) => `${series} data points`,
   chartUnit: (unit) => `Unit: ${unit}`,
   chartValue: (value, unit) => `${value} ${unit}`,
+  chartGoal: (value) => `Goal: ${value}`,
+  chartRange: { "7d": "Last 7 days", "30d": "Last 30 days", "90d": "Last 90 days", "1y": "Last year" },
 } satisfies Pick<
   DataWords,
   | "chartLatest"
@@ -19,4 +21,6 @@ export const words = {
   | "chartSeriesPoints"
   | "chartUnit"
   | "chartValue"
+  | "chartGoal"
+  | "chartRange"
 >;

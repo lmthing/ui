@@ -70,10 +70,11 @@ export const props = z.strictObject({
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);
   const [stop, ...destinations] = c.itemsOf(cast, 4);
+  const { placeholderValue } = c.wordsFor(lang);
   return {
     stop: (stop && c.titleOf(stop, 32, thing)) || c.placeholderTitle(0, lang),
     rows: (destinations.length ? destinations : [undefined]).map((item, index) => ({
-      line: c.placeholderValue,
+      line: placeholderValue,
       to: (item && c.titleOf(item, 28, thing)) || c.placeholderTitle(index + 1, lang),
     })),
   };
