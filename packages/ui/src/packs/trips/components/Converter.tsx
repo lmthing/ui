@@ -110,6 +110,30 @@ function ConverterSwap({
   );
 }
 
+// prettier-ignore
+function ConverterField({ part, label, text, result, loading, density, hint }: {
+  part: "from" | "to"; label: string; text: string; result: boolean | undefined; loading: boolean;
+  density: NonNullable<ConverterProps["density"]>; hint: string;
+}) {
+  return (
+    <kit.KitContent {...{ density }} group={part === "to" ? "response" : "content"} rhythm="flush">
+      <kit.KitContent inset="md" density={density}>
+        <kit.KitLayoutText line={{ text: label, role: "caption", tone: result ? "accent" : "muted", strong: Boolean(result) }} density={density} />
+      </kit.KitContent>
+      {loading ? (
+        <kit.KitRow part={part} label={label} surface="outlined" inline lineRole="body">
+          <kit.KitContent inset="md" density={density}>
+            <kit.KitLayoutText line={{ text: hint }} density={density} />
+          </kit.KitContent>
+        </kit.KitRow>
+      ) : (
+        <kit.KitInput {...{ part, label, hint }} value={text} kind="number" action="type" projected inactive={result === false} />
+      )}
+    </kit.KitContent>
+  );
+}
+
+// prettier-ignore
 export function Converter(input: ConverterProps) {
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
@@ -118,46 +142,21 @@ export function Converter(input: ConverterProps) {
   const live = kit.useLiveControls(meta, input);
   const { fields, rateDate } = converterDisplay(live, lang);
   const { converter } = words;
-  return (
-    <kit.KitCard part="root" padded {...{ density, surface }}>
-      {fields.map(({ part, label, text }) => (
-        <kit.KitContent
-          key={part}
-          density={density}
-          group={part === "to" && density === "comfortable" ? "response" : "content"}
-        >
-          <kit.KitContent inset="md">
-            {loading ? (
-              <kit.KitSkeleton shape="figure" inset="none" content={[["caption", label]]} />
-            ) : (
-              <kit.KitText part={null} role="caption" tone="muted">
-                {label}
-              </kit.KitText>
-            )}
-          </kit.KitContent>
-          <kit.KitInput
-            {...{ part, label }}
-            hint={converter.amountHint}
-            value={loading ? "" : text}
-            kind="number"
-            action="type"
-            projected
-            inactive={Boolean(live.rate) && part === live.source}
-          />
-        </kit.KitContent>
+  const content = <>
+      {fields.map((field) => (
+        <ConverterField key={field.part} {...field} {...{ loading, density }} hint={converter.amountHint}
+          result={live.rate ? field.part !== live.source : undefined} />
       ))}
       <ConverterSwap {...{ density, loading }} label={converter.swap} />
       {rateDate && (
         <kit.KitContent inset="md">
-          {loading ? (
-            <kit.KitSkeleton shape="figure" inset="none" content={[["caption", rateDate]]} />
-          ) : (
-            <kit.KitText part="rate_date" role="caption" tone="muted">
-              {rateDate}
-            </kit.KitText>
-          )}
+          <kit.KitLayoutText line={{ text: rateDate, part: "rate_date", role: "caption", tone: "muted" }} density={density} />
         </kit.KitContent>
       )}
+    </>;
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      <kit.KitState loading={content} density={density}>{content}</kit.KitState>
     </kit.KitCard>
   );
 }

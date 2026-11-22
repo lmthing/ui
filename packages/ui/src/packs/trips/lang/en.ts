@@ -87,6 +87,7 @@ export const en = {
   },
   itinerary: {
     untimed: "—",
+    untimedLabel: "Time TBD",
     hours: (hours: string, minutes?: string) => `${hours} h${minutes ? ` ${minutes} min` : ""}`,
     dayLabel: (date: string, place: string) => `${place}, ${date}`,
     dayLine: (date: string, place: string, stops: string[]) => `${date} ${place}: ${stops.join(", ")}`,
@@ -95,6 +96,7 @@ export const en = {
     progress: "Packing progress",
     allPacked: "All packed",
     add: "Add an item",
+    addHint: "Type an item name",
     quantity: (count: string) => `×${count}`,
     itemLabel: (name: string, quantity: string) => `${name}, ${quantity}`,
   },
@@ -121,6 +123,7 @@ export const en = {
   openReservation: (title: string) => `View reservation: ${title}`,
   reservationCode: "Scannable reservation code",
   travelDocs: {
+    empty: "No travel documents yet",
     kinds: {
       passport: "Passport",
       visa: "Visa",
@@ -146,7 +149,6 @@ export const en = {
     typical: (month: string) => `Typical weather in ${month}`,
     sampleTypical: (month: string) => `Sample · ${month} averages`,
     conditions: { clear: "Clear", cloudy: "Cloudy", rain: "Rain" },
-    iconPlaceholder: "●",
     degrees: (value: string) => `${value}°`,
     range: (high: string, low: string) => `${high} / ${low}`,
     celsiusRange: (range: string) => `${range}C`,

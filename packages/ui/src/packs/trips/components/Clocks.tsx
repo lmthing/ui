@@ -87,13 +87,7 @@ const comparisonPlaces = [
 export const examples = [
   { places: comparisonPlaces },
   { density: "compact", places: comparisonPlaces },
-  {
-    arrange: "rows",
-    places: [
-      { label: "London", zone: "Europe/London" },
-      { label: "Tokyo", zone: "Asia/Tokyo" },
-    ],
-  },
+  { arrange: "rows", places: comparisonPlaces },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = c.probesFor("Clocks");
@@ -115,17 +109,19 @@ type ClockPlaceProps = {
   reading: Reading;
   density: c.ThemeDensity;
   inRows: boolean;
+  home: boolean;
 };
 
 // prettier-ignore
-function ClockPlace({ reading, density, inRows }: ClockPlaceProps) {
+function ClockPlace({ reading, density, inRows, home }: ClockPlaceProps) {
   const { label, time, offset, isDay } = reading;
-  const place = <kit.KitText part="label" role="label" density="comfortable">{label}</kit.KitText>;
-  const clock = <kit.KitText part="time" role="number" density="comfortable" tabular>{time}</kit.KitText>;
+  const tone = home ? "accent" : "text";
+  const place = <kit.KitText part="label" role="label" density="comfortable" tone={tone}>{label}</kit.KitText>;
+  const clock = <kit.KitFigure density="comfortable" value={{ part: "time", text: time, tone }} align={inRows ? "end" : "start"} />;
   const footer = (
     <kit.KitContent density={density} leadingAlign="row"
       lead={<kit.KitIcon part="daylight" name={isDay ? "sun" : "moon"} scale="sm" />}>
-      <kit.KitText part="offset" role="caption" tone="muted" density="comfortable">{offset}</kit.KitText>
+      <kit.KitText part="offset" role="caption" tone={home ? tone : "muted"} density="comfortable">{offset}</kit.KitText>
     </kit.KitContent>
   );
   if (inRows) return (
@@ -164,7 +160,7 @@ export function Clocks(input: c.Props<typeof props, typeof meta>) {
                 density={density}
                 label={words.clocks.placeLine(label, time, offset, daylight)}
               >
-                <ClockPlace {...{ reading, density, inRows }} />
+                <ClockPlace {...{ reading, density, inRows }} home={index === 0} />
               </kit.KitRow>
             </kit.KitContent>
           );
