@@ -1,3 +1,5 @@
+import { words as ProjectBriefWords } from "./en/ProjectBrief";
+import { words as ProjectStatusWords } from "./en/ProjectStatus";
 import { words as ScopeWords } from "./en/Scope";
 import { words as TimeLogWords } from "./en/TimeLog";
 import { words as GanttWords } from "./en/Gantt";
@@ -9,6 +11,8 @@ export const en = {
   ...GanttWords,
   ...MilestonesWords,
   ...TasksWords,
+  ...ProjectBriefWords,
+  ...ProjectStatusWords,
 };
 
 export type ProjectsWords = typeof en;

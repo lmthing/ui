@@ -39,11 +39,18 @@ each task. Checking a task updates the project record; a blocked task cannot be 
   cards moved through operational columns (data `Board`), not graded coursework (learning `Assignments`).
 - Writes: `items` of `taskRef` text(32), `projectRef` text(32), `title` text(32), `assignee` text(24)
   optional, `due` date optional, `priority` (`normal` default, `low`, `high`), `state` (`todo`, `doing`,
-  `done`), `parentRef` text(32) optional, `after` task refs text(32) each 0–3, `goto` optional, 1–6;
-  `style`. Parent tasks omit `state`: code derives it from their children. Overdue and blockers are computed.
-- Styles: `rows` (default), `grouped` (by project, with subtasks indented).
+  `done`) optional, `parentRef` text(32) optional, `after` task refs text(32) each 0–3, `goto` optional,
+  `repeat` (`never`, `daily`, `weekly`, `monthly`) optional, `tags` text(20) each 0–2 optional, 1–6;
+  `style` optional. Parent tasks omit `state`: code derives it from their children. Overdue and blockers are computed.
+- Styles: omit or use `null` for ordinary rows; `today` (only tasks due on the device's local date; hidden tasks still count
+  toward dependencies). Shared axis: group: `none`, `sections`
+  (by project, with subtasks indented).
+  If there are no matching tasks, `today` says no tasks are due today.
 - Parts → actions: items `root press` (linked), items `done check` (unblocked leaf tasks only), items
   `assign select` (an available assignee; local assignment by the person).
+- Read-only parts: `empty`, `today`, `status`; items `title`, `project`, `assignee`, `due`, `priority`,
+  `state`, `blockers`, `repeat`, `tags`. No cadence marker for omitted or `never` repeat, and no tag part
+  for an omitted or empty array. Repeat describes a stored cadence; checking does not create a new task.
 - States: filled, empty, loading, success (all shown tasks done).
 - Real path: tasks and dependency links saved on the device; assigning work on another person's device
   needs a shared app, not merely an assignee name.
@@ -84,12 +91,20 @@ marks and computed day and week totals. Start and stop append one timed entry; a
   `title` text(32), `start` and `end` ISO 8601 date-times with UTC offsets, `billable` boolean,
   `note` text(36) optional,
   `goto` optional, 0–14; `projectRef` text(32) and `taskRef` text(32) optional (current timer target,
-  project required when task is given); `addGoto` optional; `day` date (`compact` only, within `week`); `style`.
+  project required when task is given); `addGoto` optional; `day` date optional (`single_day` only,
+  within `week`); `style`.
   Duration, totals and running time come from timestamps; no written total or running flag.
-- Styles: `days` (default), `compact` (one selected day's entries, at most 6, with the same timer).
-- Parts → actions: `timer start`, `timer stop`, `add press` (to `addGoto`), `export press`, entries
-  `root press` (linked), entries `remove press`. · Metadata: `meta.dense: true`, weight 3;
+- Styles: `days` (default), `single_day` (one selected day's entries, at most 6, with the same timer),
+  `summary` (weekly elapsed time per project split into billable and non-billable, without entry rows).
+  Shared axis: detail: `full`, `brief` (hide entry notes).
+  If there are no entries, `summary` says no time was logged this week.
+- Parts → actions: `timer start`, `timer stop`, `discard press` (while running), `add press` (to `addGoto`),
+  `export press`, entries `root press` (linked), entries `remove press`. Entry actions are not offered in
+  `summary`. · Metadata: `meta.dense: true`, weight 3;
   `meta.confirmParts: ["remove"]`, `meta.partTiers: { export: "service" }`.
+- Read-only parts: `week`, `day`, `day_total`, `week_total`, `timer_label`, `elapsed`, `discard_label`,
+  `add_label`, `export_label`, `empty`, `status`, `summary`; entries `title`, `start`, `end`, `duration`,
+  `billable`, `note`, `remove_icon`.
 - States: filled, empty, loading, success (entry saved).
 - Real path: timestamped work entries stored on the device; export shares a file through the phone's
   share sheet, never submits a payroll approval.
@@ -167,7 +182,7 @@ only in a shared host. `TimeLog.export` is `service`; no sending, notifications,
   distinct from validator-owned item ids; the brief supplies the allowed refs, narrowed in the scoped schema.
   Repeated seeds for one ref must agree; the host keeps one project/task/deliverable record behind every view.
 - `Tasks` has at most 6 visible items total, including subtasks; other non-dense lists also cap at 6 and
-  use shared copy for "and N more" from host counts. No model-written overflow count. `TimeLog[compact]`
+  use shared copy for "and N more" from host counts. No model-written overflow count. `TimeLog[single_day]`
   caps at 6 entries; only `TimeLog` and `Gantt` declare `meta.dense`. Other components weigh 2.
 - Parents have one level, children and blockers belong to the same project, refs exist, and task dependencies
   are acyclic. Gantt task ends match Tasks due dates when given; links agree and gate dates match Milestones.
