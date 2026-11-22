@@ -25,7 +25,6 @@ describe("ClientHistory contract and boundaries", () => {
     expect(props.parse({ entries: [{ ...entry, title: " Consultation " }] })).toEqual({
       entries: [{ ...entry, mark: "none", tone: "neutral" }],
       lead: "icon",
-      surface: "card",
     });
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["entries"][number]["id"]>().toEqualTypeOf<string>();

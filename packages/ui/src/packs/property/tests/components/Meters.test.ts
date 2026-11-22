@@ -20,7 +20,7 @@ describe("Meters schema", () => {
 
   it("applies defaults, uses validator IDs only for view props, and accepts out-of-order samples", () => {
     const input = { ...register, readings: [newer, older] };
-    expect(props.parse(input)).toMatchObject({ style: "register", surface: "card", detail: "full" });
+    expect(props.parse(input)).toMatchObject({ style: "register", detail: "full" });
     const stamped = stampItemIds(meta, props.parse(input));
     expect(stamped.entries.map((row) => (row as { id?: string }).id)).toEqual(["r1", "r2"]);
     expectTypeOf<Props<typeof props, typeof meta>["entries"][number]["id"]>().toEqualTypeOf<string>();

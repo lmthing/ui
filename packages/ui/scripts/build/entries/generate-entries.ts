@@ -2,6 +2,7 @@ import { dataExports, scanEntries } from "./scan-entries";
 import { generateDoors } from "./generate-doors";
 import { generatePackEntries } from "./generate-pack-entries";
 import { publishEntries } from "./publish-entries";
+import { promptModule } from "./prompt-source";
 
 export type Entries = Awaited<ReturnType<typeof scanEntries>>;
 
@@ -62,6 +63,13 @@ export async function generateEntries(root: string) {
   const core = entries.defs.filter(({ pack, path }) => !pack && !path.includes("/surfaces/"));
   const surfaces = entries.defs.filter(({ path }) => path.includes("/surfaces/"));
   const outputs = {
+    ...Object.fromEntries(
+      entries.defs.flatMap(({ name, prompt }) =>
+        prompt
+          ? [[`${promptModule(name)}.ts`, [`export const prompt = ${JSON.stringify(prompt)} as const;`]]]
+          : [],
+      ),
+    ),
     ...generatePackEntries(entries),
     "core.ts": componentEntry(core),
     "core-renderers.ts": rendererEntry(core),

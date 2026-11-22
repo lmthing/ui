@@ -94,9 +94,7 @@ describe("Door states and parts", () => {
     expect(parts.get(address("r8/name"))?.text).toEqual(["Lee Ortiz"]);
     expect(parts.has(address("r12/name"))).toBe(false);
     expect(parts.get(address("scan"))?.attributes).toContain('role="button"');
-    expect([
-      ...addressedElements(render({ ...first, density: "compact", surface: "outlined" })).keys(),
-    ]).toEqual([...parts.keys()]);
+    expect([...addressedElements(render({ ...first })).keys()]).toEqual([...parts.keys()]);
     const brief: Input = { ...first, detail: "brief" };
     expect([...addressedElements(render(brief)).keys()]).toEqual(
       [...parts.keys()].filter((part) => part !== address("recent")),

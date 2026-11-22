@@ -114,7 +114,13 @@ export function matchesRecordedDefinition(origins: Awaited<ReturnType<typeof rec
           try {
             source = gitShow(object);
           } catch {}
-          sources.set(object, definitionSource(source));
+          let prompt: string | undefined;
+          if (source.includes("/entry/prompt-")) {
+            try {
+              prompt = gitShow(object.replace(/\.tsx$/, ".prompt.md"));
+            } catch {}
+          }
+          sources.set(object, definitionSource(source, prompt));
         }
         return sources.get(object) === current;
       })

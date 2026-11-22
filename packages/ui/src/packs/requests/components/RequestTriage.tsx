@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 import { triageReading } from "../copy";
 import { requestsWordsFor } from "../lang";
 import { urgency } from "./RequestQueue";
+import { prompt } from "../../../entry/prompt-RequestTriage.generated";
 
 // prettier-ignore
 const maxChoices = 6, maxReason = 120;
@@ -12,15 +13,12 @@ const maxChoices = 6, maxReason = 120;
 // prettier-ignore
 export const meta = {
   id: "RequestTriage", status: "ready", group: "input",
-  purpose: "Prioritise and route a report, or link it to an existing request.",
-  pick: "Triage one incoming service report: compare reported urgency with impact, set effective priority and route it or link a duplicate. Not a simple form dropdown (Field) or manager permission (Approval).",
-  writeHints: [
-    "at and duplicateAt are zero-based indices. A chosen duplicate needs a reason and must not have the report's own number.",
-    'For the decision only, set detail "brief" and density null. Keep the report number and title in the data. Only set density when spacing is requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath: "A routing decision saved with the request on the operator's device.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["number", "title", "reported_urgency", "impact"] } },
   parts: ["root", "number", "title", "reported_urgency", "impact", "priority", "queues", "reason", "apply", "apply_label"],
   items: { key: "choices", parts: ["root", "label", "number", "title", "link", "link_label"] },
@@ -84,7 +82,7 @@ const duplicateExample = { number: "TR-08", title: "Loose gate by the dog run", 
 // prettier-ignore
 export const examples = [
   { number: "LG-41", title: "Grow light keeps flickering", reportedUrgency: "urgent", impact: "one", priority: "normal", queues: [{ label: "Equipment" }, { label: "Plant care" }], at: 0, duplicates: [] },
-  { ...duplicateExample, detail: "brief" }, { ...duplicateExample, density: "compact" },
+  { ...duplicateExample, detail: "brief" }, { ...duplicateExample },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("RequestTriage");
@@ -129,7 +127,7 @@ function triageGates(input: c.Values): c.Values {
   return deriveTriage(input, { canTriage: true, canLink: () => true });
 }
 
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 type Words = ReturnType<typeof requestsWordsFor>["triage"];
 
 // prettier-ignore
@@ -164,7 +162,7 @@ function Duplicates({ p, w, density }: { p: View; w: Words; density: Density }) 
 // prettier-ignore
 export function RequestTriage(input: c.Props<typeof props, typeof meta>) {
   const { words: { triage: w } } = kit.useWords(requestsWordsFor), state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density), loading = state === "loading";
+  const density = kit.useKit().density, loading = state === "loading";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail), p = kit.useLiveControls(meta, input) as View;
   const group = density === "compact" ? "content" : "response", priority = detail === "brief" ? w.decision : w.priority;
   const label = (text: string) => loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", text]]} />

@@ -3,23 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { eventCopy, eventReading } from "../copy";
 import { socialWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-EventCard.generated";
 
 // Core first: Card/feature cannot show an event's date block, attendees and two RSVP actions.
 export const meta = {
   id: "EventCard",
   status: "ready",
   group: "content",
-  purpose: "See a community event and say whether you’re going or interested.",
-  pick: "An event to join in a community, with its date block, attendees and Going or Interested controls. Not organising one's own gathering (events), a provider booking (Appointment), or a featured preview without RSVPs (Card).",
-  writeHints: [
-    "Use YYYY-MM-DD and 24-hour HH:MM. Set going to the full attendance count and list up to five names from that total in attendees.",
-    'Leave density, surface and media null unless requested. When asked to hide a supplied cover, set media to "none" and keep the photo reference in photo.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "An event in a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["cover", "none"] },
+  variants: { media: ["cover", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
   // prettier-ignore
   parts: ["root", "frame", "title", "date", "month", "time", "place", "photo", "attendees", "count",
@@ -182,8 +180,8 @@ function EventActions({ status, density, loading }: EventFinish & Pick<EventProp
 // prettier-ignore
 export function EventCard(input: EventProps) {
   const loading = kit.useComponentState() === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const { words: { event }, lang } = kit.useWords(socialWordsFor);
   const { attendance, ...date } = eventCopy(input, lang);

@@ -8,7 +8,7 @@ import {
   KitScroll,
   KitText,
   useComponentState,
-  useVariant,
+  useKit,
 } from "../../../kit";
 import {
   balancedLine,
@@ -21,37 +21,31 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import { customersWordsFor } from "../lang";
 import { z } from "zod";
 import { agreementDateLine } from "../copy";
+import { prompt } from "../../../entry/prompt-Agreement.generated";
 
 // Core first: Checklist/default cannot capture one client's consent with terms, typed name and signed date.
 export const meta = {
   id: "Agreement",
   status: "ready",
   group: "input",
-  purpose: "Keep a client's acceptance of terms with their typed name and signing date.",
-  pick: "A waiver, consent or terms signed once by a client. Not jobs to tick (Checklist) or a long read without consent (Article).",
-  writeHints: [
-    "Keep the supplied client's name in name even when signed is false; an unsigned agreement may have a prefilled name.",
-    "Only write date when a signing date is supplied. Never invent a name or signing date.",
-    'Keep density and surface null unless the person explicitly requests a different appearance; never write "comfortable" or "card" just to indicate the default.',
-    'If asked only to hide the signing date, use {"density":null,"surface":null,"detail":"brief"} and keep the supplied date in the data. Otherwise detail is null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath:
     "A signed copy kept with the client record on the business's phone; signing remotely needs a shared app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["date"] } },
@@ -115,8 +109,8 @@ export const examples = [
   },
   variantExample,
   unsignedExample,
-  { ...unsignedExample, density: "compact" },
-  { ...variantExample, surface: "outlined" },
+  { ...unsignedExample },
+  { ...variantExample },
   { ...variantExample, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Agreement");
@@ -135,8 +129,9 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Agreement(input: Props<typeof props, typeof meta>) {
-  const { title, terms, signed, name, date, surface } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const { title, terms, signed, name, date } = input;
+  const surface = "card";
+  const density = useKit().density;
   const { lang, words } = useWords(customersWordsFor);
   const { agreementLabels: copy } = words;
   const state = useComponentState();

@@ -5,24 +5,22 @@ import * as kit from "../../../kit";
 import { scanBatchGates, scanBatchReading, scanBatchRequest, scanCount, scanDraft, scanFailure, scanLimit, scanPage, scanPageLabel } from "../copy";
 import { paperworkWordsFor } from "../lang";
 import { seedRows } from "../seeds";
+import { prompt } from "../../../entry/prompt-ScanBatch.generated";
 
 // Core first: Camera/scan captures a page but cannot stage, reorder, retake and assemble a batch.
 export const meta = {
   id: "ScanBatch",
   status: "ready",
   group: "input",
-  purpose: "Arrange scanned pages and save them as one local PDF.",
-  pick: "Stage multiple scanned pages, reorder or replace pages and assemble one local PDF. Not a single capture (Camera), browsing photos (Gallery), or opening a saved document (Documents).",
-  writeHints: [
-    "Use only supplied opaque local:<id> or synthetic lib:<id> page references in scan order. Use an empty pages array to start scanning. Do not write page numbers or counts.",
-    'Use style "review" for a single larger preview above the thumbnails. Use detail "brief" only when asked to hide page labels but keep the page numbers. Leave other axes null unless requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "ok",
   realPath: "The device scanner captures pages with permission and saves an ordered PDF locally.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["label"] } },
   parts: ["root", "title", "count", "add", "save", "status", "large_photo", "reviewing"],
   items: { key: "pages", parts: ["root", "photo", "page", "label", "preview", "retake", "remove"] },
@@ -193,8 +191,7 @@ function Pages({ input, active, density }: { input: View; active: string | undef
 export function ScanBatch(input: View) {
   const scope = kit.usePartContext(), { state } = scope;
   const { lang, words: { scanBatch: words } } = kit.useWords(paperworkWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const projected = kit.useLiveControls(meta, input) as View & { active?: string; canAdd: boolean };
   const live = detail === "brief" ? { ...projected, pages: projected.pages.map((page) => ({ ...page, label: undefined })) } : projected;
@@ -211,7 +208,7 @@ export function ScanBatch(input: View) {
   const tray = <kit.PartScope {...scope} state={saving ? "loading" : state}>
     <Pages input={live} active={projected.active} {...{ density }} />
   </kit.PartScope>;
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
+  return <kit.KitCard part="root" padded density={density}>
     <kit.KitHeader {...{ density }} title={{ part: "title", text: live.title ?? words.title }}
       meta={{ part: "count", text: scanCount(empty ? 0 : live.pages.length, lang), tabular: true }} />
     <kit.PartScope {...scope} state={display}>

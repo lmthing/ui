@@ -40,7 +40,8 @@ describe("Signature contract", () => {
     for (const [key, value] of Object.entries({
       style: "typed",
       datedStamp: "true",
-      density: "large",
+      density: "compact",
+      surface: "plain",
       detail: "tiny",
       color: "#fff",
       mark,
@@ -106,11 +107,13 @@ describe("Signature view", () => {
     for (const html of Object.values(results)) expect(html).not.toMatch(/lib:ledge_access|local:synthetic/);
   });
 
-  it("keeps both finishes address-stable and hides only the hint in brief detail", () => {
-    const parts = (patch: object) => [
-      ...addressedElements(renderInstance("Signature", { ...input, ...patch }, "filled", theme)).keys(),
+  it("keeps theme density address-stable and hides only the hint in brief detail", () => {
+    const parts = (patch: object, density?: "compact") => [
+      ...addressedElements(
+        renderInstance("Signature", { ...input, ...patch }, "filled", { ...theme, density }),
+      ).keys(),
     ];
-    expect(parts({ surface: "plain", density: "compact" })).toEqual(parts({}));
+    expect(parts({}, "compact")).toEqual(parts({}));
     expect(parts({ detail: "brief" })).toEqual(parts({}).filter((key) => !key.endsWith("/hint")));
   });
 });

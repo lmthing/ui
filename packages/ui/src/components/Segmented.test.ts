@@ -21,7 +21,6 @@ describe("Segmented examples", () => {
     expect(props.parse({ options: [{ label: "  Today  " }, { label: " Week " }] })).toEqual({
       options,
       at: 0,
-      surface: "plain",
     });
   });
 });
@@ -70,10 +69,10 @@ describe("Segmented schema", () => {
   });
 });
 
-it("keeps the same tablist and selection targets with or without a framed surface", () => {
+it("draws a tablist and keeps selection targets", () => {
   const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
-  for (const surface of meta.variants.surface) {
-    const html = renderInstance("Segmented", { options, at: 1, surface }, "filled", theme);
+  {
+    const html = renderInstance("Segmented", { options, at: 1 }, "filled", theme);
     expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
     expect(html).toContain('role="tablist"');
     expect(html).toMatch(/<[^>]+data-testid="home\/c1\/r2\/root"[^>]+aria-selected="true"/);

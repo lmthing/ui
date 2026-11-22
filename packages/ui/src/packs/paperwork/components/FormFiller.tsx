@@ -5,24 +5,22 @@ import * as kit from "../../../kit";
 import { fieldStatus, formCopyRequest, formCount, formDraft, formFailure, formField, formGates, formLimit, formProgress, formReading } from "../copy";
 import { paperworkWordsFor } from "../lang";
 import { attachment, seedFile, seedRows } from "../seeds";
+import { prompt } from "../../../entry/prompt-FormFiller.generated";
 
 // Core first: Field/text edits one generic value, not a document-bound set of named fields and a local copy.
 export const meta = {
   id: "FormFiller",
   status: "ready",
   group: "input",
-  purpose: "Complete a personal form and keep a local copy of the filled document.",
-  pick: "Fill named fields tied to a personal PDF or administrative template, check completeness and save a separate local copy. Not standalone input (Field), drawing a signature (Signature), or a client agreement (Agreement).",
-  writeHints: [
-    'Use the supplied local:<id> or synthetic lib:<id> template reference. List every named field with kind text, date, number or check. Check values are booleans; number values are decimal strings (for example "12"); date values are real YYYY-MM-DD strings.',
-    'Write null for unspecified values. For a required-only view, use "detail":"brief" and retain all required and optional field definitions; this does not request density "compact". Leave other axes null unless requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "The device previews the original and saves a separate local copy with the entered values.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["root", "label", "hint", "field", "check"] } },
   parts: ["root", "title", "label", "amount", "preview", "save", "clear", "status"],
   items: { key: "fields", parts: ["root", "label", "hint", "field", "check"], visibleWhen: { shown: true } },
@@ -203,8 +201,7 @@ function FormBody({ form, density }: { form: Form; density: Density }) {
 export function FormFiller(input: View) {
   const scope = kit.usePartContext(), { state } = scope;
   const { words: { formFiller: words } } = kit.useWords(paperworkWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const form = kit.useLiveControls(meta, { ...input, detail }) as Form;
   const [operation] = kit.useHostOperations();
@@ -217,7 +214,7 @@ export function FormFiller(input: View) {
   const message = display === "success" ? words.saved : display === "error" ?
     (failed ? save ? words.failed : words.previewFailed : previewFailure ? words.previewFailed : words.failed) : words.empty;
   const body = <kit.PartScope {...scope} state={saving ? "loading" : state}><FormBody {...{ form, density }} /></kit.PartScope>;
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
+  return <kit.KitCard part="root" padded density={density}>
     <kit.PartScope {...scope} state={display}>
       <kit.KitState {...{ density, message }} part="status" icon={display === "empty" ? "file_text" : undefined}
         retain={display === "error" || accepted} loading={body}>{body}</kit.KitState>

@@ -1,6 +1,6 @@
 import { z } from "zod";
 // prettier-ignore
-import { probesFor, text, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+import { probesFor, text, type FallbackInput, type Meta, type Probe, type Props, variantProps } from "../../../catalog";
 import {
   KitCard,
   KitChip,
@@ -14,27 +14,27 @@ import {
   usePart,
   useVariant,
   useWords,
+  useKit,
 } from "../../../kit";
 import { indexedActions, indexedParts, indexedValues, indexedWhen, seedTitles } from "..";
 import { symptomChosen, symptomSeverity, symptomLevelLine, symptomReading, symptomTargets } from "../copy";
 import { healthWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-SymptomLog.generated";
 
 // Core first: Scale/mood cannot select several grouped symptoms and set a severity for each.
 export const meta = {
   id: "SymptomLog",
   status: "ready",
   group: "input",
-  purpose: "Note several body symptoms and each symptom's severity.",
-  pick: "Grouped body symptoms with a selected chip and severity zero to five for each. Not one level for the day (Scale), collection filters (Chips), or naming feelings (Feelings).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Symptom entries stored on the device; logging symptoms is not a diagnosis or medical advice.",
-  writeHints: [
-    "Write density null unless explicitly asked to change spacing. Hiding readouts changes only detail. Use detail brief to hide the separate numeric severity readouts while keeping the sliders and severity values.",
-  ],
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  writeHints: prompt.writeHints,
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: indexedParts(8, ["reading"]) } },
   items: {
     key: "groups",
@@ -171,9 +171,9 @@ function SymptomSeverity({ symptom, index, full }: {
   );
 }
 // prettier-ignore
-export function SymptomLog({ groups, detail, density: preferred }: Props<typeof props, typeof meta>) {
+export function SymptomLog({ groups, detail }: Props<typeof props, typeof meta>) {
   const full = useVariant("detail", meta.variants.detail, detail) === "full";
-  const density = useVariant("density", meta.variants.density, preferred);
+  const density = useKit().density;
   const compact = density === "compact";
   return (
     <KitCard style="inset" part="root" density={density} padded={compact}>

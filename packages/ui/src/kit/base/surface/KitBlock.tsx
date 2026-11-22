@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Row } from "./KitRow";
-import type { AxisValue } from "../../../catalog";
+import type { SurfaceFinish } from "../../../catalog";
 import type { SurfaceTone, TextFinish } from "../text";
 
 /**
@@ -17,7 +17,7 @@ export function KitBlock(
     lineRole?: "body" | "heading" | "title" | "display" | "number";
     /** Draws the block as a tinted panel in this tone (a banner). Without it the block has no surface. */
     tone?: SurfaceTone;
-    surface?: AxisValue<"surface">;
+    surface?: SurfaceFinish;
     /** `row` centres a thumbnail or avatar taller than a line on the whole text (default `line`). */
     leadingAlign?: "line" | "row";
     /** Horizontal inset: `md` (default) or `none` (the block sits flush, e.g. a search box on the screen). */

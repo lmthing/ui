@@ -173,13 +173,13 @@ it("handles an inline shared axis, explicit defaults and readonly parts", () => 
     "Describe one item.",
     "- Pick: configure an item. Not a gauge (`Ring`).",
     "- Writes: `caption` text(8), `score` int 0–6 (default 3), `times` (12 | 24 | 48, default 24).",
-    "- Styles: density: `compact`, `comfortable` (default); kind: `edit`, `review`.",
+    "- Styles: detail: `brief`, `full` (default); kind: `edit`, `review`.",
     "- Parts -> actions: `caption`, `save press`, `save set`. · States: filled, success.",
     "- Real path: editing a local document.",
   ].join("\n");
   const draft = draftComponent(source, "core", "Example");
   const { props, meta } = definition(draft.files[draft.view]!);
-  expect(meta.variants).toEqual({ density: ["comfortable", "compact"] });
+  expect(meta.variants).toEqual({ detail: ["full", "brief"] });
   expect(meta.actions).toEqual({ parts: { save: ["press", "set"] } });
   expect(meta.parts).toEqual(["root", "caption", "save"]);
   expect(props.parse({ caption: "exactly8" })).toMatchObject({ score: 3, times: 24, kind: "edit" });

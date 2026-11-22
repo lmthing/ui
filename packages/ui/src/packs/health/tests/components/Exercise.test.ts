@@ -71,7 +71,7 @@ describe("Exercise contract and boundaries", () => {
         muscles: [" Quads "],
         cues: [" Keep heels down "],
       }),
-    ).toEqual({ ...minimal, surface: "card", media: "cover" });
+    ).toEqual({ ...minimal, media: "cover" });
     expectTypeOf<Props<typeof props, typeof meta>>().not.toBeAny();
     expectTypeOf<Props<typeof props, typeof meta>["name"]>().toEqualTypeOf<string>();
     expectTypeOf<Props<typeof props, typeof meta>>().not.toHaveProperty("color");

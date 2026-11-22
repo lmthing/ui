@@ -3,25 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { approvalAmount, approvalPortrait, approvalReading } from "../copy";
 import { teamWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Approval.generated";
 
 // Core first: Checklist/check records completion, not a manager's approve or decline decision on a request.
 export const meta = {
   id: "Approval",
   status: "ready",
   group: "action",
-  purpose: "Review staff requests and decide whether to approve or decline them.",
-  pick: "A manager decides on submitted staff requests such as time off, swaps and expenses. Not jobs to tick off (Checklist) or a client accepting a quote (Invoice).",
-  writeHints: [
-    'Write amounts as numbers without a currency. Use lead "none" only when asked to hide requester portraits; keep the photo references.',
-    'Set unrequested axes to null: for requests without portraits use {"density":null,"surface":null,"lead":"none"}. Do not fill in the default density or surface.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "A shared app stores requests and tells each requester the decision.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     lead: ["avatar", "none"],
   },
   variantParts: { "lead.none": { hides: ["photo"] } },
@@ -117,7 +113,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type ApprovalProps = c.Props<typeof props, typeof meta>;
-type RequestProps = Pick<ApprovalProps, "lead" | "surface"> & {
+type RequestProps = Pick<ApprovalProps, "lead"> & { surface: c.SurfaceFinish } & {
   row: ApprovalProps["requests"][number];
   density: c.ThemeDensity;
 };
@@ -165,9 +161,9 @@ function ApprovalRow({ row, lead, surface, density }: RequestProps) {
 export function Approval(input: ApprovalProps) {
   const state = kit.useComponentState();
   const { words } = kit.useWords(teamWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const lead = kit.useVariant("lead", meta.variants.lead, input.lead);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const surface = "card";
   const filled = state === "filled";
   const success = state === "success";
   return (

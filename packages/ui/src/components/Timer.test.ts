@@ -164,7 +164,7 @@ it("shows the elapsed target without changing the stopwatch, including once elap
 describe("Timer metadata and probes", () => {
   it("shortens the visible duration without rounding the clock or changing its actions", () => {
     const exact = props.parse({ ...input, seconds: 3723 });
-    const short = props.parse({ ...input, seconds: 3723, figures: "short", density: "compact" });
+    const short = props.parse({ ...input, seconds: 3723, figures: "short" });
     expect(exact.seconds).toBe(short.seconds);
     expect(meta.read(short, "filled")).toEqual(["1 hr down", "Start", "Stop"]);
     expect(affordancesOf(meta, short, "t1")).toEqual(affordancesOf(meta, exact, "t1"));

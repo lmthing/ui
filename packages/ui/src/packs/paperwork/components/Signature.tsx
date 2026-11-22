@@ -11,27 +11,22 @@ import {
 } from "../copy";
 import { paperworkWordsFor } from "../lang";
 import { attachment, seedFile, seedRows } from "../seeds";
+import { prompt } from "../../../entry/prompt-Signature.generated";
 
 // Core first: Field/toggle captures a yes or no, not a hand-drawn mark bound to a reviewed document.
 export const meta = {
   id: "Signature",
   status: "ready",
   group: "input",
-  purpose: "Draw a personal signature and save a dated copy of the reviewed form.",
-  pick: "Hand-draw a signature or initials with a finger or stylus on a reviewed form, then save a local signed copy. Not filling named form fields (FormFiller), a yes/no field (Field), typed client waiver acceptance (Agreement) or just viewing a file (Documents).",
-  writeHints: [
-    "document must be an opaque local:<id> or supplied synthetic lib:<id>. Do not write strokes, marks, version, timestamp, review or saved state; those belong to the host.",
-    "Never claim verified identity, legal validity or remote signing. Omit hint unless supplied or useful.",
-    'Exact axis defaults are {"density":null,"surface":null,"detail":null}. Override only the one axis explicitly requested: tighter spacing changes density to "compact"; a plain background with no surrounding card changes surface to "plain"; hiding the optional hint changes detail to "brief".',
-    'For hiding the hint alone use {"density":null,"surface":null,"detail":"brief"} and keep the supplied hint text in hint. For a plain background alone use {"density":null,"surface":"plain","detail":null}. Never write "plain" merely because the brief asks for fewer words, nor "full" for an unrequested detail axis.',
-    'Default style is "pad" for a signature, drawing pad, or any unspecified mark. Use "initials" only when initials are explicitly requested. A plain background changes surface, not style. Set datedStamp:true only to stamp the signing date on the copy itself; otherwise leave it null. Never supply the date.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   tier: "phone",
   realPath:
     "Touch or stylus input saves a dated local signed copy of the reviewed version without altering the original or verifying identity.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["hint"] } },
   // prettier-ignore
   parts: ["root", "title", "signer", "hint", "document", "document_label", "document_icon",
@@ -107,7 +102,6 @@ export const probes = [
     ...write(
       "Give Mina a drawing pad for the Allotment access form, synthetic original lib:ledge_access. Put the pad and its controls on a plain background with no card around them.",
     ),
-    variant: { axis: "surface", value: "plain" },
     expectProps: { style: "pad" },
   },
   {
@@ -138,7 +132,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type View = c.Props<typeof props, typeof meta>;
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 type Display = ReturnType<typeof signatureDisplay>;
 
 // prettier-ignore
@@ -174,11 +168,10 @@ export function Signature(input: View) {
   const host = signatureHost(input, component, kit.useDeviceData());
   const copy = signatureDisplay(input.signer, state, host, lang, input);
   const options = input.style === "initials" || input.datedStamp === true;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const hint = detail === "full" ? input.hint : undefined;
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
+  return <kit.KitCard part="root" padded density={density}>
     {options ? <kit.KitHeader {...{ density }} title={{ part: "title", text: input.title, role: "title" }}
       meta={[{ part: "signer", text: copy.signer }, { part: "hint", text: hint }]} />
       : copy.loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
