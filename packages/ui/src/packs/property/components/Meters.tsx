@@ -155,7 +155,7 @@ function MeterHistory({ input, selection, density, lang, words }: { input: Meter
   return <>
     <kit.KitTrack part="selector" role="radiogroup" label={words.register}>
       {input.entries.map((row) => row.entryKind === "meter" &&
-        <kit.KitChip key={row.id} item={row.id} role="radio" look="box" labelPart="title" label={row.title} on={row.meterRef === (selection ?? input.meters[0]!.meterRef)} />)}
+        <kit.KitChip key={row.id} item={row.id} role="radio" look="segment" labelPart="title" label={row.title} on={row.meterRef === (selection ?? input.meters[0]!.meterRef)} />)}
     </kit.KitTrack>
     {!rows.length && <kit.KitText part="empty" tone="muted" role="body">{words.noReadings}</kit.KitText>}
     {rows.map((row) => <kit.KitRow key={row.id} item={row.id} label={row.date} density={density} inset="none">
