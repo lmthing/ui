@@ -1,5 +1,5 @@
-import { XStack, styled, isWeb } from "tamagui";
-import { useCopyFeedback, usePrivateStatusAt, useRevealControl } from "../../interact";
+import { useId } from "react";
+import { XStack, styled, isWeb, VisuallyHidden } from "tamagui";
 import {
   component,
   layoutType,
@@ -11,10 +11,9 @@ import {
   type IconName,
 } from "../../../catalog";
 import { useKitStyle } from "../../provider";
-import { usePart } from "../../part";
+import type { HoldToPause } from "../controls";
 import { KitIcon, KitText, shifted, type IconTone, type TextTone } from "../text";
-import { useActionAvailability } from "./use-action-availability";
-import { useActionPress } from "./use-action-press";
+import { useActionBehavior } from "./use-action-press";
 
 export type ActionKind = "primary" | "secondary" | "quiet" | "danger";
 const webCopyButton = { tag: "button", type: "button" } as const;
@@ -68,16 +67,10 @@ type ActionProps = {
   copiedLabel?: string;
   /** Copy from the host binding, not a rendered `value`. */
   hostCopy?: boolean;
+  /** Tap still activates this part; a continuous press temporarily pauses the addressed sequence. */
+  holdToPause?: HoldToPause;
 };
 
-function useCopyState(address: string | undefined, value: unknown, hostCopy: boolean, disabled: boolean) {
-  const local = useCopyFeedback(address, hostCopy ? undefined : value, disabled, hostCopy);
-  const host = usePrivateStatusAt(hostCopy ? address : undefined, "copy");
-  return {
-    missing: Boolean(address && !hostCopy && (typeof value !== "string" || !value.length)),
-    copied: local || host === "approved",
-  };
-}
 function ActionContent({
   label,
   icon,
@@ -132,63 +125,57 @@ function ActionContent({
   );
 }
 
-export function KitAction({
-  label,
-  icon,
-  kind = "primary",
-  goto,
-  part = "root",
-  contentParts,
-  a11y,
-  full = false,
-  action,
-  value,
-  disabled = false,
-  copiedLabel,
-  hostCopy = false,
-}: ActionProps) {
+export function KitAction(props: ActionProps) {
+  const {
+    label,
+    icon,
+    kind = "primary",
+    part = "root",
+    contentParts,
+    a11y,
+    full,
+    copiedLabel,
+    holdToPause,
+  } = props;
   const ks = useKitStyle();
-  const address = usePart(part ?? undefined, part !== null);
-  const { loading, inactive: unavailable } = useActionAvailability(address.testID, part, action, disabled);
+  const { address, loading, inactive, copy, copied, status, handlers } = useActionBehavior(props);
   const tone = kind === "quiet" && icon === "close" ? "muted" : toneOf[kind];
-  const copy = action === "copy";
-  const reveal = useRevealControl(address.testID, part === null ? "none" : action, disabled || loading);
-  const feedback = useCopyState(
-    copy && part !== null ? address.testID : undefined,
-    value,
-    hostCopy,
-    loading || disabled,
-  );
-  const inactive = part === null || unavailable || feedback.missing;
-  const copied = feedback.copied && !inactive;
   const inactiveTone = kind === "primary" ? "text" : kind === "danger" ? "bad" : "muted";
   const captionTone = loading ? "text" : inactive ? inactiveTone : copied ? "good" : tone;
   const fill = loading ? (kind === "quiet" ? "transparent" : "$line") : inactiveSurface[kind];
-  const handlers = useActionPress({ action, value, goto }, address.testID, inactive, reveal);
+  const statusId = useId();
   return (
-    <Frame
-      {...(part === null ? {} : address)}
-      kind={kind}
-      backgroundColor={inactive ? fill : copied ? "$goodSoft" : undefined}
-      loading={loading}
-      iconOnly={!label}
-      {...(isWeb && copy && !loading ? webCopyButton : {})}
-      borderRadius={label ? shifted("md", ks.radiusShift) : radius.pill}
-      alignSelf={full ? "stretch" : "flex-start"}
-      accessibilityRole={loading ? undefined : "button"}
-      aria-busy={loading || undefined}
-      {...(!isWeb ? { accessibilityState: { disabled: inactive } } : {})}
-      {...(inactive ? { "aria-disabled": true, tabIndex: -1 } : {})}
-      accessibilityLabel={(copied ? copiedLabel : undefined) ?? label ?? a11y}
-      aria-live={copy ? "polite" : undefined}
-      {...handlers}
-    >
-      <ActionContent
-        label={copied && label ? (copiedLabel ?? label) : label}
-        icon={copied && icon ? "check" : icon}
-        {...{ part, tone: captionTone, loading, quiet: kind === "quiet" }}
-        {...(contentParts ? { contentParts } : {})}
-      />
-    </Frame>
+    <>
+      <Frame
+        {...(part === null ? {} : address)}
+        kind={kind}
+        backgroundColor={inactive ? fill : copied ? "$goodSoft" : undefined}
+        loading={loading}
+        iconOnly={!label}
+        {...(isWeb && copy && !loading ? webCopyButton : {})}
+        borderRadius={label ? shifted("md", ks.radiusShift) : radius.pill}
+        alignSelf={full ? "stretch" : "flex-start"}
+        accessibilityRole={loading ? undefined : "button"}
+        aria-busy={loading || undefined}
+        {...(!isWeb ? { accessibilityState: { disabled: inactive } } : {})}
+        {...(inactive ? { "aria-disabled": true, tabIndex: -1 } : {})}
+        accessibilityLabel={(copied ? copiedLabel : undefined) ?? label ?? a11y}
+        aria-live={copy ? "polite" : undefined}
+        aria-describedby={isWeb && status ? statusId : undefined}
+        {...handlers}
+      >
+        <ActionContent
+          label={copied && label ? (copiedLabel ?? label) : label}
+          icon={copied && icon ? "check" : icon}
+          {...{ part, tone: captionTone, loading, quiet: kind === "quiet" }}
+          {...(contentParts ? { contentParts } : {})}
+        />
+      </Frame>
+      {isWeb && holdToPause && (
+        <VisuallyHidden id={statusId} aria-live="polite" aria-atomic>
+          {status}
+        </VisuallyHidden>
+      )}
+    </>
   );
 }

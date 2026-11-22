@@ -40,7 +40,7 @@ export const meta = {
       ...(expiresAt ? [c.passExpiryLine(expiresAt, lang)] : []),
       ...(used ? [words.used] : style === "transit" && scannable ? [words.ready] : []),
       ...(canReveal && memberId ? [c.maskedPassId(memberId, lang), words.reveal] : []),
-      ...(scannable ? [words.copy] : []),
+      ...(scannable ? [`${words.copy} (copy the QR payload to the clipboard)`] : []),
     ];
   },
 } as const satisfies c.Meta;
