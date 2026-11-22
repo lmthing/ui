@@ -23,5 +23,6 @@ export const example = `{"id":"h1","c":"Header","style":"back","title":"Folio we
 {"id":"n4","c":"Note","text":"A gate is reached when every required output is accepted."}
 {"id":"b5","c":"Button","label":"See schedule","goto":"projects_ranges"}
 {"id":"h6","c":"Header","title":"Project overview"}
+{"id":"pb1","c":"ProjectBrief","projectRef":"folio","title":"Folio website","objective":"Launch a three-page portfolio that shows selected work and gives new clients a way to get in touch.","owner":"Jo","start":"2026-11-16","target":"2026-11-27","sections":[{"heading":"Audience","body":"Small teams looking for a freelance designer."}],"links":[{"label":"Agreed scope","kind":"screen","goto":"projects_scope"}]}
 {"id":"ps1","c":"ProjectStatus","projectRef":"folio","status":"at_risk","headline":"Design is ready for review","author":"Jo","updatedAt":"2026-11-19","wins":["Finished the mobile layouts","Shared the navigation prototype"],"blockers":["Waiting for homepage copy"],"nextMilestone":{"title":"Design ready","due":"2026-11-24","goto":"projects_gates"}}
 `;

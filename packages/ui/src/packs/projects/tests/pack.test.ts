@@ -18,7 +18,7 @@ import {
   type Definition,
 } from "@lmthing/ui/catalog";
 
-const ids = ["Tasks", "Milestones", "Gantt", "TimeLog", "Scope", "ProjectStatus"];
+const ids = ["Tasks", "Milestones", "Gantt", "TimeLog", "Scope", "ProjectStatus", "ProjectBrief"];
 const scoped = createRegistry({ packs: ["projects"], includeDrafts: true });
 const recipes = {
   "project/projects_overview": ["Header", "Card", "KeyValue", "Progress", "Milestones", "Button"],
