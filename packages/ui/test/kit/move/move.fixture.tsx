@@ -1,6 +1,14 @@
 import { z } from "zod";
-import { numberLine, text, type Definition, type Props, type ScreenLike } from "@lmthing/ui/catalog";
-import { KitColumns, KitText, useComponentState, useWords } from "@lmthing/ui/kit";
+import {
+  itemMoveOffer,
+  numberLine,
+  text,
+  type Definition,
+  type Props,
+  type ScreenLike,
+} from "@lmthing/ui/catalog";
+import { useComponentState, useWords } from "@lmthing/ui/kit";
+import { StageBoard } from "../../../src/kit/renderers";
 
 const moveCaption = "Move to";
 const moveLabel = (destination: string, card: string) => `Move ${card} to ${destination}`;
@@ -76,21 +84,22 @@ export function MoveFixture({ columns, cards, style }: Props<typeof props, typeo
   const loading = useComponentState() === "loading";
   const { lang } = useWords();
   return (
-    <KitColumns
-      columns={columns.map(({ label }, index) => ({
+    <StageBoard
+      lanes={columns.map(({ label }, index) => ({
         id: String(index),
         label,
         count: numberLine(cards.filter((card) => card.column === index).length, lang),
       }))}
-      move={{
-        caption: moveCaption,
-        label: moveLabel,
-        cards: cards.map(({ title, ...card }) => ({
-          ...card,
-          label: title,
-          children: <KitText part={null}>{title}</KitText>,
+      move={{ caption: moveCaption, label: moveLabel }}
+      cards={cards.map(({ title, ...card }) => ({
+        ...card,
+        label: title,
+        lines: [{ part: null, text: title }],
+        destinations: itemMoveOffer(meta, { cards, columns }, card)?.choices.map((value) => ({
+          value,
+          label: value === "Finished" ? "Ready" : value,
         })),
-      }}
+      }))}
       {...{ style, loading }}
     />
   );

@@ -1,0 +1,1 @@
+export { SeatingPlan } from "./seating";
