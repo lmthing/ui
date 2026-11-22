@@ -2,6 +2,8 @@ export const words = {
   timeLog: {
     week: (date: string) => `Week of ${date}`,
     weekTotal: "Week total",
+    summary: "Time by project",
+    summaryEmpty: "No time logged this week",
     start: "Start timer",
     stop: "Stop and save",
     discard: "Discard timer",
