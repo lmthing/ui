@@ -1,7 +1,7 @@
 export const words = {
   appointmentLabels: {
     reschedule: "Reschedule",
-    edit: "Edit details",
+    edit: "Change booking",
     booked: "Booked",
     confirmed: "Confirmed",
     pending: "Pending",
