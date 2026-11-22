@@ -17,9 +17,9 @@ describe("Button schema", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
   );
-  it("exercises every surface, media value and optional field in the examples", () => {
+  it("exercises every media value and optional field in the examples", () => {
     const parsed = examples.map((example) => props.parse(example));
-    for (const axis of ["surface", "media"] as const)
+    for (const axis of ["media"] as const)
       expect(new Set(parsed.map((example) => example[axis]))).toEqual(new Set(meta.variants[axis]));
     expect(parsed.some((example) => example.icon)).toBe(true);
     expect(parsed.some((example) => example.goto && example.goto !== "back")).toBe(true);
@@ -28,7 +28,6 @@ describe("Button schema", () => {
   it("applies defaults and trims text", () => {
     expect(props.parse({ label: "  Continue  " })).toEqual({
       label: "Continue",
-      surface: "card",
       media: "icon",
     });
   });
@@ -56,12 +55,8 @@ describe("Button schema", () => {
     { label: "Continue", full: true },
     { label: "Continue", id: "b1" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
-  it("accepts exact maximum lengths for every surface", () => {
-    for (const surface of meta.variants.surface) {
-      expect(
-        props.safeParse({ label: "a".repeat(24), surface, icon: "drop", goto: "a".repeat(64) }).success,
-      ).toBe(true);
-    }
+  it("accepts exact maximum lengths", () => {
+    expect(props.safeParse({ label: "a".repeat(24), icon: "drop", goto: "a".repeat(64) }).success).toBe(true);
     expect(props.safeParse({ label: "Continue", goto: "next_screen_1" }).success).toBe(true);
   });
 });
@@ -70,7 +65,6 @@ describe("Button view props", () => {
   it("derives view props without item ids or visual overrides", () => {
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["label"]>().toEqualTypeOf<string>();
-    expectTypeOf<ViewProps["surface"]>().toEqualTypeOf<"card" | "tinted" | "plain">();
     expectTypeOf<ViewProps>().not.toBeAny();
     expectTypeOf<ViewProps>().not.toHaveProperty("id");
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
@@ -158,11 +152,11 @@ describe("Button confirm", () => {
 
 describe("Button variants", () => {
   it.each([
-    ["primary", {}, { surface: "card" }],
-    ["secondary", {}, { surface: "tinted" }],
-    ["quiet", {}, { surface: "plain" }],
-    ["secondary", { surface: "plain" }, { surface: "plain" }],
-  ])("migrates a saved %s button and keeps its address and link", (kind, override, expected) => {
+    ["primary", {}],
+    ["secondary", {}],
+    ["quiet", {}],
+    ["secondary", {}],
+  ])("migrates a saved %s button and keeps its address and link", (kind, override) => {
     const { c, id, state, ...wire } = migrateLine({
       c: "Button",
       id: "b1",
@@ -176,7 +170,8 @@ describe("Button variants", () => {
     expect({ c, id, state }).toEqual({ c: "Button", id: "b1", state: "filled" });
     expect(wire).not.toHaveProperty("kind");
     const parsed = props.parse(wire);
-    expect(parsed).toMatchObject({ ...expected, confirm: "Continue?" });
+    expect(parsed).toMatchObject({ confirm: "Continue?" });
+    expect(parsed).not.toHaveProperty("surface");
     expect(affordancesOf(meta, parsed, id as string)).toEqual([
       { address: "b1", part: "root", action: "press", detail: "→schedule" },
     ]);

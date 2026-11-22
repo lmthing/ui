@@ -9,5 +9,5 @@ Read shift-to-shift notes with author, time, optional flag and a mark-as-seen co
 ## Writer
 
 - Put the newest note first. time is a short display label, such as 08:40.
-- Use detail "brief" when asked to hide timestamps, but keep time on every note. Set unrequested density and surface to null.
+- Use detail "brief" when asked to hide timestamps, but keep time on every note.
 - Use item tone "warn" only when explicitly asked to emphasize a flag as a warning; otherwise use null.

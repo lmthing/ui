@@ -24,8 +24,6 @@ export const meta = {
   tier: "people",
   realPath: "A manager edits the rota in a shared app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["role"] } },
@@ -128,7 +126,8 @@ type ViewProps = c.Props<typeof props, typeof meta>;
 type MatrixProps = ViewProps & { loading: boolean };
 
 // prettier-ignore
-function RosterMatrix({ week, people, shifts, density, detail, loading }: MatrixProps) {
+function RosterMatrix({ week, people, shifts, detail, loading }: MatrixProps) {
+  const density = kit.useKit().density;
   const { words, lang } = kit.useWords(teamWordsFor);
   const w = words.roster;
   const days = rosterDays(shifts, lang).map((day) => ({
@@ -177,8 +176,8 @@ function RosterMatrix({ week, people, shifts, density, detail, loading }: Matrix
 // prettier-ignore
 export function Roster(input: ViewProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { words, lang } = kit.useWords(teamWordsFor);
   const heading = rosterWeek(input.week, lang);
@@ -190,7 +189,7 @@ export function Roster(input: ViewProps) {
       {state === "empty" ? <kit.KitEmpty part="empty" icon="calendar_days" decorativeIcon /> :
         !loading && !input.shifts.length ? (
           <kit.KitEmpty part="empty" icon="calendar_days" decorativeIcon title={words.roster.empty} />
-        ) : <RosterMatrix {...input} {...{ detail, density, loading }} />}
+        ) : <RosterMatrix {...input} {...{ detail, loading }} />}
     </kit.KitCard>
   );
 }

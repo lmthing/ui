@@ -9,4 +9,4 @@ A shared question with voting options and group results. Not a choice for onesel
 ## Writer
 
 - voted is a zero-based index, omitted until the person votes. Write each option's vote count; total and shares are derived. closes uses YYYY-MM-DD.
-- Hide only the closing date with "detail":"brief","density":null,"surface":null,"emphasis":null. Keep closes in the data and keep the results. For unrequested variants output null, never a named default.
+- Hide only the closing date with "detail":"brief","emphasis":null. Keep closes in the data and keep the results. For unrequested variants output null, never a named default.

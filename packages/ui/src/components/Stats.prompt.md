@@ -8,4 +8,4 @@ Several independent summary measurements shown together, with an optional change
 
 ## Writer
 
-- Leave density and arrange null unless explicitly requested. For one metric per line with its label on the left and number on the right, set arrange "rows".
+- Leave arrange null unless explicitly requested. For one metric per line with its label on the left and number on the right, set arrange "rows".

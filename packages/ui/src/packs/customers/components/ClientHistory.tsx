@@ -1,7 +1,7 @@
 // prettier-ignore
-import { useWords, KitCard, KitEmpty, KitIcon, KitRow, KitSkeleton, KitText, useComponentState, useVariant } from "../../../kit";
+import { useWords, KitCard, KitEmpty, KitIcon, KitRow, KitSkeleton, KitText, useComponentState, useKit } from "../../../kit";
 // prettier-ignore
-import { wordsFor, changeLine, isoDate, itemVariantProps, itemsOf, placeholderTitle, probesFor, screenId, text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+import { wordsFor, changeLine, isoDate, itemVariantProps, itemsOf, placeholderTitle, probesFor, screenId, text, thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props, variantProps } from "../../../catalog";
 import { z } from "zod";
 import { prompt } from "../../../entry/prompt-ClientHistory.generated";
 
@@ -18,8 +18,6 @@ export const meta = {
   tier: "phone",
   realPath: "Records linked to one client on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     lead: ["icon", "none"],
   },
   variantParts: { "lead.none": { hides: ["kind"] } },
@@ -102,8 +100,8 @@ export const examples = [
       { date: "2026-11-17", kind: "message", title: "Clover's pickup set", goto: "messages" },
     ],
   },
-  { entries: variantExample, density: "compact" },
-  { entries: variantExample, surface: "outlined" },
+  { entries: variantExample },
+  { entries: variantExample },
   { entries: variantExample, lead: "none" },
   { entries: [{ ...payment, mark: "highlight" }, message, reversal] },
   { entries: [{ ...payment, tone: "good" }, message, reversal] },
@@ -138,8 +136,9 @@ const kindIcons = {
 
 // prettier-ignore
 export function ClientHistory(input: Props<typeof props, typeof meta>) {
-  const { entries, lead, surface } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const { entries, lead } = input;
+  const surface = "card";
+  const density = useKit().density;
   const { lang, words } = useWords();
   const { historyDetailLine } = words;
   const state = useComponentState();

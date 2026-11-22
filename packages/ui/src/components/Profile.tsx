@@ -8,11 +8,12 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
+  variantProps,
 } from "../catalog";
 import { z } from "zod";
 import {
@@ -23,8 +24,8 @@ import {
   KitSkeleton,
   KitText,
   useComponentState,
-  useVariant,
   useWords,
+  useKit,
 } from "../kit";
 import { prompt } from "../entry/prompt-Profile.generated";
 
@@ -39,8 +40,6 @@ export const meta = {
   tier: "phone",
   realPath: "The identity and photo of one thing in the on-device database.",
   variants: {
-    align: ["start", "center"],
-    density: ["comfortable", "compact"],
     detail: ["full", "brief"],
     media: ["thumb", "none"],
   },
@@ -77,9 +76,9 @@ const monstera = { name: "Monstera", meta: "Living room", photo: "lib:plants" };
 const clover = { name: "Clover", meta: "Beagle · 4 years", photo: "lib:dogs" };
 export const examples = [
   monstera,
-  { align: "center", ...clover },
+  { ...clover },
   clover,
-  { ...monstera, density: "compact" },
+  { ...monstera },
   { ...monstera, detail: "brief" },
   { ...monstera, media: "none" },
 ] satisfies z.input<typeof props>[];
@@ -102,82 +101,58 @@ export const probes = [
 type ProfileProps = Props<typeof props, typeof meta>;
 
 function ProfileLoading({
-  align,
   meta: supporting,
   photo,
   media,
   density,
-}: ProfileProps & { density: NonNullable<ProfileProps["density"]> }) {
-  const centered = align === "center";
+}: ProfileProps & { density: ThemeDensity }) {
   const { lang, words } = useWords();
   const heading = placeholderTitle(0, lang);
   const secondary = supporting ? words.placeholderDetail : undefined;
   return (
-    <KitCard style="plain" padded={centered} part="root" density={density}>
-      {centered ? (
-        <KitSkeleton
-          shape="media"
-          aspect={photo ? "avatar" : "none"}
-          inset="none"
-          density={density}
-          content={[
-            ["title", heading, "center"],
-            ["body", secondary, "center"],
-          ]}
-        />
-      ) : (
-        <KitSkeleton
-          shape="rows"
-          inset="md"
-          density={density}
-          lead={media === "none" ? "none" : photo ? "box" : "dot"}
-          items={[
-            {
-              photo,
-              lines: [
-                { role: "heading", text: heading },
-                ...(secondary ? [{ role: "body" as const, text: secondary }] : []),
-              ],
-            },
-          ]}
-        />
-      )}
+    <KitCard style="plain" part="root" density={density}>
+      <KitSkeleton
+        shape="rows"
+        inset="md"
+        density={density}
+        lead={media === "none" ? "none" : photo ? "box" : "dot"}
+        items={[
+          {
+            photo,
+            lines: [
+              { role: "heading", text: heading },
+              ...(secondary ? [{ role: "body" as const, text: secondary }] : []),
+            ],
+          },
+        ]}
+      />
     </KitCard>
   );
 }
 
 export function Profile(input: ProfileProps) {
-  const { align, name, meta: supporting, photo, media } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const { name, meta: supporting, photo, media } = input;
+  const density = useKit().density;
   const state = useComponentState();
   if (state === "loading") return <ProfileLoading {...input} density={density} />;
-  const centered = align === "center";
   const lead =
     media === "none" ? undefined : photo ? (
-      <KitPhoto photo={photo} shape={centered ? "avatar" : "round"} part="photo" label={name} />
+      <KitPhoto photo={photo} shape="round" part="photo" label={name} />
     ) : (
       <KitIcon tone="muted" part="photo" />
     );
   const lines = (
     <>
-      <KitText role={centered ? "title" : "heading"} part="name" {...{ align, density }}>
+      <KitText role="heading" part="name" density={density}>
         {name}
       </KitText>
       {supporting && (
-        <KitText role="body" tone="muted" part="meta" {...{ align, density }}>
+        <KitText role="body" tone="muted" part="meta" density={density}>
           {supporting}
         </KitText>
       )}
     </>
   );
-  if (centered) {
-    return (
-      <KitCard style="plain" padded part="root" {...{ align, density }}>
-        {lead}
-        {lines}
-      </KitCard>
-    );
-  }
   return (
     <KitBlock
       label={name}

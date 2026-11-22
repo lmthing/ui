@@ -18,7 +18,7 @@ export const meta = {
   partTiers: { claim: "people" },
   confirmParts: ["remove"],
   realPath: "Saved products and target prices stay on device; gift claims need a shared app and price alerts need notifications or a watch service.",
-  variants: { arrange: ["rows", "grid"], density: ["comfortable", "compact"], surface: ["card", "plain"] },
+  variants: { arrange: ["rows", "grid"] },
   parts: ["root", "empty", "status"],
   items: {
     key: "items",
@@ -176,8 +176,8 @@ export function SavedList(input: SavedProps) {
   const scope = kit.usePartContext(), state = kit.useComponentState();
   const { words } = kit.useWords(commerceWordsFor);
   const live = kit.useLiveControls(meta, input) as SavedProps;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const { arrange, shared, items, moved } = live, grid = arrange === "grid";
   const empty = state === "empty" || !items.length, loading = state === "loading";
   const error = state === "error", success = state === "success" || (state === "filled" && moved);

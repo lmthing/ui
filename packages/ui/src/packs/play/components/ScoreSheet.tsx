@@ -7,7 +7,8 @@ import {
 // prettier-ignore
 import {
   KitAction, KitCard, KitChip, KitContent, KitEmpty, KitGrid, KitInput,
-  KitRow, KitSkeleton, KitTable, KitText, KitTrack, useComponentState, useVariant, useWords,
+  KitRow, KitSkeleton, KitTable, KitText, KitTrack, useComponentState, useWords,
+  useKit,
 } from "../../../kit";
 import { scoreCopy, scoreReading } from "../copy";
 import { playWordsFor } from "../lang";
@@ -26,7 +27,7 @@ export const meta = {
   region: "body", weight: 3, dense: true, tier: "phone",
   partTiers: { share: "people" }, confirmParts: ["reset"], clearItems: { reset: "score" },
   realPath: "Round scores are saved on the device; sharing publishes a versioned snapshot to a shared app.",
-  variants: { density: ["comfortable", "compact"], overflow: ["all", "page"] },
+  variants: { overflow: ["all", "page"] },
   variantParts: { "overflow.page": { hides: ["root", "round", "score"] } },
   items: { key: "cells", parts: ["root", "player", "round", "score"],
     set: { score: { prop: "score", min: scoreMin, max: scoreMax, integer: true,
@@ -95,7 +96,7 @@ export const examples = [
     players: [{ name: "Jo" }, { name: "Lee" }],
     rounds: [{ label: "First hand", points: [-2, 5] }], wins: "low",
   },
-  { ...game, overflow: "page" }, { ...game, density: "compact" },
+  { ...game, overflow: "page" }, { ...game },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("ScoreSheet");
 // prettier-ignore
@@ -176,7 +177,7 @@ function ScoreActions({ share, loading, labels }: {share: boolean; loading: bool
 export function ScoreSheet(input: SheetProps) {
   const state = useComponentState();
   const { lang, words: { scoreLabels: labels } } = useWords(playWordsFor);
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const loading = state === "loading", active = state === "filled";
   const selected = Number(input.selectedRound) - 1;
   if (state === "empty")

@@ -29,7 +29,7 @@ creates component-specific copy and English label keys. It leaves existing compo
 including their probes, alone. For a pack, it also wires the component through the pack door.
 Use explicit types (`text(n)`, `number`, `integer`, `boolean`, dates and references),
 backticked enum choices, and explicit array bounds (`items` of fields, `1–6`). Name
-shared axes in `Styles`, for example `density: comfortable, compact` with the values
+shared axes in `Styles`, for example `detail: full, brief` with the values
 in backticks. Ambiguous shorthand, nested repeated collections, conditional schemas
 and custom runtime state names may need to be scaffolded by hand.
 
@@ -161,15 +161,16 @@ Choose only axes and values that visibly change this component. These are candid
 
 | Component kind | Typical axes to consider |
 | --- | --- |
-| Rows and lists | `density`, `surface`, `detail`, `arrange`, `group`, `overflow`, `lead`, `trail`; item `tone`, `mark`, `trail` |
-| Cards and content | `density`, `emphasis`, `surface`, `align`, `detail`, `media`, `tone` |
-| Numbers and charts | `density`, `emphasis`, `figures`, `labels`, `detail`; item `tone`, `mark` |
-| Media | `media`, `aspect`, `bleed`, `detail` |
-| Inputs and actions | `density`, `emphasis`, `align`, `detail`, `tone`; item `mark` |
+| Rows and lists | `detail`, `arrange`, `group`, `overflow`, `lead`, `trail`; item `tone`, `mark`, `trail` |
+| Cards and content | `emphasis`, `detail`, `media`, `tone` |
+| Numbers and charts | `emphasis`, `figures`, `labels`, `detail`; item `tone`, `mark` |
+| Media | `media`, `aspect`, `detail` |
+| Inputs and actions | `emphasis`, `detail`, `tone`; item `mark` |
 
 1. Declare ordered subsets in `meta.variants` and row choices in `meta.items.variants`. Put the
-   component's existing treatment first so missing props render as before. Omitted `density` inherits
-   a supported app setting. Spread `variantProps(meta.variants)` into the strict component schema and
+   component's existing treatment first so missing props render as before. The theme supplies density
+   and surface treatment; renderers choose alignment and bleed by role. None of these four options
+   belongs in component props or Writer prompts. Spread `variantProps(meta.variants)` into the strict component schema and
    `itemVariantProps(meta.items.variants)` into the strict row schema. When both declare `trail`, use
    `{ inheritTrail: true }` so a missing row override uses the collection trail; gate actions on
    that same effective value.
@@ -179,7 +180,7 @@ Choose only axes and values that visibly change this component. These are candid
    including hidden items. Pass axis values to kit bases and use `useVariant()` to resolve supported
    settings; bases translate values into theme tokens. Never add raw layout values in a view.
 3. To move a legacy style, add a fixture-tested entry in `src/catalog/migrations/variant-line.ts`,
-   for example `{ from: "style", values: { compact: { density: "compact" } } }`. Activate it in
+   for example `{ from: "style", values: { compact: { detail: "brief" } } }`. Activate it in
    `adoptedVariants` in the same change as the strict schema. Test an old line through `migrateLine`
    and parse the output; preserve ids, actions, and any explicit destination value. Keep a style only
    if the structure still differs independently of the axis.

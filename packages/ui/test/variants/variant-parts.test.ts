@@ -7,7 +7,7 @@ const meta: Meta = {
   variantParts: { "detail.brief": { hides: ["meta"] } },
 };
 const brief = { axis: "detail", value: "brief", item: false } as const;
-const compact = { axis: "density", value: "compact", item: false } as const;
+const hero = { axis: "emphasis", value: "hero", item: false } as const;
 const root = "home/c1/root";
 const row = "home/c1/r1/root";
 const title = "home/c1/r1/title";
@@ -42,8 +42,8 @@ it("allows the declared part change, but catches other changes and duplicates", 
 });
 
 it("requires identical finish addresses, regardless of their layout order", () => {
-  expect(variantPartIssues(meta, compact, [root, row, title], [root, title, row], { items })).toEqual([]);
-  expect(variantPartIssues(meta, compact, [root, row, title], [root, row], { items })).toEqual([
+  expect(variantPartIssues(meta, hero, [root, row, title], [root, title, row], { items })).toEqual([]);
+  expect(variantPartIssues(meta, hero, [root, row, title], [root, row], { items })).toEqual([
     `Unexpected missing address: ${title}`,
   ]);
 });

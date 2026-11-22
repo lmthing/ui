@@ -36,7 +36,7 @@ describe("Cart contract and boundaries", () => {
       photo: "local:1",
       price: 32.05,
     }));
-    expect(props.parse({ lines, delivery: 0 })).toMatchObject({ surface: "card", detail: "full", lines });
+    expect(props.parse({ lines, delivery: 0 })).toMatchObject({ detail: "full", lines });
     expectTypeOf<Props<typeof props, typeof meta>["lines"][number]["id"]>().toEqualTypeOf<string>();
   });
 

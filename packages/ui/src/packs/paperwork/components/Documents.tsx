@@ -19,7 +19,7 @@ export const meta = {
   tier: "phone",
   realPath:
     "Records and attachments stay on device, with a local file viewer and identifiers masked and read as (secret).",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["issuer", "number", "issued", "tags"] } },
   parts: ["root", "empty", "error"],
   // prettier-ignore
@@ -82,8 +82,6 @@ export const examples = [
   },
   {
     style: "cards",
-    density: "compact",
-    surface: "plain",
     docs: [
       { title: "Trot liability policy", kind: "insurance", owner: "Alex", expires: "2027-02-01", file: "lib:trot_policy", tags: ["insurance"] },
       { title: "First aid certificate", kind: "certificate", owner: "Alex", file: "lib:trot_aid", tags: [] },
@@ -100,12 +98,6 @@ export const probes = [
   write(
     "File Mina's greenhouse permit as a certificate from Garden office, expires 2027-04-10, with the supplied synthetic attachment lib:greenhouse_permit and the permits tag.",
   ),
-  {
-    ...write(
-      "File Mina's greenhouse permit, a certificate expiring 2027-04-10 with tag permits. Give the register a plain background with the rows directly on the screen and no enclosing card.",
-    ),
-    variant: { axis: "surface", value: "plain" },
-  },
   {
     ...write(
       "File Mina's greenhouse permit, a certificate expiring 2027-04-10. Show a brief view hiding issuer, number, issue date and tags.",
@@ -160,8 +152,9 @@ function DocumentFile({ row, density, surface, now }: {
 }
 
 // prettier-ignore
-export function Documents({ docs, style, surface, density: requested }: DocumentsProps) {
-  const density = kit.useVariant("density", meta.variants.density, requested);
+export function Documents({ docs, style }: DocumentsProps) {
+  const surface = "card";
+  const density = kit.useKit().density;
   const state = kit.useComponentState(), { words } = kit.useWords(paperworkWordsFor);
   const now = new Date(), cards = style === "cards";
   return <kit.KitCard style={cards ? "cards" : "inset"} {...{ surface, density }}>

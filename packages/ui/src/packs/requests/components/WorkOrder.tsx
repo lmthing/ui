@@ -14,7 +14,7 @@ export const meta = {
   writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Work records and clock events live on the technician's device without changing stock or payments.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["who", "window"] } },
   parts: ["root", "number", "request", "title", "who", "window", "status", "clock", "clock_value", "clock_label", "blocked", "note", "finish", "finish_label", "total"],
   items: { key: "lines", parts: ["root", "text", "required", "check", "name", "qty", "cost"],
@@ -171,7 +171,7 @@ function WorkNotes({ p, w, copy, loading }: { p: View; w: Words; copy: Copy; loa
 // prettier-ignore
 export function WorkOrder(input: c.Props<typeof props, typeof meta>) {
   const { words: { workOrder: w }, lang } = kit.useWords(requestsWordsFor), state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density), surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density, surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail), live = kit.useLiveControls(meta, input) as View;
   const p = { ...live, detail, editable: (state === "filled" || state === "loading") && live.editable };
   const copy = workOrderCopy(p, state, lang), success = state === "success", loading = state === "loading", error = state === "error";

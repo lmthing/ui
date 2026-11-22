@@ -9,4 +9,4 @@ A reusable rate card of saved billable line items with quick-add into an invoice
 ## Writer
 
 - Use a unique short id for every saved item, a nonnegative numeric rate and an optional unit or category. Use taxable:false only for a nontaxable item. Don't put prices in titles or compute invoice totals.
-- If asked for category headings, use exactly {"density":null,"surface":null,"group":"sections"} for the axes. Keep category on each categorized item. Leave all axes null unless requested.
+- If asked for category headings, use exactly {"group":"sections"} for the axes. Keep category on each categorized item. Leave all axes null unless requested.

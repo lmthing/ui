@@ -25,7 +25,7 @@ describe("Converter schema", () => {
   });
 
   it("keeps the starting amount optional and accepts both boundaries", () => {
-    expect(props.parse({})).toEqual({ surface: "card", detail: "full" }); // Density inherits the app setting.
+    expect(props.parse({})).toEqual({ detail: "full" }); // Density inherits the app setting.
     for (const value of [0, 999999999]) expect(props.parse({ value }).value).toBe(value);
   });
 

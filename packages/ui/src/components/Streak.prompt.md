@@ -8,4 +8,4 @@ Consecutive days of a habit with daily completion this week. Not several indepen
 
 ## Writer
 
-- If the person wants to see which days are done, set detail null and keep the weekly strip visible. Set detail "brief" only if they explicitly ask to hide the strip; still store all seven days. For either request, density is null unless tighter spacing is separately requested.
+- If the person wants to see which days are done, set detail null and keep the weekly strip visible. Set detail "brief" only if they explicitly ask to hide the strip; still store all seven days.

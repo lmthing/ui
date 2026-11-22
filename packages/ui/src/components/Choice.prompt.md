@@ -8,6 +8,5 @@ Choosing among a few options that each carry a short explanation, such as a plan
 
 ## Writer
 
-- Leave axes null unless asked. For unboxed rows with radio buttons or checkboxes use surface "plain".
+- Use detail "brief" only to hide secondary option notes, while keeping them in the data.
 - To hide the option explanations, keep them in sub and set detail to "brief"; badges and values stay visible.
-- Set surface to null unless the person explicitly asks for unboxed rows. A request to hide explanations changes only detail, not surface.

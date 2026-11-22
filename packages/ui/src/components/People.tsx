@@ -4,6 +4,7 @@ import { z } from "zod";
 import {
   probesFor, detailOf, itemsOf, moreLine, photo, placeholderTitle, screenId, text, thingOf, titleOf,
   variantProps, wordsFor, type FallbackInput, type Meta, type Probe, type Props,
+  type ThemeDensity,
 } from "../catalog";
 import { prompt } from "../entry/prompt-People.generated";
 
@@ -21,8 +22,6 @@ export const meta = {
   items: { key: "members", parts: ["root", "photo", "name", "role", "online", "status_text"] },
   parts: ["root", "more"],
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["role"] } },
@@ -104,8 +103,8 @@ export const examples = [
     members: [{ name: "Anna", photo: "lib:anna" }, { name: "Ben" }, { name: "Carla", photo: "lib:carla" }],
   },
   { detail: "brief", members: walkMembers },
-  { density: "compact", members: walkMembers },
-  { surface: "outlined", members: walkMembers },
+  { members: walkMembers },
+  { members: walkMembers },
   { style: "rail", members: [
     { name: "Anna", online: true, statusText: "At the park", goto: "anna" },
     { name: "Ben", ring: "muted", statusText: "On a walk" }, { name: "Carla" },
@@ -141,7 +140,7 @@ export const probes = [
 type PeopleProps = Props<typeof props, typeof meta>;
 
 // prettier-ignore
-function MemberRows({ members, density }: Pick<PeopleProps, "members" | "density">) {
+function MemberRows({ members, density }: Pick<PeopleProps, "members"> & { density: ThemeDensity }) {
   const reserve = members.some((person) => person.photo);
   return members.map((member) => (
     <kit.KitRow key={member.id} item={member.id} label={member.name} goto={member.goto} density={density}
@@ -158,7 +157,7 @@ function MemberRows({ members, density }: Pick<PeopleProps, "members" | "density
 }
 
 // prettier-ignore
-function MemberRail({ members, density }: Pick<PeopleProps, "members" | "density">) {
+function MemberRail({ members, density }: Pick<PeopleProps, "members"> & { density: ThemeDensity }) {
   const { words } = kit.useWords();
   const cards = members.map((member) =>
     <kit.KitRow key={member.id} item={member.id} label={member.name} goto={member.goto} surface="plain" density={density}>
@@ -180,10 +179,11 @@ function MemberRail({ members, density }: Pick<PeopleProps, "members" | "density
 }
 
 // prettier-ignore
-export function People({ style, members, more, surface, density: inputDensity }: PeopleProps) {
+export function People({ style, members, more }: PeopleProps) {
+  const surface = "card";
   const { lang } = kit.useWords();
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, inputDensity);
+  const density = kit.useKit().density;
   const railCards = style === "rail" && surface === "card";
   return <kit.KitCard part="root" {...(railCards && { style: "cards" as const })} {...{ surface, density }}
     padded={style !== undefined && state !== "empty"}>

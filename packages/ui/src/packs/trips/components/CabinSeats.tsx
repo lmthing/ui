@@ -39,7 +39,7 @@ export const meta = {
   weight: 3,
   realPath: "Fetch cabin availability and reserve a seat through the carrier's booking service.",
   dense: true,
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["root", "legend"] } }, // Cropped seats and absent marks.
   parts: ["root", "notice", "sub", "passenger", "legend", "preview", "fee_label", "fee", "confirm"],
   items: { key: "$seats", parts: ["root"], visibleWhen: { visible: true } },
@@ -143,8 +143,8 @@ export const probes = [
 
 // prettier-ignore
 export function CabinSeats(input: c.Props<typeof props, typeof meta>) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const live = kit.useLiveControls(meta, input) as unknown as Parameters<typeof cabinSelection>[0];
   const selected = cabinSelection(live);

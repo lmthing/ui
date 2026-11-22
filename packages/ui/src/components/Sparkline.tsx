@@ -7,13 +7,13 @@ import {
   text,
   thingOf,
   trendWord,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
-import { KitCard, KitGrid, KitSkeleton, KitSpark, KitText, useComponentState, useVariant } from "../kit";
+import { KitCard, KitGrid, KitSkeleton, KitSpark, KitText, useComponentState, useKit } from "../kit";
 import { prompt } from "../entry/prompt-Sparkline.generated";
 
 export const meta = {
@@ -27,7 +27,6 @@ export const meta = {
   tier: "phone",
   realPath: "Recent measurements of one field in the on-device database.",
   variants: {
-    density: ["comfortable", "compact"],
     detail: ["full", "brief"],
     tone: ["neutral", "good", "warn", "bad"],
   },
@@ -85,7 +84,7 @@ export const examples = [
     tone: "bad",
   },
   { label: "Walk attendance", value: "67%", points: [90, 82, 67], detail: "brief" },
-  { label: "Walk attendance", value: "67%", points: [90, 82, 67], density: "compact" },
+  { label: "Walk attendance", value: "67%", points: [90, 82, 67] },
   { label: "Soil moisture", value: "18%", points: [42, 39, 35, 32, 28, 23, 18] },
   { label: "Earnings this month", value: "€640", points: [80, 160, 240, 280, 400, 520, 640] },
   { label: "Bookings filled", value: "30%", points: [60, 50, 30] },
@@ -106,7 +105,7 @@ export const probes = [
 
 export function Sparkline(input: Props<typeof props, typeof meta>) {
   const { label, value, points, tone, detail } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const state = useComponentState();
   const align = detail === "brief" ? "center" : "start";
   if (state === "loading") {

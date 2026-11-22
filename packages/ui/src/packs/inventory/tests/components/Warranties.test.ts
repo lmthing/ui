@@ -62,7 +62,6 @@ describe("Warranties schema", () => {
     expect(props.parse({ items: Array(6).fill(max) })).toMatchObject({
       items: Array(6).fill(max),
       detail: "full",
-      surface: "card",
     });
     expect(props.parse({ items: [{ ...lamp, thing: "  Lamp  " }] }).items[0]?.thing).toBe("Lamp");
     expectTypeOf<Props<typeof props, typeof meta>["items"][number]["id"]>().toEqualTypeOf<string>();
@@ -146,7 +145,7 @@ describe("Warranties states and parts", () => {
     }));
 
   it("brief hides purchase dates and prices without removing wire fields or renumbering any row", () => {
-    const input = { ...filled, detail: "brief", density: "compact", surface: "outlined" };
+    const input = { ...filled, detail: "brief" };
     expect(props.parse(input).items).toEqual(filled.items);
     expect([...render(input).keys()]).toEqual(
       [...render(filled).keys()].filter((key) => !/\/(bought|price)$/.test(key)),

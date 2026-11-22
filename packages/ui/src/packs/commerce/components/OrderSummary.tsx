@@ -18,7 +18,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "A placed order is a record on the device; reordering adds its items to the local basket.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["price"] } },
   parts: ["root", "number", "date", "mode", "place", "total", "reorder", "reorder_label"],
   items: { key: "lines", parts: ["root", "name", "qty", "price", "line_total"] },
@@ -82,8 +82,8 @@ export const examples = [
     ],
     mode: "delivery",
   },
-  { ...pickup, density: "compact" },
-  { ...pickup, surface: "plain" },
+  { ...pickup },
+  { ...pickup },
   { ...pickup, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 
@@ -109,7 +109,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type OrderSummaryProps = c.Props<typeof props, typeof meta>;
-type LineProps = Pick<OrderSummaryProps, "density" | "detail"> & {
+type LineProps = Pick<OrderSummaryProps, "detail"> & { density: c.ThemeDensity } & {
   line: OrderSummaryProps["lines"][number];
   loading: boolean;
 };
@@ -136,8 +136,8 @@ function ReceiptRow({ line, density, detail, loading }: LineProps) {
 // prettier-ignore
 export function OrderSummary(input: OrderSummaryProps) {
   const { lang, words } = kit.useWords(commerceWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const loading = kit.useComponentState() === "loading";
   const { number, date, mode, place, total } = receiptCopy(input, lang);

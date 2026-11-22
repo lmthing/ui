@@ -1,5 +1,5 @@
 import type { Props } from "../../../catalog";
-import { KitCard, KitState, useComponentState, useVariant, useWords } from "../../../kit";
+import { KitCard, KitState, useComponentState, useWords, useKit } from "../../../kit";
 import { SeatPlan, type SeatPlanProps } from "../../../kit/renderers";
 import { Seating } from "../components";
 import { eventsWordsFor } from "../lang";
@@ -61,15 +61,14 @@ function tablePlan(
 /** Adapts the draft's stamped table and guest entries without changing its Writer contract. */
 export function SeatingPlan({
   entries,
-  surface,
-  density: requestedDensity,
+
   moves,
 }: Input & { moves?: Moves }) {
   const {
     lang,
     words: { seating: words },
   } = useWords(eventsWordsFor);
-  const density = useVariant("density", Seating.meta.variants.density, requestedDensity);
+  const density = useKit().density;
   const loading = useComponentState() === "loading";
   const trayGuests = entries.flatMap((guest) =>
     guest.kind === "guest" && guest.at === null ? [guestSeat(guest, words, moves)] : [],
@@ -85,7 +84,7 @@ export function SeatingPlan({
     />
   );
   return (
-    <KitCard padded surface={surface} density={density}>
+    <KitCard padded density={density}>
       <KitState loading={plan} density={density}>
         {plan}
       </KitState>

@@ -1,8 +1,8 @@
 // prettier-ignore
-import { useWords, KitAction, KitActionFooter, KitCard, KitContent, KitFigure, KitGrid, KitHeader, KitLayoutText, KitMetaLine, KitRow, KitRowGroup, useComponentState, useVariant } from "../../../kit";
+import { useWords, KitAction, KitActionFooter, KitCard, KitContent, KitFigure, KitGrid, KitHeader, KitLayoutText, KitMetaLine, KitRow, KitRowGroup, useComponentState, useKit } from "../../../kit";
 import { z } from "zod";
 // prettier-ignore
-import { isoDate, documentTotals, itemsOf, moneyLine, placeholderTitle, probesFor, quantityLine, text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+import { isoDate, documentTotals, itemsOf, moneyLine, placeholderTitle, probesFor, quantityLine, text, thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props, type ThemeDensity, variantProps } from "../../../catalog";
 import { invoiceCopy, invoiceReading } from "../copy";
 import { prompt } from "../../../entry/prompt-Invoice.generated";
 export const meta = {
@@ -17,7 +17,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "A document made on the device; sending it needs email or SMS.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["note"] } },
   items: { key: "lines", parts: ["root", "item", "qty", "price"] },
   // prettier-ignore
@@ -99,8 +99,8 @@ export const examples = [
     status: "sent", style: "quote",
   },
   variantExample,
-  { ...variantExample, density: "compact" },
-  { ...variantExample, surface: "outlined" },
+  { ...variantExample },
+  { ...variantExample },
   { ...variantExample, detail: "brief" },
   { ...variantExample, number: undefined, style: "estimate" },
   { ...variantExample, tax: 10, discount: 8, deposit: 25, recurring: "monthly", download: true },
@@ -132,7 +132,7 @@ export const probes = [
 ] satisfies Probe[];
 type InvoiceProps = Props<typeof props, typeof meta>;
 // prettier-ignore
-function InvoiceLines({ lines, density }: Pick<InvoiceProps, "lines" | "density">) {
+function InvoiceLines({ lines, density }: Pick<InvoiceProps, "lines"> & { density: ThemeDensity }) {
   const { lang } = useWords();
   return <KitRowGroup spacing="groups" separators={false} {...{ density }}>{lines.map((line) => (
     <KitRow key={line.id} item={line.id} inline inset="none" label={line.item} {...{ density }}
@@ -143,7 +143,7 @@ function InvoiceLines({ lines, density }: Pick<InvoiceProps, "lines" | "density"
   ))}</KitRowGroup>;
 }
 // prettier-ignore
-function InvoiceAmounts({ amounts, density }: { amounts: ReturnType<typeof invoiceCopy>["amounts"]; density: InvoiceProps["density"] }) {
+function InvoiceAmounts({ amounts, density }: { amounts: ReturnType<typeof invoiceCopy>["amounts"]; density: ThemeDensity }) {
   const figure = amounts.at(-1)?.part;
   const payment = amounts.findIndex(({ part }) => part === "deposit");
   const row = ({ part, label, value }: (typeof amounts)[number]) => (
@@ -163,16 +163,16 @@ function InvoiceAmounts({ amounts, density }: { amounts: ReturnType<typeof invoi
 export function Invoice(input: InvoiceProps) {
   const { lang, words } = useWords();
   const { documentLabels: copy } = words;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const state = useComponentState(),
-    { note, style, surface } = input;
+    { note, style } = input;
   const labels = invoiceCopy(input, state, lang);
   const sendButton = <KitAction part="send" {...labels.send} full />;
   const send = labels.download ? <KitActionFooter {...{ density }}><KitGrid {...{ density }}>
     {sendButton}<KitAction part="download" label={labels.download} kind="secondary" full />
   </KitGrid></KitActionFooter> : sendButton;
   return (
-    <KitCard padded part="root" {...{ density, surface }}>
+    <KitCard padded part="root" density={density}>
       <KitContent {...{ density }}>
         <KitGrid fitLast {...{ density }}>
           <KitHeader title={{ text: labels.heading, part: labels.headingPart, role: "body", strong: true }} {...{ density }} />

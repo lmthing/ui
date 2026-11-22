@@ -2,9 +2,9 @@ import { expect, it } from "vitest";
 import { affordancesOf, components, migrateLine } from "@lmthing/ui/catalog";
 
 it.each([
-  ["inline", { style: "inline", emphasis: "normal", surface: "card" }, {}],
-  ["large", { emphasis: "hero", surface: "card" }, { emphasis: "normal" }],
-  ["total", { style: "total", surface: "outlined" }, { surface: "card" }],
+  ["inline", { style: "inline", emphasis: "normal" }, {}],
+  ["large", { emphasis: "hero" }, { emphasis: "normal" }],
+  ["total", { style: "total" }, {}],
 ] as const)("migrates the legacy Amount %s treatment without changing links", (style, expected, override) => {
   const legacy = { c: "Amount", id: "walks_price", state: "filled", style, value: 18, goto: "walks" };
   const def = components.Amount;

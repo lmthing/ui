@@ -1,3 +1,5 @@
+<!-- replay-literals: d d mcssssssd -->
+
 ## Purpose
 
 Several things of the same kind, each one tappable.
@@ -14,4 +16,4 @@ The person's separate records of one kind, in tappable rows to scan by name and 
 - For grouped headings use group "sections" and a section label on every row; keep rows in section order.
 - For a two-row preview with See all, set overflow to "peek" and output every row in order, including hidden ones. Keep style and every other axis null unless separately requested.
 - Names only is a row-content request: write title and leave all other row fields null. Keep detail null; "brief" hides existing metadata and is only for an explicit request to hide it.
-- For a photo shelf with a tall crop or portrait covers, output "style":"shelf" and top-level "aspect":"tall". Leave density, surface, detail, arrange, group, overflow, lead, and trail null unless individually requested; never fill in defaults. Use arrange "grid" for two-column quick cards with style null. Progress is a fraction (0 to 1) and badge is a short label. Only set unread or pinned on rows explicitly described that way.
+- For a photo shelf with a tall crop or portrait covers, output "style":"shelf" and "aspect":"tall". Leave unrequested axes null. Use arrange "grid" for two-column quick cards with style null. Progress is a fraction (0 to 1) and badge is a short label. Only set unread or pinned on rows explicitly described that way.

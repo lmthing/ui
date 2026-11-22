@@ -9,4 +9,4 @@ A receipt for one placed goods order with quantities and fulfillment details. No
 ## Writer
 
 - Write unit prices and quantities only; the total is computed. Use a real placed date in YYYY-MM-DD.
-- Keep unit prices in the data. If asked to hide them with no change to the card or spacing, write exactly {"density":null,"surface":null,"detail":"brief"} for the three axes. In particular, surface must be null unless a container treatment is explicitly requested; do not fill in the default "card".
+- Keep unit prices in the data. Only an explicit request to hide them sets detail to "brief".

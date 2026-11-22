@@ -108,12 +108,12 @@ describe("skeleton loading through the real entry", () => {
     }
   });
   it.each(["audio", "video", "compact"] as const)("keeps the %s artwork and control geometry", (mode) => {
-    const appearance = mode === "compact" ? { density: "compact", detail: "brief" } : { style: mode };
+    const appearance = mode === "compact" ? { detail: "brief" } : { style: mode };
     const html = renderInstance(
       "Player",
       { ...components.Player.examples[0], ...appearance },
       "loading",
-      theme,
+      mode === "compact" ? { ...theme, density: "compact" } : theme,
     );
     const css = styles(html);
     if (mode === "audio") expect(css).toMatch(/aspect-ratio:\s*1(?:;|\n|$)/);

@@ -17,7 +17,7 @@ export const meta = {
   region: "body", weight: 2,
   realPath: "The host records speech with permission and can submit a completed recording to a speech evaluation service.",
   writeHints: prompt.writeHints,
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["phonetic", "translation"] } },
   parts: ["root", "label", "phrase", "phonetic", "translation", "instruction", "listen", "mic", "evaluate",
     "retry", "reveal", "words", "score", "matched", "status", "operation_status", "audio_status"],
@@ -84,8 +84,8 @@ export const examples = [
   ] },
   { style: "listen", phrase: "Put on the leash.", phonetic: "put on thuh leesh",
     referenceAudio: "lib:put-on-the-leash", words: [{ text: "Put" }, { text: "on" }, { text: "the" }, { text: "leash" }] },
-  { ...fern, density: "compact" },
-  { ...fern, surface: "outlined" },
+  { ...fern },
+  { ...fern },
   { ...fern, detail: "brief" },
   { ...fern, fluencyScore: 46, words: [
     { text: "Arrosez", status: "close" }, { text: "la", status: "correct" }, { text: "fougère", status: "missed" },
@@ -173,8 +173,8 @@ export function SpeechCheck(input: View) {
   const scope = kit.usePartContext();
   const state = kit.useComponentState();
   const { lang, words: { speechCheck: words } } = kit.useWords(learningWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const live = kit.useLiveControls(meta, input) as Live;
   const result = state === "filled" && live.outcome ? (live.outcome === "success" ? "success" : "error") : state;
   const hintLines = [

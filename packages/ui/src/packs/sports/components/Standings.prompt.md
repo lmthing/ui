@@ -9,4 +9,4 @@ A league table with played, wins, draws, losses, goal difference, points and rec
 ## Writer
 
 - Write wins, draws, losses and goals for and against; never write played, points, goal difference or rank. Mine is a zero-based index in the input rows; lines are one-based cut positions in the ordered table.
-- To hide recent form, write detail "brief" and still supply the form data. Write density: null unless the person asks to change spacing. Omit scoring unless the league awards nonstandard points per win or draw.
+- To hide recent form, write detail "brief" and still supply the form data. Omit scoring unless the league awards nonstandard points per win or draw.

@@ -8,4 +8,4 @@ Shared costs, each person's balance and the payments to settle the group. Not on
 
 ## Writer
 
-- For each expense write by (payer index) and split: "equal" or "shares". Both use one share per person. Never write derived totals. To hide avatars alone, use lead none, keep photos, and write density null (not comfortable).
+- For each expense write by (payer index) and split: "equal" or "shares". Both use one share per person. Never write derived totals. To hide avatars alone, use lead none and keep photos.

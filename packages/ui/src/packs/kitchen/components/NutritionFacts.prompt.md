@@ -9,4 +9,4 @@ One food or recipe's nutrition label: calories, protein, carbs and fat that upda
 ## Writer
 
 - Write nutrition amounts for exactly one serving, even when the opening number of servings is different. Never write scaled amounts or macro percentages.
-- Set detail to "brief" only when asked to hide the secondary nutrient rows and allergen pills. Keep their data. Leave density and surface null unless requested.
+- Set detail to "brief" only when asked to hide the secondary nutrient rows and allergen pills. Keep their data.
