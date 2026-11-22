@@ -17,7 +17,7 @@ export const meta = {
   weight: 2,
   tier: "people",
   realPath: "The shift is a record in a shared rota.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["place", "with"] } },
   parts: ["root", "date", "from", "to", "place", "role", "with", "status", "swap", "offer"],
   states: ["filled", "loading"],
@@ -76,7 +76,7 @@ export const examples = [
     with: "Sam",
     status: "swap_requested",
   },
-  { ...morningShift, density: "compact" },
+  { ...morningShift },
   { ...morningShift, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 
@@ -168,7 +168,7 @@ function ShiftHeader({
 export function Shift(input: c.Props<typeof props, typeof meta>) {
   const loading = kit.useComponentState() === "loading";
   const { lang, words } = kit.useWords(teamWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const labels = shiftActionLabels(input.status, lang);
   const { canSwap, canOffer } = shiftActionFlags(input.status);

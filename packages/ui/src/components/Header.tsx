@@ -7,13 +7,13 @@ import {
   screenId,
   text,
   thingOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
-import { KitAction, KitBlock, KitText, useVariant } from "../kit";
+import { KitAction, KitBlock, KitText, useKit } from "../kit";
 import { prompt } from "../entry/prompt-Header.generated";
 
 export const meta = {
@@ -27,7 +27,6 @@ export const meta = {
   tier: "phone",
   realPath: "The screen's title and navigation links in the on-device app.",
   variants: {
-    density: ["comfortable", "compact"],
     emphasis: ["normal", "quiet"],
     detail: ["full", "brief"],
   },
@@ -87,7 +86,6 @@ export const examples = [
     title: "My plants",
     sub: "Three need water today",
     action: { icon: "plus", label: "Add a plant", goto: "new_plant" },
-    density: "compact",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -107,7 +105,7 @@ export const probes = [
 
 export function Header(input: Props<typeof props, typeof meta>) {
   const { style, title, sub, action, emphasis } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const role = style === "back" ? "heading" : "title";
   return (
     <KitBlock

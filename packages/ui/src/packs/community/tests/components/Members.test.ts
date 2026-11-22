@@ -83,7 +83,7 @@ describe("Members states and parts", () => {
   });
   it("keeps finish addresses and hides only declared brief parts without dropping data", () => {
     const keys = [...addressedElements(draw(sample)).keys()];
-    const compact = { ...sample, density: "compact" as const };
+    const compact = { ...sample };
     const brief = { ...sample, detail: "brief" as const };
     expect([...addressedElements(draw(compact)).keys()]).toEqual(keys);
     const hidden: readonly string[] = meta.variantParts["detail.brief"].hides;

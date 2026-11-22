@@ -1,3 +1,5 @@
+<!-- replay-literals: d d mcsd -->
+
 ## Purpose
 
 Check attendees in to a group class and fill newly open places.
@@ -9,4 +11,4 @@ Take attendance for named attendees at a scheduled group class, admit walk-ins o
 ## Writer
 
 - Give each attendee a unique id. Use an ISO timestamp with timezone such as "2026-11-21T10:00:00-05:00".
-- To hide the date, time and payment labels, set only detail to "brief". Keep the timestamp and paid flags in the data. Write "density":null and "surface":null unless explicitly asked for tighter spacing or an outlined card; never emit "comfortable" or "card" as defaults.
+- To hide the date, time and payment labels, set only detail to "brief". Keep the timestamp and paid flags in the data.

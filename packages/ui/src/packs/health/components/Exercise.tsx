@@ -18,11 +18,11 @@ import {
   photo,
   probesFor,
   text,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import { healthWordsFor } from "../lang";
 import { z } from "zod";
@@ -37,7 +37,7 @@ export const meta = {
   purpose: prompt.purpose,
   pick: prompt.pick,
   writeHints: prompt.writeHints,
-  variants: { surface: ["card", "outlined"], media: ["cover", "none"] },
+  variants: { media: ["cover", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
   region: "body",
   weight: 2,
@@ -162,8 +162,8 @@ function ExerciseResults({
 
 // prettier-ignore
 export function Exercise({
-  name, surface, media, photo: image, muscles, cues, equipment, best, last,
-}: Props<typeof props, typeof meta>) {
+  name, media, photo: image, muscles, cues, equipment, best, last }: Props<typeof props, typeof meta>) {
+  const surface = "card";
   const { exerciseLabels } = useWords(healthWordsFor).words;
   const loading = useComponentState() === "loading";
   const showPhoto = useVariant("media", meta.variants.media, media) === "cover";

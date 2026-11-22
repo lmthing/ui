@@ -9,4 +9,4 @@ Players' availability for one upcoming match: yes, maybe or no, an optional reas
 ## Writer
 
 - Put the current player's own row first; only that row offers a reply. Picked is the coach's selection, separate from the answer. Do not write totals.
-- To show replies without reasons, write detail "brief" and still supply any known reasons. Write density: null unless the person asks to change spacing.
+- To show replies without reasons, write detail "brief" and still supply any known reasons.

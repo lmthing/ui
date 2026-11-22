@@ -18,8 +18,6 @@ export const meta = {
   tier: "service",
   realPath: "A map service draws the map and places.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["meta"] } },
@@ -77,7 +75,6 @@ const shops = [
 export const examples = [
   { places: shops },
   {
-    density: "compact",
     places: [
       { name: "Juniper Café", meta: "Water bowl out front", goto: "juniper" },
       { name: "Alder Park", meta: "Off-lead meadow", goto: "alder" },
@@ -136,8 +133,8 @@ function PlaceRows({ places, activePin, density, detail }: {
 // prettier-ignore
 export function MapList(input: MapListProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const loading = state === "loading";
   const live = kit.useLiveControls(meta, input);

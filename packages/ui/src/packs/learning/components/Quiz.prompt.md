@@ -1,4 +1,4 @@
-<!-- replay-literals: d d mcdssds -->
+<!-- replay-literals: d d mcdssdd -->
 
 ## Purpose
 
@@ -14,4 +14,4 @@ Assessed practice questions with correct answers and immediate feedback. Use for
 - For kind "order", put 3–8 scrambled word tiles in words, and write answer as the complete list of their zero-based indexes in correct sentence order. For example, words ["fern", "the", "Water"] have answer [2, 1, 0]. Set options and pairs to null.
 - Use media inside a question only for its supplied audio clip reference. Component-level media controls question photos, not audio.
 - Leave selected_option, selected_left and selected_right null; selections are made by the learner.
-- When asked to hide the question photo, write media "none" and retain its photo reference. Always write density and surface as null unless requested; do not fill in defaults such as "comfortable" or "card". Use media null for unrequested media.
+- When asked to hide the question photo, write media "none" and retain its photo reference. Use media null for unrequested media.

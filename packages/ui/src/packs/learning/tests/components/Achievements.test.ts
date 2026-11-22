@@ -55,7 +55,7 @@ describe("Achievements schema and metadata", () => {
     const atLimit = { ...badge, title: "a".repeat(20), how: "a".repeat(48) };
     const parsed = props.parse({ badges: Array(12).fill(atLimit) });
     expect(parsed.arrange).toBe("grid");
-    expect(parsed.surface).toBe("card");
+    expect(parsed).not.toHaveProperty("surface");
     expect(stampItemIds(meta, parsed).badges.at(-1)).toEqual({ ...atLimit, id: "r12" });
     expectTypeOf<Props<typeof props, typeof meta>["badges"][number]["id"]>().toEqualTypeOf<string>();
   });
@@ -136,9 +136,7 @@ describe("Achievements parts and read/act", () => {
     expect(row(2, "earned")).toBeUndefined();
     expect(row(2, "how")?.text).toEqual(["Complete the practice."]);
     expect(row(3, "how")?.text).toEqual(["Locked"]);
-    expect([...draw({ arrange: "rows", surface: "outlined", density: "compact" }).keys()]).toEqual([
-      ...parts.keys(),
-    ]);
+    expect([...draw({ arrange: "rows" }).keys()]).toEqual([...parts.keys()]);
   });
   it("shares the visible text and accepts a press for each badge, not its detail", () => {
     const lines = readComponent(Achievements, mixed, "a1", "filled", {}, "en-US").join("\n");

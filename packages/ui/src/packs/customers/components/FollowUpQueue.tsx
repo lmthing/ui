@@ -18,8 +18,6 @@ export const meta = {
   tier: "phone",
   realPath: "Follow-ups are stored on the business phone; sending a nudge uses SMS or email.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     group: ["sections", "none"],
   },
   variantParts: { "group.none": { hides: ["overdue", "today", "upcoming", "completed"] } },
@@ -102,8 +100,8 @@ export const examples = [
     { id: "walks", clientName: "Mia Jones", kind: "renewal", due: "2027-12-03", done: true },
   ] },
   { ...ledge, group: "none" },
-  { ...ledge, density: "compact" },
-  { ...ledge, surface: "outlined" },
+  { ...ledge },
+  { ...ledge },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("FollowUpQueue");
@@ -160,8 +158,9 @@ function FollowUpRow({ row, density, today, grouped }: {
 
 // prettier-ignore
 export function FollowUpQueue(input: QueueProps) {
-  const { items, group, surface, density: requested } = kit.useLiveControls(meta, input) as QueueProps;
-  const density = kit.useVariant("density", meta.variants.density, requested);
+  const { items, group } = kit.useLiveControls(meta, input) as QueueProps;
+  const surface = "card";
+  const density = kit.useKit().density;
   const state = kit.useComponentState();
   const loading = state === "loading";
   const { words: { followUpLabels: copy } } = kit.useWords(customersWordsFor);

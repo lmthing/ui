@@ -18,8 +18,6 @@ export const meta = {
   tier: "phone",
   realPath: "Assignments are stored on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     lead: ["icon", "none"],
   },
   variantParts: { "lead.none": { hides: ["mark"] } },
@@ -171,8 +169,8 @@ function AssignmentRow({ row, density, lead }: {
 }
 
 export function Assignments(input: AssignmentsProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const lead = kit.useVariant("lead", meta.variants.lead, input.lead);
   const state = kit.useComponentState();
   return (

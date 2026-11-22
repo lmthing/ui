@@ -9,4 +9,4 @@ Search a list and filter it through named fields that each open their own option
 ## Writer
 
 - Write 1 to 4 separate filters, each with 2 to 8 distinct options. If a filter has a selected value, it must exactly match one of its options. sort is the current order's label, not an options list.
-- Use detail "brief" only if asked to hide the active filter count; keep the filter values and sort label. Write null for density and surface unless their appearance is explicitly requested, including when detail is "brief". Leave detail null when the count is not mentioned.
+- Use detail "brief" only if asked to hide the active filter count; keep the filter values and sort label. Leave detail null when the count is not mentioned.

@@ -1,8 +1,8 @@
 import { z } from "zod";
 // prettier-ignore
-import { useWords, KitCard, KitContent, KitEmpty, KitGrid, KitMeter, KitPhoto, KitRow, KitScaleTrack, KitText, KitTrail, useComponentState, useLiveControls, useVariant } from "../kit";
+import { useWords, KitCard, KitContent, KitEmpty, KitGrid, KitMeter, KitPhoto, KitRow, KitScaleTrack, KitText, KitTrail, useComponentState, useLiveControls, useKit } from "../kit";
 // prettier-ignore
-import { wordsFor, balancedLine, detailOf, numberLine, photo, isoDate, itemsOf, placeholderTitle, probesFor, reviewCountLine, reviewFitLine, reviewRatingLine, reviewReading, reviewScale, reviewStarsLine, text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../catalog";
+import { wordsFor, balancedLine, detailOf, numberLine, photo, isoDate, itemsOf, placeholderTitle, probesFor, reviewCountLine, reviewFitLine, reviewRatingLine, reviewReading, reviewScale, reviewStarsLine, text, thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props, type ThemeDensity, variantProps } from "../catalog";
 import { prompt } from "../entry/prompt-Review.generated";
 // Core first: Scale/stars records one person's rating, not client reviews, replies or an aggregate breakdown.
 // prettier-ignore
@@ -17,7 +17,7 @@ export const meta = {
   weight: 2,
   tier: "people",
   realPath: "Reviews left by clients in a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["bars", "response"] } },
   items: { key: "reviews", parts: [
     "root", "stars", "name", "date", "text", "response", "reply", "reply_label",
@@ -82,7 +82,7 @@ export const examples = [
       reply: "Thank you, Ben. They are a lovely pair.", photos: ["lib:dogs", "lib:park"], verified: true },
     { stars: 4, name: "Mia Jones", date: "2026-11-17", text: "Reliable pickups and clear updates." },
   ] },
-  { ...breakdown, density: "compact", surface: "outlined", detail: "brief" },
+  { ...breakdown, detail: "brief" },
   { style: "list", reviews: [
     { stars: 4, name: "Mia Jones", date: "2026-11-17", text: "The rain coat kept Maple dry the whole loop.", fitScale: 3 },
     { stars: 5, name: "Ana Reed", date: "2026-11-18", text: "The shy dog finally leads the pack in the last scene.", spoiler: true },
@@ -102,12 +102,13 @@ export const probes = [
   read("Reveal the plot detail hidden in Ana's review", { address: "r1/r2", action: "toggle" }, 3),
 ] satisfies Probe[];
 type ReviewProps = Props<typeof props, typeof meta>;
-type ReviewView = ReviewProps & { density: NonNullable<ReviewProps["density"]> };
+type ReviewView = ReviewProps & { density: ThemeDensity };
 type ReviewItem = NonNullable<ReviewProps["reviews"]>[number] & { expanded?: boolean };
 // prettier-ignore
 function ReviewSummary(input: ReviewView) {
   const { lang } = useWords();
-  const { density, surface, detail } = input;
+  const { density, detail  } = input;
+  const surface = "card";
   return (
     <KitCard part="root" padded {...{ density, surface }}>
       <KitText role="number" part="average" tabular {...{ density }} children={reviewRatingLine(input.average!, lang)} />
@@ -120,7 +121,7 @@ function ReviewSummary(input: ReviewView) {
   );
 }
 // prettier-ignore
-function ReviewBars({ bars, count, density, lang }: { bars: number[]; count: number; density: ReviewView["density"]; lang: string }) {
+function ReviewBars({ bars, count, density, lang }: { bars: number[]; count: number; density: ThemeDensity; lang: string }) {
   const compact = density === "compact";
   const meters = bars.map((amount, index) => {
     const label = reviewStarsLine(index + 1, lang);
@@ -130,7 +131,7 @@ function ReviewBars({ bars, count, density, lang }: { bars: number[]; count: num
   return compact ? <KitContent {...{ density }} children={meters} /> : meters;
 }
 // prettier-ignore
-function ReviewEntry({ review, density }: { review: ReviewItem; density: ReviewView["density"] }) {
+function ReviewEntry({ review, density }: { review: ReviewItem; density: ThemeDensity }) {
   const { lang, words: { reviewLabels: words } } = useWords();
   const { spoiler, expanded } = review;
   const hidden = spoiler && !expanded;
@@ -161,7 +162,7 @@ function ReviewEntry({ review, density }: { review: ReviewItem; density: ReviewV
   );
 }
 // prettier-ignore
-function ReviewDetails({ review, density }: { review: ReviewItem; density: ReviewView["density"] }) {
+function ReviewDetails({ review, density }: { review: ReviewItem; density: ThemeDensity }) {
   const { lang, words: { reviewLabels: words } } = useWords();
   return (
     <KitContent {...{ density }}>
@@ -182,12 +183,12 @@ function ReviewDetails({ review, density }: { review: ReviewItem; density: Revie
 // prettier-ignore
 export function Review(input: ReviewProps) {
   const state = useComponentState();
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const live = useLiveControls(meta, input) as ReviewView & { reviews?: ReviewItem[] };
-  if (state === "empty") return <KitCard part="root" {...{ density }} surface={input.surface}><KitEmpty part="text" /></KitCard>;
+  if (state === "empty") return <KitCard part="root" {...{ density }} surface={"card"}><KitEmpty part="text" /></KitCard>;
   if (input.style === "summary") return <ReviewSummary {...input} density={density} />;
   return (
-    <KitCard part="root" padded {...{ density }} surface={input.surface}>
+    <KitCard part="root" padded {...{ density }} surface={"card"}>
       {live.reviews?.map((review, index) => <KitContent key={review.id} group={index ? "response" : "content"} {...{ density }}><ReviewEntry {...{ review, density }} /></KitContent>)}
     </KitCard>
   );

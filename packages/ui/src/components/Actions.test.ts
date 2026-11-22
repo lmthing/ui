@@ -23,7 +23,6 @@ describe("Actions schema", () => {
   it("defaults to a grid on a card and trims labels", () => {
     expect(props.parse(inputWith({ ...item, label: "  Continue  " }))).toEqual({
       arrange: "grid",
-      surface: "card",
       items: [item, item],
     });
   });
@@ -138,7 +137,7 @@ describe("Actions addresses", () => {
     const input = examples[0]!;
     const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
     const base = renderInstance("Actions", input, "filled", theme);
-    const rows = renderInstance("Actions", { ...input, arrange: "rows", surface: "plain" }, "filled", theme);
+    const rows = renderInstance("Actions", { ...input, arrange: "rows" }, "filled", theme);
     expect(rows.match(/data-testid="home\/[^"]+"/g)).toEqual(base.match(/data-testid="home\/[^"]+"/g));
     expect(rows.match(/role="link"/g)).toHaveLength(input.items.length);
   });

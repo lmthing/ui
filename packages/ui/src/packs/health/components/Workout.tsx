@@ -20,7 +20,7 @@ export const meta = {
   tier: "phone",
   realPath: "Exercise sets stored on the device; this is a log, not medical advice.",
   writeHints: prompt.writeHints,
-  variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["time"] } },
   // prettier-ignore
   clocks: [{
@@ -161,7 +161,8 @@ function WorkoutSet({ item, set, pos, unit, stop }: SetProps) {
 }
 
 // prettier-ignore
-export function Workout({ exercises, unit, rest, elapsed, surface, detail }: WorkoutProps) {
+export function Workout({ exercises, unit, rest, elapsed, detail  }: WorkoutProps) {
+  const surface = "card";
   const full = kit.useVariant("detail", meta.variants.detail, detail) === "full";
   const state = kit.useComponentState();
   const { controller } = kit.useKit(), { screen, component } = kit.usePartContext();

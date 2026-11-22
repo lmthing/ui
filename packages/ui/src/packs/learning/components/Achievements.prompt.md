@@ -9,4 +9,4 @@ A grid of learning milestone badges with earned dates and unlock criteria. Not c
 ## Writer
 
 - Use earned for the date an earned badge was awarded. For locked badges leave earned null and put any unlock criterion in how.
-- When asked for one badge per row, set arrange to "rows", density to null and surface to null. Never write "comfortable" or "card" as defaults. Only set density or surface when the person explicitly requests a spacing or surface treatment.
+- When asked for one badge per row, set arrange to "rows". Otherwise leave arrange null unless a layout is requested.

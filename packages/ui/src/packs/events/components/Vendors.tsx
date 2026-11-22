@@ -30,7 +30,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Supplier records are stored on the device; calls use the supplier's phone number.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["due"] } },
   parts: ["root", "totals", "empty"],
   // prettier-ignore
@@ -126,7 +126,7 @@ export const probes = [
 
 type VendorsProps = c.Props<typeof props, typeof meta>;
 type VendorRow = VendorsProps["vendors"][number];
-type Finish = { density: c.ThemeDensity; surface: VendorsProps["surface"] };
+type Finish = { density: c.ThemeDensity; surface: c.SurfaceFinish };
 type AmountFigure = ReturnType<typeof vendorAmounts>[number];
 
 // prettier-ignore
@@ -182,8 +182,8 @@ function Supplier({ row, detail, density, surface }: Finish & { row: VendorRow; 
 export function Vendors(input: VendorsProps) {
   const state = kit.useComponentState();
   const { lang } = kit.useWords(eventsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   if (state === "empty") return <kit.KitCard part="root" {...{ density, surface }}>
     <kit.KitEmpty part="empty" icon="briefcase" decorativeIcon />

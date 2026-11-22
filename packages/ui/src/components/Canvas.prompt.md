@@ -1,5 +1,3 @@
-<!-- replay-literals: d d ins -->
-
 ## Purpose
 
 An idea no existing component can express, such as a game or a drawing tool.
@@ -7,7 +5,3 @@ An idea no existing component can express, such as a game or a drawing tool.
 ## Pick
 
 Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).
-
-## Writer
-
-- Use surface "plain" only when asked to remove the outline or card around the placeholder.

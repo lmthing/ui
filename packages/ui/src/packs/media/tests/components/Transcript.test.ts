@@ -48,6 +48,12 @@ describe("Transcript schema", () => {
     expect(props.safeParse(example).success).toBe(true);
   });
 
+  it("keeps theme presentation out of props but accepts hidden timestamps", () => {
+    expect(props.safeParse({ ...input, density: "compact" }).success).toBe(false);
+    expect(props.safeParse({ ...input, surface: "plain" }).success).toBe(false);
+    expect(props.parse({ ...input, detail: "brief" }).detail).toBe("brief");
+  });
+
   it("accepts 40 ordered lines at the character and playback limits", () => {
     const lines = Array.from({ length: 40 }, (_, i) => ({
       text: "x".repeat(160),

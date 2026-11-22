@@ -1,4 +1,4 @@
-import type { Props } from "../../../catalog";
+import type { Props, ThemeDensity } from "../../../catalog";
 import { KitGrid, KitLayoutText, KitPhoto, KitRow, KitSkeleton, KitTrail, useWords } from "../../../kit";
 import type { unitSnapshot } from "../copy";
 import { propertyWordsFor } from "../lang";
@@ -12,7 +12,7 @@ export function UnitRow({ unit, snapshot, media, density, loading, notice }: {
   unit: Unit;
   snapshot: ReturnType<typeof unitSnapshot>;
   media: UnitsProps["media"];
-  density: NonNullable<UnitsProps["density"]>;
+  density: ThemeDensity;
   loading: boolean;
   notice: boolean;
 }) {

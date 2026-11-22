@@ -55,7 +55,6 @@ describe("Patterns schema and boundaries", () => {
     expect(props.parse({ factors: [" Outdoors "] })).toMatchObject({
       factors: ["Outdoors"],
       minDays: 14,
-      surface: "card",
       detail: "full",
     });
   });
@@ -146,7 +145,7 @@ describe("Patterns states, parts and reading", () => {
   });
   it("changes no addresses for finish variants and hides only pair parts for brief", () => {
     const before = draw(input, data).addresses;
-    expect(draw({ ...input, density: "compact", surface: "outlined" }, data).addresses).toEqual(before);
+    expect(draw({ ...input }, data).addresses).toEqual(before);
     const brief = { ...input, detail: "brief" };
     expect(draw(brief, data).addresses).toEqual(before.filter((part) => !/\/with(?:out)?$/.test(part)));
     expect(readComponent(def, brief, "p1", "filled", {}, "en", data).join("\n")).not.toContain("With factor");

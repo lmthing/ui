@@ -8,4 +8,4 @@ Entering money is the main screen task: large live amount, decimal keypad and op
 
 ## Writer
 
-- value and max are nonnegative numbers; value must not exceed max. note enables input, never note text. For a hidden enabled note use note true, detail brief. If no border or surface requested, write surface null, not card.
+- value and max are nonnegative numbers; value must not exceed max. note enables input, never note text. For a hidden enabled note use note true, detail brief.

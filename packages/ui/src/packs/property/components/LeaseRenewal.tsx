@@ -18,7 +18,7 @@ export const meta = {
   writeHints: prompt.writeHints,
   region: "body", weight: 2,
   realPath: "A shared app delivers the proposal and response between tenant and landlord; a counter does not amend the lease.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["sub"] } },
   parts: ["root", "unit", "tenant", "deadline", "status", "current_rent", "proposed_rent", "change",
     "selected_term", "message", "note", "accept", "counter", "decline"],
@@ -174,8 +174,8 @@ export function LeaseRenewal(input: c.Props<typeof props, typeof meta>) {
   const state = kit.useComponentState(), { lang, words } = kit.useWords(propertyWordsFor);
   const copy = renewalCopy(lang, kit.useAppCurrency(), words.renewals);
   const live = kit.useLiveControls(meta, input) as View;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const layout = <Offer {...{ live, density, full, copy, state }} />;
   const expired = live.expired && live.status === "sent";

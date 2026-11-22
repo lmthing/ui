@@ -21,8 +21,10 @@ const keeper = examples[0]!;
 const display = examples[1]!;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const address = (part: string) => `home/s1/${part}`;
-const render = (input: unknown, state: StateName = "filled", lang = "en") =>
-  addressedElements(renderInstance("Scoreboard", input, state, theme, { component: "s1", lang }));
+const render = (input: unknown, state: StateName = "filled", lang = "en", density?: "compact") =>
+  addressedElements(
+    renderInstance("Scoreboard", input, state, { ...theme, density }, { component: "s1", lang }),
+  );
 const step = (address: string, action: string) => ({ address, action });
 
 function renderedScreen(controller: ReturnType<typeof createScreenController>) {
@@ -127,7 +129,7 @@ describe("Scoreboard states and parts", () => {
     for (const side of ["home", "away"])
       for (const action of ["increment", "decrement"])
         expect(hasStepTarget(keys.get(address(side))!, action)).toBe(true);
-    expect([...render({ ...keeper, density: "compact", emphasis: "quiet" }).keys()]).toEqual([
+    expect([...render({ ...keeper, emphasis: "quiet" }, "filled", "en", "compact").keys()]).toEqual([
       ...keys.keys(),
     ]);
     expect([...render({ ...keeper, detail: "brief" }).keys()]).toEqual(

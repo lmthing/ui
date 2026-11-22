@@ -80,7 +80,6 @@ describe("Feelings schema and boundaries", () => {
     const words = Array.from({ length: 8 }, (_, at) => `${at}${"x".repeat(15)}`);
     const families = Array.from({ length: 6 }, (_, at) => ({ label: `${at}${"x".repeat(13)}`, words }));
     expect(props.parse({ families, chosen: words.slice(0, 3) })).toMatchObject({
-      surface: "card",
       detail: "full",
       families,
       chosen: words.slice(0, 3),

@@ -2,13 +2,15 @@
 import {
   useWords, KitBars, KitCard, KitContent, KitGrid, KitHeader, KitShare, KitSkeleton, KitState,
   KitText, useComponentState, useVariant,
+  useKit,
 } from "../kit";
 import { z } from "zod";
 // prettier-ignore
 import {
   probesFor, clip, itemsOf, icon, localeOf, placeholderTitle, text, thingOf, titleOf, screenId,
-  totalLine, numberLine, wordsFor, variantProps, type ThemeDensity, type FallbackInput, type Meta,
+  totalLine, numberLine, wordsFor, type ThemeDensity, type FallbackInput, type Meta,
   type Probe, type Props,
+  variantProps,
 } from "../catalog";
 import { prompt } from "../entry/prompt-Bars.generated";
 export const meta = {
@@ -23,7 +25,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Amounts grouped by day or category from records in the on-device database.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["total"] } },
   items: { key: "points", parts: ["root", "label"] },
   parts: ["root", "title", "total", "status"],
@@ -127,7 +129,7 @@ const fullExamples = [
 export const examples = [
   ...fullExamples,
   { ...fullExamples[1]!, detail: "brief" },
-  { ...fullExamples[2]!, density: "compact" },
+  { ...fullExamples[2]! },
   { ...fullExamples[1]!, active: 1, status: "Busier than usual" },
   {
     style: "share",
@@ -172,7 +174,7 @@ function Total({ value, unit, compact = false, density }: TotalProps) {
 // prettier-ignore
 export function Bars(input: Props<typeof props, typeof meta>) {
   const { style, title, unit, points, detail, active, status } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const { lang } = useWords();
   const state = useComponentState();
   if (state === "loading" || state === "empty") {

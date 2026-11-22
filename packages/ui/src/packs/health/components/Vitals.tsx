@@ -5,11 +5,11 @@ import {
   probesFor,
   screenId,
   text,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import {
   KitCard,
@@ -41,7 +41,7 @@ export const meta = {
   tier: "phone",
   realPath:
     "Readings typed on the device; health-store device imports need read permission, and ranges are not medical advice.",
-  variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["at"] } },
   items: { key: "readings", parts: ["root", "label", "value", "value2", "unit", "band", "at"] },
   parts: ["root", "add"],
@@ -164,7 +164,8 @@ function VitalValue({ reading, lang }: { reading: Reading; lang: string }) {
 }
 
 // prettier-ignore
-export function Vitals({ readings, goto, surface, detail }: Props<typeof props, typeof meta>) {
+export function Vitals({ readings, goto, detail  }: Props<typeof props, typeof meta>) {
+  const surface = "card";
   const full = useVariant("detail", meta.variants.detail, detail) === "full";
   const state = useComponentState();
   const { lang, words } = useWords(healthWordsFor);

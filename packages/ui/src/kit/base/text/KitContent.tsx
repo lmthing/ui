@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { XStack, YStack, styled } from "tamagui";
-import { component, space, type as typography, variants, type AxisValue } from "../../../catalog";
+import { component, space, type as typography, variants, type ContentAlign } from "../../../catalog";
 import { useVariantDensity } from "../../provider";
 import { useTextStep, type TextFinish } from "./text-step";
 
@@ -35,7 +35,7 @@ export function KitContent({
   /** A response group separates from the preceding content without changing its internal gap. */
   group?: "content" | "response";
   rhythm?: "close" | "flush";
-  align?: AxisValue<"align">;
+  align?: ContentAlign;
   children: ReactNode;
 } & TextFinish) {
   const gap = space[useVariantDensity(density).gap];

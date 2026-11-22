@@ -17,7 +17,7 @@ export const meta = {
   weight: 2,
   tier: "people",
   realPath: "Members’ entries summed in a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["top", "root", "rank", "name", "value"] } },
   // prettier-ignore
   parts: ["root", "title", "goal", "total", "track", "mine", "ends", "days_left", "top", "join", "join_label", "log", "log_label"],
@@ -157,8 +157,8 @@ function ChallengeAction({ input, words, density }: {
 // prettier-ignore
 export function Challenge(input: ChallengeProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang } = kit.useWords(socialWordsFor);
   const words = challengeCopy({ ...input, detail }, state, lang);

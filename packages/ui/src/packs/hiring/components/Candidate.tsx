@@ -20,7 +20,7 @@ export const meta = {
   tier: "phone",
   realPath:
     "A human records application evidence and decisions on the phone without sending a message or creating a staff record.",
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["evidence"] } },
   // prettier-ignore
   parts: ["root", "name", "photo", "role", "applied", "stage", "outcome", "interview", "interview_label",
@@ -95,7 +95,7 @@ export const examples = [
     interviewGoto: "sam_interview", offerGoto: "sam_offer",
   },
   {
-    applicationId: "mara", jobId: "baker", name: "Mara Kim", detail: "brief", density: "compact",
+    applicationId: "mara", jobId: "baker", name: "Mara Kim", detail: "brief",
     role: "Morning baker", applied: "2027-05-01", stage: "offer", outcome: "hired",
     criteria: [{ label: "Bench work", finding: "meets", evidence: "Trial shift included shaping rye loaves." }],
     interviewGoto: "mara_interview", offerGoto: "mara_offer",
@@ -164,7 +164,7 @@ function ReviewActions({ input, density, loading = false }: { input: Review; den
 export function Candidate(input: Review) {
   const { lang, words: { candidate: words } } = kit.useWords(hiringWordsFor);
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { applied, stage, outcome } = candidateCopy(input, lang);
   return <kit.KitCard part="root" padded {...{ density }}>

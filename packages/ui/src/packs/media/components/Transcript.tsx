@@ -25,7 +25,7 @@ export const meta = {
     commands: [{ scope: "item", part: "root", to: player, action: "seek", payload: { from: "at" } }],
     observe: { from: player, at: "playhead" },
   },
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["at"] } },
   parts: ["root", "title", "follow", "lines", "empty"],
   items: { key: "lines", parts: ["root", "at", "speaker", "text", "save"] },
@@ -228,8 +228,8 @@ export function Transcript(input: TranscriptProps) {
   const {
     words: { transcript: words },
   } = kit.useWords(mediaWordsFor);
-  const { style, detail, surface, lines } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const { style, detail, lines } = input;
+  const { density } = kit.useKit();
   const live = kit.useLiveControls(meta, input);
   const operations = kit.useHostOperations();
   const active = activeTranscriptIndex({
@@ -264,7 +264,7 @@ export function Transcript(input: TranscriptProps) {
     </>
   );
   return (
-    <kit.KitCard part="root" padded {...{ density, surface }}>
+    <kit.KitCard part="root" padded density={density}>
       <kit.KitState part="empty" density={density} message={words.empty} icon="file_text" loading={content}>
         {content}
       </kit.KitState>

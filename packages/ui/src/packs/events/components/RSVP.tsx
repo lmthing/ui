@@ -18,7 +18,7 @@ export const meta = {
   tier: "people",
   realPath: "The guest sends their reply to the organiser through a shared app or link.",
   writeHints: prompt.writeHints,
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["note"] } },
   parts: [
     "root",
@@ -161,8 +161,8 @@ function ReplyForm(input: RsvpFormProps) {
 export function RSVP(input: c.Props<typeof props, typeof meta>) {
   const { lang, words: { rsvp } } = kit.useWords(eventsWordsFor);
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const sent = state === "success";
   return <kit.KitCard part="root" padded {...{ density, surface }}>

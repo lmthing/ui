@@ -24,7 +24,6 @@ describe("OrderStatus schema and boundaries", () => {
     const steps = Array.from({ length: 5 }, () => ({ label: ` ${"a".repeat(16)} `, time: "23:59" }));
     expect(props.parse({ steps, line: "b".repeat(48), at: 4, seller: true })).toMatchObject({
       steps: steps.map(() => ({ label: "a".repeat(16), time: "23:59" })),
-      surface: "card",
       detail: "full",
       can_advance: false,
     });

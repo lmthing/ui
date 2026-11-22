@@ -8,23 +8,14 @@ import {
   text,
   thingOf,
   titleOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
 import { z } from "zod";
-import {
-  KitCard,
-  KitContent,
-  KitPhoto,
-  KitSkeleton,
-  KitText,
-  useComponentState,
-  useKit,
-  useVariant,
-} from "../kit";
+import { KitCard, KitContent, KitPhoto, KitSkeleton, KitText, useComponentState, useKit } from "../kit";
 import { prompt } from "../entry/prompt-Hero.generated";
 
 export const meta = {
@@ -38,9 +29,7 @@ export const meta = {
   tier: "phone",
   realPath: "A headline derived from content or a query in the on-device database.",
   variants: {
-    density: ["comfortable", "compact"],
     emphasis: ["normal", "quiet"],
-    align: ["start", "center"],
     detail: ["full", "brief"],
     media: ["none", "cover"],
     tone: ["neutral", "good", "warn", "bad"],
@@ -88,13 +77,13 @@ export const examples = [
   },
   { title: "Morning walk", sub: "Clover and Pip are ready for their morning park walk" },
   { style: "number", title: "2", sub: "plants need water", tone: "warn" },
-  { title: "Watered", align: "center", sub: "Next check on Friday" },
+  { title: "Watered", sub: "Next check on Friday" },
   { title: "Watered", tone: "good", sub: "Next check on Friday" },
   { title: "Watered", sub: "Next check on Friday" },
   { title: "Cancelled", tone: "bad" },
   { title: "Plant care", sub: "Check the ferns before watering", emphasis: "quiet" },
   { title: "Plant care", sub: "Check the ferns before watering", detail: "brief" },
-  { title: "Plant care", sub: "Check the ferns before watering", density: "compact" },
+  { title: "Plant care", sub: "Check the ferns before watering" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Hero");
@@ -111,8 +100,9 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Hero(input: Props<typeof props, typeof meta>) {
-  const { style, title, sub, photo, media, tone, emphasis, align } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const { style, title, sub, photo, media, tone, emphasis } = input;
+  const align = "start";
+  const density = useKit().density;
   const state = useComponentState();
   const { resolvePhoto } = useKit();
   const hasPhoto = media === "cover" && photo && resolvePhoto?.(photo);
