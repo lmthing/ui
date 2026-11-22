@@ -1,5 +1,13 @@
-import { appointmentDate, numberLine, pluralForm, timeOfDayLine, type DeviceData } from "../../../catalog";
+import {
+  appointmentDate,
+  numberLine,
+  pluralForm,
+  timeOfDayLine,
+  type DeviceData,
+  type Values,
+} from "../../../catalog";
 import { requestsWordsFor } from "../lang";
+import { slaProgress } from "./SlaPolicy";
 
 export const requestStatuses = ["new", "queued", "working", "waiting", "resolved", "closed"] as const;
 export const requestUrgencies = ["low", "normal", "urgent"] as const;
@@ -17,6 +25,7 @@ export type QueueRecord = {
   openedAt: string;
   due?: string | undefined;
   dueAt?: string | undefined;
+  sla?: Parameters<typeof slaProgress>[0] | undefined;
 };
 
 // The host publishes app-local clock time (epoch ms) and omitted counts independently of Writer props.
@@ -27,16 +36,33 @@ const hoursPerDay = 24;
 const endOfDay = "23:59:59.999";
 export const isCompletedRequest = (status: Status) => status === "resolved" || status === "closed";
 
-export function queueSnapshot(data: DeviceData | undefined, view: QueueView) {
-  const record = data?.requestQueue?.[0];
-  const { now, overflow } =
-    record && typeof record === "object"
-      ? (record as { now?: unknown; overflow?: Partial<Record<QueueView, unknown>> })
-      : {};
-  const count = overflow?.[view];
+type QueueData = { now?: unknown; overflow?: unknown; mine?: unknown; mineOverflow?: unknown };
+
+export function queueSnapshot(data: DeviceData | undefined, view: QueueView, personal = false) {
+  const record = data?.requestQueue?.[0] as QueueData | undefined;
+  const { now, overflow, mineOverflow } = record ?? {};
+  const count = ((personal ? mineOverflow : overflow) as Partial<Record<QueueView, unknown>>)?.[view];
   return {
     now: typeof now === "number" && Number.isFinite(new Date(now).getTime()) ? now : previewNow,
     more: typeof count === "number" && Number.isSafeInteger(count) && count > 0 ? count : 0,
+  };
+}
+
+export function queueVisibility(input: Readonly<Values>, _id: string, data: DeviceData): Values {
+  const { style, view, addressed_rows } = input as {
+    style?: string;
+    view: QueueView;
+    addressed_rows: (QueueRecord & Values)[];
+  };
+  const { mine } = (data.requestQueue?.[0] as QueueData | undefined) ?? {};
+  const assigned = Array.isArray(mine) ? mine : [];
+  return {
+    addressed_rows: addressed_rows.map((row) => ({
+      ...row,
+      inView:
+        isCompletedRequest(row.status) === (view === "completed") &&
+        (style !== "mine" || assigned.includes(row.number)),
+    })),
   };
 }
 
@@ -88,6 +114,7 @@ export function requestLines(row: QueueRecord, now: number, lang?: string) {
     age: ageLine(row, now, lang),
     due: date && (overdue ? words.overdue(date) : words.due(date)),
     overdue,
+    breach: row.sla && slaProgress(row.sla, now).state === "error" ? words.slaBreached : undefined,
   };
 }
 
@@ -116,6 +143,7 @@ export function requestSkeleton(
     place: merge ? [row.place, lines.who].join(separator) : row.place,
     who: !merge && lines.who,
     due: lines.due,
+    sla_breached: lines.breach,
   };
   return [
     { key: "title", text: row.title, role: "heading" as const, density: "comfortable" as const },
@@ -131,16 +159,24 @@ export function requestQueueReading(
   grouped: boolean,
   data: DeviceData | undefined,
   lang?: string,
+  personal = false,
 ): string[] {
   const words = requestsWordsFor(lang).queue;
-  const { more, now } = queueSnapshot(data, view);
+  const { more, now } = queueSnapshot(data, view, personal);
   const counts = queueCounts(rows.length, more, lang);
   return [
+    ...(personal ? [words.mine] : []),
     ...Object.values(words.views),
     counts.count,
-    ...(rows.length ? [] : [words.empty[view]]),
+    ...(rows.length ? [] : [(personal ? words.mineEmpty : words.empty)[view]]),
     ...requestGroups(rows, grouped).flatMap(({ status, rows }) => [
-      ...(status ? [words.status[status]] : []),
+      ...(status
+        ? [
+            personal
+              ? [words.status[status], numberLine(rows.length, lang)].join(words.separator)
+              : words.status[status],
+          ]
+        : []),
       ...rows.map((row) => {
         const lines = requestLines(row, now, lang);
         return [
@@ -153,6 +189,7 @@ export function requestQueueReading(
           lines.who,
           lines.age,
           lines.due,
+          lines.breach,
         ]
           .filter(Boolean)
           .join(words.separator);

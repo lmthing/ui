@@ -28,6 +28,7 @@ export const request_detail = {
         { allow: ["Card"], required: true },
         { allow: ["CannedReplies"], required: false },
         { allow: ["RequestThread"], required: true },
+        { allow: ["FileList"], required: false },
       ],
       defaults: [
         { id: "h1", c: "Header", style: "back" },

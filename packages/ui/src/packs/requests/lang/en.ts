@@ -42,6 +42,12 @@ export const en = {
     count: (count: string, form: LDMLPluralRule) => `${count} ${form === "one" ? "request" : "requests"}`,
     more: (count: string) => `and ${count} more`,
     empty: { active: "No active requests", completed: "No completed requests" },
+    mine: "Assigned to me",
+    mineEmpty: {
+      active: "No active requests assigned to you",
+      completed: "No completed requests assigned to you",
+    },
+    slaBreached: "SLA breached",
     error: "Could not load requests",
     retry: "Try again",
     age: (count: string, unit: "minute" | "hour" | "day", form: LDMLPluralRule) =>
@@ -62,6 +68,8 @@ export const en = {
     sent: "Reply sent",
     failed: "Reply not sent",
     photo: "Attached photo",
+    file: "Attached file",
+    canned: "Browse saved replies",
     events: { status: "Status changed", assignment: "Assignment changed", work: "Work order linked" },
     statuses: {
       new: "New",
@@ -79,6 +87,8 @@ export const en = {
     blockers: { none: "none", information: "information", access: "access", parts: "parts", other: "other" },
     number: (id: string) => `Work order ${id}`,
     request: (id: string) => `Request ${id}`,
+    asset: (id: string) => `Asset ${id}`,
+    signOff: "Sign off on work",
     assignee: (name: string) => `Assigned to ${name}`,
     window: (date: string, from: string, to: string) => `${date} · ${from}–${to}`,
     checks: "Work checks",

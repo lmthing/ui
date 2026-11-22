@@ -15,6 +15,7 @@ type Entry = {
   who?: string | undefined;
   order?: string | undefined;
   photo?: string | undefined;
+  file?: string | undefined;
   text?: string | undefined;
 };
 
@@ -46,6 +47,7 @@ type Thread = {
   detail: "full" | "brief";
   draft?: string | undefined;
   audience_choices?: readonly Entry["audience"][];
+  canBrowseReplies?: boolean;
 };
 
 export function threadLoading({ number, entries, detail }: Thread, lang?: string) {
@@ -60,13 +62,23 @@ export function threadLoading({ number, entries, detail }: Thread, lang?: string
 }
 
 export function threadRead(input: unknown, state: StateName, lang?: string): string[] {
-  const { number, entries, detail, draft, audience_choices } = input as Thread;
+  const { number, entries, detail, draft, audience_choices, canBrowseReplies } = input as Thread;
   const { thread: words } = requestsWordsFor(lang);
   return [
     words.heading(number),
     ...threadOrder(entries).map((entry) => {
       const { event, fact, date, time, audience } = threadEntryCopy(entry, detail, lang);
-      return [entry.id, event, fact, entry.by, time, date, audience, entry.photo && words.photo]
+      return [
+        entry.id,
+        event,
+        fact,
+        entry.by,
+        time,
+        date,
+        audience,
+        entry.photo && words.photo,
+        entry.file && words.file,
+      ]
         .filter(Boolean)
         .join(" · ");
     }),
@@ -77,6 +89,7 @@ export function threadRead(input: unknown, state: StateName, lang?: string): str
             words.audience,
             ...audience_choices.map((choice) => words.audiences[choice]),
             draft || words.field,
+            ...(canBrowseReplies ? [words.canned] : []),
             words.send,
           ]
         : []),
