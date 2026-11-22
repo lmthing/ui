@@ -67,7 +67,7 @@ function createCommittedController(
 }
 
 export function usePhoneController(props: PhoneScreenProps) {
-  const { screen, defs, interaction, interactive = true, media } = props;
+  const { screen, defs, interaction, interactive = true, media, micCapture } = props;
   const { requestPhoto, parentGate, writeClipboard } = props;
   const { attachments, resolvePlayback } = props;
   const callbacks = useRef(props);
@@ -85,6 +85,7 @@ export function usePhoneController(props: PhoneScreenProps) {
       store,
       parentGate,
       interactive,
+      micCapture,
       requireMounted: true,
       media:
         media ??
@@ -98,6 +99,7 @@ export function usePhoneController(props: PhoneScreenProps) {
     screen,
     defs,
     media,
+    micCapture,
     Boolean(attachments),
     Boolean(resolvePlayback),
     hasMediaResolver,
