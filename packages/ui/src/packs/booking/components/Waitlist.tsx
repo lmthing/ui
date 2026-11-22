@@ -1,33 +1,32 @@
-import { useWords, useVariant, KitAction, KitCard, KitContent, KitRow, KitText } from "../../../kit";
+import { useWords, KitAction, KitCard, KitContent, KitRow, KitText, useKit } from "../../../kit";
 import { bookingWordsFor } from "../lang";
 import { z } from "zod";
 import {
   numberLine,
   probesFor,
-  variantProps,
   type CastLike,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import { queueAhead, queueCount, queueExact } from "../copy";
+import { prompt } from "../../../entry/prompt-Waitlist.generated";
 
 // Core first: Progress/compact shows capacity, not membership or position in a waiting queue.
 export const meta = {
   id: "Waitlist",
   status: "ready",
   group: "action",
-  purpose: "Join or leave the queue for a full session and see your place.",
-  pick: "A full session's waiting queue: join, leave, place in line and people ahead. Not capacity or progress toward a target (Progress).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "A queue in a shared app; notifications tell the next person when a place opens.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["ahead"] } },
-  writeHints: [
-    'Leave density and detail null unless requested. For a joined queue with a known position, detail "brief" shows the position without the number ahead; retain ahead in the data.',
-  ],
+  writeHints: prompt.writeHints,
   parts: ["root", "title", "position", "label", "ahead", "join", "leave"],
   confirmParts: ["leave"],
   states: ["filled", "success"],
@@ -71,7 +70,7 @@ export const examples = [
   { ahead: 0, joined: true },
   { ahead: 0, joined: false },
   { position: 3, ahead: 2, joined: true, detail: "brief" },
-  { position: 3, ahead: 2, joined: true, density: "compact" },
+  { position: 3, ahead: 2, joined: true },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Waitlist");
 export const probes = [
@@ -95,7 +94,7 @@ function queueLabelsForPosition(position: number, lang?: string) {
 
 export function Waitlist(input: Props<typeof props, typeof meta>) {
   const { position, ahead, joined, detail } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const { lang, words } = useWords(bookingWordsFor);
   const { queueLabels } = words;
   const hasPosition = joined && position !== undefined;

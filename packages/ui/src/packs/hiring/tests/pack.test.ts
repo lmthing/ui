@@ -78,7 +78,7 @@ describe("hiring recipes and worked example", () => {
     };
     const selected = hiring.defaultLines("hiring_job_hunt", "hiring_application", listed).components;
     const application = selected.find(({ c }) => c === "Applications");
-    expect(application).toMatchObject({ surface: "card" });
+    expect(application).not.toHaveProperty("surface");
     expect(application?.applications).toMatchObject([{ role: "Proofreader", employer: "Harbour Press" }]);
     expect(selected.at(-1)?.c).toBe("Note");
   });

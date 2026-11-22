@@ -14,6 +14,7 @@ export function KitMeter({
   tone = "accent",
   slim = false,
   addressed = true,
+  fillFrom,
 }: {
   label: string;
   amount: string;
@@ -22,6 +23,8 @@ export function KitMeter({
   slim?: boolean;
   /** Set false when the containing breakdown has one address and its individual bars are not parts. */
   addressed?: boolean;
+  /** Anchor a comparison fill to the logical end (right in LTR, left in RTL). */
+  fillFrom?: "start" | "end";
 }) {
   const fill = Math.min(1, Math.max(0, ratio));
   return (
@@ -42,6 +45,7 @@ export function KitMeter({
         aria-hidden
       >
         <YStack
+          {...(fillFrom === "end" ? { alignSelf: "flex-end" as const } : {})}
           width={`${fill * 100}%`}
           height="100%"
           backgroundColor={tone === "accent" ? "$accent" : `$${tone}`}

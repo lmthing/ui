@@ -1,30 +1,26 @@
 import { z } from "zod";
 // prettier-ignore
 import { probesFor, clip, icon, itemVariantProps, itemsOf, placeholderTitle,
-  placeholderValue, secretRevealKey, secretRevealMatches, text, thingOf, variantProps, type FallbackInput, type Meta, type Probe,
+  placeholderValue, secretRevealKey, secretRevealMatches, text, thingOf, type FallbackInput, type Meta, type Probe,
   type Props, type ThemeDensity,
+  variantProps,
 } from "../catalog";
 import * as kit from "../kit";
+import { prompt } from "../entry/prompt-KeyValue.generated";
 
 export const meta = {
   id: "KeyValue",
   status: "ready",
   group: "content",
-  purpose: "Label and value details of one single thing, like its room or schedule.",
-  pick: "Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).",
-  writeHints: [
-    'A request for a two-column grid sets arrange to "grid" only. Otherwise leave arrange null for rows. Density, surface and lead must each be null unless their specific treatment was requested.',
-    'For ordinary facts, set both tone and mark to null on every pair, never "neutral" or "none". Use those axes only if a specific fact needs visual status or highlighting by request. Set lead to "none" only when specifically asked to hide icons.',
-    "Set masked to true only when the values should be hidden until revealed. Use only synthetic example values for private facts; never copy real credentials.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Fields of one record in the on-device database.",
   variants: {
     arrange: ["rows", "grid"],
-    density: ["comfortable", "compact"],
-    surface: ["card", "plain", "outlined"],
     lead: ["icon", "none"],
   },
   items: {
@@ -102,9 +98,9 @@ export const examples = [
       { label: "Notes", value: "Quiet parks" },
     ],
   },
-  { density: "compact", pairs: [...facts] },
-  { surface: "plain", pairs: [...facts] },
-  { surface: "outlined", pairs: [...facts] },
+  { pairs: [...facts] },
+  { pairs: [...facts] },
+  { pairs: [...facts] },
   { lead: "none", pairs: [...facts] },
   { pairs: [{ label: "Plant health", value: "Healthy", icon: "heart", tone: "good" }, ...facts.slice(1)] },
   { pairs: [{ label: "Soil moisture", value: "Dry", icon: "drop", tone: "warn" }, ...facts.slice(1)] },
@@ -183,9 +179,10 @@ function PairRow({ pair, horizontal, density, loading, masked }: {
 }
 
 // prettier-ignore
-export function KeyValue({ arrange, pairs, surface, masked = false, density: requestedDensity }: Props<typeof props, typeof meta>) {
+export function KeyValue({ arrange, pairs, masked = false  }: Props<typeof props, typeof meta>) {
+  const surface = "card";
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, requestedDensity);
+  const density = kit.useKit().density;
   const grid = arrange === "grid";
   const spacing = grid ? "compact" : density;
   return (

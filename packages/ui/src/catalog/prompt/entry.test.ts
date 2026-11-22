@@ -4,7 +4,7 @@ import { expect, it } from "vitest";
 import { z } from "zod";
 import { archetypes, components, createRegistry } from "@lmthing/ui/catalog";
 import { choosePrompt, composePrompt, signature, writePrompt, type Definition } from "../probes";
-import { buildEntry, composeFlow, writerFigures, writerItemTone, writerVariants } from "./index";
+import { buildEntry, composeFlow, writerItemTone, writerVariants } from "./index";
 import markdown from "./writer-variants.md?raw";
 
 const definitions: readonly Definition[] = createRegistry({ includeDrafts: true }).defs;
@@ -45,7 +45,6 @@ it("preserves the Writer prompt for a component without axes", () => {
 it("neutralizes existing component and row axes without changing other example fields", () => {
   const list = components.List;
   const example = {
-    density: "compact",
     overflow: "peek",
     rows: [{ title: "First", trail: "toggle", done: true }, { title: "Second" }],
   };
@@ -53,24 +52,20 @@ it("neutralizes existing component and row axes without changing other example f
   expect(entry).toContain(
     `example: ${JSON.stringify({
       c: "List",
-      density: null,
       overflow: null,
       rows: [{ title: "First", trail: null, done: true }, { title: "Second" }],
     })}`,
   );
-  expect(example.density).toBe("compact");
   expect(example.rows[0]?.trail).toBe("toggle");
 });
 
-it("uses the Markdown spacing rule for both Writer paths without leaking it into unrelated prompts", () => {
-  expect([writerVariants, writerFigures, writerItemTone, composeFlow]).toEqual(
-    markdown.trimEnd().split(/\n\n## (?:Figures|Item tone|Composition)\n\n/),
+it("uses the Markdown variant guidance for both Writer paths without leaking it into unrelated prompts", () => {
+  expect([writerVariants, writerItemTone, composeFlow]).toEqual(
+    markdown.trimEnd().split(/\n\n## (?:Item tone|Composition)\n\n/),
   );
   const brief = "Keep all rows, but show only the first two";
   expect(writePrompt(components.List, brief)).toContain(`${writerVariants}\nBrief: ${brief}`);
-  expect(writePrompt(components.List, brief)).not.toContain(writerFigures);
-  expect(writePrompt(components.Photo, brief)).not.toContain(writerVariants);
-  expect(writePrompt(components.Progress, "Abbreviate the values")).toContain(writerFigures);
+  expect(writePrompt(components.Photo, brief)).toContain(writerVariants);
   const compose = composePrompt(archetypes.settings.meta, "simple", { things: [], items: [] }, components);
   expect(compose.split(writerVariants)).toHaveLength(2);
   expect(compose).toContain(composeFlow);

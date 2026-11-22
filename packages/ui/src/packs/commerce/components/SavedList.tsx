@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { savedItemCopy, savedListReading } from "../copy";
 import { commerceWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-SavedList.generated";
 const maxPrice = 99999.99;
 const price = z.number().min(0).max(maxPrice).multipleOf(0.01);
 
@@ -10,17 +11,14 @@ const price = z.number().min(0).max(maxPrice).multipleOf(0.01);
 // prettier-ignore
 export const meta = {
   id: "SavedList", status: "ready", group: "content",
-  purpose: "Track saved shop products, compare prices, and move items to the basket.",
-  pick: "A shop wishlist for saved buy-later products with saved versus current prices, drop alerts, a move-to-cart action, or shared gift claims. Not already in the basket (Cart), ordinary saved links (List), owned stock (Things), or an event registry (Registry).",
-  writeHints: [
-    "Use a distinct short product id per item, including items without a link. Use numeric prices without a currency sign. Only write stock when known and never write computed badges.",
-    'Set shared true only for a shared gift list. For two columns set arrange "grid"; use null for unrequested density and surface, never explicit defaults.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "phone",
   partTiers: { claim: "people" },
   confirmParts: ["remove"],
   realPath: "Saved products and target prices stay on device; gift claims need a shared app and price alerts need notifications or a watch service.",
-  variants: { arrange: ["rows", "grid"], density: ["comfortable", "compact"], surface: ["card", "plain"] },
+  variants: { arrange: ["rows", "grid"] },
   parts: ["root", "empty", "status"],
   items: {
     key: "items",
@@ -178,8 +176,8 @@ export function SavedList(input: SavedProps) {
   const scope = kit.usePartContext(), state = kit.useComponentState();
   const { words } = kit.useWords(commerceWordsFor);
   const live = kit.useLiveControls(meta, input) as SavedProps;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const { arrange, shared, items, moved } = live, grid = arrange === "grid";
   const empty = state === "empty" || !items.length, loading = state === "loading";
   const error = state === "error", success = state === "success" || (state === "filled" && moved);

@@ -189,7 +189,7 @@ it("keeps a brief readonly rating but hides its note from the drawing and the re
   const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
   const html = renderInstance("Scale", brief, "filled", theme);
   expect(meta.variantParts["detail.brief"].hides).toEqual(["meta"]);
-  expect(props.parse(rating).density).toBeUndefined();
+  expect(props.parse(rating)).not.toHaveProperty("density");
   expect(html).not.toContain('data-testid="home/c1/meta"');
   expect(html).toContain('aria-label="4.5 of 5"');
   expect(readComponent(components.Scale, brief, "s1")[0]).not.toContain("212 walkers");

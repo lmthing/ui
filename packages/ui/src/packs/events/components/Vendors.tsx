@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 import { vendorAmounts, vendorCopy, vendorReading } from "../copy";
 import { eventsWordsFor } from "../lang";
 import { seedTitles } from "../seeds";
+import { prompt } from "../../../entry/prompt-Vendors.generated";
 
 // Core first: List/cards cannot compute outstanding costs or offer supplier-specific call controls.
 const roles = ["venue", "food", "photo", "music", "flowers", "cake", "transport", "other"] as const;
@@ -22,18 +23,14 @@ export const meta = {
   id: "Vendors",
   status: "ready",
   group: "data",
-  purpose: "Keep track of event suppliers, bookings, payments and what is still owed.",
-  pick: "Suppliers for one event with roles, bookings, amounts agreed and paid, due dates and phone calls. Not a general directory (List), the business's own clients (ClientCard) or personal bills (Bills).",
-  writeHints: [
-    "Use numeric cost and paid without currency; paid cannot exceed cost. Do not write totals.",
-    'Set density and surface to null unless explicitly requested. Never write "comfortable" or "card" as defaults.',
-    'To hide due dates only, use {"detail":"brief","density":null,"surface":null} and keep supplied dates in due. Otherwise leave detail null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Supplier records are stored on the device; calls use the supplier's phone number.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["due"] } },
   parts: ["root", "totals", "empty"],
   // prettier-ignore
@@ -129,7 +126,7 @@ export const probes = [
 
 type VendorsProps = c.Props<typeof props, typeof meta>;
 type VendorRow = VendorsProps["vendors"][number];
-type Finish = { density: c.ThemeDensity; surface: VendorsProps["surface"] };
+type Finish = { density: c.ThemeDensity; surface: c.SurfaceFinish };
 type AmountFigure = ReturnType<typeof vendorAmounts>[number];
 
 // prettier-ignore
@@ -185,8 +182,8 @@ function Supplier({ row, detail, density, surface }: Finish & { row: VendorRow; 
 export function Vendors(input: VendorsProps) {
   const state = kit.useComponentState();
   const { lang } = kit.useWords(eventsWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   if (state === "empty") return <kit.KitCard part="root" {...{ density, surface }}>
     <kit.KitEmpty part="empty" icon="briefcase" decorativeIcon />

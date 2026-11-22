@@ -9,23 +9,18 @@ import {
 import { learningWordsFor } from "../lang";
 import * as audioView from "../prompt-audio";
 import * as choiceView from "../quiz-choices";
+import { prompt } from "../../../entry/prompt-Quiz.generated";
 
 // Core first: Choice/cards cannot check a correct answer, explain mistakes or advance through questions.
 // prettier-ignore
 export const meta = {
   id: "Quiz", status: "ready", group: "input",
-  purpose: "Practise one question at a time and get feedback after checking each answer.",
-  pick: "Assessed practice questions with correct answers and immediate feedback. Use for multiple choice, true or false, typed recall, matching pairs or putting words in sentence order. Not choosing a preference (Choice), a vote (Poll), or self-rated recall (Flashcard).",
-  writeHints: [
-    "Use null for unused fields. For choice, write 2–5 options and a zero-based answer index. For truefalse, write a boolean answer. For type, write a text answer. For match, write 3–5 correct left/right pairs and set answer to null.",
-    'For kind "order", put 3–8 scrambled word tiles in words, and write answer as the complete list of their zero-based indexes in correct sentence order. For example, words ["fern", "the", "Water"] have answer [2, 1, 0]. Set options and pairs to null.',
-    'Use media inside a question only for its supplied audio clip reference. Component-level media controls question photos, not audio.',
-    "Leave selected_option, selected_left and selected_right null; selections are made by the learner.",
-    'When asked to hide the question photo, write media "none" and retain its photo reference. Always write density and surface as null unless requested; do not fill in defaults such as "comfortable" or "card". Use media null for unrequested media.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 2, tier: "phone",
   realPath: "Questions are stored with the app and answers are checked on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["thumb", "none"] },
+  variants: { media: ["thumb", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
   parts: ["root", "panel", "progress", "question", "photo", "field", "left", "right", "check", "next", "answer", "explain", "feedback", "score",
     "order_hint", "order_draft", ...audioParts, "audio_status"],
@@ -172,8 +167,8 @@ function Feedback({ item, round }: { item: QuizItem; round: QuizRound }) {
 export function Quiz(input: QuizProps) {
   const { screen, component, state } = kit.usePartContext(), { controller } = kit.useKit();
   const { lang, words: { quiz } } = kit.useWords(learningWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const saved = kit.useControlValue<unknown>(`${screen}/${component}/${c.sessionKey}`, undefined);
   const round = c.sessionState(meta, input, () => !controller && !saved && (state === "success" || state === "error")

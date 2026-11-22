@@ -16,7 +16,7 @@ import { addressedElements, elementAt, renderInstance } from "../../../../../tes
 
 const def = components.Library;
 const { props, meta, examples, fallback, probes } = def;
-const grid = examples[0]!;
+const grid = props.parse(examples[0]!);
 const item = grid.items[0]!;
 const theme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeChoice;
 const screen = { id: "home", components: [{ id: "l1", c: "Library", ...grid }] };
@@ -53,6 +53,7 @@ describe("Library schema boundaries", () => {
     { ...grid, detail: "none" },
     { ...grid, density: "spacious" },
     { ...grid, color: "red" },
+    { ...grid, style: "masonry" },
     ...[
       { title: " " },
       { title: "t".repeat(33) },
@@ -64,6 +65,8 @@ describe("Library schema boundaries", () => {
       { progress: Infinity },
       { progress: "42%" },
       { badge: "n".repeat(9) },
+      { status: "loaned" },
+      { dueLabel: "d".repeat(25) },
       { goto: "Bad ID" },
       { goto: undefined },
       { id: "r1" },
@@ -137,8 +140,10 @@ describe("Library states and parts", () => {
       theme,
     );
     const addresses = addressedElements(html);
-    for (const part of meta.items.parts) expect(addresses.has(`${prefix}r1/${part}`)).toBe(true);
-    for (const part of ["by", "progress", "badge"]) expect(addresses.has(`${prefix}r2/${part}`)).toBe(false);
+    for (const part of ["root", "title", "by", "photo", "progress", "badge"])
+      expect(addresses.has(`${prefix}r1/${part}`)).toBe(true);
+    for (const part of ["by", "progress", "badge", "status", "due_label"])
+      expect(addresses.has(`${prefix}r2/${part}`)).toBe(false);
     expect(elementAt(html, `${prefix}r1/root`).attributes).toContain('role="link"');
     expect(elementAt(html, `${prefix}r2/root`).attributes).toContain('aria-label="Window Garden"');
     expect(html).toContain("0%");

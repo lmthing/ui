@@ -4,7 +4,7 @@ import { variantProps } from "../props";
 import { scoreWrite } from "./score";
 import type { Definition, WriteProbe } from "./types";
 
-const variants = { detail: ["full", "brief"], density: ["comfortable", "compact"] } as const;
+const variants = { detail: ["full", "brief"], emphasis: ["normal", "hero"] } as const;
 const fixture = {
   meta: {
     id: "Fixture",
@@ -38,14 +38,14 @@ const ordered = {
   value: "brief",
   itemTitles: ["Fern", "Basil"],
 } as const satisfies NonNullable<WriteProbe["variant"]>;
-const score = (options: unknown[], density: string | null = null) =>
-  scoreWrite(JSON.stringify({ c: "Fixture", detail: "brief", density, options }), fixture, ordered);
+const score = (options: unknown[], emphasis: string | null = null) =>
+  scoreWrite(JSON.stringify({ c: "Fixture", detail: "brief", emphasis, options }), fixture, ordered);
 const incorrect = { pass: false, detail: "expected items in order: Fern, Basil" };
 
 it("checks item labels in order without relaxing other variant requirements", () => {
   const options = [{ label: " fern " }, { label: "Basil" }];
   expect(score(options)).toEqual({ pass: true, detail: "detail: brief" });
-  expect(score(options, "comfortable")).toEqual({ pass: false, detail: "unrequested variant: density" });
+  expect(score(options, "hero")).toEqual({ pass: false, detail: "unrequested variant: emphasis" });
   expect(score([...options].reverse())).toEqual(incorrect);
   expect(score(options.slice(0, 1))).toEqual(incorrect);
   expect(score([options[0], {}])).toEqual(incorrect);

@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { cardioControls, cardioMetrics, cardioReading, cardioSplits } from "../copy";
 import { healthWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-CardioSession.generated";
 
 const activities = ["run", "ride", "walk", "swim", "hike"] as const;
 const isoOffset = z.iso.datetime({ offset: true });
@@ -21,20 +22,16 @@ export const meta = {
   id: "CardioSession",
   status: "ready",
   group: "data",
-  purpose: "See endurance workout telemetry and compare individual splits.",
-  pick: "Endurance workout telemetry with distance, elapsed time, average pace and distance splits. Not standalone category bars (Bars), a stopwatch alone (Timer), strength sets and reps (Workout), or place stops (Route).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   dense: true,
   tier: "ok",
   realPath:
     "GPS distance and heart rate need device permissions; session metrics can also be entered manually.",
-  writeHints: [
-    "Use an ISO datetime with a UTC offset (Z is UTC). Use style live for controls, and set live true only if the clock is already running.",
-    "Write each split's duration in seconds, not cumulative time. Average pace, speed and relative bars are calculated.",
-    'When asked to hide elevation and zone, use {"detail":"brief","density":null,"surface":null} unless tighter spacing or an outline is requested. Never output the defaults comfortable or card. Keep the original telemetry values, and write null for unprovided optional telemetry.',
-  ],
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  writeHints: prompt.writeHints,
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["elevation", "zone", "elevation_delta"] } },
   parts: ["root", "activity", "elapsed", "distance", "pace", "elevation", "heart", "zone", "splits_heading", "title", "sub",
     "start", "pause", "resume", "lap", "finish", "start_label", "pause_label", "resume_label", "lap_label", "finish_label"],
@@ -116,7 +113,8 @@ export const probes = [
   read("Start tracking this ride now", { address: "c1/start", action: "start" }, 2),
 ] satisfies c.Probe[];
 
-type View = c.Props<typeof props, typeof meta>;
+type Seed = c.Props<typeof props, typeof meta>;
+type View = Seed & { density: c.ThemeDensity };
 type Words = ReturnType<typeof healthWordsFor>["cardio"];
 
 // prettier-ignore
@@ -170,13 +168,13 @@ function Controls({ p, w, loading }: { p: View; w: Words; loading: boolean }) {
 }
 
 // prettier-ignore
-export function CardioSession(input: c.Props<typeof props, typeof meta>) {
-  const p = kit.useLiveControls(meta, input) as View;
+export function CardioSession(input: Seed) {
+  const p = kit.useLiveControls(meta, input) as Seed;
   const state = kit.useComponentState();
   const { lang, words: { cardio: w } } = kit.useWords(healthWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, p.density);
+  const { density } = kit.useKit();
   const detail = kit.useVariant("detail", meta.variants.detail, p.detail);
-  const surface = kit.useVariant("surface", meta.variants.surface, p.surface);
+  const surface = "card";
   const loading = state === "loading";
   const view = { ...p, density, detail };
   const elapsed = c.clockLine(p.elapsedSeconds, lang), activity = w.activity[p.activity];

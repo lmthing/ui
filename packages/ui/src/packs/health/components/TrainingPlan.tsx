@@ -4,20 +4,18 @@ import * as kit from "../../../kit";
 import { seedTitles } from "..";
 import { planCount, planDay, planOrder, planReading, planView } from "../copy";
 import { healthWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-TrainingPlan.generated";
 
 // Core first: Checklist/default ticks tasks but cannot switch workout weeks, show rest days or launch linked sessions.
 // prettier-ignore
 export const meta = {
   id: "TrainingPlan", status: "ready", group: "input",
-  purpose: "Follow a multi-week workout plan, track completion and start scheduled sessions.",
-  pick: "A multi-week workout program with week and day numbers, workout duration, rest days, and completion. Not one active strength session (Workout), repeated habits (HabitGrid), a course path (Path), or ungrouped tasks to tick off (Checklist).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "The program and workout completion marks are stored on the device.",
-  writeHints: [
-    "Use Monday = day 1 through Sunday = day 7. Each week/day pair is unique and in the plan; set rest true only for rest days. Leave goto null unless a workout screen was supplied. Progress counts are derived.",
-    'Use style "list" to show all weeks in sequence; otherwise leave style null. If asked to hide workout durations, keep minutes in the data and write {"detail":"brief","density":null,"surface":null} without overriding density or surface.',
-  ],
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  writeHints: prompt.writeHints,
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["minutes"] } },
   parts: ["root", "title", "week", "progress", "progress_bar", "week_progress", "notice", "empty_week"],
   items: { key: "days", parts: ["root", "label", "day", "minutes", "rest", "done", "trail"],
@@ -78,7 +76,7 @@ export const examples = [
     { week: 2, day: 4, label: "Hill intervals", minutes: 35, rest: false, done: false, goto: "hill_intervals" },
     { week: 3, day: 1, label: "Long trail walk", minutes: 50, rest: false, done: false },
   ] },
-  { title: "Build up with Clover", weeks: 2, currentWeek: 2, style: "list", density: "compact", days: [
+  { title: "Build up with Clover", weeks: 2, currentWeek: 2, style: "list", days: [
     { week: 1, day: 1, label: "Park loop", minutes: 20, rest: false, done: true },
     { week: 1, day: 4, label: "River walk", minutes: 25, rest: false, done: true },
     { week: 2, day: 1, label: "River walk", minutes: 30, rest: false, done: false, goto: "river_walk" },
@@ -98,7 +96,7 @@ export const probes = [
       { week: 1, day: 2, rest: true },
       { week: 2, day: 1, minutes: 30, rest: false, done: false },
     ] } },
-  { ...write("Create a two-week Trail build-up program on week one. Schedule Easy walk, 25 minutes, not done, for the first Monday and Long walk, 40 minutes, not done, for the second Monday. Keep both durations in the plan but don't display them. Leave row spacing and card borders unchanged."),
+  { ...write("Create a two-week Trail build-up program on week one with exactly two schedule entries. Schedule Easy walk, 25 minutes, not done, for the first Monday and Long walk, 40 minutes, not done, for the second Monday. Leave all other days unlisted. Keep both durations in the plan but don't display them. Leave row spacing and card borders unchanged."),
     variant: { axis: "detail", value: "brief" },
     expectProps: { days: [{ week: 1, minutes: 25 }, { week: 2, minutes: 40 }] } },
   read("Mark Hill intervals on Wednesday complete, without opening its workout", { address: "p1/r3/done", action: "check" }),
@@ -106,7 +104,8 @@ export const probes = [
 
 type Seed = c.Props<typeof props, typeof meta>;
 type Day = Seed["days"][number] & { visible: boolean; opens: boolean };
-type View = Omit<Seed, "days"> & ReturnType<typeof planView<Day>>;
+type Plan = Omit<Seed, "days"> & ReturnType<typeof planView<Day>>;
+type View = Plan & { density: c.ThemeDensity };
 type Words = ReturnType<typeof healthWordsFor>["training"];
 
 // prettier-ignore
@@ -166,11 +165,11 @@ function ScheduleDay({ d, p, w, lang, loading }: { d: Day; p: View; w: Words; la
 
 // prettier-ignore
 export function TrainingPlan(input: Seed) {
-  const p = kit.useLiveControls(meta, input) as View;
+  const p = kit.useLiveControls(meta, input) as Plan;
   const state = kit.useComponentState();
   const { lang, words: { training: w } } = kit.useWords(healthWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, p.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, p.surface);
+  const { density } = kit.useKit();
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, p.detail);
   const loading = state === "loading", view = { ...p, density, detail };
   const schedule = <>

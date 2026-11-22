@@ -6,24 +6,22 @@ import { indexedParts, seedTitles } from "..";
 // prettier-ignore
 import { activeWorkoutRest, hasWorkoutSetFields, workoutReading, workoutSetLabel, workoutSummary } from "../copy";
 import { healthWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Workout.generated";
 
 const setFields = { prop: "hasFields", equals: true } as const;
 export const meta = {
   id: "Workout",
   status: "ready",
   group: "input",
-  purpose: "Log each exercise's sets, weight and reps during one workout.",
-  pick: "Logging workout sets or interval rounds, ticking them and resting between them. Not ordinary jobs to tick (Checklist), timing one activity (Timer), or a run on a route (Route).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Exercise sets stored on the device; this is a log, not medical advice.",
-  writeHints: [
-    "Write surface null unless asked for an outline; never write the default surface card. Use detail brief only when asked to hide the elapsed-time header. Keep set controls and rest.",
-    'For EMOM, AMRAP or a timed circuit write style "interval" and interval "emom", "amrap" or "circuit". Write one set per round, with supplied seconds and reps or weight. Write rpe and note only when supplied.',
-  ],
-  variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
+  writeHints: prompt.writeHints,
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["time"] } },
   // prettier-ignore
   clocks: [{ id: "session", kind: "up", prop: "elapsed", max: 86400,
@@ -115,8 +113,8 @@ export const probes = [
   { ...write("Log one unfinished bench press set of 40 kg for 8 reps. My perceived effort was 7 out of 10."),
     fields: { rpe: 7 },
   },
-  { ...write('Log one unfinished bench press set of 40 kg for 8 reps. Save the workout note "Kept the same pace."'),
-    fields: { note: "Kept the same pace." },
+  { ...write('Log one unfinished bench press set of 40 kg for 8 reps, with no rest. The workout note is exactly "Felt steady" (without quotes).'),
+    fields: { note: "Felt steady" },
   },
 ] satisfies Probe[];
 type WorkoutProps = Props<typeof props, typeof meta>;
@@ -158,7 +156,8 @@ function WorkoutSet({ item, set, pos, unit, stop, interval }: SetProps) {
       </kit.KitRow>{detail}</>;
 }
 // prettier-ignore
-export function Workout({ exercises, unit, rest, elapsed, surface, detail, style, ...options }: WorkoutProps) {
+export function Workout({ exercises, unit, rest, elapsed, detail, style, ...options }: WorkoutProps) {
+  const surface = "card";
   const full = kit.useVariant("detail", meta.variants.detail, detail) === "full";
   const state = kit.useComponentState();
   const { controller } = kit.useKit(), { screen, component } = kit.usePartContext();

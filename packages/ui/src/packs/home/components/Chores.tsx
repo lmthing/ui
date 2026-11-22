@@ -1,31 +1,32 @@
 // prettier-ignore
 import { isoDate, itemsOf, itemVariantProps, photo, placeholderTitle, probesFor, repeatOptions, screenId, text,
-  thingOf, titleOf, detailOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+  thingOf, titleOf, detailOf, type FallbackInput, type Meta, type Probe, type Props,
+  type ThemeDensity,
+  variantProps,
+} from "../../../catalog";
 // prettier-ignore
 import { KitCard, KitCheck, KitContent, KitEmpty, KitGrid, KitIcon, KitPhoto, KitRow,
-  KitText, KitTrail, PartContext, useComponentState, usePartContext, useWords, useVariant } from "../../../kit";
+  KitText, KitTrail, PartContext, useComponentState, usePartContext, useWords, useVariant,
+  useKit,
+} from "../../../kit";
 import { choreIsDone, choreLines, choreReading } from "../copy";
 import { homeWordsFor } from "../lang";
 import { z } from "zod";
+import { prompt } from "../../../entry/prompt-Chores.generated";
 // Core first: Checklist/default ticks today's jobs, not owners, repeats and earned points.
 export const meta = {
   id: "Chores",
   status: "ready",
   group: "input",
-  purpose: "Share recurring household jobs with owners and points earned for completing them.",
-  pick: "Shared household jobs with an owner, a repeat and optional points. Not one person's jobs today (Checklist), staff shifts (Shift), or recurring care for a pet or plant (CareSchedule).",
-  writeHints: [
-    "Write last completion, repeat and every, never next due, overdue or done-for-now. Completion awards points and advances the due date in code.",
-    "Use brief only when asked to hide the repeat and last completion. Keep recurrence data, owner, points and next due.",
-    "If only details should be hidden, write density:null and surface:null. Use compact only for a spacing request, and outlined only for an outline request.",
-    "Set a chore's mark only if specifically asked to highlight it, at most one in three.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   partTiers: { done: "people" },
   realPath: "Chores stay on the device; each person ticking their own on another phone needs a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["repeat", "last"] } },
   items: {
     key: "chores",
@@ -136,7 +137,7 @@ function ChoreDetails({ copy, brief }: { copy: ReturnType<typeof choreLines>; br
 }
 type ChoresProps = Props<typeof props, typeof meta>;
 // prettier-ignore
-function ChoreRow({ chore, first, brief, density, marked }: { chore: Chore; first: boolean; brief: boolean; density: ChoresProps["density"]; marked: boolean }) {
+function ChoreRow({ chore, first, brief, density, marked }: { chore: Chore; first: boolean; brief: boolean; density: ThemeDensity; marked: boolean }) {
   const context = usePartContext();
   const { lang } = useWords(homeWordsFor);
   const copy = choreLines(chore, undefined, lang);
@@ -178,8 +179,9 @@ function ChoreRow({ chore, first, brief, density, marked }: { chore: Chore; firs
 
 // prettier-ignore
 export function Chores(input: ChoresProps) {
-  const { chores, surface, detail } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const { chores, detail  } = input;
+  const surface = "card";
+  const density = useKit().density;
   const marked = chores.some((chore) => chore.mark === "highlight");
   const state = useComponentState();
   const { words } = useWords(homeWordsFor);

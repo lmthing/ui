@@ -5,24 +5,22 @@ import { goalLine, numberLine, placeholderValue, probesFor, text, variantProps, 
 import { KitCard, KitGrid, KitRadialTrack, KitRow, KitSkeleton, KitText, useWords, useComponentState, useVariant } from "../../../kit";
 import { activityRingLine, activityScoreLine, activityScoreMax } from "../copy";
 import { seedTitles } from "..";
+import { prompt } from "../../../entry/prompt-ActivityRings.generated";
 
 // Core first: Progress/ring cannot show two or three independently filled concentric daily goals.
 export const meta = {
   id: "ActivityRings",
   status: "ready",
   group: "data",
-  purpose: "Track multiple daily goals or a supplied wellness score with its factors.",
-  pick: "At least two distinct daily goals with their own value and target, or one supplied readiness or bio-age score with three supplied factors, as concentric rings. Not a single step, exercise, water or other goal: choose Progress for any one goal, regardless of health context. Not targets drawn as bars (Progress).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 2,
   tier: "phone",
   signature: "ring_fill",
   realPath: "Totals stored on the device; phone health-store or watch imports need read permission.",
-  writeHints: [
-    "Write surface null unless asked for an outline. Do not write the default surface card. To hide target captions, use detail brief and still write each target in of.",
-    'For a supplied readiness or bio-age score out of 100, use style "score", score {label, value}, and exactly three rings for the supplied factors. Otherwise leave style and score null.',
-  ],
-  variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
+  writeHints: prompt.writeHints,
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["of"] } },
   items: { key: "rings", parts: ["root", "label", "value", "of", "unit"] },
   parts: ["root", "rings", "score", "score_label"],
@@ -152,7 +150,8 @@ function RingTrack({ rings, score, loading, lang }: TrackProps) {
 }
 
 // prettier-ignore
-export function ActivityRings({ rings, score, detail, surface }: Props<typeof props, typeof meta>) {
+export function ActivityRings({ rings, score, detail }: Props<typeof props, typeof meta>) {
+  const surface = "card";
   const full = useVariant("detail", meta.variants.detail, detail) === "full";
   const { lang } = useWords();
   const loading = useComponentState() === "loading";

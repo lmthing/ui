@@ -1652,5 +1652,776 @@
       "{\"c\":\"Vitals\",\"surface\":null,\"detail\":\"brief\",\"readings\":[{\"label\":\"Resting pulse\",\"value\":68,\"value2\":null,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"08:12\"}],\"goto\":\"add_reading\"}",
       "{\"c\":\"Vitals\",\"surface\":null,\"detail\":\"brief\",\"readings\":[{\"label\":\"Resting pulse\",\"value\":68,\"value2\":null,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"08:12\"}],\"goto\":\"add_reading\"}"
     ]
+  },
+  "Vitals%2Fchoose%2FShow%20my%20blood%20pressure%20and%20pulse%20with%20their%20low%20and%20high%20reference%20ranges%2C%20markers%20on%20bands%20and%20reading%20times/b7fbb7defff76ef8/de99b7f5f774e8f9": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- ActivityRings: Track multiple daily goals or a supplied wellness score with its factors. Pick: At least two distinct daily goals with their own value and target, or one supplied readiness or bio-age score with three supplied factors, as concentric rings. Not a single step, exercise, water or other goal: choose Progress for any one goal, regardless of health context. Not targets drawn as bars (Progress).\n- CardioSession: See endurance workout telemetry and compare individual splits. Pick: Endurance workout telemetry with distance, elapsed time, average pace and distance splits. Not standalone category bars (Bars), a stopwatch alone (Timer), strength sets and reps (Workout), or place stops (Route).\n- Cycle: Follow logged menstrual periods and locally estimated cycle phases. Pick: A menstrual cycle with period days, today's phase and estimated next period and fertile window. Not progress toward a goal (Progress), or dates merely marked with activity (Calendar).\n- Exercise: Learn one exercise's form, muscles and equipment, and recall previous results. Pick: A reference for one movement with written form cues, muscles, equipment or past results. Never pick for video playback alone: if the person only asks to play or control an exercise video, choose Player. Not a course lesson (Lesson) or a whole session (Workout).\n- HabitGrid: Keep several healthy habits across the seven days of this week. Pick: Several habits by seven weekdays, an editable check per cell and streak per habit. Not one habit's run of days (Streak), today's jobs only (Checklist), or many weeks of activity (Heatmap).\n- Measurements: Follow a body measurement's long-term history against a goal across selectable time ranges. Pick: Long body-measurement history with a dashed goal reference, latest value, change and month/quarter/year switching. Not today's weight with a tiny recent trend and no goal or range switching (Sparkline), progress toward a total (Progress), a holding's price (PriceChart), or business series (LineChart).\n- Medication: Log today's medicine doses by time, including taken, skipped and remaining pills. Pick: Medicines or supplements on schedule, with doses, taken/skipped marks and refill stock. Not ordinary jobs (Checklist) or nudging one count (Counter).\n- SymptomLog: Note several body symptoms and each symptom's severity. Pick: Grouped body symptoms with a selected chip and severity zero to five for each. Not one level for the day (Scale), collection filters (Chips), or naming feelings (Feelings).\n- TrainingPlan: Follow a multi-week workout plan, track completion and start scheduled sessions. Pick: A multi-week workout program with week and day numbers, workout duration, rest days, and completion. Not one active strength session (Workout), repeated habits (HabitGrid), a course path (Path), or ungrouped tasks to tick off (Checklist).\n- Vitals: Log vital readings alongside their reference ranges without diagnosing. Pick: Body readings with a supplied low/normal/high band, unit and time: pressure, pulse, glucose or temperature. Not numbers without reference ranges (Stats), or progress toward a goal (Progress).\n- Workout: Log each exercise's sets, weight and reps during one workout. Pick: Logging workout sets or interval rounds, ticking them and resting between them. Not ordinary jobs to tick (Checklist), timing one activity (Timer), or a run on a route (Route).\n\nNeed, in the person's words: \"Show my blood pressure and pulse with their low and high reference ranges, markers on bands and reading times\"\nReply with only the component id, nothing else.",
+    "reply": "Vitals",
+    "replies": [
+      "Vitals",
+      "Vitals",
+      "Vitals"
+    ]
+  },
+  "Vitals%2Fchoose%2FShow%20three%20plain%20numbers%2C%20steps%2C%20minutes%20and%20walks%2C%20without%20any%20reference%20ranges%20or%20target%20bands/57f7711d0f3111cb/d95392cbbc394f0a": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Article: Read a long piece with headings, paragraphs, quotes and links. Pick: A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).\n- Banner: Something important to notice now, with an optional link to act. Pick: A separate warning or status strip above the main content, such as a closure or cancellation. Not the screen's main headline even when it counts what needs attention (Hero), a supporting sentence (Note) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity or a check-in and check-out range. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something to take a photo, record video, or scan it. Pick: Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Narrow a list by toggling visible labels, or pick one value from a few choices. Pick: One row of short options to tap directly: toggle several filters independently or choose one value. Not search with named filter pickers (FilterBar), switching views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- FileList: Show attached files and let people preview, download, or remove them. Pick: One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).\n- FilterBar: Search records and narrow them by named fields, then clear the filters together. Pick: Search a list and filter it through named fields that each open their own option picker; show sort order and clear filters together. Not one row of visible labels toggled directly (Chips), switching views (Segmented) or search alone (Search).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The focal message of the whole screen: its main headline, photo-led introduction or headline number. A count of things needing attention can be the main headline, not an alert. Not a separate warning above other content (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: The person's separate records of one kind, in tappable rows to scan by name and open one. Photos can support the rows. Not browsing the photos themselves (Gallery), one featured thing (Card), details of one record (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- PassCard: Keep a membership, coupon, or transit pass ready to show and scan. Pick: A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: See measured progress toward one or more targets. Pick: One or more measured amounts against their own targets, whether bars or a single circular goal. Not concentric daily goals (ActivityRings), amounts compared with each other (Bars), independent summary numbers (Stats), or position in an ordered flow (Steps).\n- Review: See what people rated and wrote about a service, item, book, or film. Pick: Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Progress).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Progress).\n- ActivityRings: Track multiple daily goals or a supplied wellness score with its factors. Pick: At least two distinct daily goals with their own value and target, or one supplied readiness or bio-age score with three supplied factors, as concentric rings. Not a single step, exercise, water or other goal: choose Progress for any one goal, regardless of health context. Not targets drawn as bars (Progress).\n- CardioSession: See endurance workout telemetry and compare individual splits. Pick: Endurance workout telemetry with distance, elapsed time, average pace and distance splits. Not standalone category bars (Bars), a stopwatch alone (Timer), strength sets and reps (Workout), or place stops (Route).\n- Cycle: Follow logged menstrual periods and locally estimated cycle phases. Pick: A menstrual cycle with period days, today's phase and estimated next period and fertile window. Not progress toward a goal (Progress), or dates merely marked with activity (Calendar).\n- Exercise: Learn one exercise's form, muscles and equipment, and recall previous results. Pick: A reference for one movement with written form cues, muscles, equipment or past results. Never pick for video playback alone: if the person only asks to play or control an exercise video, choose Player. Not a course lesson (Lesson) or a whole session (Workout).\n- HabitGrid: Keep several healthy habits across the seven days of this week. Pick: Several habits by seven weekdays, an editable check per cell and streak per habit. Not one habit's run of days (Streak), today's jobs only (Checklist), or many weeks of activity (Heatmap).\n- Measurements: Follow a body measurement's long-term history against a goal across selectable time ranges. Pick: Long body-measurement history with a dashed goal reference, latest value, change and month/quarter/year switching. Not today's weight with a tiny recent trend and no goal or range switching (Sparkline), progress toward a total (Progress), a holding's price (PriceChart), or business series (LineChart).\n- Medication: Log today's medicine doses by time, including taken, skipped and remaining pills. Pick: Medicines or supplements on schedule, with doses, taken/skipped marks and refill stock. Not ordinary jobs (Checklist) or nudging one count (Counter).\n- SymptomLog: Note several body symptoms and each symptom's severity. Pick: Grouped body symptoms with a selected chip and severity zero to five for each. Not one level for the day (Scale), collection filters (Chips), or naming feelings (Feelings).\n- TrainingPlan: Follow a multi-week workout plan, track completion and start scheduled sessions. Pick: A multi-week workout program with week and day numbers, workout duration, rest days, and completion. Not one active strength session (Workout), repeated habits (HabitGrid), a course path (Path), or ungrouped tasks to tick off (Checklist).\n- Vitals: Log vital readings alongside their reference ranges without diagnosing. Pick: Body readings with a supplied low/normal/high band, unit and time: pressure, pulse, glucose or temperature. Not numbers without reference ranges (Stats), or progress toward a goal (Progress).\n- Workout: Log each exercise's sets, weight and reps during one workout. Pick: Logging workout sets or interval rounds, ticking them and resting between them. Not ordinary jobs to tick (Checklist), timing one activity (Timer), or a run on a route (Route).\n\nNeed, in the person's words: \"Show three plain numbers, steps, minutes and walks, without any reference ranges or target bands\"\nReply with only the component id, nothing else.",
+    "reply": "Stats",
+    "replies": [
+      "Stats",
+      "Stats",
+      "Stats"
+    ]
+  },
+  "Vitals%2Fread%2FAdd%20a%20new%20vital%20reading/b47cac64a5564853/8044c34ed10210f9": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nv1 Vitals Resting pulse: 68 bpm · Reference 60–100 · In range · 08:10 — Add reading [v1/add press→add_reading]\n  r1 \"Resting pulse\" · \"bpm\" [v1/r1 press]\n\nTask: Add a new vital reading\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"v1/add\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"v1/add\", \"action\": \"press\"}",
+      "{\"address\": \"v1/add\", \"action\": \"press\"}",
+      "{\"address\": \"v1/add\", \"action\": \"press\"}"
+    ]
+  },
+  "Vitals%2Fread%2FOpen%20the%20blood%20pressure%20reading/2ae8cdcfb12168d4/3968ac29c59e1154": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nv1 Vitals Blood pressure: 118 / 76 mmHg · Systolic reference 90–120 · Systolic: In range · 08:10 — Resting pulse: 68 bpm · Reference 60–100 · In range · 08:12 — Add reading [v1/add press→add_reading]\n  r1 \"Blood pressure\" · \"mmHg\" [v1/r1 press]\n  r2 \"Resting pulse\" · \"bpm\" [v1/r2 press]\n\nTask: Open the blood pressure reading\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"v1/r1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"v1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"v1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"v1/r1\", \"action\": \"press\"}"
+    ]
+  },
+  "Vitals%2Fwrite%2FLog%20blood%20glucose%20of%2092%20mg%2FdL%20at%2007%3A15%2C%20with%20reference%2070%20to%2099.%20I%20was%20fasting%2C%20so%20record%20fasting%20as%20the%20reading%20context%2C%20not%20just%20part%20of%20the%20label.%20Adding%20a%20reading%20opens%20add_reading./d4311bf3442095e2/2ecff00174ffd23a": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nVitals: Log vital readings alongside their reference ranges without diagnosing.\nprops: { detail?: full|brief=\"full\", style?: band|history=\"band\", readings: [1..4 { label: text≤20, value: num -1000000..1000000, value2?: num -1000000..1000000, unit: text≤8, low: num -1000000..1000000, high: num -1000000..1000000, at: text≤12, context?: resting|fasting|post_meal|active }], goto: id snake_case }\nRule: low must not exceed high. Ranges are references, not diagnoses; never write a computed status or tone.\nRule: low and high describe value only. value2 is an optional paired reading, not checked against the primary range.\nRule: Use detail brief to hide reading times; keep the time in each reading and retain the reference range and status.\nRule: Use style \"history\" only for a compact log without bands. Write context on each reading only when stated, using \"resting\", \"fasting\", \"post_meal\" or \"active\".\nexample: {\"c\":\"Vitals\",\"readings\":[{\"label\":\"Resting pulse\",\"value\":68,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"08:10\"}],\"goto\":\"add_reading\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Log blood glucose of 92 mg/dL at 07:15, with reference 70 to 99. I was fasting, so record fasting as the reading context, not just part of the label. Adding a reading opens add_reading.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Vitals",
+              "enum": [
+                "Vitals"
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "band",
+                    "history"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "readings": {
+              "minItems": 1,
+              "maxItems": 4,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "value": {
+                    "type": "number",
+                    "minimum": -1000000,
+                    "maximum": 1000000
+                  },
+                  "value2": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": -1000000,
+                        "maximum": 1000000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "unit": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8
+                  },
+                  "low": {
+                    "type": "number",
+                    "minimum": -1000000,
+                    "maximum": 1000000
+                  },
+                  "high": {
+                    "type": "number",
+                    "minimum": -1000000,
+                    "maximum": 1000000
+                  },
+                  "at": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 12
+                  },
+                  "context": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "resting",
+                          "fasting",
+                          "post_meal",
+                          "active"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "label",
+                  "value",
+                  "value2",
+                  "unit",
+                  "low",
+                  "high",
+                  "at",
+                  "context"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "required": [
+            "c",
+            "detail",
+            "style",
+            "readings",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Vitals\",\"detail\":null,\"style\":\"history\",\"readings\":[{\"label\":\"Glucose\",\"value\":92,\"value2\":null,\"unit\":\"mg/dL\",\"low\":70,\"high\":99,\"at\":\"07:15\",\"context\":\"fasting\"}],\"goto\":\"add_reading\"}",
+    "replies": [
+      "{\"c\":\"Vitals\",\"detail\":null,\"style\":\"history\",\"readings\":[{\"label\":\"Glucose\",\"value\":92,\"value2\":null,\"unit\":\"mg/dL\",\"low\":70,\"high\":99,\"at\":\"07:15\",\"context\":\"fasting\"}],\"goto\":\"add_reading\"}",
+      "{\"c\":\"Vitals\",\"detail\":null,\"style\":\"history\",\"readings\":[{\"label\":\"Blood glucose\",\"value\":92,\"value2\":null,\"unit\":\"mg/dL\",\"low\":70,\"high\":99,\"at\":\"07:15\",\"context\":\"fasting\"}],\"goto\":\"add_reading\"}",
+      "{\"c\":\"Vitals\",\"detail\":null,\"style\":null,\"readings\":[{\"label\":\"Blood glucose\",\"value\":92,\"value2\":null,\"unit\":\"mg/dL\",\"low\":70,\"high\":99,\"at\":\"07:15\",\"context\":\"fasting\"}],\"goto\":\"add_reading\"}"
+    ]
+  },
+  "Vitals%2Fwrite%2FResting%20pulse%2068%20bpm%2C%20low%2060%20high%20100%20at%2008%3A12%2C%20add%20opens%20add_reading/22d43cb54839032b/7c941a3af757be86": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nVitals: Log vital readings alongside their reference ranges without diagnosing.\nprops: { detail?: full|brief=\"full\", style?: band|history=\"band\", readings: [1..4 { label: text≤20, value: num -1000000..1000000, value2?: num -1000000..1000000, unit: text≤8, low: num -1000000..1000000, high: num -1000000..1000000, at: text≤12, context?: resting|fasting|post_meal|active }], goto: id snake_case }\nRule: low must not exceed high. Ranges are references, not diagnoses; never write a computed status or tone.\nRule: low and high describe value only. value2 is an optional paired reading, not checked against the primary range.\nRule: Use detail brief to hide reading times; keep the time in each reading and retain the reference range and status.\nRule: Use style \"history\" only for a compact log without bands. Write context on each reading only when stated, using \"resting\", \"fasting\", \"post_meal\" or \"active\".\nexample: {\"c\":\"Vitals\",\"readings\":[{\"label\":\"Resting pulse\",\"value\":68,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"08:10\"}],\"goto\":\"add_reading\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Resting pulse 68 bpm, low 60 high 100 at 08:12, add opens add_reading",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Vitals",
+              "enum": [
+                "Vitals"
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "band",
+                    "history"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "readings": {
+              "minItems": 1,
+              "maxItems": 4,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "value": {
+                    "type": "number",
+                    "minimum": -1000000,
+                    "maximum": 1000000
+                  },
+                  "value2": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": -1000000,
+                        "maximum": 1000000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "unit": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8
+                  },
+                  "low": {
+                    "type": "number",
+                    "minimum": -1000000,
+                    "maximum": 1000000
+                  },
+                  "high": {
+                    "type": "number",
+                    "minimum": -1000000,
+                    "maximum": 1000000
+                  },
+                  "at": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 12
+                  },
+                  "context": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "resting",
+                          "fasting",
+                          "post_meal",
+                          "active"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "label",
+                  "value",
+                  "value2",
+                  "unit",
+                  "low",
+                  "high",
+                  "at",
+                  "context"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "required": [
+            "c",
+            "detail",
+            "style",
+            "readings",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Vitals\",\"detail\":null,\"style\":null,\"readings\":[{\"label\":\"Resting pulse\",\"value\":68,\"value2\":null,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"08:12\",\"context\":null}],\"goto\":\"add_reading\"}",
+    "replies": [
+      "{\"c\":\"Vitals\",\"detail\":null,\"style\":null,\"readings\":[{\"label\":\"Resting pulse\",\"value\":68,\"value2\":null,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"08:12\",\"context\":null}],\"goto\":\"add_reading\"}",
+      "{\"c\":\"Vitals\",\"detail\":null,\"style\":\"band\",\"readings\":[{\"label\":\"Resting pulse\",\"value\":68,\"value2\":null,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"08:12\",\"context\":null}],\"goto\":\"add_reading\"}",
+      "{\"c\":\"Vitals\",\"detail\":null,\"style\":\"band\",\"readings\":[{\"label\":\"Resting pulse\",\"value\":68,\"value2\":null,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"08:12\",\"context\":null}],\"goto\":\"add_reading\"}"
+    ]
+  },
+  "Vitals%2Fwrite%2FShow%20a%20compact%20history%20without%20bands%3A%20resting%20pulse%2068%20bpm%20at%2008%3A10%20and%20resting%20pulse%2071%20bpm%20at%2009%3A15%2C%20each%20with%20reference%2060%20to%20100.%20Adding%20a%20reading%20opens%20add_reading./58c3f1b22e06ff32/4abff207c6d759c5": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nVitals: Log vital readings alongside their reference ranges without diagnosing.\nprops: { detail?: full|brief=\"full\", style?: band|history=\"band\", readings: [1..4 { label: text≤20, value: num -1000000..1000000, value2?: num -1000000..1000000, unit: text≤8, low: num -1000000..1000000, high: num -1000000..1000000, at: text≤12, context?: resting|fasting|post_meal|active }], goto: id snake_case }\nRule: low must not exceed high. Ranges are references, not diagnoses; never write a computed status or tone.\nRule: low and high describe value only. value2 is an optional paired reading, not checked against the primary range.\nRule: Use detail brief to hide reading times; keep the time in each reading and retain the reference range and status.\nRule: Use style \"history\" only for a compact log without bands. Write context on each reading only when stated, using \"resting\", \"fasting\", \"post_meal\" or \"active\".\nexample: {\"c\":\"Vitals\",\"readings\":[{\"label\":\"Resting pulse\",\"value\":68,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"08:10\"}],\"goto\":\"add_reading\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show a compact history without bands: resting pulse 68 bpm at 08:10 and resting pulse 71 bpm at 09:15, each with reference 60 to 100. Adding a reading opens add_reading.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Vitals",
+              "enum": [
+                "Vitals"
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "band",
+                    "history"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "readings": {
+              "minItems": 1,
+              "maxItems": 4,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "value": {
+                    "type": "number",
+                    "minimum": -1000000,
+                    "maximum": 1000000
+                  },
+                  "value2": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": -1000000,
+                        "maximum": 1000000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "unit": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8
+                  },
+                  "low": {
+                    "type": "number",
+                    "minimum": -1000000,
+                    "maximum": 1000000
+                  },
+                  "high": {
+                    "type": "number",
+                    "minimum": -1000000,
+                    "maximum": 1000000
+                  },
+                  "at": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 12
+                  },
+                  "context": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "resting",
+                          "fasting",
+                          "post_meal",
+                          "active"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "label",
+                  "value",
+                  "value2",
+                  "unit",
+                  "low",
+                  "high",
+                  "at",
+                  "context"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "required": [
+            "c",
+            "detail",
+            "style",
+            "readings",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Vitals\",\"detail\":\"brief\",\"style\":\"history\",\"readings\":[{\"label\":\"Resting pulse\",\"value\":68,\"value2\":null,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"08:10\",\"context\":null},{\"label\":\"Resting pulse\",\"value\":71,\"value2\":null,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"09:15\",\"context\":null}],\"goto\":\"add_reading\"}",
+    "replies": [
+      "{\"c\":\"Vitals\",\"detail\":\"brief\",\"style\":\"history\",\"readings\":[{\"label\":\"Resting pulse\",\"value\":68,\"value2\":null,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"08:10\",\"context\":null},{\"label\":\"Resting pulse\",\"value\":71,\"value2\":null,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"09:15\",\"context\":null}],\"goto\":\"add_reading\"}",
+      "{\"c\":\"Vitals\",\"detail\":\"brief\",\"style\":\"history\",\"readings\":[{\"label\":\"Resting pulse\",\"value\":68,\"value2\":null,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"08:10\",\"context\":null},{\"label\":\"Resting pulse\",\"value\":71,\"value2\":null,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"09:15\",\"context\":null}],\"goto\":\"add_reading\"}",
+      "{\"c\":\"Vitals\",\"detail\":\"brief\",\"style\":\"history\",\"readings\":[{\"label\":\"Resting pulse\",\"value\":68,\"value2\":null,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"08:10\",\"context\":null},{\"label\":\"Resting pulse\",\"value\":71,\"value2\":null,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"09:15\",\"context\":null}],\"goto\":\"add_reading\"}"
+    ]
+  },
+  "Vitals%2Fwrite%2FShow%20my%20fasting%20blood%20glucose%20of%2092%20mg%2FdL%20at%2007%3A15%2C%20with%20reference%2070%20to%2099.%20Adding%20a%20reading%20opens%20add_reading./715bdc9fbbe4a3e4/9e63f7a5c2a2d776": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nVitals: Log vital readings alongside their reference ranges without diagnosing.\nprops: { detail?: full|brief=\"full\", style?: band|history=\"band\", readings: [1..4 { label: text≤20, value: num -1000000..1000000, value2?: num -1000000..1000000, unit: text≤8, low: num -1000000..1000000, high: num -1000000..1000000, at: text≤12, context?: resting|fasting|post_meal|active }], goto: id snake_case }\nRule: low must not exceed high. Ranges are references, not diagnoses; never write a computed status or tone.\nRule: low and high describe value only. value2 is an optional paired reading, not checked against the primary range.\nRule: Use detail brief to hide reading times; keep the time in each reading and retain the reference range and status.\nRule: Use style \"history\" only for a compact log without bands. Write context on each reading only when stated, using \"resting\", \"fasting\", \"post_meal\" or \"active\".\nexample: {\"c\":\"Vitals\",\"readings\":[{\"label\":\"Resting pulse\",\"value\":68,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"08:10\"}],\"goto\":\"add_reading\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show my fasting blood glucose of 92 mg/dL at 07:15, with reference 70 to 99. Adding a reading opens add_reading.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Vitals",
+              "enum": [
+                "Vitals"
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "band",
+                    "history"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "readings": {
+              "minItems": 1,
+              "maxItems": 4,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "value": {
+                    "type": "number",
+                    "minimum": -1000000,
+                    "maximum": 1000000
+                  },
+                  "value2": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": -1000000,
+                        "maximum": 1000000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "unit": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8
+                  },
+                  "low": {
+                    "type": "number",
+                    "minimum": -1000000,
+                    "maximum": 1000000
+                  },
+                  "high": {
+                    "type": "number",
+                    "minimum": -1000000,
+                    "maximum": 1000000
+                  },
+                  "at": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 12
+                  },
+                  "context": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "resting",
+                          "fasting",
+                          "post_meal",
+                          "active"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "label",
+                  "value",
+                  "value2",
+                  "unit",
+                  "low",
+                  "high",
+                  "at",
+                  "context"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "required": [
+            "c",
+            "detail",
+            "style",
+            "readings",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Vitals\",\"detail\":\"brief\",\"style\":\"history\",\"readings\":[{\"label\":\"Fasting blood sugar\",\"value\":92,\"value2\":null,\"unit\":\"mg/dL\",\"low\":70,\"high\":99,\"at\":\"07:15\",\"context\":\"fasting\"}],\"goto\":\"add_reading\"}",
+    "replies": [
+      "{\"c\":\"Vitals\",\"detail\":\"brief\",\"style\":\"history\",\"readings\":[{\"label\":\"Fasting blood sugar\",\"value\":92,\"value2\":null,\"unit\":\"mg/dL\",\"low\":70,\"high\":99,\"at\":\"07:15\",\"context\":\"fasting\"}],\"goto\":\"add_reading\"}",
+      "{\"c\":\"Vitals\",\"detail\":\"brief\",\"style\":\"band\",\"readings\":[{\"label\":\"Fasting glucose\",\"value\":92,\"value2\":null,\"unit\":\"mg/dL\",\"low\":70,\"high\":99,\"at\":\"07:15\",\"context\":\"fasting\"}],\"goto\":\"add_reading\"}",
+      "{\"c\":\"Vitals\",\"detail\":\"brief\",\"style\":\"history\",\"readings\":[{\"label\":\"Fasting blood sugar\",\"value\":92,\"value2\":null,\"unit\":\"mg/dL\",\"low\":70,\"high\":99,\"at\":\"07:15\",\"context\":\"fasting\"}],\"goto\":\"add_reading\"}"
+    ]
+  },
+  "Vitals%2Fwrite%2FShow%20resting%20pulse%2068%20bpm%20with%20reference%2060%20to%20100%20and%20time%2008%3A12.%20Adding%20a%20reading%20opens%20add_reading.%20Keep%20the%20recorded%20time%20in%20the%20data%20but%20omit%20it%20from%20the%20display./f8a33da406417310/3e4951bacdfea482": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\nemphasis: quiet|normal|hero\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nVitals: Log vital readings alongside their reference ranges without diagnosing.\nprops: { detail?: full|brief=\"full\", style?: band|history=\"band\", readings: [1..4 { label: text≤20, value: num -1000000..1000000, value2?: num -1000000..1000000, unit: text≤8, low: num -1000000..1000000, high: num -1000000..1000000, at: text≤12, context?: resting|fasting|post_meal|active }], goto: id snake_case }\nRule: low must not exceed high. Ranges are references, not diagnoses; never write a computed status or tone.\nRule: low and high describe value only. value2 is an optional paired reading, not checked against the primary range.\nRule: Use detail brief to hide reading times; keep the time in each reading and retain the reference range and status.\nRule: Use style \"history\" only for a compact log without bands. Write context on each reading only when stated, using \"resting\", \"fasting\", \"post_meal\" or \"active\".\nexample: {\"c\":\"Vitals\",\"readings\":[{\"label\":\"Resting pulse\",\"value\":68,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"08:10\"}],\"goto\":\"add_reading\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show resting pulse 68 bpm with reference 60 to 100 and time 08:12. Adding a reading opens add_reading. Keep the recorded time in the data but omit it from the display.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Vitals",
+              "enum": [
+                "Vitals"
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "band",
+                    "history"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "readings": {
+              "minItems": 1,
+              "maxItems": 4,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "value": {
+                    "type": "number",
+                    "minimum": -1000000,
+                    "maximum": 1000000
+                  },
+                  "value2": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": -1000000,
+                        "maximum": 1000000
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "unit": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8
+                  },
+                  "low": {
+                    "type": "number",
+                    "minimum": -1000000,
+                    "maximum": 1000000
+                  },
+                  "high": {
+                    "type": "number",
+                    "minimum": -1000000,
+                    "maximum": 1000000
+                  },
+                  "at": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 12
+                  },
+                  "context": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "resting",
+                          "fasting",
+                          "post_meal",
+                          "active"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "label",
+                  "value",
+                  "value2",
+                  "unit",
+                  "low",
+                  "high",
+                  "at",
+                  "context"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "goto": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "required": [
+            "c",
+            "detail",
+            "style",
+            "readings",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Vitals\",\"detail\":\"brief\",\"style\":\"history\",\"readings\":[{\"label\":\"Resting pulse\",\"value\":68,\"value2\":null,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"08:12\",\"context\":null}],\"goto\":\"add_reading\"}",
+    "replies": [
+      "{\"c\":\"Vitals\",\"detail\":\"brief\",\"style\":\"history\",\"readings\":[{\"label\":\"Resting pulse\",\"value\":68,\"value2\":null,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"08:12\",\"context\":null}],\"goto\":\"add_reading\"}",
+      "{\"c\":\"Vitals\",\"detail\":\"brief\",\"style\":\"history\",\"readings\":[{\"label\":\"Resting pulse\",\"value\":68,\"value2\":null,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"08:12\",\"context\":null}],\"goto\":\"add_reading\"}",
+      "{\"c\":\"Vitals\",\"detail\":\"brief\",\"style\":\"band\",\"readings\":[{\"label\":\"Resting pulse\",\"value\":68,\"value2\":null,\"unit\":\"bpm\",\"low\":60,\"high\":100,\"at\":\"08:12\",\"context\":null}],\"goto\":\"add_reading\"}"
+    ]
   }
 }

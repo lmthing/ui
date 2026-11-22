@@ -68,7 +68,7 @@ describe("Board contract and boundaries", () => {
     };
     const cards = Array.from({ length: 16 }, () => ({ ...card, title: ` ${card.title} ` }));
     const parsed = props.parse({ columns, cards });
-    expect(parsed).toMatchObject({ arrange: "strip", surface: "plain" });
+    expect(parsed).toMatchObject({ arrange: "strip" });
     expect(parsed.cards[15]).toEqual(card);
     expect(stampItemIds(meta, parsed).cards[15]).toEqual({ ...card, id: "r16" });
     expectTypeOf<Props<typeof props, typeof meta>["cards"][number]["id"]>().toEqualTypeOf<string>();

@@ -12,26 +12,22 @@ import {
   cycleWindowLine,
 } from "../copy";
 import { healthWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Cycle.generated";
 
 // Core first: Calendar/month cannot derive cycle phases, next period and a fertile window from period dates.
 export const meta = {
   id: "Cycle",
   status: "ready",
   group: "data",
-  purpose: "Follow logged menstrual periods and locally estimated cycle phases.",
-  pick: "A menstrual cycle with period days, today's phase and estimated next period and fertile window. Not progress toward a goal (Progress), or dates merely marked with activity (Calendar).",
-  writeHints: [
-    "Write the start, average length and period duration. Predictions are computed locally and are not a method of contraception.",
-    "Write surface null unless asked for an outline. Do not write the default surface card. Use detail brief only to omit the estimated next-period and fertile-window captions.",
-    'Set mode "conceive" if trying to conceive, or "pregnancy" if already pregnant. Otherwise use null. Keep the supplied cycle dates and lengths in all modes; pregnancy mode does not show estimates.',
-    "For a link to the symptom log, write symptoms {goto} using the requested screen id. Otherwise symptoms is null.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath:
     "Period dates stored only on the device, never shared; local predictions are not medical advice or a method of contraception.",
-  variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["next", "window"] } },
   parts: ["root", "day", "phase", "next", "window", "disclaimer", "log", "mode", "symptoms"],
   states: ["filled", "empty"],
@@ -58,7 +54,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
 }
 export const examples = [
   { start: "2026-11-01", length: 28, period: 5 },
-  { start: "2026-10-26", length: 32, period: 6, surface: "outlined" },
+  { start: "2026-10-26", length: 32, period: 6 },
   { start: "2026-11-01", length: 28, period: 5, detail: "brief" },
   { start: "2026-11-01", length: 28, period: 5, mode: "conceive" },
   { start: "2026-10-03", length: 28, period: 5, mode: "pregnancy", symptoms: { goto: "symptom_log" } },
@@ -105,7 +101,7 @@ export function Cycle(input: CycleProps) {
   const full = useVariant("detail", meta.variants.detail, input.detail) === "full";
   if (state === "empty") {
     return (
-      <KitCard style="inset" part="root" surface={input.surface}>
+      <KitCard style="inset" part="root" surface={"card"}>
         <KitEmpty
           icon="calendar"
           part="phase"
@@ -118,7 +114,7 @@ export function Cycle(input: CycleProps) {
   }
   if (input.mode === "pregnancy")
     return (
-      <KitCard style="inset" padded part="root" surface={input.surface}>
+      <KitCard style="inset" padded part="root" surface="card">
         <KitContent>
           <KitText role="heading" align="center" part="mode">
             {cycleLabels.pregnancy}
@@ -153,7 +149,7 @@ function CycleTrack({ input, full }: { input: CycleProps; full: boolean }) {
     return { id: String(day), tone, current: day === cycle.day };
   });
   return (
-    <KitCard style="inset" padded part="root" surface={input.surface}>
+    <KitCard style="inset" padded part="root" surface="card">
       {conceive && (
         <KitText role="label" tone="muted" align="center" part="mode">
           {cycleLabels.conceive}

@@ -20,7 +20,7 @@ describe("Profile schema", () => {
   );
   // prettier-ignore
   it("applies defaults and trims text", () => {
-    const finish = { align: "start", detail: "full", media: "thumb" };
+    const finish = { detail: "full", media: "thumb" };
     expect(props.parse({ name: "  Monstera  " })).toEqual({ ...finish, name: "Monstera" });
     expect(props.parse({ name: " Clover ", meta: " Beagle · 4 years ", photo: "lib:dogs" }))
       .toEqual({ ...finish, name: "Clover", meta: "Beagle · 4 years", photo: "lib:dogs" });
@@ -47,25 +47,21 @@ describe("Profile schema", () => {
     { name: "Clover", goto: "clover" },
     { name: "Clover", id: "p1" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
-  it("accepts exact maximum lengths and reference forms at either alignment", () => {
-    for (const align of ["start", "center"]) {
-      expect(
-        props.safeParse({
-          align,
-          name: "a".repeat(32),
-          meta: "a".repeat(48),
-          photo: `lib:${"a".repeat(60)}`,
-        }).success,
-      ).toBe(true);
-      expect(props.safeParse({ align, name: "Clover", photo: "local:1" }).success).toBe(true);
-    }
+  it("accepts exact maximum lengths and reference forms", () => {
+    expect(
+      props.safeParse({
+        name: "a".repeat(32),
+        meta: "a".repeat(48),
+        photo: `lib:${"a".repeat(60)}`,
+      }).success,
+    ).toBe(true);
+    expect(props.safeParse({ name: "Clover", photo: "local:1" }).success).toBe(true);
   });
   it("infers view props without item ids, actions or visual controls", () => {
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["name"]>().toEqualTypeOf<string>();
     expectTypeOf<ViewProps["meta"]>().toEqualTypeOf<string | undefined>();
     expectTypeOf<ViewProps["photo"]>().toEqualTypeOf<string | undefined>();
-    expectTypeOf<ViewProps["align"]>().toEqualTypeOf<"start" | "center">();
     expectTypeOf<ViewProps>().not.toBeAny();
     expectTypeOf<ViewProps>().not.toHaveProperty("id");
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
@@ -141,7 +137,7 @@ describe("Profile fallback and metadata", () => {
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Header")).toBeDefined();
     expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Profile" });
-    expect(props.parse(examples[1]).align).toBe("center");
+    expect(props.parse(examples[1])).not.toHaveProperty("align");
   });
   it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
@@ -153,14 +149,14 @@ describe("Profile fallback and metadata", () => {
 });
 
 describe("Profile view", () => {
-  it.each(meta.variants.align)("preserves photo, name and meta addresses at %s alignment", (align) => {
+  it("preserves photo, name and meta addresses", () => {
     for (const optional of [
       {},
       { meta: "Beagle · 4 years" },
       { photo: "lib:dogs" },
       { meta: "Beagle · 4 years", photo: "local:1" },
     ]) {
-      const input = { align, name: "Clover", ...optional };
+      const input = { name: "Clover", ...optional };
       const parsed = props.parse(input);
       const html = renderInstance("Profile", input, "filled", theme);
       expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
@@ -178,8 +174,8 @@ describe("Profile view", () => {
       expect(read).not.toContain(" press");
     }
   });
-  it.each(meta.variants.align)("shows a loading skeleton without stale identity parts: %s", (align) => {
-    const input = { align, name: "Clover", meta: "Beagle · 4 years", photo: "lib:dogs" };
+  it("shows a loading skeleton without stale identity parts", () => {
+    const input = { name: "Clover", meta: "Beagle · 4 years", photo: "lib:dogs" };
     const html = renderInstance("Profile", input, "loading", theme);
     expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
     expect(html).toContain('aria-busy="true"');
