@@ -23,7 +23,6 @@ describe("Units schema", () => {
     const parsed = props.parse({ ...register, units: [{ ...unit, title: " Willow Flat " }] });
     expectTypeOf<Props<typeof props, typeof meta>["units"][number]["id"]>().toEqualTypeOf<string>();
     expect(parsed).toMatchObject({
-      surface: "plain",
       media: "none",
       units: [{ title: "Willow Flat", linked: true }],
       lets: [{ cancelled: false }],

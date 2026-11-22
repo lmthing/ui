@@ -3,25 +3,22 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { ancestorDestination, storageBoxCopy, storageCount, storageReading } from "../copy";
 import { inventoryWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Storage.generated";
 
 // Core first: List with style "cards" cannot distinguish an ancestor path, child spots and contents here.
 export const meta = {
   id: "Storage",
   status: "ready",
   group: "content",
-  purpose: "Find things stored inside rooms, shelves and boxes.",
-  pick: "Browse nested physical storage with a breadcrumb, child locations and contents kept here. Not flat linked names (List), geographic pins (MapPins), or stock records (Things).",
-  writeHints: [
-    'Path is ancestor labels in outer-to-inner order. Ancestor screen ids must match their labels in lowercase snake_case (Potting bench → potting_bench). Prefix numeric or reserved ids with "spot_".',
-    'Spots are child locations; here lists what is kept in the current location. Never write counts. To hide counts use detail "brief", density null and surface null. For the default view leave all three axes null.',
-    "Code, fragile and status describe the current box, not its ancestors or child spots. Use only supplied box labels and moving details.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "A tree of storage spots and their contents lives on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["count"] } },
   parts: ["root", "path", "spots", "here", "empty", "code", "qr", "fragile", "status"],
   items: { key: "navigation", parts: ["root", "name", "icon", "count"] },
@@ -155,8 +152,8 @@ export function Storage(input: StorageProps) {
   const { lang, words: { storage: words } } = kit.useWords(inventoryWordsFor);
   const box = storageBoxCopy(input, lang);
   const data = kit.useDeviceData();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const rows = c.visibleItems<Navigation & { id: string }>(meta, input);
   const path = rows.filter((row) => row.ancestor);

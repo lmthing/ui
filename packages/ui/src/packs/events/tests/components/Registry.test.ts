@@ -50,8 +50,8 @@ describe("Registry schema and boundaries", () => {
   it("trims authored text and limits ownership data to claimed gifts in the host view", () => {
     const input = { ...withNames, gifts: withNames.gifts.map((gift) => ({ ...gift, title: " Gift " })) };
     const parsed = props.parse({ ...input, host: true });
-    expect(parsed).toMatchObject({ surface: "card", lead: "thumb" });
-    expect(parsed.density).toBeUndefined(); // Inherits a supported theme setting.
+    expect(parsed).toMatchObject({ lead: "thumb" });
+    expect(parsed).not.toHaveProperty("density"); // Inherits a supported theme setting.
     expect(parsed.gifts.map(({ title, by }) => [title, by])).toEqual([
       ["Gift", undefined],
       ["Gift", owner],
@@ -132,9 +132,7 @@ describe("Registry parts and states", () => {
       "root", "r1/root", "r1/photo", "r1/title", "r1/price", "r1/where", "r1/claim", "r1/claim_label",
       "r2/root", "r2/photo", "r2/title", "r2/price", "r2/claimed",
     ]);
-    expect([
-      ...addressedElements(render({ ...guest, surface: "outlined", density: "compact" })).keys(),
-    ]).toEqual(parts);
+    expect([...addressedElements(render({ ...guest })).keys()]).toEqual(parts);
     const hidden: Input = { ...guest, lead: "none" };
     expect([...addressedElements(render(hidden)).keys()]).toEqual(
       parts.filter((part) => !part.endsWith("/photo")),

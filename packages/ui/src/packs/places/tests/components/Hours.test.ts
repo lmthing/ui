@@ -121,7 +121,7 @@ describe("Hours filled state and parts", () => {
   it("keeps compact addresses and hides only the notice group in brief or without notices", () => {
     const addresses = [...draw(nursery).keys()];
     const withoutNotices = addresses.filter((address) => address !== `${root}/special`);
-    expect([...draw({ ...nursery, density: "compact" }).keys()]).toEqual(addresses);
+    expect([...draw({ ...nursery }).keys()]).toEqual(addresses);
     expect([...draw({ ...nursery, detail: "brief" }).keys()]).toEqual(withoutNotices);
     expect([...draw({ ...nursery, special: [] }).keys()]).toEqual(withoutNotices);
   });

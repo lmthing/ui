@@ -17,7 +17,6 @@ describe("Card schema", () => {
       body: "Bathroom",
       meta: "Today",
       emphasis: "normal",
-      surface: "card",
       media: "thumb",
       detail: "full",
       tone: "neutral",
@@ -49,10 +48,8 @@ describe("Card schema", () => {
       for (const value of values)
         expect(props.safeParse({ title: "Fern", [key]: value }).success).toBe(false);
   });
-  it("accepts exact maximum lengths, reference forms and all surfaces and tones", () => {
-    for (const surface of meta.variants.surface)
-      for (const tone of meta.variants.tone)
-        expect(props.safeParse({ surface, tone, ...maximum }).success).toBe(true);
+  it("accepts exact maximum lengths, reference forms and all tones", () => {
+    for (const tone of meta.variants.tone) expect(props.safeParse({ tone, ...maximum }).success).toBe(true);
     expect(props.safeParse({ title: "Fern", photo: "local:1", goto: "back" }).success).toBe(true);
   });
   it("derives view props without item ids or visual overrides", () => {
@@ -138,9 +135,6 @@ describe("Card view and actions", () => {
     }
     expect(html).toContain(example.title);
     if (example.media === "cover") expect(styleAt(html, "home/c1/photo")).toMatch(/aspect-ratio:\s*1\.777/);
-    if (example.surface === "tinted")
-      expect(styleAt(html, "home/c1/root")).toContain(`--${example.tone ?? "accent"}Soft`);
-    if (example.surface === "outlined") expect(styleAt(html, "home/c1/root")).toMatch(/border[^;]*:/);
   });
   it.each([undefined, "local-photo-uri"])("draws wide media only when resolved: %s", (source) => {
     const resolvePhoto = vi.fn(() => source);

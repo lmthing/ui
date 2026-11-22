@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 // prettier-ignore
 import { rosterCover, rosterDays, rosterPortrait, rosterReading, rosterShift, rosterToday, rosterWeek, shiftsByPerson } from "../copy";
 import { teamWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Roster.generated";
 
 // prettier-ignore
 const portraits = ["portrait_1", "portrait_2", "portrait_3", "portrait_4",
@@ -14,20 +15,15 @@ export const meta = {
   id: "Roster",
   status: "ready",
   group: "data",
-  purpose: "See who works each day this week and spot gaps in cover.",
-  pick: "A weekly grid comparing staff shift times across people and days. Not one person's daily schedule (Timeline), one shift (Shift), bookable hours (Availability), a sports lineup (Lineup), or class periods (Timetable).",
-  writeHints: [
-    "week is the Monday date. Use the person's zero-based index in people. Day indices: Mon 0, Tue 1, Wed 2, Thu 3, Fri 4, Sat 5, Sun 6. Omit shifts on days off, write roles only when provided, and do not write cover flags.",
-    'When asked to show times without role labels, write detail "brief" and keep the roles in the data. Use null for unrequested density, surface and detail.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "people",
   realPath: "A manager edits the rota in a shared app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["role"] } },
@@ -130,7 +126,8 @@ type ViewProps = c.Props<typeof props, typeof meta>;
 type MatrixProps = ViewProps & { loading: boolean };
 
 // prettier-ignore
-function RosterMatrix({ week, people, shifts, density, detail, loading }: MatrixProps) {
+function RosterMatrix({ week, people, shifts, detail, loading }: MatrixProps) {
+  const density = kit.useKit().density;
   const { words, lang } = kit.useWords(teamWordsFor);
   const w = words.roster;
   const days = rosterDays(shifts, lang).map((day) => ({
@@ -179,8 +176,8 @@ function RosterMatrix({ week, people, shifts, density, detail, loading }: Matrix
 // prettier-ignore
 export function Roster(input: ViewProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { words, lang } = kit.useWords(teamWordsFor);
   const heading = rosterWeek(input.week, lang);
@@ -192,7 +189,7 @@ export function Roster(input: ViewProps) {
       {state === "empty" ? <kit.KitEmpty part="empty" icon="calendar_days" decorativeIcon /> :
         !loading && !input.shifts.length ? (
           <kit.KitEmpty part="empty" icon="calendar_days" decorativeIcon title={words.roster.empty} />
-        ) : <RosterMatrix {...input} {...{ detail, density, loading }} />}
+        ) : <RosterMatrix {...input} {...{ detail, loading }} />}
     </kit.KitCard>
   );
 }

@@ -4,6 +4,7 @@ import * as kit from "../../../kit";
 import { inlineCountMax, matchesThingFilter, thingsEmpty, thingsReading } from "../copy";
 import { inventoryWordsFor } from "../lang";
 import * as tile from "./thing-tile";
+import { prompt } from "../../../entry/prompt-Things.generated";
 
 // Core first: List/cards cannot adjust owned quantities or flag stock at its minimum.
 const maxQuantity = Number.MAX_SAFE_INTEGER;
@@ -11,20 +12,15 @@ export const meta = {
   id: "Things",
   status: "ready",
   group: "content",
-  purpose: "See what you own, where it is kept and what needs restocking.",
-  pick: "Owned or stocked items with editable quantities, storage locations or a per-item low-stock minimum. Not a directory of plain links (List), goods for sale (ProductGrid), food at home (Pantry), or a media library (Library).",
-  writeHints: [
-    'qty and min are nonnegative whole counts. A minimum marks low stock. Filter "missing" shows qty zero; use "low" only for low stock, otherwise "all". Always keep all records, even those hidden by the filter.',
-    'For rows without other styling requests, write arrange "rows", density null and surface null. Leave all three axes null when no presentation is requested.',
-    'For stocktake reconciliation use style "audit", qty for the counted amount and expected for the supplied planned count. Otherwise leave style unset. Only write given serials and conditions.',
-    'To scan codes, set scan: {"goto":"scan_inventory"} with the requested Camera scan screen id.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Stock and ownership records live on the device.",
-  variants: { arrange: ["grid", "rows"], density: ["comfortable", "compact"], surface: ["card", "outlined"] },
+  variants: { arrange: ["grid", "rows"] },
   parts: ["root", "empty", "scan", "scan_label", "scan_icon"],
   partTiers: { scan: "ok" },
   items: {
@@ -154,8 +150,8 @@ type Item = ThingsProps["items"][number];
 export function Things(input: ThingsProps) {
   const context = kit.usePartContext();
   const { lang, words } = kit.useWords(inventoryWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   const visible = c.visibleItems<Item>(meta, input);
   const items = visible.length === 0 && context.state === "loading" ? input.items : visible;

@@ -1,30 +1,25 @@
 // prettier-ignore
-import { useWords, KitAction, KitCard, KitContent, KitGrid, KitHeader, KitLayoutText, KitPhoto, KitState, KitTrail, useComponentState, useVariant } from "../../../kit";
+import { useWords, KitAction, KitCard, KitContent, KitGrid, KitHeader, KitLayoutText, KitPhoto, KitState, KitTrail, useComponentState, useKit } from "../../../kit";
 import { customersWordsFor } from "../lang";
 import { z } from "zod";
 // prettier-ignore
-import { detailOf, itemsOf, photo, placeholderTitle, probesFor, isoDate, text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+import { detailOf, itemsOf, photo, placeholderTitle, probesFor, isoDate, text, thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props, type ThemeDensity, variantProps } from "../../../catalog";
 import { clientBalanceLine, clientReading, sinceLine, nextLine, tagsLine, type contactLabels } from "../copy";
+import { prompt } from "../../../entry/prompt-ClientCard.generated";
 
 // Core first: Profile/row cannot show client tenure, next business visit and contact actions together.
 export const meta = {
   id: "ClientCard",
   status: "ready",
   group: "content",
-  purpose: "Recognise one business client, their next visit and how to contact them.",
-  pick: "One business client's page head with tenure, next booking or order, tags and contact actions. Not another kind of identity (Profile), multiple clients as tappable rows (List), or plain labelled phone and address details without contact buttons (KeyValue). All clients with a photo and last-visit detail on each row remain List, never this one-client page head.",
-  writeHints: [
-    'A portrait request is photo data, not a media option: write the photo reference and media: null. Never write media: "thumb" for the default photo. Use media: "none" only when asked to omit the photo.',
-    'To hide only tenure, next booking and tags, use {"density":null,"surface":null,"media":null,"detail":"brief"} and keep those values. A client card does not request surface: "card"; only an explicit outlined request sets surface.',
-    "Only include company if known. For a balance badge, use billing with known charged and paid amounts; the card computes the difference. Set email true only to offer an email button for a client with email contact.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "A client record on the device; calling and messaging use the phone's own apps.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     media: ["thumb", "none"],
     detail: ["full", "brief"],
   },
@@ -103,8 +98,8 @@ export const examples = [
     phone: false,
     address: false,
   },
-  { ...variantExample, density: "compact" },
-  { ...variantExample, surface: "outlined" },
+  { ...variantExample },
+  { ...variantExample },
   { ...variantExample, media: "none" },
   { ...variantExample, detail: "brief" },
   { ...variantExample, company: "Maple Studio", billing: { charged: 120, paid: 80 }, email: true },
@@ -141,7 +136,7 @@ function ContactAction({ part }: { part: keyof typeof contactLabels }) {
 }
 
 // prettier-ignore
-function ClientContacts({ phone, address, email, density }: Pick<ClientProps, "phone" | "address" | "email" | "density">) {
+function ClientContacts({ phone, address, email, density }: Pick<ClientProps, "phone" | "address" | "email"> & { density: ThemeDensity }) {
   const controls = [
     ...(phone ? [<ContactAction key="call" part="call" />] : []),
     ...(address ? [<ContactAction key="directions" part="directions" />] : []),
@@ -163,8 +158,9 @@ function ClientContacts({ phone, address, email, density }: Pick<ClientProps, "p
 
 // prettier-ignore
 export function ClientCard(input: ClientProps) {
-  const { name, photo, since, next, tags, phone, address, media, surface, company, billing, email } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
+  const { name, photo, since, next, tags, phone, address, media, company, billing, email  } = input;
+  const surface = "card";
+  const density = useKit().density;
   const { lang } = useWords();
   const loading = useComponentState() === "loading";
   const content = (

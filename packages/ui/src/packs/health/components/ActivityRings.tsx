@@ -5,11 +5,11 @@ import {
   placeholderValue,
   probesFor,
   text,
-  variantProps,
   type CastLike,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../../../catalog";
 import {
   KitCard,
@@ -24,23 +24,22 @@ import {
 } from "../../../kit";
 import { activityRingLine } from "../copy";
 import { seedTitles } from "..";
+import { prompt } from "../../../entry/prompt-ActivityRings.generated";
 
 // Core first: Progress/ring cannot show two or three independently filled concentric daily goals.
 export const meta = {
   id: "ActivityRings",
   status: "ready",
   group: "data",
-  purpose: "Track multiple daily goals together, never a single daily goal.",
-  pick: "Requires at least two distinct daily goals, each with its own value and target, shown as concentric rings. Not a single step, exercise, water or other goal: choose Progress for any one goal, regardless of health context. Not targets drawn as bars (Progress).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 2,
   tier: "phone",
   signature: "ring_fill",
   realPath: "Totals stored on the device; phone health-store or watch imports need read permission.",
-  writeHints: [
-    "Write surface null unless asked for an outline. Do not write the default surface card. To hide target captions, use detail brief and still write each target in of.",
-  ],
-  variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
+  writeHints: prompt.writeHints,
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["of"] } },
   items: { key: "rings", parts: ["root", "label", "value", "of", "unit"] },
   parts: ["root", "rings"],
@@ -126,7 +125,8 @@ const ringNumber = (value: number, count: number) =>
   ({ role: "number", align: "center", tabular: true, numberScale: numberScaleOf(value, count) }) as const;
 
 // prettier-ignore
-export function ActivityRings({ rings, detail, surface }: Props<typeof props, typeof meta>) {
+export function ActivityRings({ rings, detail }: Props<typeof props, typeof meta>) {
+  const surface = "card";
   const full = useVariant("detail", meta.variants.detail, detail) === "full";
   const { lang } = useWords();
   const loading = useComponentState() === "loading";

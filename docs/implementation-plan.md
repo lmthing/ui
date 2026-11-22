@@ -34,7 +34,7 @@ The scope table is the full requirement, not a claim that each row is complete.
 
 1. **Data first.** Every component is defined once as data. The prompt line, the Zod schema, the default content and the kit prop types all come from that one definition, so they share one source.
 2. **No free values.** Nothing the catalog accepts carries a colour, size, spacing, layout or motion value. Look comes from tokens, presets and fixed tables.
-3. **One file per component.** Each id has one file, named after it, holding its data (`meta`, `props`, `fallback`, `examples`) and its view. The view's prop types come from the file's own schema. A non-draft file without a view fails a test.
+3. **One definition per component.** `<Name>.tsx` holds its data (`meta`, `props`, `fallback`, `examples`) and view. Model-facing purpose, pick (including near misses) and Writer guidance live beside it in `<Name>.prompt.md`; the entry builder makes them available as typed metadata without runtime file reads. The view's prop types come from the file's own schema. A non-draft file without a view fails a test.
 4. **Host owns the world.** The kit never navigates or measures the stage. It keeps ephemeral interaction state and invokes host callbacks for links, photos and media. Hosts own persistence and outside effects; render issue detectors remain pending.
 5. **Peer dependencies, not bundled ones.** React, React Native Web, Tamagui, Lucide icons and SVG are current kit peers. React Native and Reanimated peers are **pending** (5.1). The catalog entry depends on `zod` only.
 6. **Plain code, grouped by purpose.** At most 60 lines per function. No hard code file-size limit; `pnpm rules` warns above 400 lines per file or 12 files per non-exempt folder. Named exports only (default exports only in the gallery's route files), plain functions and plain data, no classes. Other folders import a folder only through its `index.ts`. `pnpm build:entries` generates the gitignored re-export doors for pack `components/` and `copy/`, `kit/base/` and `catalog/copy/`. Edit the source modules, not those doors. Doors with logic stay hand-written.
@@ -68,7 +68,7 @@ packages/ui/
     registry/       create-registry
     migrations/     aliases, day-timeline
     icons.ts, signatures.ts
-  src/components/   45 PascalCase files, each with data and view; adjacent tests
+  src/components/   PascalCase definitions and views; adjacent prompt Markdown and tests
   src/kit/
     provider/       KitProvider, context, useKit, useKitStyle, environment, useEnvironment
     tamagui/        tokens, fonts, animations, themes.generated, theme-name
@@ -269,11 +269,7 @@ Gallery `carousel`, Scale `stars`).
 
 | Kind       | Axis       | Values                                          | Meaning                                         |
 | ---------- | ---------- | ----------------------------------------------- | ----------------------------------------------- |
-| Finish     | `density`  | `comfortable`, `compact`                        | Row height, spacing and type step               |
 | Finish     | `emphasis` | `quiet`, `normal`, `hero`                       | Prominence on the screen                        |
-| Finish     | `surface`  | `plain`, `card`, `tinted`, `outlined`           | Container treatment                             |
-| Finish     | `align`    | `start`, `center`                               | Alignment of the component's own content        |
-| Finish     | `bleed`    | `inset`, `edge`                                 | Inside the gutter or edge to edge               |
 | Finish     | `aspect`   | `auto`, `square`, `wide`, `tall`                | Media frame shape                               |
 | Content    | `detail`   | `full`, `brief`                                 | Secondary text (subtitles, meta) shown or not   |
 | Content    | `media`    | `none`, `icon`, `thumb`, `cover`                | Image treatment where images exist              |
@@ -287,18 +283,19 @@ Gallery `carousel`, Scale `stars`).
 | Item       | `tone`     | `neutral`, `good`, `warn`, `bad`                | Semantic status of one item, never a colour     |
 | Item       | `mark`     | `none`, `highlight`, `muted`, `new`             | Prominence of one item                          |
 
-The theme (4.3) adds two app-wide enums: `density` (`comfortable`, `compact`), the default for every
-component without its own, and `motion` (`calm`, `lively`), for entrances and celebrations; the OS
-reduce-motion setting still wins.
+The theme (4.3) supplies `density` (`comfortable`, `compact`) for row height, spacing and type steps,
+and decides the surface treatment. Renderers choose alignment and bleed for their role in the layout.
+`density`, `surface`, `align` and `bleed` are not component props or Writer axes. Theme `motion`
+(`calm`, `lively`) governs entrances and celebrations; the OS reduce-motion setting still wins.
 
 **Declaration.** `meta.variants` lists the component's axes, each with the subset of values that make
-sense for it, its default first: `variants: { density: ["comfortable", "compact"], emphasis:
-["normal", "hero"] }`. A local default need not be the first value in the shared vocabulary. Item
+sense for it, its default first: `variants: { emphasis: ["normal", "hero"], detail: ["full", "brief"] }`.
+A local default need not be the first value in the shared vocabulary. Item
 axes go in `meta.items.variants`; when both levels declare `trail`, `itemVariantProps` can inherit
 the collection trail, and action gating uses the same effective value as the view. Most components
-declare three to six axes; none declares one that changes nothing it draws. `density` absent from a line means the app's
-density. A shared `variantProps(meta.variants)` helper in `catalog/props` spreads the axes into the
-strict props object as ordinary flat props (`{"c":"List","density":"compact"}`), so a line, a
+declare only axes that change what they draw. A shared `variantProps(meta.variants)` helper in
+`catalog/props` spreads the axes into the
+strict props object as ordinary flat props (`{"c":"List","detail":"brief"}`), so a line, a
 validator and a `patch` `set` handle them like any prop; there is no variant op.
 
 **Parts.** Finish axes never change parts or addresses. Content and collection axes may show or hide
@@ -309,10 +306,10 @@ without modifying the wire props. A hidden item keeps its address and actions; t
 the same prefix and localized "and N more" count as the view. The conformance test renders every
 declared value and checks these rules.
 
-**Tokens.** `tokens/variants.ts` maps each finish value to token steps and roles per preset kind
-(for example `emphasis.hero` lifts the type step and weight, `surface.card` uses `surface` plus
-`elevation.card`), as plain data. Kit bases take axis values through `useVariant()` and the base
-options; views pass the component's values to bases and never branch on numbers.
+**Tokens.** `tokens/variants.ts` maps finish values and internal Kit options to token steps and roles
+per preset kind. For example, `emphasis.hero` changes type step and weight, while a card role uses
+the theme's surface treatment. Kit bases take declared axis values through `useVariant()` and accept
+renderer-owned options separately. Views never branch on raw layout numbers.
 
 **Repairs and screen rules.** An undeclared axis or value is a component repair (4.14) back to the
 default, never a failed line. Screen rules (4.5) cap `emphasis: "hero"` at one per screen, a
@@ -321,8 +318,8 @@ items.
 
 **Prompts and probes.** The write prompt states the axis vocabulary once (budget: at most 160 tokens);
 each component's line lists only its axes and values. Writers set an axis only when the request
-implies one. Shared write probes cover each axis on representative components ("fit more on the
-walks list" → `density: "compact"`); each component adds one write probe for its most distinctive
+implies one. Shared write probes cover each axis on representative components ("show a number at the start of each
+row" → `lead: "number"`); each component adds one write probe for its most distinctive
 non-finish axis.
 
 **Look and gallery.** `look` draws the defaults in every preset and mode as before, plus each declared
@@ -330,18 +327,13 @@ non-default value once (calm, light, 390 wide) on a variants sheet. The gallery 
 per component.
 
 **Migration.** Bespoke values that an axis covers move to it through `catalog/migrations` before
-strict validation of saved lines; enable each migration with its destination schema. Explicit
-destination values win. Card `style: "plain"` was a filled surface and maps to `surface: "card"`;
-`tinted` and `outlined` keep their finishes, and `style: "media"` becomes `media: "cover"` (or
-`"thumb"` if an icon was authored instead of a photo). The
-default `media: "thumb"` preserves the old inline thumbnail or icon treatment when no axis was
-requested. List's per-row cards are structural: keep `style: "cards"` to distinguish them from a
-single enclosing card and use `surface` for the finish. List `inset` becomes `surface: "card"` and
-List `plain` becomes `surface: "plain"`. Ranked rows use `lead: "number"` and
-`trail: "value"`, and historical rows without scores hide their trail. Other moves include Button
-`md|lg` to `emphasis`, Player `compact` to `density`, Success `row|centered` to `align`, Photo
-`square|wide|tall` to `aspect`, and per-component `tone` enums to the shared helper. Each adoption
-task lists its own moves and refreshes its recordings against the new schema.
+strict validation of saved lines; enable each migration with its destination schema. Ignore legacy
+component `density`, `surface`, `align` and `bleed` on saved lines, without touching the theme.
+Preserve content and structural choices: Card `style: "media"` becomes `media: "cover"` (or `"thumb"`
+for an icon), and List keeps `style: "cards"` for separate row cards. Ranked rows use `lead: "number"`
+and `trail: "value"`; rows without scores hide their trail. Other moves include Player `compact` to
+`detail: "brief"`, Photo `square|wide|tall` to `aspect`, and component-specific `tone` enums to the
+shared helper. Explicit values on supported axes win.
 
 ### 4.3 Tokens and themes
 
@@ -836,7 +828,7 @@ Update live recipes and probes at the cutover; do not advertise a legacy alias t
 
 | Legacy id                | Saved line migration                                                                                                                                                                                   | Addresses and actions                                                                                                                                            |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Ring`                   | `Progress`, `style: "ring"`, `bars: [{ label, value, of }]`; retain `sub`, `density`, `emphasis` and `detail`. Normalize old `md`/`lg` before changing the id.                                         | Keep `root`, `ring`, `value`, `label` and `sub` at component level; `detail: "brief"` hides but does not discard `sub`. No row `press` or synthetic row address. |
+| `Ring`                   | `Progress`, `style: "ring"`, `bars: [{ label, value, of }]`; retain `sub`, `emphasis` and `detail`. Normalize old `md`/`lg` before changing the id.                                         | Keep `root`, `ring`, `value`, `label` and `sub` at component level; `detail: "brief"` hides but does not discard `sub`. No row `press` or synthetic row address. |
 | Health `ActivityRings`   | `Progress`, `style: "rings"`, retaining two or three ordered `rings` rows with `label`, `value`, `of` and `unit`, plus `surface` and `detail`. Keep daily-target intent, row limits and number bounds. | Keep `root`, `rings`, and `rN` with `label`, `value`, `of` and `unit`; brief hides only the target caption (`of`). No new actions.                               |
 | `Progress` (not retired) | Missing `style` means `"bars"`. Keep the existing `stack`/`compact` and row `over` migrations.                                                                                                         | Keep bar labels, amounts, units, over-target tone and linked row `press` at the original addresses.                                                              |
 
@@ -1002,6 +994,7 @@ filled/loading parity, and last-column reachability separately from gallery fixt
 Views are named React functions typed from their own schema through `Props<typeof props, typeof meta>`.
 They compose bases; user-facing text comes from props, cast or shared copy helpers.
 Built-in words come from per-language core and pack dictionaries, using the app's BCP-47 `lang` for copy and `Intl` formatting.
+Each English dictionary assembles `lang/en/<Name>.ts` modules for component-owned words and `lang/en/pack.ts` for shared words.
 
 - `part` stamps an address and `testID`; `item` supplies item context. Bases supply roles, labels and
   control state. `usePart` measures on layout and unregisters on unmount.

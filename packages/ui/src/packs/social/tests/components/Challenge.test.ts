@@ -25,10 +25,9 @@ describe("Challenge schema", () => {
   it("trims text, applies defaults, and accepts exact bounds", () => {
     expect(props.parse({ ...example, title: "  Shared goal  " })).toMatchObject({
       title: "Shared goal",
-      surface: "card",
       detail: "full",
     });
-    expect(props.parse(example).density).toBeUndefined();
+    expect(props.parse(example)).not.toHaveProperty("density");
     expect(props.safeParse({ ...example, total: 0, mine: 0, goal: 0.01, top: [] }).success).toBe(true);
     const leader = { name: "N".repeat(20), value: 999999 };
     expect(
@@ -153,7 +152,7 @@ describe("Challenge states, parts, and reading", () => {
   });
   it("preserves finish addresses and hides only ranks in brief or when empty", () => {
     const defaults = [...parts(example).keys()];
-    expect([...parts({ ...example, density: "compact", surface: "outlined" }).keys()]).toEqual(defaults);
+    expect([...parts({ ...example }).keys()]).toEqual(defaults);
     const brief = { ...example, detail: "brief" };
     const unranked = defaults.filter((key) => key !== address("top") && !/\/r\d+\//.test(key));
     expect([...parts(brief).keys()]).toEqual(unranked);

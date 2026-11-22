@@ -32,7 +32,6 @@ it("activates both migrations before strict parsing", () => {
   const { id, c, ...upgraded } = migrateLine(card);
   expect({ id, c }).toEqual({ id: card.id, c: card.c });
   expect(components.Card.props.parse(upgraded)).toMatchObject({
-    surface: "card",
     media: "cover",
     photo: card.photo,
   });
@@ -71,12 +70,12 @@ it("preserves the old ranked display before strict validation, not the unused ro
 });
 
 it.each([
-  ["List", "plain", { surface: "plain" }],
-  ["List", "inset", { surface: "card" }],
-  ["List", "cards", { style: "cards", surface: "card" }],
-  ["Card", "plain", { surface: "card" }],
-  ["Card", "outlined", { surface: "outlined" }],
-  ["Card", "tinted", { surface: "tinted" }],
+  ["List", "plain", {}],
+  ["List", "inset", {}],
+  ["List", "cards", { style: "cards" }],
+  ["Card", "plain", {}],
+  ["Card", "outlined", {}],
+  ["Card", "tinted", {}],
   ["Card", "media", { media: "cover" }],
 ])("migrates %s style %s", (c, style, patch) => {
   const migrated = migrateLine({ c, style, id: "entry" }, options);
@@ -84,9 +83,9 @@ it.each([
   expect(migrateLine(migrated, options)).toBe(migrated);
 });
 
-it("retains separate row-card structure without overriding an explicit surface", () => {
+it("retains separate row-card structure and drops the old surface", () => {
   const entry = { ...list, style: "cards", surface: "outlined" };
-  expect(migrateLine(entry, options)).toBe(entry);
+  expect(migrateLine(entry, options)).toEqual({ ...list, style: "cards" });
   expect(migrateLine({ ...list, style: "inset" }, options)).not.toHaveProperty("style");
 });
 
@@ -127,7 +126,6 @@ it("preserves the old photo priority without overriding an adopted lead", () => 
   const rows = [{ title: "One", photo: "lib:plants", icon: "leaf" }];
   expect(migrateLine({ c: "List", style: "inset", rows })).toEqual({
     c: "List",
-    surface: "card",
     rows: [{ title: "One", photo: "lib:plants" }],
   });
   const adopted = { c: "List", lead: "icon", rows };
@@ -140,7 +138,6 @@ it.each(["list", "l-i_s t"])("migrates normalizable List id %s before validation
     c: "List",
     state: list.state,
     rows: list.rows,
-    surface: "card",
   });
 });
 
@@ -173,6 +170,30 @@ it("migrates screens and JSON Lines through the same opt-in path", () => {
   });
   expect(upgraded.components.map(({ id }) => id)).toEqual(["list_one", "card_one"]);
   expect(blank).toBe("");
+});
+
+it("drops the four presentation props from saved core and pack lines, not their theme", () => {
+  const appearance = { density: "compact", surface: "outlined", bleed: "edge", align: "center" };
+  const theme = { density: "comfortable" };
+  const expected = [
+    { id: "photo", c: "Photo", photo: "lib:plants", aspect: "square", detail: "brief" },
+    { id: "menu", c: "ServiceMenu", style: "cards", services: [{ name: "Walk", minutes: 30, goto: "book" }] },
+  ] as const;
+  const screen = Object.freeze({
+    id: "home",
+    theme,
+    components: expected.map((entry) => Object.freeze({ ...entry, ...appearance })),
+  });
+  const migrated = migrateScreen(screen, { variantOnly: true });
+  expect(migrated).toEqual({ id: "home", theme, components: expected });
+  for (const { id: _id, c, ...props } of migrated.components) {
+    const def = components[c as "Photo" | "ServiceMenu"];
+    expect(def.props.safeParse(props).success).toBe(true);
+  }
+  expect(migrateScreen(migrated)).toEqual(migrated);
+  expect(JSON.parse(migrateJSONL(JSON.stringify(screen)))).toEqual(migrated);
+  expect(screen.components[0]).toMatchObject(appearance);
+  expect(migrateLine(theme)).toBe(theme);
 });
 
 it.each([

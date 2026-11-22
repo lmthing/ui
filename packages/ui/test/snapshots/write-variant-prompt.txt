@@ -2,11 +2,7 @@ You write one UI component of a phone app as a single JSON line.
 Use only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).
 Use null for an optional prop (name?) when you have nothing for it: never write an empty string.
 Set shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark "highlight" (round down).
-density: comfortable|compact
 emphasis: quiet|normal|hero
-surface: plain|card|tinted|outlined
-align: start|center
-bleed: inset|edge
 aspect: auto|square|wide|tall
 detail: full|brief
 media: none|icon|thumb|cover
@@ -20,8 +16,10 @@ trail: none|chevron|value|badge|toggle|check
 tone: neutral|good|warn|bad
 mark: none|highlight|muted|new
 Photo: Show one picture with an optional caption.
-props: { bleed?: inset|edge="inset", aspect?: wide|square|tall="wide", photo: photo lib:<tag>|local:<n>, caption?: text≤80 }
-example: {"c":"Photo","bleed":null,"aspect":null,"photo":"lib:plants","caption":"Morning light"}
+props: { aspect?: wide|square|tall="wide", photo: photo lib:<tag>|local:<n>, caption?: text≤80 }
+example: {"c":"Photo","aspect":null,"photo":"lib:plants","caption":"Morning light"}
 
-Each variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.
+Start every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An "=value" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if "normal" is listed.
+
+Keep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.
 Brief: Show the photo lib:dogs cropped to a square.

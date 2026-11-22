@@ -3,24 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { loanCondition, loanDates, loanReading, loanToday } from "../copy";
 import { inventoryWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Loans.generated";
 
 // Core first: List with style "cards" cannot record lending direction, due dates, returns and reminders.
 export const meta = {
   id: "Loans",
   status: "ready",
   group: "data",
-  purpose: "See who has borrowed your things and when to return theirs.",
-  pick: "Physical things lent to or borrowed from people, with due-back dates, returns or reminders. Not a plain directory (List), debts (Split), or booked time (Appointment).",
-  writeHints: [
-    "Use lent for my item with someone else and borrowed for someone else's item with me. YYYY-MM-DD dates only; never write overdue.",
-    'Use detail "brief" only when asked to hide the dates loans started; still write since. For that request use density:null and surface:null. Otherwise leave all unrequested axes null.',
-    "Use conditionOut for condition at checkout and conditionIn for condition on return. Copy only given notes; either can be present without the other.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Loan records live on the device; reminders need a messaging service.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["since"] } },
   parts: ["root", "empty"],
   items: {
@@ -132,7 +129,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type LoansProps = c.Props<typeof props, typeof meta>;
-type LoanRowProps = Pick<LoansProps, "surface" | "detail"> & {
+type LoanRowProps = Pick<LoansProps, "detail"> & { surface: c.SurfaceFinish } & {
   density: c.ThemeDensity;
   row: LoansProps["loans"][number];
   today: string;
@@ -178,8 +175,8 @@ function LoanRow({ row, today, density, surface, detail }: LoanRowProps) {
 
 export function Loans(input: LoansProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   if (state === "empty")
     return (

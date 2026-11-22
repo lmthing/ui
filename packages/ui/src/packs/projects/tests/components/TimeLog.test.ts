@@ -72,7 +72,7 @@ describe("TimeLog states, reads and addresses", () => {
     const draw = (input: object) => addressedElements(renderExample("TimeLog", input, "filled", theme).html);
     const full = [...draw(reversed).keys()];
     expect(full.indexOf("home/c1/r2/root")).toBeLessThan(full.indexOf("home/c1/r1/root"));
-    expect([...draw({ ...reversed, density: "compact" }).keys()]).toEqual(full);
+    expect([...draw({ ...reversed }).keys()]).toEqual(full);
     expect([...draw({ ...reversed, detail: "brief" }).keys()]).toEqual(
       full.filter((key) => !key.endsWith("/note")),
     );

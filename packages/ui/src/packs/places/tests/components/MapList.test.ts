@@ -45,7 +45,6 @@ describe("MapList contract and boundaries", () => {
     const name = "n".repeat(28);
     const bounded = { name: ` ${name} `, meta: "m".repeat(32), goto: "a".repeat(64) };
     expect(props.parse({ places: Array(6).fill(bounded) })).toMatchObject({
-      surface: "card",
       detail: "full",
       places: Array(6).fill({ ...bounded, name, pin: {} }),
     });
@@ -125,7 +124,7 @@ describe("MapList states and parts", () => {
 
   it("preserves addresses when changing finish, hides notes only in brief detail and omits missing live data", () => {
     const addresses = [...draw().keys()];
-    expect([...draw({ ...board, density: "compact", surface: "outlined" }).keys()]).toEqual(addresses);
+    expect([...draw({ ...board }).keys()]).toEqual(addresses);
     expect([...draw({ ...board, detail: "brief" }).keys()]).toEqual(
       addresses.filter((key) => !key.endsWith("/meta")),
     );

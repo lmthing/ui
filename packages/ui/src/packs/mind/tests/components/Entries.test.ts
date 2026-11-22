@@ -26,7 +26,6 @@ describe("Entries schema and boundaries", () => {
   );
   it("defaults the finish, trims content and sorts newest first with stable ordering on ties", () => {
     expect(props.parse({ entries: [plain, { ...note, text: " First " }, note] })).toMatchObject({
-      surface: "card",
       detail: "full",
       entries: [{ ...note, text: "First" }, note, plain],
     });
@@ -135,7 +134,7 @@ describe("Entries states, parts and read", () => {
       ...addressedElements(renderInstance("Entries", value, "filled", theme)).keys(),
     ];
     expect(render(brief)).toEqual(render(input).filter((part) => !part.endsWith("/tags")));
-    expect(render({ ...input, density: "compact", surface: "outlined" })).toEqual(render(input));
+    expect(render({ ...input })).toEqual(render(input));
     expect(props.parse(brief).entries[0]!.tags).toEqual(note.tags);
     expect(readComponent(components.Entries, brief, "e1").join("\n")).not.toContain("Quiet");
   });

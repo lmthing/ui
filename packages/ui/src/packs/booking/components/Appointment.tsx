@@ -1,31 +1,30 @@
 // prettier-ignore
 import { KitAction, KitActionFooter, KitCard, KitContent, KitGrid, KitLayoutText, KitMetaLine,
-  KitState, KitTrail, useComponentState, useVariant, useWords, type LayoutLine } from "../../../kit";
+  KitState, KitTrail, useComponentState, useKit, useWords, type LayoutLine } from "../../../kit";
 import { bookingWordsFor } from "../lang";
 import { z } from "zod";
 // prettier-ignore
 import {
   appointmentDate, balancedLine, clock, isoDate, placeholderTitle, probesFor, screenId, text,
-  timeOfDayLine, thingOf, titleOf, variantProps, type ThemeDensity, type FallbackInput, type Meta,
+  timeOfDayLine, thingOf, titleOf, type ThemeDensity, type FallbackInput, type Meta,
   type Probe, type Props,
+  variantProps,
 } from "../../../catalog";
 import { appointmentCanJoin, appointmentDetails, appointmentReading } from "../copy";
+import { prompt } from "../../../entry/prompt-Appointment.generated";
 // Core first: Card/plain previews a record, not structured booking terms and reschedule/cancel.
 export const meta = {
   id: "Appointment",
   status: "ready",
   group: "content",
-  purpose: "See, change or confirm one booking with its time and terms.",
-  pick: "One booking with structured date, time, duration and change or cancellation actions. Not a simple record preview (Card), the day's bookings in order (Timeline), free start times (Slots), or goods ordered (OrderSummary).",
-  writeHints: [
-    'Use style "summary" only for reviewing before confirmation, or "compact" for a single-row overview. Otherwise use null (the card). Policy is summary only. Set locationKind only for a requested meeting format and meetingUrl only for a supplied HTTPS meeting link; a confirmed video booking with a link offers Join meeting.',
-    'Set detail to null by default, even if the booking has few fields. Only explicit hiding of who or where requests "brief"; retain with and place. Set density to null unless a spacing change is requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "A booking record stored on the provider's device.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["with", "place"] } },
   // prettier-ignore
   parts: [
@@ -95,7 +94,7 @@ export const examples = [
     style: "summary", service: "Morning park walk", with: "Sam", date: "2026-11-21", time: "10:00",
     minutes: 60, price: 25, status: "pending", policy: "After booking, move or cancel up to two hours before.", goto: "time",
   },
-  { ...plantBooking, density: "compact" },
+  { ...plantBooking },
   { ...plantBooking, detail: "brief" },
   { ...plantBooking, style: "compact", locationKind: "in_person" },
   { ...plantBooking, service: "Plant care video visit", locationKind: "video",
@@ -153,7 +152,7 @@ export function Appointment(input: AppointmentProps) {
   const badge = state === "success" ? appointmentLabels.booked : appointmentLabels[input.status];
   const compact = input.style === "compact";
   const change = card ? "reschedule" : "edit";
-  const density = useVariant("density", meta.variants.density, input.density);
+  const density = useKit().density;
   const date: LayoutLine = { text: appointmentDate(input.date, lang), part: "date", role: "meta" };
   const time: LayoutLine = { text: timeOfDayLine(input.time, lang), part: "time", role: "figure",
     tabular: true, compact, tone: "text" };

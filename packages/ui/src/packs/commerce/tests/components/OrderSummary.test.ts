@@ -38,7 +38,7 @@ describe("OrderSummary schema boundaries", () => {
         mode: "table",
         lines: Array.from({ length: 8 }, () => max),
       }),
-    ).toMatchObject({ surface: "card", detail: "full", lines: Array.from({ length: 8 }, () => max) });
+    ).toMatchObject({ detail: "full", lines: Array.from({ length: 8 }, () => max) });
     expectTypeOf<Props<typeof props, typeof meta>["lines"][number]["id"]>().toEqualTypeOf<string>();
   });
 
