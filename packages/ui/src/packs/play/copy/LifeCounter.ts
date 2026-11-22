@@ -17,3 +17,8 @@ export function lifeCounterLines({ startingLife, players }: Seed, lang?: string)
     ...counters.map(({ label, value }) => counterLine(label, numberLine(value, lang))),
   ]);
 }
+
+export function lifeCounterResult({ startingLife, players }: Seed) {
+  const alive = players.filter(({ life }) => (life ?? startingLife) > 0);
+  if (alive.length <= 1) return { winner: alive[0]?.name };
+}
