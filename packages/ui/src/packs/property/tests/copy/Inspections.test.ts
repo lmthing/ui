@@ -40,7 +40,7 @@ describe("inspection copy and projection", () => {
     expect(inspectionSummary(props.parse(signed), "en-GB")).toEqual({
       date: "17 Nov 2026",
       kind: "Move-out",
-      completion: "2 of 2 checks recorded",
+      completion: { count: "2 of 2", label: "checks recorded" },
       previous: "Previous report referenced",
       signed: "Signed off 17 Nov 2026 at 11:15",
     });

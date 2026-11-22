@@ -12,9 +12,9 @@ describe("meter copy", () => {
   });
 
   it("does not manufacture usage when no baseline exists", () => {
-    expect(meterSummary([], "m3").latest).toBe("No readings yet");
+    expect(meterSummary([], "m3").latest).toBeUndefined();
     expect(meterSummary([newer], "m3")).toEqual({
-      latest: "Latest · 0.3\u00a0m³",
+      latest: "0.3\u00a0m³",
       previous: undefined,
       usage: undefined,
     });

@@ -91,125 +91,350 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
-// prettier-ignore
 export const examples = [
-  { issuer: "Ledge Plant Club", title: "Grower membership", memberName: "Mira Cole", memberId: "DEMO-0642",
-    code: "DEMO:LEDGE-MEMBER", facts: [{ label: "Level", value: "Seedling" }, { label: "Home nursery", value: "West Greenhouse" }] },
-  { issuer: "Trot", title: "First walk voucher", style: "coupon", code: "DEMO:TROT-OFFER",
-    expiresAt: "2027-09-30", facts: [{ label: "Includes", value: "One park walk" }] },
+  {
+    issuer: "Ledge Plant Club",
+    title: "Grower membership",
+    memberName: "Mira Cole",
+    memberId: "DEMO-0642",
+    code: "DEMO:LEDGE-MEMBER",
+    facts: [
+      { label: "Level", value: "Seedling" },
+      { label: "Home nursery", value: "West Greenhouse" },
+    ],
+  },
+  {
+    issuer: "Trot",
+    title: "First walk voucher",
+    style: "coupon",
+    code: "DEMO:TROT-OFFER",
+    expiresAt: "2027-09-30",
+    facts: [{ label: "Includes", value: "One park walk" }],
+  },
   { issuer: "Ledge Seed Library", title: "Seed swap pickup", style: "code", code: "DEMO:SEED-SWAP" },
-  { issuer: "Trot Shuttle", title: "Park shuttle pass", style: "transit", code: "DEMO:TROT-SHUTTLE",
-    balance: 4, pointsLabel: "Rides left" },
-  { issuer: "Ledge Plant Club", title: "Potting bench voucher", style: "coupon", code: "DEMO:LEDGE-USED", used: true },
-  { issuer: "Ledge Seed Library", title: "Seed kit pickup", style: "code", code: "05120764", codeKind: "barcode", bright: true },
+  {
+    issuer: "Trot Shuttle",
+    title: "Park shuttle pass",
+    style: "transit",
+    code: "DEMO:TROT-SHUTTLE",
+    balance: 4,
+    pointsLabel: "Rides left",
+  },
+  {
+    issuer: "Ledge Plant Club",
+    title: "Potting bench voucher",
+    style: "coupon",
+    code: "DEMO:LEDGE-USED",
+    used: true,
+  },
+  {
+    issuer: "Ledge Seed Library",
+    title: "Seed kit pickup",
+    style: "code",
+    code: "05120764",
+    codeKind: "barcode",
+    bright: true,
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("PassCard");
-// prettier-ignore
 export const probes = [
-  choose("Put my garden-centre member card on screen with its masked account number and the QR I show at checkout."),
+  choose(
+    "Put my garden-centre member card on screen with its masked account number and the QR I show at checkout.",
+  ),
   choose("Show the room and watering interval of my fern as two plain label-and-value facts.", "KeyValue"),
-  write("Show a demo Pine Nursery loyalty membership titled Grower Club for Alex, member ID DEMO-1937 masked, with QR payload DEMO:PINE and 18 points."),
-  { ...write("Show a demo Fern Society membership called Grower Club with QR payload DEMO:FERN. Keep the fact Level: Seedling but hide the summary facts from the display."),
-    variant: { axis: "detail", value: "brief" } },
+  write(
+    "Show a demo Pine Nursery loyalty membership titled Grower Club for Alex, member ID DEMO-1937 masked, with QR payload DEMO:PINE and 18 points.",
+  ),
+  {
+    ...write(
+      "Show a demo Fern Society membership called Grower Club with QR payload DEMO:FERN. Keep the fact Level: Seedling but hide the summary facts from the display.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Copy the QR payload to my clipboard.", { address: "c1/code", action: "copy" }),
-  { ...write("Show a demo Pine Nursery pickup pass called Seed Kit. Use the supplied one-dimensional barcode 05120764 (including the leading zero), and offer a bright scanner view."),
-    expectProps: { code: "05120764", codeKind: "barcode", bright: true } },
+  {
+    ...write(
+      "Show a demo Pine Nursery pickup pass called Seed Kit. Use the supplied one-dimensional barcode 05120764 (including the leading zero), and offer a bright scanner view.",
+    ),
+    expectProps: { code: "05120764", codeKind: "barcode", bright: true },
+  },
 ] satisfies c.Probe[];
 
 type PassProps = c.Props<typeof props, typeof meta>;
 type Layout = { density: c.ThemeDensity; align: "start" | "center" };
-// prettier-ignore
 function PassDetails({ input, layout, revealed }: { input: PassProps; layout: Layout; revealed: boolean }) {
-  const { lang, words: { passCard: words } } = kit.useWords();
+  const {
+    lang,
+    words: { passCard: words },
+  } = kit.useWords();
   const loading = kit.useComponentState() === "loading";
-  const { memberName, memberId, style, balance, pointsLabel, used, expiresAt, facts } = input;
   const { canReveal, scannable } = passControls(input);
-  return <>
-    {(memberName || memberId) && <kit.KitContent group="response" {...layout}>
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" density={layout.density}
-        content={[["body", memberName], ["label", memberId && c.maskedPassId(memberId, lang)]]} /> : <>
-      {memberName && <kit.KitText part="member_name" {...layout}>{memberName}</kit.KitText>}
-      {memberId && <kit.KitText part="member_id" tone="muted" role="label" {...layout}>
-        {!canReveal || revealed ? memberId : c.maskedPassId(memberId, lang)}
-      </kit.KitText>}
-      </>}
-      {canReveal && (loading ? <kit.KitSkeleton shape="control" kind="quiet" label={words.reveal} />
-        : <kit.KitAction part="reveal" action="toggle" value={!revealed} icon={revealed ? "lock" : "eye"}
-          kind="quiet" label={revealed ? words.hide : words.reveal} />)}
-    </kit.KitContent>}
-    {(balance !== undefined || expiresAt || used || (style === "transit" && scannable)) &&
-      <kit.KitContent group="response" {...layout}>
-        {loading ? <kit.KitSkeleton shape="figure" inset="none" density={layout.density} /> : <>{balance !== undefined && <>
-          <kit.KitText part="balance" role="number" numberScale={style === "transit" ? "display" : "compact"} {...layout}>
-            {c.numberLine(balance, lang)}
-          </kit.KitText>
-          <kit.KitText part={null} role="label" tone="muted" {...layout}>{pointsLabel ?? words.balance}</kit.KitText>
-        </>}
-        {expiresAt && <kit.KitText part="expiry" role="label" tone="muted" {...layout}>{c.passExpiryLine(expiresAt, lang)}</kit.KitText>}
-        {(used || (style === "transit" && scannable)) && <kit.KitText part="status" role="label" tone={used ? "muted" : "good"} {...layout}>
-          {used ? words.used : words.ready}
-        </kit.KitText>}</>}
-      </kit.KitContent>}
-    {input.detail === "full" && facts.length > 0 && <kit.KitContent group="response" {...layout}>
-      <kit.KitGrid arrange="grid" density={layout.density}>
-        {facts.map((fact) => loading ? <kit.KitSkeleton key={fact.id} shape="figure" inset="none" density={layout.density}
-          content={[["label", fact.label], ["body", fact.value]]} />
-          : <kit.KitRow item={fact.id} key={fact.id} label={fact.label} inline {...layout}>
-          <kit.KitText part="label" role="label" tone="muted" {...layout}>{fact.label}</kit.KitText>
-          <kit.KitText part="value" {...layout}>{fact.value}</kit.KitText>
-        </kit.KitRow>)}
-      </kit.KitGrid>
-    </kit.KitContent>}
-  </>;
+  return (
+    <>
+      {PassMember({ input, layout, revealed, loading, canReveal, lang, words })}
+      {PassBalance({ input, layout, loading, scannable, lang, words })}
+      {PassFacts(input, layout, loading)}
+    </>
+  );
 }
 
-// prettier-ignore
-function PassCode({ input, layout, loading = false }: { input: PassProps; layout: Layout; loading?: boolean }) {
-  const { words: { passCard: words } } = kit.useWords();
+type PassWords = c.Words["passCard"];
+type PassSection = { input: PassProps; layout: Layout; loading: boolean; lang?: string; words: PassWords };
+
+function PassMember({
+  input,
+  layout,
+  revealed,
+  loading,
+  canReveal,
+  lang,
+  words,
+}: PassSection & { revealed: boolean; canReveal: boolean }) {
+  const { memberName, memberId } = input;
+  return (
+    (memberName || memberId) && (
+      <kit.KitContent group="response" {...layout}>
+        {loading ? (
+          <kit.KitSkeleton
+            shape="figure"
+            inset="none"
+            density={layout.density}
+            content={[
+              ["body", memberName],
+              ["label", memberId && c.maskedPassId(memberId, lang)],
+            ]}
+          />
+        ) : (
+          <>
+            {memberName && (
+              <kit.KitText part="member_name" {...layout}>
+                {memberName}
+              </kit.KitText>
+            )}
+            {memberId && (
+              <kit.KitText part="member_id" tone="muted" role="label" {...layout}>
+                {!canReveal || revealed ? memberId : c.maskedPassId(memberId, lang)}
+              </kit.KitText>
+            )}
+          </>
+        )}
+        {canReveal &&
+          (loading ? (
+            <kit.KitSkeleton shape="control" kind="quiet" label={words.reveal} />
+          ) : (
+            <kit.KitAction
+              part="reveal"
+              action="toggle"
+              value={!revealed}
+              icon={revealed ? "lock" : "eye"}
+              kind="quiet"
+              label={revealed ? words.hide : words.reveal}
+            />
+          ))}
+      </kit.KitContent>
+    )
+  );
+}
+
+function PassBalance({
+  input,
+  layout,
+  loading,
+  scannable,
+  lang,
+  words,
+}: PassSection & { scannable: boolean }) {
+  const { style, balance, pointsLabel, used, expiresAt } = input;
+  return (
+    (balance !== undefined || expiresAt || used || (style === "transit" && scannable)) && (
+      <kit.KitContent group="response" {...layout}>
+        {loading ? (
+          <kit.KitSkeleton shape="figure" inset="none" density={layout.density} />
+        ) : (
+          <>
+            {balance !== undefined && (
+              <>
+                <kit.KitText
+                  part="balance"
+                  role="number"
+                  numberScale={style === "transit" ? "display" : "compact"}
+                  {...layout}
+                >
+                  {c.numberLine(balance, lang)}
+                </kit.KitText>
+                <kit.KitText part={null} role="label" tone="muted" {...layout}>
+                  {pointsLabel ?? words.balance}
+                </kit.KitText>
+              </>
+            )}
+            {expiresAt && (
+              <kit.KitText part="expiry" role="label" tone="muted" {...layout}>
+                {c.passExpiryLine(expiresAt, lang)}
+              </kit.KitText>
+            )}
+            {(used || (style === "transit" && scannable)) && (
+              <kit.KitText part="status" role="label" tone={used ? "muted" : "good"} {...layout}>
+                {used ? words.used : words.ready}
+              </kit.KitText>
+            )}
+          </>
+        )}
+      </kit.KitContent>
+    )
+  );
+}
+
+function PassFacts(input: PassProps, layout: Layout, loading: boolean) {
+  const { facts } = input;
+  return (
+    input.detail === "full" &&
+    facts.length > 0 && (
+      <kit.KitContent group="response" {...layout}>
+        <kit.KitGrid arrange="grid" density={layout.density}>
+          {facts.map((fact) =>
+            loading ? (
+              <kit.KitSkeleton
+                key={fact.id}
+                shape="figure"
+                inset="none"
+                density={layout.density}
+                content={[
+                  ["label", fact.label],
+                  ["body", fact.value],
+                ]}
+              />
+            ) : (
+              <kit.KitRow item={fact.id} key={fact.id} label={fact.label} inline {...layout}>
+                <kit.KitText part="label" role="label" tone="muted" {...layout}>
+                  {fact.label}
+                </kit.KitText>
+                <kit.KitText part="value" {...layout}>
+                  {fact.value}
+                </kit.KitText>
+              </kit.KitRow>
+            ),
+          )}
+        </kit.KitGrid>
+      </kit.KitContent>
+    )
+  );
+}
+
+function PassSkeleton(input: PassProps, layout: Layout, scannable: boolean, words: PassWords) {
+  const { align, density } = layout;
+  return (
+    <kit.KitCard padded part="root" density={density}>
+      <kit.KitSkeleton
+        shape="figure"
+        content={[
+          ["label", input.issuer],
+          ["heading", input.title],
+        ]}
+        inset="none"
+        centered={align === "center"}
+        density={density}
+      />
+      <PassDetails input={input} layout={layout} revealed={false} />
+      {scannable && (
+        <>
+          <kit.KitCode
+            part={null}
+            loading
+            label={input.codeKind === "barcode" ? words.barcode : words.qr}
+            kind={input.codeKind}
+          />
+          <kit.KitSkeleton
+            shape="control"
+            kind="quiet"
+            {...(align === "center" && { label: words.copy, full: true })}
+          />
+          {input.bright && <kit.KitSkeleton shape="control" kind="quiet" label={words.scanner} />}
+        </>
+      )}
+    </kit.KitCard>
+  );
+}
+
+function PassCode({ input, layout, words }: { input: PassProps; layout: Layout; words: PassWords }) {
   const scanner = kit.useScannerBrightness("bright");
   const active = input.bright === true && scanner.status === "on";
-  const label = input.codeKind === "barcode" ? words.barcode : words.qr;
-  const centered = layout.align === "center";
-  if (loading) return <>
-    <kit.KitCode part={null} loading label={label} kind={input.codeKind} />
-    <kit.KitSkeleton shape="control" kind="quiet" {...(centered && { label: words.copy, full: true })} />
-    {input.bright && <kit.KitSkeleton shape="control" kind="quiet" label={words.scanner} />}
-  </>;
-  return <kit.KitContent group="response" align="center" density={layout.density}>
-    <kit.KitCode part="qr" value={input.code!} label={label} kind={input.codeKind} scale={active ? "scanner" : "standard"} />
-    <kit.KitAction part="code" action="copy" value={input.code!} copiedLabel={words.copied} kind="quiet"
-      {...(centered ? { label: words.copy, full: true } : { icon: "clipboard", a11y: words.copy })} />
-    {input.bright && <kit.KitScannerToggle part="bright" label={words.scanner} pressed={active} disabled={!scanner.available} />}
-    {input.bright && scanner.status === "failed" &&
-      <kit.KitText part="bright_status" role="label" tone="muted" align="center">{words.scannerUnavailable}</kit.KitText>}
-  </kit.KitContent>;
+  return (
+    <kit.KitContent group="response" align="center" density={layout.density}>
+      <kit.KitCode
+        part="qr"
+        value={input.code!}
+        label={input.codeKind === "barcode" ? words.barcode : words.qr}
+        kind={input.codeKind}
+        scale={active ? "scanner" : "standard"}
+      />
+      <kit.KitAction
+        part="code"
+        action="copy"
+        value={input.code!}
+        copiedLabel={words.copied}
+        kind="quiet"
+        {...(layout.align === "center"
+          ? { label: words.copy, full: true }
+          : { icon: "clipboard", a11y: words.copy })}
+      />
+      {input.bright && (
+        <kit.KitScannerToggle
+          part="bright"
+          label={words.scanner}
+          pressed={active}
+          disabled={!scanner.available}
+        />
+      )}
+      {input.bright && scanner.status === "failed" && (
+        <kit.KitText part="bright_status" role="label" tone="muted" align="center">
+          {words.scannerUnavailable}
+        </kit.KitText>
+      )}
+    </kit.KitContent>
+  );
 }
 
-// prettier-ignore
 export function PassCard(input: PassProps) {
   const { screen, component } = kit.usePartContext();
   const state = kit.useComponentState();
   const { scannable, state: invalid } = passControls(input);
   const reveal = kit.useControlValue<unknown>(`${screen}/${component}/reveal`, undefined);
-  const { words: { passCard: words } } = kit.useWords();
+  const {
+    words: { passCard: words },
+  } = kit.useWords();
   const density = kit.useKit().density;
   const align = input.style === "code" ? "center" : "start";
   const layout = { density, align } as const;
   if (state === "empty" || state === "error" || (state === "filled" && invalid))
-    return <kit.KitCard part="root"><kit.KitEmpty icon={state === "empty" ? "credit_card" : "alert"}
-      part="message" {...(state !== "empty" && { title: words.invalid })} decorativeIcon /></kit.KitCard>;
-  if (state === "loading") return <kit.KitCard padded part="root" density={density}>
-    <kit.KitSkeleton shape="figure" content={[["label", input.issuer], ["heading", input.title]]} inset="none" centered={align === "center"} density={density} />
-    <PassDetails input={input} layout={layout} revealed={false} />
-    {scannable && <PassCode input={input} layout={layout} loading />}
-  </kit.KitCard>;
-  return <kit.KitCard part="frame" padded density={density} look={input.style === "coupon" && !input.used ? "tinted" : "surface"}>
-    <kit.KitRow part="root" role="button" label={input.title} inline density={density}>
-      <kit.KitText part="issuer" role="label" tone="muted" {...layout}>{input.issuer}</kit.KitText>
-      <kit.KitText part="title" role="heading" {...layout}>{input.title}</kit.KitText>
-    </kit.KitRow>
-    <PassDetails input={input} layout={layout} revealed={c.credentialToggleOn(reveal, input.memberId)} />
-    {scannable && <PassCode input={input} layout={layout} />}
-  </kit.KitCard>;
+    return (
+      <kit.KitCard part="root">
+        <kit.KitEmpty
+          icon={state === "empty" ? "credit_card" : "alert"}
+          part="message"
+          {...(state !== "empty" && { title: words.invalid })}
+          decorativeIcon
+        />
+      </kit.KitCard>
+    );
+  if (state === "loading") return PassSkeleton(input, layout, scannable, words);
+  return (
+    <kit.KitCard
+      part="frame"
+      padded
+      density={density}
+      look={input.style === "coupon" && !input.used ? "tinted" : "surface"}
+    >
+      <kit.KitRow part="root" role="button" label={input.title} inline density={density}>
+        <kit.KitText part="issuer" role="label" tone="muted" {...layout}>
+          {input.issuer}
+        </kit.KitText>
+        <kit.KitText part="title" role="heading" {...layout}>
+          {input.title}
+        </kit.KitText>
+      </kit.KitRow>
+      <PassDetails input={input} layout={layout} revealed={c.credentialToggleOn(reveal, input.memberId)} />
+      {scannable && <PassCode input={input} layout={layout} words={words} />}
+    </kit.KitCard>
+  );
 }

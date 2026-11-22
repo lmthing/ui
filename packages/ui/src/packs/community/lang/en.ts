@@ -1,3 +1,4 @@
+import { words as ModQueueWords } from "./en/ModQueue";
 import { words as DuesWords } from "./en/Dues";
 import { words as MembersWords } from "./en/Members";
 import { words as MinutesWords } from "./en/Minutes";
@@ -9,6 +10,7 @@ export const en = {
   ...MinutesWords,
   ...VoteWords,
   ...SignUpSheetWords,
+  ...ModQueueWords,
 };
 
 export type CommunityWords = typeof en;

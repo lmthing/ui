@@ -9,3 +9,4 @@ A seating plan of round or long tables with guest initials, available seats and 
 ## Writer
 
 - Each table's guests array may be empty and cannot exceed seats. Table labels must be distinct; unseated is an array of names, not a number.
+- Use detail "brief" only when asked to omit the overall seated count; keep the tables, seats and unseated tray.

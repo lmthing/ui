@@ -3,7 +3,15 @@ import * as kit from "../../../kit";
 import { learningWordsFor } from "../lang";
 
 /** A separate target from the card flip or answer controls. The host resolves the active clip. */
-export function PromptAudio({ density, part }: { density: ThemeDensity | undefined; part: string }) {
+export function PromptAudio({
+  density,
+  part,
+  kind = "secondary",
+}: {
+  density: ThemeDensity | undefined;
+  part: string;
+  kind?: "secondary" | "quiet";
+}) {
   const { screen, component, state } = kit.usePartContext();
   const playback = kit.useControlValue<boolean | "error">(`${screen}/${component}/${clipKey(part)}`, false);
   const {
@@ -15,7 +23,7 @@ export function PromptAudio({ density, part }: { density: ThemeDensity | undefin
         <kit.KitAction
           part={part}
           contentParts={{}}
-          kind="secondary"
+          kind={kind}
           icon={playback === true ? "pause" : "play"}
           label={playback === true ? words.pause : words.play}
           action={playback === true ? "pause" : "play"}

@@ -10,3 +10,4 @@ Collect and reconcile one period of membership dues against dated receipts. Not 
 
 - Use unique snake_case ids within assessments and receipts. Every receipt assessmentId must match an assessment id in this ledger. Write amounts as numbers, no currency or computed totals.
 - Use style "ledger" for the treasurer. Use "member" only for a signed-in member and seed only that member’s assessments and receipts.
+- Only set cadence for a stated schedule. Put waived and householdId on assessments, not on receipts. Keep the original assessment amount for a waiver.

@@ -3,6 +3,11 @@ export const words = {
     chair: (name: string) => `Chair: ${name}`,
     approval: (name: string, date: string) => `Approved by ${name} · ${date}`,
     draft: "Awaiting approval",
+    present: (names: string) => `Present: ${names}`,
+    apologies: (names: string) => `Apologies: ${names}`,
+    unlisted: "None listed",
+    unresolved: (count: string, form: Intl.LDMLPluralRule) =>
+      `${count} ${form === "one" ? "member" : "members"} not in the register`,
     decisions: "Decisions",
     actions: "Follow-up actions",
     motion: "Open motion",

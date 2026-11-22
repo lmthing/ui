@@ -9,10 +9,18 @@ export function Options({ labels, part, title, selected, binary, active = true }
 }) {
   const chips = labels.map((label, index) =>
     <kit.KitChip key={index} item={null} part={active ? "root" : null} value={quizKey(part, index)}
-      label={label} role="radio" look={binary ? "box" : "pill"} on={index === selected} />);
+      label={label} role="radio" on={index === selected} />);
+  if (part !== "root") return <kit.KitContent rhythm="flush">
+    <kit.KitContent inset="md">
+      <kit.KitText role="label" tone="muted" part={null}>{title}</kit.KitText>
+    </kit.KitContent>
+    <kit.KitTrack part={part} role="radiogroup" label={title}>
+      <kit.KitGrid arrange="rows" list>{chips}</kit.KitGrid>
+    </kit.KitTrack>
+  </kit.KitContent>;
   return <kit.KitTrack part={part} role="radiogroup" label={title}>
-    {part !== "root" ? <kit.KitGrid arrange="rows" group="sections" groups={[{ id: part, heading: title, children: chips }]} children={null} />
-      : binary ? <kit.KitGrid>{chips}</kit.KitGrid> : chips}</kit.KitTrack>;
+    {binary ? <kit.KitGrid>{chips}</kit.KitGrid> : chips}
+  </kit.KitTrack>;
 }
 
 type ActiveQuestion = { item: QuizItem; answers: Readonly<Values> };

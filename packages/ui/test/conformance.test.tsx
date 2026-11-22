@@ -23,6 +23,7 @@ import { addressedElements, config, exampleDeviceData, renderExample } from "./r
 import { selectedIds } from "../scripts/build";
 import { conformanceThemes, modes } from "./themes";
 import {
+  decode,
   derivedItemIds,
   derivedItemIssues,
   peekForExample,
@@ -44,11 +45,21 @@ function stampExampleItems(meta: Meta, props: Record<string, unknown>) {
 }
 
 function expectEmptyCopy(meta: Meta, input: Record<string, unknown>, html: string, data?: DeviceData) {
+  if (meta.id === "CannedReplies") return expect(visibleTexts(html)).toContain("No saved replies yet");
   if (meta.id === "TravelDocs") return expect(visibleTexts(html)).toContain("No travel documents yet");
+  if (meta.id === "Transcript") return expect(visibleTexts(html)).toContain("No transcript available");
   // Explicit empty screen reads only the state header; use the declared copy hook here.
-  const lines = data || meta.id === "Flashcard" ? meta.read?.(input, "empty", undefined, data) : undefined;
+  const lines =
+    data || meta.id === "Flashcard" || meta.id === "Sessions"
+      ? meta.read?.(input, "empty", undefined, data)
+      : undefined;
   if (!lines?.length) return expect(html).toContain(emptyLine(meta.deviceDataVisible ? undefined : "walk"));
-  const visible = visibleTexts(html).join(" ");
+  const placeholders = [...addressedElements(html).values()].flatMap(({ tag, text, attributes }) => {
+    if (tag !== "textarea" || text.length > 0 || attributes.includes('aria-hidden="true"')) return [];
+    const placeholder = attributes.match(/\bplaceholder="([^"]+)"/)?.[1];
+    return placeholder ? [decode(placeholder)] : [];
+  });
+  const visible = [...visibleTexts(html), ...placeholders].join(" ");
   for (const line of lines) expect(visible).toContain(line);
 }
 
@@ -165,9 +176,11 @@ describe.each(ready)("%s conformance", (id) => {
             expect(html).not.toContain(`data-testid="home/c1/${items.prefix ?? "r"}2/root"`);
           const pageHidesRoots =
             props.overflow === "page" && meta.variantParts?.["overflow.page"]?.hides?.includes("root");
-          if (!pageHidesRoots)
-            for (const { id } of items.visible === "first" ? rows.slice(0, 1) : rows)
-              if (!hidden.includes(id)) expect(html).toContain(`data-testid="home/c1/${id}/root"`);
+          for (const { id: row } of items.visible === "first" ? rows.slice(0, 1) : rows) {
+            const root = `data-testid="home/c1/${row}/root"`;
+            if (id === "MapList" && props.style === "map") expect(html).not.toContain(root);
+            else if (!pageHidesRoots && !hidden.includes(row)) expect(html).toContain(root);
+          }
         }
       }
     }

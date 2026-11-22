@@ -8,6 +8,6 @@ A feed of past personal journal entries with dates, mood faces, excerpts, tags a
 
 ## Writer
 
-- Use real dates in YYYY-MM-DD, newest first. Each entry needs a goto screen id; when fewer than three tags are known, provide only those tags.
-- For an explicit text-only digest, set media to "none" even when the brief has no photos. When hiding a supplied photo, keep its reference. If only asked to hide tags, leave media null. Supply prompt only when a shared journal prompt badge is requested.
-- An explicit compact digest or one-line excerpt request requires both {"media":"none"}, even when the brief has no photos. When hiding a supplied photo, keep its reference in the entry and set media "none". If the only request is to hide tags, media must remain null. Supply prompt only when a shared journal prompt badge is requested.
+- Write `"detail":null` to show supplied tags and when no tags are mentioned. Use `"detail":"brief"` only when explicitly asked to hide tags, while keeping any supplied tags. If only tags should be hidden, use `"detail":"brief","media":null`. Use an empty tags array if none are known.
+- Set `"media":"none"` only if explicitly asked for a text-only digest or to hide thumbnails. No photo supplied does not mean text-only: write `"media":null` unless thumbnail visibility was requested. Keep any supplied photo references.
+- Use real dates in YYYY-MM-DD, newest first. Each entry needs a goto screen id. Supply prompt only when a shared journal prompt badge is requested.

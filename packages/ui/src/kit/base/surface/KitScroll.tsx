@@ -1,10 +1,11 @@
-import { Children, useRef, useState, type ReactNode } from "react";
+import { Children, useContext, useRef, useState, type ReactNode } from "react";
 import { ScrollView, XStack, YStack, isWeb, styled } from "tamagui";
 import { ChevronDown, ChevronRight } from "@tamagui/lucide-icons";
 import { component, emptyLine, size, space, type as typography } from "../../../catalog";
 import { PartRefScope, usePart, useEmptyThing } from "../../part";
 import { useKit, useKitStyle, useWords } from "../../provider";
 import { KitIcon, KitText, shifted, surfaceOf } from "../text";
+import { CardGutterContext } from "./KitCard";
 import type { ScrollHandle } from "./scroll-follow";
 import { focusScroll, scrollKey } from "./scroll-web";
 import { useScrollFollow } from "./use-scroll-follow";
@@ -48,9 +49,11 @@ function ScrollContent({
   children,
   horizontal,
   viewport,
+  inset,
 }: Pick<ScrollProps, "loading" | "children"> & {
   horizontal: boolean;
   viewport: number;
+  inset: boolean;
 }) {
   const { lang } = useWords();
   const ks = useKitStyle();
@@ -58,8 +61,8 @@ function ScrollContent({
   const empty = Children.toArray(children).length === 0;
   return (
     <YStack
-      paddingHorizontal={space.md}
-      paddingVertical={space[ks.density.rowPad]}
+      paddingHorizontal={inset ? component.base.none : space.md}
+      paddingVertical={inset ? component.base.none : space[ks.density.rowPad]}
       gap={space.sm}
       {...(horizontal && empty && !loading ? { width: viewport || component.base.emptyMinHeight } : {})}
     >
@@ -156,6 +159,7 @@ export function KitScroll({
   const ks = useKitStyle();
   const address = usePart(part);
   const horizontal = axis === "horizontal";
+  const inset = useContext(CardGutterContext);
   const { viewport, overflow, register, manualKey, scrollProps } = useScrollViewport(
     horizontal,
     loading,
@@ -165,10 +169,10 @@ export function KitScroll({
   return (
     <YStack
       {...address}
-      {...surfaceOf(ks.surface)}
+      {...(inset ? {} : surfaceOf(ks.surface))}
       width="100%"
       minWidth={component.base.none}
-      borderRadius={shifted("lg", ks.radiusShift)}
+      borderRadius={inset ? undefined : shifted("lg", ks.radiusShift)}
       overflow="hidden"
       aria-busy={loading}
     >
@@ -188,9 +192,7 @@ export function KitScroll({
         } as object)}
       >
         <PartRefScope.Provider value={register}>
-          <ScrollContent loading={loading} horizontal={horizontal} viewport={viewport}>
-            {children}
-          </ScrollContent>
+          <ScrollContent {...{ loading, horizontal, viewport, inset }}>{children}</ScrollContent>
         </PartRefScope.Provider>
       </ScrollView>
       {overflow && <ScrollCue horizontal={horizontal} />}

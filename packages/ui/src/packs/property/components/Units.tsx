@@ -158,16 +158,16 @@ export function Units(input: UnitsProps) {
   const surface = "plain";
   const media = useVariant("media", meta.variants.media, input.media);
   const rows = units.filter(({ visible }) => visible).map((unit) => <unitView.UnitRow key={unit.id} notice={unit.notice}
-    snapshot={unitSnapshot(unit, lets, on, lang, currency)} {...{ unit, media, density, loading }} />);
+    snapshot={unitSnapshot(unit, lets, on, lang, currency)} inline={style === "vacancies"} {...{ unit, media, density, loading }} />);
   const content = <>
     <KitContent {...{ density }}>
       <KitLayoutText line={{ role: "meta", text: words.units.date, tone: "muted" }} {...{ density }} />
       {loading ? <KitSkeleton shape="control" kind="secondary" label={words.units.date} full /> :
         <KitInput part="date" kind="date" icon="calendar" action="set" label={words.units.date} hint={words.units.dateFormat} value={on} projected />}
     </KitContent>
-    {style === "vacancies" ? <KitContent {...{ density }}>
+    {style === "vacancies" ? <KitContent group="response" {...{ density }}>
       <KitHeader title={{ text: words.units.vacancies, part: "vacancies" }} {...{ density }} />
-      <KitRowGroup {...{ density }}>{rows}</KitRowGroup>
+      <KitRowGroup spacing="groups" {...{ density }}>{rows}</KitRowGroup>
     </KitContent> :
       <KitGrid arrange="rows" list={!loading} {...{ density }}>{rows}</KitGrid>}
     {!rows.length && !loading && <KitLayoutText line={{ text: words.units.noVacancies, part: "message", tone: "muted" }} {...{ density }} />}

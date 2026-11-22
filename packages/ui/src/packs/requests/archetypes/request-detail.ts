@@ -10,6 +10,7 @@ export const request_detail = {
         { allow: ["Header"], required: true, variant: "back" },
         { allow: ["Card"], required: true },
         { allow: ["KeyValue"], required: true },
+        { allow: ["SlaPolicy"], required: false },
         { allow: ["List"], required: true },
         { allow: ["Button"], required: true },
       ],
@@ -22,10 +23,15 @@ export const request_detail = {
       ],
     },
     requests_updates: {
+      writeHints: [
+        "Use an optional FileList only for authorized attachments on visible messages; reuse those messages' opaque file references.",
+      ],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
         { allow: ["Card"], required: true },
+        { allow: ["CannedReplies"], required: false },
         { allow: ["RequestThread"], required: true },
+        { allow: ["FileList"], required: false },
       ],
       defaults: [
         { id: "h1", c: "Header", style: "back" },
