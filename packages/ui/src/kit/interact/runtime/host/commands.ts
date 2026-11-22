@@ -18,6 +18,7 @@ import {
   type ActionState,
 } from "../../actions";
 import type { ControllerContext } from "../index";
+import type { ScannerBrightnessAdapter } from "../private-values";
 
 export type HostCommandResult =
   { status: "accepted"; records?: HostRecords } | { status: "rejected"; records?: HostRecords };
@@ -32,6 +33,7 @@ type Handler<Request> = {
 export type HostCommandAdapter = {
   commands?: Readonly<Record<string, Handler<CommandRequest>>>;
   external?: Handler<ExternalRequest>;
+  scannerBrightness?: ScannerBrightnessAdapter;
 };
 
 type Subject = HostIntent["subject"];

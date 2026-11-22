@@ -644,14 +644,14 @@ Based on the Wave 6 Google Play Store top-app audit across 32 app categories, 17
 
 ### Planned core components (2)
 
-### `PassCard` · planned · content · phone
+### `PassCard` · ready · content · phone
 A digital pass, membership card, coupon, or transit pass displaying issuer branding, holder or account identifier (masked by default with reveal), scannable barcode or QR code via `KitCode`, live balance or points figure, up to four summary facts, and a high-brightness barcode zoom toggle.
 - Pick: a scannable membership card, digital coupon, voucher code, or transit/insurance ID card shown across 3+ unrelated domains. Not a rich event admission stub (events `Ticket` / ticketing `EventPass`), not a travel boarding document with gates/legs (trips `Reservation`), and not a full loyalty tier wallet (dining `RewardsWallet`).
-- Writes: `issuer` text(28), `title` text(32), `memberName` text(24) optional, `memberId` text(24) optional, `masked` boolean (default true), `code` text(64) optional, `codeKind` (`qr`, `barcode`), `balance` number optional, `pointsLabel` text(20) optional, `facts` of `label` text(16), `value` text(24), 0–4, `expiresAt` date optional, `used` boolean (default false), `style`.
+- Writes: `issuer` text(28), `title` text(32), `memberName` text(24) optional, `memberId` text(24) optional, `masked` boolean (default true), `code` text(64) optional, `codeKind` (`qr` default, `barcode` for Code 128), `bright` boolean optional (offer scanner view, initially off), `balance` number optional, `pointsLabel` text(20) optional, `facts` of `label` text(16), `value` text(24), 0–4, `expiresAt` date optional, `used` boolean (default false), `style`. Copy the code exactly. The barcode plate fits up to 10 printable ASCII characters or 20 digits in complete pairs.
 - Styles: `card` (default, membership or insurance card with barcode toggle), `coupon` (tinted offer card with barcode and expiry), `code` (large centered QR/barcode with copyable code), `transit` (transit fare pass with balance and tap status).
-- Parts → actions: `root press`, `reveal toggle` (masked ID), `code copy`, `bright toggle` (high-brightness scanner view).
+- Parts → actions: `root press`, `reveal toggle` (masked ID), `code copy`, `bright toggle` (`ok`, local-only high-brightness scanner view when requested and the code can be drawn). The drawing retains the `qr` address for both symbologies.
 - States: filled, empty (`Empty` when no pass saved), loading, error (invalid or unreadable code payload).
-- Real path: stored locally on device with host-resolved `KitCode` barcode rendering; never fabricates valid carrier, payment, or clinical insurer credentials.
+- Real path: stored locally on device and drawn by `KitCode`. The host manages screen brightness while scanner view is active. Never fabricates valid carrier, payment, or clinical insurer credentials.
 
 ### `FileList` · planned · content · ok
 A bounded list of 1–6 non-image file attachments (`pdf`, `doc`, `sheet`, `zip`, `audio`, `other`) showing format badge, filename, human-readable size, optional page count or duration, and preview, download/share, or remove actions. Prevents `Photo` and `Gallery` misuse for PDFs, CVs, contracts, invoices, and email attachments.

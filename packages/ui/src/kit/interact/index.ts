@@ -4,7 +4,9 @@ export {
   type PrivateValuesHost,
   type PrivateResult,
   type PrivateStatus,
+  type ScannerBrightnessAdapter,
 } from "./runtime";
+export { useScannerBrightness } from "./use-scanner-brightness";
 export { usePrivateStatus, usePrivateStatusAt } from "./use-private-status";
 export { clipboardRuntime, useCopyFeedback, type ClipboardText, type ClipboardWriter } from "./clipboard";
 export {

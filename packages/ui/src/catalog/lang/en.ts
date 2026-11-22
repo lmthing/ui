@@ -185,6 +185,9 @@ export const en = {
   passCard: {
     invalid: "This code can’t be read",
     qr: "Pass QR code",
+    barcode: "Pass barcode",
+    scanner: "Scanner view",
+    scannerUnavailable: "Brightness unavailable",
     copy: "Copy code",
     copied: "Code copied",
     reveal: "Show member ID",

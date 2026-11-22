@@ -9,7 +9,8 @@ export const meta = {
   purpose: "Keep a membership, coupon, or transit pass ready to show and scan.",
   pick: "A digital membership card, coupon, insurance ID or transit fare pass with a code to show or scan. Not ordinary details of one record without a pass (KeyValue), an event admission ticket (Ticket or EventPass), a travel itinerary (Reservation), or a full tier and reward wallet (RewardsWallet).",
   writeHints: [
-    'Use style "coupon" for a voucher with an expiry, "code" for a centered QR-only presentation, or "transit" for a fare pass; otherwise use style null for a membership card. If a code is supplied, copy the exact value and use codeKind "qr". Never invent issuer credentials, member IDs, balances, or codes.',
+    'Use style "coupon" for a voucher with an expiry, "code" for a centered scannable code, or "transit" for a fare pass; otherwise use style null for a membership card. Copy an explicitly supplied code exactly and use codeKind "barcode" for a requested 1D barcode (up to 10 printable ASCII characters or up to 20 digits in complete pairs), otherwise "qr". Never invent issuer credentials, member IDs, balances, or codes.',
+    "Use bright true only when asked for a bright or enlarged scanner view for a supplied code. This adds a local toggle and does not turn on brightness by default; use null otherwise.",
     'Use detail "brief" only if asked to hide the summary facts; keep the supplied facts in the data. Use null for unrequested axes and [] when there are no summary facts.',
   ],
   region: "body",
@@ -22,14 +23,21 @@ export const meta = {
   parts: [
     "root", "frame", "issuer", "title", "member_name", "member_id", "reveal", "reveal_icon", "reveal_label",
     "balance", "expiry", "status", "code", "code_icon", "code_label", "qr", "message",
+    "bright", "bright_label", "bright_status",
   ],
   items: { key: "facts", parts: ["root", "label", "value"], visibleWhen: { detail: "full" } },
   states: ["filled", "empty", "loading", "error"],
   actions: {
-    parts: { root: ["press"], reveal: ["toggle"], code: ["copy"] },
-    when: { reveal: { canReveal: true }, code: { scannable: true } },
+    parts: { root: ["press"], reveal: ["toggle"], code: ["copy"], bright: ["toggle"] },
+    when: {
+      reveal: { canReveal: true },
+      code: { scannable: true },
+      bright: { scannable: true, bright: true },
+    },
     credentialToggles: { reveal: "memberId" },
+    scannerBrightness: ["bright"],
   },
+  partTiers: { bright: "ok" },
   read: (value, _state, lang): string[] => {
     const input = value as z.output<typeof props>;
     const { balance, pointsLabel, expiresAt, style, used, memberId } = input;
@@ -40,7 +48,10 @@ export const meta = {
       ...(expiresAt ? [c.passExpiryLine(expiresAt, lang)] : []),
       ...(used ? [words.used] : style === "transit" && scannable ? [words.ready] : []),
       ...(canReveal && memberId ? [c.maskedPassId(memberId, lang), words.reveal] : []),
-      ...(scannable ? [`${words.copy} (copy the QR payload to the clipboard)`] : []),
+      ...(scannable
+        ? [input.codeKind === "barcode" ? words.copy : `${words.copy} (copy the QR payload to the clipboard)`]
+        : []),
+      ...(scannable && input.bright ? [words.scanner] : []),
     ];
   },
 } as const satisfies c.Meta;
@@ -50,7 +61,8 @@ export const props = z.strictObject({
   ...c.variantProps(meta.variants),
   issuer: c.text(28), title: c.text(32), memberName: c.text(24).optional(),
   memberId: c.text(24).meta({ kind: "secret", max: 24 }).optional(), masked: z.boolean().default(true),
-  code: c.secret(64).min(1).meta({ kind: "secret", max: 64 }).optional(), codeKind: z.enum(["qr"]).default("qr"),
+  code: c.secret(64).min(1).meta({ kind: "secret", max: 64 }).optional(), codeKind: z.enum(["qr", "barcode"]).default("qr"),
+  bright: z.boolean().optional(),
   balance: z.number().optional(), pointsLabel: c.text(20).optional(),
   facts: z.array(z.strictObject({ label: c.text(16), value: c.text(24) })).min(0).max(4).default([]),
   expiresAt: c.isoDate.optional(), used: z.boolean().default(false),
@@ -62,8 +74,10 @@ export const props = z.strictObject({
 }));
 
 // prettier-ignore
-function passControls({ code, used, masked, memberId }: Pick<PassProps, "code" | "used" | "masked" | "memberId">) {
-  const invalid = code !== undefined && !used && (!code.trim() || /[\uD800-\uDFFF]/u.test(code));
+function passControls({ code, codeKind, used, masked, memberId }: Pick<PassProps, "code" | "codeKind" | "used" | "masked" | "memberId">) {
+  const barcode = codeKind === "barcode" ? c.barcodeModules(code) : undefined;
+  const invalid = code !== undefined && !used && (!code.trim() ||
+    (codeKind === "barcode" ? !barcode || barcode.side > c.component.base.ringLg : /[\uD800-\uDFFF]/u.test(code)));
   return {
     canReveal: masked && !!memberId,
     scannable: !!code && !used && !invalid,
@@ -90,6 +104,7 @@ export const examples = [
   { issuer: "Trot Shuttle", title: "Park shuttle pass", style: "transit", code: "DEMO:TROT-SHUTTLE",
     balance: 4, pointsLabel: "Rides left" },
   { issuer: "Ledge Plant Club", title: "Potting bench voucher", style: "coupon", code: "DEMO:LEDGE-USED", used: true },
+  { issuer: "Ledge Seed Library", title: "Seed kit pickup", style: "code", code: "05120764", codeKind: "barcode", bright: true },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("PassCard");
@@ -101,6 +116,8 @@ export const probes = [
   { ...write("Show a demo Fern Society membership called Grower Club with QR payload DEMO:FERN. Keep the fact Level: Seedling but hide the summary facts from the display."),
     variant: { axis: "detail", value: "brief" } },
   read("Copy the QR payload to my clipboard.", { address: "c1/code", action: "copy" }),
+  { ...write("Show a demo Pine Nursery pickup pass called Seed Kit. Use the supplied one-dimensional barcode 05120764 (including the leading zero), and offer a bright scanner view."),
+    expectProps: { code: "05120764", codeKind: "barcode", bright: true } },
 ] satisfies c.Probe[];
 
 type PassProps = c.Props<typeof props, typeof meta>;
@@ -151,6 +168,28 @@ function PassDetails({ input, layout, revealed }: { input: PassProps; layout: La
 }
 
 // prettier-ignore
+function PassCode({ input, layout, loading = false }: { input: PassProps; layout: Layout; loading?: boolean }) {
+  const { words: { passCard: words } } = kit.useWords();
+  const scanner = kit.useScannerBrightness("bright");
+  const active = input.bright === true && scanner.status === "on";
+  const label = input.codeKind === "barcode" ? words.barcode : words.qr;
+  const centered = layout.align === "center";
+  if (loading) return <>
+    <kit.KitCode part={null} loading label={label} kind={input.codeKind} />
+    <kit.KitSkeleton shape="control" kind="quiet" {...(centered && { label: words.copy, full: true })} />
+    {input.bright && <kit.KitSkeleton shape="control" kind="quiet" label={words.scanner} />}
+  </>;
+  return <kit.KitContent group="response" align="center" density={layout.density}>
+    <kit.KitCode part="qr" value={input.code!} label={label} kind={input.codeKind} scale={active ? "scanner" : "standard"} />
+    <kit.KitAction part="code" action="copy" value={input.code!} copiedLabel={words.copied} kind="quiet"
+      {...(centered ? { label: words.copy, full: true } : { icon: "clipboard", a11y: words.copy })} />
+    {input.bright && <kit.KitScannerToggle part="bright" label={words.scanner} pressed={active} disabled={!scanner.available} />}
+    {input.bright && scanner.status === "failed" &&
+      <kit.KitText part="bright_status" role="label" tone="muted" align="center">{words.scannerUnavailable}</kit.KitText>}
+  </kit.KitContent>;
+}
+
+// prettier-ignore
 export function PassCard(input: PassProps) {
   const { screen, component } = kit.usePartContext();
   const state = kit.useComponentState();
@@ -166,8 +205,7 @@ export function PassCard(input: PassProps) {
   if (state === "loading") return <kit.KitCard padded part="root" density={density}>
     <kit.KitSkeleton shape="figure" content={[["label", input.issuer], ["heading", input.title]]} inset="none" centered={align === "center"} density={density} />
     <PassDetails input={input} layout={layout} revealed={false} />
-    {scannable && <><kit.KitCode part={null} loading label={words.qr} />
-      <kit.KitSkeleton shape="control" kind="quiet" {...(align === "center" && { label: words.copy, full: true })} /></>}
+    {scannable && <PassCode input={input} layout={layout} loading />}
   </kit.KitCard>;
   return <kit.KitCard part="frame" padded density={density} look={input.style === "coupon" && !input.used ? "tinted" : "surface"}>
     <kit.KitRow part="root" role="button" label={input.title} inline density={density}>
@@ -175,10 +213,6 @@ export function PassCard(input: PassProps) {
       <kit.KitText part="title" role="heading" {...layout}>{input.title}</kit.KitText>
     </kit.KitRow>
     <PassDetails input={input} layout={layout} revealed={c.credentialToggleOn(reveal, input.memberId)} />
-    {scannable && <kit.KitContent group="response" align="center" density={density}>
-      <kit.KitCode part="qr" value={input.code!} label={words.qr} />
-      <kit.KitAction part="code" action="copy" value={input.code!} copiedLabel={words.copied} kind="quiet"
-        {...(align === "center" ? { label: words.copy, full: true } : { icon: "clipboard", a11y: words.copy })} />
-    </kit.KitContent>}
+    {scannable && <PassCode input={input} layout={layout} />}
   </kit.KitCard>;
 }
