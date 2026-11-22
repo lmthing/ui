@@ -15,11 +15,13 @@ export type { Confirmation } from "./runtime";
 import { projectScreen } from "./live-screen";
 import {
   atDeviceTime,
+  driveTarget,
   emptyDeviceData,
   isRecordJournal,
   liveProps,
   parseAppCurrency,
   projectDeviceData,
+  projectDriveObservation,
   projectSelectionBinding,
   selectDeviceData,
   selectionBindingFor,
@@ -45,12 +47,25 @@ function liveControls(ctx: ControllerContext, meta: Meta, props: Values, compone
     ctx.screen,
   );
   const live = liveProps(definition, props, component, local, true, data);
-  if (!definition.selectionBinding) return live;
+  if (!definition.selectionBinding && typeof definition.drives !== "object") return live;
   const sheet = ctx.status.openSheet;
   const visible = ctx.liveScreen(values, sheet, Boolean(sheet), now);
   const screen = withDisabledSelectionChecks(visible, ctx.disabledParts);
   const selection = selectionBindingFor(screen, ctx.defs, definition, component, local, data);
-  return projectSelectionBinding(definition, live, selection?.view);
+  const target = driveTarget(
+    definition,
+    screen,
+    ctx.defs,
+    local,
+    data,
+    (part) => !ctx.privateMarks.has(part),
+  );
+  return projectDriveObservation(
+    definition,
+    projectSelectionBinding(definition, live, selection?.view),
+    component,
+    target,
+  );
 }
 
 function deviceDataFor(ctx: ControllerContext, component: string, data = ctx.options.deviceData) {
@@ -162,7 +177,7 @@ export function createScreenController(options: ControllerOptions & { currency?:
       ctx.hosts.prune();
       discardHiddenConfirmation(ctx);
       reveal.reconcile();
-      clock.scheduleDeviceWake();
+      clock.scheduleClock();
     },
     snapshotScreen: () => {
       if (!ctx.admitted()) return { id: ctx.screen.id, components: [] };

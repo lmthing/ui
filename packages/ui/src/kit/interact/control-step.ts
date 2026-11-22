@@ -110,7 +110,7 @@ export function controlStep(
   const selection = selectControl(ctx);
   if (selection.error) return selection;
   const adjustment = adjustmentAt(ctx.def.meta, input, target, step.action, ctx.get, now);
-  const planned = isAdjustOnlyItem(adjustment, step.action);
+  const planned = adjustment?.declared || isAdjustOnlyItem(adjustment, step.action);
   const clockAdjustment = planned ? { ...adjustment, next: undefined } : adjustment;
   const clocks = clockChanges(ctx.def.meta, input, ctx.get, target, step, now, clockAdjustment);
   Object.entries(clocks).forEach(([part, value]) => ctx.put(part, value));

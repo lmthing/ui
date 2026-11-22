@@ -14,21 +14,21 @@ export {
   clockTime,
   clockEnded,
   clockTriggerTarget,
-  projectClocks,
-  projectLiveClocks,
   clockActionValid,
   clockControlDeclared,
   hasPlaybackClock,
   isPlaybackAction,
 } from "./clock";
-export { clockChanges } from "./transitions";
+export { adjustmentChanges, clockChanges, stageStandaloneClock } from "./transitions";
+export { hasTimestampClock, timestampReading, projectClocks, projectLiveClocks } from "./timing";
+export { clockMax } from "./clock";
 export { hasRuntimeSets, isRuntimeSet, projectComponentSets, projectRuntimeSets } from "./component-sets";
+export { adjustmentAt, clearItemSets, projectAdjustments, projectMatrix } from "./adjustment";
 export {
-  adjustmentAt,
-  clearItemSets,
-  hasNumericRoom,
+  declaresNumericLimits,
+  hasLiveAdjustments,
+  numericError,
   numericSetAt,
-  projectAdjustments,
-  projectMatrix,
   setAt,
-} from "./adjustment";
+  snapNumber,
+} from "./numeric";

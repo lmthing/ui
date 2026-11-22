@@ -51,9 +51,12 @@ export function findAction(
   const invalid = validateActionValue(original.action, original.value);
   if (invalid) return { error: { ok: false, at, ...invalid } as const };
   const destination = offered.find((a) => a.address === drive.address && a.action === drive.action);
-  if (!destination || destination.hostReveal)
+  if (!destination || destination.hostReveal || destination.hostIntent)
     return { error: { ok: false, code: "not_actionable", at } as const };
-  return { address: drive.address, selected, found: destination, drive, step: drive };
+  const driven =
+    offeredSelection(destination, drive) ?? selectStep(screen, defs, drive, drive.address, next, data, now);
+  if (driven.error) return { error: { ok: false, code: "invalid_value", at, hint: driven.error } as const };
+  return { address: drive.address, selected: driven, found: destination, drive, step: driven.step };
 }
 
 function offeredSelection(found: Affordance, step: ActStep): SelectedStep | undefined {

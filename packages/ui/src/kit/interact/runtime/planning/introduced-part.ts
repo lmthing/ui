@@ -2,6 +2,7 @@ import {
   drawRole,
   isNestedTarget,
   hasNestedCollectionControls,
+  isLocalAnchorAction,
   planAct,
   privateMarkKey,
   reportConfirmation,
@@ -16,14 +17,27 @@ import {
 } from "../../../../catalog";
 import { planHostAct } from "../../../../catalog/agent/action-input";
 import type { ControllerContext, ScreenComponent } from "../index";
-import { deliverSend, type ActionContext } from "../../actions";
+import {
+  actionFailure,
+  deliverSend,
+  type ActionContext,
+  type ActionResult,
+  type ActionState,
+} from "../../actions";
 
-export function drivenPartBlock(ctx: ControllerContext, address: string) {
+export function drivenPartBlock(ctx: ControllerContext, address: string, action?: string) {
   if (ctx.privateMarks.has(address) || ctx.store.get(privateMarkKey(ctx.screen.id, address)))
     return { code: "not_actionable", hint: "Private control" };
   if (ctx.disabledParts.has(address)) return { code: "disabled", hint: "This control is disabled" };
+  if (action && isLocalAnchorAction(action) && !ctx.anchors.has(address))
+    return { code: "not_mounted", hint: "This anchor is not mounted" };
   if (ctx.options.requireMounted && !ctx.mounted.has(address))
     return { code: "not_mounted", hint: "This control is not mounted" };
+}
+
+export function driveAccess(ctx: ControllerContext) {
+  return (part: string, observe?: true, action?: string) =>
+    observe ? !ctx.privateMarks.has(part) : !drivenPartBlock(ctx, part, action);
 }
 
 export function confirmReport(
@@ -41,6 +55,19 @@ export function confirmReport(
     { kind: "confirm", now: ctx.now(), removal },
     ctx.options.deviceData,
   );
+}
+
+export function runAnchor(
+  ctx: ControllerContext,
+  before: ActionState,
+  state: ActionState,
+  address: string,
+  action: "focus" | "jump",
+  at: number,
+): ActionResult {
+  const block = drivenPartBlock(ctx, address, action);
+  if (block) return { state: before, effects: [], error: actionFailure(at, block.code, block.hint) };
+  return { state, effects: [() => ctx.anchors.get(address)?.(action)] };
 }
 
 export function needsConfirmation(ctx: ControllerContext, { entry, selected }: ActionContext) {
@@ -89,13 +116,14 @@ export function hostCaptureEffects({ selected, screen, options }: ActionContext)
   return [() => options.onAction?.({ ...selected, address: `${screen.id}/${selected.address}` })];
 }
 
-export function standaloneEffects({ links, send, options }: ActionContext) {
+export function standaloneEffects({ links, anchors, send, options }: ActionContext) {
   const effects = links.map(
     ({ goto, address }) =>
       () =>
         options.onLink?.(goto, address),
   );
   if (send) effects.push(() => deliverSend(send, options.onSend));
+  for (const { address, action } of anchors ?? []) effects.push(() => options.onAnchor?.(address, action));
   return effects;
 }
 

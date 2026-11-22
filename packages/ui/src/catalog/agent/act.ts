@@ -1,4 +1,3 @@
-import { liveProps, parseControlProps, stageItemAdjustment } from "./live-props";
 import type { Definition } from "../probes";
 import { migrateScreen } from "../migrations";
 import type { ScreenLike } from "./read";
@@ -7,14 +6,14 @@ import {
   controlsAreValid,
   expireProgress,
   findAction,
-  localValues,
   type selectStep,
   stageStepProgress,
+  stageItemAdjustment,
   stageValue,
   validateStep,
 } from "./action-input";
 import { deviceRandom, type RandomSource } from "./draw";
-import { clockChanges, clockControlDeclared } from "./clocks";
+import { adjustmentChanges, stageStandaloneClock } from "./clocks";
 import {
   captureDeviceTime,
   deviceTimeOf,
@@ -24,6 +23,8 @@ import {
 } from "./device-data";
 import { stageReportEdit } from "./report-edits";
 import { stageInlinePress } from "./live-inputs";
+import { isLocalAnchorAction } from "./drives";
+import type { Affordance } from "./affordances";
 import type { HostIntent } from "./host-commands";
 import { stageLocalEvent, stageRecordAction, withRecordScreen } from "./record-runtime";
 export type ActStep = { address: string; action: string; value?: unknown; recordTarget?: string };
@@ -40,37 +41,37 @@ export type ActResult =
       driven?: ActStep[];
       hostCommands?: HostIntent[];
       localEvent?: true;
+      anchors?: { address: string; action: "focus" | "jump" }[];
     }
   | { ok: false; code: ActCode; at: number; hint?: string };
-/** A mounted controller already stages clocks through its action table. */
-function stageStandaloneClock(
+function stageEffect(
+  plan: Extract<ActResult, { ok: true }>,
   screen: ScreenLike,
-  defs: Record<string, Definition>,
-  next: Values,
   address: string,
-  step: ActStep,
-  data?: DeviceData,
+  action: string,
+  found: Affordance,
 ) {
-  const [id, ...parts] = address.split("/");
-  const { id: _id, c, state: _state, ...input } = screen.components.find((item) => item.id === id)!;
-  const def = defs[c]!;
-  const { meta } = def;
-  const legacy =
-    (meta.live?.derive || meta.recordRuntime?.actions) &&
-    (meta.clocks || meta.items?.clocks || meta.items?.nested?.clocks);
-  const target = parts.join("/") || "root";
-  if (!legacy && !clockControlDeclared(meta, target, step.action, true)) return;
-  const get = (part: string) => next[`${screen.id}/${id}/${part}`];
-  const props = legacy
-    ? liveInput(def, input, id!, localValues(screen.id, next), data)
-    : parseControlProps(def, input, get);
-  const now = Number(get("$now") ?? deviceTimeOf(data) ?? Date.now());
-  const changes = clockChanges(meta, props, get, target, step, now);
-  for (const [part, value] of Object.entries(changes)) next[`${screen.id}/${id}/${part}`] = value;
+  if (found.hostIntent) (plan.hostCommands ??= []).push(found.hostIntent);
+  else if (isLocalAnchorAction(action))
+    (plan.anchors ??= []).push({ address: `${screen.id}/${address}`, action });
+  // Clipboard text is a host effect, not a value to persist or echo back.
+  else if (action !== "copy") return false;
+  plan.changed.push(`${address} ${action}`);
+  return true;
 }
-function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
-  const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
-  return liveProps(def.meta, parsed, id, local, true, data);
+
+function recordControlResult(
+  plan: Extract<ActResult, { ok: true }>,
+  found: Affordance,
+  screen: ScreenLike,
+  resolved: ActStep,
+  key: string,
+) {
+  if (found.send) (plan.sends ??= []).push({ ...found.send, address: `${screen.id}/${found.send.address}` });
+  const { address, action } = resolved;
+  plan.changed.push(
+    `${address} ${action}${key in plan.values ? ` = ${JSON.stringify(plan.values[key])}` : ""}`,
+  );
 }
 
 function stageControl(
@@ -80,8 +81,7 @@ function stageControl(
   resolved: ActStep,
   found: Parameters<typeof stageValue>[2],
   links: Extract<ActResult, { ok: true }>["links"],
-  clockOwner: "planner" | "controller",
-  snapshot: DeviceData | undefined,
+  timing: { owner: "planner" | "controller"; snapshot: DeviceData | undefined; now: number },
   {
     key,
     edit,
@@ -91,15 +91,27 @@ function stageControl(
   }: ReturnType<typeof validateStep> & ReturnType<typeof selectStep> & { key: string },
 ): Omit<Extract<ActResult, { ok: false }>, "at"> | undefined {
   const { address, action, value } = resolved;
-  const adjusted = edit ? undefined : stageItemAdjustment(screen, defs, address, action, next);
-  if (clockOwner === "planner") stageStandaloneClock(screen, defs, next, address, resolved, snapshot);
+  const { owner, snapshot, now } = timing;
+  let adjusted = edit
+    ? undefined
+    : stageItemAdjustment(screen, defs, address, action, next, found.adjustment);
+  if (!edit && adjusted === undefined && found.adjustment) {
+    const base = `${screen.id}/${address.split("/")[0]}`;
+    for (const [part, amount] of Object.entries(adjustmentChanges(found.adjustment, now)))
+      next[`${base}/${part}`] = amount;
+    next[key] = found.adjustment.next;
+    adjusted = true;
+  } else if (owner === "planner") stageStandaloneClock(screen, defs, next, address, resolved, snapshot);
   if (!(adjusted ?? stageValue(next, key, found, value, edit, screen.id, links)))
     return { ok: false, code: "not_actionable" };
   stageInlinePress(screen, defs, resolved, next);
   Object.assign(next, changes);
   if (stageReportEdit(screen, defs, next, resolved, { kind: "input" }, snapshot) === false)
     return { ok: false, code: "invalid_value", hint: "Value conflicts with report props" };
-  if ((limits || edit?.adjustment || adjusted || declared) && !controlsAreValid(screen, defs, address, next))
+  if (
+    (limits || edit?.adjustment || adjusted || declared || found.adjustment) &&
+    !controlsAreValid(screen, defs, address, next)
+  )
     return { ok: false, code: "invalid_value", hint: "Value conflicts with component props" };
 }
 
@@ -121,7 +133,7 @@ export function planAct(
   }
   const migrated = migrateScreen(input, { variantOnly: true });
   const plan: Extract<ActResult, { ok: true }> = { ok: true, values: { ...values }, changed: [], links: [] };
-  const { values: next, changed, links } = plan;
+  const { values: next } = plan;
   for (const [at, original] of steps.entries()) {
     const snapshot = withRecordScreen(projectDeviceData(data, next), migrated);
     const screen = filterDeviceDataScreen(migrated, defs, snapshot);
@@ -133,22 +145,13 @@ export function planAct(
     const validated = { key, ...selected, ...validateStep(screen, defs, found, step, next, key) };
     const { result } = validated;
     if ("code" in result) return { ok: false, at, ...result };
-    if (found.hostIntent) {
-      (plan.hostCommands ??= []).push(found.hostIntent);
-      changed.push(`${address} ${step.action}`);
-      continue;
-    }
-    // Clipboard text is a host effect, not a value to persist or echo back.
-    if (step.action === "copy") {
-      changed.push(`${address} copy`);
-      continue;
-    }
+    if (stageEffect(plan, screen, address, step.action, found)) continue;
     const resolved = { ...step, address, value: result.value };
     if (found.localEvent) {
       const failure = stageLocalEvent(screen, defs, next, resolved, found.localEvent);
       if (failure) return { ok: false, code: "invalid_value", at, hint: failure.error };
       plan.localEvent = true;
-      changed.push(`${address} ${step.action}`);
+      plan.changed.push(`${address} ${step.action}`);
       continue;
     }
     const record = stageRecordAction(screen, defs, next, resolved, now, snapshot);
@@ -160,18 +163,17 @@ export function planAct(
       if (progress === false)
         return { ok: false, code: "invalid_value", at, hint: "Invalid record mutation" };
       if (progress !== undefined) {
-        changed.push(`${address} ${step.action}${progress}`);
+        plan.changed.push(`${address} ${step.action}${progress}`);
         continue;
       }
     } catch {
       return { ok: false, code: "random_unavailable", at, hint: "Cannot generate a random result" };
     }
-    const failure = stageControl(screen, defs, next, resolved, found, links, clockOwner, snapshot, validated);
+    const timing = { owner: clockOwner, snapshot, now };
+    const failure = stageControl(screen, defs, next, resolved, found, plan.links, timing, validated);
     if (failure) return { ...failure, at };
     expireProgress(screen, defs, next, snapshot);
-    if (found.send)
-      (plan.sends ??= []).push({ ...found.send, address: `${screen.id}/${found.send.address}` });
-    changed.push(`${address} ${step.action}${key in next ? ` = ${JSON.stringify(next[key])}` : ""}`);
+    recordControlResult(plan, found, screen, resolved, key);
   }
   return plan;
 }

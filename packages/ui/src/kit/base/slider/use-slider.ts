@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { isWeb } from "tamagui";
-import { size } from "../../../catalog";
+import { size, snapNumber } from "../../../catalog";
 import { useKit } from "../../provider";
 
 type SliderControl = {
@@ -11,6 +11,7 @@ type SliderControl = {
   max: number;
   step?: number;
   disabled?: boolean;
+  declared?: boolean;
 };
 function webHandlers({ min, max, value, step = 1 }: SliderControl, dispatch: (next: number) => void) {
   const thumb = size.icon.lg;
@@ -60,7 +61,9 @@ export function useSlider(control: SliderControl) {
     return kit.controller?.act({
       address,
       action: part === "scrubber" ? "seek" : "set",
-      value: Number((min + index * interval).toPrecision(15)),
+      value: control.declared
+        ? snapNumber(next, min, max, interval)
+        : Number((min + index * interval).toPrecision(15)),
     });
   };
   const handlers =

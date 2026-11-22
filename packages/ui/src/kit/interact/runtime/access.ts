@@ -1,18 +1,18 @@
 import {
   atDeviceTime,
+  type AppCurrency,
   wordsFor,
   clockControlDeclared,
   isPlaybackAction,
   sessionEvent,
 } from "../../../catalog";
-import type { AppCurrency, StateName } from "../../../catalog";
 import { actionFailure } from "../actions";
 import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
 import { createAct, discardHiddenConfirmation } from "./dispatch";
 import { createMediaRuntime } from "./media";
-import { registerPart } from "./part-registration";
-import { drivenPartBlock } from "./planning";
-import { actionsAt } from "./offers";
+import { driveRefresh, registerEntry, registerPart } from "./part-registration";
+import { driveAccess } from "./planning";
+import { actionsAt, numericControlAt } from "./offers";
 import { commandForConfirmation } from "./host";
 import { isKeypad, readControls } from "./read-controls";
 type Act = ReturnType<typeof createAct>;
@@ -81,7 +81,7 @@ function read(ctx: ControllerContext, currency?: AppCurrency) {
   const sheet = ctx.status.openSheet;
   const visible = ctx.liveScreen(values, sheet, Boolean(sheet), now);
   const data = atDeviceTime(deviceData, now);
-  const canDrive = ctx.standalone ? undefined : (part: string) => !drivenPartBlock(ctx, part);
+  const canDrive = ctx.standalone ? undefined : driveAccess(ctx);
   const reading = readControls(
     visible,
     ctx.defs,
@@ -111,11 +111,13 @@ export function createAccess(
   currency?: AppCurrency,
   revokeReveal?: (address: string) => void,
 ) {
+  const refresh = driveRefresh(ctx);
   return {
     registerCopyTarget: ctx.clipboard.register,
     copiedAt: ctx.clipboard.copiedAt,
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>
       actionsAt(ctx, address, false, options?.ignoreDisabledPart),
+    numericControl: (address: string) => numericControlAt(ctx, address),
     press: (address: string) => press(ctx, act, address),
     read: () => read(ctx, currency),
     canPress(address: string, options?: { ignoreDisabledPart?: boolean }) {
@@ -137,10 +139,13 @@ export function createAccess(
       }
       return result;
     },
-    registerPart: (address: string) => registerPart(ctx.mounted, ctx.relative(address), revokeReveal),
+    registerPart: (address: string) =>
+      registerPart(ctx.mounted, ctx.relative(address), revokeReveal, refresh),
+    registerAnchor: (address: string, handler: (action: "focus" | "jump") => void) =>
+      registerEntry(ctx.anchors, ctx.relative(address), handler, refresh),
     registerDisabledPart(address: string) {
       const local = ctx.relative(address);
-      const remove = registerPart(ctx.disabledParts, local);
+      const remove = registerPart(ctx.disabledParts, local, undefined, refresh);
       revokeReveal?.(local);
       return remove;
     },

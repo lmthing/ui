@@ -84,7 +84,8 @@ export function readOffers(
   });
   const hostOnly = hostOnlyAddresses(def, instance, offered);
   const visible = offered.filter(({ address }) => !hostOnly?.has(address) && !addresses.has(address));
-  const destination = target && !addresses.has(target.address) ? target : undefined;
+  const destination =
+    target && (!("address" in target) || !addresses.has(target.address)) ? target : undefined;
   return driveAffordances(def.meta, props, instance, visible, destination);
 }
 
@@ -97,6 +98,21 @@ function credentialDetail(meta: Meta, props: Values, offer: Affordance, target: 
 }
 
 /** Describe the offered controls using live values and choices. */
+function offeredChoices(meta: Meta, props: Values, target: string) {
+  const options = choiceOptions(meta, props, target);
+  if (!options) return;
+  const item = itemEditAt(meta, props, target);
+  const picker = pickerAt(meta, props, target);
+  const selected = picker
+    ? picker.row[picker.spec.prop]
+    : item?.spec.action === "select"
+      ? item.row[item.spec.prop]
+      : props[selectionOffer(meta, target)!.prop];
+  // Advertise a label only when copying it back selects this option.
+  const choices = readChoices(options, !!picker);
+  return { choices, selected: choices.find(({ value }) => value === selected)?.offered ?? selected };
+}
+
 export function readAffordances(
   affordances: Affordance[],
   values: Values,
@@ -113,42 +129,46 @@ export function readAffordances(
     if (a.rowSelection || a.flagKey)
       return { ...a, detail: `${a.detail}${risks[partTierAt(meta, props, a.part)] ?? ""}` };
     const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
-    const options = a.nestedChoice?.options ?? (a.action === "select" && choiceOptions(meta, props, target));
+    const choice = a.nestedChoice
+      ? { choices: readChoices(a.nestedChoice.options, false), selected: a.nestedChoice.current }
+      : a.action === "select"
+        ? offeredChoices(meta, props, target)
+        : undefined;
     const item = itemEditAt(meta, props, target);
-    const picker = pickerAt(meta, props, target);
-    const selected = options
-      ? a.nestedChoice
-        ? a.nestedChoice.current
-        : picker
-          ? picker.row[picker.spec.prop]
-          : item?.spec.action === "select"
-            ? item.row[item.spec.prop]
-            : props[selectionOffer(meta, target)!.prop]
-      : undefined;
-    const choices = options && readChoices(options, !!picker);
-    const set = a.action === "set" && setAt(meta, props, target);
+    const set = a.action === "set" && (a.numeric ?? setAt(meta, props, target));
     const linked = a.action === "type" && linkedInput(meta, target);
     const value =
       a.action === "type" && item?.spec.action === "type"
         ? item.row[item.spec.prop]
         : linked
           ? props[linked.prop]
-          : choices
-            ? (choices.find(({ value }) => value === selected)?.offered ?? selected)
+          : choice
+            ? choice.selected
             : set
-              ? isRuntimeSet(set.spec) || values[`${instance}/${controlValueKey(def, set.key)}`] !== undefined
+              ? a.numeric?.spec.declared ||
+                isRuntimeSet(set.spec) ||
+                values[`${instance}/${controlValueKey(def, set.key)}`] !== undefined
                 ? set.value
                 : undefined
               : a.input?.kind === "text"
                 ? (answers?.[target] ?? values[`${instance}/${liveInputKey(target, "type")}`])
                 : (values[`${a.address}/$draft`] ?? answers?.[target] ?? values[a.address]);
     let detail = credentialDetail(meta, props, a, target, value) ?? booleanDetail(a, value);
-    const offered = a.action === "select" && !choices ? runtimeRowValue(meta, props, target, value) : value;
+    const offered = a.action === "select" && !choice ? runtimeRowValue(meta, props, target, value) : value;
     if (offered !== undefined && ["type", "set", "select"].includes(a.action))
       detail = ` = ${JSON.stringify(offered)}`;
-    if (choices)
-      detail += `${detail ? ";" : ""} choices ${JSON.stringify(choices.map(({ offered }) => offered))}`;
+    if (choice)
+      detail += `${detail ? ";" : ""} choices ${JSON.stringify(choice.choices.map(({ offered }) => offered))}`;
     if (a.move) detail = ` = ${JSON.stringify(a.move.current)}; choices ${JSON.stringify(a.move.choices)}`;
+    if (a.numeric?.spec.declared) {
+      const { min, max, step } = a.numeric.spec;
+      const limits = [
+        Number.isFinite(min) ? `min ${min}` : "",
+        Number.isFinite(max) ? `max ${max}` : "",
+        step === undefined ? "" : `step ${step}`,
+      ].filter(Boolean);
+      if (limits.length) detail += `; ${limits.join(", ")}`;
+    }
     return { ...a, detail: `${detail}${risks[partTierAt(meta, props, a.part)] ?? ""}` };
   });
 }

@@ -32,8 +32,9 @@ export type LiveActionInputs = {
   /** Derive presentation props/gates, optionally closing over trusted host facts for this instance. */
   derive?: (props: Readonly<Record<string, unknown>>, instance: string) => Record<string, unknown>;
 };
+export type PartActionName = ActionName | "focus" | "jump";
 export type ActionSpec = {
-  parts?: Record<string, readonly ActionName[]>;
+  parts?: Record<string, readonly PartActionName[]>;
   items?: Record<string, readonly ActionName[]>;
   /**
    * A part that exists only for some prop values: `{ back: { style: "back" }, trail: { trail: "toggle" } }`.

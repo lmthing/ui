@@ -1,4 +1,4 @@
-import type { ActStep, RandomSource } from "../../../../catalog";
+import { isLocalAnchorAction, type ActStep, type RandomSource } from "../../../../catalog";
 import {
   actionFailure,
   confirmationAction,
@@ -16,11 +16,12 @@ import {
   isDraw,
   isRevealRelease,
   needsConfirmation,
+  runAnchor,
   standaloneEffects,
 } from "./introduced-part";
 import { prepareStep, type PreparedAction } from "./prepare-step";
 import { runHostCommand } from "./host-command";
-export { drivenPartBlock, inactive } from "./introduced-part";
+export { driveAccess, inactive } from "./introduced-part";
 
 function runControl({ state, context, localEvent }: PreparedAction, selected: ActStep, address: string) {
   const { links, screen } = context;
@@ -63,7 +64,7 @@ function stepRunner(
     }
     if (pending) return pending;
     if (!ctx.standalone && prepared.drive) {
-      const block = drivenPartBlock(ctx, prepared.drive.address);
+      const block = drivenPartBlock(ctx, prepared.drive.address, prepared.drive.action);
       if (block) return { state: before, effects: [], error: actionFailure(at, block.code, block.hint) };
       return run(before, { ...prepared.drive, address: `${ctx.screen.id}/${prepared.drive.address}` });
     }
@@ -80,11 +81,9 @@ function stepRunner(
         prepared.context.links = plan.links;
       }
     }
-    if (ctx.standalone)
-      return {
-        state: prepared.state,
-        effects: standaloneEffects(prepared.context),
-      };
+    if (ctx.standalone) return { state: prepared.state, effects: standaloneEffects(prepared.context) };
+    if (isLocalAnchorAction(selected.action))
+      return runAnchor(ctx, before, prepared.state, selected.address, selected.action, at);
     const address = confirmed ? original.address.replace(`${ctx.screen.id}/`, "") : selected.address;
     return runControl(prepared, selected, address);
   };

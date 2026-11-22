@@ -8,21 +8,22 @@ import type { DeviceData, HostCommandMeta, ItemEditPath, ItemEdits, ScreenLike }
 import type { Issue } from "../rules";
 import type * as LiveMeta from "./live";
 import type { Choice, NamedCollection, NestedGroups, NestedPart } from "./collections";
+import type { DriveBindings, NumericRange } from "./runtime";
 export type NumericAdjustments = Readonly<
-  Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
+  Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number } & NumericRange>>
 >;
 type Draw =
   | { kind: "faces"; press: string; count: string; sides: string; hold?: string }
   | { kind: "pick"; press: string; pool: string; repeat?: string; reset?: string }
   | { kind: "partition"; press: string; redraw?: string; players: string; teams: string; locked?: string };
-type NumericSet = { prop: string; min?: number; max?: number; integer?: boolean };
+type NumericSet = { prop: string; integer?: boolean } & NumericRange;
 type ItemNumericSet = NumericSet & {
   /** Addressed items flatten this wire matrix in row-major order. */
   matrix?: { rows: string; values: string };
 };
 type ComponentSet =
   | (NumericSet & { type?: "number" } & (
-        { runtime?: false } | { runtime: true; maxProp: string; initial: number }
+        { runtime?: false } | { runtime: true; maxProp?: string; initial: number }
       ))
   | { prop: string; type: "date"; min?: string; max?: string }
   | { prop: string; type: "choice"; choices: readonly string[] };
@@ -65,7 +66,7 @@ export type Meta = {
   realPath: string;
   dense?: true;
   confirmParts?: readonly string[];
-  drives?: string; // Forward item root presses as a seek to the item's `at` seconds.
+  drives?: string | DriveBindings; // A component id preserves legacy item-root seek.
   variants?: Variants;
   variantParts?: VariantParts;
   clocks?: readonly ClockMeta[];

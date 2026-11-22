@@ -1,9 +1,10 @@
 import type { ClockMeta, ClockState } from "../../meta";
 import type { Definition } from "../../probes";
 import type { Values } from "../act";
-import { inLocalWeek, recordKey, selectDeviceData, type DeviceData } from "../device-data";
+import { deviceTimeOf, inLocalWeek, recordKey, selectDeviceData, type DeviceData } from "../device-data";
 import { rememberRecordIds, validRecordWire, writeRecordWire } from "../report-edits";
 import { projectControlInput } from "../live-props";
+import { journalOperation, journalStep } from "./timing";
 
 type Get = (part: string) => unknown;
 type Owners = Readonly<Record<string, string>>;
@@ -14,6 +15,7 @@ type Context = {
   props: Values;
   get: Get;
   now: number;
+  journalNow: number;
   data?: DeviceData | undefined;
   owners?: Owners | undefined;
 };
@@ -27,18 +29,29 @@ export function resetRecordClockOwners(values: Values, screen: string) {
 }
 
 export const hasRecordClock = (meta: Definition["meta"]) =>
-  Boolean(meta.clocks?.some(({ commitOnStop }) => commitOnStop));
+  Boolean(meta.clocks?.some(({ commitOnStop, journal }) => commitOnStop || journal));
 
-function clockOperation(clock: ClockMeta, target: string, action: string) {
-  return (["start", "stop", "reset"] as const).find(
-    (op) => clock[op]?.part === target && clock[op]?.action === action,
+type Operation = "start" | "stop" | "reset" | "lap";
+type Transition = { clock: ClockMeta; group: string | undefined; state: ClockState; op: Operation };
+type Append = Transition & { row: Values; patch: Values };
+
+function clockOperation(clock: ClockMeta, target: string, action: string): Operation | undefined {
+  return (
+    journalOperation(clock, target, action) ??
+    (["start", "stop", "reset"] as const).find(
+      (op) => clock[op]?.part === target && clock[op]?.action === action,
+    )
   );
 }
 
-function recordClockStep(context: Context, target: string, action: string) {
+function recordClockStep(
+  context: Context,
+  target: string,
+  action: string,
+): Transition | Append | false | undefined {
   const { def, props, get, now, data, owners } = context;
   const matching = (def.meta.clocks ?? []).filter(
-    (clock) => clock.commitOnStop && clockOperation(clock, target, action),
+    (clock) => (clock.commitOnStop || clock.journal) && clockOperation(clock, target, action),
   );
   if (!matching.length) return;
   const clock = matching.find((clock) =>
@@ -47,14 +60,28 @@ function recordClockStep(context: Context, target: string, action: string) {
   if (!clock || clock.kind !== "up" || clock.start?.action !== "start" || clock.stop?.action !== "stop")
     return false;
   const op = clockOperation(clock, target, action)!;
-  if (clock[op]?.value !== undefined) return false;
+  if (op !== "lap" && clock[op]?.value !== undefined) return false;
   const state = get(`$${clock.id}`) as ClockState | undefined;
+  const snapshot = selectDeviceData(def.meta, data);
+  if (clock.journal) {
+    if (clock.commitOnStop || clock.timestamp) return false;
+    const step = journalStep(clock, op, state, props, snapshot, context.journalNow);
+    if (!step) return false;
+    if (!step.row) return { clock, op, state: step.state, group: undefined };
+    return appendSession(context, clock, undefined, step.row, step.state);
+  }
   const commit = clock.commitOnStop!;
   const group = `group:${commit.group ?? def.meta.id}`;
   if (op === "reset")
-    return Boolean(state?.running) && { clock, group, op, state: { running: false, from: now, seconds: 0 } };
+    return (
+      Boolean(state?.running) && {
+        clock,
+        group,
+        op: "reset" as const,
+        state: { running: false, from: now, seconds: 0 },
+      }
+    );
   if (!Number.isFinite(now)) return false;
-  const snapshot = selectDeviceData(def.meta, data);
   const zone = commit.timeZone?.(snapshot);
   if ((commit.timeZone && !zone) || !commit.validTarget(props, snapshot)) return false;
   const selection = JSON.stringify([props[commit.week], ...commit.selection.map((key) => props[key])]);
@@ -65,29 +92,29 @@ function recordClockStep(context: Context, target: string, action: string) {
       !inLocalWeek(now, now + 1, props[commit.week], zone)
     )
       return false;
-    return { clock, group, op, state: { running: true, from: now, seconds: 0, selection } };
+    return { clock, group, op: "start" as const, state: { running: true, from: now, seconds: 0, selection } };
   }
   if (!state?.running || state.selection !== selection || now <= state.from) return false;
   if (!inLocalWeek(state.from, now, props[commit.week], zone)) return false;
-  return appendSession(context, clock, group, state.from, snapshot);
+  const row = commit.record({ start: state.from, end: now }, props, snapshot);
+  const stopped = { running: false, from: now, seconds: Math.floor((now - state.from) / 1000) };
+  return row ? appendSession(context, clock, group, row, stopped) : false;
 }
 
 function appendSession(
-  { def, wire, props, now }: Context,
+  { def, wire, props }: Context,
   clock: ClockMeta,
-  group: string,
-  start: number,
-  data: DeviceData,
+  group: string | undefined,
+  row: Values,
+  state: ClockState,
 ) {
-  const commit = clock.commitOnStop!;
-  const rows = wire[commit.rows] ?? props[commit.rows];
+  const collection = (clock.commitOnStop ?? clock.journal)!.rows;
+  const rows = wire[collection] ?? props[collection];
   if (!Array.isArray(rows)) return false;
-  const row = commit.record({ start, end: now }, props, data);
-  if (!row) return false;
-  const keys = def.meta.items?.key === commit.rows ? def.meta.items.records?.keys : undefined;
+  const keys = def.meta.items?.key === collection ? def.meta.items.records?.keys : undefined;
   const key = keys && recordKey(row, keys);
   if (keys && (key === undefined || rows.some((before) => recordKey(before, keys) === key))) return false;
-  const patch = { [commit.rows]: [...rows, row] };
+  const patch = { [collection]: [...rows, row] };
   return (
     validRecordWire(def, wire, patch) && {
       clock,
@@ -95,7 +122,7 @@ function appendSession(
       op: "stop" as const,
       patch,
       row,
-      state: { running: false, from: now, seconds: Math.floor((now - start) / 1000) },
+      state,
     }
   );
 }
@@ -126,17 +153,20 @@ export function stageRecordClock(
   const { clock, group, state, op } = change;
   if ("patch" in change) {
     writeRecordWire(context.def.meta, context.wire, values, base, change.patch);
-    if (context.def.meta.items?.key === clock.commitOnStop?.rows)
+    if (context.def.meta.items?.key === (clock.commitOnStop ?? clock.journal)?.rows)
       rememberRecordIds(context.def.meta, context.props, values, base, change.row);
   }
-  const owners = { ...context.owners };
-  if (op === "start") owners[group] = base;
-  else if (owners[group] === base) delete owners[group];
-  values[recordClockOwnersKey] = owners;
+  if (group !== undefined) {
+    const owners = { ...context.owners };
+    if (op === "start") owners[group] = base;
+    else if (owners[group] === base) delete owners[group];
+    values[recordClockOwnersKey] = owners;
+  }
   values[`${base}/$${clock.id}`] = state;
-  if (clock.prop)
+  if (clock.prop && op !== "lap")
     values[`${base}/$${clock.prop}${clock.prop === clock.id ? "/seconds" : ""}`] = state.seconds;
-  if (clock[op]?.state) values[`${base}/$state`] = clock[op].state;
+  const nextState = op === "lap" ? undefined : clock[op]?.state;
+  if (nextState) values[`${base}/$state`] = nextState;
   return true;
 }
 
@@ -146,7 +176,7 @@ export function recordClockInput(
   props: Values,
   get: (part: string) => unknown,
   data?: DeviceData,
-  now = Date.now(),
+  now = deviceTimeOf(data) ?? Date.now(),
   values?: Values,
 ) {
   return {
@@ -156,6 +186,7 @@ export function recordClockInput(
     data,
     owners: values?.[recordClockOwnersKey] as Owners | undefined,
     now: Number(get("$now") ?? now),
+    journalNow: now,
     wire: projectControlInput(def, input, get),
   };
 }

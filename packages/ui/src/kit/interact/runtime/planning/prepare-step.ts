@@ -84,6 +84,7 @@ export function prepareStep(
       defs: ctx.defs,
       selected,
       links: plan.links,
+      anchors: plan.anchors,
       send: plan.sends?.[0],
       at,
       now: ctx.now,

@@ -2,7 +2,8 @@ export type { Meta, NumericAdjustments, PackMeta, PackScreenValidator, Archetype
 export type { PresetMeta, AccentMeta, BaseRoles, AccentRoles } from "./preset-meta";
 export type { Props } from "./props";
 export type { NamedCollection, SlotMoves } from "./collections";
-export type { ClockCommit, ClockMeta, ClockTrigger, ClockState } from "./clocks";
+export type { DriveBindings, DriveCommand, NumericLimits, NumericRange, SiblingPart } from "./runtime";
+export type { ClockCommit, ClockJournal, ClockMeta, ClockSession, ClockTrigger, ClockState } from "./clocks";
 export type { RecordEdit, RecordEdits, RecordSnapshot } from "./record-edits";
 export type { LocalStateEvent, LocalStateRuntime, RecordContext, RecordRuntime } from "./live";
 export { packIds, type PackId } from "./pack-ids";

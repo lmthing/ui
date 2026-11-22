@@ -15,6 +15,7 @@ import {
   readItems,
   readOffers,
   redactSecretProps,
+  variantsOf,
   type ReadSchema as Json,
 } from "./reading";
 import {
@@ -23,7 +24,7 @@ import {
   selectionBindingFor,
   type BoundSelection,
 } from "./selection-binding";
-import { driveTarget, type CanDrive } from "./drives";
+import { driveTarget, projectDriveObservation, type CanDrive } from "./drives";
 import { captureDeviceTime, isDeviceDataVisible, projectDeviceData, type DeviceData } from "./device-data";
 import { withRecordScreen } from "./record-runtime";
 import { redactPrivateMarks } from "./action-input";
@@ -32,15 +33,6 @@ import { hostActionPolicy, readHostOperations, type HostActionPolicy } from "./h
 type Props = Record<string, unknown>;
 
 const quote = (value: string) => JSON.stringify(value);
-const variantKeys = ["style", "kind", "tone"];
-function variantsOf(schema: Json, props: Props): string {
-  return variantKeys
-    .filter((key) => props[key] !== undefined && props[key] !== schema.properties?.[key]?.default)
-    .filter((key) => !(key === "tone" && props[key] === "neutral"))
-    .map((key) => `[${String(props[key])}]`)
-    .join("");
-}
-
 /** Read addressed text and affordances, without styling or secrets (plan 4.12). */
 export function readComponent(
   def: Definition,
@@ -64,9 +56,13 @@ export function readComponent(
   const migrated = migrateInput(meta.id, input);
   const validated = parseControlProps(def, migrated, get);
   const live = liveProps(meta, validated, instance, values, true, deviceData);
-  const props = projectSelectionBinding(meta, live, selection);
-  const base = drawStatus(meta, props, (props.state as StateName | undefined) ?? state, get);
-  state = sessionStatus(meta, props, base, get);
+  const props = projectDriveObservation(
+    meta,
+    projectSelectionBinding(meta, live, selection),
+    instance,
+    target,
+  );
+  state = sessionStatus(meta, props, drawStatus(meta, props, (props.state as StateName) ?? state, get), get);
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
   const head = `${instance} ${meta.id}${variantsOf(schema, redactSecretProps(schema, props))}${state === "filled" ? "" : ` (${state})`}`;
   const draw = drawState(def.meta, props, get),
@@ -85,16 +81,8 @@ export function readComponent(
       [head, ...(state === "empty" ? readDraw(draw) : []), ...affordances.map(formatAffordance)].join(" "),
       ...operations,
     ];
-  const { key, own } = readContent(
-    meta,
-    schema,
-    { props, validated, instance, values, state, session, draw },
-    {
-      lang,
-      deviceData,
-      currency,
-    },
-  );
+  const content = { props, validated, instance, values, state, session, draw };
+  const { key, own } = readContent(meta, schema, content, { lang, deviceData, currency });
   const nested = visibleNestedProps(meta, props, get);
   return [
     ...readItems(meta, schema, nested, instance, key, head, own, affordances, get("more") === true, lang),

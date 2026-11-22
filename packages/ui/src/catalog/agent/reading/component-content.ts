@@ -11,7 +11,7 @@ import {
   type SessionState,
   type Values,
 } from "../index";
-import { hasRuntimeSets, projectLiveClocks } from "../clocks";
+import { hasRecordClock, hasRuntimeSets, hasTimestampClock, projectLiveClocks } from "../clocks";
 import { projectDraw, readDraw } from "../draw";
 import { projectParsedControls } from "../live-props";
 import { hasNestedCollectionControls } from "../nested";
@@ -49,6 +49,9 @@ function readingProps(
     meta.items?.visibleWhen ||
     meta.items?.toggles ||
     hasRuntimeSets(meta) ||
+    hasRecordClock(meta) ||
+    hasTimestampClock(meta) ||
+    (typeof meta.drives === "object" && meta.drives.observe) ||
     meta.items?.records ||
     Object.values(meta.selections ?? {}).some((s) => s.runtime);
   const projected = projectVisibleItems(

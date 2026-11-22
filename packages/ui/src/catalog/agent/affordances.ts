@@ -2,7 +2,7 @@ import type { LocalStateEvent, Meta } from "../meta";
 import type { Definition } from "../probes";
 import type { StateName, Tier } from "../types";
 import { choiceValues, type ChoiceOption } from "./validate-value";
-import { adjustmentAt, clockActionValid, clockControlDeclared, hasNumericRoom } from "./clocks";
+import { clockActionValid, clockControlDeclared, type numericSetAt } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
 import { actionAllowedIn, addressedItems, nestedActions, visibleItems } from "./visibility";
@@ -11,8 +11,12 @@ import type { SendDraft } from "./act";
 import { boundActionAvailable, isItemOffer } from "./selection-binding";
 import { itemActionOffer, partsOf } from "./action-input";
 import { collectionOffers } from "./collections";
-import type { DeviceData } from "./device-data";
 import { hostOffer, type HostActionPolicy, type HostIntent } from "./host-commands";
+import { deviceTimeOf, type DeviceData } from "./device-data";
+import { isLocalAnchorAction } from "./drives";
+
+import { numericOffer, type Adjustment } from "./numeric-offer";
+export { isAdjustOnlyItem } from "./numeric-offer";
 
 export type Affordance = {
   address: string;
@@ -34,6 +38,8 @@ export type Affordance = {
   flagKey?: string;
   nestedChoice?: { options: ChoiceOption[]; current: unknown };
   replaceToggles?: readonly string[];
+  numeric?: NonNullable<ReturnType<typeof numericSetAt>>;
+  adjustment?: Adjustment;
 };
 type Props = Record<string, unknown>;
 type OfferContext = {
@@ -43,21 +49,8 @@ type OfferContext = {
   baselineInput?: unknown;
   clock?: ((target: string, action: string) => boolean) | undefined;
   host?: HostActionPolicy | undefined;
+  now?: number | undefined;
 };
-type Adjustment = NonNullable<ReturnType<typeof adjustmentAt>>;
-/** Item increments without a numeric setter or a clock are owned by the pure action planner. */
-export function isAdjustOnlyItem(
-  adjustment: Adjustment | undefined,
-  action: string,
-): adjustment is Adjustment & { clock: undefined; atSet: undefined } {
-  return Boolean(
-    (action === "increment" || action === "decrement") &&
-    !adjustment?.clock &&
-    !adjustment?.atSet &&
-    adjustment?.key.includes("/$adjust/"),
-  );
-}
-
 function actionsForItem(
   meta: Meta,
   props: Props,
@@ -79,11 +72,10 @@ function actionsForItem(
     .flatMap((offer) => itemActionOffer(meta, props, item, offer, schema));
 }
 
-function ownActions(meta: Meta, props: Props, instance: string) {
+function actionsForComponent(meta: Meta, props: Props, instance: string) {
   const { parts, when } = meta.actions ?? {};
   return partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
-    if ((a.action === "move" && meta.items?.move) || !hasNumericRoom(meta, props, a.part, a.action))
-      return [];
+    if (a.action === "move" && meta.items?.move) return [];
     const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
     if (send !== undefined) return send ? [{ ...a, send }] : [];
     const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
@@ -129,16 +121,21 @@ export function affordancesOf(
   const items = addressedItems(meta, props);
   const nested = itemActionsOf(meta, props, instance, items, context, get, includeBlocked);
   const runtime = values[`${instance}/$runtime`];
-  const now = Number(get("$now") ?? Date.now());
+  const now = Number(get("$now") ?? context.now ?? deviceTimeOf(context.data) ?? Date.now());
   const liveClock = runtime || meta.live?.derive || meta.recordRuntime?.actions;
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   const rows = meta.hostCommands ? new Map(items.map((item) => [String(item.id), item])) : undefined;
-  const offered = [
-    ...ownActions(meta, props, instance),
+  const available = [
+    ...actionsForComponent(meta, props, instance),
     ...nested,
     ...collectionOffers(meta, props, instance),
   ].filter((offer) => {
     const { address, action, part } = offer;
+    if (
+      isLocalAnchorAction(action) &&
+      (isItemOffer(instance, offer) || partTierAt(meta, props, part) !== "phone")
+    )
+      return false;
     if (!boundActionAvailable(meta, props, part, action, isItemOffer(instance, offer))) return false;
     const target = address === instance ? "root" : address.slice(instance.length + 1);
     const role = drawRole(meta, target, action);
@@ -152,13 +149,23 @@ export function affordancesOf(
       !clockActionValid(meta, props, target, action, get, now)
     )
       return false;
-    if (!runtime && !meta.set && !meta.items?.set && !meta.items?.adjust) return true;
-    const adjustment = adjustmentAt(meta, props, target, action, get, now);
-    if (!runtime)
-      return (!adjustment?.atSet && !isAdjustOnlyItem(adjustment, action)) || adjustment?.next !== undefined;
-    return !adjustment || adjustment.next !== undefined;
+    return true;
   });
-  if (!meta.hostCommands && !context.host) return offered;
+  const offered = available.flatMap((offer) =>
+    numericOffer(meta, props, instance, offer, get, now, runtime, context.data),
+  );
+  return hostOffers(meta, props, instance, offered, context.host, rows);
+}
+
+function hostOffers(
+  meta: Meta,
+  props: Props,
+  instance: string,
+  offered: Affordance[],
+  policy: HostActionPolicy | undefined,
+  rows: ReadonlyMap<string, Props> | undefined,
+) {
+  if (!meta.hostCommands && !policy) return offered;
   return offered.flatMap((offer) => {
     const allowed = hostOffer(
       meta,
@@ -166,7 +173,7 @@ export function affordancesOf(
       instance,
       offer,
       partTierAt(meta, props, offer.part),
-      context.host,
+      policy,
       rows,
     );
     return allowed ? [allowed] : [];

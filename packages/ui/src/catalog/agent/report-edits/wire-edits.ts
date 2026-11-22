@@ -64,7 +64,8 @@ export function reportEditWire(def: Definition, input: unknown, get: (part: stri
 }
 
 export function applyRecordWire(meta: Meta, input: Values, get: (part: string) => unknown) {
-  if (!meta.items?.records && !meta.clocks?.some(({ commitOnStop }) => commitOnStop)) return input;
+  if (!meta.items?.records && !meta.clocks?.some(({ commitOnStop, journal }) => commitOnStop || journal))
+    return input;
   const patch = (get(recordWireKey) as RecordEdits | undefined)?.[recordPartition(meta, input)];
   return patch ? { ...input, ...patch } : input;
 }

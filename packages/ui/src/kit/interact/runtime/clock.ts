@@ -4,12 +4,17 @@ import {
   clockKey,
   clockTime,
   clockEnded,
+  clockMax,
+  hasTimestampClock,
+  timestampReading,
   parseControlProps,
   isDeviceDataVisible,
   liveProps,
   projectDeviceData,
+  projectLiveControlInput,
   selectDeviceData,
   type ClockState,
+  type DeviceData,
   type Meta,
   type Values,
 } from "../../../catalog";
@@ -20,32 +25,44 @@ function tickInput(
   ctx: ControllerContext,
   entry: ControllerContext["screen"]["components"][number],
   get: (part: string) => unknown,
+  data?: DeviceData,
 ) {
   const def = ctx.defs[entry.c]!;
   const { meta } = def;
+  const timestamp = hasTimestampClock(meta);
   if (
+    timestamp ||
     [meta.clocks, meta.items?.clocks, meta.items?.nested?.clocks].some((clocks) =>
       clocks?.some(({ liveDuration }) => liveDuration),
     )
   ) {
     const { id: _id, c: _c, state: _state, ...input } = entry;
-    return parseControlProps(def, input, get);
+    const parsed = parseControlProps(def, input, get);
+    return timestamp ? projectLiveControlInput(meta, parsed, get, true, data) : parsed;
   }
   return ctx.inputOf(entry);
 }
 
 function needsClock(ctx: ControllerContext) {
   if (!ctx.admitted()) return false;
-  const values = ctx.valuesOf();
+  const now = ctx.now();
+  const values = ctx.valuesOf(now);
+  const data = projectDeviceData(ctx.options.deviceData, values);
   return ctx.screen.components.some((entry) => {
     if (!ctx.defs[entry.c]) return false;
     const get = (part: string) => values[ctx.key(entry.id, part)];
     if (get("$dismissed") || (get("$state") ?? entry.state ?? "filled") !== "filled") return false;
-    return clockTargets(ctx.defs[entry.c]!.meta, tickInput(ctx, entry, get)).some((clock) => {
+    const { meta } = ctx.defs[entry.c]!;
+    return clockTargets(meta, tickInput(ctx, entry, get, data)).some((clock) => {
+      if (clock.spec.timestamp)
+        return timestampReading(clock, selectDeviceData(meta, data), now, clockMax(clock))?.running;
       const state = get(clockKey(clock)) as ClockState | undefined;
       return clock.spec.kind === "until"
         ? clockTime(clock, undefined, undefined, ctx.now()) > 0
-        : Boolean(state?.running);
+        : Boolean(
+            state?.running &&
+            (!clock.spec.journal || !clockEnded(clock, clockTime(clock, state, undefined, now))),
+          );
     });
   });
 }
@@ -61,15 +78,17 @@ function noteReplayExpiry(meta: Meta, input: Values, changes: Values) {
 }
 
 function tickValues(ctx: ControllerContext) {
-  const values = ctx.valuesOf();
+  const now = ctx.now();
+  const values = ctx.valuesOf(now);
+  const data = projectDeviceData(ctx.options.deviceData, values);
   const changes: Record<string, unknown> = {};
   for (const entry of ctx.screen.components) {
     if (!ctx.defs[entry.c]) continue;
     const get = (part: string) => values[ctx.key(entry.id, part)];
     if (get("$dismissed") || (get("$state") ?? entry.state ?? "filled") !== "filled") continue;
     const { meta } = ctx.defs[entry.c]!;
-    const input = tickInput(ctx, entry, get);
-    const ticked = noteReplayExpiry(meta, input, tickClocks(meta, input, get, ctx.now()));
+    const input = tickInput(ctx, entry, get, data);
+    const ticked = noteReplayExpiry(meta, input, tickClocks(meta, input, get, now, data));
     for (const [part, value] of Object.entries(ticked)) changes[ctx.key(entry.id, part)] = value;
   }
   if (Object.keys(changes).length) {

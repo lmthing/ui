@@ -5,7 +5,14 @@ export {
   partTierAt,
   type Affordance,
 } from "./affordances";
-export { checkDriveDeclaration, driveAffordances, driveTarget, type CanDrive } from "./drives";
+export {
+  checkDriveDeclaration,
+  driveAffordances,
+  driveTarget,
+  isLocalAnchorAction,
+  projectDriveObservation,
+  type CanDrive,
+} from "./drives";
 export { readComponent, readScreen, type ScreenLike } from "./read";
 export {
   hostActionPolicy,
@@ -81,6 +88,8 @@ export {
   parseControlProps,
   projectControlInput,
   projectControls,
+  projectLiveControlInput,
+  wireAdjustmentKey,
 } from "./live-props";
 export {
   drawKey,
@@ -120,6 +129,9 @@ export {
 } from "./session";
 export {
   clockTargets,
+  clockMax,
+  hasTimestampClock,
+  timestampReading,
   clockKey,
   clockPropKey,
   clockSeed,
@@ -127,6 +139,8 @@ export {
   clockEnded,
   clockTriggerTarget,
   numericSetAt,
+  declaresNumericLimits,
+  snapNumber,
   adjustmentAt,
   clearItemSets,
   projectAdjustments,
