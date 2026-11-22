@@ -25,6 +25,8 @@ const Frame = styled(YStack, {
   } as const,
 });
 export const CardGutterContext = createContext(false);
+/** The small inset used by unpadded frames, available to continuous inside-edge drawings. */
+export const CardEdgeContext = createContext(false);
 type CardProps = {
   children: ReactNode;
   style?: CardStyle;
@@ -146,8 +148,20 @@ export function KitCard(props: CardProps) {
           {...action}
         >
           {swatch && isWeb && <style>{swatchCss(swatch, theme)}</style>}
+          {swatch && !loading && (
+            <YStack
+              fullscreen
+              pointerEvents="none"
+              aria-hidden
+              borderRadius={finish.borderRadius}
+              borderWidth={component.base.borderWidth}
+              borderColor={component.swatchBorder}
+            />
+          )}
           <CardGutterContext.Provider value={Boolean(props.padded && props.inset !== "none")}>
-            <CardChildren loading={loading}>{children}</CardChildren>
+            <CardEdgeContext.Provider value={style === "inset" && !props.padded}>
+              <CardChildren loading={loading}>{children}</CardChildren>
+            </CardEdgeContext.Provider>
           </CardGutterContext.Provider>
         </Frame>
       </Theme>

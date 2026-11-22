@@ -163,6 +163,8 @@ describe("KitRow status and selection", () => {
       expect(styleAt(selected, row)).toBe(styleAt(html, "home/s1/r1/summary"));
       expect(styleAt(selected, row)).toContain("background-color:");
       expect(styleAt(selected, row.children[1]!)).toContain("position:absolute");
+      expect(styleAt(selected, row.children[1]!)).toContain("top:1px");
+      expect(styleAt(selected, row.children[1]!)).toContain("bottom:1px");
       expect(elementAt(selected, "home/s1/r1/name")).toBeDefined();
     },
   );
