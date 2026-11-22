@@ -5,6 +5,7 @@ import * as kit from "../../../kit";
 import { orderedViewings, outcomes, viewingActions, viewingGates, viewingReading, viewingTimes, type Viewing } from "../copy";
 import { propertyWordsFor } from "../lang";
 import { dateTime, distinct, ref, seedLabels, seedTime } from "../seeds";
+import { prompt } from "../../../entry/prompt-Viewings.generated";
 const maxViewings = 6;
 const recordRef = ref.meta({ kind: "id" });
 
@@ -14,12 +15,9 @@ export const meta = {
   id: "Viewings",
   status: "ready",
   group: "content",
-  purpose: "Arrange property viewings and track each prospect’s confirmation and attendance.",
-  pick: "Property viewing appointments with a unit, prospect, confirmation, invitation or attendance outcome. Not a day's timed agenda (Timeline), free slots (Slots), or a booked service (Appointment).",
-  writeHints: [
-    "Use snake_case viewing and unit refs, a start datetime carrying its timezone, duration in minutes and an edit screen goto. Future viewings cannot be attended or no_show; elapsed time alone is not attendance.",
-    'To show all details including a note, set detail to "full". Leave surface and density null unless separately asked for cards or tighter spacing.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

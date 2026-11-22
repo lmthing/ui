@@ -18,22 +18,21 @@ import {
 import { indexedActions, indexedParts, indexedValues, indexedWhen, seedTitles } from "..";
 import { symptomChosen, symptomSeverity, symptomLevelLine, symptomReading, symptomTargets } from "../copy";
 import { healthWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-SymptomLog.generated";
 
 // Core first: Scale/mood cannot select several grouped symptoms and set a severity for each.
 export const meta = {
   id: "SymptomLog",
   status: "ready",
   group: "input",
-  purpose: "Note several body symptoms and each symptom's severity.",
-  pick: "Grouped body symptoms with a selected chip and severity zero to five for each. Not one level for the day (Scale), collection filters (Chips), or naming feelings (Feelings).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Symptom entries stored on the device; logging symptoms is not a diagnosis or medical advice.",
-  writeHints: [
-    "Write density null unless explicitly asked to change spacing. Hiding readouts changes only detail. Use detail brief to hide the separate numeric severity readouts while keeping the sliders and severity values.",
-  ],
+  writeHints: prompt.writeHints,
   variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: indexedParts(8, ["reading"]) } },
   items: {

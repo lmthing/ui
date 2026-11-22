@@ -1,3 +1,11 @@
+import { words as FeedWords } from "./en/Feed";
+import { words as PostWords } from "./en/Post";
+import { words as CommentsWords } from "./en/Comments";
+import { words as PollWords } from "./en/Poll";
+import { words as StoriesWords } from "./en/Stories";
+import { words as EventCardWords } from "./en/EventCard";
+import { words as ChallengeWords } from "./en/Challenge";
+import { words as InviteWords } from "./en/Invite";
 import type { LDMLPluralRule } from "../../../catalog";
 
 type CountCopy = { before?: string; after?: string };
@@ -73,77 +81,12 @@ export type SocialWords = {
 };
 
 export const en = {
-  feed: {
-    likes: (form) => ({ after: form === "one" ? " like" : " likes" }),
-    comments: (form) => ({ after: form === "one" ? " comment" : " comments" }),
-    countSeparator: " · ",
-    reaction: (author, liked) => (liked ? `Unlike ${author}’s post` : `Like ${author}’s post`),
-    open: (author) => `Open ${author}’s post`,
-    image: "Post photo",
-    skeleton: {
-      author: "Author name",
-      time: "A moment ago",
-      excerpt: "An excerpt from a recent update.",
-      likes: "Likes",
-      comments: "Comments",
-    },
-  },
-  post: {
-    more: "More post actions",
-    comment: "Comment on this post",
-    share: "Share this post",
-    image: (position, total) => `Post photo ${position} of ${total}`,
-    withCount: (action, count) => `${action} · ${count}`,
-  },
-  comments: {
-    reply: "Reply",
-    replyAuthor: (author, parent) => `${author} replying to ${parent}`,
-    replyTarget: (author) => `Reply on this row answers ${author}’s comment`,
-    more: (author) => `More actions for ${author}’s comment`,
-    reaction: (author, liked, count) => `${liked ? "Unlike" : "Like"} ${author}’s comment · ${count}`,
-  },
-  poll: {
-    voteFor: (label) => `Vote for ${label}`,
-    chosen: (label) => `${label} chosen`,
-    votes: (form) => (form === "one" ? "vote" : "votes"),
-    closes: (date) => `Closes ${date}`,
-    share: (label, percent) => `${label} · ${percent}`,
-  },
-  stories: {
-    add: "Add your story",
-    rail: "Stories",
-    own: "Your story",
-    empty: "No stories yet",
-    status: (name, seen) => (seen ? `${name}: seen story` : `${name}: new story`),
-  },
-  event: {
-    going: "Going",
-    interested: "Interested",
-    attending: { after: " going" },
-    attendees: "Attendees",
-    photo: "Event cover photo",
-    response: { none: "RSVP", going: "You’re going", interested: "You’re interested" },
-  },
-  challenge: {
-    amount: (value, unit) => `${value} ${unit}`,
-    progress: (total, goal, unit) => `${total} ${goal} ${unit}`,
-    group: "Group progress",
-    goal: (amount) => `Goal: ${amount}`,
-    mine: (amount) => `Your contribution: ${amount}`,
-    deadline: (date) => `Deadline: ${date}`,
-    daysLeft: (days, form) => `${days} ${form === "one" ? "day" : "days"} left`,
-    endsToday: "Ends today",
-    ended: "Challenge ended",
-    reached: "Goal reached",
-    top: "Top contributors",
-    leader: (name, amount) => `${name}, ${amount}`,
-    join: "Join challenge",
-    log: "Log contribution",
-  },
-  invite: {
-    copy: "Copy code",
-    share: "Share invite",
-    qr: "Invite QR code",
-    joined: (count, form) => `${count} ${form === "one" ? "person" : "people"} joined`,
-  },
+  ...FeedWords,
+  ...PostWords,
+  ...CommentsWords,
+  ...PollWords,
+  ...StoriesWords,
+  ...EventCardWords,
+  ...ChallengeWords,
+  ...InviteWords,
 } satisfies SocialWords;

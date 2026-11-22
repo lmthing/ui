@@ -3,19 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { tableCell, tableChoices, tableCount, tableReading, tableRows } from "../copy";
 import { dataWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Table.generated";
 
 // Core first: List/rows cannot align typed fields across records or sort by a column.
 // prettier-ignore
 export const meta = {
   id: "Table",
   status: "ready", group: "data",
-  purpose: "Compare and sort many records by several fields, and optionally select rows.",
-  pick: "Compare several records across named columns, sort by a column, or tick rows for a batch. Not a short scannable list (List), one record's facts (KeyValue), or league standings (Standings).",
-  writeHints: [
-    'If asked to hide or omit the row count or footer, set "detail":"brief". Otherwise set detail to null. Always write density null unless a density or spacing change is explicitly requested.',
-    'Each row has exactly one cell per column, in the same order. For example, text, number and date columns take cells ["Fern", 4, "2026-11-20"]. text and status take strings up to 24 characters; number and money take numbers; date takes YYYY-MM-DD.',
-    "sort is a zero-based column index; omit it when no sort is requested. selectable enables row checkboxes.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "A query over records on the device.",
   variants: { density: ["compact", "comfortable"], detail: ["full", "brief"] },

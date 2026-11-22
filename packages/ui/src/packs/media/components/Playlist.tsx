@@ -3,19 +3,16 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { playlistNext, playlistReading, playlistTiming } from "../copy";
 import { mediaWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Playlist.generated";
 
 // Core first: List/lead number cannot combine playback progress, duration, downloads and the playing row.
 export const meta = {
   id: "Playlist",
   status: "ready",
   group: "content",
-  purpose: "Choose an ordered track or episode and see its playback progress.",
-  pick: "An ordered queue of separate tracks or episodes, with durations, played progress and download controls. Not ordinary rows (List) or chapter marks within one recording (ChapterList).",
-  writeHints: [
-    'Use style "episodes" for dated episodes with a description line in sub, "queue" if asked to show an Up next playback queue, otherwise "tracks" for numbered tracks. If no episode note or date is supplied, set sub to null. The playing index is zero-based; omit it unless one is playing.',
-    "Seconds are whole recording lengths; played is a fraction from zero to one. Each row opens its own player screen.",
-    'Default to "detail":null,"density":null,"surface":null. Only when explicitly asked to hide episode notes, write "detail":"brief"; keep the supplied notes in sub and leave density and surface null unless independently requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

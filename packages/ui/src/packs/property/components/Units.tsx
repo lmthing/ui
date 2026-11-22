@@ -6,21 +6,16 @@ import * as unitView from "./unit-row";
 import { exclusiveLets, unitDisplay, unitReading, unitSnapshot } from "../copy";
 import { propertyWordsFor } from "../lang";
 import { distinct, ref, seedDate, seedLabels } from "../seeds";
+import { prompt } from "../../../entry/prompt-Units.generated";
 
 // Core first: List/rows cannot derive occupancy and agreed rent from dated, mutually exclusive lets.
 export const meta = {
   id: "Units",
   status: "ready",
   group: "data",
-  purpose: "See who occupies each rental unit and the agreed rent on a chosen date.",
-  pick: "A tenant directory of names and profile links is List, not Units. Choose Units only to calculate rental-unit occupancy or agreed rent on a date from tenancy or stay records. Not owned stock (Things), an advertised place (Listing), or one agreement (Lease).",
-  writeHints: [
-    "Use snake_case references. Every let must reference a unit in this line. Active lets for one unit must not overlap; the end date is exclusive, and cancelled lets do not count.",
-    'A stay requires an end date and per "night"; a tenancy uses "week" or "month". Supply askingRent and askingPer together, or omit both. Do not write occupancy or totals.',
-    'Do not copy unrequested photos, addresses or links from the example. A requested thumbnail sets only media to "thumb". Usual, regular or default spacing and surface mean null for density and surface, never explicit defaults.',
-    'For a Vacancies view (vacant and notice-given units), set style to "vacancies". Otherwise set style to "register". Always write every supplied unit and let, even in the Vacancies view: the view, not the Writer, filters their visibility.',
-    "For a tenancy described as on notice, write the given notice date in noticeGivenOn. Its end must be later than notice. Do not use a scheduled end alone as notice.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,

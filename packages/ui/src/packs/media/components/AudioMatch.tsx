@@ -12,18 +12,16 @@ import {
   type Match,
   type RecognitionPhase,
 } from "../audio-match-data";
+import { prompt } from "../../../entry/prompt-AudioMatch.generated";
 
 // Core first: Player/audio can play a known recording but cannot identify audio heard through the microphone.
 export const meta = {
   id: "AudioMatch",
   status: "ready",
   group: "action",
-  purpose: "Identify music playing nearby and revisit recent matches.",
-  pick: "Identify an unknown song from ambient sound or humming through the microphone. Not playing a known recording (Player), typing a music search (Search), or checking pronunciation (SpeechCheck).",
-  writeHints: [
-    'Use style "listen" for recognition first, or "result" to foreground the identified track when available. Recognition happens after permission; never write a listening flag, result, or URL to pretend recognition already happened.',
-    'An artwork-free view must write "media":"none" (not null, even with no matches yet), so future results and history also hide covers. If that is the only display request, write "media":"none","surface":null,"density":null. Never emit default finish values without an explicit request.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "ok",
