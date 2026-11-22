@@ -13,7 +13,6 @@ export const meta = {
   pick: "A business's bill or quote to a client, with quantity-price lines, tax and sending. Not plain details (KeyValue), personal bills to pay (Bills), or a shop order (OrderSummary).",
   writeHints: [
     "Write line quantities and unit prices plus optional tax percent; code computes subtotal, tax, total, balance and overdue.",
-    'style: "quote" cannot have status: "paid". Use draft or sent for quotes.',
     'Hiding the note changes only detail: {"density":null,"surface":null,"detail":"brief"}. Keep the note in the data. Never emit "card" or "comfortable" just to indicate the default.',
     'Use style: "estimate" for a pre-work estimate. Only estimates can omit number; only an invoice can have status "paid".',
     "Discount and deposit are optional nonnegative money amounts, not percentages. Discount reduces the subtotal before tax; deposit is money already received. Use recurring for cadence and download: true only to offer document download.",
@@ -68,7 +67,6 @@ export const props = z
       ctx.addIssue({ code: "custom", path: ["deposit"], message: "Deposit cannot exceed total." });
   })
   .overwrite((value) => (value.detail === "brief" ? { ...value, note: undefined } : value));
-const draft = "draft" as const;
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const item = itemsOf(cast, 1)[0],
     thing = thingOf(cast);
@@ -77,12 +75,12 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     to: (item && titleOf(item, 28, thing)) || placeholderTitle(0, lang),
     date: "2026-11-18",
     lines: [{ item: (item && titleOf(item, 32, thing)) || placeholderTitle(0, lang), qty: 1, price: 0 }],
-    status: draft,
+    status: "draft",
   };
 }
 // prettier-ignore
 const variantExample = {
-  number: "T-043", to: "Ben Carter", date: "2026-11-19", due: "2026-12-03", status: draft,
+  number: "T-043", to: "Ben Carter", date: "2026-11-19", due: "2026-12-03", status: "draft",
   lines: [{ item: "Afternoon river walks", qty: 6, price: 18 }],
   note: "Thank you for booking with Trot.",
 } satisfies z.input<typeof props>;
@@ -103,12 +101,9 @@ export const examples = [
     style: "invoice",
   },
   {
-    number: "T-Q07",
-    to: "Ben Carter",
-    date: "2026-11-18",
+    number: "T-Q07", to: "Ben Carter", date: "2026-11-18",
     lines: [{ item: "Morning park walk", qty: 8, price: 15 }],
-    status: "sent",
-    style: "quote",
+    status: "sent", style: "quote",
   },
   variantExample,
   { ...variantExample, density: "compact" },
@@ -146,7 +141,7 @@ type InvoiceProps = Props<typeof props, typeof meta>;
 // prettier-ignore
 function InvoiceLines({ lines, density }: Pick<InvoiceProps, "lines" | "density">) {
   const { lang } = useWords();
-  return <KitRowGroup {...{ density }}>{lines.map((line) => (
+  return <KitRowGroup spacing="groups" separators={false} {...{ density }}>{lines.map((line) => (
     <KitRow key={line.id} item={line.id} inline inset="none" label={line.item} {...{ density }}
       trailing={<KitLayoutText line={{ text: moneyLine(line.price, undefined, "each", lang), part: "price", role: "meta", tone: "muted", tabular: true }} align="end" {...{ density }} />}>
       <KitMetaLine title={{ text: line.item, part: "item" }}
@@ -156,14 +151,20 @@ function InvoiceLines({ lines, density }: Pick<InvoiceProps, "lines" | "density"
 }
 // prettier-ignore
 function InvoiceAmounts({ amounts, density }: { amounts: ReturnType<typeof invoiceCopy>["amounts"]; density: InvoiceProps["density"] }) {
-  return <KitContent {...{ density }}>{amounts.map(({ part, label, value }) => (
+  const figure = amounts.at(-1)?.part;
+  const payment = amounts.findIndex(({ part }) => part === "deposit");
+  const row = ({ part, label, value }: (typeof amounts)[number]) => (
     <KitGrid key={part} fitLast {...{ density }}>
       <KitLayoutText line={{ text: label, role: "meta", tone: "muted" }} {...{ density }} />
-      {part === "total" || part === "balance"
-        ? <KitFigure value={{ text: value, part, compact: true }} align="end" {...{ density }} />
-        : <KitLayoutText line={{ text: value, part, role: "meta", tabular: true }} align="end" {...{ density }} />}
+      {part === figure
+        ? <KitFigure value={{ text: value, part }} align="end" {...{ density }} />
+        : <KitLayoutText line={{ text: value, part, role: "meta", strong: part === "total", tabular: true }} align="end" {...{ density }} />}
     </KitGrid>
-  ))}</KitContent>;
+  );
+  return <>
+    <KitContent {...{ density }}>{(payment === -1 ? amounts : amounts.slice(0, payment)).map(row)}</KitContent>
+    {payment !== -1 && <KitContent {...{ density }}>{amounts.slice(payment).map(row)}</KitContent>}
+  </>;
 }
 // prettier-ignore
 export function Invoice(input: InvoiceProps) {
@@ -173,13 +174,19 @@ export function Invoice(input: InvoiceProps) {
   const state = useComponentState(),
     { note, style, surface } = input;
   const labels = invoiceCopy(input, state, lang);
-  const send = <KitAction part="send" {...labels.send} full />;
+  const sendButton = <KitAction part="send" {...labels.send} full />;
+  const send = labels.download ? <KitActionFooter {...{ density }}><KitGrid {...{ density }}>
+    {sendButton}<KitAction part="download" label={labels.download} kind="secondary" full />
+  </KitGrid></KitActionFooter> : sendButton;
   return (
     <KitCard padded part="root" {...{ density, surface }}>
-      <KitGrid fitLast {...{ density }}>
-        <KitHeader title={{ text: labels.heading, part: labels.headingPart }} meta={labels.fields} {...{ density }} />
-        <KitLayoutText line={{ text: labels.status, part: "status", role: "meta", tone: "muted" }} align="end" {...{ density }} />
-      </KitGrid>
+      <KitContent {...{ density }}>
+        <KitGrid fitLast {...{ density }}>
+          <KitHeader title={{ text: labels.heading, part: labels.headingPart, role: "body", strong: true }} {...{ density }} />
+          <KitLayoutText line={{ text: labels.status, part: "status", role: "meta", tone: "muted" }} align="end" {...{ density }} />
+        </KitGrid>
+        {labels.fields.map((line) => <KitLayoutText key={line.part} line={{ ...line, role: "meta", tone: "muted" }} {...{ density }} />)}
+      </KitContent>
       <InvoiceLines lines={input.lines} {...{ density }} />
       <InvoiceAmounts amounts={labels.amounts} {...{ density }} />
       {note && <KitLayoutText line={{ text: note, part: "note", role: "meta", tone: "muted" }} {...{ density }} />}
@@ -191,7 +198,6 @@ export function Invoice(input: InvoiceProps) {
         </KitGrid>
       )}
       {labels.send.kind === "quiet" && send}
-      {labels.download && <KitActionFooter {...{ density }}><KitAction part="download" label={labels.download} kind="secondary" full /></KitActionFooter>}
     </KitCard>
   );
 }

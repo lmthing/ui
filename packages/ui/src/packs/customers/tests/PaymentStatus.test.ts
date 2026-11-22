@@ -131,7 +131,10 @@ describe("PaymentStatus states, parts and reading", () => {
     for (const part of ["root", "status", "amount", "paid", "date", "due", "method", "mark", "remind"])
       expect(html).toContain(`home/c1/${part}`);
     expect(html).not.toContain("home/c1/confirmation");
-    for (const text of ["Total $60", "Received $0", "Due 31 Dec 9999", "Bank transfer"]) {
+    expect(html).toContain(">Total<");
+    expect(html).toContain(">$60<");
+    expect(reading).toContain("Total $60");
+    for (const text of ["Received $0", "Due 31 Dec 9999", "Bank transfer"]) {
       expect(html).toContain(text);
       expect(reading).toContain(text);
     }

@@ -1,5 +1,5 @@
 // prettier-ignore
-import { useWords, KitAction, KitActionFooter, KitCard, KitContent, KitGrid, KitHeader, KitLayoutText, KitPhoto, KitState, KitTrail, useComponentState, useVariant } from "../../../kit";
+import { useWords, KitAction, KitCard, KitContent, KitGrid, KitHeader, KitLayoutText, KitPhoto, KitState, KitTrail, useComponentState, useVariant } from "../../../kit";
 import { customersWordsFor } from "../lang";
 import { z } from "zod";
 // prettier-ignore
@@ -14,8 +14,8 @@ export const meta = {
   purpose: "Recognise one business client, their next visit and how to contact them.",
   pick: "One business client's page head with tenure, next booking or order, tags and contact actions. Not another kind of identity (Profile), multiple clients as tappable rows (List), or plain labelled phone and address details without contact buttons (KeyValue). All clients with a photo and last-visit detail on each row remain List, never this one-client page head.",
   writeHints: [
-    'Use null for unrequested axes. A photo is required unless media is "none"; use "none" only when asked not to show the photo.',
-    'If asked only to hide tenure, next booking and tags, use {"density":null,"surface":null,"media":null,"detail":"brief"} and keep those details in the data.',
+    'A portrait request is photo data, not a media option: write the photo reference and media: null. Never write media: "thumb" for the default photo. Use media: "none" only when asked to omit the photo.',
+    'To hide only tenure, next booking and tags, set detail: "brief" and keep those values. Write null for every other unrequested axis, including media.',
     "Only include company if known. For a balance badge, use billing with known charged and paid amounts; the card computes the difference. Set email true only to offer an email button for a client with email contact.",
   ],
   region: "body",
@@ -144,21 +144,17 @@ function ClientContacts({ phone, address, email, density }: Pick<ClientProps, "p
   const controls = [
     ...(phone ? [<ContactAction key="call" part="call" />] : []),
     ...(address ? [<ContactAction key="directions" part="directions" />] : []),
+    ...(email ? [<ContactAction key="email" part="email" />] : []),
   ];
   return (
     <>
       <ContactAction part="message" />
-      {controls.length === 2 ? (
-        <KitGrid columns={2} {...{ density }}>
+      {controls.length > 1 ? (
+        <KitGrid columns={controls.length === 3 ? 3 : 2} {...{ density }}>
           {controls}
         </KitGrid>
       ) : (
         controls
-      )}
-      {email && (
-        <KitActionFooter {...{ density }}>
-          <ContactAction part="email" />
-        </KitActionFooter>
       )}
     </>
   );
@@ -173,7 +169,7 @@ export function ClientCard(input: ClientProps) {
   const content = (
     <>
       {media !== "none" && <KitPhoto {...{ photo, loading }} shape="avatar" part={loading ? null : "photo"} label={name} />}
-      <KitHeader title={{ text: name, part: "name" }} meta={[
+      <KitHeader title={{ text: name, part: "name", role: "body", strong: true }} meta={[
         { text: company, part: "company" },
         { text: since && sinceLine(since, lang), part: "since" },
       ]} align="center" {...{ density }} />

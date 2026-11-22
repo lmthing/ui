@@ -3,9 +3,9 @@ import { useWords, KitAction, KitActionFooter, KitCard, KitCode, KitContent, Kit
 import { customersWordsFor } from "../lang";
 import { z } from "zod";
 // prettier-ignore
-import { isoDate, probesFor, text, variantProps, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
+import { compactMoneyLine, isoDate, probesFor, text, variantProps, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
 // prettier-ignore
-import { installmentLine, paymentAmountLine, paymentDetails, paymentFallback, paymentPaid, paymentReading, paymentStatus } from "../copy";
+import { installmentLine, paymentDetails, paymentFallback, paymentPaid, paymentReading, paymentStatus } from "../copy";
 
 // Core first: Amount/large cannot derive one client payment's settlement and expose mark/remind actions.
 export const meta = {
@@ -48,13 +48,12 @@ export const props = z
     due: isoDate.optional(),
     method: text(16).optional(),
     style: z.enum(["status", "link"]).optional(),
-    paymentLink: z
-      .url({ protocol: /^https$/, hostname: /.+/ })
-      .max(180)
+    paymentLink: text(180)
       .refine((link) => {
         try {
           const url = new URL(link);
-          return /^https:\/\/[^\s\\]+$/i.test(link) && !url.username && !url.password;
+          return /^https:\/\/[^/\s\\][^\s\\]*$/i.test(link) && !/[\uD800-\uDFFF]/u.test(link)
+            && !!url.hostname && !url.username && !url.password;
         } catch {
           return false;
         }
@@ -142,8 +141,8 @@ function Installments({ installments, density }: Pick<PaymentProps, "installment
     <KitLayoutText line={{ text: words.paymentLabels.installments, part: "installments", strong: true }} {...{ density }} />
     <KitRowGroup {...{ density }}>{installments.map((row) => {
       const { date, amount } = installmentLine(row, lang);
-      return <KitRow key={row.id} item={row.id} inline inset="none" fitContent label={date} {...{ density }}
-        trailing={<KitLayoutText line={{ text: amount, part: "amount", tabular: true }} align="end" {...{ density }} />}>
+      return <KitRow key={row.id} item={row.id} inline inset="none" label={date} {...{ density }}
+        trailing={<KitLayoutText line={{ text: amount, part: "amount", role: "meta", tabular: true }} align="end" {...{ density }} />}>
         <KitLayoutText line={{ text: date, part: "date", role: "meta" }} {...{ density }} />
       </KitRow>;
     })}</KitRowGroup>
@@ -159,10 +158,10 @@ function PaymentLink({ link, density }: { link: string; density: PaymentProps["d
     <KitContent {...{ density }}>
       <KitFigure media={<KitCode part="code" value={link} label={label} />} {...{ density }}
         caption={<KitLayoutText line={{ text: label, role: "meta" }} align="center" {...{ density }} />} />
-      <KitActionFooter {...{ density }}>
-        <KitAction label={copy} part="copy" action="copy" value={link} copiedLabel={copied} kind="secondary" />
-        <KitAction label={share} part="share" kind="secondary" />
-      </KitActionFooter>
+      <KitActionFooter {...{ density }}><KitGrid {...{ density }}>
+        <KitAction label={copy} part="copy" action="copy" value={link} copiedLabel={copied} kind="secondary" full />
+        <KitAction label={share} part="share" kind="secondary" full />
+      </KitGrid></KitActionFooter>
     </KitContent>
   );
 }
@@ -170,6 +169,7 @@ function PaymentLink({ link, density }: { link: string; density: PaymentProps["d
 // prettier-ignore
 export function PaymentStatus(input: PaymentProps) {
   const { lang, words } = useWords(customersWordsFor);
+  const { moneyLabels } = useWords().words;
   const { paymentLabels } = words;
   const { surface, installments, paymentLink } = input;
   const density = useVariant("density", meta.variants.density, input.density);
@@ -180,16 +180,17 @@ export function PaymentStatus(input: PaymentProps) {
     <KitCard padded part="root" {...{ density, surface }}>
       <KitContent lineRole="title" {...{ density }}>
         <KitHeader title={{ text: paymentLabels[status], part: "status", tone }} {...{ density }} />
-        <KitFigure value={{ text: paymentAmountLine(input.amount, lang), part: "amount", compact: true }} {...{ density }} />
+        <KitFigure value={{ text: compactMoneyLine(input.amount, undefined, lang), part: "amount" }}
+          unit={{ text: moneyLabels.total, role: "meta" }} {...{ density }} />
       </KitContent>
       <PaymentFacts {...{ input, density, lang }} />
       <Installments {...{ installments, density }} />
       {state === "filled" && status !== "paid" && <>
         {paymentLink && <PaymentLink link={paymentLink} {...{ density }} />}
-        <KitContent group="response" {...{ density }}>
-          <KitAction label={paymentLabels.mark} part="mark" />
-          <KitAction label={paymentLabels.remind} kind="quiet" part="remind" />
-        </KitContent>
+        <KitActionFooter {...{ density }}><KitGrid {...{ density }}>
+          <KitAction label={paymentLabels.mark} part="mark" full />
+          <KitAction label={paymentLabels.remind} kind="quiet" part="remind" full />
+        </KitGrid></KitActionFooter>
       </>}
       {state === "success" && <KitState retain message={paymentLabels.updated} part="confirmation" {...{ density }} />}
     </KitCard>
