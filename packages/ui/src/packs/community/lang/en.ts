@@ -1,4 +1,19 @@
 export const en = {
+  modQueue: {
+    heading: "Moderation queue",
+    counts: (count: string) => `${count} pending`,
+    kind: { join: "Join request", flagged_post: "Flagged post", flagged_comment: "Flagged comment" },
+    status: { pending: "Pending", approved: "Approved", declined: "Declined", removed: "Removed" },
+    approve: "Approve",
+    decline: "Decline",
+    remove: "Remove",
+    reason: "Rule reason",
+    empty: "Nothing is waiting for review.",
+    saved: "Decision saved.",
+    error: "Could not save the decision. The item may already be resolved.",
+    pending: "Saving decision…",
+    separator: " · ",
+  },
   dues: {
     assessed: "Assessed",
     collected: "Collected",
