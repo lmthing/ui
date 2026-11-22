@@ -817,20 +817,22 @@ Update live recipes and probes at the cutover; do not advertise a legacy alias t
 - **Compatibility fixtures:** Round-trip legacy `md`/`lg` and explicit finish axes, a hidden saved
   caption, and two- and three-row health specs with distinct units and over-target values. Compare
   filled/loading parts, brief reads, snapshot reloads and layout weight/adjacency, including
-  formerly distinct ids that become adjacent `Progress` instances. Verify `read()` and `act()` at
-  the old addresses, including a linked bar at `p1/r2` and no ring action.
+  formerly distinct ids that become adjacent `Progress` instances. Keep the default bars' empty
+  state and verify it offers no linked row action. Verify `read()` and `act()` at the old
+  addresses, including a linked bar at `p1/r2` and no ring action.
 - **Canonical data:** Update core `detail`, `dashboard` and `checklist` recipes where they allow
   `Ring`. Set `Progress[ring]` in money `wallet/goal` and invest `goals/invest_goal`, including
   defaults, hints and the invest worked example. Set `Progress[rings]` in health `today/rings`,
   including its defaults and worked example. Keep existing instance ids and check embedded
   component ids and property patch paths for old shapes.
-- **Prompts and probes:** Remove both retired choices and target Progress with explicit style where
-  the brief calls for bars, a single ring or concentric rings. Keep paired gates for a bare ratio,
-  a single bar, a single ring, two to three rings, independent `Stats` and ordinal `Steps`. Assert
-  exact goal values, units and caption storage even in brief mode, not just the class or style.
-  Retarget health and the cross-pack `Rewards`, `Challenge` and `CreditScore` near misses and
-  affected compose gates. Remove retired ids from other components' pick text, compare prompt
-  sizes, and record one live run of the affected probes after the cutover.
+- **Prompts and probes:** Retire `Ring` first while `ActivityRings` and the health `today/rings`
+  recipe stay live. Then retire `ActivityRings` and move its intent and recipe to `Progress[rings]`.
+  Before removing each id, compare saved-spec fixtures and prompt sizes. Retarget health and the
+  cross-pack `Rewards`, `Challenge` and `CreditScore` near misses and affected compose gates.
+  Remove the retired id from other components' pick text at each cutover. Keep paired gates for a
+  bare ratio, a single bar, a single ring, two to three rings, independent `Stats` and ordinal
+  `Steps`. Assert the component, requested style, exact goal values, units and caption storage
+  even in brief mode. Record one live run of the affected probes for each change.
 
 ## 5. The kit entry (`@lmthing/ui/kit`)
 
