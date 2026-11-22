@@ -44,6 +44,8 @@ export const en = {
     stallsLabel: "Charging stalls",
     cashback: (amount: string) => `${amount} cashback`,
     reading: (label: string, value: string) => `${JSON.stringify(label)}: ${value}`,
+    connectorReading: (connector: string, power: string, stalls: string) =>
+      `${JSON.stringify(connector)} · ${power}: ${stalls}`,
   },
   departureLabel: (line: string, to: string, time: string, delay?: string) =>
     `Line ${line} to ${to}, ${time}${delay ? `, ${delay}` : ""}`,
