@@ -1,7 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { interviewActions, interviewCopy, interviewReading } from "../copy";
+import { interviewActions, interviewCopy, interviewPrep, interviewReading } from "../copy";
 import { hiringWordsFor } from "../lang";
 import { seedApplicationId, seedDate, seedGoto, seedRows, seedTime } from "../seeds";
 import { prompt } from "../../../entry/prompt-Interview.generated";
@@ -24,22 +24,33 @@ export const meta = {
   // prettier-ignore
   parts: ["root", "candidate", "role", "date", "time", "duration", "format", "place", "interviewers",
     "status", "past", "link", "edit", "edit_label", "cancel", "cancel_label", "complete", "complete_label",
-    "invite", "invite_label", "join", "join_label", "success", "error"],
+    "invite", "invite_label", "join", "join_label", "success", "error", "prep", "reschedule", "reschedule_label"],
   confirmParts: ["cancel"],
   states: ["filled", "loading", "success", "error"],
   actions: {
-    parts: { edit: ["press"], cancel: ["press"], complete: ["press"], invite: ["send"], join: ["press"] },
+    parts: {
+      edit: ["press"],
+      cancel: ["press"],
+      complete: ["press"],
+      invite: ["send"],
+      join: ["press"],
+      reschedule: ["press"],
+    },
     when: {
       edit: { open: true },
       cancel: { open: true },
       complete: { status: "confirmed" },
       invite: { open: true },
       join: { joinable: true },
+      reschedule: { open: true },
     },
     noGoto: { parts: ["cancel", "complete", "join"] },
   },
   live: {
-    derive: ({ status, link }) => interviewActions(status, typeof link === "string"),
+    derive: ({ status, link, rescheduleGoto }) => ({
+      ...interviewActions(status, typeof link === "string"),
+      reschedule: rescheduleGoto ? { goto: rescheduleGoto } : undefined,
+    }),
   },
   read: (input, state, lang): string[] =>
     state === "filled" ? interviewReading(input as z.output<typeof props>, lang) : [],
@@ -64,6 +75,9 @@ export const props = z.strictObject({
   interviewers: z.array(c.text(24)).min(1).max(6),
   status: z.enum(["proposed", "confirmed", "completed", "cancelled"]),
   goto: c.screenId,
+  rescheduleGoto: c.screenId.optional(),
+  style: z.literal("checklist").optional(),
+  prep: z.array(c.text(80)).min(1).max(6).optional(),
 });
 
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
@@ -112,6 +126,22 @@ export const examples = [
     status: "proposed",
     goto: "mara_edit",
   },
+  {
+    interviewId: "sam_followup",
+    applicationId: "sam",
+    candidate: "Sam Patel",
+    role: "Summer dog walker",
+    date: "2027-04-20",
+    time: "09:30",
+    minutes: 30,
+    format: "phone",
+    interviewers: ["Jo Ellis"],
+    status: "confirmed",
+    goto: "followup_edit",
+    rescheduleGoto: "followup_reschedule",
+    style: "checklist",
+    prep: ["Read the application notes", "Prepare a question about group walks"],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Interview");
@@ -126,6 +156,21 @@ export const probes: c.Probe[] = [
   write(
     "Sam Patel's confirmed Summer dog walker interview is in person at North Park entrance, 2027-04-12 at 09:30 for 30 minutes, with Jo Ellis and Ari Lane. Link to edit the meeting.",
   ),
+  {
+    ...write(
+      "Sam Patel's confirmed Summer dog walker interview is by phone on 2027-04-20 at 09:30 for 30 minutes with Jo Ellis. Link to edit it. Include a prep checklist: Read the application notes; Prepare a question about group walks.",
+    ),
+    expectProps: {
+      style: "checklist",
+      prep: ["Read the application notes", "Prepare a question about group walks"],
+    },
+  },
+  {
+    ...write(
+      "Sam Patel's confirmed Summer dog walker interview is by phone on 2027-04-20 at 09:30 for 30 minutes with Jo Ellis. Link Edit to followup_edit and add a separate Reschedule link opening followup_reschedule.",
+    ),
+    expectProps: { goto: "followup_edit", rescheduleGoto: "followup_reschedule" },
+  },
   read("Open the form to edit this interview.", { address: "i1/edit", action: "press" }),
 ] satisfies c.Probe[];
 
@@ -158,6 +203,11 @@ function MeetingActions({
     );
   return (
     <kit.KitContent group="response" {...{ density }}>
+      {input.rescheduleGoto && (
+        <kit.KitActionFooter density={density}>
+          {action("reschedule", "secondary", input.rescheduleGoto)}
+        </kit.KitActionFooter>
+      )}
       <kit.KitGrid arrange="rows" list listRowGap="cards" {...{ density }}>
         {joinable ? action("join", "primary") : action("edit", "primary", input.goto)}
         <kit.KitGrid {...{ density }}>
@@ -178,72 +228,98 @@ function MeetingActions({
   );
 }
 
-function CreateInterviewLine(density: c.ThemeDensity, loading: boolean) {
-  return (part: string, value: string | undefined, role: kit.TextRole, tone: kit.TextTone = "text") => {
-    const step = role === "title" ? "comfortable" : density;
-    const numberScale = role === "number" ? ("compact" as const) : undefined;
-    return value === undefined ? null : loading ? (
-      <kit.KitSkeleton
-        shape="figure"
-        inset="none"
-        content={[numberScale ? [role, value, "start", numberScale] : [role, value]]}
-        density={step}
+function PrepGuide({ input, density }: { input: Meeting; density: c.ThemeDensity }) {
+  const {
+    words: { interview: words },
+  } = kit.useWords(hiringWordsFor);
+  const loading = kit.useComponentState() === "loading";
+  const steps = interviewPrep(input);
+  if (!steps) return null;
+  return (
+    <kit.KitContent group="response" density={density}>
+      <kit.KitLayoutText line={{ part: "prep", text: words.prep, role: "meta" }} density={density} />
+      <kit.KitRowGroup density={density}>
+        {steps.map((step, index) => (
+          <kit.KitRow
+            key={index}
+            part={null}
+            label={step}
+            inset="none"
+            inline
+            leading={<kit.KitIcon name="square" decorative loading={loading} />}
+            density={density}
+          >
+            <kit.KitLayoutText line={{ text: step }} density={density} />
+          </kit.KitRow>
+        ))}
+      </kit.KitRowGroup>
+    </kit.KitContent>
+  );
+}
+
+function MeetingBody({ input, density }: { input: Meeting; density: c.ThemeDensity }) {
+  const { lang } = kit.useWords(hiringWordsFor);
+  const loading = kit.useComponentState() === "loading";
+  const copy = interviewCopy(input, lang);
+  return (
+    <>
+      <kit.KitHeader
+        title={{ part: "candidate", text: input.candidate }}
+        meta={[
+          { part: "role", text: input.role, role: "body" },
+          { part: "status", text: copy.status, tone: input.status === "confirmed" ? "good" : "muted" },
+        ]}
+        density={density}
       />
-    ) : (
-      <kit.KitText
-        {...{ part, role, tone }}
-        {...(numberScale ? { numberScale } : {})}
-        density={step}
-        tabular={role === "number"}
-      >
-        {value}
-      </kit.KitText>
-    );
-  };
+      <kit.KitContent group="response" density={density}>
+        <kit.KitLayoutText line={{ part: "date", text: copy.date }} density={density} />
+        <kit.KitFigure
+          value={{ part: "time", text: copy.time, compact: true }}
+          caption={
+            <kit.KitLayoutText
+              line={{ part: "duration", text: copy.duration, role: "meta", tone: "muted" }}
+              density={density}
+            />
+          }
+          density={density}
+        />
+        <kit.KitLayoutText
+          line={{ part: "past", text: copy.past, role: "meta", tone: "muted" }}
+          density={density}
+        />
+      </kit.KitContent>
+      <kit.KitContent group="response" density={density}>
+        <kit.KitLayoutText line={{ part: "format", text: copy.format, role: "meta" }} density={density} />
+        <kit.KitLayoutText line={{ part: "place", text: input.place }} density={density} />
+        <kit.KitLayoutText
+          line={{ part: "link", text: copy.link, role: "meta", tone: "muted" }}
+          density={density}
+        />
+        <kit.KitLayoutText line={{ part: "interviewers", text: copy.interviewers }} density={density} />
+      </kit.KitContent>
+      <PrepGuide {...{ input, density }} />
+      <MeetingActions {...{ input, density, loading }} />
+    </>
+  );
 }
 
 export function Interview(input: Meeting) {
   const state = kit.useComponentState();
-  const loading = state === "loading";
   const {
-    lang,
     words: { interview: words },
   } = kit.useWords(hiringWordsFor);
-  const surface = "card";
   const density = kit.useKit().density;
-  const copy = interviewCopy(input, lang);
-  const line = CreateInterviewLine(density, loading);
+  const body = <MeetingBody {...{ input, density }} />;
   return (
-    <kit.KitCard part="root" padded {...{ density, surface }}>
-      {state === "success" || state === "error" ? (
-        <kit.KitEmpty
-          part={state}
-          decorativeIcon
-          title={state === "success" ? words.success : words.error}
-          icon={state === "success" ? "check" : "info"}
-        />
-      ) : (
-        <>
-          <kit.KitContent {...{ density }}>
-            {line("candidate", input.candidate, "title")}
-            {line("role", input.role, "body", "muted")}
-            {line("status", copy.status, "label", input.status === "confirmed" ? "good" : "muted")}
-          </kit.KitContent>
-          <kit.KitContent group="response" {...{ density }}>
-            {line("date", copy.date, "body")}
-            {line("time", copy.time, "number")}
-            {line("duration", copy.duration, "label", "muted")}
-            {line("past", copy.past, "label", "muted")}
-          </kit.KitContent>
-          <kit.KitContent group="response" {...{ density }}>
-            {line("format", copy.format, "label")}
-            {line("place", input.place, "body")}
-            {line("link", copy.link, "label", "muted")}
-            {line("interviewers", copy.interviewers, "body")}
-          </kit.KitContent>
-          <MeetingActions {...{ input, density, loading }} />
-        </>
-      )}
+    <kit.KitCard part="root" padded density={density}>
+      <kit.KitState
+        density={density}
+        loading={body}
+        part={state === "success" || state === "error" ? state : null}
+        message={state === "success" || state === "error" ? words[state] : undefined}
+      >
+        {body}
+      </kit.KitState>
     </kit.KitCard>
   );
 }

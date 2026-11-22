@@ -5,6 +5,7 @@ export const words = {
     termSeparator: " · ",
     payRange: (min: string, max: string) => `${min}–${max}`,
     requirements: "Requirements",
+    benefits: "Benefits",
     requirement: (text: string) => `• ${text}`,
     closes: (date: string) => `Apply by ${date}`,
     closed: (date: string) => `Applications closed ${date}`,

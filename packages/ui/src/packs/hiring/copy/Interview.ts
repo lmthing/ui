@@ -10,7 +10,14 @@ type InterviewDetails = {
   status: keyof Words["status"];
   link?: string | undefined;
   interviewers: readonly string[];
+  rescheduleGoto?: string | undefined;
+  style?: "checklist" | undefined;
+  prep?: readonly string[] | undefined;
 };
+
+export function interviewPrep({ style, prep }: Pick<InterviewDetails, "style" | "prep">) {
+  return style === "checklist" ? prep : undefined;
+}
 
 export function interviewActions(status: unknown, hasLink: boolean) {
   return {
@@ -44,9 +51,11 @@ export function interviewCopy(input: InterviewDetails, lang?: string, now = new 
 }
 
 export function interviewReading(input: InterviewDetails, lang?: string) {
-  const { actions } = hiringWordsFor(lang).interview;
+  const { actions, prep } = hiringWordsFor(lang).interview;
   const { open, joinable } = interviewActions(input.status, Boolean(input.link));
   const details = Object.values(interviewCopy(input, lang)).filter((line) => line !== undefined);
+  const guide = interviewPrep(input);
+  if (guide?.length) details.push(prep, ...guide);
   return open
     ? [
         ...details,
@@ -55,6 +64,7 @@ export function interviewReading(input: InterviewDetails, lang?: string) {
         actions.cancel,
         ...(joinable ? [actions.join] : []),
         ...(input.status === "confirmed" ? [actions.complete] : []),
+        ...(input.rescheduleGoto ? [actions.reschedule] : []),
       ]
     : details;
 }

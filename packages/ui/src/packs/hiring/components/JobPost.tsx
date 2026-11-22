@@ -6,6 +6,8 @@ import { hiringWordsFor } from "../lang";
 import { payPeriods, seedGoto, seedJobId } from "../seeds";
 import { prompt } from "../../../entry/prompt-JobPost.generated";
 
+const benefitParts = ["benefit_1", "benefit_2", "benefit_3", "benefit_4"] as const;
+
 // Core first: Card/card can spotlight a role but cannot show structured pay terms and an application window.
 export const meta = {
   id: "JobPost",
@@ -23,7 +25,8 @@ export const meta = {
   variantParts: { "detail.brief": { hides: ["about"] } },
   // prettier-ignore
   parts: ["root", "title", "employer", "place", "workplace", "contract", "pay", "about", "requirements",
-    "closes", "save", "apply", "apply_label", "publish", "publish_label", "success", "error"],
+    "closes", "save", "apply", "apply_label", "publish", "publish_label", "success", "error",
+    "benefits", "benefit_chips", ...benefitParts, "easy_apply"],
   states: ["filled", "loading", "success", "error"],
   actions: {
     parts: { save: ["toggle"], apply: ["press"], publish: ["press"] },
@@ -59,6 +62,8 @@ export const props = z.strictObject({
     .optional(),
   about: c.text(400),
   requirements: z.array(c.text(80)).min(1).max(6),
+  benefits: z.array(c.text(24)).max(benefitParts.length).optional(),
+  easyApply: z.boolean().optional(),
   closes: c.isoDate.optional(),
   saved: z.boolean(),
   goto: c.screenId,
@@ -109,6 +114,19 @@ export const examples: z.input<typeof props>[] = [
     saved: true,
     goto: "editor_apply",
   },
+  {
+    jobId: "trainer",
+    title: "Assistant trainer",
+    employer: "Coast Dogs",
+    workplace: "hybrid",
+    contract: "permanent",
+    about: "Help deliver small-group training classes.",
+    requirements: ["Experience working with dogs"],
+    benefits: ["Paid training", "Travel allowance", "Flexible hours", "Paid time off"],
+    easyApply: true,
+    saved: false,
+    goto: "trainer_apply",
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("JobPost");
@@ -128,6 +146,18 @@ export const probes: c.Probe[] = [
       "Show Harbour Press's permanent remote Copy editor opening. Keep 'Edit two short newsletters each week.' in the record, but don't display the job description. Ask for a recent editing sample, mark the posting saved and link to the application form.",
     ),
     variant: { axis: "detail", value: "brief" },
+  },
+  {
+    ...write(
+      "Post Coast Dogs' permanent hybrid Assistant trainer opening. Help deliver small-group classes; experience working with dogs is required. Show two benefits: Paid training and Travel allowance. Not saved; link to the application form.",
+    ),
+    expectProps: { benefits: ["Paid training", "Travel allowance"] },
+  },
+  {
+    ...write(
+      "Post Coast Dogs' permanent hybrid Assistant trainer opening. Help deliver small-group classes; experience working with dogs is required. Mark the opening as Easy apply. It is not saved; link to the application form.",
+    ),
+    expectProps: { easyApply: true },
   },
   read("Bookmark this opening on my phone.", { address: "j1/save", action: "toggle" }),
 ] satisfies c.Probe[];
@@ -153,10 +183,40 @@ function JobActions({ input, open, loading, density }: { input: Job; open: boole
   </kit.KitContent>;
 }
 
+function JobExtras({ copy, density }: { copy: ReturnType<typeof jobPostCopy>; density: Density }) {
+  if (!copy.easyApply && !copy.benefits.length) return null;
+  return (
+    <kit.KitContent group="response" density={density}>
+      {copy.easyApply && (
+        <kit.KitTrail kind="badge" part="easy_apply" tone="muted" value={copy.easyApply} density={density} />
+      )}
+      {copy.benefits.length > 0 && (
+        <kit.KitContent density={density}>
+          <kit.KitLayoutText
+            line={{ part: "benefits", text: copy.benefitsLabel, role: "meta" }}
+            density={density}
+          />
+          <kit.KitTrack part="benefit_chips" label={copy.benefitsLabel}>
+            {copy.benefits.map((label, index) => (
+              <kit.KitTrail
+                key={index}
+                kind="badge"
+                part={benefitParts[index]!}
+                value={label}
+                tone="muted"
+                density={density}
+              />
+            ))}
+          </kit.KitTrack>
+        </kit.KitContent>
+      )}
+    </kit.KitContent>
+  );
+}
+
 // prettier-ignore
-export function JobPost(input: Job) {
-  const state = kit.useComponentState(), loading = state === "loading";
-  const density = kit.useKit().density;
+function JobBody({ input, density }: { input: Job; density: Density }) {
+  const loading = kit.useComponentState() === "loading";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang, words: { jobPost: words } } = kit.useWords(hiringWordsFor);
   const copy = jobPostCopy(input, kit.useAppCurrency(), lang);
@@ -164,14 +224,10 @@ export function JobPost(input: Job) {
     value === undefined ? null : loading ?
       <kit.KitSkeleton shape="figure" inset="none" content={[[role, value, "start", "compact"]]} {...{ density }} /> :
       <kit.KitText {...{ part, role, tone, density }} numberScale="compact" tabular={role === "number"}>{value}</kit.KitText>;
-  return <kit.KitCard part="root" padded density={density}>
-    {state === "success" || state === "error" ? <kit.KitEmpty part={state} decorativeIcon
-      title={words[state]} icon={state === "success" ? "check" : "info"} /> : <>
-      <kit.KitContent {...{ density }}>
-        {line("title", input.title, "title")}
-        {line("employer", input.employer, "body")}
-        {line("place", input.place, "label", "muted")}
-      </kit.KitContent>
+  return <>
+      <kit.KitHeader title={{ part: "title", text: input.title }} density={density}
+        meta={[{ part: "employer", text: input.employer, role: "body", tone: "text" },
+          { part: "place", text: input.place }]} />
       <kit.KitContent group="response" {...{ density }}>
         {loading ? line(null, [copy.workplace, copy.contract].join(words.termSeparator), "label") :
           <kit.KitText part="workplace" role="label" tone="muted" {...{ density }}>
@@ -179,6 +235,7 @@ export function JobPost(input: Job) {
           </kit.KitText>}
         {line("pay", copy.pay, "number")}
       </kit.KitContent>
+      <JobExtras {...{ copy, density }} />
       {detail === "full" && <kit.KitContent group="response" {...{ density }}>
         {line("about", input.about, "body")}
       </kit.KitContent>}
@@ -191,6 +248,26 @@ export function JobPost(input: Job) {
         {line("closes", copy.closes, "label", copy.open ? "muted" : "warn")}
       </kit.KitContent>}
       <JobActions {...{ input, loading, density }} open={copy.open} />
-    </>}
-  </kit.KitCard>;
+    </>;
+}
+
+export function JobPost(input: Job) {
+  const state = kit.useComponentState();
+  const {
+    words: { jobPost: words },
+  } = kit.useWords(hiringWordsFor);
+  const density = kit.useKit().density;
+  const body = <JobBody {...{ input, density }} />;
+  return (
+    <kit.KitCard part="root" padded density={density}>
+      <kit.KitState
+        density={density}
+        loading={body}
+        part={state === "success" || state === "error" ? state : null}
+        message={state === "success" || state === "error" ? words[state] : undefined}
+      >
+        {body}
+      </kit.KitState>
+    </kit.KitCard>
+  );
 }

@@ -40,14 +40,17 @@ closing-date notice. Saving it is local; applying opens a form, not a submission
 - Writes: `jobId` text(32), `title` text(32), `employer` text(32), `place` text(36) optional,
   `workplace` (`onsite`, `hybrid`, `remote`), `contract` (`permanent`, `fixed_term`, `casual`, `volunteer`),
   `pay` of `min` and `max` numbers ≥ 0 and `per` (`hour`, `month`, `year`) optional, `about` text(400),
-  `requirements` text(80) each 1–6, `closes` date optional, `saved` boolean, `goto` (application form), `style`.
-- Styles: `full` (default), `compact` (shorter drawing of the same opening).
-- Parts → actions: `save toggle`, `apply press` (goes to `goto`), `publish press`.
+  `requirements` text(80) each 1–6, `closes` date optional, `saved` boolean, `goto` (application form),
+  `benefits` text(24) each 0–4 optional, `easyApply` boolean optional.
+- Styles: detail: `full` (default), `brief` (hides `about`).
+- Parts → actions: `save toggle`, `apply press` (goes to `goto`), `publish press`;
+  optional read-only `benefits`, `benefit_chips`, `benefit_1` through `benefit_4`, and `easy_apply`.
 - States: filled, loading, success (saved or published), error (publication failed).
 - Real path: an opening stored on the phone; publishing needs a job-board or website service.
 - Metadata: `meta.partTiers: { publish: "service" }`. Code checks `min ≤ max`, formats pay with
   `moneyLine` and the brief's currency, computes closed from `closes`, and disables apply when closed.
-- Wave 6 options: add `benefits` (`0–4` chips) and `easyApply` boolean badge.
+- Wave 6 options: show supplied `benefits` as up to four chips. `easyApply: true` adds a badge only;
+  it neither changes the application destination nor reopens a closed post.
 
 ### `ApplicantPipeline` · planned · data · phone
 Applicants for one opening in four stage columns, each with a count: applied, screening, interview,
@@ -56,13 +59,14 @@ offer. Moving an applicant changes their active stage; hired, rejected and withd
   (data `Board`), a plain applicant list (`List`), or a job seeker's own tracker (`Applications`).
 - Writes: `jobId` text(32), `title` text(32), `applicants` of `applicationId` text(32), `name` text(24),
   `stage` (`applied`, `screening`, `interview`, `offer`), `outcome` (`active`, `hired`, `rejected`, `withdrawn`),
-  `applied` date, `next` text(36) optional, `nextAt` date optional, `goto`, 1–20; `style`.
-- Styles: `columns` (default), `stack` (the same stages vertically).
-- Parts → actions: active applicants `root press`, active applicants `root move` (to a stage label).
+  `applied` date, `next` text(36) optional, `nextAt` date optional, `goto`, 1–20.
+- Styles: arrange: `strip` (default, paged lanes), `rows` (the same stages vertically).
+- Parts → actions: active applicants `root press`, active applicants `root move` (to a stage ID).
 - States: filled, empty, loading, error (a change could not be saved).
 - Real path: application records on the phone; the host moves only active records between active stages.
 - Metadata: `meta.dense: true`, weight 3. The `ApplicantLanes` adapter uses `StageBoard` over `KitColumns`, not data `Board`.
   Hiring derives lane and terminal-outcome counts, localizes stage labels and supplies legal move values for active applicants.
+  Saved `columns` and `stack` styles migrate to `strip` and `rows` respectively. No separate Wave 6 field is specified.
 
 ### `Candidate` · planned · content · phone
 One person's application for one opening: submitted date, stage, outcome and an evidence review.
@@ -71,17 +75,22 @@ Each criterion shows a reviewer's finding and supporting evidence, never an auto
   (`KeyValue`), a client's summary (customers `ClientCard`), or a general rating (`Scale`).
 - Writes: `applicationId` and `jobId` text(32), `name` text(24), `photo` optional, `role` text(32),
   `applied` date, `stage` and `outcome` (the `ApplicantPipeline` enums), `criteria` of `label` text(32),
-  `finding` (`unreviewed`, `needs_evidence`, `meets`, `gap`), `evidence` text(80) optional, 1–6;
-  `interviewGoto`, `offerGoto` (screen ids), `style`.
-- Styles: `review` (default), `summary` (condensed findings), `panel` (Wave 6: multi-interviewer criterion findings side by side without numeric AI scoring).
+  `finding` (`unreviewed`, `needs_evidence`, `meets`, `gap`, default `unreviewed`), `evidence` text(80) optional,
+  `panelFindings` optional (2–4 entries of `interviewer` text(24), `finding` using the same enum, and
+  `evidence` text(80) optional), 1–6 criteria;
+  `interviewGoto`, `offerGoto` (screen ids), `resumeGoto` (screen id) optional.
+- Styles: detail: `full` (default), `brief` (hides evidence); optional `style: "panel"` compares
+  the supplied interviewer findings side by side per criterion without averaging or scoring them.
 - Parts → actions: criteria `finding select`, criteria `evidence type`, `interview press`, `offer press`
-  (go to their targets), `hire press`, `reject press`, `withdraw press`.
+  (go to their targets), `hire press`, `reject press`, `withdraw press`, `resume press` (only with
+  `resumeGoto`); read-only item `panel` when panel style shows supplied findings.
 - States: filled, loading, success (decision recorded), error (save failed).
 - Real path: a human's review and decisions stored with an application on the phone; these actions record
   decisions, not messages. Hire sets the outcome, without creating a team record.
 - Metadata: `meta.confirmParts: ["reject", "withdraw"]`. Terminal outcomes disable further stage moves;
   no ranking, inferred qualifications or findings derived from protected characteristics.
-- Wave 6 options: add `resume press` alongside `style: "panel"`.
+- Wave 6 options: `style: "panel"` and the independent `resume press` link. The panel does not set the
+  criterion's final finding or change the existing decision controls.
 
 ### `Interview` · planned · content · phone
 One arranged interview: the application, date, time, duration, format, interviewers, place or call link,
@@ -91,15 +100,18 @@ and confirmation status, with edit and cancel. It records an agreed time, not av
 - Writes: `interviewId` and `applicationId` text(32), `candidate` text(24), `role` text(32), `date`,
   `time` HH:MM, `minutes` 5–240, `format` (`in_person`, `phone`, `video`), `place` text(36) optional,
   `link` (validated HTTPS URL, text(200)) optional, `interviewers` text(24) each 1–6,
-  `status` (`proposed`, `confirmed`, `completed`, `cancelled`), `goto` (edit form), `style`.
-- Styles: `card` (default), `summary` (all details with an edit link), `checklist` (Wave 6: interview prep guide).
-- Parts → actions: `edit press`, `cancel press`, `complete press`, `invite send`, `join press`.
+  `status` (`proposed`, `confirmed`, `completed`, `cancelled`), `goto` (edit form),
+  `rescheduleGoto` (screen id) optional, `prep` text(80) each 1–6 optional.
+- Styles: regular meeting details by default; optional `style: "checklist"` adds the supplied read-only prep guide.
+- Parts → actions: `edit press`, `cancel press`, `complete press`, `invite send`, `join press`,
+  `reschedule press` (only for proposed or confirmed interviews with `rescheduleGoto`); optional read-only `prep`.
 - States: filled, loading, success (updated or invitation sent), error (send or save failed).
 - Real path: a meeting record entered on the phone after agreeing a time; invitations and opening the
   call link need outside services. No availability lookup, calendar sync or dependency on `booking`.
 - Metadata: `meta.partTiers: { invite: "service", join: "service" }`,
   `meta.confirmParts: ["cancel"]`. Code computes end time and past-date notices, not confirmation.
-- Wave 6 options: add `reschedule press` alongside `style: "checklist"`.
+- Wave 6 options: `style: "checklist"` and the independent `reschedule press` link. The link opens the
+  reschedule form without changing the meeting or sending an invitation.
 
 ### `Offer` · planned · content · phone
 Proposed employment terms: recipient and role, pay, hours, start date, conditions, response deadline and
@@ -109,8 +121,8 @@ recorded outcome. Sending or replying is separate from merely drafting or loggin
 - Writes: `offerId` and `applicationId` text(32), `candidate` text(24), `role` and `employer` text(32),
   `pay` number ≥ 0, `per` (`hour`, `month`, `year`), `hoursPerWeek` number > 0 and ≤ 80,
   `start` date, `respondBy` date optional, `conditions` text(100) each 0–6,
-  `status` (`draft`, `sent`, `accepted`, `declined`, `withdrawn`), `goto` (edit form), `style`.
-- Styles: `letter` (default), `card` (condensed terms).
+  `status` (`draft`, `sent`, `accepted`, `declined`, `withdrawn`), `goto` (edit form).
+- Styles: arrange: `rows` (default), `grid` (weekly hours and start date side by side).
 - Parts → actions: `edit press`, `send send`, `accept press`, `decline press`, `withdraw press`.
 - States: filled, loading, success (sent or response recorded), error (send or reply failed).
 - Real path: draft or manually logged terms on the phone; sending needs email or another service, and an
@@ -119,6 +131,7 @@ recorded outcome. Sending or replying is separate from merely drafting or loggin
   `meta.confirmParts: ["decline", "withdraw"]`. Code computes expiry and formats pay using the brief's
   currency; acceptance never implies hired. Withdraw is offered only for sent offers and sends a notice;
   discarding a local draft uses core `Button` with `confirm`, not an outbound action.
+  No separate Wave 6 field is specified.
 
 ### `Applications` · planned · data · phone
 A job seeker's tracker: employer, role, stage, last contact and a dated next action per application.

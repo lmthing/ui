@@ -10,3 +10,4 @@ Use only when the current screen itself presents the employment terms or lets th
 
 - Pay is optional, numeric, and min must be at most max. Do not write currency or whether the opening is closed. Apply opens the form, not an outbound submission.
 - Set detail to null for a normal job post. If asked to hide the description, use "detail":"brief" and keep about in the record.
+- Write benefits only when supplied, as short chip labels. Set easyApply to true only when the brief explicitly marks the opening Easy apply. The badge does not change the application link.

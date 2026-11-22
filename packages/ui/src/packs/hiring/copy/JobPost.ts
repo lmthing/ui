@@ -9,6 +9,8 @@ type JobDetails = {
   pay?: { min: number; max: number; per: (typeof payPeriods)[number] } | undefined;
   closes?: string | undefined;
   requirements: readonly string[];
+  benefits?: readonly string[] | undefined;
+  easyApply?: boolean | undefined;
 };
 
 export function jobAcceptsApplications(closes: unknown, now = new Date()) {
@@ -25,13 +27,17 @@ function payLine({ min, max, per }: NonNullable<JobDetails["pay"]>, currency?: A
 }
 
 export function jobPostCopy(input: JobDetails, currency?: AppCurrency, lang?: string, now = new Date()) {
-  const words = hiringWordsFor(lang).jobPost;
+  const dictionary = hiringWordsFor(lang);
+  const words = dictionary.jobPost;
   const open = jobAcceptsApplications(input.closes, now);
   return {
     workplace: words.workplace[input.workplace],
     contract: words.contract[input.contract],
     pay: input.pay ? payLine(input.pay, currency, lang) : undefined,
     requirements: input.requirements.map(words.requirement),
+    benefits: input.benefits ?? [],
+    benefitsLabel: words.benefits,
+    easyApply: input.easyApply ? dictionary.jobFeed.easyApply : undefined,
     closes: input.closes
       ? (open ? words.closes : words.closed)(appointmentDate(input.closes, lang))
       : undefined,
@@ -45,6 +51,8 @@ export function jobPostReading(input: JobDetails, currency?: AppCurrency, lang?:
   return [
     [copy.workplace, copy.contract].join(words.termSeparator),
     ...(copy.pay === undefined ? [] : [copy.pay]),
+    ...(copy.easyApply ? [copy.easyApply] : []),
+    ...(copy.benefits.length ? [copy.benefitsLabel, ...copy.benefits] : []),
     words.requirements,
     ...copy.requirements,
     ...(copy.closes === undefined ? [] : [copy.closes]),

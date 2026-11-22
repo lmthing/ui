@@ -103,10 +103,31 @@ describe("JobPost bounds and fallback", () => {
 });
 
 describe("JobPost states, parts and reading", () => {
+  it("shows up to four passive benefits and the easy-apply badge only when supplied", () => {
+    const input = examples[2]!;
+    const drawn = parts(input);
+    expect(drawn.get("home/j1/benefits")?.text).toEqual(["Benefits"]);
+    expect(JSON.stringify(drawn.get("home/j1/easy_apply"))).toContain("Easy apply");
+    for (const [index, label] of input.benefits!.entries()) {
+      expect(JSON.stringify(drawn.get(`home/j1/benefit_${index + 1}`))).toContain(label);
+      expect(read(input)).toContain(label);
+    }
+    expect(read(input)).toContain("Easy apply");
+    const omitted = { ...full, benefits: [], easyApply: false };
+    expect([...parts(omitted).keys()]).toEqual([...parts(full).keys()]);
+    expect(read(omitted)).toBe(read(full));
+    expect(read({ ...input, closes: "2020-01-01" })).not.toContain("[j1/apply ");
+    expect(read(input)).toContain("[j1/apply press→trainer_apply]");
+    expect(props.safeParse({ ...input, benefits: Array(5).fill("Benefit") }).success).toBe(false);
+    expect(props.safeParse({ ...input, benefits: ["x".repeat(25)] }).success).toBe(false);
+    expect(props.safeParse({ ...input, easyApply: "yes" }).success).toBe(false);
+  });
   it("only hides the description in brief view and reading", () => {
     const drawn = parts();
     expect([...drawn.keys()]).toEqual(
-      meta.parts.filter((part) => part !== "success" && part !== "error").map((part) => `home/j1/${part}`),
+      meta.parts
+        .filter((part) => !/^(success|error|benefit|easy_apply)/.test(part))
+        .map((part) => `home/j1/${part}`),
     );
     const brief = { ...full, detail: "brief" as const };
     expect(props.parse(brief).about).toBe(full.about);
