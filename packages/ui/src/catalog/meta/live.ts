@@ -2,6 +2,12 @@ import type { z } from "zod";
 import type { AppCurrency, DeviceData, ScreenLike } from "../agent";
 import type { LiveActionInputs, StateName } from "../types";
 
+export type Draw =
+  | { kind: "faces"; press: string; count: string; sides: string; hold?: string }
+  | { kind: "pick"; press: string; pool: string; repeat?: string; reset?: string }
+  | { kind: "deck"; press: string; pool: string; count: string; reset: string }
+  | { kind: "partition"; press: string; redraw?: string; players: string; teams: string; locked?: string };
+
 export type LiveInputs = Omit<LiveActionInputs, "derive"> & {
   /** Project live props and gates from parsed props and declared host records. Derived items supply stable ids. */
   derive?: (

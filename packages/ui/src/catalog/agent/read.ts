@@ -9,6 +9,7 @@ import { nestedRemaining, visibleNestedProps } from "./selection";
 import type { Meta } from "../meta";
 import { parseAppCurrency, type AppCurrency } from "./app-currency";
 import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
+import { buzzStatus } from "./buzz";
 import { sessionKey, sessionState, sessionStatus, type SessionState } from "./session";
 import { migrateScreen } from "../migrations";
 import { componentTexts, migrateInput, readAffordances, readItems, readOffers } from "./reading";
@@ -58,6 +59,7 @@ function readingProps(
   const timed = projectLiveClocks(meta, reading, get, runtime);
   const useLive =
     meta.live ||
+    meta.buzz ||
     meta.select?.runtime ||
     meta.recordRuntime ||
     meta.linkedEdits ||
@@ -127,7 +129,7 @@ export function readComponent(
   const live = liveProps(meta, validated, instance, values, true, deviceData);
   const props = projectSelectionBinding(meta, live, selection);
   const base = drawStatus(meta, props, (props.state as StateName | undefined) ?? state, get);
-  state = sessionStatus(meta, props, base, get);
+  state = buzzStatus(meta, props, sessionStatus(meta, props, base, get), get);
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
   const head = `${instance} ${meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
   const draw = drawState(def.meta, props, get),

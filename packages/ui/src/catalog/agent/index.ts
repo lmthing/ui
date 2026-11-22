@@ -75,6 +75,7 @@ export {
   type RandomSource,
 } from "./draw";
 export { selectionAt, selectionError, selectionChanges, projectSelection } from "./selection";
+export { buzzKey, buzzRound, buzzStatus, buzzTarget, monotonicNow, staleBuzz, type BuzzRound } from "./buzz";
 export { itemCounterReset } from "./nested";
 export {
   projectSelectionBinding,
