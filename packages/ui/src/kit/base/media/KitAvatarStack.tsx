@@ -1,37 +1,49 @@
 import type { ReactNode } from "react";
 import { XStack, YStack } from "tamagui";
-import { component, radius, size, space } from "../../../catalog";
+import { component, radius, space, type AxisValue } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
-import { KitIcon } from "../text";
 import { KitPhoto } from "./KitPhoto";
 
-function Avatar({ label, photo }: { label: string; photo?: string | undefined }) {
-  const address = usePart();
-  const placeholder = usePart("photo");
+type Member = { id: string; label: string; photo?: string | undefined; mark?: AxisValue<"mark"> };
+
+function Avatar({ label, photo, mark, loading }: Omit<Member, "id"> & { loading: boolean }) {
+  const address = usePart("root", !loading);
+  const initials = label
+    .trim()
+    .split(/\s+/u, 2)
+    .map((word) => Array.from(word)[0] ?? "")
+    .join("");
   return (
     <YStack
-      {...address}
+      {...(!loading ? address : {})}
       marginLeft={-space.md}
       borderRadius={radius.pill}
       borderWidth={component.base.strongBorder}
       borderColor="$surface"
-      accessibilityRole="image"
-      accessibilityLabel={label}
+      accessibilityRole={loading ? undefined : "image"}
+      accessibilityLabel={loading ? undefined : label}
+      opacity={!loading && mark === "muted" ? component.base.disabledOpacity : undefined}
     >
-      {photo ? (
-        <KitPhoto photo={photo} shape="round" part="photo" label={label} />
-      ) : (
+      <KitPhoto
+        {...{ photo, label, initials, loading }}
+        shape="round"
+        part={loading ? null : "photo"}
+        ring={!loading && mark === "highlight" ? "accent" : "none"}
+      />
+      {!loading && mark === "new" && (
         <YStack
-          {...placeholder}
-          width={size.avatar.md}
-          height={size.avatar.md}
+          position="absolute"
+          right={space.xs}
+          bottom={space.xs}
+          width={space.md}
+          height={space.md}
           borderRadius={radius.pill}
-          backgroundColor="$raised"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <KitIcon name="user" decorative />
-        </YStack>
+          backgroundColor="$accent"
+          borderWidth={component.base.strongBorder}
+          borderColor="$surface"
+          aria-hidden
+          pointerEvents="none"
+        />
       )}
     </YStack>
   );
@@ -44,20 +56,22 @@ function Avatar({ label, photo }: { label: string; photo?: string | undefined })
 export function KitAvatarStack({
   members,
   children,
+  loading = false,
 }: {
-  members: readonly { id: string; label: string; photo?: string | undefined }[];
+  members: readonly Member[];
   /** Optional count or label, inline after the overlapping avatars. */
   children?: ReactNode;
+  loading?: boolean;
 }) {
   const context = usePartContext();
   return (
-    <XStack paddingLeft={space.md} alignItems="center">
+    <XStack paddingLeft={space.md} alignItems="center" aria-hidden={loading || undefined}>
       {members.map((member) => (
         <PartContext.Provider key={member.id} value={{ ...context, item: member.id }}>
-          <Avatar label={member.label} photo={member.photo} />
+          <Avatar {...member} loading={loading} />
         </PartContext.Provider>
       ))}
-      {children && <XStack marginLeft={space.sm}>{children}</XStack>}
+      {!loading && children && <XStack marginLeft={space.sm}>{children}</XStack>}
     </XStack>
   );
 }

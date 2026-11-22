@@ -20,7 +20,7 @@ type DrawingProps = LinePlotProps & {
   width: number;
   height: number;
   geometry: ReturnType<typeof plotGeometry>;
-  frame: { x: (n: number) => number; y: (n: number) => number; left: number; top: number };
+  frame: { x: (n: number) => number; y: (n: number) => number; left: number; top: number; yEnd: number };
   marked: ReadonlySet<string>;
 };
 function PlotPoints({
@@ -67,7 +67,11 @@ function PlotPoints({
   );
 }
 
-function PlotLoading({ width, height, frame: { left, top, yEnd } }: DrawingProps) {
+function PlotLoading({
+  width,
+  height,
+  frame: { left, top, yEnd },
+}: Pick<DrawingProps, "width" | "height" | "frame">) {
   const theme = useTheme();
   return (
     <Svg width={width} height={height} aria-hidden>
@@ -95,7 +99,7 @@ function PlotDrawing({ series, goal, baseline, geometry, ...props }: DrawingProp
     loading,
     frame: { x, y, left },
   } = props;
-  if (loading) return <PlotLoading series={series} geometry={geometry} {...props} />;
+  if (loading) return <PlotLoading {...props} />;
   const rule = { strokeWidth: component.base.borderWidth, stroke: theme.line?.val };
   return (
     <Svg width={width} height={height} aria-hidden>

@@ -58,3 +58,16 @@ it("changes with the host's preset, accent and mode", () => {
   expect(decode({ preset: "calm", accent: "moss", mode: "dark" })).not.toBe(decode());
   expect(decode({ preset: "bold", accent: "sky", mode: "light" })).not.toBe(decode());
 });
+
+it("uses different subjects, not just different gradients, for gallery photos and portraits", () => {
+  const tags = ["fern", "monstera", "basil", "aloe", "park_walk", "river_walk", "evening_walk"];
+  const subjects = tags.map((tag) => decode(undefined, `lib:${tag}`).match(/<g [^>]+>(.*)<\/g>/)?.[1]);
+  expect(subjects.every(Boolean)).toBe(true);
+  expect(new Set(subjects).size).toBe(tags.length);
+  for (const mode of ["light", "dark"] as const) {
+    const theme = { preset: "calm", accent: "moss", mode } as const;
+    expect(decode(theme, "lib:people_anna")).toContain("<ellipse");
+    expect(decode(theme, "lib:people_anna")).not.toBe(decode(theme, "lib:people_maya"));
+    expect(decode(theme, "lib:plants")).not.toContain("<ellipse");
+  }
+});

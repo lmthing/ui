@@ -103,25 +103,54 @@ export function useSeatMoveTarget(address: Address, seat: Seat) {
   };
 }
 
-type SeatTrayProps = { children: ReactNode; loading: boolean; maxWidth: number; gap: number };
-export function SeatTray({ children, loading, maxWidth, gap }: SeatTrayProps) {
-  const [height, setHeight] = useState<number>(typography.label.lineHeight);
+type SeatTrayProps = { children: ReactNode; loading: boolean; hasHeading: boolean; guests: number };
+export function SeatTray({ children, loading, hasHeading, guests }: SeatTrayProps) {
+  const slots = Number(hasHeading) + guests;
+  const estimate =
+    (hasHeading ? typography.label.lineHeight : 0) +
+    guests * size.control.md +
+    Math.max(0, slots - 1) * space.xs;
+  const [measured, setMeasured] = useState<{ guests: number; hasHeading: boolean; height: number }>();
+  const height =
+    measured?.guests === guests && measured.hasHeading === hasHeading ? measured.height : estimate;
   return (
     <YStack
-      minHeight={loading ? height : typography.label.lineHeight}
+      minHeight={loading ? height : undefined}
       width="100%"
-      maxWidth={maxWidth}
-      alignSelf="center"
       justifyContent="center"
-      gap={gap}
+      gap={space.xs}
       aria-hidden={loading || undefined}
-      onLayout={loading ? undefined : (event) => setHeight(event.nativeEvent.layout.height)}
+      accessibilityElementsHidden={loading || undefined}
+      onLayout={
+        loading
+          ? undefined
+          : (event) => setMeasured({ guests, hasHeading, height: event.nativeEvent.layout.height })
+      }
     >
       {loading ? (
-        <YStack width="50%" height={space.md} backgroundColor="$line" borderRadius={radius.pill} />
+        <>
+          {hasHeading && <TrayStub height={typography.label.lineHeight} />}
+          {Array.from({ length: guests }, (_, index) => (
+            <TrayStub key={index} height={size.control.md} />
+          ))}
+        </>
       ) : (
         children
       )}
+    </YStack>
+  );
+}
+
+function TrayStub({ height }: { height: number }) {
+  return (
+    <YStack height={height} justifyContent="center">
+      <YStack
+        width={size.control.lg * 2}
+        maxWidth="100%"
+        height={space.sm}
+        backgroundColor="$line"
+        borderRadius={radius.pill}
+      />
     </YStack>
   );
 }

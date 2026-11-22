@@ -129,3 +129,31 @@ it("seats a tray guest by keyboard, preserves its address and hides the newly fu
     await page.close();
   }
 });
+
+it("shows Gantt viewport continuation on the scrollable side without moving the label rail", async () => {
+  const page = await browser.newPage({ viewport: { width: 430, height: 844 } });
+  await page.addInitScript("globalThis.process ??= { env: {} }; globalThis.__name = (fn) => fn");
+  try {
+    await page.goto(new URL("/?c=Gantt&w=390&preset=calm&mode=light", server.resolvedUrls!.local[0]).href);
+    const chart = page.locator('[data-look-frame] [data-testid$="/chart"]').first();
+    const timeline = chart.getByRole("region");
+    const cue = (side: "left" | "right") => chart.locator(`[data-viewport-cue="${side}"]`);
+    const label = chart.getByText("Plan plants", { exact: true });
+    await cue("right").nth(1).waitFor();
+    expect(await cue("left").count()).toBe(0);
+    expect(await timeline.getAttribute("tabindex")).toBe("0");
+    const labelLeft = (await label.boundingBox())!.x;
+    await timeline.press("ArrowRight");
+    await cue("left").first().waitFor();
+    await timeline.evaluate((element) => {
+      element.scrollLeft = element.scrollWidth;
+    });
+    await cue("right").first().waitFor({ state: "detached" });
+    expect((await label.boundingBox())!.x).toBe(labelLeft);
+    expect(
+      await timeline.evaluate((element) => element.scrollWidth - element.clientWidth - element.scrollLeft),
+    ).toBeLessThanOrEqual(1);
+  } finally {
+    await page.close();
+  }
+});

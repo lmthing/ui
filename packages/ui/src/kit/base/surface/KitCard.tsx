@@ -13,7 +13,14 @@ import {
 } from "../../../catalog";
 import { useKit, useKitStyle, useVariantDensity } from "../../provider";
 import { useComponentState, usePart } from "../../part";
-import { CardStyleContext, shifted, variantSurfaceOf, type CardStyle, type SurfaceTone } from "../text";
+import {
+  CardStyleContext,
+  EdgeMediaContext,
+  shifted,
+  variantSurfaceOf,
+  type CardStyle,
+  type SurfaceTone,
+} from "../text";
 
 const Frame = styled(YStack, {
   variants: {
@@ -147,7 +154,11 @@ export function KitCard(props: CardProps) {
         >
           {swatch && isWeb && <style>{swatchCss(swatch, theme)}</style>}
           <CardGutterContext.Provider value={Boolean(props.padded && props.inset !== "none")}>
-            <CardChildren loading={loading}>{children}</CardChildren>
+            <EdgeMediaContext.Provider
+              value={props.bleed === "edge" && (!props.padded || props.inset === "none")}
+            >
+              <CardChildren loading={loading}>{children}</CardChildren>
+            </EdgeMediaContext.Provider>
           </CardGutterContext.Provider>
         </Frame>
       </Theme>
