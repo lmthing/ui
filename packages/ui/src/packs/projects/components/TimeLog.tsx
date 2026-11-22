@@ -25,7 +25,7 @@ export const meta = {
   parts: ["root", "week", "day", "day_total", "week_total", "timer", "timer_label", "elapsed",
     "discard", "discard_label", "add", "add_label", "export", "export_label", "empty", "status", "summary"],
   items: {
-    key: "entries", visibleWhen: { visible: true },
+    key: "entries", addressedWhen: { hasEntries: true }, visibleWhen: { visible: true },
     parts: ["root", "title", "start", "end", "duration", "billable", "note", "remove", "remove_icon"],
     records: { keys: ["projectRef", "start"], parts: { remove: { action: "press", remove: true } } },
   },
@@ -88,7 +88,7 @@ export const props = z.strictObject({
     ...value, weekMs: log.weekElapsed(value.entries), hasEntries: !!value.entries.length,
     add: value.addGoto ? { goto: value.addGoto } : undefined,
     entries: value.entries.map((row) => ({
-      ...row, root: row.goto, visible: !value.day || log.appearsOn(row, value.day),
+      ...row, root: row.goto, visible: value.style !== "summary" && (!value.day || log.appearsOn(row, value.day)),
     })),
   }));
 
@@ -196,7 +196,8 @@ function ProjectSummary({ copy, w, density }: { copy: ReturnType<typeof log.time
     <kit.PartScope {...scope} state={
       !copy.projects.length && scope.state !== "loading" ? "empty" : scope.state === "success" ? "filled" : scope.state
     }>
-      <kit.KitState part="empty" icon="clock" message={w.summaryEmpty} density={density} loading={projects}>
+      <kit.KitState part="empty" icon="clock" message={scope.state === "empty" ? undefined : w.summaryEmpty}
+        density={density} loading={projects}>
         {projects}
       </kit.KitState>
     </kit.PartScope>

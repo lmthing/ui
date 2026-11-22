@@ -45,7 +45,7 @@ each task. Checking a task updates the project record; a blocked task cannot be 
 - Styles: omit or use `null` for ordinary rows; `today` (only tasks due on the device's local date; hidden tasks still count
   toward dependencies). Shared axes: density: `comfortable`, `compact`; group: `none`, `sections`
   (by project, with subtasks indented).
-  The `today` empty view says no tasks are due today.
+  If there are no matching tasks, `today` says no tasks are due today.
 - Parts → actions: items `root press` (linked), items `done check` (unblocked leaf tasks only), items
   `assign select` (an available assignee; local assignment by the person).
 - Read-only parts: `empty`, `today`, `status`; items `title`, `project`, `assignee`, `due`, `priority`,
@@ -97,7 +97,7 @@ marks and computed day and week totals. Start and stop append one timed entry; a
 - Styles: `days` (default), `single_day` (one selected day's entries, at most 6, with the same timer),
   `summary` (weekly elapsed time per project split into billable and non-billable, without entry rows).
   Shared axes: density: `comfortable`, `compact`; detail: `full`, `brief` (hide entry notes).
-  The `summary` empty view says no time was logged this week.
+  If there are no entries, `summary` says no time was logged this week.
 - Parts → actions: `timer start`, `timer stop`, `discard press` (while running), `add press` (to `addGoto`),
   `export press`, entries `root press` (linked), entries `remove press`. Entry actions are not offered in
   `summary`. · Metadata: `meta.dense: true`, weight 3;

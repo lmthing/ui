@@ -108,11 +108,7 @@ function projectTimes(entries: readonly (TimeEntry & { projectRef: string })[]):
 
 export function timeLogControls(input: Readonly<Values>): Values {
   const entries = input.entries as (TimeEntry & { projectRef: string })[];
-  if (input.style === "summary")
-    return {
-      projectTimes: projectTimes(entries),
-      entries: entries.map((row) => ({ ...row, visible: false })),
-    };
+  if (input.style === "summary") return { projectTimes: projectTimes(entries) };
   return input.detail === "brief" ? { entries: entries.map((row) => ({ ...row, note: undefined })) } : {};
 }
 

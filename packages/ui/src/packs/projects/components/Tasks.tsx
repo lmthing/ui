@@ -160,7 +160,6 @@ export const examples = [
   { ...trot, density: "compact" },
   { style: "today", items: [
     { ...ledge.items[0]!, due: taskToday(), repeat: "weekly", tags: ["Balcony", "Planning"] },
-    ledge.items[1]!,
   ] },
 ] satisfies z.input<typeof props>[];
 
@@ -259,7 +258,8 @@ export function Tasks(input: View) {
   const empty = state === "empty" || (!rows.length && state !== "loading");
   return <kit.KitCard part="root" density={density}>
     <kit.PartScope {...scope} state={empty ? "empty" : state}>
-      <kit.KitState retain part={empty ? "empty" : "status"} message={!empty && state === "success" ? words.state.done : words.todayEmpty}
+      <kit.KitState retain part={empty ? "empty" : "status"}
+        message={state === "empty" ? undefined : !empty && state === "success" ? words.state.done : words.todayEmpty}
         density={density} loading={rows.length ? todayContent : undefined}>
         {todayContent}
       </kit.KitState>

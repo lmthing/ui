@@ -176,22 +176,24 @@ describe("TimeLog timer gates", () => {
   });
 });
 
+const summaryInput = {
+  ...first,
+  style: "summary" as const,
+  entries: [
+    ...first.entries,
+    {
+      ...row,
+      projectRef: "route_guide",
+      title: "Route notes",
+      billable: true,
+      start: "2026-11-20T23:45:00Z",
+      end: "2026-11-21T00:15:00Z",
+    },
+  ],
+};
+
 describe("TimeLog project summary", () => {
-  const input = {
-    ...first,
-    style: "summary" as const,
-    entries: [
-      ...first.entries,
-      {
-        ...row,
-        projectRef: "route_guide",
-        title: "Route notes",
-        billable: true,
-        start: "2026-11-20T23:45:00Z",
-        end: "2026-11-21T00:15:00Z",
-      },
-    ],
-  };
+  const input = summaryInput;
   it("renders and reads project totals without showing or offering individual entry actions", () => {
     const draw = renderExample("TimeLog", input, "filled", theme, { component: "t1" });
     const parts = addressedElements(draw.html);
