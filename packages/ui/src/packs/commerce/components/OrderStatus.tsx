@@ -87,9 +87,9 @@ export const examples = [
       { label: "Received", time: "11:00" },
       { label: "Treats packed", time: "11:25" },
       { label: "On its way", time: "11:50" },
-      { label: "Delivered" },
+      { label: "Delivered", time: "12:15" },
     ],
-    at: 2, seller: false, style: "carrier", carrier: "Parcel Post", trackingNumber: "PP450981", proofPhoto: "local:1",
+    at: 3, seller: false, style: "carrier", carrier: "Parcel Post", trackingNumber: "PP450981", proofPhoto: "local:1",
   },
   {
     style: "pickup", pickupCode: "FERN42", bay: "Locker 12", at: 2, seller: false,
@@ -136,10 +136,10 @@ function FulfillmentDetails({ input, complete }: { input: OrderStatusProps; comp
   </>;
   if (input.style !== "pickup") return null;
   return <>
-    {bay && <kit.KitText part="bay" role="heading">{bay}</kit.KitText>}
-    {pickupCode && <kit.KitContent align="center">
-      <kit.KitCode part="pickup_code" value={pickupCode} label={tracking.pickup(pickupCode)} used={complete} />
-      {!complete && <kit.KitText part="pickup_value" role="label" align="center" tabular>{tracking.pickup(pickupCode)}</kit.KitText>}
+    {(bay || pickupCode) && <kit.KitContent align="center">
+      {bay && <kit.KitText part="bay" role="label" tone="muted">{bay}</kit.KitText>}
+      {pickupCode && <kit.KitCode part="pickup_code" value={pickupCode} label={tracking.pickup(pickupCode)} used={complete} />}
+      {pickupCode && !complete && <kit.KitText part="pickup_value" role="label" align="center" tabular>{tracking.pickup(pickupCode)}</kit.KitText>}
     </kit.KitContent>}
     {!complete && !input.seller && <kit.KitContent group="response"><kit.KitAction part="here" action="press" kind="secondary" label={tracking.here} full /></kit.KitContent>}
   </>;
@@ -152,11 +152,11 @@ function OrderStage({ step, current, pending, complete }: {
   const { words, lang } = kit.useWords(commerceWordsFor);
   const context = kit.usePartContext();
   const { id, label, time } = step;
-  const tone = current ? (complete ? "good" : "accent") : pending ? "muted" : "text";
+  const tone = current && !complete ? "accent" : pending ? "muted" : "text";
   return <kit.PartScope {...context} item={id}>
     <kit.KitCard style="plain" part="root" label={current && !complete ? words.currentOrderStage(label) : label}>
       <kit.KitGrid fitLast>
-        <kit.KitText part="label" role={current ? "heading" : "body"} density="comfortable" {...{ tone }}>{label}</kit.KitText>
+        <kit.KitText part="label" role={current && !complete ? "heading" : "body"} density="comfortable" {...{ tone }}>{label}</kit.KitText>
         {time !== undefined && <kit.KitText part="time" role="label" tone="muted" align="end" tabular density="comfortable">
           {c.timeOfDayLine(time, lang)}
         </kit.KitText>}
@@ -179,8 +179,8 @@ export function OrderStatus(input: OrderStatusProps) {
 
   return <kit.KitCard part="root" padded {...{ density, surface }}>
     <kit.KitContent {...{ density }}>
-      {complete && <kit.KitText part="status" role="label" tone="good" {...{ density }}>{words.orderComplete}</kit.KitText>}
-      <kit.KitStepsTrack style="bar" count={steps.length} at={current + 1} part="track" />
+      {complete && <kit.KitText part="status" role="heading" tone="good" {...{ density }}>{words.orderComplete}</kit.KitText>}
+      <kit.KitStepsTrack style="dots" count={steps.length} at={current + 1} part="track" />
     </kit.KitContent>
     <kit.KitContent group="response" {...{ density }}>
       <kit.KitGrid list arrange="rows" listRowGap="cards" {...{ density }}>

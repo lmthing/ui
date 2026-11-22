@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { savedItemCopy } from "../../copy";
+import { savedItemCopy, savedListReading } from "../../copy";
 
 const item = { name: "Planter", price: 10.01, savedPrice: 10.1, targetPrice: 10 };
 
@@ -19,4 +19,11 @@ it("flags stock first, without treating unknown stock, price rises or ties as di
   for (const savedPrice of [undefined, 10, 10.01]) {
     expect(savedItemCopy({ ...item, savedPrice }).badge).toBeUndefined();
   }
+});
+
+it("does not suggest moving sold-out items", () => {
+  const row = { id: "r1", ...item, stock: 0 };
+  expect(savedListReading({ items: [row], shared: false }, "filled").join("\n")).not.toMatch(
+    /\/move|To basket/,
+  );
 });

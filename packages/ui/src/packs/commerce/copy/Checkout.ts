@@ -10,6 +10,17 @@ type CheckoutValues = {
   address?: string | undefined;
 };
 
+export function checkoutChoices(
+  { modes, methods }: Pick<CheckoutValues, "modes" | "methods">,
+  lang?: string,
+) {
+  const words = commerceWordsFor(lang).checkout;
+  return {
+    modeChoices: modes.map((value) => ({ value, label: words.modes[value] })),
+    methodChoices: methods.map((value) => ({ value, label: words.methods[value] })),
+  };
+}
+
 /** The host supplies one payable basket summary; absence is not a zero total. */
 export function checkoutAmount(records: readonly unknown[] | undefined, lang?: string) {
   const unavailable = commerceWordsFor(lang).checkout.unavailable;

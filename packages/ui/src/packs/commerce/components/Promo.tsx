@@ -118,7 +118,7 @@ function OfferLink({
         {title}
       </kit.KitText>
       {remaining && (
-        <kit.KitText role="number" numberScale="compact" part="countdown" density={density} tabular>
+        <kit.KitText role="label" tone="muted" part="countdown" density={density} tabular>
           {remaining}
         </kit.KitText>
       )}
