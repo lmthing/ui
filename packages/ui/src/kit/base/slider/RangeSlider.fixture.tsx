@@ -1,7 +1,6 @@
 import { createRoot } from "react-dom/client";
 import { TamaguiProvider } from "tamagui";
-import { components } from "@lmthing/ui/catalog";
-import { PhoneScreen, renderers } from "@lmthing/ui/kit";
+import { PhoneScreen } from "@lmthing/ui/kit";
 import { config } from "../../../../test/render";
 
 const range = { c: "Field", kind: "range", min: 0, max: 10 };
@@ -27,8 +26,6 @@ createRoot(document.getElementById("root")!).render(
   <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss">
     <PhoneScreen
       screen={screen}
-      defs={components}
-      renderers={renderers}
       theme={{ preset: "calm", mode: "light", accent: "moss" }}
       onLink={(destination) => {
         document.title = destination;
