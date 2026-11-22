@@ -176,16 +176,15 @@ export function Itinerary(input: ItineraryProps) {
   const empty = kit.useComponentState() === "empty", current = initialItineraryDay(days, new Date());
   return (
     <kit.KitCard {...{ density, surface }} padded={!empty} part="root">
-      {empty ? <kit.KitEmpty icon="calendar_days" decorativeIcon /> : days.map((day, index) => {
-        const section = <ItineraryDay {...{ day, density, detail }} initial={index === current} />;
-        const group = "response";
-        const separated = <kit.KitContent {...{ density, group }}>
-          <kit.KitContent {...{ density, group }}>{section}</kit.KitContent>
-        </kit.KitContent>;
-        return <kit.KitContent key={day.id} density={density} group={index > 0 ? group : "content"}>
-          {index > 0 && density !== "compact" ? separated : section}
-        </kit.KitContent>;
-      })}
+      <kit.KitState icon="calendar_days" part="title" density={density}>
+        <kit.KitContent density={density}>
+          {days.map((day, index) => (
+            <kit.KitContent key={day.id} density={density} group={index > 0 ? "response" : "content"}>
+              <ItineraryDay {...{ day, density, detail }} initial={index === current} />
+            </kit.KitContent>
+          ))}
+        </kit.KitContent>
+      </kit.KitState>
     </kit.KitCard>
   );
 }
