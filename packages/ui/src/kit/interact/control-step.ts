@@ -1,5 +1,6 @@
 import {
   selectionAt,
+  dateSpanItem,
   selectionOffer,
   itemEditSpec,
   pickerAt,
@@ -7,6 +8,8 @@ import {
   isAdjustOnlyItem,
   itemCounterReset,
   nestedAt,
+  isCollectionItem,
+  nestedPart,
   adjustmentAt,
   clearItemSets,
   controlValueKey,
@@ -35,6 +38,12 @@ export function selectedStep(step: ActStep, entry: Entry, input: Values, def: De
     "",
   );
   if (selectionOffer(def.meta, local) || itemEditSpec(def.meta, local)?.action === "select") return step;
+  if (
+    (def.meta.collections && isCollectionItem(local.split("/")[0])) ||
+    nestedPart(def.meta, local)?.action === "select"
+  )
+    return step;
+  if (def.meta.dateSpan && dateSpanItem(def.meta, stampItemIds(def.meta, input), local)) return step;
   if (def.meta.items?.pickers && pickerAt(def.meta, stampItemIds(def.meta, input), local)) return step;
   const found = selectionAt(def.meta, input, local);
   if (found?.row && def.meta.items?.deviceData) return { ...step, value: found.value };
@@ -74,6 +83,7 @@ export function controlStep(
   step: ActStep,
   now: number,
   lang?: string,
+  datePick = false,
 ): ControlChange {
   const next = { ...values };
   const parts = step.address.replace(`${screen.id}/`, "").split("/");
@@ -95,15 +105,13 @@ export function controlStep(
     target,
     index: /^r[1-9][0-9]*$/.test(parts[1] ?? "") ? Number(parts[1]!.slice(1)) - 1 : -1,
     get: (part) => next[valueKey(screen.id, entry.id, part)],
-    put: (part, value) => {
-      next[valueKey(screen.id, entry.id, part)] = value;
-    },
+    put: (part, value) => void (next[valueKey(screen.id, entry.id, part)] = value),
     bad: (error, disabled = false) => ({ values, error, disabled }),
   };
-  const selection = selectControl(ctx);
+  const selection: ControlChange = datePick ? { values: next, value: step.value } : selectControl(ctx);
   if (selection.error) return selection;
   const adjustment = adjustmentAt(ctx.def.meta, input, target, step.action, ctx.get, now);
-  const planned = isAdjustOnlyItem(adjustment, step.action);
+  const planned = adjustment?.declared || isAdjustOnlyItem(adjustment, step.action);
   const clockAdjustment = planned ? { ...adjustment, next: undefined } : adjustment;
   const clocks = clockChanges(ctx.def.meta, input, ctx.get, target, step, now, clockAdjustment);
   Object.entries(clocks).forEach(([part, value]) => ctx.put(part, value));

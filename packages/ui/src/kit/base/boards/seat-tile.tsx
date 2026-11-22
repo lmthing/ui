@@ -2,6 +2,7 @@ import { component, size, type IconName } from "../../../catalog";
 import { useKitStyle } from "../../provider";
 import { seatFill, type SeatState } from "../../seat-state";
 import { KitIcon, KitText, shifted } from "../text";
+import { BoardGlyph, type BoardMark } from "./board-mark";
 import { BoardCell, type Target } from "./board-navigation";
 
 export type Seat = {
@@ -11,6 +12,7 @@ export type Seat = {
   target?: Target;
   badge?: IconName;
   accessibleLabel?: string;
+  seatClass?: BoardMark;
 };
 
 export function SeatTile({
@@ -27,6 +29,7 @@ export function SeatTile({
   const ks = useKitStyle();
   const selected = !loading && seat.kind === "selected";
   const taken = seat.kind === "taken";
+  const label = seat.accessibleLabel ?? seat.label;
   return (
     <BoardCell
       cell={{
@@ -34,7 +37,7 @@ export function SeatTile({
         col,
         id: seat.id,
         target: seat.target,
-        label: seat.accessibleLabel ?? seat.label,
+        label: seat.seatClass ? `${label}, ${seat.seatClass.label}` : label,
         loading,
         selected,
         disabled: taken || undefined,
@@ -61,6 +64,7 @@ export function SeatTile({
           >
             {seat.label}
           </KitText>
+          {seat.seatClass && <BoardGlyph mark={seat.seatClass} />}
         </>
       )}
     </BoardCell>

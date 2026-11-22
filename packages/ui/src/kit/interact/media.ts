@@ -1,4 +1,19 @@
 import type { ReactNode } from "react";
+import type { AttachmentIntent } from "../../catalog";
+
+export type AttachmentCommand = {
+  address: string;
+  intent: AttachmentIntent;
+  source?: string;
+};
+export type AttachmentHost = {
+  /** Pure permission/availability check; both read and act use it. */
+  canRun(command: AttachmentCommand): boolean;
+  run(
+    command: AttachmentCommand & { reference?: string; signal: AbortSignal },
+  ): Promise<{ status: "accepted"; reference?: string } | { status: "rejected" }>;
+};
+export type PlaybackResolver = (address: string) => string | undefined;
 
 /** Device adapters implement the same operations as the browser's local media element. */
 export type MediaSession = {

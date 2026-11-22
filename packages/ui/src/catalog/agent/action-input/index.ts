@@ -1,11 +1,17 @@
 export { partsOf } from "./affordance-parts";
+import { jumpKey } from "./jump";
+import { nestedSpec } from "./nested-spec";
+export { jumpKey } from "./jump";
+export { nestedSpec } from "./nested-spec";
 import type { Definition } from "../../probes";
+import { stampItemIds } from "../../lines";
 import { repairVariants } from "../../rules";
 import { adjustmentAt, projectAdjustments, setAt } from "../clocks";
 export { localValues, selectStep } from "./select-step";
-export { stageRecord } from "./record-planning";
-export { expireProgress, stageProgress } from "./progress";
+export { expireProgress, stageStepProgress } from "./progress";
+export { stageItemAdjustment } from "./item-adjustment";
 export { itemActionOffer, itemMoveOffer, moveKey, projectDerivedMoves, projectMoves } from "./move";
+export { projectCollections } from "../collections";
 export { actionValueAddress, findAction } from "./offered-actions";
 export {
   createPrivateMarks,
@@ -22,6 +28,7 @@ import { storeLiveInput } from "../live-inputs";
 import {
   controlValueKey,
   nestedAt,
+  nestedPart,
   parseControlProps,
   projectControlInput,
   resolveKeypadValue,
@@ -41,7 +48,12 @@ export function validateStep(
   values: Values,
   key: string,
 ) {
-  const edit = setStep(screen, defs, found.address, step.action, values);
+  const edit = setStep(screen, defs, found, step.action, values);
+  if (found.sequence?.action === "seek") {
+    const { implicit, min, max } = found.sequence;
+    const result = validateActionValue(step.action, step.value, undefined, { max, min, implicit });
+    return { result: result ?? { value: implicit ?? step.value }, edit, limits: undefined };
+  }
   const limits = found.move
     ? { type: "choice" as const, choices: found.move.choices }
     : (edit?.set?.spec ?? nestedSpec(screen, defs, found.address));
@@ -59,26 +71,15 @@ export function validateStep(
   return { result, edit, limits };
 }
 
-export function nestedSpec(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
-  const [id, ...parts] = address.split("/");
-  const entry = screen.components.find((item) => item.id === id);
-  const def = entry && defs[entry.c];
-  if (!def?.meta.items?.nested) return undefined;
-  const { id: _id, c: _c, state: _state, ...raw } = entry!;
-  const spec = nestedAt(def.meta, parseControlProps(def, raw), parts.join("/"))?.spec;
-  if (!spec) return;
-  return spec.action === "set" || spec.action === "toggle" ? spec : {};
-}
-
 function setStep(
   screen: ScreenLike,
   defs: Record<string, Definition>,
-  address: string,
+  found: Affordance,
   action: string,
   values: Values,
 ) {
   if (!["set", "increment", "decrement"].includes(action)) return;
-  const [id, ...parts] = address.split("/");
+  const [id, ...parts] = found.address.split("/");
   const entry = screen.components.find((item) => item.id === id);
   const def = entry && defs[entry.c];
   if (!def || (!def.meta.items?.set && !def.meta.set)) return;
@@ -87,10 +88,11 @@ function setStep(
   const props = parseControlProps(def, raw, get);
   const target = parts.join("/") || "root";
   if (action === "set") {
-    const set = setAt(def.meta, props, target);
+    const set = found.numeric ?? setAt(def.meta, props, target);
     if (set) return { id, set, slot: controlValueKey(def, set.key) };
   }
-  const adjustment = adjustmentAt(def.meta, props, target, action, get, Number(get("$now") ?? Date.now()));
+  const adjustment =
+    found.adjustment ?? adjustmentAt(def.meta, props, target, action, get, Number(get("$now") ?? Date.now()));
   if (adjustment?.atSet) return { id, adjustment, slot: controlValueKey(def, adjustment.key) };
 }
 
@@ -100,16 +102,23 @@ export function controlsAreValid(
   address: string,
   values: Values,
 ) {
-  const [id] = address.split("/");
+  const [id, ...parts] = address.split("/");
   const entry = screen.components.find((item) => item.id === id)!;
   const def = defs[entry.c]!;
   const { id: _id, c: _c, state: _state, ...raw } = entry;
   const repaired = repairVariants(def, raw).props as Values;
   const projected = projectControlInput(def, repaired, (part) => values[`${screen.id}/${id}/${part}`]);
+  const target = parts.join("/");
+  const spec = nestedPart(def.meta, target);
+  if (spec?.action === "select") {
+    const parsed = def.props.safeParse(projected);
+    if (!parsed.success) return false;
+    const control = nestedAt(def.meta, stampItemIds(def.meta, parsed.data as Values), target);
+    return Boolean(control && control.item[spec.prop] === values[`${screen.id}/${address}`]);
+  }
   return projected === repaired || def.props.safeParse(projected).success;
 }
 
-/** An opted-in part's owner supplies the initial value and optional bounds. */
 export function keypadInput(
   screen: ScreenLike,
   defs: Record<string, Definition>,
@@ -140,9 +149,18 @@ export function stageValue(
   links: Extract<ActResult, { ok: true }>["links"],
 ) {
   const { action, detail } = found;
+  const instance = `${screenId}/${found.address.split("/")[0]}`;
   for (const check of found.checks ?? [])
     stageValue(next, `${screenId}/${check.address}`, check, true, undefined, screenId, links);
-  if (edit?.adjustment) {
+  if (found.slotMove) {
+    const order = typeof value === "string" && found.slotMove.orders.get(value);
+    if (!order) return false;
+    next[`${instance}/${found.slotMove.key}`] = order;
+    next[key] = value;
+  } else if (found.rowSelection) {
+    next[`${instance}/${found.rowSelection.key}`] = found.rowSelection.id;
+    next[key] = value;
+  } else if (edit?.adjustment) {
     const { next: amount, atSet } = edit.adjustment;
     if (amount === undefined) return false;
     const base = `${screenId}/${edit.id}`;
@@ -154,14 +172,22 @@ export function stageValue(
   } else if (action === "toggle" || action === "check") {
     const projected = detail === ":on" || detail === ":done";
     const now =
-      found.togglePeers || found.input ? projected : ((next[key] as boolean | undefined) ?? projected);
+      found.flagKey || found.togglePeers || found.input
+        ? projected
+        : ((next[key] as boolean | undefined) ?? projected);
     next[key] = (value as boolean | undefined) ?? !now;
     for (const peer of found.togglePeers ?? []) next[`${screenId}/${peer}`] = next[key];
+    if (next[key] === true)
+      for (const peer of found.replaceToggles ?? []) next[`${screenId}/${peer}`] = false;
   } else if (action === "increment" || action === "decrement") {
     next[key] = Number(next[key] ?? 0) + (action === "increment" ? 1 : -1);
   } else if (action === "press" || action === "select") {
     if (detail.startsWith("→")) links.push({ goto: detail.slice(1), address: key });
-    if (action === "select") next[key] = value;
+    if (action === "select" && !found.dateSpan) next[key] = value;
+    if (found.jump) {
+      const slot = jumpKey(key);
+      next[slot] = Number(next[slot] ?? 0) + 1;
+    }
   } else {
     next[key] = value;
     if (edit?.set) next[`${screenId}/${edit.id}/${edit.slot}`] = value;

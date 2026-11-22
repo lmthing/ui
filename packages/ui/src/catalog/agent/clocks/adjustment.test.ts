@@ -1,5 +1,6 @@
 import { expect, it } from "vitest";
-import { adjustmentAt, itemSetAt, projectAdjustments } from "./adjustment";
+import { adjustmentAt, projectAdjustments } from "./adjustment";
+import { itemSetAt } from "./numeric";
 import type { Meta } from "../../meta";
 const meta: Meta = {
   id: "ClockFixture",

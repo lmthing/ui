@@ -3,7 +3,9 @@ import {
   buzzTarget,
   captureDeviceTime,
   driveTarget,
+  hostActionPolicy,
   isDeviceDataVisible,
+  isLocalAnchorAction,
   migrateScreen,
   parseAddress,
   planAct,
@@ -23,6 +25,8 @@ import {
 } from "../../../catalog";
 import type { Confirmation, ControllerContext } from "./context";
 import type { PrivateMarks } from "../../../catalog/agent/action-input";
+import { commandForConfirmation } from "./host";
+import { matchesMediaConfirmation } from "./media";
 
 export function isKeypad(ctx: ControllerContext, full: string) {
   const address = parseAddress(full);
@@ -40,16 +44,28 @@ export function visibleConfirmation(
   valuesOf: (at: number) => Values,
 ): Confirmation | undefined {
   if (!confirmation) return;
+  if (confirmation.host && !commandForConfirmation(confirmation)) return;
+  const policy = screen[hostActionPolicy];
+  if (confirmation.goto && policy?.allowsLink?.(confirmation.goto) === false) return;
   const source = confirmation.source.startsWith(`${screen.id}/`)
     ? confirmation.source.slice(screen.id.length + 1)
     : confirmation.source;
   const entry = screen.components.find(({ id }) => id === source.split("/")[0]);
   const meta = entry && defs[entry.c]?.meta;
-  if (!meta) return confirmation;
+  if (!meta) return confirmation.mediaBound ? undefined : confirmation;
   const values = valuesOf(at);
   if (!isDeviceDataVisible(meta, projectDeviceData(data, values))) return;
   const bound = meta.selectionBinding || meta.drives;
-  if (entry && (bound || meta.deviceDataFlags || meta.draw?.kind === "deck") && confirmation.step) {
+  if (
+    entry &&
+    (bound ||
+      meta.deviceDataFlags ||
+      meta.media ||
+      meta.items?.media ||
+      meta.sequence ||
+      meta.draw?.kind === "deck") &&
+    confirmation.step
+  ) {
     const sourceScreen = bound ? screen : { ...screen, components: [entry] };
     const plan = planAct(
       sourceScreen,
@@ -61,14 +77,14 @@ export function visibleConfirmation(
       atDeviceTime(data, at),
       at,
     );
-    if (!plan.ok) return;
+    if (!plan.ok || !matchesMediaConfirmation(confirmation, plan.media?.[0])) return;
   }
   return confirmation;
 }
 
 // Match quoted content as one token so a label cannot be mistaken for an affordance.
 const controlTokens =
-  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (type|set|increment|decrement|press)(?: = (?:"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?))?(?: !needs-[a-z]+)?\]/g;
+  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (?:(type|set|increment|decrement|focus|jump|press)(?: = (?:"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?))?(?:; (?:min|max|step) [-+\de.]+(?:, (?:min|max|step) [-+\de.]+)*)?(?:; range [01]\.\.\d+)?|(?:press|scan):(?:(?:pick|scan|preview|export)(?::(?:pending|ready|error))?|next|previous)|(?:play|pause|stop):(?:playing|paused|stopped|error)|seek(?::\d+| = \d+; range [01]\.\.\d+))(?: !needs-[a-z]+)?\]/g;
 
 function isBuzzOffer(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
   const [id, ...parts] = address.split("/");
@@ -123,7 +139,7 @@ export function readControls(
   defs: Record<string, Definition>,
   values: Values,
   lang?: string,
-  disabled?: ReadonlyMap<string, symbol>,
+  disabled?: ReadonlyMap<string, unknown>,
   deviceData?: DeviceData,
   currency?: AppCurrency,
   canDrive?: CanDrive,
@@ -135,10 +151,11 @@ export function readControls(
   const read = hasKeypads
     ? readKeypads(migrated, defs, values, lang, deviceData, currency, canDrive)
     : readScreen(source, defs, values, lang, deviceData, currency, canDrive);
-  return disabled?.size || privateMarks?.size
+  return disabled?.size || privateMarks?.size || canDrive
     ? read.replace(controlTokens, (token, address, action) => {
         if (action === "set" && privateMarks?.has(address)) return "";
         if (disabled?.has(address) && (action !== "press" || isBuzzOffer(migrated, defs, address))) return "";
+        if (isLocalAnchorAction(action) && canDrive?.(address, undefined, action) === false) return "";
         return token;
       })
     : read;
@@ -178,6 +195,7 @@ function readKeypads(
         currency,
         selection?.view,
         target,
+        screen[hostActionPolicy],
       );
     }),
   ].join("\n");

@@ -1,17 +1,33 @@
-import type { Meta } from "../meta";
+import type { LocalStateEvent, Meta } from "../meta";
 import type { Definition } from "../probes";
-import type { StateName, Tier } from "../types";
-import { choiceValues } from "./validate-value";
-import { adjustmentAt, clockActionValid, clockControlDeclared, hasNumericRoom } from "./clocks";
+import type { StateName } from "../types";
+import { choiceValues, type ChoiceOption } from "./validate-value";
+import { clockActionValid, clockControlDeclared, type numericSetAt } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { buzzAvailable, buzzRound, buzzStatus, buzzTarget } from "./buzz";
 import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
-import { addressedItems, nestedActions, visibleItems } from "./visibility";
+import { actionAllowedIn, addressedItems, nestedActions, visibleItems } from "./visibility";
 import { sendDraft, type LiveInput } from "./live-inputs";
 import type { SendDraft } from "./act";
 import { boundActionAvailable, isItemOffer } from "./selection-binding";
 import { itemActionOffer, partsOf } from "./action-input";
-import type { DeviceData } from "./device-data";
+import { activeDateSpan, dateSpanOffer } from "./date-span";
+import { collectionOffers } from "./collections";
+import type { HostActionPolicy, HostIntent } from "./host-commands";
+import { deviceTimeOf, type DeviceData } from "./device-data";
+import { isLocalAnchorAction } from "./drives";
+import {
+  mediaAffordance,
+  mediaOffer,
+  sequenceAffordance,
+  type MediaOffer,
+  type stageSequence,
+} from "./media";
+
+import { hostOffers, partTierAt } from "./offer-policies";
+export { partTierAt } from "./offer-policies";
+import { numericOffer, type Adjustment } from "./numeric-offer";
+export { isAdjustOnlyItem } from "./numeric-offer";
 
 export type Affordance = {
   address: string;
@@ -24,29 +40,32 @@ export type Affordance = {
   blocked?: "max_active";
   togglePeers?: readonly string[];
   nestedStep?: { key: string; next: number };
+  jump?: true;
+  dateSpan?: true;
   move?: { current: string | null; choices: string[] };
+  hostIntent?: HostIntent;
+  localEvent?: Omit<LocalStateEvent, "value">;
+  hostReveal?: true;
+  slotMove?: { key: string; orders: ReadonlyMap<string, string[]> };
+  rowSelection?: { key: string; id: string; value: string | number };
+  flagKey?: string;
+  nestedChoice?: { options: ChoiceOption[]; current: unknown };
+  replaceToggles?: readonly string[];
+  numeric?: NonNullable<ReturnType<typeof numericSetAt>>;
+  adjustment?: Adjustment;
+  media?: MediaOffer;
+  sequence?: Parameters<typeof stageSequence>[0];
 };
 type Props = Record<string, unknown>;
 type OfferContext = {
   data?: DeviceData | undefined;
   wire?: Props | undefined;
   schema?: Definition["props"];
+  baselineInput?: unknown;
   clock?: ((target: string, action: string) => boolean) | undefined;
+  host?: HostActionPolicy | undefined;
+  now?: number | undefined;
 };
-type Adjustment = NonNullable<ReturnType<typeof adjustmentAt>>;
-/** Item increments without a numeric setter or a clock are owned by the pure action planner. */
-export function isAdjustOnlyItem(
-  adjustment: Adjustment | undefined,
-  action: string,
-): adjustment is Adjustment & { clock: undefined; atSet: undefined } {
-  return Boolean(
-    (action === "increment" || action === "decrement") &&
-    !adjustment?.clock &&
-    !adjustment?.atSet &&
-    adjustment?.key.includes("/$adjust/"),
-  );
-}
-
 function actionsForItem(
   meta: Meta,
   props: Props,
@@ -59,25 +78,52 @@ function actionsForItem(
   const id = String(item.id);
   return partsOf(items, item, `${instance}/${id}`, when, { ...props, $first: first }, meta, true, data, wire)
     .filter(({ part, action }) => {
+      if (!dateSpanOffer(meta, props, part, action, item)) return false;
       const picker = Object.hasOwn(meta.items?.pickers ?? {}, part);
       const needsChoices =
         (picker && action === "press") ||
         (action === "select" && (picker || meta.items?.edits?.[part]?.action === "select"));
       return !needsChoices || Boolean(choiceValues(meta, props, `${id}/${part}`)?.length);
     })
-    .flatMap((offer) => itemActionOffer(meta, props, item, offer, schema));
+    .flatMap((offer) =>
+      offer.part === "root" && offer.action === "select" && activeDateSpan(meta, props)
+        ? [{ ...offer, dateSpan: true as const }]
+        : itemActionOffer(meta, props, item, offer, schema),
+    );
 }
 
-function actionsForComponent(meta: Meta, props: Props, instance: string) {
+function actionsForComponent(meta: Meta, props: Props, instance: string, values: Props) {
   const { parts, when } = meta.actions ?? {};
   return partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
-    if ((a.action === "move" && meta.items?.move) || !hasNumericRoom(meta, props, a.part, a.action))
-      return [];
-    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
+    if (!dateSpanOffer(meta, props, a.part, a.action)) return [];
+    if (a.action === "press" && meta.jump?.includes(a.part))
+      return [{ ...a, detail: "", jump: true as const }];
+    if (a.action === "move" && meta.items?.move) return [];
+    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance, values) : undefined;
     if (send !== undefined) return send ? [{ ...a, send }] : [];
     const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
     return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
   });
+}
+
+function itemActionsOf(
+  meta: Meta,
+  props: Props,
+  instance: string,
+  items: Props[],
+  context: OfferContext,
+  get: (part: string) => unknown,
+  includeBlocked: boolean,
+) {
+  const visible = (meta.items?.visibleWhen || meta.items?.records) && new Set(visibleItems(meta, props));
+  // `$first` in a rule is true only for the first item (the top card of a stack).
+  const actions = items.flatMap((item, index) =>
+    visible && !visible.has(item) ? [] : actionsForItem(meta, props, item, instance, index === 0, context),
+  );
+  const hidden = visible && new Set(items.filter((item) => !visible.has(item)).map(({ id }) => id));
+  return nestedActions(meta, props, instance, actions, get, includeBlocked, context).filter(
+    ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),
+  );
 }
 
 /** Every offered action, addressed relative to the screen (`l1/r1/trail`). */
@@ -97,66 +143,48 @@ export function affordancesOf(
   const session = sessionState(meta, props, get);
   props = sessionActionProps(meta, props, session);
   if (meta.errorActions) props = { ...props, state };
-  const own = actionsForComponent(meta, props, instance);
   const items = addressedItems(meta, props);
-  const visible = (meta.items?.visibleWhen || meta.items?.records) && new Set(visibleItems(meta, props));
-  // `$first` in a rule is true only for the first item (the top card of a stack).
-  const itemActions = items.flatMap((item, index) =>
-    visible && !visible.has(item) ? [] : actionsForItem(meta, props, item, instance, index === 0, context),
-  );
+  const nested = itemActionsOf(meta, props, instance, items, context, get, includeBlocked);
   const runtime = values[`${instance}/$runtime`];
-  const nested = nestedActions(meta, props, instance, itemActions, get, includeBlocked);
-  const hidden = visible && new Set(items.filter((item) => !visible.has(item)).map(({ id }) => id));
-  const visibleNested = nested.filter(
-    ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),
-  );
-  const now = Number(get("$now") ?? Date.now());
+  const now = Number(get("$now") ?? context.now ?? deviceTimeOf(context.data) ?? Date.now());
   const liveClock = runtime || meta.live?.derive || meta.recordRuntime?.actions;
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
-  return [...own, ...visibleNested].filter((offer) => {
+  const rows = meta.hostCommands ? new Map(items.map((item) => [String(item.id), item])) : undefined;
+  const available = [
+    ...actionsForComponent(meta, props, instance, values),
+    ...nested,
+    ...collectionOffers(meta, props, instance),
+  ].filter((offer) => {
     const { address, action, part } = offer;
+    if (
+      isLocalAnchorAction(action) &&
+      (isItemOffer(instance, offer) || partTierAt(meta, props, part) !== "phone")
+    )
+      return false;
     if (!boundActionAvailable(meta, props, part, action, isItemOffer(instance, offer))) return false;
     const target = address === instance ? "root" : address.slice(instance.length + 1);
     const role = drawRole(meta, target, action);
     const event = sessionEvent(meta, target, action);
     const buzz = buzzTarget(meta, target, action);
-    if (!allowedIn(meta, state, `${part}.${action}`, Boolean(role), feedback)) return false;
+    if (!actionAllowedIn(meta, state, `${part}.${action}`, Boolean(role), feedback)) return false;
     if (context.clock && !context.clock(target, action)) return false;
     if (event && !sessionAvailable(session, event)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
     if (buzz !== null && !buzzAvailable(round, buzz)) return false;
-    if (
-      (liveClock || clockControlDeclared(meta, target, action, true)) &&
-      !clockActionValid(meta, props, target, action, get, now)
-    )
-      return false;
-    if (!runtime && !meta.set && !meta.items?.set && !meta.items?.adjust) return true;
-    const adjustment = adjustmentAt(meta, props, target, action, get, now);
-    if (!runtime)
-      return (!adjustment?.atSet && !isAdjustOnlyItem(adjustment, action)) || adjustment?.next !== undefined;
-    return !adjustment || adjustment.next !== undefined;
+    return (
+      !(liveClock || clockControlDeclared(meta, target, action, true)) ||
+      clockActionValid(meta, props, target, action, get, now)
+    );
   });
-}
-
-function allowedIn(meta: Meta, state: StateName, pair: string, draw: boolean, feedback: boolean) {
-  const errorOnly = meta.errorActions?.some((allowed) => allowed === pair);
-  if (errorOnly) return state === "error";
-  if (state === "filled") return true;
-  if (state === "empty") return meta.emptyActions?.some((allowed) => allowed === pair);
-  return (
-    (state === "success" || feedback) && (draw || meta.successActions?.some((allowed) => allowed === pair))
-  );
-}
-
-/** Resolve a part against live props, without changing the component's tier. */
-export function partTierAt(meta: Meta, props: Props, part: string): Tier {
-  const rule = Object.hasOwn(meta.partTiersBy ?? {}, part) ? meta.partTiersBy![part] : undefined;
-  const value = rule && props[rule.prop];
-  if (rule && ["string", "number", "boolean"].includes(typeof value)) {
-    const key = String(value);
-    if (Object.hasOwn(rule.tiers, key) && rule.tiers[key]) return rule.tiers[key];
-  }
-  return meta.partTiers?.[part] ?? meta.tier;
+  const offered = available.flatMap((offer) => {
+    const media = mediaOffer(meta, instance, offer);
+    if (media) return mediaAffordance(meta, props, offer, media, instance, values);
+    const sequence = sequenceAffordance(meta, props, instance, offer, get);
+    return sequence.flatMap((item) =>
+      item.sequence ? [item] : numericOffer(meta, props, instance, item, get, now, runtime, context.data),
+    );
+  });
+  return hostOffers(meta, props, instance, offered, context.host, rows);
 }
 
 /** Every action names its own address, so a model copies it and never assembles one: `[l1/r1/trail toggle:on]`. */

@@ -1,6 +1,7 @@
 import {
   affordancesOf,
   drawRole,
+  hostActionPolicy,
   isRecordPress,
   itemEditSpec,
   isRecordAction,
@@ -20,7 +21,7 @@ import {
   type ActStep,
   type StateName,
 } from "../../../catalog";
-import { controlsAction, mediaAction, showConfirmation } from "./families";
+import { controlsAction, mediaAction, navigationAction, showConfirmation } from "./families";
 import { rejected, type ActionContext, type ActionHandler, type ActionState } from "./types";
 
 function confirmReportAction(state: ActionState, ctx: ActionContext, target: string) {
@@ -72,7 +73,12 @@ function confirmRecordAction(state: ActionState, action: ActStep, ctx: ActionCon
     : showConfirmation(state, { ...ctx.selected, recordTarget }, ctx);
 }
 
-export function confirmationFor(state: ActionState, action: ActStep, ctx: ActionContext) {
+export function confirmationFor(
+  state: ActionState,
+  action: ActStep,
+  ctx: ActionContext,
+  admittedPart?: string,
+) {
   const { id, c, state: entryState, ...raw } = ctx.entry;
   const def = ctx.defs[c]!;
   const { meta } = def;
@@ -89,6 +95,12 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
       (Object.hasOwn(meta.clearItems ?? {}, target) && meta.confirmParts?.includes(target)))
   )
     return showConfirmation(state, ctx.selected, ctx);
+  if (admittedPart !== undefined) {
+    return meta.confirmParts?.includes(admittedPart) ||
+      (ctx.entry.c === "Button" && action.action === "press" && ctx.input.confirm)
+      ? showConfirmation(state, ctx.selected, ctx)
+      : undefined;
+  }
   const local = Object.fromEntries(
     Object.entries(state.values).map(([address, value]) => [address.replace(`${ctx.screen.id}/`, ""), value]),
   );
@@ -104,15 +116,13 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
     local,
     (props.state as StateName | undefined) ?? entryState,
     false,
-    { data, wire, schema: def.props },
+    { data, wire, schema: def.props, host: ctx.active[hostActionPolicy] },
   ).find((offered) => offered.address === action.address && offered.action === action.action)?.part;
   return (part && meta.confirmParts?.includes(part)) ||
     (ctx.entry.c === "Button" && action.action === "press" && ctx.input.confirm)
     ? showConfirmation(state, ctx.selected, ctx)
     : undefined;
 }
-const playbackAction: ActionHandler = (state, action, ctx) =>
-  ctx.entry.c === "Player" ? mediaAction(state, action, ctx) : controlsAction(state, action, ctx);
 const copyAction: ActionHandler = (state, { address }, ctx) => {
   const clipboard = ctx.options.clipboard;
   if (!clipboard?.available())
@@ -121,6 +131,16 @@ const copyAction: ActionHandler = (state, { address }, ctx) => {
   return effect
     ? { state, effects: [effect] }
     : rejected(state, ctx.at, "not_actionable", "No text at this copy target");
+};
+const playbackAction: ActionHandler = (state, action, ctx) => {
+  if (ctx.media || ctx.sequence) {
+    const next = navigationAction(state, action, ctx);
+    const offer = ctx.media;
+    return offer
+      ? { ...next, effects: [() => ctx.mediaEffect(offer, action.action), ...next.effects] }
+      : next;
+  }
+  return ctx.entry.c === "Player" ? mediaAction(state, action, ctx) : controlsAction(state, action, ctx);
 };
 export const actionTable: Readonly<Record<ActStep["action"], ActionHandler>> = {
   press: playbackAction,

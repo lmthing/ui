@@ -1,1 +1,1 @@
-export { stampItemIds } from "./stamp-ids";
+export { stampCollections, stampItemIds } from "./stamp-ids";

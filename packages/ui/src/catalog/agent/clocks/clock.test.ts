@@ -1,5 +1,6 @@
 import { expect, it } from "vitest";
-import { clockTargets, clockTime, projectClocks, clockActionValid } from "./clock";
+import { clockTargets, clockTime, clockActionValid } from "./clock";
+import { projectClocks } from "./timing";
 import { adjustmentAt, projectAdjustments } from "./adjustment";
 import type { Meta } from "../../meta";
 const meta: Meta = {

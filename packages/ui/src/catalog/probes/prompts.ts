@@ -1,8 +1,6 @@
-import { z } from "zod";
 import type { Definition } from "./types";
 import {
   atDeviceTime,
-  driveTarget,
   planAct,
   readComponent,
   readScreen,
@@ -19,8 +17,14 @@ import {
   writerItemTone,
   writerVariants,
 } from "../prompt";
-import { media, text } from "../props";
-import { exampleDeviceData, selectionFixture, type ReadProbeFixture } from "./fixtures";
+import {
+  exampleDeviceData,
+  mountReadSiblings,
+  mountSeekTarget,
+  selectionFixture,
+  type ReadProbeComposition,
+  type ReadProbeFixture,
+} from "./fixtures";
 
 export function choosePrompt(defs: readonly Definition[], need: string): string {
   return [
@@ -94,46 +98,6 @@ function mountSelectionSource(
   return { address: check.address, action: "check", value: true };
 }
 
-/** Read fixtures are data-only. A drive target must offer seek and cover the example's offsets. */
-function mountSeekTarget(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  def: Definition,
-  input: object,
-  data?: DeviceData,
-) {
-  const c = def.meta.drives;
-  if (c === undefined) return;
-  if (Object.hasOwn(defs, c)) throw new Error(`Conflicting seek target for ${def.meta.id} read fixture`);
-  let id = "target";
-  for (let n = 2; screen.components.some((entry) => entry.id === id); n++) id = `target${n}`;
-  const parsed = def.props.parse(input) as Record<string, unknown>;
-  const rows = parsed[def.meta.items?.key ?? ""];
-  const seconds = Math.max(1, ...(Array.isArray(rows) ? rows.map((row) => Number(row.at) || 0) : []));
-  const wire = { media: "lib:fixture", title: "Recording", seconds };
-  defs[c] = {
-    meta: {
-      id: c,
-      group: "content",
-      purpose: "Play one recording.",
-      pick: "Seek target for a read fixture.",
-      region: "body",
-      weight: 1,
-      tier: "phone",
-      realPath: "Read a recording on this device.",
-      parts: ["scrubber"],
-      actions: { parts: { scrubber: ["seek"] } },
-    },
-    props: z.strictObject({ media, title: text(40), seconds: z.int().positive() }),
-    fallback: () => wire,
-    examples: [wire],
-    probes: [],
-  };
-  screen.components.unshift({ ...wire, id, c });
-  if (!driveTarget(def.meta, screen, defs, {}, data))
-    throw new Error(`No seek offer for ${c} in ${def.meta.id} read fixture`);
-}
-
 function readAfterSetup(
   def: Definition,
   input: unknown,
@@ -141,6 +105,7 @@ function readAfterSetup(
   lang: string | undefined,
   fixture?: ReadProbeFixture,
   deviceData?: DeviceData,
+  composition?: ReadProbeComposition,
 ): string {
   const id = "home",
     c = def.meta.id;
@@ -149,7 +114,8 @@ function readAfterSetup(
   const screen: ScreenLike = { id, components: [{ ...input, c, id: instance }] };
   const defs: Record<string, Definition> = { [c]: def };
   const check = mountSelectionSource(screen, defs, def, instance, deviceData);
-  mountSeekTarget(screen, defs, def, input, deviceData);
+  if (composition) mountReadSiblings(screen, defs, composition);
+  else mountSeekTarget(screen, defs, def, input, deviceData);
   const steps = check ? [check] : [];
   if (fixture) {
     const { part, ...step } = fixture;
@@ -170,6 +136,7 @@ export function readPrompt(
   lang?: string,
   fixture?: ReadProbeFixture,
   at?: number,
+  composition?: ReadProbeComposition,
 ): string {
   const input = def.examples[screen];
   const { meta } = def;
@@ -179,8 +146,8 @@ export function readPrompt(
       : undefined;
   const deviceData = at === undefined ? records : atDeviceTime(records, at);
   const reading =
-    fixture || meta.selectionBinding || meta.drives
-      ? readAfterSetup(def, input, instance, lang, fixture, deviceData)
+    fixture || meta.selectionBinding || meta.drives || composition
+      ? readAfterSetup(def, input, instance, lang, fixture, deviceData, composition)
       : ["screen home", ...readComponent(def, input, instance, undefined, undefined, lang, deviceData)].join(
           "\n",
         );

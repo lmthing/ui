@@ -74,6 +74,26 @@ const cells: Cells = [
   { id: "outside", row: 9, col: 0, value: "Outside grid", state: "given" },
 ];
 
+const markedSeats: Sections = sections.map((section, index) =>
+  index
+    ? section
+    : {
+        ...section,
+        rows: section.rows.map((row) => ({
+          ...row,
+          mark: { icon: "flag", label: "Exit row" },
+          seats: row.seats.map((seat) =>
+            seat.id === "r2" ? { ...seat, seatClass: { icon: "star", label: "Premium" } } : seat,
+          ),
+        })),
+      },
+);
+const markedCells: Cells = [
+  ...cells.filter((cell) => cell.id !== "correct" && cell.id !== "r4"),
+  { id: "r4", row: 0, col: 2, state: "blocked", target },
+  { id: "marked", row: 0, col: 6, state: "correct", mark: { icon: "flag", label: "Flagged" } },
+];
+
 const definition = {
   meta: {
     id: "BoardSeatFixture",
@@ -136,7 +156,9 @@ controller.act = (...args) => {
 };
 
 function Fixture() {
-  const [mode, setMode] = useState<"filled" | "loading" | "empty" | "compact">("filled");
+  const [mode, setMode] = useState<"filled" | "loading" | "empty" | "compact" | "marked">("filled");
+  const marked = mode === "marked";
+  const clues = Array.from({ length: 9 }, (_, at) => (at === 0 ? "2 1" : null));
   return (
     <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss">
       <button type="button" onClick={() => setMode("loading")}>
@@ -148,6 +170,9 @@ function Fixture() {
       <button type="button" onClick={() => setMode("empty")}>
         Empty
       </button>
+      <button type="button" onClick={() => setMode("marked")}>
+        Marked
+      </button>
       <button type="button" onClick={() => setMode("compact")}>
         Compact
       </button>
@@ -157,7 +182,7 @@ function Fixture() {
             kind="grid"
             part="map"
             screenLabel="Screen"
-            sections={mode === "empty" ? [] : sections}
+            sections={mode === "empty" ? [] : marked ? markedSeats : sections}
             loading={mode === "loading"}
           />
         </PartScope>
@@ -169,7 +194,8 @@ function Fixture() {
             part="board"
             rows={mode === "compact" ? 4 : 9}
             cols={mode === "compact" ? 4 : 9}
-            cells={mode === "empty" ? [] : cells}
+            cells={mode === "empty" ? [] : marked ? markedCells : cells}
+            {...(marked ? { clues: { rows: clues, columns: clues } } : {})}
             loading={mode === "loading"}
           />
         </PartScope>

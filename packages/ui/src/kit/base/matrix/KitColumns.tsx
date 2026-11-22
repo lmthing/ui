@@ -4,8 +4,9 @@ import { component, size, space } from "../../../catalog";
 import { useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { KitText, shifted, surfaceOf } from "../text";
-import { MatrixContent, MatrixScroll } from "./matrix-drawing";
 import { ColumnItemRoot, type ColumnMove } from "./column-item";
+import { MatrixContent } from "./matrix-drawing";
+import { MatrixScroll } from "./matrix-scroll";
 import type { Drawing } from "./matrix-layout";
 
 type ColumnsProps = Omit<Drawing, "part"> & {
