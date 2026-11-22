@@ -221,10 +221,8 @@ function ScoreCenter({ input, lang }: { input: ScoreView; lang: string }) {
         tone={input.status === "live" && emphasis !== "quiet" ? "good" : "muted"}>
         {status}
       </kit.KitText>
-      <kit.KitText part={input.style === "keeper" ? "clock_value" : "clock"}
-        role="number" numberScale="compact" align="center" density={density} tabular>
-        {clock}
-      </kit.KitText>
+      {clock && <kit.KitText part={input.style === "keeper" ? "clock_value" : "clock"}
+        role="number" numberScale="compact" align="center" density={density} tabular>{clock}</kit.KitText>}
       {input.period && detail === "full" && (
         <kit.KitText part="period" role="caption" tone="muted" align="center" density={density}>
           {input.period}
@@ -252,7 +250,7 @@ function ScoreDetails({ input, density }: { input: ScoreView; density: c.ThemeDe
         </kit.KitContent>
       )}
       {periods.length > 0 && (
-        <kit.KitContent density={density}>
+        <kit.KitContent group={facts.length ? "response" : "content"} rhythm="flush" density={density}>
           <kit.KitHeader
             title={{ text: words.scoreboard.periods, part: "periods", role: "body", strong: true }}
             density={density}

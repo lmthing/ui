@@ -14,7 +14,7 @@ export const meta = {
   writeHints: [
     "Order matches by date and kickoff time. In next style put the next match first. Supply both scores for a result, or neither for an unplayed match.",
     'For a single next match use style "next". Write density: null unless asked to change spacing, even when changing detail.',
-    'Write detail: null to show venue, meet time and kit. Use detail "brief" only when asked to hide those details; keep the supplied values in the data.',
+    'If asked to hide venue, meet time or kit from the preview, write {"detail":"brief","density":null} and keep the supplied values in the match. Otherwise use detail: null.',
     'For a multi-match score ticker use style "scoreboard". Mark in-progress matches with live: true; clock is the fixture’s displayed game time, not its kickoff time.',
   ],
   region: "body",
@@ -162,14 +162,9 @@ type FixturesProps = c.Props<typeof props, typeof meta>;
 type Match = FixturesProps["matches"][number];
 type Density = c.AxisValue<"density">;
 
-function FixtureStatus({ row, density }: { row: Match; density: Density }) {
+function FixtureLive({ density }: { density: Density }) {
   const { words } = kit.useWords(sportsWordsFor);
-  return (
-    <kit.KitContent align="center" density={density}>
-      <kit.KitLayoutText line={{ text: row.clock, part: "clock", role: "meta", tabular: true }} />
-      {row.live && <kit.KitTrail kind="badge" part="live" tone="good" value={words.fixtureLive} />}
-    </kit.KitContent>
-  );
+  return <kit.KitTrail kind="badge" part="live" tone="good" value={words.fixtureLive} density={density} />;
 }
 
 // prettier-ignore
@@ -188,10 +183,11 @@ function TickerRow({ row, density, loading }: { row: Match; density: Density; lo
         <FixtureKickoff {...{ time, side, density, loading }} separator={words.fixtureSeparator} />
         <kit.KitLayoutText line={{ text: row.venue, part: "venue", role: "meta", tone: "muted" }} density={density} />
       </kit.KitContent>
-      {(score || row.live || row.clock) && <kit.KitContent density={density} align="center">
+      {(score || row.live || row.clock) && <kit.KitContent density={density}>
         <kit.KitFigure value={{ text: score, part: "score", compact: true }} density={density} align="end" />
+        <kit.KitLayoutText align="end" density={density} line={{ text: row.clock, part: "clock", role: "meta", tabular: true }} />
         {result && <kit.KitTrail kind="badge" part="result" tone={result.tone} value={result.label} density={density} />}
-        {(row.live || row.clock) && <FixtureStatus {...{ row, density }} />}
+        {row.live && <FixtureLive density={density} />}
       </kit.KitContent>}
     </kit.KitGrid>
   </kit.KitRow>;
@@ -232,14 +228,15 @@ function MatchRow({ row, next, density, loading }: { row: Match; next: boolean; 
   );
   return (
     <kit.KitRow item={row.id} label={loading ? "" : row.opponent} goto={loading ? undefined : row.goto}
-      part={loading ? null : "root"} inline={next} density={density} lineRole={role}>
+      part={loading ? null : "root"} inline density={density} lineRole={role}>
       {score || row.live || row.clock ? <kit.KitGrid fitLast density={density}>
         {details}
         <kit.KitContent align="center" density={density}>
           {score && <kit.KitLayoutText line={{ text: score, part: "score", role: "figure", compact: true, tabular: true }}
             align="center" density={density} />}
           {result && <kit.KitTrail kind="badge" part="result" tone={result.tone} value={result.label} density={density} />}
-          {(row.live || row.clock) && <FixtureStatus {...{ row, density }} />}
+          <kit.KitLayoutText align="center" density={density} line={{ text: row.clock, part: "clock", role: "meta", tabular: true }} />
+          {row.live && <FixtureLive density={density} />}
         </kit.KitContent>
       </kit.KitGrid> : details}
       {(meet || clothing) && <kit.KitContent group="response" density={density}>
@@ -263,10 +260,11 @@ export function Fixtures(input: FixturesProps) {
   const loading = state === "loading";
   const content = ticker ? <kit.KitRowGroup density={density}>
     {rows.map((row) => <TickerRow key={row.id} {...{ row, density, loading }} />)}
-  </kit.KitRowGroup> :
-    rows.map((row) => <MatchRow key={row.id} {...{ row, next, density, loading }} />);
+  </kit.KitRowGroup> : <kit.KitRowGroup density={density} spacing="groups" separators={false}>
+    {rows.map((row) => <MatchRow key={row.id} {...{ row, next, density, loading }} />)}
+  </kit.KitRowGroup>;
   return (
-    <kit.KitCard part="root" padded={(next || ticker) && state !== "empty"} density={density}>
+    <kit.KitCard part="root" padded={state !== "empty"} density={density}>
       <kit.KitState icon="calendar" part="message" density={density} loading={content}>{content}</kit.KitState>
     </kit.KitCard>
   );

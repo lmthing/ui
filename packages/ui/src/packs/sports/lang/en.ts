@@ -104,7 +104,7 @@ export const en = {
   },
   standings: {
     title: "League table",
-    scroll: "Scroll for more stats",
+    records: "Team records",
     position: "#",
     team: "Team",
     summary: "Played, goal difference",
@@ -126,8 +126,6 @@ export const en = {
     separator: " · ",
     formSeparator: " ",
     reading: (id: string, team: string) => `${id}: ${team}`,
-    pointsValue: (points: string) => `${points} pts`,
-    rowSummary: (position: string, value: string) => `#${position} · ${value}`,
   },
 };
 

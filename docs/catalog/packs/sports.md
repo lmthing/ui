@@ -52,6 +52,7 @@ time, full time); in `keeper` style each side has plus and minus buttons for the
   nonnegative integers, 1–12, optional; `possession` (`home`, `away`) optional. For baseball or softball
   set `sport` to `baseball`; optional `outs` integer 0–2, `balls` integer 0–3, `strikes` integer 0–2,
   and `bases` of `first`, `second`, `third`, 0–3 unique values. An empty bases array means no runners.
+  Baseball and softball omit the elapsed clock in display style.
 - Styles: `display` (default), `keeper`. Axes: density `comfortable`, `compact`; emphasis `normal`, `quiet`;
   detail `full`, `brief` (hides period). · Parts → actions: `root`, `scores`, `home increment`,
   `home decrement`, `away increment`, `away decrement`, `home_score`, `away_score`, `clock start`,

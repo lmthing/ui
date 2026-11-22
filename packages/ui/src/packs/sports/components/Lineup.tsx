@@ -21,7 +21,7 @@ export const meta = {
   writeHints: [
     "Write lines from the back of the pitch to the front. Put only starters in lines; put substitutes in subs.",
     'For the formation without the count beside the title, write "detail":"brief" and keep the lines and subs. Otherwise write "detail":null. The ordinary layout, including a request to keep it unchanged, is "density":null and "surface":null, never "surface":"card".',
-    'For per-player badges use style "list". Ratings are 0–10, cards is a list of "yellow" or "red", and goals is an optional nonnegative integer.',
+    'If any starter or substitute has rating, cards, or goals, you must explicitly write "style":"list". Never write "pitch" or null for those entries. Ratings are 0–10, cards is a list of "yellow" or "red", and goals is an optional nonnegative integer.',
   ],
   region: "body",
   weight: 3,
@@ -116,7 +116,6 @@ export const examples = [
   {
     style: "list",
     density: "compact",
-    surface: "outlined",
     lines: [
       { players: [{ number: 1, name: "Porter" }] },
       {
@@ -158,7 +157,7 @@ export const probes = [
   },
   {
     ...write(
-      "List the starters by position: keeper 1 Porter, then defender 5 Banks. Show Porter's match rating of 8.5 out of 10.",
+      "Show a plain list, not a pitch drawing, with keeper 1 Porter and defender 5 Banks on separate lines. Put Porter's match rating of 8.5 out of 10 by his name.",
     ),
     expectProps: { style: "list", lines: [{ players: [{ rating: 8.5 }] }, { players: [{}] }] },
   },
@@ -170,7 +169,7 @@ export const probes = [
   },
   {
     ...write(
-      "List the starting players by position: keeper 1 Porter and forward 5 Banks. Show Banks's two goals beside his name.",
+      "Use a plain vertical list, not a pitch drawing. Put keeper 1 Porter and forward 5 Banks on separate lines, and show Banks's two goals beside his name.",
     ),
     expectProps: { style: "list", lines: [{ players: [{}] }, { players: [{ goals: 2 }] }] },
   },
@@ -185,29 +184,50 @@ function PlayerList({ players, density }: { players: Player[]; density: c.ThemeD
   const { lang, words: { lineup } } = kit.useWords(sportsWordsFor);
   return <kit.KitRowGroup density={density}>{players.map((player) => {
     const shirt = c.numberLine(player.number, lang);
-    return <kit.KitRow key={player.id} item={player.id} role="button" density={density} inset="none" leadingAlign="row"
+    return <kit.KitRow key={player.id} item={player.id} role="button" density={density} inline inset="none"
       label={lineup.player(player.name, shirt)} leading={
         <kit.KitTrail kind="value" part="number" value={shirt} density={density} />
       }>
       <kit.KitMetaLine title={{ text: player.name, part: "name" }} density={density} />
-      {hasPlayerBadges(player) && <kit.KitActionFooter density={density}>
-        {playerBadges(player, lang).map(({ part, text, tone }) =>
-          <kit.KitTrail key={part} part={part} kind="badge" value={text} tone={tone} density={density} />)}
-      </kit.KitActionFooter>}
+      {hasPlayerBadges(player) && <kit.KitText part={null} role="label" tone="muted" density={density}>
+        {playerBadges(player, lang).map(({ part, text, tone }, index) =>
+          <PlayerBadge key={part} {...{ part, text, tone, density }} separator={index ? lineup.badgeSeparator : ""} />)}
+      </kit.KitText>}
     </kit.KitRow>;
   })}</kit.KitRowGroup>;
+}
+
+function PlayerBadge({
+  part,
+  text,
+  tone,
+  density,
+  separator,
+}: ReturnType<typeof playerBadges>[number] & { density: c.ThemeDensity; separator: string }) {
+  return (
+    <>
+      {separator}
+      <kit.KitText part={part} role="label" tone={tone === "text" ? "muted" : tone} density={density}>
+        {text}
+      </kit.KitText>
+    </>
+  );
 }
 
 // prettier-ignore
 function BadgedLineup({ players, density }: { players: Player[]; density: c.ThemeDensity }) {
   const { words: { lineup } } = kit.useWords(sportsWordsFor);
   return <kit.KitCard part="formation" style="plain" density={density}>
+    <kit.KitRowGroup density={density} spacing="groups" separators={false}>
     {playerGroups(players).map(([line, players]) => line === undefined ? (
       <kit.KitCard key="bench" part="bench_list" style="plain" density={density}>
-        <kit.KitHeader title={{ text: lineup.bench, part: "bench", role: "meta", tone: "muted" }} density={density} />
-        <PlayerList {...{ players, density }} />
+        <kit.KitContent density={density}>
+          <kit.KitHeader title={{ text: lineup.bench, part: "bench", role: "meta", tone: "muted" }} density={density} />
+          <PlayerList {...{ players, density }} />
+        </kit.KitContent>
       </kit.KitCard>
     ) : <PlayerList key={line} {...{ players, density }} />)}
+    </kit.KitRowGroup>
   </kit.KitCard>;
 }
 

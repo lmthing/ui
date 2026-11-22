@@ -132,9 +132,15 @@ describe("Standings parts, states and reading", () => {
     const parts = addressedElements(html);
     expect(parts.has(address("root"))).toBe(true);
     expect(parts.has(address("table"))).toBe(true);
-    expect([...parts.keys()].some((key) => key.startsWith(address("r")) && key !== address("root"))).toBe(
-      false,
+    const rowParts = [...parts.entries()].filter(
+      ([key]) => key.startsWith(address("r")) && key !== address("root"),
     );
+    expect(rowParts).toHaveLength(full.rows.length);
+    expect(
+      rowParts.every(
+        ([key, element]) => key.endsWith("/form") && element.attributes.includes('aria-hidden="true"'),
+      ),
+    ).toBe(true);
     expect(html).not.toContain('role="button"');
     const reading = readComponent(def, full, "s1", "loading").join("\n");
     expect(reading).not.toContain("Fern House");

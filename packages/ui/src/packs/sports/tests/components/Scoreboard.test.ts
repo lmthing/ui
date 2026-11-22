@@ -226,6 +226,9 @@ describe("Scoreboard sport details", () => {
     expect(parts.get(address("balls"))?.text).toEqual(["Balls: 3"]);
     expect(parts.get(address("strikes"))?.text).toEqual(["Strikes: 2"]);
     expect(parts.get(address("bases"))?.text).toEqual(["Bases empty"]);
+    expect(parts.has(address("clock"))).toBe(false);
+    expect(render({ ...input, style: "keeper" }).has(address("clock_value"))).toBe(true);
+    expect(readComponent(def, input, "s1").join("\n")).not.toContain("0:00");
     expect(render({ ...input, bases: undefined }).has(address("bases"))).toBe(false);
     expect(readComponent(def, { ...input, bases: ["third", "first"] }, "s1").join("\n")).toContain(
       "Runners on first, third",

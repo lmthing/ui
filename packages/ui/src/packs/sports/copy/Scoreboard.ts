@@ -8,6 +8,7 @@ type ScoreInput = {
   awayScore: number;
   status: keyof SportsWords["scoreboard"]["status"];
   elapsed?: number;
+  style?: "keeper" | "display" | undefined;
   sport?: keyof SportsWords["scoreboard"]["sports"] | undefined;
   periods?: readonly { label: string; home: number; away: number }[] | undefined;
   possession?: "home" | "away" | undefined;
@@ -46,7 +47,10 @@ export function scoreboardCopy(input: ScoreInput, lang?: string) {
     facts,
     periods,
     status: scoreboard.status[input.status],
-    clock: clockLine(input.elapsed ?? 0, lang),
+    clock:
+      input.sport === "baseball" && input.style !== "keeper"
+        ? undefined
+        : clockLine(input.elapsed ?? 0, lang),
   };
 }
 
@@ -58,7 +62,7 @@ export function scoreboardReading(raw: unknown, state: StateName, lang?: string)
   return [
     scoreboard.score(input.home, home, away, input.away),
     status,
-    clock,
+    ...(clock ? [clock] : []),
     ...(input.period && input.detail !== "brief" ? [input.period] : []),
     ...facts.map(({ text }) => text),
     ...(periods.length
