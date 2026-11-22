@@ -15,6 +15,7 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `LeaveBalance.tsx`
 - `PayStub.tsx`
 - `TeamDirectory.tsx`
+- `TeamNotice.tsx`
 
 Rules:
 - Same file shape as `src/components/`: exports `meta`, `props`, `fallback`, `examples`, `probes`, view.
