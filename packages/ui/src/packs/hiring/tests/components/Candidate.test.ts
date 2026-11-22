@@ -69,6 +69,50 @@ describe("Candidate contract and fallback", () => {
   });
 });
 
+describe("Candidate panel and résumé options", () => {
+  it("compares authored interviewer findings only in panel style and respects brief detail", () => {
+    const panel = examples[2]!;
+    const active = render(panel).get("home/c1/r1/panel");
+    expect(JSON.stringify(active)).toContain("Led the practice walk.");
+    const reading = (input: typeof full) => readComponent(Candidate, input, "c1").join("\n");
+    expect(reading(panel)).toContain("Jo Ellis: Meets");
+    expect(reading(panel)).toContain("Ari Lane: Needs evidence");
+    const brief = { ...panel, detail: "brief" } as const;
+    expect(render(brief).has("home/c1/r1/panel")).toBe(true);
+    expect(reading(brief)).not.toContain("Led the practice walk.");
+    const defaultReview = { ...panel, style: undefined };
+    expect(render(defaultReview).has("home/c1/r1/panel")).toBe(false);
+    expect(reading(defaultReview)).not.toContain("Jo Ellis");
+    expect(render(panel, "loading").has("home/c1/r1/panel")).toBe(false);
+  });
+  it("bounds panel findings without allowing numeric scores", () => {
+    const entry = { interviewer: "Jo Ellis", finding: "meets" };
+    const panelFindings = Array(4).fill({ ...entry, interviewer: "x".repeat(24), evidence: "x".repeat(80) });
+    expect(props.safeParse({ ...full, criteria: [{ label: "Sample", panelFindings }] }).success).toBe(true);
+    for (const panelFindings of [[entry], Array(5).fill(entry), [entry, { ...entry, score: 8 }]])
+      expect(props.safeParse({ ...full, criteria: [{ label: "Sample", panelFindings }] }).success).toBe(
+        false,
+      );
+  });
+  it("offers the résumé link only with its own valid destination", () => {
+    const input = { ...full, resumeGoto: "sam_resume" };
+    const onAction = vi.fn(),
+      onLink = vi.fn();
+    const current = createScreenController({
+      screen: { id: "home", components: [{ ...input, id: "c1", c: "Candidate" }] },
+      defs: { Candidate },
+      onAction,
+      onLink,
+    });
+    expect(render(input).has("home/c1/resume")).toBe(true);
+    expect(current.read()).toContain("[c1/resume press→sam_resume]");
+    expect(current.press("c1/resume").ok).toBe(true);
+    expect(onLink).toHaveBeenCalledExactlyOnceWith("sam_resume", "home/c1/resume");
+    expect(onAction).toHaveBeenCalledExactlyOnceWith({ address: "home/c1/resume", action: "press" });
+    expect(controller().press("c1/resume").ok).toBe(false);
+  });
+});
+
 describe("Candidate parts, states and actions", () => {
   it("hides evidence in brief without renumbering criteria or deleting authored data", () => {
     const brief = { ...full, detail: "brief" } as const;

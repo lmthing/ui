@@ -52,4 +52,22 @@ describe("KitColumns", () => {
       expect(html).not.toContain('role="checkbox"');
     }
   });
+
+  it("addresses column cards and counts separately without exposing loading parts", () => {
+    const addressed = [
+      { ...columns[0]!, part: "group_a", countPart: "group_a_count", headingRole: "body" as const },
+      { ...columns[1]!, part: "group_b" },
+    ];
+    const render = (loading: boolean) =>
+      renderMatrix(createElement(KitColumns, { part: null, columns: addressed, loading }));
+    const ready = render(false);
+    expect(ready).not.toContain('data-testid="home/c1/root"');
+    expect(ready).toContain('data-testid="home/c1/group_a"');
+    expect(ready).toContain('data-testid="home/c1/group_a_count"');
+    expect(ready).toContain('data-testid="home/c1/group_b"');
+    const loading = render(true);
+    expect(loading).not.toContain('data-testid="home/c1/group_a"');
+    expect(loading).not.toContain('data-testid="home/c1/group_a_count"');
+    expect(loading).not.toContain('data-testid="home/c1/group_b"');
+  });
 });
