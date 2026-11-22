@@ -20,16 +20,19 @@ describe("active transcript line", () => {
 
   it("reads the formatted cue and speaker without treating follow as the source of the highlight", () => {
     expect(transcriptReading({ lines, follow: true, current: 1 })).toEqual([
+      "Follow playback",
       "Following playback",
       "0:03 Ada: Lights up",
       "0:07 Quiet again · Current line",
     ]);
     expect(transcriptReading({ lines, follow: false, playhead: 4 }, "en")).toEqual([
+      "Follow playback",
       "Not following playback",
       "0:03 Ada: Lights up · Current line",
       "0:07 Quiet again",
     ]);
     expect(transcriptReading({ lines, follow: false, playhead: 4 }, "ar-EG")).toEqual([
+      "Follow playback",
       "Not following playback",
       "٠:٠٣ Ada: Lights up · Current line",
       "٠:٠٧ Quiet again",

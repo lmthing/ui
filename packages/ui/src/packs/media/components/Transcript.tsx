@@ -10,7 +10,7 @@ const player = { component: "Player", part: "scrubber" } as const;
 
 export const meta = {
   id: "Transcript",
-  status: "ready",
+  status: "draft",
   group: "content",
   purpose: prompt.purpose,
   pick: prompt.pick,
@@ -103,7 +103,6 @@ export const examples = [
     lines: [
       { at: 0, speaker: "Maya", text: "Give Clover time to sniff at the gate." },
       { at: 5, speaker: "Jo", text: "Wait for her to look back." },
-      { at: 12, text: "Then cross together." },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -136,10 +135,12 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type TranscriptProps = c.Props<typeof props, typeof meta>;
-type Layout = Pick<TranscriptProps, "style" | "detail"> & { density: c.ThemeDensity };
+type Layout = Pick<TranscriptProps, "style" | "detail"> & { density: c.ThemeDensity; showsHours: boolean };
 type Line = TranscriptProps["lines"][number];
+const hourInSeconds = 3600;
 
 function SaveLine({ line, status }: { line: Line; status: c.HostOperation["status"] | undefined }) {
+  const { controller } = kit.useKit();
   const {
     words: { transcript: words },
   } = kit.useWords(mediaWordsFor);
@@ -157,6 +158,7 @@ function SaveLine({ line, status }: { line: Line; status: c.HostOperation["statu
       kind="quiet"
       action="press"
       contentParts={{}}
+      disabled={!controller}
       icon={status === "accepted" ? "check" : "bookmark"}
       a11y={label(line.text)}
     />
@@ -170,6 +172,7 @@ function TranscriptRow({
   density,
   style,
   detail,
+  showsHours,
   status,
 }: Layout & {
   line: Line;
@@ -188,23 +191,33 @@ function TranscriptRow({
   const time = c.clockLine(line.at, lang);
   const seek = controller?.canPress(`${screen}/${component}/${line.id}/root`) === true;
   const label = words.line(time, line.speaker, line.text, active);
-  const showClock = detail === "full";
-  const clock = showClock && !spoken ? { text: time, part: "at", tabular: true } : undefined;
+  const clock = detail !== "full" ? undefined : showsHours && !loading ? (
+    <kit.KitTime part="at" value={time} />
+  ) : (
+    <kit.KitLayoutText density={density} align="end"
+      line={{ text: time, part: "at", role: "meta", tone: "muted", tabular: true }} />
+  );
   const speaker = line.speaker
     ? { text: line.speaker, part: "speaker", role: "meta" as const, tone: "muted" as const }
     : undefined;
+  const save = loading ? <kit.KitAction icon="bookmark" part={null} kind="quiet" /> : <SaveLine {...{ line, status }} />;
   return (
-    <kit.KitRow item={line.id} part={null} role="text" {...{ label, density }} inset="none" inline
-      trailing={!loading && <SaveLine {...{ line, status }} />}>
-      <kit.KitRow part={loading ? null : "root"} role={seek && !loading ? "button" : "text"}
-        {...{ label, density }} selected={active && !loading} inset="none"
-        leading={spoken && showClock && (loading
-          ? <kit.KitLayoutText density={density} line={{ text: time, role: "meta", tabular: true }} />
-          : <kit.KitTime part="at" value={time} />)}>
-        {speaker && <kit.KitLayoutText {...{ density, align }} line={speaker} />}
-        <kit.KitMetaLine {...{ density, align }} title={{ text: line.text, part: "text", strong: active }}
-          {...(clock ? { meta: clock } : {})} />
-      </kit.KitRow>
+    <kit.KitRow item={line.id} part={null} role="text" {...{ label, density }} inset="none" inline>
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitRow part={loading ? null : "root"} role={seek && !loading ? "button" : "text"}
+          label={label} density={spoken ? density : "comfortable"} selected={active && !loading}
+          inset={spoken ? "md" : "none"}
+          leading={spoken ? clock : undefined} leadingWidth={spoken && clock && !showsHours ? "avatar" : undefined}>
+          <kit.KitContent {...{ density, align }} lineRole="body" rhythm="flush">
+            {speaker && <kit.KitLayoutText {...{ density, align }} line={speaker} />}
+            <kit.KitLayoutText {...{ density, align }} line={{
+              text: line.text, part: "text", strong: active && spoken,
+              ...(active && !spoken ? { tone: "accent" as const } : {}),
+            }} />
+          </kit.KitContent>
+        </kit.KitRow>
+        {spoken || !clock ? save : <kit.KitContent lead={clock} leadingAlign="row" density={density}>{save}</kit.KitContent>}
+      </kit.KitGrid>
     </kit.KitRow>
   );
 }
@@ -227,6 +240,7 @@ export function Transcript(input: TranscriptProps) {
   const item = lines[active]?.id;
   const follow = live.follow === true;
   const loading = state === "loading";
+  const showsHours = lines.some(({ at }) => at >= hourInSeconds);
   const content = (
     <>
       <kit.KitGrid fitLast density={density}>
@@ -236,13 +250,13 @@ export function Transcript(input: TranscriptProps) {
           <kit.KitLayoutText density={density} line={{ text: words.follow, role: "meta", tone: "muted" }} />
         </kit.KitRow>
       </kit.KitGrid>
-      <kit.KitScroll part="lines" label={words.label} follow={{
+      <kit.KitScroll part="lines" label={words.label} bounded={!loading} follow={{
         enabled: follow && !loading,
         address: item ? c.formatAddress({ screen, component, item, part: "root" }) : undefined,
       }}>
-        <kit.KitRowGroup density={density} separators={style === "spoken"}>
+        <kit.KitRowGroup density={density} separators={false}>
           {(loading ? lines.slice(0, 3) : lines).map((line, index) => (
-            <TranscriptRow key={line.id} {...{ line, density, style, detail }} active={index === active}
+            <TranscriptRow key={line.id} {...{ line, density, style, detail, showsHours }} active={index === active}
               status={operations.find(({ row }) => row === line.id)?.status} />
           ))}
         </kit.KitRowGroup>

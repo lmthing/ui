@@ -28,6 +28,7 @@ export function transcriptReading(input: Reading, lang?: string) {
   const { follow, lines } = input;
   const active = activeTranscriptIndex(input);
   return [
+    words.follow,
     follow ? words.following : words.notFollowing,
     ...lines.map(({ at, speaker, text }, i) => words.line(clockLine(at, lang), speaker, text, i === active)),
   ];

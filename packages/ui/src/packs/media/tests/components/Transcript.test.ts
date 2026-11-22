@@ -1,4 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { TamaguiProvider } from "tamagui";
 import {
   clockLine,
   components,
@@ -6,10 +9,14 @@ import {
   packReady,
   placeholderTitle,
   readScreen,
+  themeName,
   type CommandRequest,
+  type StateName,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { addressedElements, renderInstance } from "../../../../../test/render";
+import { addressedElements, config } from "../../../../../test/render";
+import { PhoneScreen } from "../../../../kit";
+import { Transcript } from "../../components";
 
 const def = components.Transcript;
 const { meta, props, fallback, examples, probes } = def;
@@ -18,6 +25,23 @@ const transcript = { c: "Transcript", id: "t1", ...input };
 const player = { c: "Player", id: "p1", title: "Recording", media: "lib:recording", seconds: 30 };
 const defs = { Transcript: def, Player: components.Player };
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+
+function renderTranscript(input: object, state: StateName) {
+  const screen = { id: "home", components: [{ ...input, id: "c1", c: "Transcript", state }] };
+  return renderToStaticMarkup(
+    createElement(
+      TamaguiProvider,
+      { config, defaultTheme: themeName(theme) },
+      createElement(PhoneScreen, {
+        defs,
+        renderers: { Transcript: Transcript.Transcript },
+        screen,
+        theme,
+        interactive: false,
+      }),
+    ),
+  );
+}
 
 describe("Transcript schema", () => {
   it.each(examples)("parses a domain example", (example) => {
@@ -125,27 +149,28 @@ describe("Transcript playback bindings", () => {
 
 describe("Transcript parts and states", () => {
   it("draws the stamped lines, highlights the current seed and preserves seek parts without timestamps", () => {
-    const full = addressedElements(renderInstance("Transcript", input, "filled", theme));
+    const full = addressedElements(renderTranscript(input, "filled"));
     for (const part of ["root", "title", "lines", "follow", "r1/root", "r1/at", "r1/text", "r1/save"])
       expect(full.has(`home/c1/${part}`)).toBe(true);
     expect(full.get("home/c1/follow")?.attributes).toContain('aria-checked="true"');
     expect(full.get("home/c1/r2/root")?.attributes).toContain('aria-current="true"');
     expect(full.get("home/c1/r3/root")?.attributes).not.toContain("aria-current");
-    const brief = addressedElements(
-      renderInstance("Transcript", { ...input, detail: "brief" }, "filled", theme),
-    );
+    const brief = addressedElements(renderTranscript({ ...input, detail: "brief" }, "filled"));
     expect([...brief.keys()]).toEqual([...full.keys()].filter((part) => !part.endsWith("/at")));
   });
 
   it("draws named speakers only when provided and keeps follow off in the spoken example", () => {
-    const spoken = addressedElements(renderInstance("Transcript", examples[1], "filled", theme));
+    const example = examples[1]!;
+    const lines = [...example.lines, { text: "Then cross together.", at: 12 }];
+    const spoken = addressedElements(renderTranscript({ ...example, lines }, "filled"));
     expect(spoken.get("home/c1/r1/speaker")?.text).toContain("Maya");
     expect(spoken.has("home/c1/r3/speaker")).toBe(false);
+    expect(spoken.has("home/c1/r3/text")).toBe(true);
     expect(spoken.get("home/c1/follow")?.attributes).toContain('aria-checked="false"');
   });
 
   it.each(["empty", "loading"] as const)("draws %s without actionable content", (state) => {
-    const html = renderInstance("Transcript", input, state, theme);
+    const html = renderTranscript(input, state);
     const parts = addressedElements(html);
     const screen = { id: "home", components: [{ ...transcript, state }, player] };
     const reading = readScreen(screen, defs);
