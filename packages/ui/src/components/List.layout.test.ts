@@ -24,22 +24,25 @@ describe("filled data layout regressions", () => {
     }
     expect(styleAt(html, "home/c1/r3/title")).toContain("--accent");
   });
-  it("keeps the badge alongside the heading without a touch-target band", () => {
+  it("keeps Card's read-only corner pill alongside the heading", () => {
     const html = renderInstance("Card", components.Card.examples[4], "filled", theme);
     const root = elementAt(html, "home/c1/root");
-    const header = descendants(root).find(
-      (node) =>
-        node.children.some((child) =>
-          child.children.some((text) => text.attributes.includes('data-testid="home/c1/title"')),
-        ) &&
-        node.children.some((child) =>
-          child.children.some((text) => text.attributes.includes('data-testid="home/c1/badge"')),
-        ),
+    const containsPart = (node: RenderedElement, part: string) =>
+      descendants(node).some((child) => child.attributes.includes(`data-testid="home/c1/${part}"`));
+    const header = descendants(root).find((node) =>
+      node.children.some(
+        (title) =>
+          containsPart(title, "title") &&
+          !containsPart(title, "badge") &&
+          node.children.some((badge) => containsPart(badge, "badge") && !containsPart(badge, "title")),
+      ),
     );
     expect(header).toBeDefined();
     expect(styleAt(html, header!)).toContain("flex-direction:row");
-    expect(elementAt(html, "home/c1/badge").tag).toBe("span");
-    expect(styleAt(html, "home/c1/badge")).toContain("--muted");
+    const badge = elementAt(html, "home/c1/badge");
+    expect(html).toContain(">Due today</span>");
+    expect(badge.attributes).not.toContain('role="button"');
+    expect(descendants(badge).some((node) => styleAt(html, node).includes("--muted"))).toBe(true);
   });
 });
 
