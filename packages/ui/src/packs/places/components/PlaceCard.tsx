@@ -13,6 +13,7 @@ export const meta = {
   pick: "One venue to visit with its opening times, distance, rating or price level. Not a compact preview of an ordinary record (Card), several places (List), a product (Product), or a rental (Listing).",
   writeHints: [
     "Supply opening and closing times together or neither. Never write open status or distance; they are computed. Leave photo null when a Gallery already shows the venue.",
+    "Only write badge, saved, or unit when requested. Use saved false for an unsaved venue with a save control. Unit chooses the starting distance display, not a distance value.",
     'To hide a supplied photo, keep its reference and write media "none"; this does not change density. Write density null unless the person explicitly asks for compact or comfortable spacing. Leave media null unless the person requests a media treatment.',
   ],
   region: "body",
@@ -21,16 +22,26 @@ export const meta = {
   realPath: "Place details are stored with the app, and distance needs location permission.",
   variants: { density: ["comfortable", "compact"], media: ["cover", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
-  parts: ["root", "photo", "name", "category", "rating", "price_level", "distance", "open_state"],
+  // prettier-ignore
+  parts: ["root", "photo", "name", "category", "rating", "price_level", "distance", "open_state", "badge", "save", "unit"],
   states: ["filled", "loading"],
-  actions: { parts: { root: ["press"] } },
-  live: {}, // Opt into state-aware planning so loading never follows the link.
+  partTiers: { save: "phone", unit: "phone" },
+  actions: {
+    parts: { root: ["press"], save: ["toggle"], unit: ["select"] },
+    when: { save: { saveEnabled: true }, unit: { unitEnabled: true } },
+  },
+  selections: { unit: { prop: "distanceUnit", choices: ["km", "mi"], runtime: true } },
+  // prettier-ignore
+  live: { derive: ({ saved, unit, distanceUnit }) => ({
+    saveEnabled: typeof saved === "boolean", unitEnabled: unit !== undefined,
+    distanceUnit: unit === undefined ? undefined : distanceUnit ?? unit,
+  }) },
   deviceData: ["place_details"],
   previewDeviceData: ({ input }) => ({
     place_details: [{ name: input.name, goto: input.goto, localTime: "13:00", distanceKm: 1.2 }],
   }),
   read: (input, state, lang, data): string[] =>
-    state === "filled" ? placeCardReading(input as z.output<typeof props>, data, lang) : [],
+    state === "filled" ? placeCardReading(input as Parameters<typeof placeCardReading>[0], data, lang) : [],
 } as const satisfies c.Meta;
 
 export const props = z
@@ -44,6 +55,9 @@ export const props = z
     opens: c.clock.optional(),
     closes: c.clock.optional(),
     goto: c.screenId,
+    badge: c.text(14).optional(),
+    saved: z.boolean().optional(),
+    unit: z.enum(["km", "mi"]).optional(),
   })
   .refine(({ opens, closes }) => (opens === undefined) === (closes === undefined), {
     path: ["closes"],
@@ -61,53 +75,43 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
-const nursery = {
-  name: "Riverside Nursery",
-  category: "Garden centre",
-  photo: "lib:plants",
-  rating: 4.7,
-  priceLevel: 2,
-  opens: "09:00",
-  closes: "18:00",
-  goto: "nursery",
-};
+// prettier-ignore
+const nursery = { name: "Riverside Nursery", category: "Garden centre", photo: "lib:plants",
+  rating: 4.7, priceLevel: 2, opens: "09:00", closes: "18:00", goto: "nursery" };
 export const examples = [
   nursery,
   { name: "Juniper Café", category: "Dog-friendly café", rating: 4.5, goto: "juniper" },
   { ...nursery, media: "none", closes: "13:30" },
-  { ...nursery, density: "compact" },
+  { ...nursery, density: "compact", badge: "Member deal", saved: false, unit: "mi" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("PlaceCard");
+// prettier-ignore
 export const probes = [
   choose("Show one café to visit with its star rating, price level, distance and whether it's open now"),
-  choose(
-    "Preview one saved community announcement in the middle of the screen, with a thumbnail and short blurb. Tap to open the full announcement.",
-    "Card",
-  ),
-  write(
-    "Feature Riverside Nursery, a garden centre rated 4.7 at price level 2, open 09:00 to 18:00. Tap to open nursery.",
-  ),
+  choose("Preview one saved community announcement in the middle of the screen, with a thumbnail and short blurb. Tap to open the full announcement.", "Card"),
+  write("Feature Riverside Nursery, a garden centre rated 4.7 at price level 2, open 09:00 to 18:00. Tap to open nursery."),
   {
-    ...write(
-      "Riverside Nursery is a garden centre. Keep lib:plants as its photo reference, but do not show the photo. Tap to open nursery.",
-    ),
+    ...write("Riverside Nursery is a garden centre. Keep lib:plants as its photo reference, but do not show the photo. Tap to open nursery."),
     variant: { axis: "media", value: "none" },
   },
   read("Open Riverside Nursery", { address: "p1", action: "press" }),
+  { ...write("Feature Riverside Nursery, a garden centre. Open nursery on tap and add the badge Member deal."), expectProps: { badge: "Member deal" } },
+  { ...write("Feature Riverside Nursery, a garden centre that opens nursery on tap. Show a save button, but the venue is not saved yet."), expectProps: { saved: false } },
+  { ...write("Feature Riverside Nursery, a garden centre that opens nursery on tap. Let me switch distance units and start in miles."), expectProps: { unit: "mi" } },
+  read("Save Riverside Nursery without opening it", { address: "p1/save", action: "toggle" }, 3),
+  read("Switch the distance at Riverside Nursery to kilometres", { address: "p1/unit", action: "select" }, 3),
 ] satisfies c.Probe[];
 
 type PlaceCardProps = c.Props<typeof props, typeof meta>;
 type PlaceCopy = ReturnType<typeof placeCardCopy>;
 type Density = NonNullable<PlaceCardProps["density"]>;
 const nameRole = (density: Density) => (density === "compact" ? "title" : "heading");
-
 // prettier-ignore
 function VenueDetail({ input, copy, density, thumb }: { input: PlaceCardProps; copy: PlaceCopy; density: Density; thumb?: string | undefined }) {
-  const { name, category, rating } = input;
+  const { name, category, rating, badge } = input;
   const { opening, price, distance } = copy;
-  return (
-    <kit.KitContent density={density}>
+  return <kit.KitContent density={density}>
       <kit.KitGrid fitLast density={density}>
         <kit.KitContent density={density}>
           <kit.KitText role={nameRole(density)} part="name" density={density}>{name}</kit.KitText>
@@ -117,7 +121,7 @@ function VenueDetail({ input, copy, density, thumb }: { input: PlaceCardProps; c
           <kit.KitIcon name="chevron_right" decorative />
         </kit.KitContent>
       </kit.KitGrid>
-      {(rating !== undefined || price || opening || distance) && (
+      {(rating !== undefined || price || opening || distance || badge) && (
         <kit.KitGrid density={density}>
           <kit.KitContent density={density}>
             {rating !== undefined && <kit.KitContent lineRole="body" density={density}
@@ -129,62 +133,68 @@ function VenueDetail({ input, copy, density, thumb }: { input: PlaceCardProps; c
           <kit.KitContent density={density}>
             {opening && <kit.KitText role="label" tone={opening.tone} part="open_state" density={density}>{opening.text}</kit.KitText>}
             {distance && <kit.KitText role="label" tone="muted" part="distance" density={density}>{distance}</kit.KitText>}
+            {badge && <kit.KitContent lead={<kit.KitTrail kind="badge" part="badge" tone="good" value={badge} density={density} />} leadingAlign="row">{null}</kit.KitContent>}
           </kit.KitContent>
         </kit.KitGrid>
       )}
-    </kit.KitContent>
-  );
+    </kit.KitContent>;
 }
 
 // prettier-ignore
 function VenueLoading({ input, copy, density, thumb }: { input: PlaceCardProps; copy: PlaceCopy; density: Density; thumb?: string | undefined }) {
   const { words } = kit.useWords(placesWordsFor);
-  return (
-    <kit.KitContent density={density}>
-      {thumb ? (
-        <kit.KitGrid fitLast density={density}>
-          <kit.KitSkeleton shape="figure" inset="none" density={density}
-            content={[[nameRole(density), input.name], ["body", input.category]]} />
-          <kit.KitSkeleton shape="figure" inset="none" density={density} lead="box" content={[]} />
-        </kit.KitGrid>
-      ) : <kit.KitSkeleton shape="figure" inset="none" density={density}
-        content={[[nameRole(density), input.name], ["body", input.category]]} />}
-      {(copy.rating || copy.price || copy.opening || copy.distance) && (
-        <kit.KitGrid density={density}>
-          <kit.KitSkeleton shape="figure" inset="none" density={density}
-            content={[["number", copy.rating && words.ratingSkeleton(copy.rating), "start", "compact"], ["label", copy.price]]} />
-          <kit.KitSkeleton shape="figure" inset="none" density={density}
-            content={[["label", copy.opening?.text], ["label", copy.distance]]} />
-        </kit.KitGrid>
-      )}
-    </kit.KitContent>
-  );
+  const heading = <kit.KitSkeleton shape="figure" inset="none" density={density}
+    content={[[nameRole(density), input.name], ["body", input.category]]} />;
+  return <kit.KitContent density={density}>
+    {thumb ? <kit.KitGrid fitLast density={density}>
+      {heading}<kit.KitSkeleton shape="figure" inset="none" density={density} lead="box" content={[]} />
+    </kit.KitGrid> : heading}
+    {(copy.rating || copy.price || copy.opening || copy.distance || input.badge) && <kit.KitGrid density={density}>
+      <kit.KitSkeleton shape="figure" inset="none" density={density}
+        content={[["number", copy.rating && words.ratingSkeleton(copy.rating), "start", "compact"], ["label", copy.price]]} />
+      <kit.KitSkeleton shape="figure" inset="none" density={density}
+        content={[["label", copy.opening?.text], ["label", copy.distance], ["label", input.badge]]} />
+    </kit.KitGrid>}
+  </kit.KitContent>;
 }
 
+// prettier-ignore
+function VenueActions({ live, density, saved }: { live: c.Values; density: Density; saved: boolean | undefined }) {
+  const { words } = kit.useWords(placesWordsFor);
+  const { screen, component } = kit.usePartContext();
+  const marked = kit.useControlValue(`${screen}/${component}/save`, saved);
+  const unit = live.distanceUnit;
+  return <kit.KitActionFooter density={density}>
+    {saved !== undefined && <kit.KitAction part="save" action="toggle" kind="quiet"
+      icon={marked ? "check" : "bookmark"} label={marked ? words.placeUnsave : words.placeSave} contentParts={{}} />}
+    {live.unitEnabled === true && <kit.KitTrack part="unit" look="segments" role="radiogroup" label={words.placeUnits}>
+      <kit.KitChip item={null} look="segment" role="radio" value="km" label={words.placeKm} on={unit === "km"} />
+      <kit.KitChip item={null} look="segment" role="radio" value="mi" label={words.placeMi} on={unit === "mi"} />
+    </kit.KitTrack>}
+  </kit.KitActionFooter>;
+}
+
+// prettier-ignore
 export function PlaceCard(input: PlaceCardProps) {
-  const { name, goto } = input;
+  const { name, goto, saved } = input;
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const loading = kit.useComponentState() === "loading";
   const { resolvePhoto } = kit.useKit();
   const { lang } = kit.useWords(placesWordsFor);
-  const copy = placeCardCopy(input, kit.useDeviceData(), lang);
+  const live = kit.useLiveControls(meta, input);
+  const unit = live.distanceUnit === "mi" || live.distanceUnit === "km" ? live.distanceUnit : input.unit;
+  const copy = placeCardCopy({ ...input, unit }, kit.useDeviceData(), lang);
   const photo = media === "cover" && input.photo && resolvePhoto?.(input.photo) ? input.photo : undefined;
   const thumb = density === "compact" ? photo : undefined;
-  return (
-    <kit.KitCard part="root" padded density={density} {...(loading ? {} : { goto, label: name })}>
-      {photo &&
-        !thumb &&
-        (loading ? (
-          <kit.KitSkeleton shape="media" aspect="wide" inset="none" content={[]} density={density} />
-        ) : (
-          <kit.KitPhoto part="photo" shape="wide" photo={photo} label={name} />
-        ))}
-      {loading ? (
-        <VenueLoading input={input} {...{ copy, density, thumb }} />
-      ) : (
-        <VenueDetail input={input} {...{ copy, density, thumb }} />
-      )}
-    </kit.KitCard>
-  );
+  const card = <kit.KitCard part="root" padded density={density} {...(loading ? {} : { goto, label: name })}>
+    {photo && !thumb && (loading
+      ? <kit.KitSkeleton shape="media" aspect="wide" inset="none" content={[]} density={density} />
+      : <kit.KitPhoto part="photo" shape="wide" photo={photo} label={name} />)}
+    {loading ? <VenueLoading input={input} {...{ copy, density, thumb }} />
+      : <VenueDetail input={input} {...{ copy, density, thumb }} />}
+  </kit.KitCard>;
+  return !loading && (saved !== undefined || live.unitEnabled)
+    ? <kit.KitContent density={density}>{card}<VenueActions {...{ live, density, saved }} /></kit.KitContent>
+    : card;
 }

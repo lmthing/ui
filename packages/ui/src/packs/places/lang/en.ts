@@ -16,10 +16,19 @@ export const en = {
   hoursNoticeLine: (date: string, text: string, formattedDate?: string) =>
     `${date}: ${JSON.stringify(text)}${formattedDate ? ` (${formattedDate})` : ""}`,
   distanceAway: (value: string) => `${value} km away`,
+  milesAway: (value: string) => `${value} mi away`,
+  placeUnits: "Distance units",
+  placeKm: "km",
+  placeMi: "mi",
+  placeSave: "Save",
+  placeUnsave: "Unsave",
   mapListDistance: (value: string) => `${value} km`,
   mapListView: "View places",
   mapListMap: "With map",
   mapListList: "Just the list",
+  mapListSplit: "Map + list",
+  mapListMapOnly: "Map",
+  mapListListOnly: "List",
   mapListPin: (name: string) => `Select ${name} on the map`,
   mapListReading: (name: string, distance: string) => `${JSON.stringify(name)}: ${distance}`,
   addressDirections: "Directions",
@@ -30,6 +39,11 @@ export const en = {
   departureMinutes: (minutes: string) => `${minutes} min`,
   departureDelay: (minutes: string) => `${minutes} min late`,
   departureLate: (hasTime: boolean) => (hasTime ? " · Late" : "Late"),
+  departureAlerts: "Service alerts",
+  departureCrowding: { low: "Low crowding", medium: "Medium crowding", high: "High crowding" },
+  departureSeverity: { info: "Notice", warn: "Warning", critical: "Critical alert" },
+  departureAlert: (line: string, severity: string) => `Line ${line} · ${severity}`,
+  departureAlertReading: (title: string, text: string) => `${title}: ${JSON.stringify(text)}`,
   departuresEmpty: "No departures to show",
   stationRates: {
     empty: "No rates reported for this station",
@@ -47,10 +61,10 @@ export const en = {
     connectorReading: (connector: string, power: string, stalls: string) =>
       `${JSON.stringify(connector)} · ${power}: ${stalls}`,
   },
-  departureLabel: (line: string, to: string, time: string, delay?: string) =>
-    `Line ${line} to ${to}, ${time}${delay ? `, ${delay}` : ""}`,
-  departureReading: (line: string, to: string, time: string, delay?: string) =>
-    `${JSON.stringify(line)} to ${JSON.stringify(to)}: ${time}${delay ? `, ${delay}` : ""}`,
+  departureLabel: (line: string, to: string, time: string, delay?: string, crowding?: string) =>
+    `Line ${line} to ${to}, ${[time, delay, crowding].filter(Boolean).join(", ")}`,
+  departureReading: (line: string, to: string, time: string, delay?: string, crowding?: string) =>
+    `${JSON.stringify(line)} to ${JSON.stringify(to)}: ${[time, delay, crowding].filter(Boolean).join(", ")}`,
   deliveryEta: "Estimated arrival",
   deliveryEtaMinutes: (minutes: string) => `${minutes} min`,
   deliveryEtaNow: "Arriving now",

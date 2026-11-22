@@ -13,6 +13,7 @@ export const meta = {
   pick: "Next live buses, trains or ferries from one stop, with line badges, destinations, minutes and delays. Not a day's events (Timeline) or a journey's ordered stops (Route).",
   writeHints: [
     "Write the stop and rows of line and destination. Never write minutes, delay, or total; the transit service supplies them.",
+    "Include alerts and each row's crowding only when supplied. Put line-wide notices in alerts, not in destinations.",
     'Use detail "brief" only when asked to keep the late indicator but hide how many minutes late. Otherwise leave detail null. Leave density and surface null unless requested.',
   ],
   region: "body",
@@ -25,8 +26,8 @@ export const meta = {
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["delay"] } },
-  items: { key: "rows", parts: ["root", "line", "to", "minutes", "delay"] },
-  parts: ["root", "stop", "more", "empty"],
+  items: { key: "rows", parts: ["root", "line", "to", "minutes", "delay", "crowding"] },
+  parts: ["root", "stop", "more", "empty", "alerts"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] } },
   live: {}, // Keep row press unavailable outside the filled state in the action planner.
@@ -49,11 +50,26 @@ export const meta = {
     state === "filled" ? departuresReading(input as z.output<typeof props>, data, lang) : [],
 } as const satisfies c.Meta;
 
-const rowProps = z.strictObject({ line: c.text(6), to: c.text(28) });
+const rowProps = z.strictObject({
+  line: c.text(6),
+  to: c.text(28),
+  crowding: z.enum(["low", "medium", "high"]).optional(),
+});
 export const props = z.strictObject({
   ...c.variantProps(meta.variants),
   stop: c.text(32),
   rows: z.array(rowProps).min(1).max(6),
+  alerts: z
+    .array(
+      z.strictObject({
+        line: c.text(6),
+        severity: z.enum(["info", "warn", "critical"]),
+        text: c.text(60),
+      }),
+    )
+    .min(0)
+    .max(3)
+    .optional(),
 });
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
@@ -84,22 +100,35 @@ export const examples = [
       { line: "9", to: "Riverside" },
     ],
   },
+  {
+    stop: "Alder Park",
+    rows: [
+      { line: "8", to: "Clifton", crowding: "low" },
+      { line: "9", to: "Riverside", crowding: "high" },
+    ],
+    alerts: [{ line: "9", severity: "warn", text: "Use the stop across the street" }],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Departures");
+// prettier-ignore
 export const probes = [
-  choose(
-    "At my bus stop show what leaves next, with live minutes to departure and a warning when a bus is delayed",
-  ),
+  choose("At my bus stop show what leaves next, with live minutes to departure and a warning when a bus is delayed"),
   choose("Show today's itinerary by time: meet at 09:00, nursery tour at 10:00, lunch at noon", "Timeline"),
   write("At Nursery Gate show upcoming buses: line 24 to City Centre and line 24A to Botanic Gardens."),
   {
-    ...write(
-      "Show the next buses from Alder Park: line 8 to Clifton and line 9 to Riverside. Show the live countdown and flag late buses, but hide how many minutes late they are.",
-    ),
+    ...write("Show the next buses from Alder Park: line 8 to Clifton and line 9 to Riverside. Show the live countdown and flag late buses, but hide how many minutes late they are."),
     variant: { axis: "detail", value: "brief" },
   },
   read("Open bus 24A to Botanic Gardens", { address: "d1/r2", action: "press" }),
+  {
+    ...write("At Alder Park show line 9 to Riverside and add a warning for line 9: Use the stop across the street."),
+    expectProps: { alerts: [{ line: "9", severity: "warn", text: "Use the stop across the street" }] },
+  },
+  {
+    ...write("At Alder Park show line 8 to Clifton with low crowding and line 9 to Riverside with high crowding."),
+    expectProps: { rows: [{ line: "8", to: "Clifton", crowding: "low" }, { line: "9", to: "Riverside", crowding: "high" }] },
+  },
 ] satisfies c.Probe[];
 
 type DeparturesProps = c.Props<typeof props, typeof meta>;
@@ -109,7 +138,7 @@ type Density = c.ThemeDensity;
 // prettier-ignore
 function DepartureRows({ rows, density, loading }: { rows: DepartureCopy["rows"]; density: Density; loading: boolean }) {
   return <kit.KitRowGroup density={density} leadingWidth="avatar">
-    {rows.map(({ id, line, to, label, minutes, late, delay, tone, countdown }) => (
+    {rows.map(({ id, line, to, label, minutes, late, delay, tone, countdown, crowd }) => (
       <kit.KitRow key={id} item={id} {...(loading ? { part: null } : { role: "button" as const })}
         label={label} inset="none" density={density}
         leading={<kit.KitTrail kind="badge" part="line" value={line} tone="text" density={density} />}
@@ -119,9 +148,30 @@ function DepartureRows({ rows, density, loading }: { rows: DepartureCopy["rows"]
               density={density}>{minutes}{late && <kit.KitText part={null} role="label" tone="warn" density={density}>{late}</kit.KitText>}</kit.KitText>}>
         <kit.KitMetaLine density={density} title={{ text: to, part: "to" }}
           meta={{ text: delay, part: "delay", tone: "warn" }} />
+        {crowd && <kit.KitContent leadingAlign="row"
+          lead={<kit.KitTrail kind="badge" part="crowding" tone={crowd.tone} value={crowd.text} density={density} />}>{null}</kit.KitContent>}
       </kit.KitRow>
     ))}
   </kit.KitRowGroup>;
+}
+
+function DepartureAlerts({ alerts, density }: { alerts: DepartureCopy["alerts"]; density: Density }) {
+  const { words } = kit.useWords(placesWordsFor);
+  if (!alerts.length) return null;
+  return (
+    <kit.KitRow part="alerts" label={words.departureAlerts} inset="none" density={density}>
+      <kit.KitContent density={density}>
+        {alerts.map(({ title, text, tone }, index) => (
+          <kit.KitMetaLine
+            key={index}
+            density={density}
+            title={{ text: title, role: "meta", tone, strong: true }}
+            meta={{ text }}
+          />
+        ))}
+      </kit.KitContent>
+    </kit.KitRow>
+  );
 }
 
 // prettier-ignore
@@ -132,11 +182,12 @@ export function Departures(input: DeparturesProps) {
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang, words } = kit.useWords(placesWordsFor);
   const thing = kit.useEmptyThing();
-  const { rows, more } = departuresCopy({ ...input, detail }, kit.useDeviceData(), lang);
+  const { rows, more, alerts } = departuresCopy({ ...input, detail }, kit.useDeviceData(), lang);
   const loading = state === "loading";
   const content = <>
     <DepartureRows {...{ rows, density, loading }} />
     <kit.KitLayoutText density={density} line={{ text: more, part: "more", role: "meta", tone: "muted" }} />
+    {!loading && <DepartureAlerts {...{ alerts, density }} />}
   </>;
   return (
     <kit.KitCard part="root" padded {...{ density, surface }}>

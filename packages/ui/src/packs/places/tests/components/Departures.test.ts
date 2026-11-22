@@ -80,6 +80,12 @@ describe("Departures contract and boundaries", () => {
         variant: { axis: "detail", value: "brief" },
       }),
       expect.objectContaining({ kind: "read", expect: { address: "d1/r2", action: "press" } }),
+      ...["alerts", "rows"].map((field) =>
+        expect.objectContaining({
+          kind: "write",
+          expectProps: expect.objectContaining({ [field]: expect.any(Array) }),
+        }),
+      ),
     ]);
   });
 });

@@ -30,9 +30,15 @@ A venue summarised: photo, name, category, rating, price level, distance from th
   not several places as rows (`List`), not a product (commerce `Product`), not a rental (inventory
   `Listing`).
 - Writes: `name` text(32), `category` text(20), `photo` optional (leave out under a `Gallery`), `rating`
-  0–5 optional, `priceLevel` 1–4 optional, `opens` and `closes` HH:MM optional, `goto`. Open state is
+  number 0–5 optional, `priceLevel` integer 1–4 optional, `opens` HH:MM optional, `closes` HH:MM optional,
+  `goto`, `badge` text(14) optional, `saved` boolean optional, `unit` (`km`, `mi`) optional. Open state is
   computed from the times and the clock; distance from the person's location.
-- Parts → actions: `root press`. · States: filled, loading.
+- Parts → actions: `root press`, `photo`, `name`, `category`, `rating`, `price_level`, `distance`,
+  `open_state`, `badge`, `save toggle`, `unit select` (`partTiers: {save: phone, unit: phone}`).
+- States: filled, loading.
+- When `saved` is supplied, the save control starts in that state and toggles locally. When `unit` is
+  supplied, the distance controls start in that unit and switch locally. Otherwise keep the original card
+  and kilometre reading.
 - Real path: place details stored with the app; distance needs location permission.
 
 ### `Address` · planned · content · phone
@@ -67,9 +73,14 @@ A map on top and the same places as a list below, kept in step: tapping a pin hi
 switches to list only.
 - Pick: browsing more than five places both on a map and as a list. Not up to five pins (`MapPins`), not a
   list with no map (`List`).
-- Writes: `places` of `name` text(28), `meta` text(32), `goto`, 1–6 (and "N more" beyond). Distances come
+- Writes: `places` of `name` text(28), `meta` text(32), `goto`, 1–6, `style` (`split`, `map`, `list`) optional.
+  Distances and the count beyond these rows come
   from the person's location.
-- Parts → actions: items `root press`, `view select` (map or list). · States: filled, empty, loading.
+- Parts → actions: `root`, `map`, `view select`, `more`, `empty`, places `root press`, places `pin select`,
+  places `name`, places `meta`, places `distance`.
+- States: filled, empty, loading.
+- With a supplied `style`, start with map and rows (`split`), pins only (`map`), or rows only (`list`);
+  the view selector can switch among all three. Omit `style` to keep the original two-way selector.
 - Real path: a map service draws the map and places.
 
 ### `Departures` · planned · data · service
@@ -77,9 +88,12 @@ The next departures from one stop: line badge, destination, minutes to go (live 
 `warn`.
 - Pick: when the next bus, train or ferry leaves. Not a day's plan (`Timeline`), not a journey's stops
   (`Route`).
-- Writes: `stop` text(32), `rows` of `line` text(6), `to` text(28), 1–6. Minutes and delays come from the
-  transit service.
-- Parts → actions: items `root press`. · States: filled, empty, loading.
+- Writes: `stop` text(32), `rows` of `line` text(6), `to` text(28), `crowding` (`low`, `medium`, `high`)
+  optional, 1–6; `alerts` (`line` text(6), `severity` (`info`, `warn`, `critical`), `text` text(60))
+  each 0–3 optional. Minutes and delays come from the transit service.
+- Parts → actions: `root`, `stop`, `more`, `empty`, `alerts`, rows `root press`, rows `line`, rows `to`,
+  rows `minutes`, rows `delay`, rows `crowding`.
+- States: filled, empty, loading.
 - Real path: live times from a transit data service.
 
 ### `StationRates` · planned · data · service
