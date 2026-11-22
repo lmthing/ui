@@ -1,21 +1,9 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { feedCountParts, feedReading } from "../copy";
+import { feedCountParts, feedReading, postCountParts } from "../copy";
 import { socialWordsFor } from "../lang";
-import {
-  FeedRecipe,
-  FeedLoading,
-  FeedPreview,
-  postOptionActions,
-  postOptionFlags,
-  postOptionHints,
-  postOptionParts,
-  postOptionProbes,
-  postOptionProps,
-  postOptionWhen,
-  postPlayback,
-} from "../post-options";
+import * as social from "../post-options";
 
 // Core first: List/cards cannot show authored excerpts with avatars and an inline like control.
 export const meta = {
@@ -25,8 +13,8 @@ export const meta = {
   purpose: "Browse recent posts shared by several people.",
   pick: "Several community posts to scroll, with authors, short excerpts and reactions. Not one full post (Post), ordinary tappable rows (List), a private journal (Entries), or chat messages (Bubbles).",
   writeHints: [
-    'For "hide attached post pictures", set media to "none" and keep the author avatars. Do not change the finish: write density null and surface null unless the person explicitly asks for compact spacing or outlined cards.',
-    ...postOptionHints,
+    'Write surface null unless outlining is explicitly requested. For "hide attached post pictures", write media "none" and keep the author avatars. For a photo grid with the standard spacing, framing and attachments, write "arrange":"grid","density":null,"surface":null,"media":null and use image on each row that has an attached photo.',
+    ...social.postOptionHints,
     "Put the newest post first. Keep the full excerpt even if it clips on screen. Each post needs an avatar (use lib:people if unspecified), time, excerpt and destination. Use zero for unknown counts and false for unknown liked state.",
   ],
   region: "body",
@@ -44,15 +32,18 @@ export const meta = {
   parts: ["root", "empty"],
   // prettier-ignore
   items: { key: "posts", parts: [
-    "root", "card", "name", "photo", "time", "text", "image", "like", "like_icon", "likes", "comments", ...postOptionParts,
-  ], media: postPlayback, toggles: { repost: "reposted", save: "saved" } },
+    "root", "card", "name", "photo", "time", "text", "image", "like", "like_icon", "likes", "comments", ...social.postOptionParts,
+  ], media: social.postPlayback, toggles: { repost: "reposted", save: "saved" } },
   states: ["filled", "empty", "loading"],
-  actions: { items: { root: ["press"], like: ["toggle"], ...postOptionActions }, when: postOptionWhen },
+  actions: {
+    items: { root: ["press"], like: ["toggle"], ...social.postOptionActions },
+    when: social.postOptionWhen,
+  },
   live: {
     derive: (input) => ({
       posts: (input.posts as Record<string, unknown>[]).map((row) => ({
         ...row,
-        ...postOptionFlags(row, input.media !== "none"),
+        ...social.postOptionFlags(row, input.media !== "none"),
       })),
     }),
   },
@@ -60,7 +51,7 @@ export const meta = {
 } as const satisfies c.Meta;
 
 const post = z.strictObject({
-  ...postOptionProps,
+  ...social.postOptionProps,
   name: c.text(24),
   photo: c.photo,
   time: c.text(12),
@@ -127,14 +118,14 @@ export const probes = [
     variant: { axis: "media", value: "none" },
   },
   {
-    ...write("Show two posts from Maya and Sam as a two-column profile grid, both with photos."),
+    ...write("Show Maya’s fern post and Sam’s basil post in a two-column profile grid, with an attached photo on each. Keep spacing, framing and attachment treatment at their defaults."),
     variant: { axis: "arrange", value: "grid" },
   },
   {
-    ...write("Show Maya’s and Sam’s newest posts with unusually tight spacing but keep the normal single column."),
+    ...write("Show Maya’s and Sam’s newest posts with tighter spacing. Leave the layout, framing and attachment treatment at their defaults."),
     variant: { axis: "density", value: "compact" },
   },
-  ...postOptionProbes("Feed"),
+  ...social.postOptionProbes("Feed"),
   read("Like Maya’s update about her new fern frond.", { address: "f1/r1/like", action: "toggle" }),
 ] satisfies c.Probe[];
 
@@ -143,16 +134,21 @@ type FeedPost = FeedProps["posts"][number];
 
 // The reaction control is a sibling of the post link, so liking never opens the post.
 // prettier-ignore
-function FeedReactions({ post, density }: { post: FeedPost; density: c.ThemeDensity }) {
+function FeedReactions({ post, density, grid }: { post: FeedPost; density: c.ThemeDensity; grid?: boolean }) {
   const { lang, words: { feed } } = kit.useWords(socialWordsFor);
   const { testID } = kit.usePart("like", false);
   const liked = kit.useControlValue(testID, post.liked);
-  const [likes, comments] = feedCountParts(post, lang).map(({ part, count, before, after }) =>
+  const shortCounts = grid ? postCountParts(post, lang) : undefined;
+  const [likes, comments] = feedCountParts(post, lang).map(({ part, count, before, after }, index) =>
     <kit.KitText key={part} part={part} role="caption" tone="muted" density={density}>
-      {before}<kit.KitText part={null} role="number" numberScale="compact" tabular density={density}>{count}</kit.KitText>{after}
+      {before}<kit.KitText part={null} role="number" numberScale="compact" tabular density={density}>{shortCounts?.[index]?.count ?? count}</kit.KitText>{after}
     </kit.KitText>);
   const reaction = <kit.KitAction part="like" action="toggle" icon="heart" kind={liked ? "secondary" : "quiet"}
     a11y={feed.reaction(post.name, liked)} />;
+  if (grid) return <kit.KitGrid fitLast density={density}>
+    <kit.KitContent density={density}>{likes}{comments}</kit.KitContent>
+    {reaction}
+  </kit.KitGrid>;
   return <kit.KitContent group="response" lead={reaction} leadingAlign="row" density={density}>
     <kit.KitRow part={null} label="" inline density={density}>
       <kit.KitContent lead={likes} leadingAlign="row" density={density}>{comments}</kit.KitContent>
@@ -176,9 +172,9 @@ export function Feed(input: FeedProps) {
         const post = media === "none" ? { ...source, image: undefined, video: undefined } : source;
         return <kit.KitRow key={post.id} item={post.id} part={null} inline surface="plain" role="text" label="">
           <kit.KitCard part="card" padded {...{ surface, density }}>
-            {arrange === "grid" || postOptionPartsPresent(post) ? <FeedRecipe {...{ post, density }} grid={arrange === "grid"} response={<FeedReactions {...{ post, density }} />} /> :
-              state === "loading" ? <FeedLoading {...{ post, density }} /> : <>
-              <FeedPreview {...{ post, density }} />
+            {arrange === "grid" || postOptionPartsPresent(post) ? <social.FeedRecipe {...{ post, density }} grid={arrange === "grid"} response={<FeedReactions {...{ post, density }} grid={arrange === "grid"} />} /> :
+              state === "loading" ? <social.FeedLoading {...{ post, density }} /> : <>
+              <social.FeedPreview {...{ post, density }} />
               <FeedReactions {...{ post, density }} />
             </>}
           </kit.KitCard>
@@ -189,5 +185,7 @@ export function Feed(input: FeedProps) {
 }
 
 function postOptionPartsPresent(post: FeedPost) {
-  return Object.keys(postOptionProps).some((key) => post[key as keyof typeof postOptionProps] !== undefined);
+  return Object.keys(social.postOptionProps).some(
+    (key) => post[key as keyof typeof social.postOptionProps] !== undefined,
+  );
 }

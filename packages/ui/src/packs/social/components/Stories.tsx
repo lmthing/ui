@@ -146,7 +146,7 @@ function StoryCell({ person, density, detail }: StoryFinish & { person: StoriesP
   const status = note ? stories.noteStatus(name, seen) : stories.status(name, seen);
   return <kit.KitRow part="root" item={id} label={note ? stories.noteLink(status, note) : name} goto={goto} inset={density === "compact" ? "none" : "md"} density={density}>
     <kit.KitContent align="center" density={density}>
-      {note && <kit.KitCard part="note" look="tinted" padded density={density}>
+      {note && <kit.KitCard part="note" look="outlined" padded density={density}>
         <kit.KitText part={null} role="caption" align="center" density={density}>{note}</kit.KitText>
       </kit.KitCard>}
       <kit.KitPhoto part="photo" shape="round" photo={photo} label={status} ring={seen ? "none" : "accent"} />

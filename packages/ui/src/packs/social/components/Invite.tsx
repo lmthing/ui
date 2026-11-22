@@ -1,7 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { inviteJoinedLine, inviteReading } from "../copy";
+import { inviteJoinedLine, inviteReading, liveRoomSpeakerInitials } from "../copy";
 import { socialWordsFor } from "../lang";
 
 // Core first: People/default draws a current roster, not a copyable, shareable QR invite and its join count.
@@ -175,12 +175,14 @@ function InviteMembers({ members, density }: { members: NonNullable<InviteProps[
   const { words: { invite } } = kit.useWords(socialWordsFor);
   return <kit.KitContent group="response" density={density}>
     <kit.KitHeader title={{ text: invite.members, part: "members_title", role: "meta", strong: true }} density={density} />
-    <kit.KitRowGroup leadingWidth="avatar" density={density}>
+    <kit.KitGrid density={density} list>
       {members.map(({ id, name, photo }) =>
-        <kit.KitRow key={id} item={id} part={null} inset="none" label={name} leadingAlign="row" density={density}
-          leading={photo && <kit.KitPhoto photo={photo} part="photo" label={name} shape="round" />}>
-          <kit.KitLayoutText line={{ text: name, part: "name" }} density={density} />
+        <kit.KitRow key={id} item={id} part={null} inset="none" label={name} inline fitContent density={density}>
+          <kit.KitContent density={density}>
+            <kit.KitPhoto photo={photo} part={photo ? "photo" : null} label={name} shape="round" initials={liveRoomSpeakerInitials(name)} />
+            <kit.KitLayoutText line={{ text: name, part: "name" }} density={density} />
+          </kit.KitContent>
         </kit.KitRow>)}
-    </kit.KitRowGroup>
+    </kit.KitGrid>
   </kit.KitContent>;
 }

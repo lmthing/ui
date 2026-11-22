@@ -13,22 +13,28 @@ export function PostDetails({ value, density }: Options) {
   const facts = postFactLines(value, lang);
   if (!facts.length && !value.quote) return null;
   return (
-    <kit.KitContent density={density}>
-      {facts.map((fact) => (
-        <kit.KitLayoutText
-          key={fact.part}
-          line={{ role: "caption", tone: "muted", ...fact }}
-          density={density}
-        />
-      ))}
-      {value.quote && (
-        <kit.KitMetaLine
-          title={{ text: postOptions.quote, role: "caption", tone: "muted" }}
-          meta={{ text: value.quote, part: "quote", role: "body", tone: "text" }}
-          density={density}
-        />
+    <>
+      {facts.length > 0 && (
+        <kit.KitContent density={density}>
+          {facts.map((fact) => (
+            <kit.KitLayoutText
+              key={fact.part}
+              line={{ role: "caption", tone: "muted", ...fact }}
+              density={density}
+            />
+          ))}
+        </kit.KitContent>
       )}
-    </kit.KitContent>
+      {value.quote && (
+        <kit.KitContent group={facts.length ? "response" : "content"} density={density}>
+          <kit.KitMetaLine
+            title={{ text: postOptions.quote, role: "caption", tone: "muted", strong: true }}
+            meta={{ text: value.quote, part: "quote", role: "caption", tone: "text" }}
+            density={density}
+          />
+        </kit.KitContent>
+      )}
+    </>
   );
 }
 
@@ -87,38 +93,54 @@ function ExtraToggle({ part, on }: { part: "repost" | "save"; on: boolean }) {
   const { testID } = kit.usePart(part, false);
   const active = kit.useControlValue(testID, on);
   const loading = kit.useComponentState() === "loading";
+  if (part === "repost") {
+    const label = postOptions.repost(active);
+    return (
+      <kit.KitRow part={loading ? null : part} role={loading ? "text" : "button"} label={label} inline>
+        <kit.KitLayoutText
+          line={{ text: label, role: "meta", tone: active ? "muted" : "text", strong: true }}
+        />
+      </kit.KitRow>
+    );
+  }
   return (
     <kit.KitAction
       part={loading ? null : part}
       contentParts={{}}
       action="toggle"
-      icon={part === "repost" ? "share" : "bookmark"}
+      icon="bookmark"
       kind={active ? "secondary" : "quiet"}
       a11y={postOptions[part](active)}
     />
   );
 }
 
+export function PostVote({ value, density }: Options) {
+  const {
+    words: { postOptions },
+  } = kit.useWords(socialWordsFor);
+  return value.vote ? (
+    <kit.KitLayoutText
+      line={{ part: "vote", text: postOptions.voted[value.vote], role: "caption", tone: "muted" }}
+      density={density}
+    />
+  ) : null;
+}
+
 export function PostExtrasFooter({ value, density }: Options) {
   const { lang } = kit.useWords();
-  const summary = postResponseLines(value, lang);
-  const hasControls = value.reposted !== undefined || value.saved !== undefined;
-  if (!summary.length && !hasControls) return null;
+  const reposts = postResponseLines(value, lang).find((line) => line.part === "reposts");
+  const count = reposts && (
+    <kit.KitLayoutText line={{ ...reposts, role: "caption", tone: "muted" }} density={density} />
+  );
+  if (!count && value.reposted === undefined && value.saved === undefined) return null;
   return (
-    <kit.KitContent density={density}>
-      {summary.map((line) => (
-        <kit.KitLayoutText
-          key={line.part}
-          line={{ ...line, role: "caption", tone: "muted" }}
-          density={density}
-        />
-      ))}
-      {hasControls && (
-        <kit.KitActionFooter density={density}>
-          {value.reposted !== undefined && <ExtraToggle part="repost" on={value.reposted} />}
-          {value.saved !== undefined && <ExtraToggle part="save" on={value.saved} />}
-        </kit.KitActionFooter>
-      )}
-    </kit.KitContent>
+    <kit.KitGrid fitLast density={density}>
+      <kit.KitActionFooter density={density}>
+        {value.reposted !== undefined && <ExtraToggle part="repost" on={value.reposted} />}
+        {count}
+      </kit.KitActionFooter>
+      {value.saved !== undefined ? <ExtraToggle part="save" on={value.saved} /> : null}
+    </kit.KitGrid>
   );
 }

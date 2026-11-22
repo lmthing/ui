@@ -3,21 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { postReading } from "../copy";
 import { socialWordsFor } from "../lang";
-import {
-  PostHeader,
-  PostReactions,
-  PostDetails,
-  PostExtrasFooter,
-  PostVideo,
-  postOptionActions,
-  postOptionFlags,
-  postOptionHints,
-  postOptionParts,
-  postOptionProbes,
-  postOptionProps,
-  postOptionWhen,
-  postPlayback,
-} from "../post-options";
+import * as social from "../post-options";
 
 const imageParts = ["images", "image_2", "image_3", "image_4"] as const;
 export const meta = {
@@ -28,7 +14,8 @@ export const meta = {
   pick: "One community post in full, with author, long text, optional photo carousel and like, comment and share controls. Not several posts (Feed), an article (Article), or one featured thing preview (Card).",
   writeHints: [
     'Write null for unrequested variants, not an explicit default. If only asked to hide attachments, write "density":null, "surface":null, "media":"none". Preserve the images array and the author photo.',
-    ...postOptionHints,
+    'For a photo grid with standard spacing, framing and attachment treatment, use "arrange":"grid","density":null,"surface":null,"media":null. A grid request does not select a surface.',
+    ...social.postOptionHints,
     "Use images for up to four post attachments, not for the author avatar. Use zero for unknown counts and false for an unknown liked state.",
   ],
   region: "body",
@@ -59,14 +46,20 @@ export const meta = {
     "share_icon",
     "more",
     "more_icon",
-    ...postOptionParts,
+    ...social.postOptionParts,
   ],
   states: ["filled", "loading"],
   actions: {
-    parts: { like: ["toggle"], comment: ["press"], share: ["press"], more: ["press"], ...postOptionActions },
-    when: postOptionWhen,
+    parts: {
+      like: ["toggle"],
+      comment: ["press"],
+      share: ["press"],
+      more: ["press"],
+      ...social.postOptionActions,
+    },
+    when: social.postOptionWhen,
   },
-  media: postPlayback,
+  media: social.postPlayback,
   live: {
     toggles: { repost: { prop: "reposted", initial: false }, save: { prop: "saved", initial: false } },
     derive: (input) => ({
@@ -83,7 +76,7 @@ export const meta = {
 export const props = z
   .strictObject({
     ...c.variantProps(meta.variants),
-    ...postOptionProps,
+    ...social.postOptionProps,
     name: c.text(24),
     photo: c.photo,
     time: c.text(12),
@@ -93,7 +86,7 @@ export const props = z
     comments: z.int().min(0).max(999999),
     liked: z.boolean(),
   })
-  .overwrite((input) => ({ ...input, ...postOptionFlags(input, input.media !== "none") }));
+  .overwrite((input) => ({ ...input, ...social.postOptionFlags(input, input.media !== "none") }));
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);
@@ -139,14 +132,14 @@ export const probes = [
     variant: { axis: "media", value: "none" },
   },
   {
-    ...write("Show Maya’s full fern post with two attached photos side by side in a two-column grid, not a carousel."),
+    ...write("Show Maya’s full fern post with two attached photos side by side in a two-column grid, not a carousel. Keep the default spacing, framing and attachment treatment."),
     variant: { axis: "arrange", value: "grid" },
   },
   {
     ...write("Show Maya’s full fern post with tight spacing but keep the normal photo carousel."),
     variant: { axis: "density", value: "compact" },
   },
-  ...postOptionProbes("Post"),
+  ...social.postOptionProbes("Post"),
   read("Open the menu on Maya’s post.", { address: "p1/more", action: "press" }),
 ] satisfies c.Probe[];
 
@@ -155,12 +148,14 @@ type Finish = { density: c.ThemeDensity; loading: boolean };
 // prettier-ignore
 function PostImages({ images, density, loading, grid }: Finish & Pick<PostProps, "images"> & { grid: boolean }) {
   const { lang, words: { post } } = kit.useWords(socialWordsFor);
-  if (loading && !grid) return <kit.KitSkeleton shape="media" aspect="wide" inset="none" content={[]} density={density} />;
+  if (loading && !grid && images.length < 2) return <kit.KitSkeleton shape="media" aspect="wide" inset="none" content={[]} density={density} />;
   const cells = images.map((photo, index) =>
     <kit.KitPhoto key={index} part={loading ? null : imageParts[index]!} photo={photo} shape={grid ? "square" : "wide"} loading={loading}
       label={post.image(c.numberLine(index + 1, lang), c.numberLine(images.length, lang))} />);
-  if (grid && cells.length > 1) return <kit.KitGrid density={density}>{cells}</kit.KitGrid>;
-  return cells.length > 1 ? <kit.KitStrip overflow="page" density={density}>{cells}</kit.KitStrip> : cells[0] ?? null;
+  if (cells.length < 2) return cells[0] ?? null;
+  const content = grid ? <kit.KitGrid density={density}>{cells}</kit.KitGrid> :
+    <kit.KitStrip overflow="page" density={density}>{cells}</kit.KitStrip>;
+  return loading ? <kit.KitState loading={content} density={density} /> : content;
 }
 
 // prettier-ignore
@@ -171,15 +166,15 @@ export function Post(input: PostProps) {
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const grid = kit.useVariant("arrange", meta.variants.arrange, input.arrange) === "grid";
   const hasImages = media !== "none" && input.images.length > 0;
-  const group = hasImages && !loading && input.images.length > 1 ? "content" : "response";
+  const group = hasImages && input.images.length > 1 ? "content" : "response";
   return <kit.KitCard part="root" padded {...{ density, surface }}>
-    <PostHeader {...{ input, density, loading }} />
+    <social.PostHeader {...{ input, density, loading }} />
     {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["body", input.text]]} /> :
       <kit.KitText part="text" density={density}>{input.text}</kit.KitText>}
-    <PostDetails value={input} density={density} />
+    <social.PostDetails value={input} density={density} />
     {hasImages && <PostImages images={input.images} {...{ density, loading, grid }} />}
-    {media !== "none" && input.video && <PostVideo poster={input.video} density={density} />}
-    <kit.KitContent group={group} density={density}><PostReactions {...{ input, density, loading }} /></kit.KitContent>
-    <PostExtrasFooter value={input} density={density} />
+    {media !== "none" && input.video && <social.PostVideo poster={input.video} density={density} />}
+    <kit.KitContent group={group} density={density}><social.PostReactions {...{ input, density, loading }} /></kit.KitContent>
+    <social.PostExtrasFooter value={input} density={density} />
   </kit.KitCard>;
 }

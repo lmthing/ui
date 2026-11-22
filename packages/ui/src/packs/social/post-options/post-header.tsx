@@ -1,7 +1,8 @@
-import { postCountParts } from "../copy";
+import { postCountParts, type PostExtras } from "../copy";
 import type { IconName, ThemeDensity } from "../../../catalog";
 import * as kit from "../../../kit";
 import { socialWordsFor } from "../lang";
+import * as postView from "./view";
 
 type Author = { name: string; photo: string; time: string };
 
@@ -60,7 +61,7 @@ function PostCountAction({ part, count, label, on, density, loading }: Finish & 
 }
 
 // prettier-ignore
-export function PostReactions({ input, density, loading }: Finish & { input: Counts }) {
+export function PostReactions({ input, density, loading }: Finish & { input: Counts & PostExtras }) {
   const { lang, words: { feed, post } } = kit.useWords(socialWordsFor);
   const { testID } = kit.usePart("like", false);
   const liked = kit.useControlValue(testID, input.liked);
@@ -71,7 +72,7 @@ export function PostReactions({ input, density, loading }: Finish & { input: Cou
     label={post.withCount(post.comment, comments.line)} {...{ density, loading }} />;
   return <kit.KitGrid fitLast density={density}>
     <kit.KitContent density={density} leadingAlign="row" lead={like}>
-      <kit.KitContent density={density} leadingAlign="row" lead={comment}>{null}</kit.KitContent>
+      <kit.KitContent density={density} leadingAlign="row" lead={comment}><postView.PostVote value={input} density={density} /></kit.KitContent>
     </kit.KitContent>
     {loading ? <kit.KitSkeleton shape="control" kind="quiet" /> :
       <PostIconAction part="share" icon="share" label={post.share} density={density} />}

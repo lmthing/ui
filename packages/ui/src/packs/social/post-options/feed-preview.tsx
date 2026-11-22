@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { FeedRow } from "../../../kit/renderers";
 import type { PostExtras } from "../copy";
-import { PostDetails, PostExtrasFooter, PostVideo } from "./view";
+import * as postView from "./view";
 import type { ThemeDensity } from "../../../catalog";
 import * as kit from "../../../kit";
 import { socialWordsFor } from "../lang";
@@ -79,19 +79,20 @@ export function FeedRecipe({ post, density, grid, response }: { post: Preview & 
   const { id: item, name, photo, time, text, image, goto, video } = post;
   const preview = <FeedRow density={density} row={{
     item, label: feed.open(name), goto,
-    ...(grid ? {} : { avatar: { photo, part: "photo", label: name } }),
+    avatar: { photo, part: "photo", label: name },
     author: { text: name, part: "name", role: "meta", strong: true },
     time: { text: time, part: "time", role: "caption", tone: "muted" },
-    body: { text, part: "text", lines: 3 },
-    ...(image ? { media: { photo: image, part: "image", label: feed.image, shape: grid ? "square" : "thumb" } } : {}),
   }} />;
   const content = <>
-    {grid && <kit.KitPhoto photo={photo} label={name} shape="round" part={loading ? null : "photo"} loading={loading} />}
     {preview}
-    <PostDetails value={post} density={density} />
-    {video && <PostVideo poster={video} density={density} />}
+    <kit.KitLayoutText line={{ text, part: "text", lines: 3 }} density={density} />
+    {image && <kit.KitPhoto photo={image} label={feed.image} shape={grid ? "square" : "wide"}
+      part={loading ? null : "image"} loading={loading} />}
+    <postView.PostDetails value={post} density={density} />
+    {video && <postView.PostVideo poster={video} density={density} />}
     {loading ? <kit.KitSkeleton shape="control" kind="secondary" /> : response}
-    <PostExtrasFooter value={post} density={density} />
+    <postView.PostVote value={post} density={density} />
+    <postView.PostExtrasFooter value={post} density={density} />
   </>;
   return <kit.KitState loading={content} density={density}>{content}</kit.KitState>;
 }

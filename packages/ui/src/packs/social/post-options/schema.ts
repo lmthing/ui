@@ -43,9 +43,10 @@ export function postOptionFlags(post: Record<string, unknown>, showMedia: boolea
 }
 
 export const postOptionHints = [
-  "Use arrange grid for a two-column layout and density compact for tighter spacing. Do not write a style key for either.",
-  "Put a video poster reference in video (lib: or local:), not in the media variant. The host supplies playback. Set reposts to the stated count; set reposted and saved only when their state or controls are requested.",
-  'For quoted text use quote. For an existing upvote or downvote use vote "up" or "down". Use tags for short topic labels, radiusKm for a stated distance in kilometers, and alertTag for a short neighborhood alert category. Leave unrequested options null.',
+  'Two columns or side-by-side photos: write "arrange":"grid","density":null. Tight spacing with the usual layout: write "density":"compact","arrange":null. Only write both when both are requested. For the standard layout and spacing write both null, not "rows" or "comfortable".',
+  'A visible photo is ordinary content, not a request for a "media" variant. Use "media":null unless the brief says to hide attachments. Put a video poster reference in video (lib: or local:); the host supplies playback.',
+  "Use null for each unrequested reposts, reposted and saved field; zero and false are explicit states, not placeholders. For quoted text use quote. For an existing upvote or downvote use vote up or down.",
+  "Put a neighborhood alert category in alertTag, never tags. Tags are ordinary topic labels. RadiusKm is the stated neighborhood distance in kilometers. Use null for unrequested options.",
 ] as const;
 
 const optionRequests = [
@@ -62,7 +63,9 @@ const optionRequests = [
 
 export function postOptionProbes(id: "Feed" | "Post"): WriteProbe[] {
   const subject =
-    id === "Feed" ? "Make a feed with just Maya’s latest fern update." : "Show Maya’s full fern update.";
+    id === "Feed"
+      ? "Make a feed with exactly one row, for Maya’s latest fern update."
+      : "Show Maya’s full fern update.";
   return optionRequests.map(([request, expected]) => ({
     kind: "write",
     expect: id,

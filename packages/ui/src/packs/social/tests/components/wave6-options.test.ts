@@ -69,17 +69,42 @@ it.each(["Feed", "Post"] as const)("%s keeps addressed toggles and video separat
   const open = vi.fn(() => session);
   const onLink = vi.fn();
   const stem = id === "Feed" ? "c1/r1" : "c1";
+  const current =
+    id === "Feed"
+      ? { posts: [{ ...seed.Feed.posts[0], ...extras }, seed.Feed.posts[1]] }
+      : postInput(id, extras);
+  const inactive = id === "Feed" ? "c1/r2" : "c2";
   const runtime = createScreenController({
-    screen: { id: "home", components: [{ c: id, id: "c1", ...postInput(id, extras) }] },
+    screen: {
+      id: "home",
+      components: [
+        { c: id, id: "c1", ...current },
+        ...(id === "Post" ? [{ ...seed.Post, c: id, id: "c2" }] : []),
+      ],
+    },
     defs: components,
     resolvePlayback: (address) => (address === `home/${stem}/video` ? "clip_1" : undefined),
     media: { open },
     onLink,
   });
   try {
-    for (const part of ["save", "repost"]) {
-      expect(runtime.act({ address: `${stem}/${part}`, action: "toggle" }).ok).toBe(true);
-      expect(runtime.act({ address: `${stem}/${part}`, action: "toggle" }).ok).toBe(true);
+    for (const [part, initial, initialLabel, nextLabel] of [
+      ["save", "off", "Save post", "Remove saved post"],
+      ["repost", "on", "Undo repost", "Repost"],
+    ]) {
+      const address = `${stem}/${part}`;
+      const step = { address, action: "toggle" } as const;
+      expect(runtime.actionsAt(`${inactive}/${part}`)).not.toContain("toggle");
+      expect(runtime.read()).toContain(`[${address} toggle:${initial} !needs-people]`);
+      expect(runtime.read()).toContain(initialLabel);
+      expect(runtime.act(step).ok).toBe(true);
+      expect(runtime.read()).toContain(
+        `[${address} toggle:${initial === "on" ? "off" : "on"} !needs-people]`,
+      );
+      expect(runtime.read()).toContain(nextLabel);
+      expect(runtime.act(step).ok).toBe(true);
+      expect(runtime.read()).toContain(`[${address} toggle:${initial} !needs-people]`);
+      expect(runtime.read()).toContain(initialLabel);
     }
     expect(runtime.act({ address: `${stem}/video`, action: "play" }).ok).toBe(true);
     expect(open).toHaveBeenCalledWith("clip_1", expect.objectContaining({ video: true }));
