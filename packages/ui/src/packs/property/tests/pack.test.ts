@@ -18,7 +18,7 @@ import {
   type Definition,
 } from "@lmthing/ui/catalog";
 
-const ids = ["Units", "RentRoll", "Viewings", "Inspections", "Meters"];
+const ids = ["Units", "RentRoll", "Viewings", "Inspections", "Meters", "RentalApplication", "LeaseRenewal"];
 const scoped = createRegistry({ packs: ["property"], includeDrafts: true });
 const recipes = {
   "portfolio_units/property_register": ["Header", "Search", "Chips", "Units", "Stats"],

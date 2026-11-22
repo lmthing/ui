@@ -74,6 +74,7 @@ describe("PassCard actions and states", () => {
     expect(draw(seed).get("home/c1/qr")?.attributes).toContain('role="img"');
     expect(actions(seed)).toEqual(["root", "reveal", "code"]);
     const read = readComponent(def, seed, "c1").join("\n");
+    expect(read).toContain("Copy code (copy the QR payload to the clipboard)");
     expect(read).toContain("[c1/code copy]");
     expect(read).not.toMatch(/DEMO-0642|DEMO:LEDGE-MEMBER/);
     expect(readComponent(def, { ...seed, detail: "brief" }, "c1").join("\n")).not.toContain("Seedling");

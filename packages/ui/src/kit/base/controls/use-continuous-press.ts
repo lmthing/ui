@@ -1,7 +1,12 @@
 import { useLayoutEffect, useRef } from "react";
 import { isWeb } from "tamagui";
 
-type Press = { begin(at: number): void; end(releasedAt?: number): void };
+type Press = {
+  begin(at: number): void;
+  end(releasedAt?: number): void;
+  /** Assistive activation without a preceding native press-in. */
+  activate?(): void;
+};
 type Input = { type: "pointer"; pointer: number } | { type: "keyboard"; key: string } | { type: "native" };
 type Timed = { timeStamp?: number | undefined };
 type Key = Timed & {
@@ -130,7 +135,10 @@ export function useContinuousPress(enabled: boolean, scope: unknown, address: st
               if (input === source.current) cancel();
             });
           },
-          onPress: (e: Timed) => finish(inputTime(e)),
+          onPress: (e: Timed) => {
+            if (source.current) finish(inputTime(e));
+            else latest.current.activate?.();
+          },
           onBlur: cancel,
         }
     : {};

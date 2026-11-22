@@ -4,7 +4,7 @@ import type { Affordance, Values } from "../index";
 import { hasNestedCollectionControls } from "../nested";
 import { projectNested } from "../selection";
 import { addressedItems, visibleItems } from "../visibility";
-import { partsOf } from "../action-input";
+import { partsOf } from "../affordances";
 import { orderedSlots, slotMoveOfferAt } from "./slot-move";
 
 const selectionKey = (collection: NamedCollection) => `$collection/${collection.prefix}/selected`;

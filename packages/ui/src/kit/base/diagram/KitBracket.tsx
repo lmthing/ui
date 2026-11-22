@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { XStack, YStack, isWeb } from "tamagui";
+import { useEffect, useState } from "react";
+import { Path, Svg } from "react-native-svg";
+import { XStack, YStack, isWeb, useTheme } from "tamagui";
 import { component, size, space } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKitStyle } from "../../provider";
@@ -11,15 +12,8 @@ import {
   bracketRoundWidth,
   bracketTieHeight,
 } from "./bracket-layout";
-import { BracketLinks, BracketScroll } from "./bracket-scroll";
-import {
-  BracketHeading,
-  DiagramBar,
-  DiagramEmpty,
-  useDiagramTarget,
-  type Drawing,
-  type Target,
-} from "./diagram-drawing";
+import { BracketScroll } from "./bracket-scroll";
+import { DiagramBar, DiagramEmpty, useDiagramTarget, type Drawing, type Target } from "./diagram-drawing";
 
 type Side = { label: string; score?: string; labelPart?: string | null; scorePart?: string | null };
 type Tie = {
@@ -34,6 +28,78 @@ type BracketProps = Drawing & {
   rounds: readonly Round[];
   links: readonly { from: string; to: string }[];
 };
+
+function BracketLinks({ layout, loading }: { layout: ReturnType<typeof bracketLayout>; loading: boolean }) {
+  const theme = useTheme();
+  if (!layout.paths.length) return null;
+  return (
+    <YStack
+      fullscreen
+      top={bracketHeadingHeight}
+      aria-hidden
+      accessibilityElementsHidden
+      pointerEvents="none"
+    >
+      <Svg width={layout.width} height={layout.height}>
+        {layout.paths.map(({ d, decided }, index) => (
+          <Path
+            key={index}
+            d={d}
+            fill="none"
+            stroke={theme[!loading && decided ? "accent" : loading ? "line" : "muted"]?.val}
+            strokeWidth={component.base.strongBorder}
+          />
+        ))}
+      </Svg>
+    </YStack>
+  );
+}
+
+function HeadingPart({ part, top }: { part: string; top: number }) {
+  const address = usePart(part);
+  const { onLayout } = address;
+  // Moving the heading does not resize its fullscreen alias.
+  useEffect(onLayout, [onLayout, top]);
+  return <YStack {...address} fullscreen pointerEvents="none" aria-hidden accessibilityElementsHidden />;
+}
+
+type Heading = {
+  label: string;
+  ties: readonly { id: string; target?: Target; roundPart?: string | null }[];
+};
+
+/** Draw the heading once; all of its tie addresses measure the same heading. */
+function BracketHeading({ round, top, loading }: { round: Heading; top: number; loading: boolean }) {
+  const context = usePartContext();
+  return (
+    <YStack
+      position="absolute"
+      top={top}
+      width="100%"
+      height={bracketHeadingHeight}
+      paddingHorizontal={space.md + component.base.strongBorder}
+      backgroundColor="$raised"
+      justifyContent="center"
+    >
+      {loading ? (
+        <DiagramBar width="54%" height={space.md} />
+      ) : (
+        <>
+          <KitText role="heading" lines={1} part={null}>
+            {round.label}
+          </KitText>
+          {round.ties.map(({ id, target, roundPart }) =>
+            roundPart == null ? null : (
+              <PartContext.Provider key={id} value={{ ...context, item: target?.item ?? id }}>
+                <HeadingPart part={roundPart} top={top} />
+              </PartContext.Provider>
+            ),
+          )}
+        </>
+      )}
+    </YStack>
+  );
+}
 
 function TieSide({ side, winner, loading }: { side: Side; winner: boolean; loading: boolean }) {
   return (

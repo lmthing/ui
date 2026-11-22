@@ -3,14 +3,14 @@ import type {
   ControllerContext,
   createClock,
   createMediaRuntime,
-  createReveal,
+  createPrivateControls,
   createSequenceClock,
 } from "./index";
 import { discardHiddenConfirmation } from "./dispatch";
 
 type Clock = ReturnType<typeof createClock>;
 type Media = ReturnType<typeof createMediaRuntime>;
-type Reveal = Pick<ReturnType<typeof createReveal>, "clear" | "reconcile"> & { dispose(): void };
+type PrivateControls = Pick<ReturnType<typeof createPrivateControls>, "clear" | "reconcile" | "dispose">;
 type Sequence = ReturnType<typeof createSequenceClock>;
 
 function watchAdmission(ctx: ControllerContext, clock: Clock, sequence: Sequence, onAdmission: () => void) {
@@ -44,10 +44,10 @@ function snapshotScreen(ctx: ControllerContext) {
   );
 }
 
-function reconcile(ctx: ControllerContext, reveal: Reveal, media: Media) {
+function reconcile(ctx: ControllerContext, secrets: PrivateControls, media: Media) {
   ctx.hosts.prune();
   discardHiddenConfirmation(ctx);
-  reveal.reconcile();
+  secrets.reconcile();
   media.reconcile();
 }
 
@@ -55,7 +55,7 @@ export function controllerLifecycle(
   ctx: ControllerContext,
   clock: Clock,
   media: Media,
-  reveal: Reveal,
+  secrets: PrivateControls,
   sequence: Sequence,
 ) {
   const schedule = () => {
@@ -64,7 +64,7 @@ export function controllerLifecycle(
   };
   const admission = watchAdmission(ctx, clock, sequence, () => {
     if (!ctx.admitted()) ctx.micCapture.reset();
-    reconcile(ctx, reveal, media);
+    reconcile(ctx, secrets, media);
     ctx.store.setMany({});
     if (ctx.admitted()) sequence.mount();
     schedule();
@@ -76,7 +76,7 @@ export function controllerLifecycle(
     },
     mount: admission.mount,
     discardHiddenConfirmation() {
-      reconcile(ctx, reveal, media);
+      reconcile(ctx, secrets, media);
       schedule();
     },
     snapshotScreen: () => snapshotScreen(ctx),
@@ -84,7 +84,7 @@ export function controllerLifecycle(
       ctx.status.openSheet = undefined;
       ctx.status.confirmation = undefined;
       ctx.hosts.reset();
-      reveal.clear();
+      secrets.clear();
       ctx.micCapture.reset();
       media.reset();
       ctx.store.reset(ctx.screen.id);
@@ -96,8 +96,8 @@ export function controllerLifecycle(
       ctx.status.disposed = true;
       admission.unwatch();
       ctx.hosts.reset();
-      reveal.clear();
-      reveal.dispose();
+      secrets.clear();
+      secrets.dispose();
       clock.dispose();
       sequence.dispose();
       ctx.micCapture.reset();
