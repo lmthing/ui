@@ -67,6 +67,18 @@ export const en = {
     success: "Interview updated",
     error: "Couldn’t update the interview",
   },
+  jobFeed: {
+    thing: "job opening",
+    empty: "No open jobs to show",
+    success: "Bookmark updated",
+    error: "Couldn’t load job openings",
+    save: "Save",
+    saved: "Saved",
+    easyApply: "Easy apply",
+    postedToday: "Posted today",
+    postedAgo: (age: string) => `Posted ${age}`,
+    postedOn: (date: string) => `Posted ${date}`,
+  },
   jobPost: {
     workplace: { onsite: "On-site", hybrid: "Hybrid", remote: "Remote" },
     contract: { permanent: "Permanent", fixed_term: "Fixed-term", casual: "Casual", volunteer: "Volunteer" },

@@ -6,21 +6,18 @@ export const hiring_openings = {
   defaultLayout: "hiring_roles",
   layouts: {
     hiring_roles: {
-      writeHints: [
-        "Use short List rows for the openings and a badge trail with a value on each row for the status.",
-      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Search"], required: true },
         { allow: ["Chips"], required: true },
-        { allow: ["List"], required: true },
+        { allow: ["JobFeed"], required: true },
         { allow: ["Button"], required: true },
       ],
       defaults: [
         { id: "h1", c: "Header" },
         { id: "s1", c: "Search" },
         { id: "c1", c: "Chips" },
-        { id: "l1", c: "List", trail: "badge" },
+        { id: "f1", c: "JobFeed" },
         { id: "b1", c: "Button" },
       ],
     },
@@ -45,7 +42,7 @@ export const probes = [
     archetype: "hiring_openings",
     layout: "hiring_roles",
     brief:
-      "Head the screen Open roles. Add search for roles and filter chips All and Summer. List Summer dog walker with an Open badge and Weekend walker with a Draft badge; link both openings. Finish with a New role button.",
+      "Head the screen Open roles. Add role search and filter chips All and Summer. List Trot’s open Summer dog walker role, on-site in North Park, posted 2026-11-20, paying 18 to 22 per hour with easy apply, and Coast Dogs’ open hybrid Assistant trainer role, posted 2026-11-17 without easy apply. Neither is saved. Link both details and finish with a Saved openings button.",
   },
   {
     kind: "compose",
