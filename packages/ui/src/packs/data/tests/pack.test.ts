@@ -21,7 +21,16 @@ import {
 import { createPreviewController, previewComponent } from "../../../../../../apps/gallery/app/draw";
 import { adminListProbes, boardProbes, reportProbes, example } from "..";
 
-const ids = ["Table", "Board", "LineChart", "Heatmap", "BulkActions", "ActivityLog", "Funnel"] as const;
+const ids = [
+  "Table",
+  "Board",
+  "LineChart",
+  "Heatmap",
+  "BulkActions",
+  "ActivityLog",
+  "Funnel",
+  "SavedViews",
+] as const;
 const draft = createRegistry({ packs: ["data"], includeDrafts: true });
 const empty: CastLike = { things: [], items: [] };
 const full: CastLike = {
@@ -98,7 +107,7 @@ it("validates all six layouts, their defaults, and compose coverage", () => {
       .map(({ archetype, layout }) => `${archetype}/${layout}`)
       .sort(),
   ).toEqual(layouts);
-  expect(draft.defaultLines("admin_list", "table", empty).components[2]).toMatchObject({
+  expect(draft.defaultLines("admin_list", "table", empty).components[3]).toMatchObject({
     selectable: true,
   });
   expect(draft.defaultLines("report", "charts", empty).components[4]).toMatchObject({ style: "share" });

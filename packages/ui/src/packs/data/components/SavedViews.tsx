@@ -1,79 +1,186 @@
 import { z } from "zod";
+import * as c from "../../../catalog";
+import * as kit from "../../../kit";
 import {
-  clip,
-  itemsOf,
-  placeholderTitle,
-  probesFor,
-  text,
-  thingOf,
-  titleOf,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
+  previewSavedViewMatches,
+  savedViewCopy,
+  savedViewCounts,
+  savedViewId,
+  savedViewLimit,
+  savedViewMatchKind,
+  savedViewsReading,
+  savedViewsRuntime,
+  type SavedViewRow,
+} from "../copy";
+import { dataWordsFor } from "../lang";
 
 // Core first: FilterBar/default changes individual filters but cannot save, switch, or remove named query and layout presets.
+// prettier-ignore
 export const meta = {
   id: "SavedViews",
-  status: "draft",
+  status: "ready",
   group: "input",
   tier: "phone",
   pick: "switching, saving or managing named query presets across records. Not ephemeral query controls (FilterBar), single-axis tags (Chips), or fixed screen tabs (Segmented).",
   purpose: "Switch among named filter, sort and layout presets, and manage them.",
+  writeHints: [
+    'Use distinct preset IDs, and set activeId only to an existing preset ID. Never write matching counts; code counts dataset matches. Use style "list" for readable descriptions and remove controls.',
+    'Use detail "brief" for list rows without filter summaries or layout captions; keep the summaries and layout in the data. Leave unrequested axes null.',
+  ],
   region: "body",
   weight: 2,
-  realPath: "saved filter and sort presets stored locally on the device.",
-  parts: ["root", "save"],
-  items: { key: "views", parts: ["root", "remove"] },
-  actions: { parts: { save: ["press"] }, items: { root: ["select"], remove: ["press"] } },
+  realPath: "The app applies selected preset IDs to the local query and saves the current query on request.",
+  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["summary", "layout"] } },
+  parts: ["root", "title", "track", "save", "save_label", "status"],
+  items: { key: "views", parts: ["root", "label", "summary", "layout", "count", "remove"] },
+  actions: {
+    parts: { save: ["press"] }, items: { root: ["select"], remove: ["press"] },
+    when: { save: { canSave: true }, remove: { style: "list" } },
+  },
+  select: { prop: "active", value: { field: "viewId" }, mode: "flags", runtime: true },
   confirmParts: ["remove"],
   states: ["filled", "empty", "loading", "success"],
-} as const satisfies Meta;
+  emptyActions: ["save.press"],
+  successActions: ["root.select", "save.press", "remove.press"],
+  readSuccess: true,
+  deviceData: [savedViewMatchKind],
+  previewDeviceData: ({ input }): c.DeviceData => previewSavedViewMatches(input.views as SavedViewRow[]),
+  recordRuntime: { kind: "saved_query_views", ...savedViewsRuntime },
+  read: (input, state, lang, data): string[] => {
+    if (state === "loading") return [];
+    const live = input as Parameters<typeof savedViewsReading>[0];
+    const words = dataWordsFor(lang).savedViews;
+    return state === "empty" ? (live.canSave ? [words.save] : [])
+      : savedViewsReading(live, state === "success", data, lang);
+  },
+} as const satisfies c.Meta;
+
+// prettier-ignore
 export const props = z.strictObject({
+  ...c.variantProps(meta.variants),
   views: z
     .array(
       z.strictObject({
-        id: text(24).meta({ kind: undefined }),
-        label: text(20),
-        summary: text(36).optional(),
+        id: savedViewId,
+        label: c.text(20),
+        summary: c.text(36).optional(),
         layout: z.enum(["table", "cards", "board"]).optional(),
       }),
     )
     .min(1)
-    .max(6),
-  activeId: text(24).optional(),
+    .max(savedViewLimit),
+  activeId: savedViewId.optional(),
   canSave: z.boolean().default(true),
   style: z.enum(["chips", "list"]).default("chips"),
-});
+}).refine(({ views }) => new Set(views.map(({ id }) => id)).size === views.length, { path: ["views"] })
+  .refine(({ views, activeId }) => activeId === undefined || views.some(({ id }) => id === activeId),
+    { path: ["activeId"] })
+  .overwrite((input) => ({
+    ...input, views: input.views.map((row) => ({ ...row, viewId: row.id, active: row.id === input.activeId })),
+  }));
 
-export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
-  const thing = thingOf(cast);
-  const items = itemsOf(cast, 1);
-  function castTitle(max: number, index: number) {
-    const item = items[index];
-    return (item && titleOf(item, max, thing)) || clip(placeholderTitle(index, lang), max);
-  }
-  return {
-    views: Array.from({ length: 1 }, (_, index) => ({
-      id: castTitle(24, index),
-      label: castTitle(20, index),
-    })),
-  };
+export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
+  const thing = c.thingOf(cast);
+  const names = c.itemsOf(cast, 3, thing?.type).flatMap((item) => c.titleOf(item, 20, thing) ?? []);
+  const labels = names.length ? names : [c.clip(c.placeholderTitle(0, lang), 20)];
+  return { views: labels.map((label, index) => ({ id: `view_${index + 1}`, label })) };
 }
 
-// TODO: Replace the neutral seed with two real examples covering styles and optional fields.
-export const examples = [fallback({ cast: { things: [], items: [] } })] satisfies z.input<typeof props>[];
+// prettier-ignore
+export const examples = [
+  { style: "list", activeId: "needs_water", views: [
+    { id: "all_plants", label: "All plants", summary: "Sorted by name", layout: "table" },
+    { id: "needs_water", label: "Needs water", summary: "Due today, soonest first", layout: "cards" },
+    { id: "balcony", label: "Balcony", summary: "Only plants on the balcony", layout: "board" },
+  ] },
+  { activeId: "this_week", views: [
+    { id: "all_walks", label: "All walks" },
+    { id: "this_week", label: "This week" },
+    { id: "unassigned", label: "Unassigned walks" },
+  ] },
+] satisfies z.input<typeof props>[];
 
-// TODO: Replace the probe prompts and verify the fixture address and any action gates.
-const { choose, write, read } = probesFor("SavedViews");
+const { choose, write, read } = c.probesFor("SavedViews");
+// prettier-ignore
 export const probes = [
-  choose("TODO: describe the need this component should win"),
-  choose("TODO: describe the nearest wrong choice", "FilterBar"),
-  write("TODO: describe realistic values and intent in the person’s words"),
-  read("TODO: ask for this action in the person’s words", { address: "c1/save", action: "press" }),
-] satisfies Probe[];
+  choose("Let me save a combination of filters, sort order and layout as a named preset, switch to it later, and remove old presets."),
+  choose("Add a search above the records with separate Region and Status filter dropdowns and a button to clear both. No named presets or saving.", "FilterBar"),
+  write("Show named saved presets All walks (all_walks) and This week (this_week); This week is active. Let me save the current view."),
+  {
+    ...write("List saved presets All plants (all_plants), sorted by name, table layout, and Needs water (needs_water), due today, cards layout. Keep the summaries and layouts in data but hide them on screen."),
+    variant: { axis: "detail", value: "brief" },
+  },
+  read("Switch to the Needs water preset.", { address: "s1/r2", action: "select" }),
+  read("Save my current filter and sort settings as a view.", { address: "s1/save", action: "press" }),
+  read("Start removing the Balcony preset, without deleting any plants.", { address: "s1/r3/remove", action: "press" }),
+] satisfies c.Probe[];
 
-export function SavedViews(_input: Props<typeof props, typeof meta>) {
-  return null;
+type ViewProps = c.Props<typeof props, typeof meta>;
+type LiveView = Omit<ViewProps, "views"> & { views: SavedViewRow[]; removed?: boolean };
+type ViewCopy = ReturnType<typeof savedViewCopy>;
+
+// prettier-ignore
+function PresetRow({ row, copy, selected, loading, full, density }: {
+  row: SavedViewRow; copy: ViewCopy; selected: boolean; full: boolean; loading: boolean; density: c.ThemeDensity;
+}) {
+  const scope = kit.usePartContext();
+  const { words } = kit.useWords(dataWordsFor);
+  const details = full ? [{ text: row.summary, part: "summary" }, { text: copy.layout, part: "layout" }] : [];
+  return <kit.PartScope {...scope} item={row.id}>
+    <kit.KitGrid fitLast density={density}>
+      <kit.KitRow part="root" role={loading ? "group" : "button"} label={row.label}
+        selected={selected && !loading} density={density}
+        trailing={<kit.KitLayoutText line={{ text: copy.count, part: "count", role: "figure", compact: true, tabular: true }}
+          align="end" density={density} />}>
+        <kit.KitMetaLine title={{ text: row.label, part: "label" }} density={density} />
+      </kit.KitRow>
+      <kit.KitAction part="remove" icon="close" a11y={words.savedViews.remove(row.label)} kind="quiet" contentParts={{}} />
+    </kit.KitGrid>
+    {details.some(({ text }) => text) && <kit.KitContent inset="md" density={density}>
+      <kit.KitMetaLine title={{ ...details[0], role: "meta", tone: "muted" }}
+        meta={details[1]} density={density} />
+    </kit.KitContent>}
+  </kit.PartScope>;
+}
+
+// prettier-ignore
+export function SavedViews(input: ViewProps) {
+  const scope = kit.usePartContext(), state = kit.useComponentState();
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
+  const { words: { savedViews: words }, lang } = kit.useWords(dataWordsFor);
+  const { views, canSave, removed } = kit.useLiveControls(meta, input) as LiveView;
+  const counts = savedViewCounts(views, kit.useDeviceData());
+  const loading = state === "loading";
+  const empty = state === "empty" || !views.length;
+  const status = removed && state === "filled" ? "success" : state;
+  const body = input.style === "list" ? <kit.KitRowGroup density={density} spacing="groups" separators={false}>
+    {views.map((row) => <PresetRow key={row.id} {...{ row, loading, full, density }}
+      copy={savedViewCopy(row, counts?.get(row.viewId), lang)} selected={row.active === true} />)}
+  </kit.KitRowGroup> : <kit.KitContent inset="md" density={density}>
+    <kit.KitTrack part="track" role="radiogroup" label={words.title}>
+      {views.map((row) => <kit.KitChip key={row.id} item={row.id} role="radio" disabled={false}
+        label={savedViewCopy(row, counts?.get(row.viewId), lang).chip} on={row.active === true} />)}
+    </kit.KitTrack>
+  </kit.KitContent>;
+  const feedback = status === "success";
+  return <kit.KitCard padded align={empty ? "center" : "start"} {...{ density, surface }}>
+    {!empty && <kit.KitContent inset="md" density={density}>
+      <kit.KitHeader title={{ text: words.title, part: "title" }}
+        {...(feedback && { meta: { text: removed ? words.removed : words.success, part: "status", tone: "good" } })}
+        density={density} />
+    </kit.KitContent>}
+    <kit.PartScope {...scope} state={feedback && !empty ? "filled" : status}>
+      <kit.KitState part={empty ? "status" : null}
+        message={feedback ? (removed ? words.removed : words.success) : undefined}
+        loading={body} density={density}>
+        {body}
+      </kit.KitState>
+    </kit.PartScope>
+    {canSave && views.length < savedViewLimit && <kit.KitActionFooter align="start" density={density}>
+      <kit.KitAction part="save" label={words.save} icon="plus" kind="secondary" contentParts={{ label: "save_label" }} />
+    </kit.KitActionFooter>}
+  </kit.KitCard>;
 }

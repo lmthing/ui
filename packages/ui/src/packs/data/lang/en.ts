@@ -35,6 +35,10 @@ export type DataWords = {
     save: string;
     remove: (label: string) => string;
     success: string;
+    removed: string;
+    chip: (label: string, count: string) => string;
+    matches: (count: string, form: LDMLPluralRule) => string;
+    layouts: Record<"table" | "cards" | "board", string>;
   };
   tableColumn: (label: string, position: string) => string;
   tableCount: (count: string, form: LDMLPluralRule) => string;
@@ -79,6 +83,10 @@ export const en = {
     save: "Save current view",
     remove: (label) => `Remove ${label}`,
     success: "Saved views updated",
+    removed: "View removed",
+    chip: (label, count) => `${label} · ${count}`,
+    matches: (count, form) => (form === "one" ? `${count} match` : `${count} matches`),
+    layouts: { table: "Table layout", cards: "Cards layout", board: "Board layout" },
   },
   tableColumn: (label, position) => `${position}. ${label}`,
   tableCount: (count, form) => (form === "one" ? `${count} row` : `${count} rows`),
