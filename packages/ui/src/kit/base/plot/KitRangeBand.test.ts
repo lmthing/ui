@@ -81,10 +81,13 @@ describe("KitRangeBand caller-owned reading", () => {
   });
   it("leaves existing omitted and undefined-slot callers identical", () => {
     for (const preset of presets)
-      for (const loading of [false, true])
+      for (const loading of [false, true]) {
+        // A preset's first render can register new CSS classes for its loading shape.
+        render({ ...input, loading }, preset.id);
         expect(render({ ...input, loading, reading: undefined }, preset.id)).toBe(
           render({ ...input, loading }, preset.id),
         );
+      }
   });
   it("retains custom loading geometry while hiding and disabling its content", () => {
     const filled = render({ ...input, part: "band", reading });

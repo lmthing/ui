@@ -176,7 +176,9 @@ describe.each(ready)("%s reads as text and can be acted on", (id) => {
     // A standalone example has no same-screen seek target.
     const offers = driveAffordances(def.meta, props, "c1", declared);
     // Inline pickers disclose their options on demand, but the reader offers them immediately.
-    const choices = offers.flatMap(({ action, address }) => {
+    const choices = offers.flatMap(({ action, address, move }) => {
+      // A move uses stable wire values; its displayed destinations may be localized labels.
+      if (move) return [move.current, ...move.choices];
       const picker = action === "select" ? pickerAt(def.meta, props, address.slice("c1/".length)) : undefined;
       const source = picker?.spec.choices;
       const values = source && ("prop" in source ? picker?.row[source.prop] : source);

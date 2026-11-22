@@ -31,6 +31,8 @@ type TileProps = {
   detail?: ReactNode;
   action?: "press" | "toggle" | "start" | "stop";
   touchTarget?: "buzz";
+  /** Place the badge alongside a shared label and detail rail. */
+  layout?: "row" | "stack";
   density?: ThemeDensity | undefined;
   /** Reserve space for the selected border and use a neutral badge when off. */
   distinctSelection?: boolean;
@@ -71,23 +73,29 @@ function TileContent({
   loading,
   on,
   distinctSelection,
+  layout,
 }: Pick<
   TileProps,
-  "icon" | "label" | "labelPart" | "badgeTone" | "detail" | "disabled" | "on" | "distinctSelection"
+  "icon" | "label" | "labelPart" | "badgeTone" | "detail" | "disabled" | "on" | "distinctSelection" | "layout"
 > & {
   loading: boolean;
 }) {
   const ks = useKitStyle();
   const neutral = disabled || (badgeTone ? badgeTone === "muted" : distinctSelection && !on);
-  const stretch = distinctSelection || detail != null;
+  const row = layout === "row";
+  const stretch = !row && (distinctSelection || detail != null);
   return (
     <>
-      <Badge backgroundColor={loading ? "$line" : neutral ? "$raised" : "$accentSoft"}>
+      <Badge
+        flexShrink={component.base.none}
+        backgroundColor={loading ? "$line" : neutral ? "$raised" : "$accentSoft"}
+      >
         {!loading && <KitIcon name={icon} tone={neutral ? "muted" : "accent"} scale="lg" />}
       </Badge>
       <YStack
         alignSelf={stretch ? "stretch" : undefined}
-        alignItems={stretch ? "stretch" : "center"}
+        alignItems={stretch || row ? "stretch" : "center"}
+        {...(row ? { flex: component.base.bodyFlex, minWidth: component.base.none } : {})}
         gap={space.xs}
         aria-hidden={loading || undefined}
         borderRadius={shifted("sm", ks.radiusShift)}
@@ -95,7 +103,7 @@ function TileContent({
         <TileLine loading={loading}>
           <KitText
             role="label"
-            align="center"
+            align={row ? "start" : "center"}
             tone={disabled ? "muted" : "text"}
             part={loading ? null : labelPart}
             lines={2}
@@ -130,6 +138,7 @@ function Tile(props: Omit<TileProps, "item">) {
   const loading = useComponentState() === "loading";
   const timed = useTileBuzz(part.testID, touchTarget !== undefined, disabled || loading);
   const finish = useTileFinish(props);
+  const layout = props.layout ?? (touchTarget && props.detail != null ? "row" : "stack");
   const press = () => {
     if (kit.controller)
       return action
@@ -141,6 +150,7 @@ function Tile(props: Omit<TileProps, "item">) {
     <YStack
       {...part}
       alignItems="center"
+      flexDirection={layout === "row" ? "row" : "column"}
       {...finish}
       paddingHorizontal={space.sm}
       minHeight={size.control.lg}
@@ -170,7 +180,7 @@ function Tile(props: Omit<TileProps, "item">) {
         : {}) as object)}
       {...(timed as object)}
     >
-      <TileContent {...props} {...{ disabled, loading }} />
+      <TileContent {...props} {...{ disabled, loading, layout }} />
     </YStack>
   );
 }

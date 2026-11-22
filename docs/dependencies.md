@@ -8,6 +8,7 @@ All versions are exact in manifests and `pnpm-lock.yaml`. Node 26, pnpm 12.16.1.
 | react/react-dom 19.3.1 | Kit views and gallery mount; required by the design. |
 | react-native-web 0.21.4 | Native-style host on web; DOM-only views would not prove the kit path. |
 | tamagui/@tamagui/core 1.144.4 | Matched stable design primitives; latest majors lack matching Lucide. |
+| `@fontsource-variable/nunito` 5.2.7, `@fontsource/barlow-condensed` 5.2.7 (apps/gallery) | Existing SIL Open Font License web fonts for the rounded Playful/Soft type and Sport's condensed numbers. Reuse the gallery's Fontsource loading rather than shipping duplicate kit assets; other hosts load their own faces. |
 | @tamagui/lucide-icons 1.144.4 | Curated icons, matching Tamagui; no custom icon artwork. |
 | react-native-svg 15.15.3 | Lucide's web SVG renderer; no native runtime in this slice. |
 | qrcode-generator 2.0.4 | Dependency-free QR matrix encoder for KitCode; the kit renders its own cross-platform modules rather than using a DOM or canvas generator. |

@@ -309,6 +309,20 @@ Use `KitPhoto bleed="edge"` when the frame, not the photo, owns the outside corn
 `KitCard bleed="edge"` passes that treatment to its full-width photos; round avatars and inset
 photos retain their own corners. `KitAvatarStack loading` preserves the overlap without mounting
 addresses, and `member.mark` accepts the shared item-mark axis.
+Tables end-align numeric text and use tabular digits. Label a summary row `total` in the kit
+recipe to draw a single rule above it; use `separators` for other section breaks. Fitted days-down
+matrices can reach the inside edges of an unpadded card without covering its outline. Keep selection
+decoration inside the edge and out of the row's layout.
+
+Use `KitInput`'s `caption` to align the visible caption with the editable text, or `inset="avatar"`
+to match a neighbouring avatar row. Use a danger action for destructive commands; an icon-only
+danger action keeps its danger glyph without a ring. Use a quiet neutral glyph for a passive
+accessory, and keep its full touch target. Supply `KitEmpty noun` when the caller knows the noun
+but has no authored message; the shared language copy supplies the sentence.
+
+Readonly stars default to compact marks; editable ratings keep their full targets. `KitHours`
+accepts a density override and otherwise follows the host. A timed `KitTile` with supporting detail
+uses a horizontal badge, title and detail rail; choose `layout="stack"` to keep it vertical.
 
 ### Base reference
 

@@ -1,6 +1,7 @@
 export const words = {
   standings: {
     title: "League table",
+    records: "Team records",
     scroll: "Scroll for more stats",
     position: "#",
     team: "Team",
@@ -12,12 +13,16 @@ export const words = {
     won: "W",
     drawn: "D",
     lost: "L",
+    tied: "T",
+    games_behind: "GB",
+    percentage: "Win %",
+    percentageSummary: "Played, games behind",
+    percentageResults: "Won, tied, lost",
     form: "Form",
     noForm: "–",
     outcomes: { w: "W", d: "D", l: "L" },
     separator: " · ",
     formSeparator: " ",
     reading: (id: string, team: string) => `${id}: ${team}`,
-    rowSummary: (position: string, points: string) => `#${position} · ${points} pts`,
   },
 };

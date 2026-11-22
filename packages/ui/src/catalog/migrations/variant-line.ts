@@ -94,6 +94,8 @@ export function migrateProgressItems(props: Line): Line {
 
 /** Each table applies once the corresponding component adopts its axes. */
 export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[]>>> = {
+  Feed: [{ from: "style", values: { stream: {}, compact: {}, grid: { arrange: "grid" } } }],
+  Post: [{ from: "style", values: { stream: {}, compact: {}, grid: { arrange: "grid" } } }],
   Button: [
     {
       from: "kind",
@@ -112,6 +114,9 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
   Amount: [{ from: "style", values: { large: { emphasis: "hero" } } }],
   Ring: [{ from: "style", values: { md: {}, lg: { emphasis: "hero" } } }],
   Player: [{ from: "style", values: { compact: { detail: "brief" } } }],
+  ApplicantPipeline: [
+    { from: "style", values: { columns: { arrange: "strip" }, stack: { arrange: "rows" } } },
+  ],
   Progress: [{ from: "style", values: { stack: {}, compact: {} } }],
   Hero: [{ from: "style", values: { statement: {}, photo: { media: "cover" } } }],
   Header: [{ from: "style", values: { large: {}, inline: { emphasis: "quiet" } } }],

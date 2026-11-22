@@ -6,4 +6,5 @@ export const words = {
   fixtureResults: { win: "Win", draw: "Draw", loss: "Loss" },
   fixtureScore: (us: string, them: string) => `${us}–${them}`,
   fixtureSeparator: " · ",
+  fixtureLive: "Live",
 };
