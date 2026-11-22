@@ -1,33 +1,31 @@
 // prettier-ignore
-import { KitCard, KitContent, KitEmpty, KitPhoto, KitRow, KitSkeleton, KitText,
-  PartContext, type TextRole, type TextTone, useComponentState, usePartContext, useVariant, useWords,
+import { KitCard, KitContent, KitGrid, KitLayoutText, KitPhoto, KitRow, KitRowGroup, KitState, KitText,
+  PartContext, useComponentState, usePartContext, useKit, useWords,
 } from "../../../kit";
 import { bookingWordsFor } from "../lang";
-import { serviceCapacity, serviceDeposit, servicePrice, serviceReading } from "../copy";
+import { serviceCapacity, serviceDeposit, serviceDepositAmount, servicePrice, serviceReading } from "../copy";
 import { z } from "zod";
 // prettier-ignore
 import { detailOf, durationLine, itemsOf, itemVariantProps, photo, placeholderTitle, probesFor,
-  screenId, text, thingOf, titleOf, variantProps, type ThemeDensity, type FallbackInput,
+  screenId, text, thingOf, titleOf, type ThemeDensity, type FallbackInput,
   type Meta, type Probe, type Props,
+  variantProps,
 } from "../../../catalog";
+import { prompt } from "../../../entry/prompt-ServiceMenu.generated";
 export const meta = {
   id: "ServiceMenu",
   status: "ready",
   group: "content",
-  purpose: "Choose a bookable service by duration and price, grouped by offering.",
-  pick: "Services to book with numeric duration, price and optional group headings. Not plain things to browse (List), an existing booking (Appointment), or goods for sale (ProductGrid). Several ordinary things each with short details and their own link remain List.",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Services stored on the device by the provider.",
-  writeHints: [
-    'A request to hide descriptions changes ONLY detail to "brief". Keep the supplied description in sub. Set density, surface, lead, style and every row tone/mark to null unless separately asked; do not spell out defaults. An absent photo does not request lead "none".',
-    "Set capacity only for an explicit group limit, deposit only for an upfront amount, and portfolio.goto only for a separate gallery screen. Keep the service's goto for booking.",
-  ],
+  writeHints: prompt.writeHints,
   // prettier-ignore
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"],
-    detail: ["full", "brief"], lead: ["thumb", "none"] },
+  variants: { detail: ["full", "brief"], lead: ["thumb", "none"] },
   items: {
     key: "services",
     parts: ["root", "name", "minutes", "price", "sub", "group", "photo", "capacity", "deposit", "portfolio"],
@@ -103,8 +101,8 @@ export const examples = [
     ],
   },
   { services: walkingServices },
-  { density: "compact", services: walkingServices },
-  { surface: "outlined", services: walkingServices },
+  { services: walkingServices },
+  { services: walkingServices },
   { detail: "brief", services: walkingServices },
   { lead: "none", services: walkingServices },
   { services: [{ ...walkingServices[0]!, tone: "good" }, walkingServices[1]!] },
@@ -133,68 +131,100 @@ export const probes = [
     expectProps: { services: [{ goto: "time", portfolio: { goto: "walks_gallery" } }] } },
   { ...read("Open the portfolio for the park walk", { address: "s1/r1/portfolio", action: "press" }), screen: 9 },
 ] satisfies Probe[];
-// prettier-ignore
-function ServiceText({ value, part, density, role = "body", tone = "text" }:
-  { value: string; part: string | null; density: ThemeDensity; role?: TextRole; tone?: TextTone }) {
-  const loading = useComponentState() === "loading";
-  if (loading) return <KitSkeleton density={density} shape="figure" inset="none" content={[[role, value, "start", "compact"]]} />;
-  return <KitText {...{ role, tone, density, part }} numberScale="compact" tabular={role === "number"}>{value}</KitText>;
-}
 type MenuProps = Props<typeof props, typeof meta>;
+type Service = MenuProps["services"][number];
+const supporting = { role: "caption", tone: "muted" } as const;
+
+function Deposit({ deposit, density, lang }: { deposit: number; density: ThemeDensity; lang: string }) {
+  const amount = serviceDepositAmount(deposit, lang);
+  const [before, after] = serviceDeposit(deposit, lang).split(amount, 2);
+  return (
+    <KitText {...supporting} part="deposit" density={density}>
+      {before}
+      <KitText role="number" numberScale="compact" tabular emphasis="strong" part={null} density={density}>
+        {amount}
+      </KitText>
+      {after}
+    </KitText>
+  );
+}
+
 // prettier-ignore
-function ServiceDetails({ service, density, lang }: { service: MenuProps["services"][number]; density: ThemeDensity; lang: string }) {
-  const duration = <ServiceText {...{ density }} value={durationLine(service.minutes, lang)} role="number" tone="muted" part="minutes" />;
-  const content = <>
-    <ServiceText {...{ density }} value={service.name} part="name" role={service.capacity > 1 || service.deposit !== undefined || service.portfolio ? "heading" : "body"} />
-    {service.price === undefined ? duration : (
-      <KitContent lead={duration} leadingAlign="row" density={density}>
-        <ServiceText {...{ density }} value={servicePrice(service.price, lang)} role="number" tone="muted" part="price" />
-      </KitContent>
-    )}
-    {service.sub && <ServiceText {...{ density }} value={service.sub} role="caption" tone="muted" part="sub" />}
-    {service.capacity > 1 && <ServiceText {...{ density }} value={serviceCapacity(service.capacity, lang)} role="caption" tone="muted" part="capacity" />}
-    {service.deposit !== undefined && <ServiceText {...{ density }} value={serviceDeposit(service.deposit, lang)} role="caption" tone="muted" part="deposit" />}
-  </>;
-  return density === "compact" ? content : <KitContent>{content}</KitContent>;
+function ServiceDetails({ service, density, lang }: { service: Service; density: ThemeDensity; lang: string }) {
+  const duration = <KitLayoutText line={{ ...supporting, tabular: true,
+    text: durationLine(service.minutes, lang), part: "minutes" }} density={density} />;
+  return <KitContent density={density} rhythm={density === "compact" ? "flush" : "close"}>
+    <KitLayoutText line={{ text: service.name, part: "name", strong: true }} density={density} />
+    {service.price === undefined ? duration : <KitGrid fitLast density={density}>
+      {duration}
+      <KitLayoutText line={{ ...supporting, tabular: true, text: servicePrice(service.price, lang), part: "price" }}
+        align="end" density={density} />
+    </KitGrid>}
+    <KitLayoutText line={{ ...supporting, text: service.sub, part: "sub" }} density={density} />
+    {service.capacity > 1 && <KitLayoutText line={{ ...supporting,
+      text: serviceCapacity(service.capacity, lang), part: "capacity" }} density={density} />}
+    {service.deposit !== undefined && <Deposit deposit={service.deposit} {...{ density, lang }} />}
+  </KitContent>;
 }
 // prettier-ignore
-function ServiceRows({ services, density, style, surface }: MenuProps & { density: ThemeDensity }) {
-  const { lang, words } = useWords();
-  const { bookLabel, servicePortfolio } = bookingWordsFor(lang);
+function ServiceItem({ service, density, style, tight }: Pick<MenuProps, "style"> & {
+  service: Service; density: ThemeDensity; tight: boolean;
+}) {
+  const { lang, words: { bookLabel, servicePortfolio } } = useWords(bookingWordsFor);
   const loading = useComponentState() === "loading";
-  const photos = services.some((service) => service.photo);
-  const context = usePartContext();
-  return services.flatMap((service, index) => {
-    const { id, name, portfolio } = service;
-    const grouped = Boolean(portfolio) && style === "cards";
-    const row = <KitRow key={id} item={id} tone={service.tone} mark={service.mark}
-      surface={grouped ? "plain" : style === "cards" ? surface : undefined}
-      label={loading ? words.loadingLabel : name} goto={loading ? undefined : service.goto} leadingAlign="row"
-      leadingWidth={photos ? "avatar" : undefined}
-      leading={service.photo && <KitPhoto photo={service.photo} label={name} part="photo" />}
-      trailing={<ServiceText {...{ density }} value={bookLabel} role="caption" tone="accent" part={null} />}>
+  const { id, name, portfolio } = service;
+  const grouped = Boolean(portfolio) && style === "cards";
+  const tone = service.tone === "neutral" && service.mark === "muted" ? "muted" : service.tone;
+  const row = <KitRow item={id} tone={tone} mark={service.mark} density={density} inline={tight}
+      part={loading ? null : "root"}
+      surface={tone === "good" ? "tinted" : tone === "muted" ? undefined
+        : grouped ? "plain" : style === "cards" ? "card" : undefined}
+      label={name} goto={loading ? undefined : service.goto} leadingAlign="row"
+      leading={service.photo && <KitPhoto photo={service.photo} label={name} part={loading ? null : "photo"} loading={loading} />}
+      trailing={<KitLayoutText line={{ text: bookLabel, role: "caption", tone: "accent" }} density={density} />}>
       <ServiceDetails {...{ service, density, lang }} />
     </KitRow>;
-    const link = portfolio && <KitRow key={`${id}/portfolio`} item={id} part="portfolio"
-      surface={grouped ? "plain" : undefined} label={servicePortfolio} goto={loading ? undefined : portfolio.goto} {...{ density }}>
-      <ServiceText {...{ density }} value={servicePortfolio} role="label" tone="accent" part={null} />
-    </KitRow>;
-    const group = service.group && service.group !== services[index - 1]?.group &&
-      <PartContext.Provider key={`${id}/group`} value={{ ...context, item: id }}>
-        <KitRow part={null} label={service.group}>
-          <ServiceText {...{ density }} value={service.group} role="caption" tone="muted" part="group" />
-        </KitRow>
-      </PartContext.Provider>;
-    return [group, grouped ? <KitRow key={id} part={null} inline label={name} {...{ surface }}>{row}{link}</KitRow>
-      : row, !grouped && link];
+  const link = portfolio && <KitRow item={id} part={loading ? null : "portfolio"}
+    surface={grouped ? "plain" : undefined} label={servicePortfolio} goto={loading ? undefined : portfolio.goto} {...{ density }}>
+    <KitLayoutText line={{ text: servicePortfolio, role: "caption", tone: "accent" }} density={density} />
+  </KitRow>;
+  if (grouped) return <KitRow part={null} inline label={name} surface="card">{row}{link}</KitRow>;
+  return <>{tight ? <KitContent inset="md" density={density}>{row}</KitContent> : row}{link}</>;
+}
+// prettier-ignore
+function ServiceRows({ services, density, style }: MenuProps & { density: ThemeDensity }) {
+  const context = usePartContext();
+  const cards = style === "cards";
+  const groups: Service[][] = [];
+  for (const service of services) {
+    const group = groups.at(-1);
+    if (group && group[0]!.group === service.group) group.push(service);
+    else groups.push([service]);
+  }
+  return groups.map((rows, index) => {
+    const { id, group } = rows[0]!;
+    return <KitContent key={id} density={density} group={index ? "response" : "content"}>
+      {group && <PartContext.Provider value={{ ...context, item: id }}>
+        <KitContent inset="md" density={density}>
+          <KitLayoutText line={{ ...supporting, text: group, part: "group" }} density={density} />
+        </KitContent>
+      </PartContext.Provider>}
+      <KitRowGroup density={density} separators={!cards && !group} spacing={cards || group ? "groups" : "rows"}
+        leadingWidth={!cards && services.some((service) => service.photo) ? "avatar" : undefined}>
+        {rows.map((service) => <ServiceItem key={service.id} {...{ service, density, style }}
+          tight={Boolean(group) && !cards} />)}
+      </KitRowGroup>
+    </KitContent>;
   });
 }
 // prettier-ignore
 export function ServiceMenu(input: MenuProps) {
   const state = useComponentState();
-  const { style, surface } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
-  return <KitCard style={state === "empty" ? "inset" : (style ?? "inset")} surface={surface} density={density}>
-      {state === "empty" ? <KitEmpty decorativeIcon part="empty" /> : <ServiceRows {...input} density={density} />}
+  const { style } = input;
+  const density = useKit().density;
+  const rows = <ServiceRows {...input} density={density} />;
+  return <KitCard style={state === "empty" ? "inset" : (style ?? "inset")} surface="card" density={density}
+    padded={state !== "empty" && style !== "cards"} inset="none">
+      <KitState loading={rows} part="empty" density={density}>{rows}</KitState>
   </KitCard>;
 }

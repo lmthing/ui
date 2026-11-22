@@ -5,43 +5,51 @@ import { previewSignUp, projectSignUp, signUpClaim, signUpReading, signUpRecordK
 import { signUpRowCopy, signUpStatus, validSignUpClaims, type SignUpRow } from "../copy";
 import { communityWordsFor } from "../lang";
 import { distinct, ref, seedTitle } from "../seeds";
+import { prompt } from "../../../entry/prompt-SignUpSheet.generated";
 
 // Core first: Checklist/default ticks jobs, not limited places with claim ownership and release.
 export const meta = {
   id: "SignUpSheet",
   status: "ready" as "ready" | "draft",
   group: "input",
-  purpose: "Let group members claim or release a limited contribution place.",
-  pick: "A shared contribution sheet with counted places, claimants and claim/release for an ongoing group. Not a private task list (Checklist), bookable times (Slots), gifts (Registry) or staff cover (OpenShift).",
-  writeHints: [
-    "Use unique snake_case slot ids. Claims must name an existing slot and be unique per member per slot; never exceed capacity. Do not write claimed or remaining counts.",
-    'For compact summaries that expand to reveal claimants, write detail "brief" and keep the claims. That is a disclosure request, not a spacing or surface request: write density null and surface null unless those are expressly requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "people",
   realPath:
     "A shared app atomically reserves the remaining places and lets each member release only their own claim.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["claimants"] } },
   parts: ["root", "title", "status"],
   items: {
     key: "slots",
     // prettier-ignore
-    parts: ["root", "title", "meta", "capacity", "remaining", "claimants", "claim", "claim_label", "release", "release_label"],
+    parts: ["root", "title", "meta", "capacity", "remaining", "claimants", "claim", "claim_label",
+      "release", "release_label", "retry_claim", "retry_claim_label", "retry_release", "retry_release_label"],
   },
   states: ["filled", "empty", "loading", "success", "error"],
   actions: {
-    items: { root: ["toggle"], claim: ["press"], release: ["press"] },
+    items: {
+      root: ["toggle"],
+      claim: ["press"],
+      release: ["press"],
+      retry_claim: ["press"],
+      retry_release: ["press"],
+    },
     when: {
       root: { detail: "brief" },
       claim: { can_claim: true },
       release: { own_claim: true, has_own_claim: true },
+      retry_claim: { retry_claim: true },
+      retry_release: { retry_release: true, has_own_claim: true },
     },
   },
   select: { prop: "expanded", value: "index", mode: "flags", runtime: true },
-  confirmParts: ["release"],
+  errorActions: ["retry_claim.press", "retry_release.press"],
+  confirmParts: ["release", "retry_release"],
   deviceData: [signUpRecordKind],
   previewDeviceData: previewSignUp,
   live: { derive: projectSignUp },
@@ -50,6 +58,7 @@ export const meta = {
     has_own_claim: (_data, input) => (input.slots as SignUpRow[]).some((row) => row.own_claim),
   },
   readSuccess: true,
+  readError: true,
   read: signUpReading,
 } as const satisfies c.Meta;
 
@@ -132,21 +141,19 @@ type Finish = { density: c.ThemeDensity; detail: SheetProps["detail"]; state: c.
 function SlotRow({ row, density, detail, state }: Finish & { row: Row }) {
   const scope = kit.usePartContext();
   const { lang, words: { signUp: words } } = kit.useWords(communityWordsFor);
-  const { capacity, remaining, claimants, action } = signUpRowCopy(row, detail, lang);
-  const control = action && (state === "filled" || state === "loading") ? action : undefined;
-  const kind = control === "release" ? "danger" : "secondary";
+  const { capacity, remaining, claimants, action, retry } = signUpRowCopy(row, detail, lang);
+  const control = state === "error" ? retry : state === "filled" || state === "loading" ? action : undefined;
+  const kind = control === "release" || control === "retry_release" ? "danger" : "secondary";
   const loading = state === "loading";
   const disclosure = detail === "brief" && (state === "filled" || loading);
   return <kit.PartScope {...scope} item={row.id}>
-    <kit.KitContent density={density} rhythm="flush">
-      <kit.KitRow item={row.id} part={loading ? null : "root"} label={row.title} inline fitContent={!disclosure} density={density}
+    <kit.KitGrid fitLast density={density}>
+      <kit.KitRow part={loading ? null : "root"} label={row.title} inline fitContent={!disclosure} density={density}
         {...(disclosure && !loading ? { role: "button", expanded: row.expanded === true } as const : {})}
         trailing={disclosure ? <kit.KitIcon name={row.expanded ? "minus" : "plus"} decorative loading={loading} /> : null}>
-        <kit.KitMetaLine density={density} title={{ text: row.title, part: "title", strong: true }}
-          meta={{ text: row.meta, part: "meta" }} />
-      </kit.KitRow>
-      <kit.KitGrid fitLast density={density}>
-        <kit.KitContent density={density}>
+        <kit.KitContent density={density} rhythm="flush">
+          <kit.KitMetaLine density={density} title={{ text: row.title, part: "title", strong: true }}
+            meta={{ text: row.meta, part: "meta" }} />
           {loading ? <kit.KitLayoutText density={density}
             line={{ text: `${capacity}${words.separator}${remaining}`, role: "meta" }} /> :
           <kit.KitText part={null} role="label" tone="muted" density={density}>
@@ -158,22 +165,22 @@ function SlotRow({ row, density, detail, state }: Finish & { row: Row }) {
             <kit.KitLayoutText density={density} line={{ text: claimants, part: "claimants", role: "meta", tone: "muted" }} />
           </kit.KitContent>}
         </kit.KitContent>
-        {control ? <kit.KitAction part={loading ? null : control} action="press" kind={kind} label={words[control]} /> : null}
-      </kit.KitGrid>
-    </kit.KitContent>
+      </kit.KitRow>
+      {control ? <kit.KitAction part={loading ? null : control} action="press" kind={kind} label={words[control]} /> : null}
+    </kit.KitGrid>
   </kit.PartScope>;
 }
 
 // prettier-ignore
 export function SignUpSheet(input: SheetProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang } = kit.useWords(communityWordsFor);
   const { slots } = kit.useLiveControls(meta, input) as { slots: Row[] };
-  const rows = <kit.KitContent group="response" density={density}>
-    <kit.KitRowGroup density={density} spacing="groups">
+  const rows = <kit.KitContent density={density}>
+    <kit.KitRowGroup density={density} spacing="groups" separators={false}>
       {slots.map((row) => <SlotRow key={row.id} {...{ row, density, detail, state }} />)}
     </kit.KitRowGroup>
   </kit.KitContent>;

@@ -3,24 +3,22 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { cardDeckCopy, type DeckCard } from "../copy";
 import { playWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-CardDeck.generated";
 
 // Core first: SwipeStack/default sorts cards by keep or skip, not random finite draws and reshuffles.
 export const meta = {
   id: "CardDeck",
   status: "ready",
   group: "action",
-  purpose: "Draw cards at random without replacement and reshuffle the discards when needed.",
-  pick: "Randomly draw one to three cards without replacement from a finite deck. Not keep-or-skip sorting (SwipeStack), a spinner with repeats (Spinner), or host-read questions (Trivia).",
-  writeHints: [
-    "Write the authored deck and draw size. Never write shuffle order, current draws, or pile counts.",
-    'For a brief deck summary (show how many cards remain and hide the discard count), write {"detail":"brief","density":null,"surface":null}. Null detail keeps both counts visible.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Device entropy drives the local draw and discard piles; outcomes persist on one phone.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["discard"] } },
   parts: ["root", "title", "remaining", "discard", "card", "card_1", "card_2", "card_3", "draw", "reshuffle"],
   states: ["empty", "filled", "loading", "success"],
@@ -98,8 +96,6 @@ export const examples = [
     ),
   },
   { ...gardenDeck, detail: "brief" },
-  { ...gardenDeck, density: "compact" },
-  { ...gardenDeck, surface: "outlined" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("CardDeck");
@@ -125,7 +121,7 @@ export const probes = [
 
 type Setup = c.Props<typeof props, typeof meta>;
 type DeckCopy = ReturnType<typeof cardDeckCopy>;
-type Density = NonNullable<Setup["density"]>;
+type Density = c.ThemeDensity;
 
 function CardFace({ card, density }: { card: DeckCard; density: Density }) {
   return (
@@ -262,7 +258,7 @@ export function CardDeck(setup: Setup) {
   const { screen, component } = kit.usePartContext();
   const state = kit.useComponentState();
   const { lang, words } = kit.useWords(playWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, setup.density);
+  const density = kit.useKit().density;
   const stored = kit.useControlValue<unknown>(`${screen}/${component}/${c.drawKey}`, undefined);
   const deck = cardDeckCopy(
     setup.cards,
@@ -271,7 +267,7 @@ export function CardDeck(setup: Setup) {
   );
   const content = <DeckContent {...{ setup, deck, density }} />;
   return (
-    <kit.KitCard part="root" padded density={density} surface={setup.surface}>
+    <kit.KitCard part="root" padded density={density}>
       {state === "loading" ? (
         <kit.KitState density={density} loading={content} />
       ) : deck.exhausted && state === "success" ? (

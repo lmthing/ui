@@ -3,22 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { shiftActionFlags, shiftActionLabels, shiftDetails, shiftReading, shiftSchedule } from "../copy";
 import { teamWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Shift.generated";
 
 // Core first: Card/plain previews a record but cannot express shift status and separate swap and offer actions.
 export const meta = {
   id: "Shift",
   status: "ready",
   group: "content",
-  purpose: "See one assigned shift and ask to swap it or offer it to someone else.",
-  pick: "One assigned staff shift with start and end times, coworkers and swap or offer actions. Not a record preview (Card), the whole rota (Roster), or a client's booking (Appointment).",
-  writeHints: [
-    'Use detail "brief" only when asked to hide where and with whom; retain those values in place and with. A request to hide details does not change row spacing: set density to null unless tighter spacing is specifically requested. Set detail to null for the normal card.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "The shift is a record in a shared rota.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["place", "with"] } },
   parts: ["root", "date", "from", "to", "place", "role", "with", "status", "swap", "offer"],
   states: ["filled", "loading"],
@@ -77,7 +76,7 @@ export const examples = [
     with: "Sam",
     status: "swap_requested",
   },
-  { ...morningShift, density: "compact" },
+  { ...morningShift },
   { ...morningShift, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 
@@ -131,63 +130,68 @@ function ShiftDetails({ details, density, loading }: {
 
 // prettier-ignore
 function ShiftHeader({
-  schedule: { date, from, to, range }, status, separator, density, loading,
+  schedule: { date, from, to }, status, separator, density,
 }: {
   schedule: ReturnType<typeof shiftSchedule>;
   status: string;
   separator: string;
   density: c.ThemeDensity;
-  loading: boolean;
 }) {
-  const compact = density === "compact";
-  const labels = (
-    <kit.KitGrid fitLast density={density}>
-      {loading
-        ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", date]]} />
-        : <kit.KitText part="date" role="label" tone="muted" density={density}>{date}</kit.KitText>}
-      {loading
-        ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", status]]} />
-        : <kit.KitText part="status" role="label" tone="muted" density={density}>{status}</kit.KitText>}
-    </kit.KitGrid>
-  );
   return (
-    <kit.KitContent group="response" density={density}>
-      {loading
-        ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["number", range]]} />
-        : <kit.KitText part={null} role="number" lines={1} tabular density={density}>
-            <kit.KitText part="from" role="number" tabular density={density}>{from}</kit.KitText>
-            {separator}
-            <kit.KitText part="to" role="number" tabular density={density}>{to}</kit.KitText>
-          </kit.KitText>}
-      <kit.KitContent group={compact ? "content" : "response"} density={density}>
-        {labels}
-      </kit.KitContent>
+    <kit.KitContent density={density}>
+      <kit.KitFigure density={density}
+        value={{ text: from, part: "from" }}
+        unit={{ text: `${separator}${to}`, part: "to", role: "figure", tone: "text", tabular: true }} />
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitLayoutText line={{ text: date, part: "date", role: "meta", tone: "muted" }} density={density} />
+        <kit.KitLayoutText line={{ text: status, part: "status", role: "meta", tone: "muted" }} density={density} />
+      </kit.KitGrid>
     </kit.KitContent>
   );
 }
 
 export function Shift(input: c.Props<typeof props, typeof meta>) {
   const loading = kit.useComponentState() === "loading";
-  const { lang, words } = kit.useWords(teamWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  return (
+    <kit.KitCard part="root" padded density={density}>
+      <kit.KitState density={density} loading={<ShiftBody {...{ input, detail, density, loading }} />}>
+        <ShiftBody {...{ input, detail, density, loading }} />
+      </kit.KitState>
+    </kit.KitCard>
+  );
+}
+
+function ShiftBody({
+  input,
+  detail,
+  density,
+  loading,
+}: {
+  input: c.Props<typeof props, typeof meta>;
+  detail: c.AxisValue<"detail">;
+  density: c.ThemeDensity;
+  loading: boolean;
+}) {
+  const { lang, words } = kit.useWords(teamWordsFor);
   const labels = shiftActionLabels(input.status, lang);
   const { canSwap, canOffer } = shiftActionFlags(input.status);
   return (
-    <kit.KitCard part="root" padded density={density}>
+    <>
       <ShiftHeader
         schedule={shiftSchedule(input, lang)}
         status={words.shiftStatus[input.status]}
         separator={words.shiftTimeSeparator}
-        {...{ density, loading }}
+        density={density}
       />
-      <ShiftDetails details={shiftDetails({ ...input, detail }, lang)} {...{ density, loading }} />
       <kit.KitContent group="response" density={density}>
-        <kit.KitGrid density={density}>
-          <kit.KitAction part="swap" kind="secondary" label={labels.swap} disabled={!canSwap} full />
-          <kit.KitAction part="offer" kind="quiet" label={labels.offer} disabled={!canOffer} full />
-        </kit.KitGrid>
+        <ShiftDetails details={shiftDetails({ ...input, detail }, lang)} {...{ density, loading }} />
       </kit.KitContent>
-    </kit.KitCard>
+      <kit.KitActionFooter density={density}>
+        <kit.KitAction part="swap" kind="secondary" label={labels.swap} disabled={!canSwap} />
+        <kit.KitAction part="offer" kind="quiet" label={labels.offer} disabled={!canOffer} />
+      </kit.KitActionFooter>
+    </>
   );
 }

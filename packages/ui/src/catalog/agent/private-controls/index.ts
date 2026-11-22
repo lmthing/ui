@@ -97,6 +97,8 @@ export function stageSecretReveal(
 export function privateOffer(meta: Meta, address: string, part: string, action: string, item: boolean) {
   const spec = meta.actions;
   const scope = item ? "items" : "parts";
+  if (!item && action === "toggle" && spec?.scannerBrightness?.includes(part))
+    return { address, part, action, detail: "", hostSecret: "brightness" as const };
   const hostSecret: Affordance["hostSecret"] =
     action === "copy" && spec?.authenticatedCopy?.[scope]?.includes(part)
       ? "copy"

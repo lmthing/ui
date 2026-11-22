@@ -1,17 +1,16 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import { passRevealCurtain } from "../copy";
+import { prompt } from "../../../entry/prompt-PassReveal.generated";
 
 // Core first: Choice/default lets one person pick an option, not pass a veiled secret between players.
 export const meta = {
   id: "PassReveal",
   status: "draft",
   group: "content",
-  purpose: "Privately reveal a different secret to each player on a shared phone.",
-  pick: "Pass one phone around so each player privately reveals their own secret role, word, or prompt. Not ordinary private selection (Choice), host-read questions (Trivia), or spaced recall (Flashcard).",
-  writeHints: [
-    "Write player names and their private seeds, never the current player, number seen, or reveal state.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

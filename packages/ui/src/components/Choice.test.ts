@@ -20,7 +20,6 @@ describe("Choice schema", () => {
   );
   it("applies defaults, trims text and derives which option is chosen", () => {
     expect(props.parse({ options: [{ title: " Weekly " }, { title: "Monthly" }], at: 1 })).toEqual({
-      surface: "card",
       detail: "full",
       options: [
         { title: "Weekly", on: false },
@@ -70,7 +69,6 @@ describe("Choice schema", () => {
   it("types view props with item ids and a derived chosen flag", () => {
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["options"][number]["id"]>().toEqualTypeOf<string>();
-    expectTypeOf<ViewProps["surface"]>().toEqualTypeOf<"card" | "plain">();
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
   });
 });
@@ -147,19 +145,16 @@ describe("Choice fallback, metadata and actions", () => {
 });
 
 describe("Choice rendering", () => {
-  it.each(examples.map((example) => [props.parse(example).surface, example] as const))(
-    "draws %s options as radios or ticks",
-    (_, example) => {
-      const html = renderInstance("Choice", example, "filled", theme);
-      const parsed = props.parse(example);
-      expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
-      parsed.options.forEach((option, index) => {
-        const tag = html.match(new RegExp(`<[^>]*data-testid="home/c1/r${index + 1}/root"[^>]*>`))?.[0];
-        expect(tag).toContain(`role="${parsed.multi ? "checkbox" : "radio"}"`);
-        expect(tag).toContain(`aria-checked="${option.on === true}"`);
-      });
-    },
-  );
+  it.each(examples)("draws options as radios or ticks", (example) => {
+    const html = renderInstance("Choice", example, "filled", theme);
+    const parsed = props.parse(example);
+    expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
+    parsed.options.forEach((option, index) => {
+      const tag = html.match(new RegExp(`<[^>]*data-testid="home/c1/r${index + 1}/root"[^>]*>`))?.[0];
+      expect(tag).toContain(`role="${parsed.multi ? "checkbox" : "radio"}"`);
+      expect(tag).toContain(`aria-checked="${option.on === true}"`);
+    });
+  });
   it("shows the badge and value of an option", () => {
     const html = renderInstance("Choice", examples[1]!, "filled", theme);
     expect(html).toContain('data-testid="home/c1/r2/badge"');

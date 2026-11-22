@@ -4,19 +4,31 @@ import { dateTime, distinct, periodFields, ref } from "../seeds";
 import { calculatePayroll, frozenPayroll, payrollConfig, payrollScale, validGross } from "./Payroll";
 
 const recordRef = ref.meta({ kind: "ref" });
-// prettier-ignore
-export const payrollPayee = z.strictObject({
-  employeeRef: recordRef, name: c.text(24), basis: z.enum(["hourly", "salary"]), rate: z.number().nonnegative(),
-  hours: z.number().min(0).max(744).optional(), ruleRef: recordRef, paidAt: dateTime.optional(),
-  adjustments: z.array(z.strictObject({ label: c.text(20), amount: z.number() })).min(0).max(3),
-}).refine(({ basis, hours }) => (basis === "hourly") === (hours !== undefined), { path: ["hours"] })
+export const payrollPayee = z
+  .strictObject({
+    employeeRef: recordRef,
+    name: c.text(24),
+    basis: z.enum(["hourly", "salary"]),
+    rate: z.number().nonnegative(),
+    hours: z.number().min(0).max(744).optional(),
+    ruleRef: recordRef,
+    paidAt: dateTime.optional(),
+    adjustments: z
+      .array(z.strictObject({ label: c.text(20), amount: z.number() }))
+      .min(0)
+      .max(3),
+  })
+  .refine(({ basis, hours }) => (basis === "hourly") === (hours !== undefined), { path: ["hours"] })
   .refine(validGross, { path: ["adjustments"], message: "Gross pay must be nonnegative and finite" });
 
 const minor = z.int().nonnegative();
 const frozenFigures = z.object({ gross: minor, deductions: minor, net_pay: minor, employer_cost: minor });
-// prettier-ignore
 const frozenPayee = z.object({
-  runRef: recordRef, employeeRef: recordRef, ruleRef: recordRef, currency: c.appCurrencySchema, figures: frozenFigures,
+  runRef: recordRef,
+  employeeRef: recordRef,
+  ruleRef: recordRef,
+  currency: c.appCurrencySchema,
+  figures: frozenFigures,
 });
 const hostPayee = payrollPayee.safeExtend({ frozen: frozenPayee.optional() });
 const hostRun = z.object({
@@ -117,18 +129,37 @@ export function payrollLifecycle(input: c.Values, data: c.DeviceData) {
 }
 
 // Synthetic only: the gallery adapter supplies it, not the catalog's reader or renderer.
-// prettier-ignore
 export function previewPayroll({ input, state }: { input: c.Values; state: c.StateName }): c.DeviceData {
   const { runRef, from, to, payDate, payees, voided, finalizedAt, style } = input as Input & HostRun;
-  const config = { currency: "GBP", rates: { sample_pay: { deductionRate: 0.15, employerRate: 0.1 } } } as const;
+  const config = {
+    currency: "GBP",
+    rates: { sample_pay: { deductionRate: 0.15, employerRate: 0.1 } },
+  } as const;
   const finalized = finalizedAt ?? (state === "success" ? `${payDate}T09:00:00Z` : undefined);
   return {
     books_payroll_rules: [config],
-    books_payroll_runs: [{ runRef, from, to, payDate, voided, finalizedAt: finalized,
-      activeEmployee: style === "payslip" ? (runRef === "nov_care" ? "mira" : "sam") : undefined,
-      payees: payees.map((payee) => ({ ...payee, frozen: finalized ?
-        { runRef, employeeRef: payee.employeeRef, ruleRef: payee.ruleRef, currency: config.currency,
-          figures: calculatePayroll(payee, config, payrollScale(config.currency)) } : undefined })),
-    }],
+    books_payroll_runs: [
+      {
+        runRef,
+        from,
+        to,
+        payDate,
+        voided,
+        finalizedAt: finalized,
+        activeEmployee: style === "payslip" ? (runRef === "nov_care" ? "mira" : "sam") : undefined,
+        payees: payees.map((payee) => ({
+          ...payee,
+          frozen: finalized
+            ? {
+                runRef,
+                employeeRef: payee.employeeRef,
+                ruleRef: payee.ruleRef,
+                currency: config.currency,
+                figures: calculatePayroll(payee, config, payrollScale(config.currency)),
+              }
+            : undefined,
+        })),
+      },
+    ],
   };
 }

@@ -107,6 +107,17 @@ it("keeps a foreign pack's real import while excluding noise from an aggregate r
   expect(selected.tests).toContain("src/catalog/registry/scoped-archetypes.test.ts");
 });
 
+it.each([
+  ["src/components/List", "List"],
+  ["src/packs/booking/components/Waitlist", "Waitlist"],
+])("selects the owner and replay tests when only %s.prompt.md changes", (file, id) => {
+  const selected = relatedSelection(sample(), [`${file}.prompt.md`]);
+  expect(selected.ids).toEqual([id]);
+  expect(selected.packs).toEqual([]);
+  expect(selected.tests).toContain("test/probes.test.ts");
+  expect(selected.related).toContain(`${file}.tsx`);
+});
+
 it("runs all reading cases when the shared reader under test changes", () => {
   const root = fixture({
     "src/catalog/index.ts": 'export { readComponent } from "./agent/read";',

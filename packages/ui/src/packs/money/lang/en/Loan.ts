@@ -1,0 +1,33 @@
+export const words = {
+  loanLabels: {
+    balance: "Remaining balance",
+    principal: "Opening principal",
+    rate: "Annual rate",
+    payment: "Monthly payment",
+    weekly: "Weekly payment",
+    biweekly: "Payment every two weeks",
+    next: "Next payment",
+    finish: "Estimated payoff",
+    schedule: "Upcoming payments",
+    installments: "Upcoming installments",
+    installmentAmount: "Payment",
+    edit: "Open terms editor",
+    cleared: "Loan paid off",
+    forecastError: "No forecast",
+    forecastHelp: "In your loan terms, check the first due date and any recorded payment dates.",
+    insufficientTitle: "Payment too low",
+    insufficient: "The monthly payment must exceed the interest to reduce the balance.",
+    insufficientPeriodic: "Each payment must exceed the interest to reduce the balance.",
+    unavailable: "No payoff date in this estimate",
+    outOfRange: "This balance is too large to estimate.",
+    estimate: "Fixed rate. No fees or new debt.",
+  },
+  loanField: (label: string, value: string) => `${label}: ${value}`,
+  loanNext: (label: string, date: string, amount: string) => `${label} · ${date} · ${amount}`,
+  loanSplit: (principal: string, interest: string) => `Principal ${principal} · Interest ${interest}`,
+  loanRemaining: (balance: string) => `${balance} left`,
+  loanRow: (date: string, balance: string, split?: string, payment?: string) =>
+    [date, balance, payment, split].filter(Boolean).join(" · "),
+  loanMore: (count: string, plural: Intl.LDMLPluralRule) =>
+    `And ${count} more ${plural === "one" ? "payment" : "payments"}`,
+};

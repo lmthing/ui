@@ -3,22 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { entryMonth, entryMonths, entryTags } from "../copy";
 import { mindWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Entries.generated";
 
 // Core first: List/cards cannot pair a dated journal excerpt with a mood face, tags and a thumbnail.
 export const meta = {
   id: "Entries",
   status: "ready",
   group: "content",
-  purpose: "Revisit personal journal entries grouped by month, newest first.",
-  pick: "A feed of past personal journal entries with dates, mood faces, excerpts, tags and optional thumbnails. Not general tappable rows (List), posts by other people (Feed), or saved passages from books (Highlights).",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Journal entries are stored only on the device.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
     media: ["thumb", "none"],
   },
@@ -30,11 +29,7 @@ export const meta = {
   // prettier-ignore
   live: { derive: ({ entries, media }) => media === "none" && Array.isArray(entries)
     ? { entries: entries.map((row: Record<string, unknown>) => ({ ...row, photo: undefined })) } : {} },
-  writeHints: [
-    "Use real dates in YYYY-MM-DD, newest first. Each entry needs a goto screen id; when fewer than three tags are known, provide only those tags.",
-    'Use detail null when tags should be visible, including whenever the journal brief names tags to show. Use detail "brief" only when explicitly asked to hide tags. Write null for unrequested density and surface; never fill in default variant names.',
-    'An explicit compact digest or one-line excerpt request requires both {"density":"compact","media":"none"}, even when the brief has no photos. When hiding a supplied photo, keep its reference in the entry and set media "none". If the only request is to hide tags, media must remain null. Supply prompt only when a shared journal prompt badge is requested.',
-  ],
+  writeHints: prompt.writeHints,
   read: (input, state, lang): string[] => {
     if (state !== "filled") return [];
     const { entries, detail } = input as z.output<typeof props>;
@@ -95,20 +90,40 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
-// prettier-ignore
 export const examples = [
-  { entries: [
-    { date: "2026-11-19", mood: 4, text: "A walk helped me feel calmer.",
-      tags: ["Outdoors", "Morning"], photo: "lib:parks", goto: "nov_19" },
-    { date: "2026-11-04", mood: 3, text: "I put my phone away early to write.",
-      tags: ["Evening"], goto: "nov_04" },
-  ] },
-  { density: "compact", media: "none", prompt: "Small joys", entries: [
-    { date: "2026-10-02", text: "I took my time over breakfast.",
-      tags: [], photo: "lib:parks", goto: "oct_02" },
-    { date: "2026-09-29", mood: 5, text: "I laughed on the way home.",
-      tags: ["Friends"], goto: "sep_29" },
-  ] },
+  {
+    entries: [
+      {
+        date: "2026-11-19",
+        mood: 4,
+        text: "A walk helped me feel calmer.",
+        tags: ["Outdoors", "Morning"],
+        photo: "lib:parks",
+        goto: "nov_19",
+      },
+      {
+        date: "2026-11-04",
+        mood: 3,
+        text: "I put my phone away early to write.",
+        tags: ["Evening"],
+        goto: "nov_04",
+      },
+    ],
+  },
+  {
+    media: "none",
+    prompt: "Small joys",
+    entries: [
+      {
+        date: "2026-10-02",
+        text: "I took my time over breakfast.",
+        tags: [],
+        photo: "lib:parks",
+        goto: "oct_02",
+      },
+      { date: "2026-09-29", mood: 5, text: "I laughed on the way home.", tags: ["Friends"], goto: "sep_29" },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Entries");
@@ -132,9 +147,9 @@ export const probes = [
   read("Open the reflection about putting my phone away early.", { address: "e1/r2", action: "press" }),
   {
     ...write(
-      "One entry only: ‘I felt calmer after walking’ on 2026-11-19, opens nov_19. Keep its attached library photo lib:parks. Use compact density and the text-only media setting (none) so the digest shows one line and hides the thumbnail without deleting the photo.",
+      "One entry only: ‘I felt calmer after walking’ on 2026-11-19, opens nov_19. Keep its attached library photo lib:parks. Use compact the text-only media setting (none) so the digest shows one line and hides the thumbnail without deleting the photo.",
     ),
-    expectProps: { density: "compact", media: "none", entries: [{ photo: "lib:parks" }] },
+    expectProps: { media: "none", entries: [{ photo: "lib:parks" }] },
   },
   {
     ...write(
@@ -145,56 +160,118 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type EntriesProps = c.Props<typeof props, typeof meta>;
-// prettier-ignore
-function EntryRow({ entry, density, compact }: { entry: EntriesProps["entries"][number]; density: c.ThemeDensity; compact: boolean }) {
+type EntryRowProps = { entry: EntriesProps["entries"][number]; density: c.ThemeDensity; compact: boolean };
+
+function EntryRow({ entry, density, compact }: EntryRowProps) {
   const { lang, words } = kit.useWords(mindWordsFor);
   const { id, date, mood, tags, photo, text, goto } = entry;
   const day = c.appointmentDate(date, lang);
   const loading = kit.useComponentState() === "loading";
   const skeleton = words.entrySkeleton;
-  const face = <kit.KitScaleTrack style="mood" value={mood ?? 0} labels={words.entryMood} readonly single part={loading ? null : "mood"} />;
-  const target = loading ? { part: null, label: "" } : { part: "root", goto, label: words.entryLabel(day, text) };
-  const thumbnail = photo && !compact
-    ? <kit.KitPhoto photo={photo} part={loading ? null : "photo"} loading={loading} shape="thumb" ring="muted" label={words.entryPhoto} />
-    : undefined;
-  return <kit.KitRow item={id} {...target} leading={face} inset="none" lineRole="heading" density={density}>
-    <kit.KitGrid fitLast density={density}>
-      <kit.KitMetaLine density={density}
-        title={{ part: "date", role: "meta", tone: "muted", text: loading ? skeleton.date : day, lines: 1 }}
-        meta={[
-          { part: "text", role: "body", tone: "text", text: loading ? skeleton.excerpt : text, lines: compact ? 1 : 2 },
-          { part: "tags", text: tags.length ? (loading ? skeleton.tags : entryTags(tags, lang)) : undefined },
-        ]} />
-      {thumbnail}
-    </kit.KitGrid>
-  </kit.KitRow>;
+  const face = (
+    <kit.KitScaleTrack
+      style="mood"
+      value={mood ?? 0}
+      labels={words.entryMood}
+      readonly
+      single
+      part={loading ? null : "mood"}
+    />
+  );
+  const target = loading
+    ? { part: null, label: "" }
+    : { part: "root", goto, label: words.entryLabel(day, text) };
+  const thumbnail =
+    photo && !compact ? (
+      <kit.KitPhoto
+        photo={photo}
+        part={loading ? null : "photo"}
+        loading={loading}
+        shape="thumb"
+        ring="muted"
+        label={words.entryPhoto}
+      />
+    ) : undefined;
+  return (
+    <kit.KitRow item={id} {...target} leading={face} inset="none" lineRole="heading" density={density}>
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitMetaLine
+          density={density}
+          title={{ part: "date", role: "meta", tone: "muted", text: loading ? skeleton.date : day, lines: 1 }}
+          meta={[
+            {
+              part: "text",
+              role: "body",
+              tone: "text",
+              text: loading ? skeleton.excerpt : text,
+              lines: compact ? 1 : 2,
+            },
+            {
+              part: "tags",
+              text: tags.length ? (loading ? skeleton.tags : entryTags(tags, lang)) : undefined,
+            },
+          ]}
+        />
+        {thumbnail}
+      </kit.KitGrid>
+    </kit.KitRow>
+  );
 }
 
-// prettier-ignore
 export function Entries(input: EntriesProps) {
-  const { entries, surface, density: askedDensity } = input;
-  const density = kit.useVariant("density", meta.variants.density, askedDensity);
+  const { entries } = input;
+  const surface = "card";
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const state = kit.useComponentState();
   const { lang, words } = kit.useWords(mindWordsFor);
   const { thing } = kit.usePartContext();
   const groups = entryMonths(entries).map(({ month, entries: group }, index) => {
-        const rows = detail === "brief" ? group.map((row) => ({ ...row, tags: [] })) : group;
-        const heading = state === "loading" ? words.entrySkeleton.month : entryMonth(rows[0]!.date, lang);
-        return <kit.KitContent key={month} group={index ? "response" : "content"} {...{ density }}>
-          <kit.KitHeader title={{ text: heading, part: index ? null : "month", role: "meta", tone: "muted", strong: true }} density="comfortable" />
-          <kit.KitRowGroup density={density}>
-            {rows.map((entry) => <EntryRow key={entry.id} {...{ entry, density }} compact={input.media === "none"} />)}
-          </kit.KitRowGroup>
-        </kit.KitContent>;
+    const rows = detail === "brief" ? group.map((row) => ({ ...row, tags: [] })) : group;
+    const heading = state === "loading" ? words.entrySkeleton.month : entryMonth(rows[0]!.date, lang);
+    return (
+      <kit.KitContent key={month} group={index ? "response" : "content"} {...{ density }}>
+        <kit.KitHeader
+          title={{ text: heading, part: index ? null : "month", role: "meta", tone: "muted", strong: true }}
+          density="comfortable"
+        />
+        <kit.KitRowGroup density={density}>
+          {rows.map((entry) => (
+            <EntryRow key={entry.id} {...{ entry, density }} compact={input.media === "none"} />
+          ))}
+        </kit.KitRowGroup>
+      </kit.KitContent>
+    );
   });
-  const content = <kit.KitContent density={density}>
-    {input.prompt && <kit.KitContent leadingAlign="row" lead={<kit.KitTrail kind="badge" part="prompt" value={state === "loading" ? words.entrySkeleton.prompt : input.prompt} />}><></></kit.KitContent>}
-    {groups}
-  </kit.KitContent>;
-  return <kit.KitCard part="root" padded {...{ surface, density }}>
-    <kit.KitState loading={content} part="empty" message={thing ? c.emptyLine(thing, lang) : words.entriesEmpty} density={density}>
-      {content}
-    </kit.KitState>
-  </kit.KitCard>;
+  const content = (
+    <kit.KitContent density={density}>
+      {input.prompt && (
+        <kit.KitContent
+          leadingAlign="row"
+          lead={
+            <kit.KitTrail
+              kind="badge"
+              part="prompt"
+              value={state === "loading" ? words.entrySkeleton.prompt : input.prompt}
+            />
+          }
+        >
+          <></>
+        </kit.KitContent>
+      )}
+      {groups}
+    </kit.KitContent>
+  );
+  return (
+    <kit.KitCard part="root" padded {...{ surface, density }}>
+      <kit.KitState
+        loading={content}
+        part="empty"
+        message={thing ? c.emptyLine(thing, lang) : words.entriesEmpty}
+        density={density}
+      >
+        {content}
+      </kit.KitState>
+    </kit.KitCard>
+  );
 }

@@ -72,8 +72,12 @@ export type Meta = {
   successActions?: readonly `${string}.${ActionName}`[];
   /** Part/action pairs from `actions` available only in `error`. */
   errorActions?: readonly `${string}.${ActionName}`[];
-  readSuccess?: true; // Read visible content in success.
-  readInState?: (props: Readonly<Record<string, unknown>>, state: "empty" | "success") => boolean; // Summary without item listings.
+  /** Read visible content and the read summary in success, not just the header and available actions. */
+  readSuccess?: true;
+  /** Read a summary without listing items in empty or success when the props opt in. */
+  readInState?: (props: Readonly<Record<string, unknown>>, state: "empty" | "success") => boolean;
+  /** Read the component's error summary alongside its available recovery actions. */
+  readError?: true;
   /** Runtime-only chance control. Input keys refer to validated props, never to result props. */
   draw?: LiveMeta.Draw;
   /** Monotonic round timing for an item press and a component reset press. */

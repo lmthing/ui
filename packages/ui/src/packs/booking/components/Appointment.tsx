@@ -1,31 +1,30 @@
 // prettier-ignore
-import { KitAction, KitCard, KitContent, KitGrid, KitSkeleton, KitText, KitTrail,
-  useComponentState, useVariant, useWords } from "../../../kit";
+import { KitAction, KitActionFooter, KitCard, KitContent, KitGrid, KitLayoutText, KitMetaLine,
+  KitState, KitTrail, useComponentState, useKit, useWords, type LayoutLine } from "../../../kit";
 import { bookingWordsFor } from "../lang";
 import { z } from "zod";
 // prettier-ignore
 import {
   appointmentDate, balancedLine, clock, isoDate, placeholderTitle, probesFor, screenId, text,
-  timeOfDayLine, thingOf, titleOf, variantProps, type ThemeDensity, type FallbackInput, type Meta,
+  timeOfDayLine, thingOf, titleOf, type ThemeDensity, type FallbackInput, type Meta,
   type Probe, type Props,
+  variantProps,
 } from "../../../catalog";
 import { appointmentCanJoin, appointmentDetails, appointmentReading } from "../copy";
+import { prompt } from "../../../entry/prompt-Appointment.generated";
 // Core first: Card/plain previews a record, not structured booking terms and reschedule/cancel.
 export const meta = {
   id: "Appointment",
   status: "ready",
   group: "content",
-  purpose: "See, change or confirm one booking with its time and terms.",
-  pick: "One booking with structured date, time, duration and change or cancellation actions. Not a simple record preview (Card), the day's bookings in order (Timeline), free start times (Slots), or goods ordered (OrderSummary).",
-  writeHints: [
-    'Use style "summary" only for reviewing before confirmation, or "compact" for a single-row overview. Otherwise use null (the card). Policy is summary only. Set locationKind only for a requested meeting format and meetingUrl only for a supplied HTTPS meeting link; a confirmed video booking with a link offers Join meeting.',
-    'Set detail to null by default, even if the booking has few fields. Only explicit hiding of who or where requests "brief"; retain with and place. Set density to null unless a spacing change is requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "A booking record stored on the provider's device.",
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["with", "place"] } },
   // prettier-ignore
   parts: [
@@ -93,9 +92,9 @@ export const examples = [
   plantBooking,
   {
     style: "summary", service: "Morning park walk", with: "Sam", date: "2026-11-21", time: "10:00",
-    minutes: 60, price: 25, status: "pending", policy: "Move or cancel up to two hours before.", goto: "time",
+    minutes: 60, price: 25, status: "pending", policy: "After booking, move or cancel up to two hours before.", goto: "time",
   },
-  { ...plantBooking, density: "compact" },
+  { ...plantBooking },
   { ...plantBooking, detail: "brief" },
   { ...plantBooking, style: "compact", locationKind: "in_person" },
   { ...plantBooking, service: "Plant care video visit", locationKind: "video",
@@ -126,74 +125,62 @@ export const probes = [
   },
   { ...read("Join this video meeting", { address: "a1/join", action: "press" }), screen: 5 },
 ] satisfies Probe[];
-type AppointmentText = {
-  value: string;
-  part: string;
-  loading: boolean;
-  density: ThemeDensity;
-  compact?: boolean;
-};
+type AppointmentProps = Props<typeof props, typeof meta>;
+
 // prettier-ignore
-function AppointmentLine({ value, part, loading, density, compact }: AppointmentText) {
-  const number = ["time", "price", "minutes"].includes(part);
-  const role = number ? "number" : "label";
-  const scale = part === "time" && !compact ? "display" : "compact";
-  const align = part === "price" ? "end" : "start";
-  const tone = (number || ["date", "service"].includes(part)) ? "text" : "muted";
-  return loading
-    ? <KitSkeleton shape="figure" inset="none" density={density} content={[[role, value, align, scale]]} />
-    : <KitText {...{ role, density, align, tone, part }} numberScale={scale} tabular={number}>{value}</KitText>;
+function AppointmentDetails({ input, density, lang }: { input: AppointmentProps; density: ThemeDensity; lang: string }) {
+  const details = appointmentDetails(input, lang);
+  const isAmount = ({ part }: { part: string }) => part === "minutes" || part === "price";
+  const meta = details.filter((detail) => !isAmount(detail) && detail.part !== "policy");
+  return <KitContent density={density}>
+    <KitMetaLine title={{ text: input.service, part: "service", strong: true }} meta={meta} density={density} />
+    <KitGrid fitLast density={density}>
+      {details.filter(isAmount).map(({ part, text }) =>
+        <KitLayoutText key={part} line={{ part, text, role: "figure", compact: true, tabular: true }}
+          align={part === "price" ? "end" : "start"} density={density} />)}
+    </KitGrid>
+    <KitLayoutText line={{ text: input.policy, part: "policy", role: "meta", tone: "muted" }} density={density} />
+  </KitContent>;
 }
 // prettier-ignore
-export function Appointment(input: Props<typeof props, typeof meta>) {
+export function Appointment(input: AppointmentProps) {
   const { lang, words } = useWords();
   const { appointmentLabels, appointmentJoin } = bookingWordsFor(lang);
   const state = useComponentState();
-  const loading = state === "loading";
   const active = state === "filled";
   const card = input.style === "card";
   const badge = state === "success" ? appointmentLabels.booked : appointmentLabels[input.status];
   const compact = input.style === "compact";
   const change = card ? "reschedule" : "edit";
-  const density = useVariant("density", meta.variants.density, input.density);
-  const finish = { loading, density };
-  const date = <AppointmentLine value={appointmentDate(input.date, lang)} part="date" {...finish} />;
-  const line = ({ part, text }: { part: string; text: string }) => (
-    <AppointmentLine key={part} value={text} part={part} {...finish} />
-  );
-  const details = appointmentDetails(input, lang);
-  const location = details.find(({ part }) => part === "location");
-  const status = <KitTrail kind="badge" part="status" value={loading ? words.loadingLabel : badge} />;
+  const density = useKit().density;
+  const date: LayoutLine = { text: appointmentDate(input.date, lang), part: "date", role: "meta" };
+  const time: LayoutLine = { text: timeOfDayLine(input.time, lang), part: "time", role: "figure",
+    tabular: true, compact, tone: "text" };
+  const location = input.locationKind && { text: bookingWordsFor(lang).appointmentLocation[input.locationKind], part: "location" };
+  const status = <KitTrail kind="badge" part="status" value={badge} />;
   const join = appointmentCanJoin(input.status, input.locationKind, input.meetingUrl) &&
     <KitAction label={appointmentJoin} part="join" disabled={!active} full />;
-  const time = <AppointmentLine value={timeOfDayLine(input.time, lang)} part="time" compact={compact || Boolean(join)} {...finish} />;
+  const body = <KitContent density={density}>
+    <KitGrid fitLast density={density}>
+      {compact ? <KitContent density={density}>
+        <KitLayoutText line={{ text: input.service, part: "service", strong: true }} density={density} />
+        <KitContent lead={<KitLayoutText line={date} density={density} />} leadingAlign="row" density={density}>
+          <KitLayoutText line={time} density={density} />
+        </KitContent>
+        {location && <KitLayoutText line={{ ...location, role: "meta", tone: "muted" }} density={density} />}
+      </KitContent> : <KitMetaLine title={date} meta={time} density={density} />}
+      {(card || compact) && status}
+    </KitGrid>
+    {!compact && <KitContent group="response" density={density}><AppointmentDetails {...{ input, density, lang }} /></KitContent>}
+    {join && <KitActionFooter density={density}><KitGrid fitLast density={density}>{join}</KitGrid></KitActionFooter>}
+    {!compact && <KitActionFooter density={density}>
+      <KitAction label={appointmentLabels[change]} kind="secondary" part={change} goto={input.goto} disabled={!active} />
+      {card && <KitAction label={words.cancelLabel} kind="danger" part="cancel" disabled={!active} />}
+    </KitActionFooter>}
+  </KitContent>;
   return (
     <KitCard padded part="root" goto={active ? input.goto : undefined} label={input.service} density={density}>
-      {compact ? <><KitGrid fitLast density={density}>
-        <KitContent>
-          <AppointmentLine value={input.service} part="service" {...finish} />
-          <KitContent lead={date} leadingAlign="row" density={density}>{time}</KitContent>
-          {location && line(location)}
-        </KitContent>
-        {status}
-      </KitGrid>{join}</> : <>
-        {!join && date}
-        <KitGrid fitLast density={density}>
-          {join ? <KitContent density={density}>{date}{time}</KitContent> : time}
-          {card && status}
-        </KitGrid>
-        <KitContent>
-          <AppointmentLine value={input.service} part="service" {...finish} />
-          {details.filter(({ part }) => part === "with" || part === "place" || part === "location").map(line)}
-          <KitGrid fitLast density={density}>
-            {details.filter(({ part }) => part === "minutes" || part === "price").map(line)}
-          </KitGrid>
-          {input.policy && <AppointmentLine value={input.policy} part="policy" {...finish} />}
-        </KitContent>
-        {join}
-        <KitAction label={appointmentLabels[change]} kind="secondary" part={change} goto={input.goto} disabled={!active} full />
-        {card && <KitAction label={words.cancelLabel} kind="quiet" part="cancel" disabled={!active} full />}
-      </>}
+      {state === "loading" ? <KitState loading={body} density={density} /> : body}
     </KitCard>
   );
 }

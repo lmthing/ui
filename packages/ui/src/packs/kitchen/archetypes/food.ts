@@ -1,4 +1,4 @@
-import { packListDefaults, placeholderTitle, wordsFor, type ArchetypeMeta } from "../../../catalog";
+import { placeholderTitle, wordsFor, type ArchetypeMeta } from "../../../catalog";
 
 export const food = {
   id: "food",
@@ -39,7 +39,7 @@ export const food = {
     },
     add: {
       writeHints: [
-        'Use one List with surface "card", no style or numbered lead, and simple food rows. Omit or null photo and body; me is false or null.',
+        "Use one List without a style or numbered lead, using simple food rows. Omit or null photo and body; me is false or null.",
       ],
       recipe: [
         { allow: ["Header"], required: true },
@@ -50,7 +50,7 @@ export const food = {
       defaults: [
         { id: "h1", c: "Header" },
         { id: "s1", c: "Search" },
-        { id: "l1", c: "List", ...packListDefaults["food/add"] },
+        { id: "l1", c: "List" },
         { id: "b1", c: "Button" },
       ],
     },

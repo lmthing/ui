@@ -5,22 +5,19 @@ import * as kit from "../../../kit";
 import { projectSpeechCheck, readSpeechCheck, speechAttempts, speechFluencyScore, speechMatchedLine,
   speechReveal, speechScoreLine, speechWordLimit, speechWordLine, speechWordStatus } from "../copy";
 import { learningWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-SpeechCheck.generated";
 
 // Core first: Player (audio) plays the reference but cannot record a learner's attempt or show word-level feedback.
 const commandInput = ({ props }: { props: c.Values }) => ({ phrase: String(props.targetPhrase) });
 // prettier-ignore
 export const meta = {
   id: "SpeechCheck", status: "ready", group: "input", tier: "ok",
-  pick: "Practise saying an exact target phrase into a microphone and get per-word pronunciation feedback and a fluency score. Not passive playback (Player), tap-or-type tests (Quiz), or open-ended chat (AiThread).",
-  purpose: "Practise saying a phrase aloud and see which words need another try.",
+  pick: prompt.pick,
+  purpose: prompt.purpose,
   region: "body", weight: 2,
   realPath: "The host records speech with permission and can submit a completed recording to a speech evaluation service.",
-  writeHints: [
-    'Supply the target phrase and its spoken words in order. Leave word status and fluencyScore null until a real evaluation returns results. Use referenceAudio only for the supplied clip reference, not a URL.',
-    'Use style "listen" when the learner hears a reference before seeing the phrase; supply referenceAudio. If the user wants the target visible but optional phonetic and translation hints hidden, use detail "brief" and retain both hints in props.',
-    'Leave surface and density null unless the person explicitly requests a different surface or spacing. The default card uses null, not "card".',
-  ],
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  writeHints: prompt.writeHints,
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["phonetic", "translation"] } },
   parts: ["root", "label", "phrase", "phonetic", "translation", "instruction", "listen", "mic", "evaluate",
     "retry", "reveal", "words", "score", "matched", "status", "operation_status", "audio_status"],
@@ -87,8 +84,8 @@ export const examples = [
   ] },
   { style: "listen", phrase: "Put on the leash.", phonetic: "put on thuh leesh",
     referenceAudio: "lib:put-on-the-leash", words: [{ text: "Put" }, { text: "on" }, { text: "the" }, { text: "leash" }] },
-  { ...fern, density: "compact" },
-  { ...fern, surface: "outlined" },
+  { ...fern },
+  { ...fern },
   { ...fern, detail: "brief" },
   { ...fern, fluencyScore: 46, words: [
     { text: "Arrosez", status: "close" }, { text: "la", status: "correct" }, { text: "fougère", status: "missed" },
@@ -176,8 +173,8 @@ export function SpeechCheck(input: View) {
   const scope = kit.usePartContext();
   const state = kit.useComponentState();
   const { lang, words: { speechCheck: words } } = kit.useWords(learningWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const live = kit.useLiveControls(meta, input) as Live;
   const result = state === "filled" && live.outcome ? (live.outcome === "success" ? "success" : "error") : state;
   const hintLines = [

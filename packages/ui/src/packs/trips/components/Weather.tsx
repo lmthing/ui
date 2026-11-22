@@ -3,23 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { weatherCopy } from "../copy";
 import { tripsWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Weather.generated";
 
 // Core first: Stats/default cannot request a place's service-backed forecast with daily conditions.
 export const meta = {
   id: "Weather",
   status: "ready",
   group: "data",
-  purpose: "See the forecast or typical weather for the place and dates of a trip.",
-  pick: "A place's local weather or trip forecast, including conditions and rain chance. Not personal figures (Stats) or a series showing a trend (Sparkline).",
-  writeHints: [
-    "Write the place and optional trip dates. The service supplies all weather data, never the Writer.",
-    'When asked to hide only the main condition text, write detail "brief", density null, and surface null. Keep the icon, temperatures and next days. Do not write "card" or "comfortable" unless requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "service",
   realPath: "A weather service provides forecasts and typical monthly weather.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["condition"] } },
   parts: ["root", "place", "today", "forecast", "condition", "message", "sub"],
   // The host's offline case uses the error state with the Empty offline treatment.
@@ -103,7 +101,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type WeatherProps = c.Props<typeof props, typeof meta>;
-type Density = NonNullable<WeatherProps["density"]>;
+type Density = c.ThemeDensity;
 type WeatherDisplay = ReturnType<typeof weatherDisplay>;
 const stripColumns = 3;
 
@@ -115,75 +113,145 @@ function weatherDisplay(...[input, data, lang, failed]: Parameters<typeof weathe
   return { ...copy, heading, summary: { ...copy.summary, range: celsiusRange(copy.summary.range) } };
 }
 
-// prettier-ignore
 function ForecastStrip({ next, density }: { next: NonNullable<WeatherDisplay["next"]>; density: Density }) {
   const { words } = kit.useWords(tripsWordsFor);
   const loading = kit.useComponentState() === "loading";
   const cells = next.map((day) => (
-    <kit.KitRow key={day.date} label={words.weather.dayLabel(day.label, day.condition)} role="group" inline density={density}>
+    <kit.KitRow
+      key={day.date}
+      label={words.weather.dayLabel(day.label, day.condition)}
+      role="group"
+      inline
+      density={density}
+    >
       <kit.KitContent density={density} align="center">
         <kit.KitLayoutText line={{ text: day.label }} density={density} align="center" />
         <kit.KitIcon name={day.icon} decorative loading={loading} />
-        <kit.KitLayoutText line={{ text: day.range, role: "figure", compact: true, tabular: true, lines: 1 }} density={density} align="center" />
-        <kit.KitLayoutText line={{ text: day.rain, tone: day.warn ? "warn" : "muted", lines: 1 }} density={density} align="center" />
+        <kit.KitLayoutText
+          line={{ text: day.range, role: "figure", compact: true, tabular: true, lines: 1 }}
+          density={density}
+          align="center"
+        />
+        <kit.KitLayoutText
+          line={{ text: day.rain, tone: day.warn ? "warn" : "muted", lines: 1 }}
+          density={density}
+          align="center"
+        />
       </kit.KitContent>
     </kit.KitRow>
   ));
   return (
     <kit.KitContent group="response" density={density}>
-      <kit.KitRow part={loading ? null : "forecast"} label={words.weather.forecast} role="group" inline density={density}>
-        {next.length <= stripColumns
-          ? <kit.KitGrid columns={stripColumns} list density={density}>{cells}</kit.KitGrid>
-          : <kit.KitStrip list density={density}>{cells}</kit.KitStrip>}
+      <kit.KitRow
+        part={loading ? null : "forecast"}
+        label={words.weather.forecast}
+        role="group"
+        inline
+        density={density}
+      >
+        {next.length <= stripColumns ? (
+          <kit.KitGrid columns={stripColumns} list density={density}>
+            {cells}
+          </kit.KitGrid>
+        ) : (
+          <kit.KitStrip list density={density}>
+            {cells}
+          </kit.KitStrip>
+        )}
       </kit.KitRow>
     </kit.KitContent>
   );
 }
 
-// prettier-ignore
-function WeatherSummary({ summary, density, detail }: { summary: NonNullable<WeatherDisplay["summary"]>; density: Density; detail: WeatherProps["detail"] }) {
+function WeatherSummary({
+  summary,
+  density,
+  detail,
+}: {
+  summary: NonNullable<WeatherDisplay["summary"]>;
+  density: Density;
+  detail: WeatherProps["detail"];
+}) {
   const loading = kit.useComponentState() === "loading";
   return (
-    <kit.KitRow label={summary.reading} role="group" inline fitContent density={density} lineRole="number"
-      leading={<kit.KitIcon name={summary.icon} scale="lg" decorative loading={loading} />}>
-      <kit.KitFigure density={density} value={{ text: summary.range, part: "today", lines: 1 }}
-        caption={detail === "full" && <kit.KitLayoutText line={{ text: summary.condition, part: "condition", tone: "muted" }} density={density} />} />
+    <kit.KitRow
+      label={summary.reading}
+      role="group"
+      inline
+      fitContent
+      density={density}
+      lineRole="number"
+      leading={<kit.KitIcon name={summary.icon} scale="lg" decorative loading={loading} />}
+    >
+      <kit.KitFigure
+        density={density}
+        value={{ text: summary.range, part: "today", lines: 1 }}
+        caption={
+          detail === "full" && (
+            <kit.KitLayoutText
+              line={{ text: summary.condition, part: "condition", tone: "muted" }}
+              density={density}
+            />
+          )
+        }
+      />
     </kit.KitRow>
   );
 }
 
-// prettier-ignore
-function WeatherLoading({ place, density, detail }: { place: string; density: Density; detail: WeatherProps["detail"] }) {
+function WeatherLoading({
+  place,
+  density,
+  detail,
+}: {
+  place: string;
+  density: Density;
+  detail: WeatherProps["detail"];
+}) {
   const { lang } = kit.useWords();
   // Use sample strings only to measure the shapes of the hidden loading bars.
   const sample = weatherDisplay({ place }, { weather: [{ ...forecastExample, place }] }, lang);
   if (sample.notice) return null;
-  return <>
-    <WeatherHeading {...{ place, density }} heading={sample.heading} />
-    <WeatherSummary summary={sample.summary} {...{ density, detail }} />
-    <ForecastStrip next={sample.next} density={density} />
-  </>;
+  return (
+    <>
+      <WeatherHeading {...{ place, density }} heading={sample.heading} />
+      <WeatherSummary summary={sample.summary} {...{ density, detail }} />
+      <ForecastStrip next={sample.next} density={density} />
+    </>
+  );
 }
 
-// prettier-ignore
 function WeatherHeading({ place, heading, density }: { place: string; heading: string; density: Density }) {
-  return <kit.KitHeader title={{ text: place, part: "place", role: "body", strong: true }}
-    meta={{ text: heading, role: "body" }} density={density} />;
+  return (
+    <kit.KitHeader
+      title={{ text: place, part: "place", role: "body", strong: true }}
+      meta={{ text: heading, role: "body" }}
+      density={density}
+    />
+  );
 }
 
-// prettier-ignore
 export function Weather(input: WeatherProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang } = kit.useWords();
   const copy = weatherDisplay(input, kit.useDeviceData(), lang, state === "error");
   return (
     <kit.KitCard part="root" padded density={density} surface={surface}>
-      {state === "loading" ? <kit.KitState density={density} loading={<WeatherLoading place={input.place} {...{ density, detail }} />} /> : copy.notice ? (
+      {state === "loading" ? (
+        <kit.KitState
+          density={density}
+          loading={<WeatherLoading place={input.place} {...{ density, detail }} />}
+        />
+      ) : copy.notice ? (
         <>
-          {state === "filled" && <kit.KitText part="place" role="heading" density={density}>{input.place}</kit.KitText>}
+          {state === "filled" && (
+            <kit.KitText part="place" role="heading" density={density}>
+              {input.place}
+            </kit.KitText>
+          )}
           <kit.KitEmpty part="message" decorativeIcon {...copy.notice} />
         </>
       ) : (

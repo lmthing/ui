@@ -1,7 +1,21 @@
 import { z } from "zod";
-// prettier-ignore
-import { clock, isoDate, itemsOf, placeholderTitle, probesFor, screenId, text, timeOfDayLine,
-  thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+import {
+  clock,
+  isoDate,
+  itemsOf,
+  placeholderTitle,
+  probesFor,
+  screenId,
+  text,
+  timeOfDayLine,
+  thingOf,
+  titleOf,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+  variantProps,
+} from "../../../catalog";
 import { KitAction, KitCard, KitContent, KitEmpty, useComponentState, useWords } from "../../../kit";
 import { TimelineFlow, type TimelineFlowGroup } from "../../../kit/timeline";
 import {
@@ -13,24 +27,22 @@ import {
   agendaScheduleReading,
 } from "../copy";
 import { homeWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Agenda.generated";
 
 // Core first: Timeline/hours cannot group several days and identify all family attendees.
 export const meta = {
   id: "Agenda",
   status: "ready",
   group: "data",
-  purpose: "Group the family's events by date across multiple days, showing who attends each.",
-  pick: "The family's next seven days grouped by date: each day heading has timed or all-day events and each event's attendees. This multi-day family week belongs here, not Timeline: Timeline/hours is one day and has no per-event attendees. Not a month of marked dates (Calendar) or class timetables (Timetable).",
-  writeHints: [
-    'days holds 1–7 dates with 1–6 events each. Each event has 1–4 who labels; use ["Everyone"] for the whole family. Omit time for an all-day event. Code computes conflicts.',
-    'Use group "none" only when asked to hide day headings. Keep the dates in days. Write surface:null unless asked for an outlined card; removing headings does not change its finish.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Events stay on the device; sharing a family calendar needs people and syncing needs a service.",
-  variants: { group: ["dates", "none"], surface: ["card", "outlined"] },
+  variants: { group: ["dates", "none"] },
   items: {
     key: "entries",
     parts: ["root", "date", "time", "title", "who", "conflict"],
@@ -57,8 +69,8 @@ export const props = z
 type Entry = ReturnType<typeof agendaEntries>[number] & { id: string };
 type AgendaProps = Props<typeof props, typeof meta> & { entries: Entry[] };
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
-  const thing = thingOf(cast),
-    items = itemsOf(cast, 6);
+  const thing = thingOf(cast);
+  const items = itemsOf(cast, 6);
   return {
     days: [
       {
@@ -151,7 +163,8 @@ function AgendaEvents({ entries, headings, lang }: { entries: Entry[]; headings:
   return <TimelineFlow groups={[...groups.values()]} />;
 }
 
-export function Agenda({ entries, goto, group, surface }: AgendaProps) {
+export function Agenda({ entries, goto, group }: AgendaProps) {
+  const surface = "card";
   const state = useComponentState();
   const {
     lang,

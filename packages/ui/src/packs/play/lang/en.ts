@@ -1,120 +1,24 @@
+import { words as LifeCounterWords } from "./en/LifeCounter";
+import { words as PassRevealWords } from "./en/PassReveal";
+import { words as CardDeckWords } from "./en/CardDeck";
+import { words as BuzzerPadWords } from "./en/BuzzerPad";
+import { words as TeamPickerWords } from "./en/TeamPicker";
+import { words as TurnOrderWords } from "./en/TurnOrder";
+import { words as ScoreSheetWords } from "./en/ScoreSheet";
+import { words as TriviaWords } from "./en/Trivia";
+import { words as DiceWords } from "./en/Dice";
+import { words as SpinnerWords } from "./en/Spinner";
 export const en = {
-  lifeCounter: {
-    lifeLine: (name: string, total: string) => `${name}: ${total} life`,
-    counterLine: (label: string, value: string) => `${label}: ${value}`,
-    reset: "Reset life totals",
-  },
-  passReveal: {
-    prompt: "Pass the phone to this player",
-    reveal: "Reveal your role",
-    hold: "Hold to reveal",
-    hide: "Hide and pass",
-    ready: "Round ready",
-    restart: "Restart round",
-  },
-  cardDeck: {
-    ready: "No cards drawn yet",
-    remaining: (count: string) => `Draw pile: ${count}`,
-    discarded: (count: string) => `Discard pile: ${count}`,
-    draw: "Draw cards",
-    reshuffle: "Reshuffle deck",
-    exhausted: "The draw pile is empty",
-  },
-  buzzerPad: {
-    waiting: "Ready to buzz",
-    tap: "Tap to buzz",
-    first: "First",
-    winner: (name: string) => `${name} buzzed first`,
-    delta: (time: string) => `${time} ms later`,
-    reset: "Reset buzzer",
-  },
-  teamPicker: {
-    ready: "Ready to split",
-    empty: "No teams drawn yet",
-    grouped: "Teams are set",
-    unassigned: "Unassigned",
-    noPlayers: "No players yet",
-    error: "Teams can’t be balanced",
-    errorDetail: "Change the locked placements before drawing teams.",
-    make: "Make teams",
-    remake: "Redraw teams",
-    lockedName: (name: string) => `${name} (locked)`,
-    teamLine: (label: string, count: string, names: readonly string[]) =>
-      names.length ? `${label} (${count}): ${names.join(", ")}` : `${label} (${count})`,
-  },
-  turnOrder: {
-    current: "Current turn",
-    complete: "Game complete",
-    lastPlayer: (name: string) => `Last turn: ${name}`,
-    forward: "Forward",
-    reverseDirection: "Reverse",
-    lap: (lap: string, direction: string) => `Lap ${lap} · ${direction}`,
-    boundedLap: (lap: string, limit: string, direction: string) => `Lap ${lap} of ${limit} · ${direction}`,
-    next: "Next turn",
-    skip: "Skip turn",
-    reverse: "Reverse order",
-    restart: "Restart",
-  },
-  scoreLabels: {
-    title: "Score sheet",
-    player: "Player",
-    total: "Total",
-    rounds: "Rounds",
-    unplayed: "—",
-    bid: (value: string) => `Bid ${value}`,
-    made: "Made",
-    target: "Target: ",
-    reached: (names: readonly string[]) => `Reached by ${names.join(", ")}`,
-    reset: "Reset scores",
-    share: "Share scores",
-  },
-  scoreProgress: (done: string, count: string, plural: Intl.LDMLPluralRule) =>
-    `${done} of ${count} ${plural === "one" ? "round" : "rounds"} complete`,
-  scorePlace: (rank: string) => `Rank ${rank}`,
-  scoreWinner: "Winner",
-  scoreTie: "Tied winner",
-  scoreCell: (player: string, round: string, metric?: string) =>
-    `${player}, ${round}${metric ? `, ${metric}` : ""}`,
-  scoreReadCell: (player: string, round: string, points: string) => `${player}, ${round}: ${points}`,
-  trivia: {
-    emptyThing: "trivia question",
-    points: (value: string, plural: Intl.LDMLPluralRule) =>
-      `${value} ${plural === "one" ? "point" : "points"}`,
-    photo: "Question photo",
-    choices: "Choices",
-    reveal: "Reveal answer",
-    next: "Next question",
-    restart: "Restart",
-  },
-  dice: {
-    one: (count: string, sides: string) => `${count} die · ${sides} sides`,
-    other: (count: string, sides: string) => `${count} dice · ${sides} sides`,
-    roll: "Roll dice",
-    reroll: "Roll again",
-    unrolled: "Ready to roll",
-    sum: (total: string) => `Total ${total}`,
-    modifier: (value: string, positive: boolean) => `Modifier ${positive ? "+" : ""}${value}`,
-    dropLow: "Drop lowest",
-    dropHigh: "Drop highest",
-    pool: "Dice pool",
-    counted: "Counted",
-    dropped: "Dropped",
-    blankFace: (position: string) => `Die ${position}, not rolled`,
-    face: (position: string, value: string) => `Die ${position}, showing ${value}`,
-    heldFace: (position: string, value: string) => `Die ${position}, showing ${value}, held`,
-  },
-  spinner: {
-    pool: "Draw pool",
-    empty: "Nothing drawn yet",
-    ready: "Ready to spin",
-    result: "Selected at random",
-    exhausted: "No options left",
-    remaining: (count: string, plural: Intl.LDMLPluralRule) =>
-      `${count} ${plural === "one" ? "option" : "options"} left`,
-    spin: "Spin",
-    again: "Spin again",
-    reset: "Reset options",
-  },
+  ...TeamPickerWords,
+  ...TurnOrderWords,
+  ...ScoreSheetWords,
+  ...TriviaWords,
+  ...DiceWords,
+  ...SpinnerWords,
+  ...LifeCounterWords,
+  ...PassRevealWords,
+  ...CardDeckWords,
+  ...BuzzerPadWords,
 };
 
 export type PlayWords = typeof en;

@@ -8,7 +8,14 @@ import {
   type ScreenLike,
   type StateName,
 } from "@lmthing/ui/catalog";
-import { createScreenController, type AuthenticateReveal, type Environment } from "@lmthing/ui/kit";
+import {
+  createScreenController,
+  type AuthenticateReveal,
+  type Environment,
+  type ScannerBrightnessAdapter,
+} from "@lmthing/ui/kit";
+
+export { SignaturePreview } from "./signature-preview";
 
 const previewSeed = 123456789;
 export const previewComponent = "c1";
@@ -20,6 +27,7 @@ export const drawPreviewEnvironment: Environment = {
 };
 const approveExampleReveal: AuthenticateReveal = async () => "approved";
 const previewBuzzGapMs = 137;
+const fakeScannerBrightness: ScannerBrightnessAdapter = () => true;
 
 /** A deterministic stream of unsigned 32-bit words for gallery fixtures only. */
 function seededRandom(seed: number) {
@@ -134,9 +142,11 @@ export function createPreviewController(
   def: Definition,
   input: Record<string, unknown>,
   screen: string,
-  { state, drawn }: { state: StateName; drawn?: true },
+  { state, drawn, scanner }: { state: StateName; drawn?: true; scanner?: true },
 ) {
   if (state === "success" && def.meta.buzz) return createBuzzPreview(def, input, screen);
+  if (state === "filled" && input.bright === true && def.meta.actions?.scannerBrightness?.length)
+    return createScannerPreview(def, input, screen, scanner);
   const deviceData = def.meta.deviceData?.length && def.meta.previewDeviceData?.({ input, state });
   const authenticateReveal = def.meta.actions?.reveal ? approveExampleReveal : undefined;
   if (state === "filled" && def.meta.selectionBinding)
@@ -147,4 +157,23 @@ export function createPreviewController(
     ...(deviceData ? { deviceData } : {}),
     ...(authenticateReveal ? { authenticateReveal } : {}),
   });
+}
+
+function createScannerPreview(
+  def: Definition,
+  input: Record<string, unknown>,
+  screen: string,
+  active?: true,
+) {
+  const wire = Object.fromEntries(Object.keys(def.props.shape).map((key) => [key, input[key]]));
+  const controller = createScreenController({
+    screen: { id: screen, components: [{ ...wire, id: previewComponent, c: def.meta.id }] },
+    defs: { [def.meta.id]: def },
+    hostCommands: { scannerBrightness: fakeScannerBrightness },
+  });
+  if (active) {
+    const part = def.meta.actions!.scannerBrightness![0]!;
+    controller.act({ address: `${previewComponent}/${part}`, action: "toggle" });
+  }
+  return controller;
 }

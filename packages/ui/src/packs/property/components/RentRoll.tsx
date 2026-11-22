@@ -6,21 +6,17 @@ import { propertyWordsFor } from "../lang";
 import { ledgerRows } from "../ledger";
 import { distinct, ref, seedDate, seedLabels } from "../seeds";
 import * as rent from "./rent-roll-rows";
+import { prompt } from "../../../entry/prompt-RentRoll.generated";
 // Core first: Amount/total cannot reconcile rent charges and allocated receipts across units or periods.
 // prettier-ignore
 export const meta = {
   id: "RentRoll", status: "ready", group: "data",
-  purpose: "Reconcile monthly rent charges and receipts across units, including part payments and arrears.",
-  pick: "Reconcile rent charges and allocated or voided receipts by unit and period, or show a resident their own rent ledger. Not one sum (Amount), one client's payment (PaymentStatus), an invoice (Invoice), or personal bills (Bills).",
-  writeHints: [
-    "Every receipt references a charge in this line; keep older charges when needed for arrears. Seed obligations and allocations only, not computed receipt totals, outstanding, arrears, credit or statuses.",
-    'Give each charge and each receipt its own snake_case reference. Charges and receipts use positive numbers, not currency text. Use style "outstanding" only to filter unpaid units.',
-    'If asked to shorten numbers, set figures to "short". Leave density null unless the person asks for tighter rows, even when figures is "short".',
-    'Use style "tenant" only for a resident’s own rent ledger. Supply their tenantLetRef and only charges from that let and receipts allocated to them. Write autopay only when its on/off status is supplied.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Recording a receipt never moves money. The host scopes the tenant ledger to the signed-in resident; reminders and tenant payments need outside services.",
-  variants: { density: ["comfortable", "compact"], figures: ["exact", "short"] },
+  variants: { figures: ["exact", "short"] },
   parts: ["root", "month", "assessed", "received", "outstanding", "arrears", "notice", "tenant", "autopay"],
   items: {
     key: "lines", visibleWhen: { visible: true },
@@ -111,7 +107,7 @@ export const examples = [
     charges: [{ chargeRef: "nov_willow", letRef: "asha_let", unitRef: "flat_a", unit: "Willow Flat", occupant: "Asha", due: "2026-11-01", amount: 900 }],
     receipts: [{ receiptRef: "nov_willow_one", chargeRef: "nov_willow", date: "2026-11-05", amount: 600, method: "transfer" }],
   },
-  cedar, { ...cedar, density: "compact", figures: "exact" },
+  cedar, { ...cedar, figures: "exact" },
   { ...cedar, style: "tenant", tenantLetRef: "lee_let", autopay: false, figures: "exact",
     charges: [{ ...cedar.charges[0], amount: 1100 }],
     receipts: [{ ...cedar.receipts[0], voided: false }] },
@@ -136,7 +132,7 @@ type RollProps = c.Props<typeof props, typeof meta>;
 export function RentRoll(input: RollProps) {
   const { totals, lines } = input;
   const state = kit.useComponentState(), loading = state === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const figures = kit.useVariant("figures", meta.variants.figures, input.figures);
   const { lang, words: { rentRoll: words } } = kit.useWords(propertyWordsFor);
   const tenant = input.style === "tenant", autopay = tenant ? autopayLabel(input.autopay, lang) : undefined;
@@ -145,16 +141,17 @@ export function RentRoll(input: RollProps) {
     {tenant ? <kit.KitRow part={null} inline inset="none" label={words.tenant} {...{ density }} trailing={
       autopay && (loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["caption", autopay]]} /> :
         <kit.KitTrail part="autopay" kind="badge" value={autopay} tone={input.autopay ? "good" : "muted"} {...{ density }} />)
-    }><kit.KitHeader title={{ text: words.tenant, part: "tenant" }}
-      meta={{ text: copy.month(totals.month), part: "month" }} {...{ density }} /></kit.KitRow> :
+    }><kit.KitContent rhythm="flush" {...{ density }}>
+      <kit.KitLayoutText line={{ text: words.tenant, part: "tenant", strong: true }} {...{ density }} />
+      <kit.KitLayoutText line={{ text: copy.month(totals.month), part: "month", role: "meta", tone: "muted" }} {...{ density }} />
+    </kit.KitContent></kit.KitRow> :
       <kit.KitHeader title={{ text: copy.month(totals.month), part: "month" }} />}
-    <kit.KitGrid {...{ density }}>{copy.summary(totals).map((field) =>
-      <rent.Metric key={field.part} {...field} {...{ density }} focal={field.part === "outstanding"} alignEnd />)}</kit.KitGrid>
+    <rent.RentSummary fields={copy.summary(totals)} {...{ density, tenant }} />
     {!groups.length && !loading && <kit.KitEmpty part="notice" title={words.noCharges} decorativeIcon />}
     {groups.map(({ charge, receipts }) => <kit.KitContent key={charge.id} group="response" {...{ density }}>
       <rent.ChargeRow line={charge} {...finish} />
       {receipts.length > 0 && <kit.KitContent group="response" rhythm="flush" {...{ density }}>
-        <rent.Datum part={null} role="caption" tone="muted" text={words.receipts} {...{ density }} />
+        <kit.KitLayoutText line={{ text: words.receipts, role: "meta", tone: "muted" }} {...{ density }} />
         <kit.KitRowGroup separators={tenant} spacing="groups" {...{ density }}>
           {receipts.map((line) => <rent.ReceiptRow key={line.id} {...{ line }} {...finish} />)}
         </kit.KitRowGroup>

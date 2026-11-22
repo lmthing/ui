@@ -3,27 +3,22 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { readResult, resultFigures } from "../copy";
 import { learningWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Result.generated";
 
 // Core first: Stats/default cannot show a practice score with corrections and review or retry controls.
 export const meta = {
   id: "Result",
   status: "ready",
   group: "data",
-  purpose: "See a practice score and review the mistakes before trying again.",
-  pick: "A finished quiz or practice outcome: score, time, points, mistakes to review and a retry. Not independent summary numbers (Stats), a goal (Progress), confirmation (Success) or a sports score (Scoreboard).",
-  writeHints: [
-    "Write right and of as counts, not a percentage. Do not write a wrong count or score label. Include only supplied mistakes, never more than of minus right.",
-    'Do not emit visual defaults such as "card", "hero", or "comfortable". Write surface, emphasis, and density as null unless separately requested.',
-    'Show supplied time and points by default with detail null. Use detail "brief" only if the person explicitly asks to hide time and points, and keep both values in their fields. Hiding figures does not change density. Use null for missing figures.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Results are stored on the device.",
   variants: {
-    surface: ["card", "outlined"],
     emphasis: ["hero", "normal"],
-    density: ["comfortable", "compact"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["seconds", "points"] } },
@@ -70,7 +65,7 @@ export const examples = [
   // Ledge's fern practice finished without mistakes.
   { right: 6, of: 6, seconds: 58, points: 60, mistakes: [] },
   // Trot's walking-kit practice passed without mistakes.
-  { surface: "outlined", right: 5, of: 5, seconds: 48, points: 50, mistakes: [] },
+  { right: 5, of: 5, seconds: 48, points: 50, mistakes: [] },
   {
     right: 9,
     of: 10,
@@ -110,8 +105,8 @@ function ResultMetrics({ values, words, density }: {
 }) {
   const cell = (part: "right" | "wrong" | "seconds" | "points", value: string) =>
     <kit.KitContent key={part} density={density}>
-      <kit.KitText role="label" tone="muted" part={null} density={density}>{words[part]}</kit.KitText>
-      <kit.KitText role="number" numberScale="compact" tabular part={part} density={density}>{value}</kit.KitText>
+      <kit.KitText role="label" align="end" tone="muted" part={null} density={density}>{words[part]}</kit.KitText>
+      <kit.KitText role="number" numberScale="compact" align="end" tabular part={part} density={density}>{value}</kit.KitText>
     </kit.KitContent>;
   return <kit.KitContent group="response" density={density}>
     <kit.KitGrid density={density}>
@@ -143,8 +138,8 @@ function Corrections({ mistakes, label, density }: {
 export function Result(input: ResultProps) {
   const state = kit.useComponentState();
   const { lang, words: { result } } = kit.useWords(learningWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const emphasis = kit.useVariant("emphasis", meta.variants.emphasis, input.emphasis);
   const values = resultFigures(input, lang);
   const hasMistakes = input.mistakes.length > 0;
@@ -156,7 +151,7 @@ export function Result(input: ResultProps) {
     <kit.KitContent density={density}>
       <kit.KitText role="label" tone={perfect && emphasis === "normal" ? "good" : "muted"} part={null} density={density}>{perfect ? result.perfect : result.score}</kit.KitText>
       <kit.KitText role="number" numberScale={emphasis === "hero" ? "display" : "compact"} tone={scoreTone} tabular part="score" {...{ density, emphasis }}>
-        {values.right}<kit.KitText part={null} tone="muted" density={density}>{values.total}</kit.KitText>
+        {values.right}<kit.KitText part={null} role="label" tone="muted" density={density}>{values.total}</kit.KitText>
       </kit.KitText>
     </kit.KitContent>
     <ResultMetrics words={result} {...{ values, density }} />

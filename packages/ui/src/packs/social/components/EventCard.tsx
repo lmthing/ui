@@ -3,23 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { eventCopy, eventReading } from "../copy";
 import { socialWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-EventCard.generated";
 
 // Core first: Card/feature cannot show an event's date block, attendees and two RSVP actions.
 export const meta = {
   id: "EventCard",
   status: "ready",
   group: "content",
-  purpose: "See a community event and say whether you’re going or interested.",
-  pick: "An event to join in a community, with its date block, attendees and Going or Interested controls. Not organising one's own gathering (events), a provider booking (Appointment), or a featured preview without RSVPs (Card).",
-  writeHints: [
-    "Use YYYY-MM-DD and 24-hour HH:MM. Set going to the full attendance count and list up to five names from that total in attendees.",
-    'Leave density, surface and media null unless requested. When asked to hide a supplied cover, set media to "none" and keep the photo reference in photo.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "An event in a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["cover", "none"] },
+  variants: { media: ["cover", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
   // prettier-ignore
   parts: ["root", "frame", "title", "date", "month", "time", "place", "photo", "attendees", "count",
@@ -119,82 +117,192 @@ type EventProps = c.Props<typeof props, typeof meta> & { members: { id: string; 
 type EventFinish = { density: c.ThemeDensity; loading: boolean };
 type EventCopy = ReturnType<typeof eventCopy>;
 
-// prettier-ignore
-function EventDetails({ input, density, loading, day, month, time }: EventFinish & Omit<EventCopy, "attendance"> & { input: EventProps }) {
-  const date = loading ?
-    <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["number", day, "start", "compact"], ["label", month]]} /> :
+function EventDate({ density, loading, day, month }: EventFinish & Pick<EventCopy, "day" | "month">) {
+  return loading ? (
+    <kit.KitSkeleton
+      shape="figure"
+      inset="none"
+      density={density}
+      content={[
+        ["number", day, "start", "compact"],
+        ["label", month],
+      ]}
+    />
+  ) : (
     <kit.KitContent density={density}>
-      <kit.KitText part="date" role="number" numberScale="compact" tone="muted" density={density} tabular>{day}</kit.KitText>
-      <kit.KitText part="month" role="label" tone="muted" density={density}>{month}</kit.KitText>
-    </kit.KitContent>;
-  return <kit.KitRow part="root" goto={loading ? undefined : input.goto} label={input.title}
-    inset="none" density={density}>
-    <kit.KitContent lead={date} leadingAlign="row" density={density}>
-      <kit.KitGrid fitLast density={density}>
-        {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["heading", input.title]]} /> :
-          <kit.KitText part="title" role="heading" density={density}>{input.title}</kit.KitText>}
-        {loading ? <kit.KitSkeleton shape="figure" lead="dot" inset="none" content={[]} density={density} /> :
-          <kit.KitIcon name="chevron_right" tone="muted" decorative />}
-      </kit.KitGrid>
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
-        content={[["label", time], ["label", input.place]]} /> : <>
-        <kit.KitText part="time" role="label" tone="muted" density={density}>{time}</kit.KitText>
-        <kit.KitText part="place" role="label" tone="muted" density={density}>{input.place}</kit.KitText>
-      </>}
+      <kit.KitText part="date" role="number" numberScale="compact" tone="muted" density={density} tabular>
+        {day}
+      </kit.KitText>
+      <kit.KitText part="month" role="label" tone="muted" density={density}>
+        {month}
+      </kit.KitText>
     </kit.KitContent>
-  </kit.KitRow>;
+  );
 }
 
-// prettier-ignore
-function EventAttendees({ members, attendance, density, loading }: EventFinish & Pick<EventProps, "members"> & Pick<EventCopy, "attendance">) {
-  const { words: { event } } = kit.useWords(socialWordsFor);
+function EventDetails(details: EventFinish & Omit<EventCopy, "attendance"> & { input: EventProps }) {
+  const { input, density, loading, time } = details;
+  const date = EventDate(details);
+  return (
+    <kit.KitRow
+      part="root"
+      goto={loading ? undefined : input.goto}
+      label={input.title}
+      inset="none"
+      density={density}
+    >
+      <kit.KitContent lead={date} leadingAlign="row" density={density}>
+        <kit.KitGrid fitLast density={density}>
+          {loading ? (
+            <kit.KitSkeleton
+              shape="figure"
+              inset="none"
+              density={density}
+              content={[["heading", input.title]]}
+            />
+          ) : (
+            <kit.KitText part="title" role="heading" density={density}>
+              {input.title}
+            </kit.KitText>
+          )}
+          {loading ? (
+            <kit.KitSkeleton shape="figure" lead="dot" inset="none" content={[]} density={density} />
+          ) : (
+            <kit.KitIcon name="chevron_right" tone="muted" decorative />
+          )}
+        </kit.KitGrid>
+        {loading ? (
+          <kit.KitSkeleton
+            shape="figure"
+            inset="none"
+            density={density}
+            content={[
+              ["label", time],
+              ["label", input.place],
+            ]}
+          />
+        ) : (
+          <>
+            <kit.KitText part="time" role="label" tone="muted" density={density}>
+              {time}
+            </kit.KitText>
+            <kit.KitText part="place" role="label" tone="muted" density={density}>
+              {input.place}
+            </kit.KitText>
+          </>
+        )}
+      </kit.KitContent>
+    </kit.KitRow>
+  );
+}
+
+function EventAttendees({
+  members,
+  attendance,
+  density,
+  loading,
+}: EventFinish & Pick<EventProps, "members"> & Pick<EventCopy, "attendance">) {
+  const {
+    words: { event },
+  } = kit.useWords(socialWordsFor);
   const { count, before, after, line } = attendance;
-  const label = loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", line]]} /> :
+  const label = loading ? (
+    <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", line]]} />
+  ) : (
     <kit.KitText part="count" role="label" tone="muted" density={density}>
-      {before}<kit.KitText part={null} role="number" numberScale="compact" tabular density={density}>{count}</kit.KitText>{after}
-    </kit.KitText>;
-  const avatars = loading ? members.slice(0, 3).reduceRight<React.JSX.Element | null>((tail, { id }) => {
-    const circle = <kit.KitSkeleton shape="control" />;
-    return tail ? <kit.KitRow key={id} part={null} label="" inline leadingAlign="row" leading={circle}>
-      {tail}
-    </kit.KitRow> : circle;
-  }, null) : <kit.KitAvatarStack members={members} />;
-  return <kit.KitRow part="attendees" label={event.attendees} role="group" inline density={density}
-    leadingAlign="row" leading={members.length > 0 ? label : undefined}>
-    {members.length > 0 ? avatars : label}
-  </kit.KitRow>;
+      {before}
+      <kit.KitText part={null} role="number" numberScale="compact" tabular density={density}>
+        {count}
+      </kit.KitText>
+      {after}
+    </kit.KitText>
+  );
+  const avatars = loading ? (
+    members.slice(0, 3).reduceRight<React.JSX.Element | null>((tail, { id }) => {
+      const circle = <kit.KitSkeleton shape="control" />;
+      return tail ? (
+        <kit.KitRow key={id} part={null} label="" inline leadingAlign="row" leading={circle}>
+          {tail}
+        </kit.KitRow>
+      ) : (
+        circle
+      );
+    }, null)
+  ) : (
+    <kit.KitAvatarStack members={members} />
+  );
+  return (
+    <kit.KitRow
+      part="attendees"
+      label={event.attendees}
+      role="group"
+      inline
+      density={density}
+      leadingAlign="row"
+      leading={members.length > 0 ? label : undefined}
+    >
+      {members.length > 0 ? avatars : label}
+    </kit.KitRow>
+  );
 }
 
-// prettier-ignore
 function EventActions({ status, density, loading }: EventFinish & Pick<EventProps, "status">) {
-  const { words: { event } } = kit.useWords(socialWordsFor);
-  const controls = <kit.KitGrid density={density}>{(["going", "interested"] as const).map((part) => {
-    const selected = status === part;
-    const kind = selected || (status === "none" && part === "going") ? "primary" : "quiet";
-    return loading ? <kit.KitSkeleton key={part} shape="control" kind={kind} label={event[part]} full /> :
-      <kit.KitAction key={part} part={part} label={event[part]} kind={kind} icon={selected ? "check" : undefined} full />;
-  })}</kit.KitGrid>;
-  return loading ? controls : <kit.KitRow part="rsvp" label={event.response[status]} role="group" inline density={density}>
-    {controls}
-  </kit.KitRow>;
+  const {
+    words: { event },
+  } = kit.useWords(socialWordsFor);
+  const controls = (
+    <kit.KitGrid density={density}>
+      {(["going", "interested"] as const).map((part) => {
+        const selected = status === part;
+        const kind = selected || (status === "none" && part === "going") ? "primary" : "quiet";
+        return loading ? (
+          <kit.KitSkeleton key={part} shape="control" kind={kind} label={event[part]} full />
+        ) : (
+          <kit.KitAction
+            key={part}
+            part={part}
+            label={event[part]}
+            kind={kind}
+            icon={selected ? "check" : undefined}
+            full
+          />
+        );
+      })}
+    </kit.KitGrid>
+  );
+  return loading ? (
+    controls
+  ) : (
+    <kit.KitRow part="rsvp" label={event.response[status]} role="group" inline density={density}>
+      {controls}
+    </kit.KitRow>
+  );
 }
 
-// prettier-ignore
 export function EventCard(input: EventProps) {
   const loading = kit.useComponentState() === "loading";
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const media = kit.useVariant("media", meta.variants.media, input.media);
-  const { words: { event }, lang } = kit.useWords(socialWordsFor);
+  const {
+    words: { event },
+    lang,
+  } = kit.useWords(socialWordsFor);
   const { attendance, ...date } = eventCopy(input, lang);
   const photo = media === "cover" && input.photo;
-  return <kit.KitCard part="frame" padded density={density} surface={surface}>
-    {photo && (loading ? <kit.KitSkeleton shape="media" inset="none" content={[]} /> :
-      <kit.KitPhoto part="photo" photo={photo} shape="wide" label={event.photo} />)}
-    <EventDetails {...{ input, density, loading }} {...date} />
-    <EventAttendees members={input.members} {...{ attendance, density, loading }} />
-    <kit.KitContent group="response" density={density}>
-      <EventActions status={input.status} {...{ density, loading }} />
-    </kit.KitContent>
-  </kit.KitCard>;
+  return (
+    <kit.KitCard part="frame" padded density={density} surface={surface}>
+      {photo &&
+        (loading ? (
+          <kit.KitSkeleton shape="media" inset="none" content={[]} />
+        ) : (
+          <kit.KitPhoto part="photo" photo={photo} shape="wide" label={event.photo} />
+        ))}
+      <EventDetails {...{ input, density, loading }} {...date} />
+      <EventAttendees members={input.members} {...{ attendance, density, loading }} />
+      <kit.KitContent group="response" density={density}>
+        <EventActions status={input.status} {...{ density, loading }} />
+      </kit.KitContent>
+    </kit.KitCard>
+  );
 }

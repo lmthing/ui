@@ -3,25 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { approvalAmount, approvalPortrait, approvalReading } from "../copy";
 import { teamWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Approval.generated";
 
 // Core first: Checklist/check records completion, not a manager's approve or decline decision on a request.
 export const meta = {
   id: "Approval",
   status: "ready",
   group: "action",
-  purpose: "Review staff requests and decide whether to approve or decline them.",
-  pick: "A manager decides on submitted staff requests such as time off, swaps and expenses. Not jobs to tick off (Checklist) or a client accepting a quote (Invoice).",
-  writeHints: [
-    'Write amounts as numbers without a currency. Use lead "none" only when asked to hide requester portraits; keep the photo references.',
-    'Set unrequested axes to null: for requests without portraits use {"density":null,"surface":null,"lead":"none"}. Do not fill in the default density or surface.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "A shared app stores requests and tells each requester the decision.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     lead: ["avatar", "none"],
   },
   variantParts: { "lead.none": { hides: ["photo"] } },
@@ -31,28 +27,33 @@ export const meta = {
     // prettier-ignore
     parts: [
       "root", "content", "from", "photo", "kind", "title", "dates", "amount", "note",
-      "approve", "approve_label", "decline", "decline_label",
+      "approve", "approve_label", "decline", "decline_label", "status",
     ],
   },
   confirmParts: ["decline"],
   states: ["filled", "empty", "success"],
-  actions: { items: { approve: ["press"], decline: ["press"] } },
+  actions: {
+    items: { approve: ["press"], decline: ["press"] },
+    when: { approve: { style: "queue" }, decline: { style: "queue" } },
+  },
   read: (input, state, lang): string[] =>
     state === "filled" ? approvalReading(input as z.output<typeof props>, lang) : [],
 } as const satisfies c.Meta;
 
 export const props = z.strictObject({
   ...c.variantProps(meta.variants),
+  style: z.enum(["queue", "my_requests"]).default("queue"),
   requests: z
     .array(
       z.strictObject({
         from: c.text(20),
         photo: c.photo,
-        kind: z.enum(["time_off", "swap", "expense", "other"]),
+        kind: z.enum(["time_off", "swap", "expense", "other", "shift_claim"]),
         title: c.text(32),
         dates: c.text(24).optional(),
         amount: z.number().min(0).optional(),
         note: c.text(100).optional(),
+        status: z.enum(["pending", "approved", "declined"]).optional().meta({ kind: undefined }),
       }),
     )
     .min(1)
@@ -93,6 +94,14 @@ export const examples = [
       { from: "Lee", photo: "lib:people", kind: "other", title: "Add a spare lead" },
     ],
   },
+  {
+    style: "my_requests",
+    requests: [
+      { from: "Anna", photo: "lib:people", kind: "shift_claim", title: "Friday greenhouse shift",
+        dates: "20 Nov", status: "pending" },
+      { from: "Anna", photo: "lib:people", kind: "time_off", title: "Monday off", status: "approved" },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Approval");
@@ -114,49 +123,83 @@ export const probes = [
     variant: { axis: "lead", value: "none" },
   },
   read("Decline Rae's seed tray expense request", { address: "a1/r2/decline", action: "press" }),
+  {
+    ...write(
+      "In the manager's approval queue, Anna (photo lib:people) asks to take an open greenhouse shift nobody has. Title it Friday greenhouse shift, dated 20 Nov. This is a claim, not a swap.",
+    ),
+    expectProps: { requests: [{ kind: "shift_claim" }] },
+  },
+  {
+    ...write(
+      "Let me track the requests I submitted myself, with no decision buttons. I'm Anna (photo lib:people), and my request for Monday off was approved.",
+    ),
+    expectProps: { style: "my_requests", requests: [{ status: "approved" }] },
+  },
 ] satisfies c.Probe[];
 
 type ApprovalProps = c.Props<typeof props, typeof meta>;
-type RequestProps = Pick<ApprovalProps, "lead" | "surface"> & {
+type RequestProps = Pick<ApprovalProps, "lead" | "style"> & {
+  surface: c.SurfaceFinish;
   row: ApprovalProps["requests"][number];
   density: c.ThemeDensity;
 };
 
-// prettier-ignore
-function ApprovalRow({ row, lead, surface, density }: RequestProps) {
+function ApprovalRow({ row, lead, surface, density, style }: RequestProps) {
   const { words, lang } = kit.useWords(teamWordsFor);
-  const { approve, decline, kinds } = words.approval;
+  const { approve, decline, kinds, statuses } = words.approval;
   const amount = approvalAmount(row.amount, lang);
+  const status = row.status ?? "pending";
   const portrait =
     lead === "avatar" ? (
       <kit.KitPhoto part="photo" {...approvalPortrait(row.from, row.photo)} label={row.from} shape="round" />
     ) : undefined;
   return (
-    <kit.KitRow item={row.id} part="root" label={row.title} inline density={density} surface={surface}>
+    <kit.KitRow
+      item={row.id}
+      part="root"
+      label={row.title}
+      inset="none"
+      inline
+      density={density}
+      surface={surface}
+    >
       <kit.KitCard part="content" style="plain" padded density={density}>
         <kit.KitContent lead={portrait} leadingAlign="row" density={density}>
-          <kit.KitText part="title" role="heading" density="comfortable">{row.title}</kit.KitText>
-          <kit.KitText part={null} role="label" tone="muted" density={density}>
-            <kit.KitText part="from" role="label" tone="muted" density={density}>{row.from}</kit.KitText>
-            {"\n"}
-            <kit.KitText part="kind" role="label" tone="muted" density={density}>{kinds[row.kind]}</kit.KitText>
-          </kit.KitText>
+          <kit.KitMetaLine
+            title={{ text: row.title, part: "title", role: "body", strong: true }}
+            meta={[
+              { text: row.from, part: "from" },
+              { text: kinds[row.kind], part: "kind" },
+            ]}
+            density={density}
+          />
         </kit.KitContent>
-        {(row.dates !== undefined || amount !== undefined || row.note !== undefined) && (
-          <kit.KitContent group="response" density={density}>
-            {row.dates !== undefined && <kit.KitText part="dates" role="label" density={density}>{row.dates}</kit.KitText>}
-            {amount !== undefined && (
-              <kit.KitText part="amount" role="number" numberScale="compact" tabular density={density}>
-                {amount}
-              </kit.KitText>
-            )}
-            {row.note !== undefined && <kit.KitText part="note" role="body" tone="muted" density={density}>{row.note}</kit.KitText>}
-          </kit.KitContent>
+        <kit.KitMetaLine
+          title={{ text: row.note, part: "note", role: "body", tone: "muted" }}
+          meta={[
+            { text: row.dates, part: "dates" },
+            { text: amount, part: "amount", role: "figure", compact: true, tabular: true, tone: "text" },
+          ]}
+          density={density}
+        />
+        {style === "my_requests" ? (
+          <kit.KitLayoutText
+            line={{
+              part: "status",
+              text: statuses[status],
+              role: "meta",
+              tone: status === "approved" ? "good" : status === "declined" ? "bad" : "muted",
+            }}
+            density={density}
+          />
+        ) : (
+          <kit.KitActionFooter density={density}>
+            <kit.KitGrid density={density}>
+              <kit.KitAction part="approve" label={approve} kind="secondary" full />
+              <kit.KitAction part="decline" label={decline} kind="danger" full />
+            </kit.KitGrid>
+          </kit.KitActionFooter>
         )}
-        <kit.KitGrid density={density}>
-          <kit.KitAction part="approve" label={approve} kind="secondary" full />
-          <kit.KitAction part="decline" label={decline} kind="quiet" full />
-        </kit.KitGrid>
       </kit.KitCard>
     </kit.KitRow>
   );
@@ -164,29 +207,38 @@ function ApprovalRow({ row, lead, surface, density }: RequestProps) {
 
 export function Approval(input: ApprovalProps) {
   const state = kit.useComponentState();
+  const thing = kit.useEmptyThing();
   const { words } = kit.useWords(teamWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const lead = kit.useVariant("lead", meta.variants.lead, input.lead);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
-  const filled = state === "filled";
-  const success = state === "success";
+  const surface = "card";
   return (
-    <kit.KitCard part="root" style={filled ? "cards" : "inset"} density={density} surface={surface}>
-      {filled ? (
-        <kit.KitGrid arrange="rows" list listRowGap="cards" density={density}>
+    <kit.KitCard
+      part="root"
+      style={state === "filled" ? "cards" : "inset"}
+      density={density}
+      surface={surface}
+    >
+      <kit.KitState
+        part="message"
+        icon={state === "success" ? "check" : "clipboard_list"}
+        message={
+          state === "success"
+            ? words.approval.success
+            : thing
+              ? undefined
+              : input.style === "my_requests"
+                ? words.approval.empty
+                : words.approval.queueEmpty
+        }
+        density={density}
+      >
+        <kit.KitRowGroup separators={false} spacing="groups" density={density}>
           {input.requests.map((row) => (
-            <ApprovalRow key={row.id} {...{ row, lead, density, surface }} />
+            <ApprovalRow key={row.id} {...{ row, lead, density, surface }} style={input.style} />
           ))}
-        </kit.KitGrid>
-      ) : (
-        <kit.KitEmpty
-          icon={success ? "check" : "clipboard_list"}
-          part="message"
-          {...(success ? { title: words.approval.success } : {})}
-          tone={success ? "good" : "neutral"}
-          decorativeIcon
-        />
-      )}
+        </kit.KitRowGroup>
+      </kit.KitState>
     </kit.KitCard>
   );
 }

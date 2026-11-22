@@ -6,7 +6,7 @@ import type { Variants, VariantParts } from "../types";
 import type { Definition } from "../probes";
 import { checkVariantDeclarations } from "./check-variant-declarations";
 
-const variants = { surface: ["card", "plain"], detail: ["full", "brief"] } as const;
+const variants = { emphasis: ["normal", "hero"], detail: ["full", "brief"] } as const;
 const itemAxes = { trail: ["chevron", "toggle"], mark: ["none", "highlight"] } as const;
 const fixture: Definition = {
   ...components.List,
@@ -27,10 +27,10 @@ it("checks the metadata against the flat component and item schemas", () => {
   expect(checkVariantDeclarations(fixture)).toEqual([]);
   const bad = {
     ...fixture,
-    props: fixture.props.extend({ surface: z.enum(["card", "plain"]).default("plain") }),
+    props: fixture.props.extend({ emphasis: z.enum(["normal", "hero"]).default("hero") }),
   };
   expect(checkVariantDeclarations(bad)).toContain(
-    "VariantFixture: schema does not match declared variant surface",
+    "VariantFixture: schema does not match declared variant emphasis",
   );
 });
 
@@ -38,13 +38,13 @@ it("rejects helper-generated variant fields absent from component or item metada
   const extra = {
     ...fixture,
     props: fixture.props.extend({
-      ...variantProps({ align: ["start", "center"] }),
+      ...variantProps({ aspect: ["wide", "square"] }),
       rows: z.array(z.strictObject(itemVariantProps({ ...itemAxes, tone: ["neutral", "good"] }))),
     }),
   };
   expect(checkVariantDeclarations(extra).sort()).toEqual([
     "VariantFixture items: schema exposes undeclared variant tone",
-    "VariantFixture: schema exposes undeclared variant align",
+    "VariantFixture: schema exposes undeclared variant aspect",
   ]);
 });
 
@@ -69,7 +69,7 @@ it("accepts inherited item trail only when the collection declares a trail", () 
 });
 
 it("rejects variant fields inside nested objects and item sub-objects", () => {
-  const nested = z.strictObject(variantProps({ align: ["start", "center"] }));
+  const nested = z.strictObject(variantProps({ aspect: ["wide", "square"] }));
   const def = {
     ...fixture,
     props: fixture.props.extend({
@@ -78,39 +78,37 @@ it("rejects variant fields inside nested objects and item sub-objects", () => {
     }),
   };
   expect(checkVariantDeclarations(def).sort()).toEqual([
-    "VariantFixture items.preview: schema exposes undeclared variant align",
-    "VariantFixture.preview: schema exposes undeclared variant align",
+    "VariantFixture items.preview: schema exposes undeclared variant aspect",
+    "VariantFixture.preview: schema exposes undeclared variant aspect",
   ]);
 });
 
 it("rejects an axis that offers only its default", () => {
   const def = {
     ...fixture,
-    meta: { ...fixture.meta, variants: { ...variants, surface: ["plain"] } as const },
-    props: fixture.props.extend(variantProps({ surface: ["plain"] })),
+    meta: { ...fixture.meta, variants: { ...variants, emphasis: ["normal"] } as const },
+    props: fixture.props.extend(variantProps({ emphasis: ["normal"] })),
   };
-  expect(checkVariantDeclarations(def)).toEqual(["VariantFixture: variant surface has no alternative"]);
+  expect(checkVariantDeclarations(def)).toEqual(["VariantFixture: variant emphasis has no alternative"]);
 });
 
-it("rejects an undeclared axis even through nullable or union wrappers", () => {
-  const density = variantProps({ density: ["comfortable", "compact"] }).density;
+it("rejects retired presentation properties even through nullable or union wrappers", () => {
+  const density = z.enum(["comfortable", "compact"]);
   for (const wrapped of [density.nullable(), z.union([z.null(), density])]) {
     const def = { ...fixture, props: fixture.props.extend({ density: wrapped }) };
     expect(checkVariantDeclarations(def)).toEqual([
-      "VariantFixture: schema exposes undeclared variant density",
+      "VariantFixture: schema exposes retired presentation prop density",
     ]);
   }
 });
 
 it("rejects style duplicates in wrapped enums and union literals", () => {
   for (const style of [
-    z.enum(["other", "compact"]).nullable().default("other"),
-    z.union([z.literal("other"), z.literal("compact")]),
+    z.enum(["other", "hero"]).nullable().default("other"),
+    z.union([z.literal("other"), z.literal("hero")]),
   ]) {
     const def = { ...fixture, props: fixture.props.extend({ style }) };
-    expect(checkVariantDeclarations(def)).toEqual([
-      "VariantFixture: style.compact duplicates a shared variant",
-    ]);
+    expect(checkVariantDeclarations(def)).toEqual(["VariantFixture: style.hero duplicates a shared variant"]);
   }
 });
 
@@ -119,14 +117,14 @@ it("rejects unknown axes, empty options, bad values and disallowed item axes", (
     ...fixture,
     meta: {
       ...fixture.meta,
-      variants: { appearance: ["custom"], surface: [], detail: ["full", "extra"] } as unknown as Variants,
+      variants: { appearance: ["custom"], emphasis: [], detail: ["full", "extra"] } as unknown as Variants,
       items: { ...fixture.meta.items!, variants: { density: ["comfortable"] } as unknown as typeof itemAxes },
     },
   };
   expect(checkVariantDeclarations(bad)).toEqual(
     expect.arrayContaining([
       "VariantFixture: unknown variant axis appearance",
-      "VariantFixture: empty variant axis surface",
+      "VariantFixture: empty variant axis emphasis",
       "VariantFixture: invalid variant values for detail: full, extra",
       "VariantFixture items: unknown variant axis density",
     ]),
@@ -139,30 +137,19 @@ it("rejects declarations for undeclared values and finish part changes", () => {
     meta: {
       ...fixture.meta,
       variantParts: {
-        "surface.plain": { hides: ["title"] },
+        "emphasis.hero": { hides: ["title"] },
         "trail.check": { adds: ["trail"] },
       } satisfies VariantParts,
     },
   };
   expect(checkVariantDeclarations(bad)).toEqual([
-    "VariantFixture: finish variant surface.plain cannot change parts",
+    "VariantFixture: finish variant emphasis.hero cannot change parts",
     "VariantFixture: variantParts references undeclared trail.check",
   ]);
 });
 
 it("rejects duplicate style vocabulary outside the temporary existing-component allowlist", () => {
-  for (const value of [
-    "compact",
-    "tinted",
-    "outlined",
-    "centered",
-    "hero",
-    "square",
-    "wide",
-    "tall",
-    "grid",
-    "strip",
-  ]) {
+  for (const value of ["centered", "hero", "square", "wide", "tall", "grid", "strip", "badge"]) {
     const bad = {
       ...fixture,
       props: fixture.props.extend({ style: z.enum(["different", value]).default("different") }),

@@ -6,6 +6,7 @@ import {
   timeOfDayLine,
   type DeviceData,
   type StateName,
+  type Values,
 } from "../../../catalog";
 import { projectsWordsFor } from "../lang";
 import { dayMs, dayOf } from "../seeds";
@@ -21,6 +22,7 @@ export type TimeEntry = {
 };
 type Log<T> = {
   week: string;
+  style?: "days" | "single_day" | "summary" | undefined;
   day?: string | undefined;
   detail: "full" | "brief";
   entries: readonly T[];
@@ -29,7 +31,9 @@ type Log<T> = {
   timerSeconds?: number | undefined;
   projectRef?: string | undefined;
   addGoto?: string | undefined;
+  projectTimes?: readonly ProjectTime[] | undefined;
 };
+type ProjectTime = { projectRef: string; billableMs: number; nonBillableMs: number };
 const isoDay = (day: number) => new Date(day * dayMs).toISOString().slice(0, 10);
 const elapsed = ({ start, end }: TimeEntry) => Date.parse(end) - Date.parse(start);
 export const weekElapsed = (entries: readonly TimeEntry[]) =>
@@ -91,6 +95,44 @@ function logDuration(ms: number, lang?: string) {
   );
 }
 
+function projectTimes(entries: readonly (TimeEntry & { projectRef: string })[]): ProjectTime[] {
+  const groups = new Map<string, ProjectTime>();
+  for (const row of entries) {
+    const { projectRef, billable } = row;
+    const total = groups.get(projectRef) ?? { projectRef, billableMs: 0, nonBillableMs: 0 };
+    total[billable ? "billableMs" : "nonBillableMs"] += elapsed(row);
+    groups.set(projectRef, total);
+  }
+  return [...groups.values()].sort((a, b) => a.projectRef.localeCompare(b.projectRef));
+}
+
+export function timeLogControls(input: Readonly<Values>): Values {
+  const entries = input.entries as (TimeEntry & { projectRef: string })[];
+  if (input.style === "summary") return { projectTimes: projectTimes(entries) };
+  return input.detail === "brief" ? { entries: entries.map((row) => ({ ...row, note: undefined })) } : {};
+}
+
+function logHeader(input: Log<TimeEntry>, lang?: string) {
+  return {
+    week: projectsWordsFor(lang).timeLog.week(appointmentDate(input.week, lang)),
+    total: logDuration(input.weekMs ?? weekElapsed(input.entries), lang),
+    timer: input.timerRunning ? clockLine(input.timerSeconds ?? 0, lang) : undefined,
+  };
+}
+
+export function timeLogSummary(input: Log<TimeEntry>, lang?: string) {
+  const words = projectsWordsFor(lang);
+  return {
+    ...logHeader(input, lang),
+    projects: (input.projectTimes ?? []).map(({ projectRef, billableMs, nonBillableMs }) => ({
+      projectRef,
+      title: words.tasks.project(projectRef),
+      billable: logDuration(billableMs, lang),
+      nonBillable: logDuration(nonBillableMs, lang),
+    })),
+  };
+}
+
 export function timeLogCopy<T extends TimeEntry>(input: Log<T>, lang?: string, data: DeviceData = {}) {
   const words = projectsWordsFor(lang).timeLog;
   const zone = zoneFormat(timeLogZone(data));
@@ -113,9 +155,7 @@ export function timeLogCopy<T extends TimeEntry>(input: Log<T>, lang?: string, d
   }
   const time = (stamp: string) => timeOfDayLine(stamp.slice(11, 16), lang);
   return {
-    week: words.week(appointmentDate(input.week, lang)),
-    total: logDuration(input.weekMs ?? weekElapsed(input.entries), lang),
-    timer: input.timerRunning ? clockLine(input.timerSeconds ?? 0, lang) : undefined,
+    ...logHeader(input, lang),
     days: [...groups]
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([day, group]) => ({
@@ -137,8 +177,26 @@ export function timeLogCopy<T extends TimeEntry>(input: Log<T>, lang?: string, d
 export function timeLogReading(input: unknown, state: StateName, lang?: string, data?: DeviceData) {
   if (state !== "filled" && state !== "success") return [];
   const log = input as Log<TimeEntry & { id: string }>;
-  const copy = timeLogCopy(log, lang, data);
   const w = projectsWordsFor(lang).timeLog;
+  const copy = log.style === "summary" ? timeLogSummary(log, lang) : timeLogCopy(log, lang, data);
+  const detail =
+    "projects" in copy
+      ? copy.projects.length
+        ? [
+            w.summary,
+            ...copy.projects.map(({ title, billable, nonBillable }) =>
+              [title, `${w.billable}: ${billable}`, `${w.nonBillable}: ${nonBillable}`].join(w.separator),
+            ),
+          ]
+        : [w.summaryEmpty]
+      : copy.days.flatMap(({ date, total, rows }) => [
+          `${date}${w.separator}${total}`,
+          ...rows.map(({ row, duration, billable, note }) =>
+            [`${row.id}: ${row.title}`, `${row.start}${w.range}${row.end}`, duration, billable, note]
+              .filter(Boolean)
+              .join(w.separator),
+          ),
+        ]);
   return [
     copy.week,
     `${w.weekTotal}${w.separator}${copy.total}`,
@@ -146,13 +204,6 @@ export function timeLogReading(input: unknown, state: StateName, lang?: string, 
     ...(log.addGoto ? [w.add] : []),
     ...(log.weekMs ? [w.export] : []),
     ...(state === "success" ? [w.saved] : []),
-    ...copy.days.flatMap(({ date, total, rows }) => [
-      `${date}${w.separator}${total}`,
-      ...rows.map(({ row, duration, billable, note }) =>
-        [`${row.id}: ${row.title}`, `${row.start}${w.range}${row.end}`, duration, billable, note]
-          .filter(Boolean)
-          .join(w.separator),
-      ),
-    ]),
+    ...detail,
   ];
 }

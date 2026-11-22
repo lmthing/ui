@@ -47,7 +47,6 @@ describe("Weather contract", () => {
     expect(props.parse({ place: ` ${place} ` })).toMatchObject({
       place,
       detail: "full",
-      surface: "card",
     });
     for (const dates of [
       { from: "2028-02-29" },

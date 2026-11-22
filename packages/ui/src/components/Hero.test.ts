@@ -19,7 +19,6 @@ describe("Hero schema", () => {
   );
   it("applies defaults and trims text", () => {
     expect(props.parse({ title: "  Main message  ", sub: "  A little detail  " })).toEqual({
-      align: "start",
       emphasis: "normal",
       detail: "full",
       media: "none",

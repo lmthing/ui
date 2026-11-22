@@ -32,7 +32,6 @@ describe("Lesson contract and boundaries", () => {
       title: "Title",
       text: "Explanation",
       example: "Example",
-      surface: "card",
       emphasis: "normal",
       detail: "full",
     });
@@ -124,7 +123,7 @@ describe("Lesson filled parts and read/act", () => {
   });
   it("draws optional parts independently and hides the entire example in brief detail", () => {
     const full = addresses(first);
-    const finish = addresses({ ...first, density: "compact", surface: "outlined", emphasis: "hero" });
+    const finish = addresses({ ...first, emphasis: "hero" });
     expect([...finish.keys()]).toEqual([...full.keys()]);
     const brief = { ...first, detail: "brief" };
     const hidden = meta.variantParts["detail.brief"].hides.map((part) => `home/l1/${part}`);

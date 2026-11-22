@@ -40,8 +40,9 @@ export function KitStrip({ children, pages = false, overflow, density, list = fa
   const paged = overflow === undefined ? pages : overflow === "page";
   const gap = space[useVariantDensity(density).stripGap];
   const cell = Math.round(width * (paged ? component.base.pageShare : component.base.stripShare));
-  const explicitPages = overflow === "page" && cells.length > 1;
-  const webSnap = isWeb && explicitPages;
+  const multiplePages = paged && cells.length > 1;
+  const pageGap = multiplePages ? Math.max(gap, width - cell) : gap;
+  const webSnap = isWeb && multiplePages;
   return (
     <YStack width="100%" gap={gap} onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
       <ScrollView
@@ -49,21 +50,21 @@ export function KitStrip({ children, pages = false, overflow, density, list = fa
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
           flexGrow: component.base.bodyFlex,
-          ...(explicitPages ? { paddingRight: width - cell } : {}),
+          ...(multiplePages ? { paddingRight: width - cell } : {}),
         }}
         {...(webSnap ? { style: { scrollSnapType: "x mandatory" } as never } : {})}
         {...(paged && cell
           ? {
-              snapToInterval: cell + gap,
+              snapToInterval: cell + pageGap,
               decelerationRate: "fast" as const,
               scrollEventThrottle: 32,
               onScroll: (event: { nativeEvent: { contentOffset: { x: number } } }) =>
-                setAt(Math.round(event.nativeEvent.contentOffset.x / (cell + gap))),
+                setAt(Math.round(event.nativeEvent.contentOffset.x / (cell + pageGap))),
             }
           : {})}
       >
         <XStack
-          gap={gap}
+          gap={pageGap}
           paddingVertical={space.xs}
           marginHorizontal="auto"
           flexShrink={0}

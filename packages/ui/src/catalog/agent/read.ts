@@ -69,24 +69,25 @@ export function readComponent(
   const head = `${instance} ${meta.id}${variantsOf(schema, redactSecretProps(schema, props))}${state === "filled" ? "" : ` (${state})`}`;
   const draw = drawState(def.meta, props, get),
     session = sessionState(meta, props, get);
-  const offered = readOffers(def, migrated, instance, props, state, values, {
-    addresses,
-    deviceData,
-    target,
-    host,
-  });
+  const options = { addresses, deviceData, target, host };
+  const offered = readOffers(def, migrated, instance, props, state, values, options);
   const operations = readHostOperations(meta, props, instance, host, get("more") === true);
   const affordances = readAffordances(offered, values, def, props, instance, session);
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   const optedIn = (state === "empty" || state === "success") && meta.readInState?.(props, state);
   const successContent = state === "success" && (draw || session || meta.readSuccess);
-  if (state !== "filled" && !feedback && !optedIn && !successContent)
-    return [
-      [head, ...(state === "empty" ? readDraw(draw) : []), ...affordances.map(formatAffordance)].join(" "),
-      ...operations,
-    ];
   const content = { props, validated, instance, values, state, session, draw, summaryOnly: !!optedIn };
-  const { key, own } = readContent(meta, schema, content, { lang, deviceData, currency });
+  const copy = { lang, deviceData, currency };
+  if (state !== "filled" && !feedback && !optedIn && !successContent) {
+    const summary =
+      state === "empty"
+        ? readDraw(draw)
+        : state === "error" && meta.readError
+          ? readContent(meta, schema, content, copy).own
+          : [];
+    return [[head, ...summary, ...affordances.map(formatAffordance)].join(" "), ...operations];
+  }
+  const { key, own } = readContent(meta, schema, content, copy);
   const nested = visibleNestedProps(meta, props, get);
   return [
     ...readItems(meta, schema, nested, instance, key, head, own, affordances, get("more") === true, lang),

@@ -3,24 +3,22 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { currentPeriod, readTimetable, timetableDays, weekdays, type Weekday } from "../copy";
 import { learningWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Timetable.generated";
 
 // Core first: Timeline/hours cannot group repeating classes by weekday and show room and teacher per period.
 export const meta = {
   id: "Timetable",
   status: "ready",
   group: "data",
-  purpose: "See the week's repeating classes and where to go for each period.",
-  pick: "A student's repeating week of class periods with subject, room and teacher. Not a one-day schedule (Timeline), staff shifts (Roster), bookable slots (Slots) or family events (Agenda).",
-  writeHints: [
-    "Write each scheduled weekday once. For each period, write a 24-hour start time and subject, with room, teacher and semantic tone if supplied. Leave selected_day null; it is for the locally selected view. Never write the current period.",
-    'Leave density, surface and detail null unless requested. For start times and subjects only, use detail "brief" and retain any rooms and teachers in the data.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "The timetable is stored on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["room", "teacher"] } },
   parts: ["root", "day"],
   items: { key: "periods", parts: ["root", "time", "subject", "room", "teacher"] },
@@ -159,8 +157,8 @@ function PeriodRow({ row, density, detail, active }: {
 // prettier-ignore
 export function Timetable(input: TimetableProps) {
   const { periods, selected_day, detail } = input;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const state = kit.useComponentState();
   const { screen, component } = kit.usePartContext();
   const selected = kit.useControlValue(`${screen}/${component}/$selected_day`, selected_day);
@@ -169,17 +167,19 @@ export function Timetable(input: TimetableProps) {
   const options = weekdays.filter((day) => days.some((group) => group.day === day));
   return <kit.KitCard part="root" padded={state !== "empty"} {...{ density, surface }}>
     {state === "empty" ? <kit.KitEmpty icon="calendar_days" part="title" decorativeIcon /> : <>
-      <kit.KitContent inset="md" density={density}>
-        <kit.KitText role="label" tone="muted" part={null} density={density}>{words.timetable.picker}</kit.KitText>
+      <kit.KitContent density={density}>
+        <kit.KitContent inset="md" density={density}>
+          <kit.KitText role="label" tone="muted" part={null} density={density}>{words.timetable.picker}</kit.KitText>
+        </kit.KitContent>
+        <kit.KitTrack part="day" look="segments" role="radiogroup" label={words.timetable.picker}>
+          {options.map((day) =>
+            <kit.KitChip key={day} item={null} look="segment" role="radio" label={words.timetable.days[day].short} value={day} on={day === days[0]?.day} />
+          )}
+        </kit.KitTrack>
       </kit.KitContent>
-      <kit.KitTrack part="day" role="radiogroup" label={words.timetable.picker}>
-        {options.map((day) =>
-          <kit.KitChip key={day} item={null} role="radio" label={words.timetable.days[day].short} value={day} on={day === days[0]?.day} />
-        )}
-      </kit.KitTrack>
-      {days.map(({ day, rows }, index) => <kit.KitContent key={day} group="response" density={density}>
-        <kit.KitContent inset="md" group={index ? "response" : "content"} density={density}>
-          <kit.KitText role="body" tone="muted" part={null} density={density}>{words.timetable.days[day].name}</kit.KitText>
+      {days.map(({ day, rows }) => <kit.KitContent key={day} group="response" rhythm="flush" density={density}>
+        <kit.KitContent inset="md" density={density}>
+          <kit.KitText role="label" tone="muted" part={null} density={density}>{words.timetable.days[day].name}</kit.KitText>
         </kit.KitContent>
         <kit.KitGrid arrange="rows" list density={density}>
           {rows.map((row) => <PeriodRow key={row.id} {...{ row, density, detail }} active={row === current} />)}

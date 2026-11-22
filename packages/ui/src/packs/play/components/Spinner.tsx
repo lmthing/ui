@@ -3,21 +3,22 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { spinnerLines } from "../copy";
 import { playWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Spinner.generated";
 
 // Core first: Choice/default cannot draw an equal-probability random option or exhaust a draw pool.
-// prettier-ignore
 export const meta = {
-  id: "Spinner", status: "ready", group: "action",
-  purpose: "Draw one named option at random, with or without repeats.",
-  pick: "Pick one labelled option randomly. Not deliberate choices (Choice, Chips), numbered dice (Dice), balanced teams (TeamPicker), or votes (Poll).",
-  writeHints: [
-    "Write 2–6 distinct option labels. Never write selected index, used options, remaining count or stored draws.",
-    'To hide only the draw-pool legend write {"detail":"brief","density":null,"surface":null}; keep every option label. Never spell out comfortable or card as defaults.',
-  ],
-  region: "body", weight: 2, tier: "phone",
+  id: "Spinner",
+  status: "ready",
+  group: "action",
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
+  region: "body",
+  weight: 2,
+  tier: "phone",
   confirmParts: ["reset"],
   realPath: "Equal-probability draws are stored on the device; without repeats each option is used once.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["pool", "label"] } },
   items: { key: "options", parts: ["root", "label"] },
   parts: ["root", "pool", "wheel", "result", "empty", "spin", "spin_label", "reset", "reset_label"],
@@ -26,7 +27,12 @@ export const meta = {
   emptyActions: ["spin.press"],
   draw: { kind: "pick", press: "spin", pool: "options", repeat: "repeat", reset: "reset" },
   read: (input, _state, lang): string[] => {
-    const { options, repeat, detail, [c.drawKey]: result } = input as z.output<typeof props> & { [c.drawKey]?: c.DrawState };
+    const {
+      options,
+      repeat,
+      detail,
+      [c.drawKey]: result,
+    } = input as z.output<typeof props> & { [c.drawKey]?: c.DrawState };
     const { status, selected, spin, reset } = spinnerLines(options, repeat, result, lang);
     return [
       detail === "brief" ? undefined : playWordsFor(lang).spinner.pool,
@@ -74,9 +80,9 @@ export const examples = [
   // Trot's game-night challenges are drawn once each.
   { options: [{ label: "Mime" }, { label: "Sketch" }, { label: "Riddle" }], repeat: false, style: "strip" },
   { options: plantOptions, detail: "brief" },
-  { options: plantOptions, density: "compact" },
-  { options: plantOptions, surface: "plain" },
-  { options: plantOptions, surface: "outlined" },
+  { options: plantOptions },
+  { options: plantOptions },
+  { options: plantOptions },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = c.probesFor("Spinner");
 export const probes = [
@@ -96,10 +102,18 @@ export const probes = [
 type Setup = c.Props<typeof props, typeof meta>;
 type Lines = ReturnType<typeof spinnerLines>;
 
-// prettier-ignore
-function SpinnerOptions({ options, density, loading, empty, title }: {
+function SpinnerOptions({
+  options,
+  density,
+  loading,
+  empty,
+  title,
+}: {
   options: (Setup["options"][number] & { disabled: boolean })[];
-  density: Setup["density"]; loading: boolean; empty: boolean; title: string;
+  density: c.ThemeDensity;
+  loading: boolean;
+  empty: boolean;
+  title: string;
 }) {
   const scope = kit.usePartContext();
   const bar = (label: string) => (
@@ -131,9 +145,16 @@ function SpinnerOptions({ options, density, loading, empty, title }: {
   );
 }
 
-// prettier-ignore
-function SpinnerResponse({ lines, loading, density, empty }: {
-  lines: Lines; loading: boolean; density: Setup["density"]; empty: boolean;
+function SpinnerResponse({
+  lines,
+  loading,
+  density,
+  empty,
+}: {
+  lines: Lines;
+  loading: boolean;
+  density: c.ThemeDensity;
+  empty: boolean;
 }) {
   const { selected, status, spin, reset, exhausted } = lines;
   const group = density === "compact" ? "content" : "response";
@@ -141,34 +162,50 @@ function SpinnerResponse({ lines, loading, density, empty }: {
     <kit.KitContent {...{ group, density }}>
       {loading ? (
         <kit.KitSkeleton shape="figure" inset="none" content={[["caption", status, "center"]]} />
-      ) : !empty && (
-        <>
-          {selected && (
-            <kit.KitText part="result" role="title" align="center">
-              {selected}
+      ) : (
+        !empty && (
+          <>
+            {selected && (
+              <kit.KitText part="result" role="title" align="center">
+                {selected}
+              </kit.KitText>
+            )}
+            <kit.KitText part={null} tone="muted" role="caption" align="center">
+              {status}
             </kit.KitText>
-          )}
-          <kit.KitText part={null} tone="muted" role="caption" align="center">{status}</kit.KitText>
-        </>
+          </>
+        )
       )}
       <kit.KitContent group={empty ? "content" : group} density={density}>
-        {loading ? <kit.KitSkeleton shape="control" label={spin} full /> : (
-          <kit.KitAction part="spin" action="press" label={spin} kind={selected ? "secondary" : "primary"} disabled={exhausted} full />
+        {loading ? (
+          <kit.KitSkeleton shape="control" label={spin} full />
+        ) : (
+          <kit.KitAction
+            part="spin"
+            action="press"
+            label={spin}
+            kind={selected ? "secondary" : "primary"}
+            disabled={exhausted}
+            full
+          />
         )}
-        {reset && !empty && (loading ? <kit.KitSkeleton shape="control" label={reset} kind="quiet" full /> : (
-          <kit.KitAction part="reset" action="press" label={reset} kind="quiet" full />
-        ))}
+        {reset &&
+          !empty &&
+          (loading ? (
+            <kit.KitSkeleton shape="control" label={reset} kind="quiet" full />
+          ) : (
+            <kit.KitAction part="reset" action="press" label={reset} kind="quiet" full />
+          ))}
       </kit.KitContent>
     </kit.KitContent>
   );
 }
 
-// prettier-ignore
 export function Spinner(setup: Setup) {
   const { screen, component, thing } = kit.usePartContext();
   const state = kit.useComponentState();
   const { lang, words } = kit.useWords(playWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, setup.density);
+  const density = kit.useKit().density;
   const saved = kit.useControlValue<unknown>(`${screen}/${component}/${c.drawKey}`, undefined);
   const draw = c.drawState(meta, setup, () => saved);
   const index = draw?.kind === "pick" ? draw.index : undefined;
@@ -181,7 +218,7 @@ export function Spinner(setup: Setup) {
   const empty = state === "empty";
   const lines = spinnerLines(options, setup.repeat, draw, lang);
   return (
-    <kit.KitCard part="root" padded {...{ density, surface: setup.surface }}>
+    <kit.KitCard part="root" padded {...{ density, surface: "card" }}>
       {empty && (
         <kit.KitText part="empty" role="title" align="center">
           {thing ? c.emptyLine(thing, lang) : words.spinner.empty}
@@ -190,7 +227,13 @@ export function Spinner(setup: Setup) {
       {setup.detail !== "brief" && (
         <SpinnerOptions {...{ options, density, loading, empty }} title={words.spinner.pool} />
       )}
-      <kit.KitWheel part="wheel" style={setup.style} options={drawing} {...{ loading, rotation }} {...(at && { at })} />
+      <kit.KitWheel
+        part="wheel"
+        style={setup.style}
+        options={drawing}
+        {...{ loading, rotation }}
+        {...(at && { at })}
+      />
       <SpinnerResponse {...{ loading, lines, density, empty }} />
     </kit.KitCard>
   );

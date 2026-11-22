@@ -31,17 +31,15 @@ import {
 } from "../../../kit";
 import { groceryRead } from "../copy";
 import { kitchenWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-GroceryList.generated";
 // Core first: Checklist/default cannot group groceries by aisle with quantities and shared authors.
 export const meta = {
   id: "GroceryList",
   status: "ready",
   group: "input",
-  purpose: "Buy groceries by aisle and tick off what is in the bag.",
-  pick: "Shopping for food grouped by aisle, with quantities and optional people who added it. Not general jobs (Checklist), recipe amounts (Ingredients), or an online basket (Cart).",
-  writeHints: [
-    "Each aisle has 1–12 items; use 1–8 aisles. got is a stored check state. Do not write totals or computed sorting.",
-    'If asked to hide who added items, set detail to "brief" and keep the author data. Otherwise leave detail null.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
@@ -95,18 +93,25 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const rows = items.length ? items : [{ name: placeholderTitle(0, lang), got: false }];
   return { aisles: [{ label: placeholderDetail, items: rows }] };
 }
-// prettier-ignore
-const breakfast = { aisles: [{ label: "Breakfast", items: [
-  { name: "Oats", qty: "1 bag", got: false },
-  { name: "Milk", qty: "1 L", got: false, by: "Alex" },
-] }] } satisfies z.input<typeof props>;
-// prettier-ignore
+const breakfast = {
+  aisles: [
+    {
+      label: "Breakfast",
+      items: [
+        { name: "Oats", qty: "1 bag", got: false },
+        { name: "Milk", qty: "1 L", got: false, by: "Alex" },
+      ],
+    },
+  ],
+} satisfies z.input<typeof props>;
 export const examples = [
   // Ledge: the plant keeper's household supper.
-  { aisles: [
-    { label: "Produce", items: [{ name: "Tomatoes", qty: "600 g", got: false, by: "Sam" }] },
-    { label: "Dairy", items: [{ name: "Ricotta", qty: "250 g", got: true }] },
-  ] },
+  {
+    aisles: [
+      { label: "Produce", items: [{ name: "Tomatoes", qty: "600 g", got: false, by: "Sam" }] },
+      { label: "Dairy", items: [{ name: "Ricotta", qty: "250 g", got: true }] },
+    ],
+  },
   breakfast,
   { ...breakfast, detail: "brief" },
 ] satisfies z.input<typeof props>[];
@@ -158,12 +163,13 @@ function GroceryItem({ row, detail }: { row: GroceryRow; detail: "full" | "brief
     </KitRow>
   );
 }
-// prettier-ignore
 export function GroceryList(value: Props<typeof props, typeof meta>) {
   const { aisles, rows } = value as typeof value & { rows: GroceryRow[] };
   const detail = useVariant("detail", meta.variants.detail, value.detail);
   const state = useComponentState();
-  const { words: { groceryLabels } } = useWords(kitchenWordsFor);
+  const {
+    words: { groceryLabels },
+  } = useWords(kitchenWordsFor);
   const { screen, component } = usePartContext();
   const { controller } = useKit();
   // Every signature action advances the cue, including repeated checks on one stable row.
@@ -175,18 +181,32 @@ export function GroceryList(value: Props<typeof props, typeof meta>) {
   return (
     <KitCard style="inset" padded part="root">
       {state === "empty" || state === "success" ? (
-        <KitEmpty part="summary" decorativeIcon {...(state === "success"
-          ? ({ icon: "check", title: groceryLabels.allGot, tone: "good" } as const) : {})} />
+        <KitEmpty
+          part="summary"
+          decorativeIcon
+          {...(state === "success"
+            ? ({ icon: "check", title: groceryLabels.allGot, tone: "good" } as const)
+            : {})}
+        />
       ) : (
         <>
-          {live.every((row) => row.got) && <KitText role="heading" tone="good" part="summary">{groceryLabels.allGot}</KitText>}
+          {live.every((row) => row.got) && (
+            <KitText role="heading" tone="good" part="summary">
+              {groceryLabels.allGot}
+            </KitText>
+          )}
           {aisles.map((aisle, index) => (
             <KitContent key={index} group={index ? "response" : "content"}>
-              <KitText role="label" tone="muted" part={null}>{aisle.label}</KitText>
+              <KitText role="label" tone="muted" part={null}>
+                {aisle.label}
+              </KitText>
               <KitGrid arrange="rows" list listRowGap="cards">
-                {live.filter((row) => row.aisleIndex === index)
+                {live
+                  .filter((row) => row.aisleIndex === index)
                   .sort((a, b) => Number(a.got) - Number(b.got))
-                  .map((row) => <GroceryItem key={row.id} {...{ row, detail }} />)}
+                  .map((row) => (
+                    <GroceryItem key={row.id} {...{ row, detail }} />
+                  ))}
               </KitGrid>
             </KitContent>
           ))}

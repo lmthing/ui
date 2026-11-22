@@ -6,16 +6,19 @@ says what each component is; this guide says how its file is written.
 
 ## What one component is
 
-Exactly two files, plus recordings:
+A definition, a prompt, a test, and English words if the component owns any:
 
 | File                                | Holds                                                                  |
 | ----------------------------------- | ---------------------------------------------------------------------- |
 | `src/components/<Id>.tsx`           | `meta`, `props`, `fallback`, `examples`, `probes`, and the view `<Id>` |
+| `src/components/<Id>.prompt.md`     | Model-facing purpose, pick (including near misses), and Writer guidance |
 | `src/components/<Id>.test.ts`       | schema, fallback and probe-shape tests                                 |
+| `src/catalog/lang/en/<Id>.ts`       | English words owned by a core component                                |
 | `test/recordings/<Id>/<model>.json` | recorded model replies from `pnpm llm:check --component <Id>`          |
 
-Nothing else is registered by hand. Entries, the renderer map, conformance tests and the gallery pick
-the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs/catalog/` (plan 4.4).
+Entries, the renderer map, conformance tests and the gallery pick the definition up from the folder.
+Pack prompts sit beside pack definitions too. `<Id>` is the PascalCase id from the lists in
+`docs/catalog/` (plan 4.4).
 
 ## The file, in order
 
@@ -26,21 +29,25 @@ creates component-specific copy and English label keys. It leaves existing compo
 including their probes, alone. For a pack, it also wires the component through the pack door.
 Use explicit types (`text(n)`, `number`, `integer`, `boolean`, dates and references),
 backticked enum choices, and explicit array bounds (`items` of fields, `1–6`). Name
-shared axes in `Styles`, for example `density: comfortable, compact` with the values
+shared axes in `Styles`, for example `detail: full, brief` with the values
 in backticks. Ambiguous shorthand, nested repeated collections, conditional schemas
 and custom runtime state names may need to be scaffolded by hand.
 
 Check the draft against the full entry before building the view: supply real examples,
 replace the probe prompts and check the read address, implement conditional actions and
-variant part changes, and move the label keys into the owning `lang/en.ts` dictionary.
+variant part changes, and put any English labels in the owning `lang/en/<Id>.ts` fragment.
 The generated view is only a placeholder, not evidence for the model or visual gates.
+From `packages/ui`, run `pnpm codemod:split` after scaffolding or after merging a branch that
+still edits inline `meta` text or the old `lang/en.ts` dictionary. The codemod keeps branch edits
+when it finds a matching prompt or word fragment. Run `pnpm build:entries` to regenerate imports.
 
-1. **Imports.** Only `zod`, `../catalog` and `../kit`. Never `tamagui`, `react-native` or lucide
+1. **Imports.** Use `zod`, the catalog and kit doors, and the generated prompt module. Never `tamagui`, `react-native` or lucide
    directly: those live behind kit bases.
 2. **`meta`**: a plain object, `as const satisfies Meta`.
-   - `purpose` ≤ 16 words, about the person's need, not the widget.
-   - `pick`: when to choose it, then "Not …" naming the nearest wrong component(s) by id.
-   - Optional `writeHints` explain cross-field rules that the compact schema signature omits, using valid examples.
+   - Use `prompt.purpose`, `prompt.pick`, and, when present, `prompt.writeHints` from the generated `entry/prompt-<Id>.generated` module. Edit `<Id>.prompt.md`, never the generated module. Keep migrated fields in place and leave any `replay-literals` comment alone; they preserve the existing replay identity.
+   - `## Purpose`: one line, ≤ 16 words, about the person's need, not the widget.
+   - `## Pick`: one line on when to choose it, then "Not …" naming the nearest wrong component(s) by id.
+   - Optional `## Writer`: one `- ` bullet per hint, with valid examples for cross-field rules the compact schema omits.
    - `region`, `weight`, `tier`, `realPath` (one sentence) from `docs/catalog/` and the component's current schema/metadata.
    - `items` (only if it repeats): `{ key, parts }`. `parts`, `states`, `actions` list exactly what
      the view draws and what a person can do. `partTiers` and `confirmParts` name declared parts;
@@ -154,15 +161,16 @@ Choose only axes and values that visibly change this component. These are candid
 
 | Component kind | Typical axes to consider |
 | --- | --- |
-| Rows and lists | `density`, `surface`, `detail`, `arrange`, `group`, `overflow`, `lead`, `trail`; item `tone`, `mark`, `trail` |
-| Cards and content | `density`, `emphasis`, `surface`, `align`, `detail`, `media`, `tone` |
-| Numbers and charts | `density`, `emphasis`, `figures`, `labels`, `detail`; item `tone`, `mark` |
-| Media | `media`, `aspect`, `bleed`, `detail` |
-| Inputs and actions | `density`, `emphasis`, `align`, `detail`, `tone`; item `mark` |
+| Rows and lists | `detail`, `arrange`, `group`, `overflow`, `lead`, `trail`; item `tone`, `mark`, `trail` |
+| Cards and content | `emphasis`, `detail`, `media`, `tone` |
+| Numbers and charts | `emphasis`, `figures`, `labels`, `detail`; item `tone`, `mark` |
+| Media | `media`, `aspect`, `detail` |
+| Inputs and actions | `emphasis`, `detail`, `tone`; item `mark` |
 
 1. Declare ordered subsets in `meta.variants` and row choices in `meta.items.variants`. Put the
-   component's existing treatment first so missing props render as before. Omitted `density` inherits
-   a supported app setting. Spread `variantProps(meta.variants)` into the strict component schema and
+   component's existing treatment first so missing props render as before. The theme supplies density
+   and surface treatment; renderers choose alignment and bleed by role. None of these four options
+   belongs in component props or Writer prompts. Spread `variantProps(meta.variants)` into the strict component schema and
    `itemVariantProps(meta.items.variants)` into the strict row schema. When both declare `trail`, use
    `{ inheritTrail: true }` so a missing row override uses the collection trail; gate actions on
    that same effective value.
@@ -172,7 +180,7 @@ Choose only axes and values that visibly change this component. These are candid
    including hidden items. Pass axis values to kit bases and use `useVariant()` to resolve supported
    settings; bases translate values into theme tokens. Never add raw layout values in a view.
 3. To move a legacy style, add a fixture-tested entry in `src/catalog/migrations/variant-line.ts`,
-   for example `{ from: "style", values: { compact: { density: "compact" } } }`. Activate it in
+   for example `{ from: "style", values: { compact: { detail: "brief" } } }`. Activate it in
    `adoptedVariants` in the same change as the strict schema. Test an old line through `migrateLine`
    and parse the output; preserve ids, actions, and any explicit destination value. Keep a style only
    if the structure still differs independently of the axis.
@@ -231,12 +239,16 @@ them in `contentParts`; these recipes do not derive additional address names.
 ## Words and language
 
 `KitProvider` and `PhoneScreen` take the app's BCP-47 `lang`; the default is English.
-Keep built-in labels, units and grammar in `src/catalog/lang/en.ts`, not in views or copy helpers.
+Keep built-in labels, units and grammar in `src/catalog/lang/en/<Id>.ts` or in `en/pack.ts` for
+shared words, not in views or copy helpers. `lang/en.ts` assembles the fragments.
 Read them with `const { lang, words } = useWords()`; pass `lang` to number, date, time and copy
 helpers. Pass the same tag to data-only `meta.read`, `readPrompt`, and `fallback({ cast, lang })`.
 Leave authored text, action identifiers, and stored numeric and date values unchanged.
 
-A pack keeps its words in `src/packs/<pack>/lang/en.ts` and exposes its lookup through `lang/index.ts`.
+A pack keeps its words in `src/packs/<pack>/lang/en/<Id>.ts` and shared words in `lang/en/pack.ts`.
+Its `lang/en.ts` assembles the fragments and `lang/index.ts` exposes the lookup.
+Existing locale keys stay in their original lookup to preserve registered translations; for example,
+Loyalty's copy has a named fragment in the core dictionary.
 Use `useWords(<pack>WordsFor)` for pack words and `<pack>WordsFor(lang)` outside React.
 Use `Intl.PluralRules` via `pluralForm` for counted nouns; thing-type inflection belongs in the
 language file. To add a language, write a complete dictionary that `satisfies Words` (or
@@ -261,6 +273,14 @@ for operations that leave useful content on screen. Keep existing parts, reading
 Only override a state treatment when the catalog doc calls for it, and do not invent a retry
 action. Test the kit geometry separately from host fixture data such as photos.
 
+For pack acceptance, count action labels in each item's three text sizes. Keep the gap inside a
+label/value pair smaller than the gap to the next group, align comparable figures at the end of
+their column, and keep a heading close to the first item it introduces. Give negative actions a
+neutral or danger finish instead of the positive accent. Keep `KitState`'s empty layout and supply
+specific empty copy only when the brief calls for it. Fix shared slot geometry in its owning base
+rather than adding per-component offsets. Inline links keep their reading order and reserve a touch
+slot that does not cover neighboring text or targets.
+
 | Recipe | Slots |
 | --- | --- |
 | `KitHeader`, `KitMetaLine` | `title`, optional `meta` (one or more lines), `align`, `density`. A line supplies `text`, optional `part`, semantic `role` and finish. |
@@ -274,6 +294,11 @@ Inside a padded frame use `KitRow inset="none"` so the frame owns the gutter. A 
 row can use `fitContent` to avoid reserving a control-height slot. This never shrinks links or buttons.
 In loading, keep the slots and use the inert treatment of `KitLayoutText`, `KitPhoto`, `KitIcon`,
 `KitTrail` and `KitAction`; preserve any existing measurement-only addresses.
+
+Use the matrix's pinned rail and content-sized days-across columns for weekly data. Keep timeline
+columns on their shared fixed scale. `KitColumns` shows complete lanes in a paged rail, while
+`stack` keeps all lanes in vertical reading order. A scroll region inside a padded `KitCard`
+uses the card's surface and gutter rather than adding a second frame.
 
 ### Base reference
 
@@ -433,6 +458,8 @@ also accept optional `speed` and `loop`; when neither is set, their playback set
 | Private keypad and verification | Declare `actions.privateInput: { [padPart]: { characters, maxLength } }` for a component `type` target and `actions.privateVerify: { [submitPart]: padPart }` for a `press` target. Render `KitNumberPad` with `displayPart` and an empty `value`; local keypad edits only, with masked length in the view. The host supplies `privateValues.verify[submitAddress](candidate)` and owns verification and retry policy. Submission clears the draft before invoking the host. Another submission while pending is rejected. Private input has no agent offer; the submit and copy offers are marked `!needs-ok` and reject agent, driven and batched steps. Dry runs do not invoke hosts. |
 | Private feedback and previews | `usePrivateStatus(part, "copy" \| "verify")` reads local `idle`, `pending`, `approved`, `denied` or `unavailable` only. Keep private bindings immutable and scoped to the mounted screen; revoke pending operations on unmount, disable or binding replacement. In previews return fake opaque results, never real values or real clipboard writes. |
 | Ordinary host-bound `copy` | For generated output (not authenticated copy), use `KitAction action="copy" hostCopy` with an ordinary `copy` declaration. `PhoneScreen.resolveClipboardText(address)` looks up the already-generated value, and `writeClipboard` can supply a native writer. Do not send the value through props, device data, a read callback or an action value. |
+| Bright scanner view | Declare the named `toggle` in `actions.parts`, add it to `actions.scannerBrightness`, and mark it `ok` in `partTiers`. Gate it on an explicit opt-in and a drawable code. `useScannerBrightness(part)` reports adapter availability and the local `off`, `pending`, `on` or `failed` state. Use `KitCode scale="scanner"` only when `on` and `KitScannerToggle` for the button. Agent, batch and dry-run steps cannot start a brightness lease. |
+| Screen brightness adapter | Pass `hostCommands.scannerBrightness` to `PhoneScreen`. The adapter receives `{ address, tier: "ok", signal }`; it returns `true` only after it raises brightness and `false` on failure. Share one `createScannerBrightnessAdapter({ read, write })` per physical display across controllers. It saves the current normalized level, restores it on abort, and waits for restoration before raising brightness again. Custom adapters must enforce the same ordering. Closing, unmounting, disconnecting or resetting aborts the lease. Do not pass the code to the adapter or persist the brightness state. |
 ### Addressed media and sequences
 
 | Capability | Declaration and kit use |

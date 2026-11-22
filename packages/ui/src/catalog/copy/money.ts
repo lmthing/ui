@@ -102,7 +102,10 @@ export function documentStatus(
   const { documentLabels } = wordsFor(lang);
   if (input.status === "paid") return documentLabels.paid;
   const status = state === "success" ? "sent" : input.status;
-  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const today = `${year}-${month}-${day}`;
   return input.style === "invoice" && status === "sent" && input.due && input.due < today
     ? documentLabels.overdue
     : documentLabels[status];
@@ -187,8 +190,11 @@ export function documentReading(input: DocumentInput, state: string, lang?: stri
 }
 
 /** Keep record amounts readable even at the schema's largest finite magnitude. */
-// prettier-ignore
-export function compactMoneyLine(value: number, currency: AppCurrency = defaultCurrency, lang?: string): string {
+export function compactMoneyLine(
+  value: number,
+  currency: AppCurrency = defaultCurrency,
+  lang?: string,
+): string {
   const magnitude = Math.abs(value);
   if (magnitude < 10000) return moneyLine(value, currency, undefined, lang);
   return new Intl.NumberFormat(localeOf(lang), {

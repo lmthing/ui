@@ -3,25 +3,22 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { ancestorDestination, storageBoxCopy, storageCount, storageReading } from "../copy";
 import { inventoryWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Storage.generated";
 
 // Core first: List with style "cards" cannot distinguish an ancestor path, child spots and contents here.
 export const meta = {
   id: "Storage",
   status: "ready",
   group: "content",
-  purpose: "Find things stored inside rooms, shelves and boxes.",
-  pick: "Browse nested physical storage with a breadcrumb, child locations and contents kept here. Not flat linked names (List), geographic pins (MapPins), or stock records (Things).",
-  writeHints: [
-    'Path is ancestor labels in outer-to-inner order. Ancestor screen ids must match their labels in lowercase snake_case (Potting bench → potting_bench). Prefix numeric or reserved ids with "spot_".',
-    'Spots are child locations; here lists what is kept in the current location. Never write counts. To hide counts use detail "brief", density null and surface null. For the default view leave all three axes null.',
-    "Code, fragile and status describe the current box, not its ancestors or child spots. Use only supplied box labels and moving details.",
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "A tree of storage spots and their contents lives on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["count"] } },
   parts: ["root", "path", "spots", "here", "empty", "code", "qr", "fragile", "status"],
   items: { key: "navigation", parts: ["root", "name", "icon", "count"] },
@@ -64,7 +61,6 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   return { path: [], spots: [], here: here.length ? here : [c.placeholderTitle(0, lang)] };
 }
 
-// prettier-ignore
 const previewDeviceData: c.DeviceData = {
   storage_spots: [
     { goto: "seeds", here: ["Basil seeds", "Sweet pea seeds", "Dill seeds"] },
@@ -73,7 +69,6 @@ const previewDeviceData: c.DeviceData = {
     { goto: "boot_bin", here: [] },
   ],
 };
-// prettier-ignore
 export const examples = [
   {
     path: ["Greenhouse", "Potting bench"],
@@ -91,11 +86,17 @@ export const examples = [
     ],
     here: [],
   },
-  { path: ["Van"], spots: [], here: ["Spare lead", "Water bowl"], code: "TROT-08", fragile: true, status: "sealed" },
+  {
+    path: ["Van"],
+    spots: [],
+    here: ["Spare lead", "Water bowl"],
+    code: "TROT-08",
+    fragile: true,
+    status: "sealed",
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Storage");
-// prettier-ignore
 export const probes = [
   choose(
     "Browse my garage as rooms, shelves and boxes inside each other, with a breadcrumb and what is kept at the current spot",
@@ -113,10 +114,22 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
-  read("Open the child storage spot named Seed drawer. Do not go back up the breadcrumb.", { address: "s1/r3", action: "press" }),
-  { ...write("Show the water bowl stored in the moving box. Its box code is TROT-08."), expectProps: { code: "TROT-08" } },
-  { ...write("Show the water bowl stored in this moving box and mark the box fragile."), expectProps: { fragile: true } },
-  { ...write("Show the water bowl stored in this moving box and mark the box as sealed for the move."), expectProps: { status: "sealed" } },
+  read("Open the child storage spot named Seed drawer. Do not go back up the breadcrumb.", {
+    address: "s1/r3",
+    action: "press",
+  }),
+  {
+    ...write("Show the water bowl stored in the moving box. Its box code is TROT-08."),
+    expectProps: { code: "TROT-08" },
+  },
+  {
+    ...write("Show the water bowl stored in this moving box and mark the box fragile."),
+    expectProps: { fragile: true },
+  },
+  {
+    ...write("Show the water bowl stored in this moving box and mark the box as sealed for the move."),
+    expectProps: { status: "sealed" },
+  },
 ] satisfies c.Probe[];
 
 type Navigation =
@@ -125,18 +138,32 @@ type Navigation =
 type StorageProps = c.Props<typeof props, typeof meta>;
 type Density = c.ThemeDensity;
 
-// prettier-ignore
 function Breadcrumbs({ rows, density }: { rows: (Navigation & { id: string })[]; density: Density }) {
   const { words } = kit.useWords(inventoryWordsFor);
   return (
     <kit.KitTrack part="path" label={words.storage.path}>
       {rows.map(({ id, name, goto }, index) => (
         <kit.KitRow
-          key={id} item={id} label={name} goto={goto} density={density} inset="none" lineRole="caption"
-          leading={<kit.KitIcon name={index === 0 ? "package" : "chevron_right"} scale="md" tone="muted" decorative />}
+          key={id}
+          item={id}
+          label={name}
+          goto={goto}
+          density={density}
+          inset="none"
+          lineRole="caption"
+          leading={
+            <kit.KitIcon
+              name={index === 0 ? "package" : "chevron_right"}
+              scale="md"
+              tone="muted"
+              decorative
+            />
+          }
         >
           <kit.KitText
-            part="name" role="caption" density={density}
+            part="name"
+            role="caption"
+            density={density}
             tone={index === rows.length - 1 ? "accent" : "muted"}
             emphasis={index === rows.length - 1 ? "strong" : "normal"}
           >
@@ -148,53 +175,134 @@ function Breadcrumbs({ rows, density }: { rows: (Navigation & { id: string })[];
   );
 }
 
-// prettier-ignore
+function StorageBox(box: ReturnType<typeof storageBoxCopy>, separator: string, density: c.ThemeDensity) {
+  return (
+    (box.code || box.status || box.fragile) && (
+      <kit.KitContent density={density}>
+        {box.code && <kit.KitHeader title={{ text: box.code, part: "code" }} density={density} />}
+        {(box.status || box.fragile) && (
+          <kit.KitText part={null} role="caption" density={density}>
+            {box.status && (
+              <kit.KitText part="status" role="caption" tone="muted" density={density}>
+                {box.status}
+              </kit.KitText>
+            )}
+            {box.status && box.fragile && separator}
+            {box.fragile && (
+              <kit.KitText part="fragile" role="caption" tone="warn" density={density}>
+                {box.fragile}
+              </kit.KitText>
+            )}
+          </kit.KitText>
+        )}
+      </kit.KitContent>
+    )
+  );
+}
+
+function StorageSpots(
+  spots: (Extract<Navigation, { ancestor: false }> & { id: string })[],
+  heading: string,
+  {
+    detail,
+    data,
+    lang,
+    density,
+  }: {
+    detail: StorageProps["detail"];
+    data: c.DeviceData;
+    lang: string | undefined;
+    density: c.ThemeDensity;
+  },
+) {
+  return (
+    spots.length > 0 && (
+      <kit.KitContent density={density}>
+        <kit.KitText part="spots" role="heading" density="comfortable">
+          {heading}
+        </kit.KitText>
+        {spots.map(({ id, name, icon, goto }) => {
+          const count = detail === "full" ? storageCount(data, goto, lang) : undefined;
+          return (
+            <kit.KitRow
+              key={id}
+              item={id}
+              label={name}
+              goto={goto}
+              inset="none"
+              density={density}
+              leading={<kit.KitIcon part="icon" name={icon} tone="muted" scale="md" />}
+              trailing={
+                count && (
+                  <kit.KitText part="count" role="caption" density={density} tone="muted">
+                    <kit.KitText part={null} role="number" numberScale="compact" density={density} tabular>
+                      {count.digits}
+                    </kit.KitText>
+                    {count.unit}
+                  </kit.KitText>
+                )
+              }
+            >
+              <kit.KitText part="name" density={density}>
+                {name}
+              </kit.KitText>
+            </kit.KitRow>
+          );
+        })}
+      </kit.KitContent>
+    )
+  );
+}
+
 export function Storage(input: StorageProps) {
   const { here } = input;
   const state = kit.useComponentState();
-  const { lang, words: { storage: words } } = kit.useWords(inventoryWordsFor);
+  const {
+    lang,
+    words: { storage: words },
+  } = kit.useWords(inventoryWordsFor);
   const box = storageBoxCopy(input, lang);
   const data = kit.useDeviceData();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const rows = c.visibleItems<Navigation & { id: string }>(meta, input);
   const path = rows.filter((row) => row.ancestor);
   const spots = rows.filter((row) => !row.ancestor);
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    {state === "empty" ? <kit.KitState part="empty" icon="package" /> :
-      !rows.length && !here.length && !box.code && !box.status && !box.fragile ?
-        <kit.KitEmpty part="empty" icon="package" decorativeIcon title={words.emptyHere} /> : <>
-        {path.length > 0 && <Breadcrumbs rows={path} density={density} />}
-        {(box.code || box.status || box.fragile) && <kit.KitContent density={density}>
-          {box.code && <kit.KitHeader title={{ text: box.code, part: "code" }} density={density} />}
-          {(box.status || box.fragile) && <kit.KitText part={null} role="caption" density={density}>
-            {box.status && <kit.KitText part="status" role="caption" tone="muted" density={density}>{box.status}</kit.KitText>}
-            {box.status && box.fragile && words.boxSeparator}
-            {box.fragile && <kit.KitText part="fragile" role="caption" tone="warn" density={density}>{box.fragile}</kit.KitText>}
-          </kit.KitText>}
-        </kit.KitContent>}
-        {spots.length > 0 && <kit.KitContent density={density}>
-          <kit.KitText part="spots" role="heading" density="comfortable">{words.spots}</kit.KitText>
-          {spots.map(({ id, name, icon, goto }) => {
-            const count = detail === "full" ? storageCount(data, goto, lang) : undefined;
-            return <kit.KitRow key={id} item={id} label={name} goto={goto} inset="none" density={density}
-              leading={<kit.KitIcon part="icon" name={icon} tone="muted" scale="md" />}
-              trailing={count && <kit.KitText part="count" role="caption" density={density} tone="muted">
-                <kit.KitText part={null} role="number" numberScale="compact" density={density} tabular>{count.digits}</kit.KitText>{count.unit}
-              </kit.KitText>}>
-              <kit.KitText part="name" density={density}>{name}</kit.KitText>
-            </kit.KitRow>;
-          })}
-        </kit.KitContent>}
-        <kit.KitContent density={density}>
-          <kit.KitText part="here" role={spots.length ? "caption" : "heading"} tone={spots.length ? "muted" : "text"} density={density}>{words.here}</kit.KitText>
-          {(here.length ? here : [words.emptyHere]).map((name, index) =>
-            <kit.KitText key={index} part={null} tone={here.length ? "text" : "muted"} density={density}>{name}</kit.KitText>,
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      {state === "empty" ? (
+        <kit.KitState part="empty" icon="package" />
+      ) : !rows.length && !here.length && !box.code && !box.status && !box.fragile ? (
+        <kit.KitEmpty part="empty" icon="package" decorativeIcon title={words.emptyHere} />
+      ) : (
+        <>
+          {path.length > 0 && <Breadcrumbs rows={path} density={density} />}
+          {StorageBox(box, words.boxSeparator, density)}
+          {StorageSpots(spots, words.spots, { detail, data, lang, density })}
+          <kit.KitContent density={density}>
+            <kit.KitText
+              part="here"
+              role={spots.length ? "caption" : "heading"}
+              tone={spots.length ? "muted" : "text"}
+              density={density}
+            >
+              {words.here}
+            </kit.KitText>
+            {(here.length ? here : [words.emptyHere]).map((name, index) => (
+              <kit.KitText key={index} part={null} tone={here.length ? "text" : "muted"} density={density}>
+                {name}
+              </kit.KitText>
+            ))}
+          </kit.KitContent>
+          {input.code && box.qr && (
+            <kit.KitFigure
+              density={density}
+              media={<kit.KitCode part="qr" value={input.code} label={box.qr} />}
+            />
           )}
-        </kit.KitContent>
-        {input.code && box.qr && <kit.KitFigure density={density}
-          media={<kit.KitCode part="qr" value={input.code} label={box.qr} />} />}
-      </>}
-  </kit.KitCard>;
+        </>
+      )}
+    </kit.KitCard>
+  );
 }

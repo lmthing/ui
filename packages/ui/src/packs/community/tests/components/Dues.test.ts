@@ -69,9 +69,7 @@ describe("Dues parts and states", () => {
     expect(reading).toContain("Ana · Receipt 1");
     expect(reading).toContain("[d1/r3/void press]");
     expect(reading).not.toMatch(/r4\/void press|\/pay press/);
-    expect([
-      ...addressedElements(draw({ ...input, density: "compact", surface: "outlined" })).keys(),
-    ]).toEqual([...parts.keys()]);
+    expect([...addressedElements(draw({ ...input })).keys()]).toEqual([...parts.keys()]);
     expect(draw(member)).not.toContain('role="button"');
   });
   it.each([

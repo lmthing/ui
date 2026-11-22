@@ -70,7 +70,7 @@ describe("SignUpSheet contract", () => {
       expect(props.safeParse(fallback({ cast: value })).success).toBe(true);
     expect(fallback({ cast: empty })).toMatchObject({ title: "Item one", slots: [{ title: "Item one" }] });
     expect(fallback({ cast: cast("Folding table") })).toMatchObject({ slots: [{ title: "Folding table" }] });
-    expect(meta).toMatchObject({ status: "ready", tier: "people", dense: true, weight: 3, confirmParts: ["release"] });
+    expect(meta).toMatchObject({ status: "ready", tier: "people", dense: true, weight: 3, confirmParts: ["release", "retry_release"] });
     expect(createRegistry({ packs: ["community"] }).ids.includes(meta.id)).toBe(packReady("community"));
     expect(probes).toContainEqual(expect.objectContaining({ kind: "choose", expect: "Checklist" }));
     expect(probes).toContainEqual(expect.objectContaining({ kind: "write", variant: { axis: "detail", value: "brief" } }));
@@ -112,10 +112,11 @@ describe("SignUpSheet parts and states", () => {
   it.each([
     ["empty", "Nothing here yet"], ["loading", 'aria-busy="true"'],
     ["success", "Sign-up saved"], ["error", "Could not update your sign-up."],
-  ] as const)("renders %s with no controls", (state, message) => {
+  ] as const)("renders %s with no ordinary claim or release controls", (state, message) => {
     const { html } = renderExample(meta.id, input, state, theme, { component });
     expect(html).toContain(message);
-    expect(html).not.toContain('role="button"');
+    const buttons = [...addressedElements(html)].filter(([, { attributes }]) => attributes.includes('role="button"'));
+    expect(buttons.map(([id]) => id)).toEqual(state === "error" ? [address("r1/retry_claim")] : []);
     expect(readComponent(def, input, component, state, {}, undefined, host()).join("\n")).not.toMatch(/\[s1\//);
   });
 });

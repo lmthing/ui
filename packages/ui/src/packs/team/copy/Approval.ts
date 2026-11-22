@@ -1,7 +1,11 @@
 import { compactMoneyLine, numberLine } from "../../../catalog";
 import { teamWordsFor, type TeamWords } from "../lang";
 
-type Request = { kind: keyof TeamWords["approval"]["kinds"]; amount?: number | undefined };
+type Request = {
+  kind: keyof TeamWords["approval"]["kinds"];
+  amount?: number | undefined;
+  status?: keyof TeamWords["approval"]["statuses"] | undefined;
+};
 
 export function approvalPortrait(from: string, photo: string) {
   return photo === "lib:people" ? { initials: Array.from(from).slice(0, 1).join("") } : { photo };
@@ -11,15 +15,18 @@ export function approvalAmount(amount: number | undefined, lang?: string) {
   return amount === undefined ? undefined : compactMoneyLine(amount, undefined, lang);
 }
 
-export function approvalReading({ requests }: { requests: readonly Request[] }, lang?: string) {
-  const { kinds, approve, decline, detailSeparator } = teamWordsFor(lang).approval;
-  return [
-    ...requests.map(({ kind, amount }, index) => {
-      const value = approvalAmount(amount, lang);
-      const heading = `r${numberLine(index + 1, lang)} ${kinds[kind]}`;
-      return value === undefined ? heading : [heading, value].join(detailSeparator);
-    }),
-    approve,
-    decline,
-  ];
+export function approvalReading(
+  { requests, style }: { requests: readonly Request[]; style?: string },
+  lang?: string,
+) {
+  const { kinds, statuses, approve, decline, detailSeparator } = teamWordsFor(lang).approval;
+  const own = style === "my_requests";
+  const rows = requests.map(({ kind, amount, status }, index) => {
+    const heading = `r${numberLine(index + 1, lang)} ${kinds[kind]}`;
+    const value = approvalAmount(amount, lang);
+    return [heading, value, own ? statuses[status ?? "pending"] : undefined]
+      .filter((line) => line !== undefined)
+      .join(detailSeparator);
+  });
+  return own ? rows : [...rows, approve, decline];
 }

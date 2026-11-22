@@ -1,15 +1,16 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import { lifeCounterLines } from "../copy";
+import { prompt } from "../../../entry/prompt-LifeCounter.generated";
 
 // Core first: Counter/default supports one fixed-step total, not opposing seats with separate resources.
 export const meta = {
   id: "LifeCounter",
   status: "draft",
   group: "input",
-  purpose: "Track each player's live total and resource counters around a shared table.",
-  pick: "Live life or point totals and resource counters for multiple tabletop players. Not one isolated number (Counter), round history (ScoreSheet), or a sports match (Scoreboard).",
-  writeHints: ["Write starting totals and counter seeds, not net changes or match results."],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",

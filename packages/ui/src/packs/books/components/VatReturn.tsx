@@ -13,24 +13,21 @@ import {
 } from "../copy";
 import { booksWordsFor } from "../lang";
 import { periodFields, ref, seedPeriod, validPeriod } from "../seeds";
+import { prompt } from "../../../entry/prompt-VatReturn.generated";
 
 // Core first: KeyValue/rows cannot map VAT boxes to reconciled evidence or save a reviewed period.
 export const meta = {
   id: "VatReturn",
   status: "ready",
   group: "data",
-  purpose: "Review VAT boxes against source records and save a local snapshot.",
-  pick: "A local preview of prescribed VAT boxes: output tax, recoverable input tax, and payable or refundable VAT with evidence. Not a short set of arbitrary facts (KeyValue), money set aside (Progress), or taxable profit (ProfitLoss).",
-  writeHints: [
-    "Write ordered dates spanning at most 366 days and a snake_case schemeRef. Box labels and amounts come from the rule and records, not Writer props.",
-    'Use style "reconcile" only to trace box sources and exclusions; otherwise use "boxes". Saving is local, never filing or paying.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "A versioned VAT rule computes the local preview; saving never files or pays a return.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"] },
   parts: ["root", "from", "to", "save", "save_label", "result"],
   items: {
     key: "boxes",
@@ -53,7 +50,6 @@ export const meta = {
 
 export const props = z
   .strictObject({
-    ...c.variantProps(meta.variants),
     ...periodFields,
     schemeRef: ref.meta({ kind: "ref" }),
     ledgerGoto: c.screenId.optional(),
@@ -73,7 +69,6 @@ export const examples = [
     schemeRef: "domestic_cash",
     ledgerGoto: "walk_ledger",
     style: "reconcile",
-    density: "compact",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -98,90 +93,201 @@ export const probes = [
 
 type View = c.Props<typeof props, typeof meta>;
 type Display = NonNullable<ReturnType<typeof vatDisplay>>;
-type Density = c.AxisValue<"density">;
+type Density = c.ThemeDensity;
 type Row = VatBox & { id: string };
 
-// prettier-ignore
 function VatLine({ row, display, density }: { row: Row; display: Display; density: Density }) {
   const { rank, label, value, sources, exclusions } = display.box(row);
-  return <kit.KitRow item={row.id} {...{ density, label }} goto={row.goto}
-    leading={<kit.KitText part="number" role="label" tone="muted" tabular>{rank}</kit.KitText>}>
-    <kit.KitContent density={density}>
-      <kit.KitGrid fitLast density={density}>
-        <kit.KitText part="label" role="body" tone={row.goto ? "accent" : "text"}>{label}</kit.KitText>
-        <kit.KitText part="value" role="number" numberScale="compact" tabular>{value}</kit.KitText>
-      </kit.KitGrid>
-      {sources && <kit.KitText part="sources" role="label" tone="muted">{sources}</kit.KitText>}
-      {exclusions && <kit.KitText part="exclusions" role="label" tone="muted">{exclusions}</kit.KitText>}
-    </kit.KitContent>
-  </kit.KitRow>;
-}
-
-// prettier-ignore
-function VatLoading({ density, display, dates, boxes }: {
-  density: Density; display: Display | undefined; dates: ReturnType<typeof vatPeriod>; boxes: Row[];
-}) {
-  const { lang, words: { vatReturn: w } } = kit.useWords(booksWordsFor);
-  const fallbackMoney = c.moneyLine(0, c.defaultCurrency, undefined, lang);
-  return <>
-    <kit.KitContent density={density}>
-      <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[[ "label", w.heading ]]} />
-      <kit.KitGrid fitLast density={density}>
-        <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[[ "label", dates.from ]]} />
-        <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[[ "label", dates.to ]]} />
-      </kit.KitGrid>
-    </kit.KitContent>
-    <kit.KitContent group="response" density={density}>
-      <kit.KitSkeleton shape="figure" inset="none" {...{ density }}
-        content={[[ "label", display?.totalLabel ?? w.payable ], [ "number", display?.total ?? fallbackMoney ]]} />
-    </kit.KitContent>
-    {w.boxes.map((label, i) => {
-      const box = boxes[i], rank = c.numberLine(i + 1, lang), line = box && display?.box(box);
-      return <kit.KitRow key={label} part={null} {...{ density, label }}
-        leading={<kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[[ "label", rank ]]} />}>
+  return (
+    <kit.KitRow
+      item={row.id}
+      {...{ density, label }}
+      goto={row.goto}
+      leading={
+        <kit.KitText part="number" role="label" tone="muted" tabular>
+          {rank}
+        </kit.KitText>
+      }
+    >
+      <kit.KitContent density={density}>
         <kit.KitGrid fitLast density={density}>
-          <kit.KitSkeleton shape="figure" inset="none" {...{ density }}
-            content={[[ "body", label ], [ "label", line?.sources ], [ "label", line?.exclusions ]]} />
-          <kit.KitSkeleton shape="figure" inset="none" {...{ density }}
-            content={[[ "number", line?.value ?? fallbackMoney, "end", "compact" ]]} />
+          <kit.KitText part="label" role="body" tone={row.goto ? "accent" : "text"}>
+            {label}
+          </kit.KitText>
+          <kit.KitText part="value" role="number" numberScale="compact" tabular>
+            {value}
+          </kit.KitText>
         </kit.KitGrid>
-      </kit.KitRow>;
-    })}
-    <kit.KitSkeleton shape="control" label={w.save} full density={density} />
-  </>;
+        {sources && (
+          <kit.KitText part="sources" role="label" tone="muted">
+            {sources}
+          </kit.KitText>
+        )}
+        {exclusions && (
+          <kit.KitText part="exclusions" role="label" tone="muted">
+            {exclusions}
+          </kit.KitText>
+        )}
+      </kit.KitContent>
+    </kit.KitRow>
+  );
 }
 
-// prettier-ignore
-export function VatReturn(input: View) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
-  const state = kit.useComponentState(), data = kit.useDeviceData();
-  const { lang, words: { vatReturn: w } } = kit.useWords(booksWordsFor);
-  const { boxes = [], validSnapshot } = kit.useLiveControls(meta, input) as { boxes?: Row[]; validSnapshot?: boolean };
-  const display = vatDisplay(input, data, lang), dates = vatPeriod(input, lang);
-  const saved = state === "success" || display?.saved;
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    {state === "loading" ? <VatLoading {...{ density, display, dates, boxes }} /> :
-      state === "empty" ? <kit.KitEmpty decorativeIcon /> :
-      state === "error" || !display ? <kit.KitEmpty decorativeIcon icon="file_text" title={w.errorTitle} sub={w.errorDetail} /> : <>
-        <kit.KitContent density={density}>
-          <kit.KitText part={null} role="label" tone="muted">{w.heading}</kit.KitText>
-          <kit.KitGrid fitLast density={density}>
-            <kit.KitText part="from" role="label">{dates.from}</kit.KitText>
-            <kit.KitText part="to" role="label">{dates.to}</kit.KitText>
-          </kit.KitGrid>
-        </kit.KitContent>
-        <kit.KitContent group="response" density={density}>
-          <kit.KitText part={null} role="label" tone="muted">{display.totalLabel}</kit.KitText>
-          <kit.KitText part="result" role="number" tabular>{display.total}</kit.KitText>
-        </kit.KitContent>
-        <kit.KitGrid arrange="rows" list density={density}>
-          {boxes.map((row) => <VatLine key={row.id} {...{ row, display, density }} />)}
+function VatBoxLoading(
+  label: string,
+  rank: string,
+  line: ReturnType<Display["box"]> | undefined,
+  fallbackMoney: string,
+  density: Density,
+) {
+  return (
+    <kit.KitRow
+      key={label}
+      part={null}
+      {...{ density, label }}
+      leading={<kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["label", rank]]} />}
+    >
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitSkeleton
+          shape="figure"
+          inset="none"
+          {...{ density }}
+          content={[
+            ["body", label],
+            ["label", line?.sources],
+            ["label", line?.exclusions],
+          ]}
+        />
+        <kit.KitSkeleton
+          shape="figure"
+          inset="none"
+          {...{ density }}
+          content={[["number", line?.value ?? fallbackMoney, "end", "compact"]]}
+        />
+      </kit.KitGrid>
+    </kit.KitRow>
+  );
+}
+
+function VatDates(dates: ReturnType<typeof vatPeriod>, heading: string, density: Density) {
+  return (
+    <kit.KitContent density={density}>
+      <kit.KitText part={null} role="label" tone="muted">
+        {heading}
+      </kit.KitText>
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitText part="from" role="label">
+          {dates.from}
+        </kit.KitText>
+        <kit.KitText part="to" role="label">
+          {dates.to}
+        </kit.KitText>
+      </kit.KitGrid>
+    </kit.KitContent>
+  );
+}
+
+function VatLoading({
+  density,
+  display,
+  dates,
+  boxes,
+}: {
+  density: Density;
+  display: Display | undefined;
+  dates: ReturnType<typeof vatPeriod>;
+  boxes: Row[];
+}) {
+  const {
+    lang,
+    words: { vatReturn: w },
+  } = kit.useWords(booksWordsFor);
+  const fallbackMoney = c.moneyLine(0, c.defaultCurrency, undefined, lang);
+  return (
+    <>
+      <kit.KitContent density={density}>
+        <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["label", w.heading]]} />
+        <kit.KitGrid fitLast density={density}>
+          <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["label", dates.from]]} />
+          <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["label", dates.to]]} />
         </kit.KitGrid>
-        {saved ? <kit.KitContent density={density}>
-          <kit.KitText part={null} role="body" tone="good">{w.saved}</kit.KitText>
-          <kit.KitText part={null} role="label" tone="muted">{w.local}</kit.KitText>
-        </kit.KitContent> : validSnapshot && <kit.KitAction part="save" label={w.save} full />}
-      </>}
-  </kit.KitCard>;
+      </kit.KitContent>
+      <kit.KitContent group="response" density={density}>
+        <kit.KitSkeleton
+          shape="figure"
+          inset="none"
+          {...{ density }}
+          content={[
+            ["label", display?.totalLabel ?? w.payable],
+            ["number", display?.total ?? fallbackMoney],
+          ]}
+        />
+      </kit.KitContent>
+      {w.boxes.map((label, i) => {
+        const box = boxes[i],
+          rank = c.numberLine(i + 1, lang),
+          line = box && display?.box(box);
+        return VatBoxLoading(label, rank, line, fallbackMoney, density);
+      })}
+      <kit.KitSkeleton shape="control" label={w.save} full density={density} />
+    </>
+  );
+}
+
+export function VatReturn(input: View) {
+  const density = kit.useKit().density;
+  const surface = "card";
+  const state = kit.useComponentState(),
+    data = kit.useDeviceData();
+  const {
+    lang,
+    words: { vatReturn: w },
+  } = kit.useWords(booksWordsFor);
+  const { boxes = [], validSnapshot } = kit.useLiveControls(meta, input) as {
+    boxes?: Row[];
+    validSnapshot?: boolean;
+  };
+  const display = vatDisplay(input, data, lang),
+    dates = vatPeriod(input, lang);
+  const saved = state === "success" || display?.saved;
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      {state === "loading" ? (
+        <VatLoading {...{ density, display, dates, boxes }} />
+      ) : state === "empty" ? (
+        <kit.KitEmpty decorativeIcon />
+      ) : state === "error" || !display ? (
+        <kit.KitEmpty decorativeIcon icon="file_text" title={w.errorTitle} sub={w.errorDetail} />
+      ) : (
+        <>
+          {VatDates(dates, w.heading, density)}
+          <kit.KitContent group="response" density={density}>
+            <kit.KitText part={null} role="label" tone="muted">
+              {display.totalLabel}
+            </kit.KitText>
+            <kit.KitText part="result" role="number" tabular>
+              {display.total}
+            </kit.KitText>
+          </kit.KitContent>
+          <kit.KitGrid arrange="rows" list density={density}>
+            {boxes.map((row) => (
+              <VatLine key={row.id} {...{ row, display, density }} />
+            ))}
+          </kit.KitGrid>
+          {saved ? (
+            <kit.KitContent density={density}>
+              <kit.KitText part={null} role="body" tone="good">
+                {w.saved}
+              </kit.KitText>
+              <kit.KitText part={null} role="label" tone="muted">
+                {w.local}
+              </kit.KitText>
+            </kit.KitContent>
+          ) : (
+            validSnapshot && <kit.KitAction part="save" label={w.save} full />
+          )}
+        </>
+      )}
+    </kit.KitCard>
+  );
 }

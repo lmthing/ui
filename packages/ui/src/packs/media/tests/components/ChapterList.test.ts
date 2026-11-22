@@ -51,7 +51,7 @@ describe("ChapterList schema", () => {
     const title = "t".repeat(32);
     const chapters = Array.from({ length: 16 }, (_, i) => ({ title: ` ${title} `, at: i * 2400 }));
     const parsed = props.parse({ chapters, current: 15 });
-    expect(parsed).toMatchObject({ surface: "card", current: 15 });
+    expect(parsed).toMatchObject({ current: 15 });
     expect(parsed.chapters).toHaveLength(16);
     expect(parsed.chapters.at(-1)).toEqual({ title, at: 36000 });
     expectTypeOf<Props<typeof props, typeof meta>["chapters"][number]["id"]>().toEqualTypeOf<string>();
@@ -124,7 +124,7 @@ describe("ChapterList state and parts", () => {
     for (const row of ["r1", "r2", "r3"])
       expect(elementAt(html, `${prefix}/${row}/root`).attributes).toContain('role="button"');
     expect(elementAt(html, `${prefix}/r1/root`).attributes).not.toContain("aria-current");
-    const variant = { chapters: sample.chapters, density: "compact", surface: "outlined" };
+    const variant = { chapters: sample.chapters };
     const noCurrent = renderChapters(variant, "ar-EG");
     expect([...addressedElements(noCurrent).keys()]).toEqual([...parts.keys()]);
     expect(addressedElements(noCurrent).get(`${prefix}/r3/at`)?.text).toEqual(["١:٥٢"]);

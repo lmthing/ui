@@ -17,7 +17,7 @@ import {
 } from "@lmthing/ui/catalog";
 
 const draft = createRegistry({ packs: ["community"], includeDrafts: true });
-const ids = ["Members", "Dues", "Vote", "SignUpSheet", "Minutes"] as const;
+const ids = ["Members", "Dues", "Vote", "SignUpSheet", "Minutes", "ModQueue"] as const;
 const cast = { things: [], items: [] };
 const layouts = {
   noticeboard: {
@@ -31,6 +31,7 @@ const layouts = {
   membership: {
     community_register: ["Header", "Search", "Chips", "Members"],
     community_dues: ["Header", "Dues", "Note"],
+    community_mod: ["Header", "ModQueue", "Note"],
   },
 };
 

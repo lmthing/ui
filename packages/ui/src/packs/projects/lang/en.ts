@@ -1,71 +1,18 @@
+import { words as ProjectBriefWords } from "./en/ProjectBrief";
+import { words as ProjectStatusWords } from "./en/ProjectStatus";
+import { words as ScopeWords } from "./en/Scope";
+import { words as TimeLogWords } from "./en/TimeLog";
+import { words as GanttWords } from "./en/Gantt";
+import { words as MilestonesWords } from "./en/Milestones";
+import { words as TasksWords } from "./en/Tasks";
 export const en = {
-  scope: {
-    revision: (revision: string) => `Revision ${revision}`,
-    count: (count: string, total: string) => `${count} of ${total}`,
-    accepted: (count: string) => `${count} accepted`,
-    acceptedLabel: "Deliverables accepted",
-    due: (date: string) => `Due ${date}`,
-    overdue: (date: string) => `Overdue · ${date}`,
-    acceptedAt: (date: string) => `Accepted ${date}`,
-    complete: "All deliverables accepted",
-    excluded: "Out of scope",
-    accept: (title: string) => `Accept ${title}`,
-    clear: (title: string) => `Clear acceptance of ${title}`,
-    remove: (title: string) => `Remove ${title}`,
-    openMark: "→",
-    separator: " · ",
-  },
-  timeLog: {
-    week: (date: string) => `Week of ${date}`,
-    weekTotal: "Week total",
-    start: "Start timer",
-    stop: "Stop and save",
-    discard: "Discard timer",
-    add: "Add entry",
-    export: "Export week",
-    remove: (title: string) => `Remove ${title}`,
-    saved: "Entry saved",
-    billable: "Billable",
-    nonBillable: "Non-billable",
-    duration: (hours: string, minutes: string, seconds: string) =>
-      [hours && `${hours}h`, minutes && `${minutes}m`, seconds && `${seconds}s`].filter(Boolean).join(" "),
-    range: " – ",
-    separator: " · ",
-  },
-  gantt: {
-    range: "Timeline scale",
-    week: "Days",
-    month: "Weeks",
-    details: "Schedule details",
-    entries: "Tasks and milestones",
-    noDates: "No scheduled dates in this range",
-    outside: "Outside the shown range",
-    after: (titles: string[]) => `After ${titles.join(", ")}`,
-    conflict: "Starts before a dependency finishes",
-    dates: (start: string, end: string) => (start === end ? start : `${start} – ${end}`),
-    clipped: (title: string) => `${title}…`,
-    separator: " · ",
-  },
-  milestones: {
-    due: (date: string) => `Due ${date}`,
-    overdue: (date: string) => `Overdue · ${date}`,
-    reached: (date: string) => `Reached ${date}`,
-    requires: (titles: string[]) => `Requires: ${titles.join(", ")}`,
-    missing: (titles: string[]) => `Still needed: ${titles.join(", ")}`,
-    ref: (ref: string) => ref.replaceAll("_", " "),
-    separator: " · ",
-  },
-  tasks: {
-    assign: (title: string) => `Assign ${title}`,
-    due: (date: string) => `Due ${date}`,
-    overdue: (date: string) => `Overdue · ${date}`,
-    blockers: (titles: string[]) => `Blocked by ${titles.join(", ")}`,
-    done: (title: string) => `Complete ${title}`,
-    project: (ref: string) => ref.charAt(0).toUpperCase() + ref.slice(1).replaceAll("_", " "),
-    state: { todo: "To do", doing: "In progress", done: "Done" },
-    priority: { low: "Low priority", normal: "Normal priority", high: "High priority" },
-    separator: " · ",
-  },
+  ...ScopeWords,
+  ...TimeLogWords,
+  ...GanttWords,
+  ...MilestonesWords,
+  ...TasksWords,
+  ...ProjectBriefWords,
+  ...ProjectStatusWords,
 };
 
 export type ProjectsWords = typeof en;

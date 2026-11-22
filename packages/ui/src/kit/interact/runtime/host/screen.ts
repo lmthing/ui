@@ -85,6 +85,7 @@ function withHostPolicy(
     ...screen,
     [hostActionPolicy]: {
       ...policy,
+      scannerBrightnessAvailable: options.interactive !== false && !!options.hostCommands?.scannerBrightness,
       ...(options.interactive === false ? { allowsCommand: () => false } : {}),
       ...(options.parentGate
         ? { allowsLink: (goto) => goto === "sheet" || allowsDestination(options.parentGate, goto) }
@@ -104,7 +105,13 @@ export function createHostProjection(
 ) {
   const enabled =
     !standalone &&
-    Boolean(options.parentGate || screen.components.some(({ c }) => options.defs[c]?.meta.hostCommands));
+    Boolean(
+      options.parentGate ||
+      screen.components.some(({ c }) => {
+        const meta = options.defs[c]?.meta;
+        return meta?.hostCommands || meta?.actions?.scannerBrightness;
+      }),
+    );
   const subjects = (id: string): ReturnType<typeof hostSubjectsOnScreen> => {
     const at = now();
     const values = valuesOf(at);

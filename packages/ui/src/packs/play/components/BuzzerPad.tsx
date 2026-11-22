@@ -3,23 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { buzzerPadCopy } from "../copy";
 import { playWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-BuzzerPad.generated";
 
 // Core first: Timer/up measures elapsed time, not which player's touch arrived first.
 export const meta = {
   id: "BuzzerPad",
   status: "ready",
   group: "action",
-  purpose: "Lock in the first player to buzz and show how much later others tapped.",
-  pick: "Arbitrate who buzzes first in an in-person quiz or reaction round on one phone. Not one elapsed time (Timer), ordered turns (TurnOrder), random picks (Spinner), or question display (Trivia).",
-  writeHints: [
-    "Write the players, swatches, and an optional public prompt. Never write a winner, lock state, or timestamps.",
-    'For stacked horizontal pads write {"arrange":"rows","density":null,"surface":null}; the default grid spreads pads around the corners.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "One device locks the first touch and measures later taps against its monotonic timestamp.",
-  variants: { arrange: ["grid", "rows"], density: ["comfortable", "compact"], surface: ["card", "outlined"] },
+  variants: { arrange: ["grid", "rows"] },
   parts: ["root", "prompt", "winner", "status", "reset"],
   items: { key: "players", parts: ["root", "buzz", "name", "icon", "result", "delta"] },
   states: ["filled", "loading", "success"],
@@ -77,8 +75,6 @@ export const examples = [
   },
   {
     prompt: "Name a trail trick",
-    density: "compact",
-    surface: "outlined",
     players: [
       { name: "Clover", swatch: "blue" },
       { name: "Juniper", swatch: "purple" },
@@ -105,7 +101,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type Setup = c.Props<typeof props, typeof meta>;
-type Density = NonNullable<Setup["density"]>;
+type Density = c.ThemeDensity;
 type Pad = ReturnType<typeof buzzerPadCopy<Setup["players"][number]>>["pads"][number];
 
 function PlayerPad({ pad, density }: { pad: Pad; density: Density }) {
@@ -209,7 +205,7 @@ export function BuzzerPad(setup: Setup) {
   const { lang } = kit.useWords(playWordsFor);
   const { screen, component } = kit.usePartContext();
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, setup.density);
+  const density = kit.useKit().density;
   const stored = kit.useControlValue<unknown>(`${screen}/${component}/${c.buzzKey}`, undefined);
   const round = c.buzzRound(meta, setup, () => stored);
   const copy = buzzerPadCopy(setup.players, round, lang);
@@ -227,7 +223,7 @@ export function BuzzerPad(setup: Setup) {
   );
   const controls = <BuzzerControls {...{ setup, copy, density }} />;
   return (
-    <kit.KitCard part="root" padded density={density} surface={setup.surface}>
+    <kit.KitCard part="root" padded density={density}>
       {state === "loading" ? (
         <kit.KitState
           density={density}

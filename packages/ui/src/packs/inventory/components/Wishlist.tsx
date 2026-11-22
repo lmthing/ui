@@ -3,23 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { wishCopy, wishReading } from "../copy";
 import { inventoryWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Wishlist.generated";
 
 // Core first: Checklist/default cannot keep a target price and priority or add a purchase to owned stock.
 export const meta = {
   id: "Wishlist",
   status: "ready",
   group: "input",
-  purpose: "Prioritize things you want to buy and mark what you acquire.",
-  pick: "A personal list of desired purchases with target prices, priority or an acquisition action that adds an owned record. Not simple jobs to tick off (Checklist), gifts guests claim (Registry), or products for sale (ProductGrid).",
-  writeHints: [
-    "price and target are numeric amounts without a currency. Priority is a whole number from 1 to 3.",
-    'If asked to hide the target price, write "detail":"brief" and keep the supplied target; write "surface":null and "density":null unless the person requests those axes. Otherwise use "detail":null unless explicitly requested. Never write "surface":"card" or a named density just to fill an unset field.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Wishes and acquired records live on the device; price tracking would need a service.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["target"] } },
   parts: ["root", "empty"],
   items: {
@@ -114,38 +112,80 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type WishlistProps = c.Props<typeof props, typeof meta>;
-type WishRowProps = Pick<WishlistProps, "surface" | "detail"> & {
+type WishRowProps = Pick<WishlistProps, "detail"> & { surface: c.SurfaceFinish } & {
   row: WishlistProps["items"][number];
   density: c.ThemeDensity;
 };
 
-// prettier-ignore
+function WishAmount(
+  part: "price" | "target",
+  amount: ReturnType<typeof wishCopy>["price" | "target"],
+  density: c.ThemeDensity,
+) {
+  return (
+    amount && (
+      <kit.KitText part={part} role="label" tone="muted" density={density}>
+        {amount[0]}
+        <kit.KitText part={null} role="number" numberScale="compact" tabular density={density}>
+          {amount[1]}
+        </kit.KitText>
+      </kit.KitText>
+    )
+  );
+}
+
 function WishRow({ row, density, surface, detail }: WishRowProps) {
   const scope = kit.usePartContext();
-  const { lang, words: { wishlist: words } } = kit.useWords(inventoryWordsFor);
+  const {
+    lang,
+    words: { wishlist: words },
+  } = kit.useWords(inventoryWordsFor);
   const { price, target, priority } = wishCopy(row, detail, lang);
   return (
     <kit.PartScope {...scope} item={row.id}>
       <kit.KitCard part="frame" padded label={row.name} {...{ density, surface }}>
-        <kit.KitRow part="root" role="button" label={row.name} lineRole="heading" surface="plain" inline density={density}>
+        <kit.KitRow
+          part="root"
+          role="button"
+          label={row.name}
+          lineRole="heading"
+          surface="plain"
+          inline
+          density={density}
+        >
           <kit.KitGrid fitLast density={density}>
-            <kit.KitContent density={density} lead={<kit.KitIcon part="trail" name="chevron_right" scale="sm" />}>
-              <kit.KitText part="name" role="heading" density="comfortable">{row.name}</kit.KitText>
-              {row.where && <kit.KitText part="where" role="caption" tone="muted" density={density}>{row.where}</kit.KitText>}
-              {price && <kit.KitText part="price" role="label" tone="muted" density={density}>
-                {price[0]}<kit.KitText part={null} role="number" numberScale="compact" tabular density={density}>{price[1]}</kit.KitText>
-              </kit.KitText>}
-              {target && <kit.KitText part="target" role="label" tone="muted" density={density}>
-                {target[0]}<kit.KitText part={null} role="number" numberScale="compact" tabular density={density}>{target[1]}</kit.KitText>
-              </kit.KitText>}
+            <kit.KitContent
+              density={density}
+              lead={<kit.KitIcon part="trail" name="chevron_right" scale="sm" />}
+            >
+              <kit.KitText part="name" role="heading" density="comfortable">
+                {row.name}
+              </kit.KitText>
+              {row.where && (
+                <kit.KitText part="where" role="caption" tone="muted" density={density}>
+                  {row.where}
+                </kit.KitText>
+              )}
+              {WishAmount("price", price, density)}
+              {WishAmount("target", target, density)}
             </kit.KitContent>
             {row.photo && <kit.KitPhoto part="photo" photo={row.photo} label={row.name} />}
           </kit.KitGrid>
         </kit.KitRow>
-        <kit.KitRow part={null} inline surface="plain" label={row.name} lineRole="body" density={density}
-          leading={<kit.KitAction part="got" label={words.got} kind="secondary" />} leadingAlign="row">
+        <kit.KitRow
+          part={null}
+          inline
+          surface="plain"
+          label={row.name}
+          lineRole="body"
+          density={density}
+          leading={<kit.KitAction part="got" label={words.got} kind="secondary" />}
+          leadingAlign="row"
+        >
           <kit.KitRow part={null} inline surface="plain" label={priority} density={density}>
-            <kit.KitText part="priority" role="caption" tone="muted" density={density}>{priority}</kit.KitText>
+            <kit.KitText part="priority" role="caption" tone="muted" density={density}>
+              {priority}
+            </kit.KitText>
           </kit.KitRow>
         </kit.KitRow>
       </kit.KitCard>
@@ -155,8 +195,8 @@ function WishRow({ row, density, surface, detail }: WishRowProps) {
 
 export function Wishlist(input: WishlistProps) {
   const state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   if (state === "empty")
     return (

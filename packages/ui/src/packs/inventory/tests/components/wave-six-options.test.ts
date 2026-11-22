@@ -27,11 +27,18 @@ it.each([
   ["Loans", { loans: [loan] }],
   ["Storage", storage],
   ["Things", { items: [row] }],
-] as const)("%s keeps the standard empty message treatment under a local density override", (id, input) => {
-  expect(draw(id, { ...input, density: "compact" }, "empty").get(at("empty"))).toEqual(
-    draw(id, input, "empty").get(at("empty")),
-  );
-});
+] as const)(
+  "%s keeps the standard empty message treatment when loading a saved density override",
+  (id, input) => {
+    const { controller } = setup(id, { ...input, density: "compact" }, "empty");
+    const { c, id: component, state, ...saved } = controller.snapshotScreen().components[0]!;
+    expect({ c, component, state }).toEqual({ c: id, component: "x", state: "empty" });
+    expect(saved).not.toHaveProperty("density");
+    const expected = draw(id, input, "empty").get(at("empty"));
+    expect(expected).toBeDefined();
+    expect(draw(id, saved, "empty").get(at("empty"))).toEqual(expected);
+  },
+);
 
 describe("Things checklist and audit counts", () => {
   it("projects the missing checklist from live counts without changing addresses", () => {

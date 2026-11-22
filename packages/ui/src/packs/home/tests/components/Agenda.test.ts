@@ -87,7 +87,7 @@ describe("Agenda fallback and probes", () => {
   });
   // prettier-ignore
   it("keeps the date grouping default and omits dates from an ungrouped view and read", () => {
-    expect(props.parse(input)).toMatchObject({ group: "dates", surface: "card" });
+    expect(props.parse(input)).toMatchObject({ group: "dates" });
     expect(props.safeParse({ ...input, group: "sections" }).success).toBe(false);
     const flat = { ...input, group: "none" };
     const html = renderInstance("Agenda", flat, "filled", { preset: "calm", mode: "light", accent: "moss" });

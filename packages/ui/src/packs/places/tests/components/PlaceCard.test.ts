@@ -92,6 +92,11 @@ describe("PlaceCard metadata", () => {
       expect.objectContaining({ kind: "write", expect: "PlaceCard" }),
       expect.objectContaining({ kind: "write", variant: { axis: "media", value: "none" } }),
       expect.objectContaining({ kind: "read", expect: { address: "p1", action: "press" } }),
+      ...[{ badge: "Member deal" }, { saved: false }, { unit: "mi" }].map((expectProps) =>
+        expect.objectContaining({ kind: "write", expectProps }),
+      ),
+      expect.objectContaining({ kind: "read", expect: { address: "p1/save", action: "toggle" } }),
+      expect.objectContaining({ kind: "read", expect: { address: "p1/unit", action: "select" } }),
     ]);
   });
 });
@@ -125,7 +130,12 @@ describe("PlaceCard states and parts", () => {
   it("draws all supplied and computed parts and exposes only the root link", () => {
     const html = render(nursery, "filled", { place_details: [record] });
     const parts = addressedElements(html);
-    expect([...parts.keys()].sort()).toEqual(meta.parts.map((part) => `home/p1/${part}`).sort());
+    expect([...parts.keys()].sort()).toEqual(
+      meta.parts
+        .filter((part) => !["badge", "save", "unit"].includes(part))
+        .map((part) => `home/p1/${part}`)
+        .sort(),
+    );
     expect(parts.get("home/p1/root")?.attributes).toContain('role="link"');
     expect(parts.get("home/p1/root")?.attributes).toContain('aria-label="Riverside Nursery"');
     expect(html).toContain("Closes 18:00");
@@ -145,7 +155,7 @@ describe("PlaceCard states and parts", () => {
 
   it("retains every filled part when moving the cover to the compact thumbnail", () => {
     const data = { place_details: [record] };
-    const compact = { ...nursery, density: "compact" };
+    const compact = { ...nursery };
     const parts = draw(compact, "filled", data);
     expect([...parts.keys()].sort()).toEqual([...draw(nursery, "filled", data).keys()].sort());
     expect(parts.get("home/p1/photo")?.attributes).toContain('aria-label="Riverside Nursery"');

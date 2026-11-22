@@ -1,13 +1,15 @@
 import { Theme, YStack, createVariable, getThemes, isWeb, styled, useThemeName } from "tamagui";
-import type { ReactNode } from "react";
+import { createContext, type ReactNode } from "react";
 import {
   component,
   presets,
   space,
   variants,
-  type AxisValue,
   type Swatch,
   type ThemeDensity,
+  type SurfaceFinish,
+  type ContentAlign,
+  type ContentBleed,
 } from "../../../catalog";
 import { useKit, useKitStyle, useVariantDensity } from "../../provider";
 import { useComponentState, usePart } from "../../part";
@@ -22,6 +24,7 @@ const Frame = styled(YStack, {
     },
   } as const,
 });
+export const CardGutterContext = createContext(false);
 type CardProps = {
   children: ReactNode;
   style?: CardStyle;
@@ -29,11 +32,11 @@ type CardProps = {
   /** `inset` cards only: the preset surface (default), a `tinted` fill in the tone, or an `outlined` rule. */
   look?: "surface" | "tinted" | "outlined";
   /** Finish of the enclosing card. `style="cards"` stays a transparent wrapper for individual rows. */
-  surface?: AxisValue<"surface">;
+  surface?: SurfaceFinish;
   density?: ThemeDensity;
-  align?: AxisValue<"align">;
+  align?: ContentAlign;
   /** `edge` cancels the phone gutter when this card is the screen-level frame. */
-  bleed?: AxisValue<"bleed">;
+  bleed?: ContentBleed;
   tone?: SurfaceTone;
   /** Clip children to the rounded corners (a photo at the top of a card). */
   clip?: boolean;
@@ -143,7 +146,9 @@ export function KitCard(props: CardProps) {
           {...action}
         >
           {swatch && isWeb && <style>{swatchCss(swatch, theme)}</style>}
-          <CardChildren loading={loading}>{children}</CardChildren>
+          <CardGutterContext.Provider value={Boolean(props.padded && props.inset !== "none")}>
+            <CardChildren loading={loading}>{children}</CardChildren>
+          </CardGutterContext.Provider>
         </Frame>
       </Theme>
     </CardStyleContext.Provider>

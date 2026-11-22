@@ -52,7 +52,7 @@ describe("CardDeck contract", () => {
     expect(lines).toContain("Discard pile: 0");
     for (const { title } of sample.cards) expect(lines).not.toContain(title);
   });
-  it("declares density, the core near miss and confirmation for reshuffling", () => {
+  it("declares dense weight, the core near miss and confirmation for reshuffling", () => {
     expect(meta).toMatchObject({ dense: true, weight: 3, confirmParts: ["reshuffle"] });
     expect(meta.states).toEqual(["empty", "filled", "loading", "success"]);
     expect(probes).toContainEqual(expect.objectContaining({ kind: "choose", expect: "SwipeStack" }));

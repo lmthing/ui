@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
-import { localeOf, size, text, themeName, type Definition } from "@lmthing/ui/catalog";
+import { component, localeOf, size, text, themeName, type Definition } from "@lmthing/ui/catalog";
 import {
   KitNumberPad,
   KitProvider,
@@ -54,6 +54,14 @@ describe("KitNumberPad", () => {
       expect(styleAt(html, hit)).toContain(`min-width:${size.control.md}px`);
     }
     expect(elementAt(html, "home/c1/r2/root").children[0]!.attributes).toContain('aria-disabled="true"');
+  });
+  it("makes a decimal mark readable without changing the key name or address", () => {
+    const html = render(input);
+    const key = elementAt(html, "home/c1/r2/root").children[0]!;
+    expect(key.attributes).toContain('aria-label="."');
+    const mark = key.children[0]!.children[0]!;
+    expect(mark.attributes).toContain('aria-hidden="true"');
+    expect(styleAt(html, mark)).toContain(`width:${component.base.dot}px`);
   });
   it.each([undefined, "r4"])("mounts a separate value and textbox at target item %s", (item) => {
     const target = item ? { item, part: "pad" } : { part: "pad" };

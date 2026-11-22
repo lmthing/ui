@@ -5,3 +5,5 @@
 - `Minutes.test.ts`: meeting wire bounds, motion links, approval and follow-up.
 - `Vote.test.ts`: motion bounds, phase and result parts, voter eligibility and chair confirmation.
 - `SignUpSheet.test.ts`: capacity, claims, disclosure, host permissions and release confirmation.
+- `ModQueue.test.ts`: queue bounds, visibility, rule selection and confirmed moderator decisions.
+- `ModQueue.browser.test.ts`: tap a rule and cancel or confirm removal through the host screen.

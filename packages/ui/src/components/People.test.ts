@@ -38,12 +38,10 @@ describe("People schema", () => {
   it("trims text and derives root presence without adding optional inputs", () => {
     expect(props.parse({ members: [{ name: " Anna " }] })).toEqual({
       detail: "full",
-      surface: "card",
       members: [{ name: "Anna", root: undefined }],
     });
     expect(props.parse({ members: [{ name: " Anna ", role: " Owner ", goto: "anna" }] })).toEqual({
       detail: "full",
-      surface: "card",
       members: [{ name: "Anna", role: "Owner", goto: "anna", root: "anna" }],
     });
   });

@@ -3,6 +3,7 @@ import { TamaguiProvider } from "tamagui";
 import { components, type ScreenLike } from "@lmthing/ui/catalog";
 import { PhoneScreen, type MediaAdapter } from "@lmthing/ui/kit";
 import { config } from "../../../../../test/render";
+import { weekdays } from "../../copy";
 
 const flashcard = {
   c: "Flashcard",
@@ -30,7 +31,22 @@ const quiz = {
 };
 const screen: ScreenLike = {
   id: "home",
-  components: [flashcard, quiz, { ...components.Path.examples[0]!, style: "modules", c: "Path", id: "path" }],
+  components: [
+    flashcard,
+    quiz,
+    { ...components.Path.examples[0]!, style: "modules", c: "Path", id: "path" },
+    {
+      c: "Timetable",
+      id: "schedule",
+      selected_day: "mon",
+      days: weekdays.map((day) => ({ day, periods: [{ time: "09:00", subject: `Class ${day}` }] })),
+    },
+    {
+      ...components.Assignments.examples[0]!,
+      c: "Assignments",
+      id: "assignments",
+    },
+  ],
 };
 const clips: Record<string, string> = {
   "home/cards/audio": "first",
