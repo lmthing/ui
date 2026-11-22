@@ -11,6 +11,7 @@ export const en = {
     met: "Target met",
     breached: "Target missed",
     paused: "Paused",
+    remaining: (time: string) => `${time} left`,
     success: "Both targets met",
     error: "SLA breached",
   },

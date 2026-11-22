@@ -37,6 +37,7 @@ export const example = [
   '{"id":"h7","c":"Header","style":"back","title":"Your repair"}',
   '{"id":"d3","c":"Card","title":"Slipping chain","meta":"SR-41 · Spoke","body":"The chain slips when I pedal uphill."}',
   '{"id":"k1","c":"KeyValue","pairs":[{"label":"Priority","value":"Normal"},{"label":"Promised","value":"20 Nov at 16:00"}]}',
+  '{"id":"sl1","c":"SlaPolicy","requestRef":"SR-41","tier":"Standard repair","openedAt":"2026-11-19T09:00:00Z","responseDueAt":"2026-11-19T13:00:00Z","respondedAt":"2026-11-19T10:15:00Z","resolutionDueAt":"2026-11-20T16:00:00Z","resolvedAt":"2026-11-20T14:45:00Z"}',
   '{"id":"l1","c":"List","rows":[{"title":"Work order WO-12","goto":"requests_work"},{"title":"Repair updates","goto":"requests_updates"}]}',
   '{"id":"b6","c":"Button","label":"Latest update","goto":"requests_updates"}',
   '{"id":"h8","c":"Header","style":"back","title":"Repair updates"}',

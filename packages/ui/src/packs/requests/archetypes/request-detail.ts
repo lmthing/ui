@@ -10,7 +10,7 @@ export const request_detail = {
         { allow: ["Header"], required: true, variant: "back" },
         { allow: ["Card"], required: true },
         { allow: ["KeyValue"], required: true },
-        { allow: ["SlaPolicy"] },
+        { allow: ["SlaPolicy"], required: false },
         { allow: ["List"], required: true },
         { allow: ["Button"], required: true },
       ],

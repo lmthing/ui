@@ -18,7 +18,7 @@ import {
   type Definition,
 } from "@lmthing/ui/catalog";
 
-const ids = ["RequestQueue", "RequestTriage", "RequestThread", "WorkOrder", "RequestResolution"];
+const ids = ["RequestQueue", "RequestTriage", "RequestThread", "WorkOrder", "RequestResolution", "SlaPolicy"];
 const scoped = createRegistry({ packs: ["requests"], includeDrafts: true });
 const recipes = {
   "report_issue/requests_intake": ["Header", "Field", "Field", "Choice", "Composer", "Button"],
@@ -46,12 +46,12 @@ it("registers only core and Requests drafts until the whole pack is ready", () =
   ).toEqual([...ids].sort());
   expect(scoped.ids.filter((id) => !core.ids.includes(id))).toEqual(expect.arrayContaining(ids));
   expect(scoped.ids).toHaveLength(core.ids.length + ids.length);
-  if (!ready) expect(live.ids).toEqual(core.ids);
   const draftFormat = JSON.stringify(writerFormat(scoped));
   const liveFormat = JSON.stringify(writerFormat(live));
   for (const id of ids) {
     expect(core.ids).not.toContain(id);
     expect(draftFormat).toContain(`"const":"${id}"`);
+    expect(live.ids.includes(id)).toBe(ready);
     expect(liveFormat.includes(`"const":"${id}"`)).toBe(ready);
   }
   for (const name of ["report_issue", "queue", "request_detail"]) {
