@@ -269,7 +269,6 @@ Gallery `carousel`, Scale `stars`).
 
 | Kind       | Axis       | Values                                          | Meaning                                         |
 | ---------- | ---------- | ----------------------------------------------- | ----------------------------------------------- |
-| Finish     | `density`  | `comfortable`, `compact`                        | Row height, spacing and type step               |
 | Finish     | `emphasis` | `quiet`, `normal`, `hero`                       | Prominence on the screen                        |
 | Finish     | `surface`  | `plain`, `card`, `tinted`, `outlined`           | Container treatment                             |
 | Finish     | `align`    | `start`, `center`                               | Alignment of the component's own content        |
@@ -287,18 +286,16 @@ Gallery `carousel`, Scale `stars`).
 | Item       | `tone`     | `neutral`, `good`, `warn`, `bad`                | Semantic status of one item, never a colour     |
 | Item       | `mark`     | `none`, `highlight`, `muted`, `new`             | Prominence of one item                          |
 
-The theme (4.3) adds two app-wide enums: `density` (`comfortable`, `compact`), the default for every
-component without its own, and `motion` (`calm`, `lively`), for entrances and celebrations; the OS
-reduce-motion setting still wins.
+The theme (4.3) adds two app-wide enums: `density` (`comfortable`, `compact`), which controls row height,
+spacing and type steps for every component, and `motion` (`calm`, `lively`), for entrances and celebrations; the OS
+reduce-motion setting still wins. Density is theme-only: Writers and component props never set it.
 
 **Declaration.** `meta.variants` lists the component's axes, each with the subset of values that make
-sense for it, its default first: `variants: { density: ["comfortable", "compact"], emphasis:
-["normal", "hero"] }`. A local default need not be the first value in the shared vocabulary. Item
+sense for it, its default first: `variants: { emphasis: ["normal", "hero"], detail: ["full", "brief"] }`. A local default need not be the first value in the shared vocabulary. Item
 axes go in `meta.items.variants`; when both levels declare `trail`, `itemVariantProps` can inherit
 the collection trail, and action gating uses the same effective value as the view. Most components
-declare three to six axes; none declares one that changes nothing it draws. `density` absent from a line means the app's
-density. A shared `variantProps(meta.variants)` helper in `catalog/props` spreads the axes into the
-strict props object as ordinary flat props (`{"c":"List","density":"compact"}`), so a line, a
+declare three to six axes; none declares one that changes nothing it draws. A shared `variantProps(meta.variants)` helper in `catalog/props` spreads the axes into the
+strict props object as ordinary flat props (`{"c":"List","detail":"brief"}`), so a line, a
 validator and a `patch` `set` handle them like any prop; there is no variant op.
 
 **Parts.** Finish axes never change parts or addresses. Content and collection axes may show or hide
@@ -321,8 +318,8 @@ items.
 
 **Prompts and probes.** The write prompt states the axis vocabulary once (budget: at most 160 tokens);
 each component's line lists only its axes and values. Writers set an axis only when the request
-implies one. Shared write probes cover each axis on representative components ("fit more on the
-walks list" → `density: "compact"`); each component adds one write probe for its most distinctive
+implies one. Shared write probes cover each axis on representative components ("show a number at the start of each
+row" → `lead: "number"`); each component adds one write probe for its most distinctive
 non-finish axis.
 
 **Look and gallery.** `look` draws the defaults in every preset and mode as before, plus each declared
@@ -330,7 +327,8 @@ non-default value once (calm, light, 390 wide) on a variants sheet. The gallery 
 per component.
 
 **Migration.** Bespoke values that an axis covers move to it through `catalog/migrations` before
-strict validation of saved lines; enable each migration with its destination schema. Explicit
+strict validation of saved lines; enable each migration with its destination schema. Drop legacy
+component `density` on saved lines and keep the theme's density unchanged. Explicit
 destination values win. Card `style: "plain"` was a filled surface and maps to `surface: "card"`;
 `tinted` and `outlined` keep their finishes, and `style: "media"` becomes `media: "cover"` (or
 `"thumb"` if an icon was authored instead of a photo). The
@@ -339,7 +337,7 @@ requested. List's per-row cards are structural: keep `style: "cards"` to disting
 single enclosing card and use `surface` for the finish. List `inset` becomes `surface: "card"` and
 List `plain` becomes `surface: "plain"`. Ranked rows use `lead: "number"` and
 `trail: "value"`, and historical rows without scores hide their trail. Other moves include Button
-`md|lg` to `emphasis`, Player `compact` to `density`, Success `row|centered` to `align`, Photo
+`md|lg` to `emphasis`, Player `compact` to `detail: "brief"`, Success `row|centered` to `align`, Photo
 `square|wide|tall` to `aspect`, and per-component `tone` enums to the shared helper. Each adoption
 task lists its own moves and refreshes its recordings against the new schema.
 
@@ -836,7 +834,7 @@ Update live recipes and probes at the cutover; do not advertise a legacy alias t
 
 | Legacy id                | Saved line migration                                                                                                                                                                                   | Addresses and actions                                                                                                                                            |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Ring`                   | `Progress`, `style: "ring"`, `bars: [{ label, value, of }]`; retain `sub`, `density`, `emphasis` and `detail`. Normalize old `md`/`lg` before changing the id.                                         | Keep `root`, `ring`, `value`, `label` and `sub` at component level; `detail: "brief"` hides but does not discard `sub`. No row `press` or synthetic row address. |
+| `Ring`                   | `Progress`, `style: "ring"`, `bars: [{ label, value, of }]`; retain `sub`, `emphasis` and `detail`. Normalize old `md`/`lg` before changing the id.                                         | Keep `root`, `ring`, `value`, `label` and `sub` at component level; `detail: "brief"` hides but does not discard `sub`. No row `press` or synthetic row address. |
 | Health `ActivityRings`   | `Progress`, `style: "rings"`, retaining two or three ordered `rings` rows with `label`, `value`, `of` and `unit`, plus `surface` and `detail`. Keep daily-target intent, row limits and number bounds. | Keep `root`, `rings`, and `rN` with `label`, `value`, `of` and `unit`; brief hides only the target caption (`of`). No new actions.                               |
 | `Progress` (not retired) | Missing `style` means `"bars"`. Keep the existing `stack`/`compact` and row `over` migrations.                                                                                                         | Keep bar labels, amounts, units, over-target tone and linked row `press` at the original addresses.                                                              |
 
