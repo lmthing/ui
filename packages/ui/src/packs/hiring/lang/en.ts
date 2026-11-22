@@ -1,67 +1,14 @@
+import { words as ApplicantPipelineWords } from "./en/ApplicantPipeline";
+import { words as packWords } from "./en/pack";
+import { words as ApplicationsWords } from "./en/Applications";
+import { words as CandidateWords } from "./en/Candidate";
+import { words as InterviewWords } from "./en/Interview";
 export const en = {
-  stages: {
-    saved: "Saved",
-    applied: "Applied",
-    screening: "Screening",
-    interview: "Interview",
-    offer: "Offer",
-  },
-  outcomes: { active: "Active", hired: "Hired", rejected: "Rejected", withdrawn: "Withdrawn" },
-  pipeline: {
-    move: "Move to",
-    destination: (stage: string, candidate: string) => `Move ${candidate} to ${stage}`,
-    outcomes: (counts: readonly string[]) => counts.join(" · "),
-    count: (label: string, count: string) => `${label}: ${count}`,
-    error: "Couldn’t save the change",
-  },
-  applications: {
-    applied: (date: string) => `Applied ${date}`,
-    contact: (date: string, ago?: string) => `Last contact ${date}${ago ? ` · ${ago}` : ""}`,
-    daysAgo: (days: string, plural: Intl.LDMLPluralRule) =>
-      `${days} ${plural === "one" ? "day" : "days"} ago`,
-    nextAt: (date: string) => `By ${date}`,
-    dueToday: "Due today",
-    overdue: "Overdue",
-    log: "Log follow-up",
-    withdraw: "Withdraw application",
-    remove: "Remove saved role",
-    success: "Follow-up logged",
-    error: "Couldn’t save the application",
-  },
-  candidate: {
-    applied: (date: string) => `Applied ${date}`,
-    findings: { unreviewed: "Unreviewed", needs_evidence: "Needs evidence", meets: "Meets", gap: "Gap" },
-    evidence: "Add evidence",
-    evidenceFor: (criterion: string) => `Evidence for ${criterion}`,
-    reviewLine: (criterion: string, finding: string) => `${criterion}: ${finding}`,
-    interview: "Interview",
-    offer: "Offer",
-    history: { interview: "View interview", offer: "View offer" },
-    hire: "Record hire",
-    reject: "Reject",
-    withdraw: "Withdraw",
-    success: "Decision recorded",
-    error: "Couldn’t save the decision",
-  },
-  interview: {
-    status: { proposed: "Proposed", confirmed: "Confirmed", completed: "Completed", cancelled: "Cancelled" },
-    format: { in_person: "In person", phone: "Phone", video: "Video call" },
-    duration: (minutes: string) => `${minutes} min`,
-    timeRange: (start: string, end: string) => `${start}–${end}`,
-    nextDay: (time: string) => `${time} next day`,
-    interviewers: (names: string) => `With ${names}`,
-    past: "Meeting date passed",
-    link: "Call link added",
-    actions: {
-      edit: "Edit interview",
-      invite: "Send invite",
-      join: "Join call",
-      complete: "Mark complete",
-      cancel: "Cancel interview",
-    },
-    success: "Interview updated",
-    error: "Couldn’t update the interview",
-  },
+  ...ApplicantPipelineWords,
+  ...packWords,
+  ...ApplicationsWords,
+  ...CandidateWords,
+  ...InterviewWords,
 };
 
 export type HiringWords = typeof en;

@@ -15,10 +15,12 @@ import {
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
 } from "../../../catalog";
 import * as kit from "../../../kit";
 import { noticeCountPieces, noticeProgress, noticeReading, noticeReceipt } from "../copy";
 import { teamWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-TeamNotice.generated";
 
 // Core first: Banner/tone warns briefly, but cannot show a full authored staff bulletin and record read receipts.
 export const meta = {
@@ -26,17 +28,14 @@ export const meta = {
   status: "ready",
   group: "content",
   tier: "people",
-  pick: "An official workplace bulletin, policy or staff announcement with author, date, priority and read receipts. Not a shift handover (Handover), a short transient warning (Banner), or a social post (Post).",
-  purpose: "Read important workplace notices and acknowledge that you have read them.",
+  pick: prompt.pick,
+  purpose: prompt.purpose,
   region: "body",
   weight: 2,
   realPath: "pinned workplace bulletins and per-employee read receipts synchronized in a shared team app.",
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "outlined"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["author", "posted", "body", "count", "ack", "ack_label"] } },
-  writeHints: [
-    'For a pinned strip that links to the full bulletin, set detail to "brief" and keep the full body and goto. Use null for unrequested density and surface.',
-    "Read count is the number who already read it, including the current member if acknowledged is true. Never make it greater than totalMembers.",
-  ],
+  writeHints: prompt.writeHints,
   parts: [
     "frame",
     "root",
@@ -146,7 +145,7 @@ type ViewProps = Props<typeof props, typeof meta>;
 const priorities = { info: "muted", important: "warn", urgent: "bad" } as const;
 
 // prettier-ignore
-function NoticeHeader({ input, brief, density }: { input: ViewProps; brief: boolean; density: ViewProps["density"] }) {
+function NoticeHeader({ input, brief, density }: { input: ViewProps; brief: boolean; density: ThemeDensity }) {
   const loading = kit.useComponentState() === "loading";
   const { words: { teamNotice: words } } = kit.useWords(teamWordsFor);
   const badge = <kit.KitTrail kind="badge" value={words.priority[input.priority]} part="priority" tone={priorities[input.priority]} density={density} />;
@@ -171,7 +170,7 @@ function NoticeHeader({ input, brief, density }: { input: ViewProps; brief: bool
 }
 
 // prettier-ignore
-function Acknowledgment({ done, density }: { done: boolean; density: ViewProps["density"] }) {
+function Acknowledgment({ done, density }: { done: boolean; density: ThemeDensity }) {
   const loading = kit.useComponentState() === "loading";
   const { words: { teamNotice: words } } = kit.useWords(teamWordsFor);
   const text = done ? words.acknowledged : words.ack;
@@ -185,7 +184,7 @@ function Acknowledgment({ done, density }: { done: boolean; density: ViewProps["
 }
 
 // prettier-ignore
-function NoticeContent({ input, brief, density }: { input: ViewProps; brief: boolean; density: ViewProps["density"] }) {
+function NoticeContent({ input, brief, density }: { input: ViewProps; brief: boolean; density: ThemeDensity }) {
   const state = kit.useComponentState();
   const { lang } = kit.useWords(teamWordsFor);
   const progress = noticeProgress(input, state === "success", lang);
@@ -213,9 +212,9 @@ export function TeamNotice(input: ViewProps) {
   const { words: { teamNotice: words } } = kit.useWords(teamWordsFor);
   kit.useControlValue(`${screen}/${component}/$localState/${meta.id}`, undefined);
   const live = kit.useLiveControls(meta, input) as ViewProps;
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const surface = "card";
   const content = <NoticeContent input={live} brief={detail === "brief"} density={density} />;
   return (
     <kit.KitCard part={state === "loading" ? "root" : "frame"} style="inset" padded {...{ density, surface }}>

@@ -29,8 +29,15 @@ export {
   type HostRecords,
   type HostRequest,
 } from "./host-commands";
-export { hostOnlyParts, hostOnlyAddresses, privateMarkKey, redactPrivateMarks } from "./action-input";
-export { secretRevealKey, secretRevealMatches } from "./action-input";
+export {
+  credentialToggleOn,
+  hostOnlyParts,
+  hostOnlyAddresses,
+  privateMarkKey,
+  redactPrivateMarks,
+  secretRevealKey,
+  secretRevealMatches,
+} from "./private-controls";
 export { appCurrencySchema, moneyFractionDigits, parseAppCurrency, type AppCurrency } from "./app-currency";
 export {
   atDeviceTime,
@@ -46,14 +53,12 @@ export {
   type DeviceData,
 } from "./device-data";
 export { visibleItems } from "./visibility";
-export { credentialToggleOn } from "./credential-toggle";
-export { pickerAt, pickerKey, projectLiveInputs } from "./live-inputs";
+export { defineLocalState, pickerAt, pickerKey, projectLiveInputs } from "./live-inputs";
 export { linkedEditKey } from "./linked-edits";
 export { dateSpanChoice, dateSpanItem, dateSpanKey, type DateSpanSelection } from "./date-span";
-export { itemMoveOffer, jumpKey } from "./action-input";
-export { slotMoveOffer } from "./collections";
+export { jumpKey } from "./action-input";
+export { itemMoveOffer, slotMoveOffer } from "./collections";
 export {
-  defineLocalState,
   isRecordJournal,
   isRecordPress,
   recordActionAt,

@@ -14,10 +14,12 @@ import {
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
 } from "../../../catalog";
 import * as kit from "../../../kit";
 import { leaveBalanceFigures, leaveBalanceReading } from "../copy";
 import { teamWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-LeaveBalance.generated";
 
 // Core first: Progress/bars tracks amounts against targets, not PTO accrual, usage, pending requests and available balances.
 export const meta = {
@@ -25,16 +27,14 @@ export const meta = {
   status: "ready",
   group: "data",
   tier: "people",
-  pick: "Employee PTO balances by leave type: accrued, used, pending and available leave. Not manager decisions (Approval), generic progress toward a target (Progress), or weekly shift hours (Timesheet).",
-  purpose: "See how much paid time off is available across leave types.",
+  pick: prompt.pick,
+  purpose: prompt.purpose,
   region: "body",
   weight: 2,
   realPath: "accrued and pending PTO balances synced from a shared HR or workplace scheduling host.",
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "outlined"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["accrued", "used", "pending", "expires"] } },
-  writeHints: [
-    'When asked for only leave types and available balances, set detail to "brief"; still supply the accrued, used and pending inputs. Leave unrequested variant axes null.',
-  ],
+  writeHints: prompt.writeHints,
   parts: ["root", "title", "employee", "message", "request"],
   items: {
     key: "balances",
@@ -139,7 +139,7 @@ type Balance = ViewProps["balances"][number];
 
 // prettier-ignore
 function BalanceBreakdown({ figures, density }: {
-  figures: ReturnType<typeof leaveBalanceFigures>; density: ViewProps["density"];
+  figures: ReturnType<typeof leaveBalanceFigures>; density: ThemeDensity;
 }) {
   const { words: { leaveBalance: words } } = kit.useWords(teamWordsFor);
   const { lines, cap, expires } = figures;
@@ -161,7 +161,7 @@ function BalanceBreakdown({ figures, density }: {
 
 // prettier-ignore
 function BalanceRow({ row, unit, detail, density }: {
-  row: Balance; unit: ViewProps["unit"]; detail: ViewProps["detail"]; density: ViewProps["density"];
+  row: Balance; unit: ViewProps["unit"]; detail: ViewProps["detail"]; density: ThemeDensity;
 }) {
   const { lang, words } = kit.useWords(teamWordsFor);
   const loading = kit.useComponentState() === "loading";
@@ -188,9 +188,9 @@ function BalanceRow({ row, unit, detail, density }: {
 // prettier-ignore
 export function LeaveBalance(input: ViewProps) {
   const { words: { leaveBalance: words } } = kit.useWords(teamWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const surface = "card";
   const content = (
     <>
       <kit.KitHeader title={{ text: words.title, part: "title", role: "body" }} meta={{ text: input.employee, part: "employee" }} density={density} />

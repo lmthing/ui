@@ -7,27 +7,26 @@ import {
   screenId,
   text,
   thingOf,
-  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  variantProps,
 } from "../catalog";
 import { KitCard, KitGrid, KitIcon, KitRow, KitText, KitTile } from "../kit";
+import { prompt } from "../entry/prompt-Actions.generated";
 
 export const meta = {
   id: "Actions",
   group: "action",
-  purpose: "Two to four shortcuts to different things the person can do next.",
-  pick: "Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).",
-  writeHints: [
-    'Vertically stacked shortcuts set arrange to "rows" only. The surface field must be null unless a specific surface treatment was requested; never write "card" as a default. If no arrangement is requested, use null for arrange.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Each shortcut opens a linked screen on the phone.",
-  variants: { arrange: ["grid", "rows"], surface: ["card", "plain", "outlined"] },
+  variants: { arrange: ["grid", "rows"] },
   items: { key: "items", parts: ["root", "icon", "label"] },
   states: ["filled"],
   actions: { items: { root: ["press"] } },
@@ -92,14 +91,12 @@ export const examples = [
     ],
   },
   {
-    surface: "plain",
     items: [
       { icon: "leaf", label: "My plants", goto: "plants" },
       { icon: "drop", label: "Water", goto: "water" },
     ],
   },
   {
-    surface: "outlined",
     items: [
       { icon: "leaf", label: "My plants", goto: "plants" },
       { icon: "drop", label: "Water", goto: "water" },
@@ -121,7 +118,8 @@ export const probes = [
   read("Add a plant", { address: "a1/r2", action: "press" }),
 ] satisfies Probe[];
 
-export function Actions({ items, arrange, surface }: Props<typeof props, typeof meta>) {
+export function Actions({ items, arrange }: Props<typeof props, typeof meta>) {
+  const surface = "card";
   return (
     <KitCard part="root" surface={surface}>
       <KitGrid arrange={arrange} columns={items.length === 3 ? 3 : 2}>

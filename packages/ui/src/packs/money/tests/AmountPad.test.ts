@@ -39,7 +39,6 @@ describe("AmountPad contract and boundaries", () => {
       max: 50,
       note: true,
       detail: "full",
-      surface: "card",
     });
     expect(parsed).toMatchObject({
       keys: Array.from({ length: 12 }, (_, index) => ({ id: `r${index + 1}` })),
@@ -97,8 +96,8 @@ describe("AmountPad fallback", () => {
       { things: [], items: [{ id: "item", type: "entry", sample: true, name: 4 }] },
     ];
     const [empty, full, malformed] = casts.map((cast) => props.parse(fallback({ cast })));
-    expect(empty).toMatchObject({ label: "Item one", note: false, detail: "full", surface: "card" });
-    expect(full).toMatchObject({ label: "x".repeat(24), note: false, detail: "full", surface: "card" });
+    expect(empty).toMatchObject({ label: "Item one", note: false, detail: "full" });
+    expect(full).toMatchObject({ label: "x".repeat(24), note: false, detail: "full" });
     expect(malformed).toEqual(empty);
   });
 });

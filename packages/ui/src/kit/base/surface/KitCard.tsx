@@ -5,9 +5,11 @@ import {
   presets,
   space,
   variants,
-  type AxisValue,
   type Swatch,
   type ThemeDensity,
+  type SurfaceFinish,
+  type ContentAlign,
+  type ContentBleed,
 } from "../../../catalog";
 import { useKit, useKitStyle, useVariantDensity } from "../../provider";
 import { useComponentState, usePart } from "../../part";
@@ -29,11 +31,11 @@ type CardProps = {
   /** `inset` cards only: the preset surface (default), a `tinted` fill in the tone, or an `outlined` rule. */
   look?: "surface" | "tinted" | "outlined";
   /** Finish of the enclosing card. `style="cards"` stays a transparent wrapper for individual rows. */
-  surface?: AxisValue<"surface">;
+  surface?: SurfaceFinish;
   density?: ThemeDensity;
-  align?: AxisValue<"align">;
+  align?: ContentAlign;
   /** `edge` cancels the phone gutter when this card is the screen-level frame. */
-  bleed?: AxisValue<"bleed">;
+  bleed?: ContentBleed;
   tone?: SurfaceTone;
   /** Clip children to the rounded corners (a photo at the top of a card). */
   clip?: boolean;

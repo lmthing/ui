@@ -4,12 +4,9 @@ import type { ScreenLike } from "./read";
 import {
   actionValueAddress,
   controlsAreValid,
-  expireProgress,
   findAction,
   type selectStep,
   stageItemAdjustment,
-  stageSecretReveal,
-  stageStepProgress,
   stageValue,
   validateStep,
 } from "./action-input";
@@ -24,12 +21,14 @@ import {
   type DeviceData,
 } from "./device-data";
 import { stageReportEdit } from "./report-edits";
-import { stageInlinePress } from "./live-inputs";
+import { expireProgress, stageInlinePress, stageLocalEvent, stageProgress } from "./live-inputs";
 import { isLocalAnchorAction } from "./drives";
 import type { Affordance } from "./affordances";
 import { sequenceKey, stageSequence, type MediaOffer } from "./media";
 import type { HostIntent } from "./host-commands";
-import { stageLocalEvent, stageRecordAction, withRecordScreen } from "./record-runtime";
+import { stageRecordAction, stageRecordControl, withRecordScreen } from "./record-runtime";
+import { stageCredentialToggle, stageSecretReveal } from "./private-controls";
+import { stageLinkedEdit } from "./linked-edits";
 export type ActStep = { address: string; action: string; value?: unknown; recordTarget?: string };
 export type Values = Record<string, unknown>;
 export type SendDraft = { address: string; text: string; audience?: string; attachments?: readonly string[] };
@@ -179,7 +178,7 @@ export function planAct(
     try {
       const progress = record
         ? ""
-        : stageStepProgress(screen, defs, plan.values, resolved, found, random, snapshot, now, touchNow);
+        : stageProgressStep(screen, defs, plan.values, resolved, found, random, snapshot, now, touchNow);
       if (progress === false)
         return { ok: false, code: "invalid_value", at, hint: "Invalid record mutation" };
       if (progress !== undefined) {
@@ -196,4 +195,24 @@ export function planAct(
     recordControlResult(plan, found, screen, resolved, key);
   }
   return plan;
+}
+
+function stageProgressStep(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  next: Values,
+  step: ActStep,
+  found: Affordance,
+  random: RandomSource | null,
+  snapshot: DeviceData | undefined,
+  now: number,
+  touchNow: () => number,
+) {
+  const record = stageRecordControl(screen, defs, next, step, snapshot, now);
+  if (record !== undefined) return record ? "" : false;
+  return (
+    stageCredentialToggle(screen, defs, next, step) ??
+    stageLinkedEdit(screen, defs, next, found, step.value) ??
+    stageProgress(screen, defs, step.address, step, next, random, snapshot, touchNow)
+  );
 }

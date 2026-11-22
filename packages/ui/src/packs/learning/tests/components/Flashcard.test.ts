@@ -34,8 +34,6 @@ describe("Flashcard seed bounds", () => {
   it("trims authored copy and defaults to a centered card with a thumbnail", () => {
     const parsed = props.parse({ cards: [{ ...first, front: "  Cue  " }, second] });
     expect(parsed).toMatchObject({
-      align: "center",
-      surface: "card",
       media: "thumb",
       cards: [{ front: "Cue" }, second],
     });

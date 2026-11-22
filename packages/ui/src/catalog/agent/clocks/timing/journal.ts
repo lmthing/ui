@@ -1,7 +1,7 @@
 import type { ClockMeta, ClockSession, ClockState } from "../../../meta";
 import type { DeviceData, Values } from "../../index";
 
-export const validTime = (value: number) => Number.isSafeInteger(value) && Math.abs(value) <= 8.64e15;
+import { validTime } from "./timestamp";
 
 export function journalOperation(clock: ClockMeta, target: string, action: string): "lap" | undefined {
   return clock.journal?.lap?.part === target && action === "press" ? "lap" : undefined;

@@ -3,26 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { approvalAmount, approvalPortrait, approvalReading } from "../copy";
 import { teamWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Approval.generated";
 
 // Core first: Checklist/check records completion, not a manager's approve or decline decision on a request.
 export const meta = {
   id: "Approval",
   status: "ready",
   group: "action",
-  purpose: "Review staff requests and decide whether to approve or decline them.",
-  pick: "A manager decides on staff requests such as time off, swaps or expenses, or a requester tracks their own submissions. Not chores to tick off (Checklist) or a client accepting a quote (Invoice).",
-  writeHints: [
-    'Use style "my_requests" only for the requester tracking their own submissions, not manager decisions. Write each supplied decision as status ("pending", "approved", "declined"). Use kind "shift_claim" for a request to take an open shift, not a swap of an assigned shift.',
-    'Write amounts as numbers without a currency. Use lead "none" only when asked to hide requester portraits; keep the photo references.',
-    'Set unrequested axes to null: for requests without portraits use {"density":null,"surface":null,"lead":"none"}. Do not fill in the default density or surface.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "A shared app stores requests and tells each requester the decision.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     lead: ["avatar", "none"],
   },
   variantParts: { "lead.none": { hides: ["photo"] } },
@@ -143,7 +138,8 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type ApprovalProps = c.Props<typeof props, typeof meta>;
-type RequestProps = Pick<ApprovalProps, "lead" | "surface" | "style"> & {
+type RequestProps = Pick<ApprovalProps, "lead" | "style"> & {
+  surface: c.SurfaceFinish;
   row: ApprovalProps["requests"][number];
   density: c.ThemeDensity;
 };
@@ -213,9 +209,9 @@ export function Approval(input: ApprovalProps) {
   const state = kit.useComponentState();
   const thing = kit.useEmptyThing();
   const { words } = kit.useWords(teamWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const lead = kit.useVariant("lead", meta.variants.lead, input.lead);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const surface = "card";
   return (
     <kit.KitCard
       part="root"

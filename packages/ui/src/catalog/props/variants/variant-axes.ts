@@ -1,10 +1,6 @@
 /** Shared wire vocabulary. The first value is the global default. */
 export const variantAxes = {
-  density: { kind: "finish", values: ["comfortable", "compact"] },
   emphasis: { kind: "finish", values: ["quiet", "normal", "hero"] },
-  surface: { kind: "finish", values: ["plain", "card", "tinted", "outlined"] },
-  align: { kind: "finish", values: ["start", "center"] },
-  bleed: { kind: "finish", values: ["inset", "edge"] },
   aspect: { kind: "finish", values: ["auto", "square", "wide", "tall"] },
   detail: { kind: "content", values: ["full", "brief"] },
   media: { kind: "content", values: ["none", "icon", "thumb", "cover"] },

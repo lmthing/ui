@@ -3,26 +3,21 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { activeBreakStart, timeClockDisplay, timeClockPreview, timeClockReading } from "../copy";
 import { teamWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-TimeClock.generated";
 
 // Core first: Timer/up measures an activity but does not record clock-ins, clock-outs and breaks for work.
 export const meta = {
   id: "TimeClock",
   status: "ready",
   group: "input",
-  purpose: "Clock in and out of a work shift and record breaks.",
-  pick: "Record work attendance with clock-in, clock-out and breaks for the current shift. Not a stopwatch or countdown for an activity (Timer), or approving a week's hours (Timesheet).",
-  writeHints: [
-    "on means clocked in. since is the local clock-in time if known; omit it when off. Do not write elapsed time or breaks.",
-    'Only for a shared staff time-clock kiosk, write style "kiosk". Use verification "geofence" for a worksite location check or "pin" for a staff PIN check, never the PIN digits or location. Set breakTimer true only when explicitly asked for a running timer for the current break.',
-    'To hide only the clock-in timestamp, use {"detail":"brief","density":null,"surface":null}; still keep the supplied since time. Use JSON null, not "card" or "comfortable", for any unrequested axis.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Clock events stay on the device; sharing them with a manager needs a shared app.",
   variants: {
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["since"] } },
@@ -117,8 +112,8 @@ type ClockProps = c.Props<typeof props, typeof meta>;
 export function TimeClock(input: ClockProps) {
   const state = kit.useComponentState();
   const { lang, words } = kit.useWords(teamWordsFor);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const live = kit.useLiveControls(meta, input) as ClockProps & {
     liveBreakSeconds?: number;

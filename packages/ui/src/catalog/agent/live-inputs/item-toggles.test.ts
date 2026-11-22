@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import type { Meta } from "../../meta";
-import { projectItemToggles } from "./item-toggles";
+import { projectItemToggles } from "./index";
 
 const meta: Meta = {
   id: "Fixture",

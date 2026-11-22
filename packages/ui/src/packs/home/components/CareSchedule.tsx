@@ -1,31 +1,31 @@
 import { z } from "zod";
 // prettier-ignore
 import { icon, isoDate, itemsOf, placeholderTitle, probesFor, repeatOptions, screenId, text,
-  thingOf, titleOf, detailOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+  thingOf, titleOf, detailOf, type FallbackInput, type Meta, type Probe, type Props,
+  type SurfaceFinish,
+  variantProps,
+} from "../../../catalog";
 // prettier-ignore
 import { KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitIcon, KitRow, KitText, KitTrack,
   PartContext, useComponentState, usePartContext, useWords } from "../../../kit";
 import { careCategories, careCategory, careLines, careReading, careTaskLabel, careToday } from "../copy";
 import { homeWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-CareSchedule.generated";
 // Core first: Checklist/default cannot advance recurring care from the last completion date.
 export const meta = {
   id: "CareSchedule",
   status: "ready",
   group: "input",
-  purpose: "Keep recurring care for pets, plants, cars or a house and log each completion.",
-  pick: "Recurring care with last completion and code-derived next due dates. Not today's one-off jobs (Checklist), shared household points (Chores), a person's medicine (Medication), or provider appointments (Appointment).",
-  writeHints: [
-    "Write last, repeat and every. Next due, overdue and due-today are computed; never write them. Repeat uses the same enum as Field.",
-    "Set category on each task explicitly described as pet, plant, car or house care; otherwise leave category null.",
-    'Use arrange "rows" only when asked for one task per line. Keep the repeat, last completion, next due and Done control in either layout; leave surface null unless explicitly requested.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   signature: "check_burst",
   realPath: "Care tasks and completion logs stay on the device; notification reminders need permission.",
-  variants: { arrange: ["grid", "rows"], surface: ["card", "outlined"] },
+  variants: { arrange: ["grid", "rows"] },
   items: {
     key: "tasks",
     parts: ["root", "tile", "title", "for", "icon", "category", "repeat", "last", "next", "done"],
@@ -118,7 +118,7 @@ export const probes = [
 type CareProps = Props<typeof props, typeof meta>;
 type CareTask = CareProps["tasks"][number];
 // prettier-ignore
-function CareTile({ task, today, wide, surface }: { task: CareTask; today: string; wide: boolean; surface: CareProps["surface"] }) {
+function CareTile({ task, today, wide, surface }: { task: CareTask; today: string; wide: boolean; surface: SurfaceFinish }) {
   const context = usePartContext();
   const {
     lang,
@@ -165,7 +165,8 @@ function CareTile({ task, today, wide, surface }: { task: CareTask; today: strin
   );
 }
 // prettier-ignore
-export function CareSchedule({ tasks, arrange, surface }: CareProps) {
+export function CareSchedule({ tasks, arrange }: CareProps) {
+  const surface = "card";
   const state = useComponentState();
   const {
     words: { careLabels },

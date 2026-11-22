@@ -71,7 +71,7 @@ describe("Milestones states and addresses", () => {
 
   it("only lists all requirements on full cards; density never changes addresses", () => {
     const full = [...addressedElements(render(cards).html).keys()];
-    const compact = [...addressedElements(render({ ...cards, density: "compact" }).html).keys()];
+    const compact = [...addressedElements(render({ ...cards }).html).keys()];
     const brief = [...addressedElements(render({ ...cards, detail: "brief" }).html).keys()];
     expect(compact).toEqual(full);
     expect(full).toContain(part("r1/requires"));

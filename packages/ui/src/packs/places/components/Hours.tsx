@@ -3,24 +3,22 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { hoursCopy, hoursReading } from "../copy";
 import { placesWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-Hours.generated";
 
 // Core first: Timeline/hours shows one day's events, not a recurring opening week with special dates.
 export const meta = {
   id: "Hours",
   status: "ready",
   group: "data",
-  purpose: "Check when a place is open today and through the week.",
-  pick: "A venue's recurring opening hours across all seven weekdays, with optional special dates. Not a day's events (Timeline), bookable times (Availability), or staff shifts (Roster).",
-  writeHints: [
-    "Write each weekday exactly once in Monday–Sunday order. For a closed day use 00:00 for both times; opening and closing times must differ on open days. Do not write the computed open state. Use [] when there are no special dates.",
-    'Display supplied special dates by writing detail null. Only if explicitly asked to hide the notices, set detail "brief" and keep the dates in special. Write density null unless explicitly asked for compact or comfortable spacing.',
-  ],
+  purpose: prompt.purpose,
+  pick: prompt.pick,
+  writeHints: prompt.writeHints,
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Opening hours are stored with the place.",
   dense: true,
-  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["special"] } },
   items: { key: "days", parts: ["root", "day", "from", "to", "closed"] },
   parts: ["root", "open_state", "special"],
@@ -150,7 +148,7 @@ function NoticeText({ text, density }: { text: string; density: c.ThemeDensity }
 
 // prettier-ignore
 export function Hours(input: HoursProps) {
-  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const density = kit.useKit().density;
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { lang, words } = kit.useWords(placesWordsFor);
   const copy = hoursCopy({ ...input, detail }, new Date(), lang);

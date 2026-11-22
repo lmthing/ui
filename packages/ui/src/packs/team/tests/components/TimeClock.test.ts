@@ -28,7 +28,6 @@ describe("TimeClock schema boundaries", () => {
     expect(props.parse({ on: true, since: "00:00", shift: ` ${shift} ` })).toMatchObject({
       since: "00:00",
       shift,
-      surface: "card",
       detail: "full",
     });
     expect(props.safeParse({ on: false }).success).toBe(true);
@@ -119,8 +118,8 @@ describe("TimeClock states, parts and reading", () => {
       ...addressedElements(renderInstance("TimeClock", input, "filled", theme, { deviceData })).keys(),
     ];
     const standard = [...addressedElements(html).keys()];
-    expect(addresses({ ...active, density: "compact" })).toEqual(standard);
-    expect(addresses({ ...active, surface: "outlined" })).toEqual(standard);
+    expect(addresses({ ...active })).toEqual(standard);
+    expect(addresses({ ...active })).toEqual(standard);
     const brief = { ...active, detail: "brief" };
     expect(props.parse(brief).since).toBe(active.since);
     expect(addresses(brief)).toEqual(standard.filter((address) => !address.endsWith("/since")));

@@ -60,7 +60,7 @@ describe("Timeline schema", () => {
 
 it("withdraws secondary text from brief events without renumbering rows", () => {
   const input = { items: [{ ...item, meta: "Meet near the park", tone: "warn" }] };
-  const parsed = stampItemIds(meta, props.parse({ ...input, detail: "brief", density: "compact" }));
+  const parsed = stampItemIds(meta, props.parse({ ...input, detail: "brief" }));
   expect(parsed.items[0]).toMatchObject({ id: "r1", meta: undefined, tone: "warn" });
   expect(readComponent(components.Timeline, { ...input, detail: "brief" }, "t1").join("\n")).not.toContain(
     "Meet near the park",

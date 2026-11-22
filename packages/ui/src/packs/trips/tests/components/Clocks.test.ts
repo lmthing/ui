@@ -55,8 +55,8 @@ describe("Clocks contract", () => {
     const input = { places: Array(4).fill({ ...home, label: ` ${"x".repeat(16)} ` }) };
     expectTypeOf<Props<typeof props, typeof meta>["places"][number]["id"]>().toEqualTypeOf<string>();
     const parsed = props.parse(input);
-    expect(parsed.density).toBeUndefined();
-    expect(parsed).toMatchObject({ surface: "card", arrange: "grid" });
+    expect(parsed).not.toHaveProperty("density");
+    expect(parsed).toMatchObject({ arrange: "grid" });
     expect(stampItemIds(meta, parsed).places[3]).toMatchObject({ id: "r4", label: "x".repeat(16) });
   });
 

@@ -15,6 +15,7 @@ import {
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
 } from "../../../catalog";
 import * as kit from "../../../kit";
 import {
@@ -25,6 +26,7 @@ import {
   projectDirectory,
 } from "../copy";
 import { teamWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-TeamDirectory.generated";
 
 // Core first: People/rows lists participants without a searchable department directory, reporting lines, or staff contact controls.
 export const meta = {
@@ -32,18 +34,16 @@ export const meta = {
   status: "ready",
   group: "content",
   tier: "people",
-  pick: "Search a staff directory by name, role or department, see reporting lines and availability, and contact colleagues. Not a simple people list (People), business clients (ClientCard), or club registers (Members).",
-  purpose: "Find workplace teammates, see who is available, and get in touch.",
+  pick: prompt.pick,
+  purpose: prompt.purpose,
   region: "body",
   weight: 3,
   realPath:
     "staff directory and live shift status synced from a shared workplace app; calling opens the device dialer or VoIP service (call).",
   dense: true,
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "outlined"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["message", "call"] } },
-  writeHints: [
-    'Use detail "brief" only if asked for a flat alphabetical directory without message or call buttons. Keep department and member data. Set density and surface to null unless requested.',
-  ],
+  writeHints: prompt.writeHints,
   parts: ["root", "title", "search", "empty"],
   items: {
     key: "members",
@@ -142,7 +142,7 @@ type Member = ViewProps["members"][number];
 const statusTone = { on_shift: "good", break: "warn", pto: "muted", off: "muted" } as const;
 
 // prettier-ignore
-function MemberRow({ row, brief, density }: { row: Member; brief: boolean; density: ViewProps["density"] }) {
+function MemberRow({ row, brief, density }: { row: Member; brief: boolean; density: ThemeDensity }) {
   const context = kit.usePartContext();
   const { words: { teamDirectory: words } } = kit.useWords(teamWordsFor);
   const loading = context.state === "loading";
@@ -176,7 +176,7 @@ function MemberRow({ row, brief, density }: { row: Member; brief: boolean; densi
 }
 
 // prettier-ignore
-function DirectoryRows({ input, density }: { input: ViewProps; density: ViewProps["density"] }) {
+function DirectoryRows({ input, density }: { input: ViewProps; density: ThemeDensity }) {
   const { lang, words: { teamDirectory: words } } = kit.useWords(teamWordsFor);
   const groups = directoryGroups(input, lang);
   if (groups.length === 0) return <kit.KitEmpty part="empty" title={words.empty} icon="search" decorativeIcon prominence="body" />;
@@ -198,8 +198,8 @@ function DirectoryRows({ input, density }: { input: ViewProps; density: ViewProp
 export function TeamDirectory(input: ViewProps) {
   const { words: { teamDirectory: words } } = kit.useWords(teamWordsFor);
   const context = kit.usePartContext();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const query = kit.useControlValue(`${context.screen}/${context.component}/$type/search`, input.query ?? "");
   const live = projectDirectory({ ...input, detail, query }) as ViewProps;

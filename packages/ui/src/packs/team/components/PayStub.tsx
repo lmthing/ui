@@ -13,10 +13,12 @@ import {
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
 } from "../../../catalog";
 import * as kit from "../../../kit";
 import { payStubDisplay, payStubReading } from "../copy";
 import { teamWordsFor } from "../lang";
+import { prompt } from "../../../entry/prompt-PayStub.generated";
 
 // Core first: Amount/total shows one sum, not a dated pay statement with earnings, deductions, and year-to-date totals.
 export const meta = {
@@ -24,18 +26,16 @@ export const meta = {
   status: "ready",
   group: "data",
   tier: "people",
-  pick: "An employee viewing their issued payslip with net pay, earnings and deductions. Not one total (Amount), running payroll (Payroll), collecting daily hours (Timesheet), or personal bills (Bills).",
-  purpose: "See an issued pay statement and how earnings and deductions add up.",
+  pick: prompt.pick,
+  purpose: prompt.purpose,
   region: "body",
   weight: 2,
   realPath: "finalized read-only pay statements issued to the employee by a shared employer payroll host.",
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "outlined"] },
+  variants: { detail: ["full", "brief"] },
   variantParts: {
     "detail.brief": { hides: ["employee", "period", "earnings", "deductions", "ytd_gross", "ytd_net"] },
   },
-  writeHints: [
-    'Set detail to "brief" when asked to show only pay date, gross, total deductions and net. Keep required source fields and set density and surface to null unless requested.',
-  ],
+  writeHints: prompt.writeHints,
   parts: [
     "root",
     "title",
@@ -146,7 +146,7 @@ type Display = ReturnType<typeof payStubDisplay>;
 type Entry = Display["earnings"][number];
 
 // prettier-ignore
-function PayLine({ row, density }: { row: Entry; density: ViewProps["density"] }) {
+function PayLine({ row, density }: { row: Entry; density: ThemeDensity }) {
   return (
     <kit.KitRow label={row.label} inset="none" inline fitContent density={density}>
       <kit.KitContent rhythm="flush" density={density}>
@@ -162,7 +162,7 @@ function PayLine({ row, density }: { row: Entry; density: ViewProps["density"] }
 
 // prettier-ignore
 function PaySection({ title, part, rows, density }: {
-  title: string; part?: string; rows: Entry[]; density: ViewProps["density"];
+  title: string; part?: string; rows: Entry[]; density: ThemeDensity;
 }) {
   return (
     <kit.KitContent density={density}>
@@ -175,7 +175,7 @@ function PaySection({ title, part, rows, density }: {
 }
 
 // prettier-ignore
-function StatementBody({ data, brief, density }: { data: Display; brief: boolean; density: ViewProps["density"] }) {
+function StatementBody({ data, brief, density }: { data: Display; brief: boolean; density: ThemeDensity }) {
   const { words: { payStub: words } } = kit.useWords(teamWordsFor);
   return (
     <>
@@ -204,8 +204,8 @@ export function PayStub(input: ViewProps) {
   const { lang, words: { payStub: words } } = kit.useWords(teamWordsFor);
   const currency = kit.useAppCurrency();
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const density = kit.useKit().density;
+  const surface = "card";
   const data = payStubDisplay(input, lang, currency);
   const content = <StatementBody data={data} brief={detail === "brief"} density={density} />;
   return (

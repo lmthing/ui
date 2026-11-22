@@ -38,7 +38,6 @@ describe("NutritionFacts contract", () => {
       title: "x".repeat(32),
       servings: 1,
       detail: "full",
-      surface: "card",
       nutrients: Array.from({ length: 8 }, () => ({ ...nutrient, tone: "neutral" })),
     });
     for (const servings of [0.25, 0.6, 12])
