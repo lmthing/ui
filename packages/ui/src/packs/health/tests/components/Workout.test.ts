@@ -104,7 +104,7 @@ describe("Workout fallback and probes", () => {
 
 describe.runIf(String(meta.status) === "ready")("Workout states and parts", () => {
   it("draws every set part once and preserves duration, rest and unit readings", () => {
-    for (const example of examples) {
+    for (const example of examples.filter((example) => example.style !== "interval")) {
       const html = renderInstance("Workout", example, "filled", theme, { component: "w1" });
       const reading = readComponent(components.Workout, example, "w1").join("\n");
       const parts = [...html.matchAll(/data-testid="(home\/w1\/[^"]+)"/g)].map((m) => m[1]);

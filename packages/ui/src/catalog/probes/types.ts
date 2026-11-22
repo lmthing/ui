@@ -17,6 +17,8 @@ export type WriteProbe = {
   variant?: VariantExpectation;
   /** Authored values the sample must include, before schema defaults are applied. */
   expectProps?: ExpectedProps;
+  /** Exact values at dot-separated wire paths, with zero-based indexes for arrays. */
+  fields?: Readonly<Record<string, string | number | boolean>>;
 };
 export type ReadProbe = {
   kind: "read";
