@@ -1,6 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
+import { StageBoard, type StageCard } from "../../../kit/renderers";
 import { boardReading, boardStages } from "../copy";
 import { dataWordsFor } from "../lang";
 
@@ -123,34 +124,24 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type ViewProps = c.Props<typeof props, typeof meta>;
-function BoardCardText(
-  { title, tag, who, value }: ViewProps["cards"][number],
+function boardCard(
+  { id, column, goto, title, tag, who, value }: ViewProps["cards"][number],
   density: c.ThemeDensity,
   lang: string,
   currency?: c.AppCurrency,
-) {
-  return (
-    <kit.KitContent density={density}>
-      <kit.KitText part="title" role="body" density={density}>
-        {title}
-      </kit.KitText>
-      {tag && (
-        <kit.KitText part="tag" role="caption" tone="muted">
-          {tag}
-        </kit.KitText>
-      )}
-      {who && (
-        <kit.KitText part="who" role="caption" tone="muted">
-          {who}
-        </kit.KitText>
-      )}
-      {value !== undefined && (
-        <kit.KitText part="value" role="number" numberScale="compact" tabular>
-          {c.moneyLine(value, currency, undefined, lang)}
-        </kit.KitText>
-      )}
-    </kit.KitContent>
-  );
+): StageCard {
+  const lines: StageCard["lines"][number][] = [{ part: "title", role: "body", text: title, density }];
+  if (tag) lines.push({ part: "tag", role: "caption", tone: "muted", text: tag });
+  if (who) lines.push({ part: "who", role: "caption", tone: "muted", text: who });
+  if (value !== undefined)
+    lines.push({
+      part: "value",
+      role: "number",
+      numberScale: "compact",
+      tabular: true,
+      text: c.moneyLine(value, currency, undefined, lang),
+    });
+  return { id, column, goto, label: title, lines };
 }
 
 export function Board({ columns, cards, density: requestedDensity, surface, arrange }: ViewProps) {
@@ -166,33 +157,23 @@ export function Board({ columns, cards, density: requestedDensity, surface, arra
       {state === "empty" ? (
         <kit.KitEmpty part="empty" decorativeIcon />
       ) : (
-        <kit.KitColumns
+        <StageBoard
           part="columns"
           style={layout === "rows" ? "stack" : "columns"}
-          columns={stages.map(({ label, count, total }) => ({
+          density={density}
+          lanes={stages.map(({ label, count, total }) => ({
             id: label,
             label,
             count,
-            summary: total && (
-              <kit.KitText part={null} role="caption" tone="muted">
-                {words.boardTotal}{" "}
-                <kit.KitText part={null} role="number" numberScale="compact" tabular>
-                  {total}
-                </kit.KitText>
-              </kit.KitText>
-            ),
+            total: total ? { label: words.boardTotal, value: total } : undefined,
           }))}
-          move={{
-            caption: words.boardMove,
-            label: words.boardDestination,
-            cards: cards.map((card) => ({
-              id: card.id,
-              column: card.column,
-              goto: card.goto,
-              label: card.title,
-              children: BoardCardText(card, density, lang, currency),
-            })),
-          }}
+          cards={cards.map((card) => ({
+            ...boardCard(card, density, lang, currency),
+            destinations: c
+              .itemMoveOffer(meta, { cards, columns }, card)
+              ?.choices.map((label) => ({ label, value: label })),
+          }))}
+          move={{ caption: words.boardMove, label: words.boardDestination }}
         />
       )}
     </kit.KitCard>

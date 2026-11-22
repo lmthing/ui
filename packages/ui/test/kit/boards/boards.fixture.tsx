@@ -4,6 +4,7 @@ import { TamaguiProvider } from "tamagui";
 import { z } from "zod";
 import { type Definition } from "@lmthing/ui/catalog";
 import { createScreenController, KitCellGrid, KitProvider, KitSeatGrid, PartScope } from "@lmthing/ui/kit";
+import { SeatPlan } from "../../../src/kit/renderers";
 import { config } from "../../render";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -18,7 +19,7 @@ const sections: Sections = [
       {
         label: "A",
         seats: [
-          { id: "r1", label: "A1", kind: "free", target },
+          { id: "r1", label: "A1", kind: "free", target: { ...target, action: "toggle" } },
           { id: "aisle", label: "Not a seat", kind: "aisle", target },
           { id: "r2", label: "A2", kind: "taken", target },
           { id: "display-only", label: "A3", kind: "free", target },
@@ -114,6 +115,13 @@ controller.press = (address) => {
   window.boardPresses.push({ address, ok: result.ok });
   return result;
 };
+const act = controller.act;
+controller.act = (...args) => {
+  const result = act(...args);
+  const step = args[0];
+  if ("address" in step) window.boardPresses.push({ address: step.address, ok: result.ok });
+  return result;
+};
 
 function Fixture() {
   const [mode, setMode] = useState<"filled" | "loading" | "empty" | "compact">("filled");
@@ -133,7 +141,8 @@ function Fixture() {
       </button>
       <KitProvider theme={theme} controller={controller} interactive>
         <PartScope screen="test" component="seats" rev={1} state="filled">
-          <KitSeatGrid
+          <SeatPlan
+            kind="grid"
             part="map"
             screenLabel="Screen"
             sections={mode === "empty" ? [] : sections}

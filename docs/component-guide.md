@@ -145,6 +145,11 @@ pilot shares event rows and date/rail layout without replacing Agenda or Itinera
 | `StageBoard` | Ordered lanes, localized headings/counts, stamped cards and optional move presentation. Terminal outcomes, locks and eligible destinations are owner policy. A read-only queue passes no move presentation. |
 | `FeedRow`, `DateRows` | Named author, timestamp, payload, hierarchy and accessory slots. Date groups preserve the caller's order and distinguish explicit time labels from missing time; independently addressed accessories are not nested in a row link. |
 
+Pass seat activation as `target.action` (`select` or `toggle`); the owner decides which seats
+receive a target and when to confirm. Lane destinations carry both their dispatched `value`
+and display `label`. To expose a seat or feed action's label or icon as separate parts, name
+them in `contentParts`; these recipes do not derive additional address names.
+
 ## Words and language
 
 `KitProvider` and `PhoneScreen` take the app's BCP-47 `lang`; the default is English.
