@@ -16,8 +16,8 @@ export const meta = createMeta(
     ],
     month: [
       ...timelineHint,
-      'Lead with the month overview, e.g. Header.title "Monthly appointments". In the visible Header.sub explicitly scope the agenda below to the selected date and its count, e.g. "Nov 18 agenda below · 1 appointment". Use literal null for Header.detail, Header.emphasis and Header.density; "brief" hides the subtitle.',
-      "Show the full Calendar next with the supplied month and year and tone good on every supplied event date, even outside the selected day. In the following Timeline, list only the selected day’s events, in time order, with readable dates and supplied purposes in meta. Do not promise that tapping another date refreshes this agenda. Keep Timeline.detail, Timeline.density and every item’s done null.",
+      'Use the same specific title for the screen and Header, naming what is scheduled and in which month, e.g. "November appointments". In Header.sub, explain the calendar dots and name the selected-day agenda, e.g. "Dots show events · Nov 18 agenda". Use literal null for Header.detail, Header.emphasis and Header.density so the subtitle stays visible.',
+      'Then show the full Calendar as month_calendar with the supplied month and year, its selected date, and tone good on every supplied event date. Follow it with selected_day_agenda, a Timeline of only that date’s events in time order. Use short month-and-day dates, not ISO dates, before each supplied purpose in meta, e.g. "Nov 18 · Routine review". Do not promise that tapping another date refreshes the agenda. Keep Timeline.detail, Timeline.density and every item’s done null.',
     ],
   },
 ) satisfies ArchetypeMeta;
