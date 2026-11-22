@@ -107,13 +107,13 @@ type HoursCopy = ReturnType<typeof hoursCopy>;
 function WeekRows({ days, copy, density }: { days: HoursProps["days"]; copy: HoursCopy; density: c.ThemeDensity }) {
   const { words } = kit.useWords(placesWordsFor);
   return (
-    <kit.KitGrid list arrange="rows" density={density}>
+    <kit.KitGrid list arrange="rows" listRowGap="cards" density={density}>
       {days.map(({ id }, index) => {
         const { day, from, to, closed } = copy.days[index]!;
         const selected = index === copy.today;
         const label = selected ? copy.todayLabel : day;
         return (
-          <kit.KitRow key={id} item={id} label={label} density={density}>
+          <kit.KitRow key={id} item={id} label={label} density={density} inline fitContent>
             <kit.KitGrid density={density}>
               <kit.KitText part="day" role={selected ? "label" : "body"} emphasis={selected ? "hero" : "normal"} tone={selected ? "accent" : "text"} density="comfortable">{label}</kit.KitText>
               {closed ? <kit.KitText part="closed" tone="muted" density="comfortable">{words.closed}</kit.KitText> :
@@ -153,24 +153,24 @@ export function Hours(input: HoursProps) {
   const { lang, words } = kit.useWords(placesWordsFor);
   const copy = hoursCopy({ ...input, detail }, new Date(), lang);
   return (
-    <kit.KitCard part="root" density={density}>
-      <kit.KitRow label={copy.headline} part={null} lineRole="heading" emphasis="hero" density={density}>
-        <kit.KitText part="open_state" role="heading" emphasis="hero" tone={copy.open ? "good" : "text"} density={density}>{copy.headline}</kit.KitText>
-        {copy.currentNotices.map(({ text }, index) => <NoticeText key={index} {...{ text, density }} />)}
-      </kit.KitRow>
-      <WeekRows days={input.days} {...{ copy, density }} />
+    <kit.KitCard part="root" padded density={density}>
+      <kit.KitContent density={density}>
+        <kit.KitContent density={density} rhythm="flush">
+          <kit.KitText part="open_state" role="heading" emphasis="hero" tone={copy.open ? "good" : "text"} density={density}>{copy.headline}</kit.KitText>
+          {copy.currentNotices.map(({ text }, index) => <NoticeText key={index} {...{ text, density }} />)}
+        </kit.KitContent>
+        <WeekRows days={input.days} {...{ copy, density }} />
+      </kit.KitContent>
       {copy.notices.length > 0 && (
         <kit.KitContent group="response" density={density}>
-          <kit.KitRow part="special" label={words.hoursSpecial} density={density}>
+          <kit.KitRow part="special" label={words.hoursSpecial} inline fitContent density={density}>
             <kit.KitContent density={density}>
               <kit.KitText part={null} role="label" density={density}>{words.hoursSpecial}</kit.KitText>
               {copy.notices.map(({ date, dateLabel, text }, index) => (
-                <kit.KitContent key={`${date}/${index}`} density={density} group="response">
-                  <kit.KitGrid density={density}>
-                    <kit.KitText part={null} role="label" density={density}>{dateLabel}</kit.KitText>
-                    <NoticeText {...{ text, density }} />
-                  </kit.KitGrid>
-                </kit.KitContent>
+                <kit.KitGrid key={`${date}/${index}`} density={density}>
+                  <kit.KitText part={null} role="label" density={density}>{dateLabel}</kit.KitText>
+                  <NoticeText {...{ text, density }} />
+                </kit.KitGrid>
               ))}
             </kit.KitContent>
           </kit.KitRow>

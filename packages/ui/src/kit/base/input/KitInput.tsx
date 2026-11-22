@@ -1,10 +1,24 @@
 import { useControlValue } from "../../interact";
 import { Input, XStack, YStack } from "tamagui";
-import { component, fontFamilies, size, space, type as typography } from "../../../catalog";
-import { useKitStyle } from "../../provider";
+import { component, fontFamilies, size, space, type as typography, type KitStyle } from "../../../catalog";
+import { useKitStyle, useVariantDensity } from "../../provider";
 import { useComponentState, usePart } from "../../part";
 import { KitIcon, KitText, shifted } from "../text";
+import { KitLayoutText } from "../layout";
 import { useInputBinding, type InputProps } from "./edit";
+
+export const inputRadius = (kind: InputProps["kind"], shift: KitStyle["radiusShift"]) =>
+  shifted(kind === "search" ? "lg" : "md", shift);
+
+function useInputLayout({ kind, icon, inset, compact }: InputProps) {
+  const spacing = useVariantDensity();
+  const lead = icon ?? (kind === "search" ? "search" : undefined);
+  const leadWidth = lead ? size.icon.md + space.sm : component.base.none;
+  const end = compact ? space.sm : space.md;
+  const start =
+    inset === "avatar" ? size.avatar.md + space[spacing.gap] - leadWidth - component.base.borderWidth : end;
+  return { lead, start, end, captionStart: start + leadWidth + component.base.borderWidth };
+}
 
 function TextControl({
   address,
@@ -24,7 +38,7 @@ function TextControl({
   });
   return (
     <Input
-      {...(address as Record<string, unknown>)}
+      {...((options.part !== null ? address : {}) as Record<string, unknown>)}
       flex={1}
       unstyled
       role={role as never}
@@ -33,6 +47,9 @@ function TextControl({
       placeholderTextColor="$muted"
       color={options.inactive ? "$muted" : "$text"}
       fontFamily={fontFamilies[ks.fonts.text]}
+      {...(kind === "number" && options.action === "set"
+        ? { textAlign: "right", fontVariant: ["tabular-nums"] }
+        : {})}
       fontSize={typography.body.size}
       lineHeight={typography.body.lineHeight}
       minHeight={size.control.md}
@@ -53,51 +70,38 @@ function TextControl({
  * It can show a leading icon and placeholder and is at least 44px tall (default part `field`).
  * Read-only unless the host is interactive.
  */
-export function KitInput({
-  hint,
-  value,
-  kind = "text",
-  icon,
-  part = "field",
-  label,
-  compact = false,
-  inactive = false,
-  ...options
-}: InputProps) {
+export function KitInput(props: InputProps) {
+  const { part = "field", caption, label, kind, inactive } = props;
   const ks = useKitStyle();
+  const { lead, start, end, captionStart } = useInputLayout(props);
   const loading = useComponentState() === "loading";
-  const address = usePart(part, !loading);
+  const address = usePart(part ?? undefined, !loading && part !== null);
   const error = useControlValue<string | undefined>(`${address.testID}/$error`, undefined);
+  const name = label ?? caption;
   return (
     <YStack aria-busy={loading || undefined} aria-hidden={loading || undefined}>
+      {!!caption && (
+        <YStack paddingLeft={captionStart} paddingBottom={space.xs}>
+          <KitLayoutText line={{ text: caption, role: "caption", tone: "muted" }} />
+        </YStack>
+      )}
       <XStack
         alignItems="center"
         gap={space.sm}
         minHeight={size.control.md}
-        paddingHorizontal={compact ? space.sm : space.md}
-        borderRadius={shifted(kind === "search" ? "lg" : "md", ks.radiusShift)}
+        paddingLeft={start}
+        paddingRight={end}
+        borderRadius={inputRadius(kind, ks.radiusShift)}
         backgroundColor={loading ? "$line" : inactive ? "$surface" : "$raised"}
         borderWidth={component.base.borderWidth}
         borderColor="$line"
       >
-        {(icon ?? (kind === "search" ? "search" : undefined)) &&
-          (loading ? (
-            <YStack opacity={component.base.none}>
-              <KitIcon name={icon ?? "search"} tone="muted" decorative />
-            </YStack>
-          ) : (
-            <KitIcon name={icon ?? "search"} tone="muted" decorative />
-          ))}
-        <TextControl
-          address={address}
-          hint={hint}
-          value={value}
-          kind={kind}
-          compact={compact}
-          inactive={inactive}
-          {...(label === undefined ? {} : { label })}
-          {...options}
-        />
+        {lead && (
+          <YStack opacity={loading ? component.base.none : undefined}>
+            <KitIcon name={lead} tone="muted" decorative />
+          </YStack>
+        )}
+        <TextControl {...props} address={address} {...(name === undefined ? {} : { label: name })} />
       </XStack>
       {error && !loading && (
         <KitText role="caption" tone="bad" part={null}>

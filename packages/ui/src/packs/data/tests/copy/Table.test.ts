@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { tableCell, tableChoices, tableCount, tableReading, tableRows, tableSummary } from "../../copy";
+import { dataWordsFor, registerDataWords } from "../../lang";
 
 const columns = [
   { label: "Value", kind: "number" },
@@ -57,4 +58,16 @@ describe("Table copy", () => {
     const overflow = [max, max, -1e308, -max, -(max - 1e308)].map((value) => ({ cells: [value, "Ready"] }));
     expect(tableSummary(columns, overflow, "sum").cells[0]).toBe("0");
   });
+});
+
+it("localizes repeated headings in the Table reading without changing authored labels", () => {
+  const unregister = registerDataWords("ar", {
+    ...dataWordsFor(),
+    tableColumn: (label, position) => `${label} (${position})`,
+  });
+  try {
+    expect(tableReading({ columns, rows: [], detail: "brief" }, "ar-EG")).toEqual(["Value (١) · Value (٢)"]);
+  } finally {
+    unregister();
+  }
 });

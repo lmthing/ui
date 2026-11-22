@@ -6,6 +6,10 @@ export const words = {
     rail: "Stories",
     own: "Your story",
     empty: "No stories yet",
+    notes: "Notes",
+    emptyNotes: "No notes yet",
+    noteStatus: (name, seen) => (seen ? `${name}: seen note` : `${name}: new note`),
+    noteLink: (status, note) => `${status} · ${note}`,
     status: (name, seen) => (seen ? `${name}: seen story` : `${name}: new story`),
   },
 } satisfies Pick<SocialWords, "stories">;

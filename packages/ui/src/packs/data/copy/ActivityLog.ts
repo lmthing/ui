@@ -43,18 +43,16 @@ export function activityReading(
 ) {
   const words = dataWordsFor(lang);
   return [
-    ...(kind && entries.some((entry) => entry.kind) ? [words.activityKind, kindLabel(kind)] : []),
+    ...(kind && entries.some((entry) => entry.kind) ? [words.activityKind, words.activityKinds[kind]] : []),
     ...entries.flatMap(({ id, diff }) => (diff ? [`${id}: ${activityDiff(diff, lang)}`] : [])),
   ];
 }
 
-// Only English ships. Use one label for the chip, the offer and selection by label.
-const kindLabel = (value: ActivityFilter) => dataWordsFor().activityKinds[value];
-
-export function activityOptions(entries: readonly { kind?: string | undefined }[]) {
+export function activityOptions(entries: readonly { kind?: string | undefined }[], lang?: string) {
   const available = activityKinds.filter((kind) => entries.some((entry) => entry.kind === kind));
   const values = available.length ? (["all", ...available] as const) : [];
-  return values.map((value) => ({ value, label: kindLabel(value) }));
+  const words = dataWordsFor(lang);
+  return values.map((value) => ({ value, label: words.activityKinds[value] }));
 }
 
 export function activityDiff(diff: Change, lang?: string) {

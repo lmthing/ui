@@ -81,7 +81,6 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
     goto: "details",
   };
 }
-// prettier-ignore
 export const examples = [
   {
     label: "Body weight",
@@ -114,9 +113,16 @@ export const probes = [
   read("Add a new body-weight measurement", { address: "m1/add", action: "press" }),
 ] satisfies Probe[];
 
-// prettier-ignore
-function MeasurementSummary({ label, copy, full, unit }: {
-  label: string; copy: ReturnType<typeof measurementCopy>; full: boolean; unit: string;
+function MeasurementSummary({
+  label,
+  copy,
+  full,
+  unit,
+}: {
+  label: string;
+  copy: ReturnType<typeof measurementCopy>;
+  full: boolean;
+  unit: string;
 }) {
   return useComponentState() === "loading" ? (
     <KitSkeleton
@@ -134,19 +140,42 @@ function MeasurementSummary({ label, copy, full, unit }: {
     />
   ) : (
     <KitContent>
-      <KitText role="label" tone="muted" part="label">{label}</KitText>
-      <KitText role="label" tone="muted" part={null}>{copy.latestLabel}</KitText>
-      <KitText role="number" part="latest" lines={1} tabular>
-        {copy.latest}{"\u00a0"}<KitText role="label" tone="muted" part={null}>{unit}</KitText>
+      <KitText role="label" tone="muted" part="label">
+        {label}
       </KitText>
-      {full && <KitText role="label" tone="muted" part="change" tabular>{copy.change}</KitText>}
-      {copy.goal && <KitText role="label" tone="muted" part="goal" tabular>{copy.goal}</KitText>}
+      <KitText role="label" tone="muted" part={null}>
+        {copy.latestLabel}
+      </KitText>
+      <KitText role="number" part="latest" lines={1} tabular>
+        {copy.latest}
+        {"\u00a0"}
+        <KitText role="label" tone="muted" part={null}>
+          {unit}
+        </KitText>
+      </KitText>
+      {full && (
+        <KitText role="label" tone="muted" part="change" tabular>
+          {copy.change}
+        </KitText>
+      )}
+      {copy.goal && (
+        <KitText role="label" tone="muted" part="goal" tabular>
+          {copy.goal}
+        </KitText>
+      )}
     </KitContent>
   );
 }
 
-// prettier-ignore
-export function Measurements({ label, unit, points, goal, range, goto, detail  }: Props<typeof props, typeof meta>) {
+export function Measurements({
+  label,
+  unit,
+  points,
+  goal,
+  range,
+  goto,
+  detail,
+}: Props<typeof props, typeof meta>) {
   const surface = "card";
   const full = useVariant("detail", meta.variants.detail, detail) === "full";
   const { lang, words } = useWords(healthWordsFor);
@@ -159,7 +188,11 @@ export function Measurements({ label, unit, points, goal, range, goto, detail  }
   if (state === "empty")
     return (
       <KitCard style="inset" padded part="root" surface={surface}>
-        <KitEmpty part="label" title={context.thing ? emptyLine(context.thing, lang) : measurementLabels.empty} decorativeIcon />
+        <KitEmpty
+          part="label"
+          title={context.thing ? emptyLine(context.thing, lang) : measurementLabels.empty}
+          decorativeIcon
+        />
       </KitCard>
     );
   return (

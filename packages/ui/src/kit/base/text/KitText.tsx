@@ -100,6 +100,8 @@ function fontOf(role: TextRole, fonts: ReturnType<typeof useKitStyle>["fonts"]) 
 }
 
 const LoadingRuns = createContext(false);
+/** Table cells default to end alignment and tabular figures without changing text content. */
+export const TableFigures = createContext(false);
 const barCap = "radial-gradient(circle closest-side, var(--line), var(--line) 90%, transparent)";
 const barFill = "linear-gradient(var(--line), var(--line))";
 const barCapSize = `${space.sm}px ${space.sm}px`;
@@ -156,9 +158,21 @@ function useRunTypography(role: TextRole, { density, emphasis }: TextProps, stro
   return { step, weight, numberStep: stepOf("body") };
 }
 
+function useFigureTypography({ role, align, tabular }: TextProps) {
+  const table = useContext(TableFigures);
+  const figure = table && role === "number";
+  return { align: align ?? (figure ? "end" : "start"), tabular: tabular ?? figure } as const;
+}
+
+const wrapProse = ({ role = "body", lines, children }: TextProps) =>
+  isWeb && role === "body" && !lines && typeof children === "string"
+    ? { style: { textWrap: "pretty" } as never }
+    : {};
+
 function TextRun(props: TextProps) {
-  const { children, role = "body", tone = "text", align = "start", part = "root", lines } = props;
-  const { tabular = false, numberScale = "display", strike = false, emphasis, goto } = props;
+  const { children, role = "body", tone = "text", part = "root", lines } = props;
+  const { numberScale = "display", strike = false, emphasis, goto } = props;
+  const { align, tabular } = useFigureTypography(props);
   const style = useKitStyle();
   const theme = useTheme();
   // Some hosts omit Tamagui's root class; keep the local theme's foreground as a CSS fallback.
@@ -188,6 +202,7 @@ function TextRun(props: TextProps) {
       {...(weight ? { fontWeight: weight } : {})}
       {...(emphasis === "emphasis" ? { fontStyle: "italic" as const } : {})}
       {...(lines ? { numberOfLines: lines } : {})}
+      {...wrapProse(props)}
       {...(tabular ? { fontVariant: ["tabular-nums"] as const } : {})}
       {...(linked
         ? { textDecorationLine: "underline" as const }

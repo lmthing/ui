@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { components, createRegistry, packReady, planAct, readComponent } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { addressedElements, renderExample } from "../../../../../test/render";
+import { addressedElements, elementAt, renderExample, styleAt } from "../../../../../test/render";
 
 const { TimeLog } = components;
 const { props, examples, fallback, probes } = TimeLog;
@@ -104,6 +104,15 @@ describe("TimeLog states, reads and addresses", () => {
 });
 
 describe("TimeLog actions", () => {
+  it.each(["filled", "success"] as const)("uses a danger treatment for removal in %s", (state) => {
+    const { html } = renderExample("TimeLog", first, state, theme, { component: "t1" });
+    for (const [index, entry] of first.entries.entries()) {
+      const button = elementAt(html, `home/t1/r${index + 1}/remove`);
+      expect(button.attributes).toContain('role="button"');
+      expect(button.attributes).toContain(`aria-label="Remove ${entry.title}"`);
+      expect(styleAt(html, button)).toContain("var(--bad)");
+    }
+  });
   it("links rows and manual entry, and only exports a saved week", () => {
     const press = (address: string, input: object = first) =>
       planAct(screen(input), defs, {}, [{ address, action: "press" }]);

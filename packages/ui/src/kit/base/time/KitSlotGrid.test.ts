@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it } from "vitest";
-import { component, presets, size, themeName, type as typography } from "@lmthing/ui/catalog";
+import { component, presets, size, space, themeName, type as typography } from "@lmthing/ui/catalog";
 import { KitProvider, PartScope, KitSlotGrid } from "@lmthing/ui/kit";
 import { config, elementAt, styleAt } from "../../../../test/render";
 
@@ -45,25 +45,27 @@ describe("KitSlotGrid", () => {
           expect(node.attributes).toContain(`aria-disabled="${slot.taken}"`);
           expect(styleAt(html, node)).toContain(`min-height:${size.control.md}px`);
           expect(styleAt(html, node)).toContain(`min-width:${size.control.md}px`);
-          expect(styleAt(html, node.children[0]!.children[0]!)).toContain(
-            `font-size:${typography.body.size}px`,
-          );
           expect(html).toContain(slot.label);
           const time = elementAt(html, `home/c1/${slot.id}/time`);
+          expect(styleAt(html, time)).toContain(`font-size:${typography.body.size}px`);
           expect(time).toEqual(node.children[0]!.children[0]);
           expect(time.attributes).not.toContain('role="button"');
           expect(html.match(new RegExp(`data-testid="home/c1/${slot.id}/time"`, "g"))).toHaveLength(1);
         }
         expect(styleAt(html, "home/c1/r2/root")).toContain("var(--accent)");
+        expect(styleAt(html, "home/c1/r1/root")).toContain("var(--line)");
+        expect(styleAt(html, "home/c1/r1/root")).not.toContain("var(--muted)");
         expect(styleAt(html, "home/c1/r2/root")).toContain(
           `border-top-width:${component.base.strongBorder}px`,
         );
         expect(elementAt(html, "home/c1/r2/root").attributes).toContain('aria-label="09:30, 10:00"');
         const end = elementAt(html, "home/c1/r2/root").children[1]!.children[0]!;
-        expect(styleAt(html, end)).toContain(`font-size:${typography.label.size}px`);
+        expect(styleAt(html, end)).toContain(`font-size:${typography.caption.size}px`);
       }
     }
   });
+});
+describe("KitSlotGrid states", () => {
   it.each(["grid", "list"] as const)("keeps %s geometry while removing loading targets", (style) => {
     const filled = render({ times, style });
     const loading = render({ times, style, loading: true });
@@ -77,6 +79,12 @@ describe("KitSlotGrid", () => {
     loadingRows.forEach((row, i) => {
       expect(row.attributes).toContain('aria-hidden="true"');
       expect(row.children).toHaveLength(filledRows[i]!.children.length);
+      expect(styleAt(loading, row)).toContain("background-color:transparent");
+      row.children.forEach((line, index) => {
+        const bar = line.children[1]!;
+        expect(styleAt(loading, bar)).toContain(`height:${index === 0 ? space.sm : space.xs}px`);
+        expect(styleAt(loading, bar)).toContain("background-color:var(--line)");
+      });
     });
     expect(render({ times: [], style })).toContain("No records yet");
     expect(elementAt(render({ times: [], style, loading: true }), "home/c1/root").children).toHaveLength(3);

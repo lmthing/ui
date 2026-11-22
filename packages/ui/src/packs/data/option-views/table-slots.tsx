@@ -10,6 +10,7 @@ type ViewProps = {
   rows: Row[];
   selectable: boolean;
   sort?: number | undefined;
+  sort_options?: ReturnType<typeof tableChoices>;
   group: "none" | "sections";
   summaryRow?: (typeof tableSummaryModes)[number] | undefined;
 };
@@ -50,9 +51,9 @@ function TableHeading(row: Row, column: Column, { selectable, density, loading, 
 }
 
 // prettier-ignore
-function TableHeader(label: string, kind: Column["kind"], on: boolean, loading: boolean, pending: boolean) {
+function TableHeader({ label, value }: { label: string; value: string }, kind: Column["kind"], on: boolean, loading: boolean, pending: boolean) {
   const align = numericKind(kind) ? "end" : kind === "status" ? "center" : "start";
-  const chip = <kit.KitChip item={null} look="segment" role="radio" label={label} on={on && !loading}
+  const chip = <kit.KitChip item={null} look="segment" role="radio" label={label} value={value} on={on && !loading}
     disabled={loading ? false : pending || undefined} />;
   if (align === "center") return chip;
   if (align === "end") return <kit.KitGrid fitLast><kit.KitContent>{null}</kit.KitContent>{chip}</kit.KitGrid>;
@@ -64,9 +65,9 @@ export function TableMatrix({ input, density, loading, lang, pending }: {
 }) {
   const { columns, rows, selectable, sort, group, summaryRow } = input;
   const scope = kit.usePartContext();
-  const headers = tableChoices(columns).map(({ label, value }) => ({
+  const headers = tableChoices(columns, lang).map(({ label, value }) => ({
     id: String(value), label,
-    header: TableHeader(label, columns[value]!.kind, value === sort, loading, pending),
+    header: TableHeader({ label, value: input.sort_options?.[value]?.label ?? label }, columns[value]!.kind, value === sort, loading, pending),
   }));
   const drawing = tableSections(rows, columns, group, sort, lang).flatMap(({ label, rows }, section) => {
     const records = rows.map((row) => ({

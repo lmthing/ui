@@ -1,8 +1,27 @@
 import { z } from "zod";
-// prettier-ignore
-import { goalLine, numberLine, placeholderValue, probesFor, text, variantProps, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
-// prettier-ignore
-import { KitCard, KitGrid, KitRadialTrack, KitRow, KitSkeleton, KitText, useWords, useComponentState, useVariant } from "../../../kit";
+import {
+  goalLine,
+  numberLine,
+  placeholderValue,
+  probesFor,
+  text,
+  variantProps,
+  type CastLike,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../../../catalog";
+import {
+  KitCard,
+  KitGrid,
+  KitRadialTrack,
+  KitRow,
+  KitSkeleton,
+  KitText,
+  useWords,
+  useComponentState,
+  useVariant,
+} from "../../../kit";
 import { activityRingLine, activityScoreLine, activityScoreMax } from "../copy";
 import { seedTitles } from "..";
 import { prompt } from "../../../entry/prompt-ActivityRings.generated";
@@ -58,31 +77,42 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
     })),
   };
 }
-// prettier-ignore
 export const examples = [
-  { rings: [
+  {
+    rings: [
       { label: "Watered", value: 3, of: 5, unit: "plants" },
       { label: "Fed", value: 2, of: 4, unit: "plants" },
       { label: "Pruned", value: 1, of: 3, unit: "plants" },
-  ] },
-  { rings: [
+    ],
+  },
+  {
+    rings: [
       { label: "Walks", value: 9, of: 12, unit: "walks" },
       { label: "Active", value: 45, of: 60, unit: "min" },
-  ] },
-  { rings: [
+    ],
+  },
+  {
+    rings: [
       { label: "Move", value: 280, of: 400, unit: "kcal" },
       { label: "Exercise", value: 20, of: 30, unit: "min" },
       { label: "Stand", value: 7, of: 12, unit: "hours" },
-  ] },
-  { rings: [
+    ],
+  },
+  {
+    rings: [
       { label: "Steps", value: 8500, of: 8000, unit: "steps" },
       { label: "Water", value: 5, of: 8, unit: "glasses" },
-  ] },
-  { style: "score", score: { label: "Readiness", value: 82 }, rings: [
+    ],
+  },
+  {
+    style: "score",
+    score: { label: "Readiness", value: 82 },
+    rings: [
       { label: "Sleep", value: 8, of: 10, unit: "pts" },
       { label: "Recovery", value: 9, of: 10, unit: "pts" },
       { label: "Activity", value: 7, of: 10, unit: "pts" },
-  ] },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 const { choose, write } = probesFor("ActivityRings");
 export const probes = [
@@ -128,10 +158,11 @@ type TrackProps = Pick<Props<typeof props, typeof meta>, "rings" | "score"> & {
   loading: boolean;
   lang: string;
 };
-// prettier-ignore
 function RingTrack({ rings, score, loading, lang }: TrackProps) {
   const tracks = rings.map((ring, index) => ({
-    id: ring.id, ratio: ring.value / ring.of, tone: (score ? scoreTones : ringTones)[index]!,
+    id: ring.id,
+    ratio: ring.value / ring.of,
+    tone: (score ? scoreTones : ringTones)[index]!,
   }));
   const tracksWithScore = score
     ? [...tracks, { id: "score", ratio: score.value / activityScoreMax, tone: "text" as const }]
@@ -140,16 +171,100 @@ function RingTrack({ rings, score, loading, lang }: TrackProps) {
     <>
       {score && <ScoreCaption label={score.label} loading={loading} />}
       <KitRadialTrack part="rings" style="rings" loading={loading} rings={tracksWithScore}>
-        {score && <>
-          <KitText part="score" role="number" align="center" tabular>{numberLine(score.value, lang)}</KitText>
-          <KitText part={null} role="caption" tone="muted" align="center">{goalLine(activityScoreMax, lang)}</KitText>
-        </>}
+        {score && (
+          <>
+            <KitText part="score" role="number" align="center" tabular>
+              {numberLine(score.value, lang)}
+            </KitText>
+            <KitText part={null} role="caption" tone="muted" align="center">
+              {goalLine(activityScoreMax, lang)}
+            </KitText>
+          </>
+        )}
       </KitRadialTrack>
     </>
   );
 }
 
-// prettier-ignore
+function RingPlaceholder(
+  ring: Props<typeof props, typeof meta>["rings"][number],
+  count: number,
+  score: Props<typeof props, typeof meta>["score"],
+  full: boolean,
+  lang: string,
+) {
+  return (
+    <KitSkeleton
+      key={ring.id}
+      shape="figure"
+      inset="none"
+      lines={[
+        { text: ring.label, role: "caption", align: "center" },
+        {
+          text: numberLine(ring.value, lang),
+          role: "number",
+          align: "center",
+          numberScale: score ? "compact" : numberScaleOf(ring.value, count),
+        },
+        {
+          text: full ? `${goalLine(ring.of, lang)} ${ring.unit}` : ring.unit,
+          role: "caption",
+          align: "center",
+        },
+      ]}
+    />
+  );
+}
+
+function RingFigures(
+  rings: Props<typeof props, typeof meta>["rings"],
+  score: Props<typeof props, typeof meta>["score"],
+  full: boolean,
+  loading: boolean,
+  lang: string,
+) {
+  return (
+    <KitGrid columns={rings.length === 2 ? 2 : 3}>
+      {rings.map((ring, index) =>
+        loading ? (
+          RingPlaceholder(ring, rings.length, score, full, lang)
+        ) : (
+          <KitRow key={ring.id} item={ring.id} label={ring.label} inline inset="none">
+            <KitText
+              role="caption"
+              tone={(score ? scoreTones : ringTones)[index]!}
+              align="center"
+              part="label"
+            >
+              {ring.label}
+            </KitText>
+            <KitText
+              {...ringNumber(ring.value, rings.length)}
+              {...(score && { numberScale: "compact", emphasis: "hero" })}
+              part="value"
+            >
+              {numberLine(ring.value, lang)}
+            </KitText>
+            {full ? (
+              <KitText role="caption" tone="muted" align="center" part="of">
+                {goalLine(ring.of, lang)}
+                {"\u00a0"}
+                <KitText role="caption" tone="muted" part="unit">
+                  {ring.unit}
+                </KitText>
+              </KitText>
+            ) : (
+              <KitText role="caption" tone="muted" align="center" part="unit">
+                {ring.unit}
+              </KitText>
+            )}
+          </KitRow>
+        ),
+      )}
+    </KitGrid>
+  );
+}
+
 export function ActivityRings({ rings, score, detail }: Props<typeof props, typeof meta>) {
   const surface = "card";
   const full = useVariant("detail", meta.variants.detail, detail) === "full";
@@ -158,39 +273,7 @@ export function ActivityRings({ rings, score, detail }: Props<typeof props, type
   return (
     <KitCard style="inset" part="root" padded surface={surface}>
       <RingTrack rings={rings} score={score} loading={loading} lang={lang} />
-      <KitGrid columns={rings.length === 2 ? 2 : 3}>
-        {rings.map((ring, index) =>
-          loading ? (
-            <KitSkeleton
-              key={ring.id}
-              shape="figure"
-              inset="none"
-              lines={[
-                { text: ring.label, role: "caption", align: "center" },
-                {
-                  text: numberLine(ring.value, lang),
-                  role: "number",
-                  align: "center",
-                  numberScale: score ? "compact" : numberScaleOf(ring.value, rings.length),
-                },
-                { text: full ? `${goalLine(ring.of, lang)} ${ring.unit}` : ring.unit, role: "caption", align: "center" },
-              ]}
-            />
-          ) : (
-            <KitRow key={ring.id} item={ring.id} label={ring.label} inline inset="none">
-              <KitText role="caption" tone={(score ? scoreTones : ringTones)[index]!} align="center" part="label">
-                {ring.label}
-              </KitText>
-              <KitText {...ringNumber(ring.value, rings.length)} {...(score && { numberScale: "compact", emphasis: "hero" })} part="value">
-                {numberLine(ring.value, lang)}
-              </KitText>
-              {full ? <KitText role="caption" tone="muted" align="center" part="of">
-                {goalLine(ring.of, lang)}{"\u00a0"}<KitText role="caption" tone="muted" part="unit">{ring.unit}</KitText>
-              </KitText> : <KitText role="caption" tone="muted" align="center" part="unit">{ring.unit}</KitText>}
-            </KitRow>
-          ),
-        )}
-      </KitGrid>
+      {RingFigures(rings, score, full, loading, lang)}
     </KitCard>
   );
 }
