@@ -67,7 +67,7 @@ export const props = z.strictObject({
       ({ ...day, mark: day.tone }))).min(0).max(12),
   selected: z.int().min(1).max(31).optional(), start: z.int().min(1).max(7).default(1),
   days: z.int().min(28).max(31).default(30), range: z.boolean().optional(),
-  yearMonth: text(7).refine((month) => isoDate.safeParse(`${month}-01`).success).meta({ kind: "text", max: 7, readable: false }).optional(),
+  yearMonth: text(7).refine((month) => isoDate.safeParse(`${month}-01`).success).meta({ kind: "text", max: 7, read: false }).optional(),
   checkIn: isoDate.optional(), checkOut: isoDate.optional(),
   unavailable: z.array(z.int().min(1).max(31)).min(0).max(31).optional(),
 })

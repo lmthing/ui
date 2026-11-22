@@ -7,21 +7,19 @@ import { itemEditAt } from "./report-edits";
 import { pickerAt } from "./live-inputs";
 import { numericError } from "./clocks";
 import { validateSequenceSeek, type SeekLimits } from "./media";
+import { resolveTextKeypad, type KeypadProfile } from "./keypad-profile";
 export type ValueError = { code: "invalid_value"; hint: string };
 type SetSpec = NonNullable<Meta["set"]>[string];
 type StringLimits =
   Omit<Extract<SetSpec, { type: "date" }>, "prop"> | Omit<Extract<SetSpec, { type: "choice" }>, "prop">;
 type NumericLimits = Range & { type?: "number"; numeric?: true; integer?: boolean };
-
 const invalid = (hint: string): ValueError => ({ code: "invalid_value", hint });
 const calendarDate = z.iso.date();
 // The decimal keypad uses ASCII decimal drafts, not localized display notation.
 const plainDecimal = new Intl.NumberFormat(localeOf(), { useGrouping: false, maximumSignificantDigits: 21 });
-
 function decimalText(value: number) {
   return plainDecimal.format(value === 0 ? 0 : value);
 }
-
 function exceeds(text: string, max: number) {
   if (max < 0) return true;
   // Compare decimal digits so rounding cannot hide an amount just over max.
@@ -40,7 +38,9 @@ export function resolveKeypadValue(
   value: unknown,
   current: unknown,
   limits: { max?: unknown; decimals?: unknown },
+  profile?: KeypadProfile,
 ): { value: string } | ValueError {
+  if (profile) return resolveTextKeypad(value, current, profile);
   const before = typeof current === "number" ? decimalText(current) : String(current ?? "");
   let text: string;
   if (typeof value === "string") text = value;

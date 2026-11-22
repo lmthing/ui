@@ -32,7 +32,8 @@ it("includes one const/enum branch per writable registry id, generated from Zod 
   expect(branches.map((branch) => branch.properties?.c?.const)).toEqual(
     core.defs.filter((def: Definition) => !def.meta.codeOwned).map((def) => def.meta.id),
   );
-  expect(branches).toHaveLength(49);
+  expect(branches).toHaveLength(48);
+  expect(branches.map((branch) => branch.properties?.c?.const)).not.toContain("Ring");
   checkObjects(format.json_schema.schema);
   const line = writerFormatFor(components.List).json_schema.schema;
   expect(line.properties?.c).toEqual({ type: "string", const: "List", enum: ["List"] });
@@ -53,8 +54,8 @@ it.each(["booking", "customers", "money", "places"] satisfies PackId[])(
     const defs = { ...Object.fromEntries(core.defs.map((def) => [def.meta.id, def])), ...fixture };
     const absent = writerFormat(registryOf(defs, { includeDrafts: true }, packOf));
     const included = writerFormat(registryOf(defs, { packs: [pack], includeDrafts: true }, packOf));
-    expect(absent.json_schema.schema.anyOf).toHaveLength(49);
-    expect(included.json_schema.schema.anyOf).toHaveLength(59);
+    expect(absent.json_schema.schema.anyOf).toHaveLength(48);
+    expect(included.json_schema.schema.anyOf).toHaveLength(58);
     const text = JSON.stringify(included.json_schema.schema);
     expect(estimateTokens(text)).toBe(Math.ceil(Array.from(text).length / 4));
     expect(text.length).toBeGreaterThan(JSON.stringify(absent.json_schema.schema).length);

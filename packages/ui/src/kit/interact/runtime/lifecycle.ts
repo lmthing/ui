@@ -10,7 +10,7 @@ import { discardHiddenConfirmation } from "./dispatch";
 
 type Clock = ReturnType<typeof createClock>;
 type Media = ReturnType<typeof createMediaRuntime>;
-type Reveal = ReturnType<typeof createReveal>;
+type Reveal = Pick<ReturnType<typeof createReveal>, "clear" | "reconcile"> & { dispose(): void };
 type Sequence = ReturnType<typeof createSequenceClock>;
 
 function watchAdmission(ctx: ControllerContext, clock: Clock, sequence: Sequence, onAdmission: () => void) {
@@ -97,6 +97,7 @@ export function controllerLifecycle(
       admission.unwatch();
       ctx.hosts.reset();
       reveal.clear();
+      reveal.dispose();
       clock.dispose();
       sequence.dispose();
       ctx.micCapture.reset();

@@ -16,6 +16,7 @@ import { collectionOffers } from "./collections";
 import type { HostActionPolicy, HostIntent } from "./host-commands";
 import { deviceTimeOf, type DeviceData } from "./device-data";
 import { isLocalAnchorAction } from "./drives";
+import { keypadOffers, type KeypadProfile } from "./keypad-profile";
 import {
   mediaAffordance,
   mediaOffer,
@@ -46,6 +47,8 @@ export type Affordance = {
   hostIntent?: HostIntent;
   localEvent?: Omit<LocalStateEvent, "value">;
   hostReveal?: true;
+  hostSecret?: "copy" | "input" | "verify";
+  keypad?: { profile: KeypadProfile; initial: string };
   slotMove?: { key: string; orders: ReadonlyMap<string, string[]> };
   rowSelection?: { key: string; id: string; value: string | number };
   flagKey?: string;
@@ -184,7 +187,8 @@ export function affordancesOf(
       item.sequence ? [item] : numericOffer(meta, props, instance, item, get, now, runtime, context.data),
     );
   });
-  return hostOffers(meta, props, instance, offered, context.host, rows);
+  const host = hostOffers(meta, props, instance, offered, context.host, rows);
+  return keypadOffers(host, context.schema, instance, props, items);
 }
 
 /** Every action names its own address, so a model copies it and never assembles one: `[l1/r1/trail toggle:on]`. */
