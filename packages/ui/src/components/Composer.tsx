@@ -40,15 +40,15 @@ export const meta = {
     parts: { field: ["type"], send: ["send"], attach: ["press"], voice: ["start", "stop"] },
     when: { send: { sendable: true }, attach: { attach: true }, voice: { voice: true } },
   },
-  read: (input, state, lang?: string): string[] => {
-    const { sendLabel, composer } = wordsFor(lang);
+  read: (input, state, lang, _data, _currency, get): string[] => {
+    const { sendLabel, composer, mediaUnavailable } = wordsFor(lang);
     if (state === "success") return [composer.sent];
     const { style, detail, value, max, hint, replyingTo, voice, attach } = input as z.output<typeof props>;
     return [
       ...(state === "empty" ? [hint] : []),
       ...(replyingTo ? [composer.replying(replyingTo)] : []),
       ...(attach ? [composer.attach] : []),
-      ...(voice ? [composer.voice] : []),
+      ...(voice ? [composer.voice, ...(!get?.("$runtime") ? [mediaUnavailable] : [])] : []),
       ...(style !== "entry"
         ? [style === "prompt" ? composer.prompt : sendLabel]
         : detail === "brief"
@@ -79,7 +79,11 @@ export const props = z
     path: ["value"],
     message: "Text must fit the limit",
   })
-  .overwrite((value) => ({ ...value, sendable: value.style !== "entry" && Boolean(value.value?.trim()) }));
+  .overwrite((value) => ({
+    ...value,
+    attachments: value.attachments ?? [],
+    sendable: value.style !== "entry" && Boolean(value.value?.trim()),
+  }));
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const { placeholderDetail } = wordsFor(lang);
@@ -151,7 +155,7 @@ export function Composer(input: ViewProps) {
       {replyingTo ? <KitHeader title={{ text: label ?? composer.replying(replyingTo), part: label ? "label" : "replying_to" }}
         {...(label && { meta: { text: composer.replying(replyingTo), part: "replying_to" } })} />
         : label && <KitText role="label" part="label">{label}</KitText>}
-      {state === "empty" && <KitText role="caption" tone="muted" part={null}>{composer.empty}</KitText>}
+      {state === "empty" && <KitState />}
       <KitTextArea hint={hint} value={value} maxLength={max} lines={reply || prompt || state === "empty" ? 2 : 6} />
       <ComposerTools {...input} />
       {reply || prompt ? <KitAction label={prompt ? composer.prompt : sendLabel} icon={prompt ? "sparkles" : "send"}

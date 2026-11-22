@@ -34,11 +34,12 @@ export const meta = {
   states: ["filled", "empty", "loading"],
   read: (input, state, lang?: string): string[] => {
     if (state !== "filled") return [];
-    const { points, unit, style, detail, active } = input as z.output<typeof props>;
+    const { points, unit, style, detail, active, status } = input as z.output<typeof props>;
     const total = points.reduce((sum, point) => sum + point.value, 0);
+    const subline = currentLine(active === undefined ? undefined : points[active]!.label, status, lang);
     return [
       ...(detail === "brief" ? [] : [totalLine(total, unit, lang)]),
-      ...(active === undefined ? [] : [wordsFor(lang).activeBar(points[active]!.label)]),
+      ...(subline ? [subline] : []),
       (style === "share" ? largestFirst(points) : points)
         .map(
           (point) =>
@@ -70,6 +71,11 @@ export const props = z.strictObject({
 
 function largestFirst<T extends { value: number }>(points: readonly T[]) {
   return [...points].sort((a, b) => b.value - a.value);
+}
+
+function currentLine(label?: string, status?: string, lang?: string) {
+  const { activeBar, historyDetailLine } = wordsFor(lang);
+  return !label ? status : status ? historyDetailLine(activeBar(label), status) : activeBar(label);
 }
 
 function shareLine(value: number, total: number, lang?: string) {
@@ -143,12 +149,9 @@ export const probes = [
   choose("Show how many plants I have, how many I watered today and how many are due", "Stats"),
   write("Show this week's walk counts, measured in walks: Mon 3, Tue 5, Wed 4, Thu 2, Fri 6, Sat 2, Sun 1"),
   write("Show how this month's spending splits across Groceries €240, Rent €800 and Fun €120 in one stacked bar of shares, not a series of columns."),
-  { ...write("Compare Mon 3, Tue 5 and Wed 4 walks. Keep the point labels but hide the combined total."), variant: { axis: "detail", value: "brief" },
-  },
-  { ...write('Compare arrivals in columns labelled exactly "8a", "9a", and "10a", with values 3, 8, and 6. Highlight the 8a column as current.'), expectProps: { active: 0 },
-  },
-  { ...write("Compare arrivals at 8am: 3 and 9am: 8. Under the title, show the status Busier than usual."), expectProps: { status: "Busier than usual" },
-  },
+  { ...write("Compare Mon 3, Tue 5 and Wed 4 walks. Keep the point labels but hide the combined total."), variant: { axis: "detail", value: "brief" } },
+  { ...write('Compare arrivals in columns labelled exactly "8a", "9a", and "10a", with values 3, 8, and 6. Highlight the 8a column as current.'), expectProps: { active: 0 } },
+  { ...write("Compare arrivals at 8am: 3 and 9am: 8. Under the title, show the status Busier than usual."), expectProps: { status: "Busier than usual" } },
   { ...write('Use one stacked share bar. The first legend label must be exactly "Park", with a separate value of 15 minutes and a tree icon. The second label must be exactly "River", with a separate value of 25 minutes and a waves icon. Park opens the screen whose ID is park.'),
     expectProps: { style: "share", points: [{ label: "Park", value: 15, icon: "tree", goto: "park" }, { label: "River", value: 25, icon: "waves" }] } },
   read("Open Park", { address: "c1/r1", action: "press" }, 6),
@@ -173,7 +176,7 @@ function Total({ value, unit, compact = false, density }: TotalProps) {
 export function Bars(input: Props<typeof props, typeof meta>) {
   const { style, title, unit, points, detail, active, status } = input;
   const density = useVariant("density", meta.variants.density, input.density);
-  const { lang, words } = useWords();
+  const { lang } = useWords();
   const state = useComponentState();
   if (state === "loading" || state === "empty") {
     return <KitCard part="root" padded density={density}>
@@ -183,8 +186,7 @@ export function Bars(input: Props<typeof props, typeof meta>) {
   }
   const total = points.reduce((sum, point) => sum + point.value, 0);
   const shareOf = (value: number, total: number) => shareLine(value, total, lang);
-  const current = active === undefined ? undefined : words.activeBar(points[active]!.label);
-  const subline = current && status ? words.historyDetailLine(current, status) : current ?? status;
+  const subline = currentLine(active === undefined ? undefined : points[active]!.label, status, lang);
   const heading = subline ? <KitHeader title={{ text: title, part: "title" }} meta={{ text: subline, part: "status" }} density={density} />
     : <KitText role="heading" part="title" density={density}>{title}</KitText>;
   return (

@@ -57,11 +57,11 @@ export const meta = {
       voice: { kind: "voice" },
     },
   },
-  read: (input, state, lang?: string): string[] => {
-    const { repeatLabels, photoLabels, chosen, fieldRange, composer } = wordsFor(lang);
+  read: (input, state, lang, _data, _currency, get): string[] => {
+    const { repeatLabels, photoLabels, chosen, fieldRange, composer, mediaUnavailable } = wordsFor(lang);
     const { kind, options, lower, upper, repeat } = input as z.output<typeof props>;
     if (state !== "filled") return [];
-    if (kind === "voice") return [composer.voice];
+    if (kind === "voice") return get?.("$runtime") ? [composer.voice] : [composer.voice, mediaUnavailable];
     if (kind === "range") return [fieldRange.reading(numberLine(lower!, lang), numberLine(upper!, lang))];
     if (kind === "repeat") {
       const choices = repeatOptions.map((option) => repeatLabels[option]);
@@ -137,7 +137,7 @@ export const examples = [
   { kind: "choice", label: "Walk length", options: ["30 min", "45 min", "60 min"], value: "30 min" },
   { kind: "toggle", label: "Remind me", value: "on" },
   { kind: "slider", label: "Walk intensity", value: "5" },
-  { kind: "photo", label: "Dog photo", value: "lib:dogs" },
+  { kind: "photo", label: "Dog photo" },
   { kind: "repeat", label: "Water it", repeat: "weekly" },
   { ...interval, detail: "brief" },
   walkRange,

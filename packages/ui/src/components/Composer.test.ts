@@ -23,6 +23,7 @@ describe("Composer schema", () => {
       hint: "Write here",
       max: 600,
       sendable: false,
+      attachments: [],
       detail: "full",
     });
   });

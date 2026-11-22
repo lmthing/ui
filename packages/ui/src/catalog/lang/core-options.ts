@@ -3,7 +3,6 @@ export const coreOptions = {
     attach: "Add attachment",
     voice: "Record voice",
     sent: "Sent",
-    empty: "Ready for your draft",
     replying: (name: string) => `Replying to ${name}`,
     prompt: "Run prompt",
   },
