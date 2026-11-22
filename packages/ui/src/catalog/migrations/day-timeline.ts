@@ -19,6 +19,7 @@ export type MigrationOptions = {
 // Enable each staged migration here in the same change that adopts the component schema.
 const adoptedVariants: readonly string[] = [
   "List",
+  "Library",
   "Card",
   "People",
   "Gallery",
