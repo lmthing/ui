@@ -82,3 +82,26 @@ it("keeps recorded attendance editable and switches meter history without carryi
   await meter.getByRole("radio", { name: "Water" }).click();
   await evidence.waitFor({ state: "visible" });
 });
+
+it("keeps viewing card heights when an update fails and retries without leaving the screen", async () => {
+  const url = new URL(route, server.resolvedUrls!.local[0]).href;
+  await page.goto(url);
+  const confirm = page.getByTestId("home/update/r2/confirm");
+  const retry = page.getByTestId("home/update/retry");
+  const cards = ["r1", "r2"].map((row) => page.getByTestId(`home/update/${row}/root`));
+  const heights = () => Promise.all(cards.map(async (card) => (await card.boundingBox())?.height));
+  await confirm.waitFor({ state: "visible" });
+  const filled = await heights();
+  await confirm.click();
+  await retry.waitFor({ state: "visible" });
+  expect(await heights()).toEqual(filled);
+  expect(await confirm.count()).toBe(0);
+  await retry.click();
+  await retry.waitFor({ state: "detached" });
+  expect(await page.getByTestId("home/update/message").textContent()).toBe("Viewing updated");
+  expect(await heights()).toEqual(filled);
+  expect(await page.locator("#actions").textContent()).toBe(
+    "home/update/r2/confirm press\nhome/update/retry press",
+  );
+  expect(page.url()).toBe(url);
+});

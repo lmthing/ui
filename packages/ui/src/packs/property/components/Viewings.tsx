@@ -24,20 +24,22 @@ export const meta = {
   realPath: "Agreed appointments live on the agent’s phone; invitations use messaging, not booking sync.",
   variants: { detail: ["brief", "full"] },
   variantParts: { "detail.full": { adds: ["note"] } },
-  parts: ["root", "message"],
+  parts: ["root", "message", "retry"],
   items: { key: "viewings", parts: ["root", "unit", "prospect", "start", "end", "status",
     "note", "past", "actions", "edit", "confirm", "cancel", "outcome", "invite"] },
   partTiers: { invite: "service" },
   confirmParts: ["cancel"],
   states: ["filled", "empty", "loading", "success", "error"],
   actions: {
+    parts: { retry: ["press"] },
     items: { edit: ["press"], confirm: ["press"], cancel: ["press"], outcome: ["select"], invite: ["send"] },
-    noGoto: { items: ["confirm", "cancel"] },
+    noGoto: { parts: ["retry"], items: ["confirm", "cancel"] },
     when: {
       edit: { upcoming: true }, confirm: { upcoming: true, status: "proposed" }, invite: { upcoming: true },
       cancel: { active: true }, outcome: { canRecord: true },
     },
   },
+  errorActions: ["retry.press"],
   readSuccess: true,
   read: (input, state, lang) => viewingReading((input as { viewings: Viewing[] }).viewings, state, lang),
 } as const satisfies c.Meta;
@@ -108,18 +110,19 @@ export const probes = [
 type ViewingsProps = c.Props<typeof props, typeof meta>;
 type RowProps = { row: ViewingsProps["viewings"][number] & Viewing; density: c.ThemeDensity };
 // prettier-ignore
-function RecordAction({ part, label, goto, loading }: {
-  part: string; label: string; goto?: string; loading: boolean;
+function RecordAction({ part, label, goto, loading, active }: {
+  part: string; label: string; goto?: string; loading: boolean; active: boolean;
 }) {
-  return <kit.KitRow surface="plain" part={loading ? null : part} label={loading ? "" : label} role={loading ? "text" : "button"} goto={loading ? undefined : goto}>
+  return <kit.KitRow surface="plain" part={active ? part : null} label={loading ? "" : label} role={active ? "button" : "text"} goto={active ? goto : undefined}>
     {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", label]]} /> :
       <kit.KitText part={null} role="label" tone="muted">{label}</kit.KitText>}
   </kit.KitRow>;
 }
 
 // prettier-ignore
-function ViewingControls({ row, density, loading = false }: RowProps & { loading?: boolean }) {
+function ViewingControls({ row, density, state }: RowProps & { state: c.StateName }) {
   const { words: { viewings: words } } = kit.useWords(propertyWordsFor);
+  const loading = state === "loading", active = state === "filled";
   const { screen, component } = kit.usePartContext();
   const value = kit.useControlValue<unknown>(`${screen}/${component}/${row.id}/outcome`, row.status);
   const selected = value === "attended" || value === "no_show" ? value : row.status;
@@ -130,14 +133,14 @@ function ViewingControls({ row, density, loading = false }: RowProps & { loading
     {row.canRecord && (loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.outcome]]} /> : <>
       {!recorded && <kit.KitText role="label" tone="muted" part={null} {...{ density }}>{words.outcome}</kit.KitText>}
       <kit.KitTrack part="outcome" role="radiogroup" label={outcomeLabel} look="segments">
-        {outcomes.map((value) => <kit.KitChip key={value} item={null} role="radio" look="segment" value={value} on={selected === value} label={words.statuses[value]} />)}
+        {outcomes.map((value) => <kit.KitChip key={value} item={null} part={active ? "root" : null} role="radio" look="segment" value={value} on={selected === value} label={words.statuses[value]} />)}
       </kit.KitTrack>
     </>)}
     {(invite || cancel) && <kit.KitTrack part="actions">
-      {invite && <RecordAction part="invite" label={words.actions.invite} {...{ loading }} />}
-      {edit && <RecordAction part="edit" label={words.actions.edit} goto={row.goto} {...{ loading }} />}
-      {cancel && <RecordAction part="cancel" label={words.actions.cancel} {...{ loading }} />}
-      {confirm && <kit.KitAction part="confirm" label={words.actions.confirm} />}
+      {invite && <RecordAction part="invite" label={words.actions.invite} {...{ loading, active }} />}
+      {edit && <RecordAction part="edit" label={words.actions.edit} goto={row.goto} {...{ loading, active }} />}
+      {cancel && <RecordAction part="cancel" label={words.actions.cancel} {...{ loading, active }} />}
+      {confirm && <kit.KitAction part={active || loading ? "confirm" : null} label={words.actions.confirm} />}
     </kit.KitTrack>}
   </kit.KitContent> : null;
 }
@@ -176,7 +179,7 @@ function ViewingDetails({ row, density, state, lang, words }: RowProps & {
       {row.active && !row.upcoming && <kit.KitText part="past" role="label" tone="muted" {...{ density }}>{words.past}</kit.KitText>}
       {row.note && <kit.KitText part="note" role="body" tone="muted" {...{ density }}>{row.note}</kit.KitText>}
     </kit.KitContent>}
-    {(state === "filled" || loading) && <ViewingControls {...{ row, density, loading }} />}
+    <ViewingControls {...{ row, density, state }} />
   </>;
 }
 
@@ -185,12 +188,14 @@ export function Viewings(input: ViewingsProps) {
   const state = kit.useComponentState();
   const thing = kit.useEmptyThing();
   const { words: { viewings: words } } = kit.useWords(propertyWordsFor);
+  const { words: { messageLabels } } = kit.useWords();
   const density = kit.useKit().density;
   const surface = "card";
   return <kit.KitCard part="root" style="cards" {...{ density }}>
     {state === "empty" ? <kit.KitEmpty icon="calendar" {...(!thing ? { title: words.empty } : {})} part="message" decorativeIcon /> : <>
       {(state === "success" || state === "error") && <kit.KitContent inset="md">
         <kit.KitText part="message" role="body" tone={state === "success" ? "good" : "bad"}>{words[state]}</kit.KitText>
+        {state === "error" && <kit.KitAction part="retry" action="press" kind="secondary" label={messageLabels.retry} contentParts={{}} />}
       </kit.KitContent>}
       <kit.KitGrid list listRowGap="cards" arrange="rows" {...{ density }}>
         {orderedViewings(input.viewings as RowProps["row"][]).map((row) => <ViewingRow key={row.id} {...{ row, density, surface, state }} />)}
