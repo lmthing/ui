@@ -157,7 +157,9 @@ export function Table(input: ViewProps) {
       <kit.KitTrack part="header" role="radiogroup" label={words.tableSort}>
         {matrix}
       </kit.KitTrack>}
-    {detail === "full" && <kit.KitLayoutText line={{ text: count, role: "caption", tone: "muted", part: "count" }} density={density} />}
+    {detail === "full" && <kit.KitContent inset={input.group === "sections" ? "md" : "none"} density={density}>
+      <kit.KitLayoutText line={{ text: count, role: "caption", tone: "muted", part: "count" }} density={density} />
+    </kit.KitContent>}
     {input.exportable && <kit.KitActionFooter density={density}>
       <kit.KitAction part="export" action="press" label={pending ? words.tableExportPending : words.tableExport} kind="secondary"
         contentParts={{ label: "export_label" }} />

@@ -132,7 +132,7 @@ export const probes = [
     variant: { axis: "arrange", value: "rows" },
   },
   read(
-    "Move the Boston fern card to In care. Copy the card address and the action word after it from the move bracket. Do not include the destination value.",
+    "Move the Boston fern card to In care. Copy the address and the following verb directly from the offered move bracket. Use the card's own address without adding a suffix, and omit the destination value.",
     { address: "s1/r1", action: "move" },
   ),
   {
@@ -178,13 +178,17 @@ export function Board(input: ViewProps) {
     move={{ caption: words.boardMove, label: words.boardDestination }}
   />;
   const grouped = cards.some(({ swimlane }) => swimlane);
-  return <kit.KitCard density={density} padded={grouped || surface === "outlined"} surface={background}>
+  return <kit.KitCard density={density} padded={surface === "outlined"} surface={background}>
     <kit.KitState part="empty" density={density}>
       {grouped ? <kit.KitRow part="columns" inline inset="none" label={words.boardStages} density={density}>
-        {boardSwimlanes(cards).map(({ label, cards }, index) => <kit.KitContent group="response" density={density} key={index}>
-          <kit.KitHeader title={{ text: label ?? words.boardUnassigned }} density={density} />
-          {renderStages(cards, `swimlane_${index + 1}`)}
-        </kit.KitContent>)}
+        <kit.KitRowGroup spacing="groups" separators={false} density={density}>
+          {boardSwimlanes(cards).map(({ label, cards }, index) => <kit.KitContent group={index ? "response" : "content"} density={density} key={index}>
+            <kit.KitContent inset="md" density={density}>
+              <kit.KitHeader title={{ text: label ?? words.boardUnassigned, role: "meta", tone: "muted", strong: true }} density={density} />
+            </kit.KitContent>
+            {renderStages(cards, `swimlane_${index + 1}`)}
+          </kit.KitContent>)}
+        </kit.KitRowGroup>
       </kit.KitRow> : renderStages(cards, "columns")}
     </kit.KitState>
   </kit.KitCard>;

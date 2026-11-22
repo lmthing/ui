@@ -97,83 +97,81 @@ it("draws the LineChart goal within the scale and names the reporting period wit
   expect(LineChart.props.safeParse({ ...input, range: "forever" }).success).toBe(false);
 });
 
-describe("Table Wave 6", () => {
-  const input = Table.examples[2]!;
+const tableInput = Table.examples[2]!;
 
-  it("migrates compact and grouped options without overriding explicit axes", () => {
-    const { density: _density, ...legacy } = Table.examples[0]!;
-    for (const [style, props, expected] of [
-      ["compact", {}, { density: "compact" }],
-      ["compact", { density: "comfortable" }, { density: "comfortable" }],
-      ["grouped", {}, { group: "sections" }],
-      ["grouped", { group: "none" }, { group: "none" }],
-    ] as const) {
-      const { c, id, ...wire } = migrateLine({
-        ...legacy,
-        ...props,
-        c: "Table",
-        id: "t1",
-        style,
-      });
-      expect([c, id]).toEqual(["Table", "t1"]);
-      expect(wire).not.toHaveProperty("style");
-      expect(Table.props.parse(wire)).toMatchObject(expected);
-    }
-  });
-
-  it("groups and sorts numbered rows, keeping summary and row checks independent", () => {
-    const wire = { ...input, sort: 2, detail: "brief" };
-    const parts = addressedElements(renderInstance("Table", wire, "filled", theme));
-    expect(parts.get("home/c1/r3/group_heading")?.text).toEqual(["Booked"]);
-    expect(parts.has("home/c1/r1/group_heading")).toBe(false);
-    expect(parts.has("home/c1/r1/pick")).toBe(true);
-    expect(parts.has("home/c1/summary")).toBe(true);
-    expect(parts.has("home/c1/count")).toBe(false);
-    const read = readScreen(screen("Table", wire), { Table });
-    expect(read.indexOf("r3: Park loop")).toBeLessThan(read.indexOf("r1: Canal loop"));
-    expect(read).toContain("Total · Walks: 16");
-  });
-
-  it("routes export only to an admitted service host, not to a screen link", async () => {
-    let rejectExport!: () => void;
-    const response = new Promise<{ status: "rejected" }>((resolve) => {
-      rejectExport = () => resolve({ status: "rejected" });
+it("migrates compact and grouped options without overriding explicit axes", () => {
+  const { density: _density, ...legacy } = Table.examples[0]!;
+  for (const [style, props, expected] of [
+    ["compact", {}, { density: "compact" }],
+    ["compact", { density: "comfortable" }, { density: "comfortable" }],
+    ["grouped", {}, { group: "sections" }],
+    ["grouped", { group: "none" }, { group: "none" }],
+  ] as const) {
+    const { c, id, ...wire } = migrateLine({
+      ...legacy,
+      ...props,
+      c: "Table",
+      id: "t1",
+      style,
     });
-    const run = vi
-      .fn()
-      .mockImplementationOnce(() => response)
-      .mockReturnValueOnce({ status: "accepted" as const });
-    const onLink = vi.fn();
-    const seed = screen("Table", input);
-    const offline = createScreenController({ screen: seed, defs: { Table } });
-    const online = createScreenController({
-      screen: seed,
-      defs: { Table },
-      onLink,
-      hostCommands: { commands: { "data.exportTable": { allows: () => true, run } } },
-    });
-    try {
-      expect(offline.read()).not.toContain("[c1/export press");
-      expect(offline.press("c1/export").ok).toBe(false);
-      expect(online.read()).toContain("[c1/export press !needs-service]");
-      expect(online.act({ address: "c1/export", action: "press" }).ok).toBe(true);
-      expect(run.mock.calls.length).toBe(1);
-      expect(onLink).not.toHaveBeenCalled();
-      expect(online.read()).toContain("c1 operation data.exportTable pending");
-      expect(online.read()).not.toContain("[c1/header select");
-      expect(online.read()).toContain("[c1/r1/pick check");
-      expect(online.press("c1/export").ok).toBe(false);
-      rejectExport();
-      await Promise.resolve();
-      expect(online.read()).toContain("c1 operation data.exportTable rejected");
-      expect(online.read()).toContain("[c1/header select");
-      expect(online.press("c1/export").ok).toBe(true);
-      await Promise.resolve();
-      expect(online.read()).toContain("c1 operation data.exportTable accepted");
-      expect(online.snapshotScreen()).toEqual(seed);
-    } finally {
-      offline.dispose();
-      online.dispose();
-    }
+    expect([c, id]).toEqual(["Table", "t1"]);
+    expect(wire).not.toHaveProperty("style");
+    expect(Table.props.parse(wire)).toMatchObject(expected);
+  }
+});
+
+it("groups and sorts numbered rows, keeping summary and row checks independent", () => {
+  const wire = { ...tableInput, sort: 2, detail: "brief" };
+  const parts = addressedElements(renderInstance("Table", wire, "filled", theme));
+  expect(parts.get("home/c1/r3/group_heading")?.text).toEqual(["Booked"]);
+  expect(parts.has("home/c1/r1/group_heading")).toBe(false);
+  expect(parts.has("home/c1/r1/pick")).toBe(true);
+  expect(parts.has("home/c1/summary")).toBe(true);
+  expect(parts.has("home/c1/count")).toBe(false);
+  const read = readScreen(screen("Table", wire), { Table });
+  expect(read.indexOf("r3: Park loop")).toBeLessThan(read.indexOf("r1: Canal loop"));
+  expect(read).toContain("Total · Walks: 16");
+});
+
+it("routes export only to an admitted service host, not to a screen link", async () => {
+  let rejectExport!: () => void;
+  const response = new Promise<{ status: "rejected" }>((resolve) => {
+    rejectExport = () => resolve({ status: "rejected" });
   });
+  const run = vi
+    .fn()
+    .mockImplementationOnce(() => response)
+    .mockReturnValueOnce({ status: "accepted" as const });
+  const onLink = vi.fn();
+  const seed = screen("Table", tableInput);
+  const offline = createScreenController({ screen: seed, defs: { Table } });
+  const online = createScreenController({
+    screen: seed,
+    defs: { Table },
+    onLink,
+    hostCommands: { commands: { "data.exportTable": { allows: () => true, run } } },
+  });
+  try {
+    expect(offline.read()).not.toContain("[c1/export press");
+    expect(offline.press("c1/export").ok).toBe(false);
+    expect(online.read()).toContain("[c1/export press !needs-service]");
+    expect(online.act({ address: "c1/export", action: "press" }).ok).toBe(true);
+    expect(run.mock.calls.length).toBe(1);
+    expect(onLink).not.toHaveBeenCalled();
+    expect(online.read()).toContain("c1 operation data.exportTable pending");
+    expect(online.read()).not.toContain("[c1/header select");
+    expect(online.read()).toContain("[c1/r1/pick check");
+    expect(online.press("c1/export").ok).toBe(false);
+    rejectExport();
+    await Promise.resolve();
+    expect(online.read()).toContain("c1 operation data.exportTable rejected");
+    expect(online.read()).toContain("[c1/header select");
+    expect(online.press("c1/export").ok).toBe(true);
+    await Promise.resolve();
+    expect(online.read()).toContain("c1 operation data.exportTable accepted");
+    expect(online.snapshotScreen()).toEqual(seed);
+  } finally {
+    offline.dispose();
+    online.dispose();
+  }
 });

@@ -21,8 +21,12 @@ function TableCell(cell: Row["cells"][number], { kind }: Column, index: number, 
   const numeric = numericKind(kind), align = numeric ? "end" : kind === "status" ? "center" : "start";
   if (loading && kind === "status") return <kit.KitSkeleton lead="none" inset="none" density={density}
     items={[{ lines: [{ text: value, role: "body", align }] }]} />;
-  if (loading) return <kit.KitSkeleton shape="figure" inset="none" density={density}
-    content={[[numeric ? "number" : "label", value, align, "compact"]]} />;
+  if (loading) {
+    const reserve = numeric && value.length < 2 ? value.repeat(3) : value;
+    const placeholder = <kit.KitSkeleton shape="figure" inset="none" density={density}
+      content={[[numeric ? "number" : "label", reserve, align, "compact"]]} />;
+    return numeric ? <kit.KitContent inset="md">{placeholder}</kit.KitContent> : placeholder;
+  }
   if (kind === "status")
     return <kit.KitTrail part={`status_${index + 1}`} kind="badge" value={value} tone="text" density={density} />;
   const line = <kit.KitText part={part} role={numeric ? "number" : "body"} numberScale="compact"
@@ -46,13 +50,13 @@ function TableHeading(row: Row, column: Column, { selectable, density, loading, 
 }
 
 // prettier-ignore
-function TableHeader(label: string, kind: Column["kind"], on: boolean, density: c.ThemeDensity, loading: boolean, pending: boolean) {
+function TableHeader(label: string, kind: Column["kind"], on: boolean, loading: boolean, pending: boolean) {
   const align = numericKind(kind) ? "end" : kind === "status" ? "center" : "start";
-  if (loading) return <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", label, align]]} />;
-  const chip = <kit.KitChip item={null} look="segment" role="radio" label={label} on={on} disabled={pending || undefined} />;
+  const chip = <kit.KitChip item={null} look="segment" role="radio" label={label} on={on && !loading}
+    disabled={loading ? false : pending || undefined} />;
   if (align === "center") return chip;
   if (align === "end") return <kit.KitGrid fitLast><kit.KitContent>{null}</kit.KitContent>{chip}</kit.KitGrid>;
-  return <kit.KitRow inline label={label} leadingAlign="row" leading={chip}>{null}</kit.KitRow>;
+  return <kit.KitRow inline fitContent part={null} label={label} leadingAlign="row" leading={chip}>{null}</kit.KitRow>;
 }
 // prettier-ignore
 export function TableMatrix({ input, density, loading, lang, pending }: {
@@ -62,34 +66,40 @@ export function TableMatrix({ input, density, loading, lang, pending }: {
   const scope = kit.usePartContext();
   const headers = tableChoices(columns).map(({ label, value }) => ({
     id: String(value), label,
-    header: TableHeader(label, columns[value]!.kind, value === sort, density, loading, pending),
+    header: TableHeader(label, columns[value]!.kind, value === sort, loading, pending),
   }));
-  const separators: string[] = [];
-  const drawing = tableSections(rows, columns, group, sort, lang).flatMap(({ label, rows }, section, all) => {
-    if (section < all.length - 1 || summaryRow) separators.push(rows.at(-1)!.id);
-    return rows.map((row, index) => ({
+  const drawing = tableSections(rows, columns, group, sort, lang).flatMap(({ label, rows }, section) => {
+    const records = rows.map((row) => ({
       id: row.id, label: tableCell(row.cells[0]!, columns[0]!.kind, lang),
-      heading: <>{index === 0 && label && <kit.KitMetaLine density={density}
-        title={{ text: label, part: "group_heading", role: "meta", strong: true }} />}
-        {TableHeading(row, columns[0]!, { selectable, density, loading, lang, grouped: group === "sections" })}</>,
+      heading: TableHeading(row, columns[0]!, { selectable, density, loading, lang, grouped: group === "sections" }),
       cells: columns.slice(1).map((column, i) => ({
         id: headers[i + 1]!.id, content: TableCell(row.cells[i + 1]!, column, i + 1, density, loading, lang),
       })),
     }));
+    if (label) records.unshift({
+      id: `section_${section}`, label, cells: [],
+      heading: <kit.PartScope {...scope} item={rows[0]!.id}>
+        <kit.KitContent inset="md"><kit.KitLayoutText density={density}
+          line={{ text: label, part: "group_heading", role: "meta", tone: "muted", strong: true }} /></kit.KitContent>
+      </kit.PartScope>,
+    });
+    return records;
   });
   if (summaryRow) {
     const { label, cells } = tableSummary(columns, rows, summaryRow, lang);
     const figure = (text: string | undefined) =>
-      <kit.KitLayoutText line={{ text, role: "figure", compact: true, tabular: true }} align="end" density={density} />;
+      <kit.KitContent inset="md"><kit.KitLayoutText line={{ text, role: "figure", compact: true, tabular: true }}
+        align="end" density={density} /></kit.KitContent>;
     drawing.push({
       id: "summary", label,
-      heading: <kit.PartScope {...scope}><kit.KitMetaLine density={density}
-        title={{ text: label, part: "summary", role: "meta", strong: true }} />{figure(cells[0])}</kit.PartScope>,
+      heading: <kit.PartScope {...scope}><kit.KitContent inset="md"><kit.KitLayoutText density={density}
+        line={{ text: label, part: "summary", role: "meta", strong: true }} /></kit.KitContent>
+        {figure(cells[0])}</kit.PartScope>,
       cells: cells.slice(1).map((text, i) => ({ id: headers[i + 1]!.id, content: figure(text) })),
     });
   }
   return <kit.KitTable part="matrix" corner={headers[0]!.header} columns={headers.slice(1)}
-    rows={drawing} fitColumns={fitTable(input, lang)} separators={separators} />;
+    rows={drawing} fitColumns={fitTable(input, lang)} />;
 }
 
 // prettier-ignore

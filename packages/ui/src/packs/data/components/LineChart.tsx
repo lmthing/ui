@@ -42,6 +42,7 @@ export const meta = {
     "title",
     "axes",
     "unit",
+    "goal",
     "latest",
     "range",
     "reading",
@@ -115,11 +116,11 @@ export const examples = [
     series: [{ label: "Ferns", values: [2, 3, 4, 6] }, { label: "Succulents", values: [1, 0, 2, 1] }],
   },
   {
-    title: "Walks this week",
+    title: "Canal loop this week",
     unit: "walks",
     range: "7d", goal: 10,
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri"],
-    series: [{ label: "Canal loop", values: [6, 8, 7, 5, 8] }, { label: "Park loop", values: [4, 3, 5, 7, 6] }],
+    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    series: [{ label: "Canal loop", values: [6, 8, 7, 5, 8, 5, 4] }],
   },
 ] satisfies z.input<typeof props>[];
 
@@ -164,7 +165,7 @@ export function LineChart(input: ChartProps) {
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const { words, lang } = kit.useWords(dataWordsFor);
-  const unitLabel = unit ? words.chartUnit(unit) : undefined;
+  const unitLabel = unit ? words.chartUnit(unit) : undefined, goalLabel = goal === undefined ? undefined : chartGoal(goal, unit, lang).label;
   const state = kit.useComponentState(), loading = state === "loading";
   const { screen, component } = kit.usePartContext();
   const at = kit.useControlValue<number | undefined>(`${screen}/${component}/$point`, undefined);
@@ -182,8 +183,9 @@ export function LineChart(input: ChartProps) {
     {full && <optionView.ChartLatest {...{ ...input, density, loading }} />}
     {unitLabel && (loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", unitLabel]]} /> :
       <kit.KitText part="unit" role="caption" tone="muted">{unitLabel}</kit.KitText>)}
+    {goalLabel && <kit.KitLayoutText line={{ text: goalLabel, part: "goal", role: "caption", tone: "muted" }} density={density} />}
     <kit.KitFigure density={density} media={<kit.KitLinePlot part="axes" loading={loading} series={series}
-      {...(goal === undefined ? {} : { goal: chartGoal(goal, unit, lang) })}
+      {...(goal === undefined ? {} : { goal: { value: goal, label: "" } })}
       {...(selected && !loading ? { selected: selected.id } : {})} />} />
     {!loading && selected && <kit.KitText part="reading" role="label" tabular>
       {words.chartSelected(selected.series, selected.label, pointValue(selected.value, unit, lang))}

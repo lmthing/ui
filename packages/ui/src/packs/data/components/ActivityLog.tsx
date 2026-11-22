@@ -31,6 +31,7 @@ export const meta = {
   pick: "Audit changes by several people with actor portraits, times and links to changed records. Not scheduled events in time order (Timeline), one client's history (ClientHistory) or shift notes (Handover).",
   writeHints: [
     'Write the actor in who and the change in text, without repeating the actor in text. Keep the supplied timestamp and record link. Use lead "none" only when explicitly asked to hide portraits; still write photo for every entry.',
+    'When only portrait visibility changes, set lead and leave density and surface null. Do not write "card" just because portraits are hidden.',
     'Store each event category in entries[].kind. Set top-level kind to a category only to start with that filter selected; retain all entries. Write before and after text as diff: {"old":"Shade","new":"Sun"} only when both are supplied.',
   ],
   region: "body",
@@ -67,9 +68,13 @@ export const props = z.strictObject({
     diff: z.strictObject({ old: text(28), new: text(28) }).optional(),
   })).min(1).max(6),
 }).refine(({ kind, entries }) => !kind || kind === "all" || entries.some((entry) => entry.kind === kind),
-  { path: ["kind"], message: "The starting filter must match an entry" }).overwrite((input) => ({
-    ...input, entries: input.entries.map((entry) => ({ ...entry, shown: !input.kind || input.kind === "all" || entry.kind === input.kind })),
-  }));
+  { path: ["kind"], message: "The starting filter must match an entry" }).overwrite((input) => {
+    const kindOptions = activityOptions(input.entries);
+    return {
+      ...input, kindOptions, hasKinds: kindOptions.length > 0,
+      entries: input.entries.map((entry) => ({ ...entry, shown: !input.kind || input.kind === "all" || entry.kind === input.kind })),
+    };
+  });
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
@@ -109,8 +114,7 @@ export const examples = [
     ],
   },
   {
-    density: "compact",
-    kind: "updated",
+    kind: "all",
     entries: [
       {
         who: "Sam",
@@ -154,7 +158,7 @@ export const probes = [
   read("Open the record that Inez moved to the study.", { address: "s1/r2", action: "press" }),
   {
     ...write(
-      "Show Ana's fern updates at 09:10 and Inez's new rubber plant at 08:45, using lib:people and links fern and rubber. Keep both entries but initially show only the updates.",
+      "In a change history, Ana updated the fern at 09:10 and Inez created the rubber plant record at 08:45. Use lib:people and links fern and rubber. Keep both records, tag their event categories, and preselect the Updated filter so the created event is hidden initially.",
     ),
     expectProps: { kind: "updated", entries: [{ kind: "updated" }, { kind: "created" }] },
   },
@@ -179,20 +183,18 @@ export function ActivityLog(input: LogProps) {
   const { words } = kit.useWords(dataWordsFor);
   const upgraded = options.length > 0 || input.entries.some(({ diff }) => diff);
   const rows = entries.map((entry) => <optionView.ActivityRow key={entry.id} {...{ entry, density, avatar, upgraded }} />);
-  const legacyLoading = <kit.KitSkeleton rows={entries.length} density={density} lead="none"
-    items={entries.map(({ who, photo, text, time }) => ({
-      ...(avatar ? { photo } : {}), trail: true,
-      lines: [{ role: "body", text: who }, { role: "body", text }, { role: "caption", text: time }],
-    }))} />;
   const feed = <kit.KitRowGroup density={density} separators={upgraded}
     leadingWidth={upgraded && avatar ? "avatar" : undefined}>{rows}</kit.KitRowGroup>;
-  return <kit.KitCard part="root" surface={surface} density={density} padded={upgraded}>
-    <kit.KitState icon="clipboard_list" part="title" loading={upgraded ? feed : legacyLoading} density={density}>
-      {options.length > 0 && <kit.KitTrack part="kind" role="radiogroup" label={words.activityKind}>
-        {options.map(({ value, label }) => <kit.KitChip key={value} item={null} role="radio"
-          label={label} value={value} on={live.kind === value} />)}
-      </kit.KitTrack>}
-      {feed}
+  const body = upgraded ? <kit.KitContent inset="md" density={density}>
+    {options.length > 0 && <kit.KitTrack look="segments" part="kind" role="radiogroup" label={words.activityKind}>
+      {options.map(({ value, label }) => <kit.KitChip key={value} item={null} role="radio" look="segment"
+        label={label} value={value} on={live.kind === value} />)}
+    </kit.KitTrack>}
+    {feed}
+  </kit.KitContent> : feed;
+  return <kit.KitCard part="root" surface={surface} density={density} padded={upgraded} inset={upgraded ? "none" : "md"}>
+    <kit.KitState icon="clipboard_list" part="title" loading={feed} density={density}>
+      {body}
     </kit.KitState>
   </kit.KitCard>;
 }

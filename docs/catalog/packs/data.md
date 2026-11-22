@@ -90,7 +90,7 @@ One to three series over time as lines with labelled axes and the latest values;
   `range` (`7d`, `30d`, `90d`, `1y`) optional.
 - Styles: density: `comfortable` (default), `compact`; detail: `full` (default), `brief`;
   surface: `card` (default), `outlined`.
-- Parts → actions: `title`, `axes`, `unit`, `latest` (full detail), `range` (when supplied),
+- Parts → actions: `title`, `axes`, `unit`, `goal` (when supplied), `latest` (full detail), `range` (when supplied),
   `reading` (selected point), `points`, `series_1`, `series_2`, `series_3`; points `root select`
   (reads the value). · States: filled, empty, loading.
 - Real path: values aggregated from records on the device.

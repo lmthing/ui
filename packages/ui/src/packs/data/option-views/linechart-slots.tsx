@@ -31,7 +31,8 @@ export function ChartControls({ points, selected, title, loading }: { points: Po
   const tracks = points.filter(({ x }) => x === 0).map(({ series, line }) => {
     const dates = points.filter((point) => point.line === line);
     const buttons = <kit.KitGrid columns={dates.length === 4 ? 2 : 3}>
-      {dates.map(({ id, label }) => <kit.KitChip key={id} item={id} role="radio" look="box" labelPart={null}
+      {dates.map(({ id, label }) => <kit.KitChip key={id} item={id} role="radio" look="segment"
+        disabled={loading ? false : undefined} labelPart={null}
         label={label} on={selected?.id === id} />)}
     </kit.KitGrid>;
     return (
@@ -41,7 +42,8 @@ export function ChartControls({ points, selected, title, loading }: { points: Po
       {loading ? buttons : <kit.KitTrack part={`series_${line + 1}`} role="radiogroup" label={words.chartSeriesPoints(series)}>{buttons}</kit.KitTrack>}
     </kit.KitContent>
   ); });
-  return loading ? <kit.KitContent>{tracks}</kit.KitContent> : points.length > 12
-    ? <kit.KitScroll part="points" label={words.chartPoints(title)}>{tracks}</kit.KitScroll>
-    : <kit.KitRow part="points" inline role="group" label={words.chartPoints(title)}>{tracks}</kit.KitRow>;
+  const groups = <kit.KitRowGroup separators={false} spacing="groups">{tracks}</kit.KitRowGroup>;
+  return loading ? groups : points.length > 12
+    ? <kit.KitScroll part="points" label={words.chartPoints(title)}>{groups}</kit.KitScroll>
+    : <kit.KitRow part="points" inline role="group" label={words.chartPoints(title)}>{groups}</kit.KitRow>;
 }
