@@ -13,8 +13,7 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `Achievements.tsx`
 - `Timetable.tsx`
 - `Assignments.tsx`
-- `Gradebook.tsx`, `WorkedSolution.tsx`
-- `SpeechCheck.tsx`
+- `Gradebook.tsx`, `WorkedSolution.tsx`, `SpeechCheck.tsx`
 
 Rules:
 - Same file shape as `src/components/`: exports `meta`, `props`, `fallback`, `examples`, `probes`, view.
