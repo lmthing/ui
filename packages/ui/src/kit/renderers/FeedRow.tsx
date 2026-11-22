@@ -78,7 +78,7 @@ export function FeedRow({ row, density }: { row: FeedRowData; density?: FeedDens
         </KitContent>
       </KitRow>
       {accessories?.length ? (
-        <KitActionFooter density={density}>
+        <KitActionFooter density={density} indent={indent}>
           {accessories.map((action) => (
             <KitAction key={action.part} contentParts={{}} {...action} part={loading ? null : action.part} />
           ))}

@@ -97,7 +97,7 @@ export function MoveFixture({ columns, cards, style }: Props<typeof props, typeo
         lines: [{ part: null, text: title }],
         destinations: itemMoveOffer(meta, { cards, columns }, card)?.choices.map((value) => ({
           value,
-          label: value,
+          label: value === "Finished" ? "Ready" : value,
         })),
       }))}
       {...{ style, loading }}

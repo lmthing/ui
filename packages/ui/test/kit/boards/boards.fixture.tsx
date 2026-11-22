@@ -41,7 +41,18 @@ const sections: Sections = [
       },
     ],
   },
-  { id: "rear", label: "Rear", rows: [{ label: "C", seats: [{ id: "c1", label: "C1", kind: "free" }] }] },
+];
+const rear: Sections = [
+  {
+    id: "rear",
+    label: "Rear",
+    rows: [
+      {
+        label: "C",
+        seats: [{ id: "r1", label: "C1", kind: "free", target: { ...target, action: "select" } }],
+      },
+    ],
+  },
 ];
 
 const cells: Cells = [
@@ -97,6 +108,7 @@ const controller = createScreenController({
     id: "test",
     components: [
       { id: "seats", c: definition.meta.id, items: Array.from({ length: 3 }, () => ({ on: false })) },
+      { id: "single", c: cellDef.meta.id, items: [{ on: false }] },
       { id: "cells", c: cellDef.meta.id, items: Array.from({ length: 4 }, () => ({ on: false })) },
     ],
   },
@@ -105,21 +117,21 @@ const controller = createScreenController({
 
 declare global {
   interface Window {
-    boardPresses: { address: string; ok: boolean }[];
+    boardPresses: { address: string; ok: boolean; via: string }[];
   }
 }
 window.boardPresses = [];
 const press = controller.press;
 controller.press = (address) => {
   const result = press(address);
-  window.boardPresses.push({ address, ok: result.ok });
+  window.boardPresses.push({ address, ok: result.ok, via: "press" });
   return result;
 };
 const act = controller.act;
 controller.act = (...args) => {
   const result = act(...args);
   const step = args[0];
-  if ("address" in step) window.boardPresses.push({ address: step.address, ok: result.ok });
+  if ("address" in step) window.boardPresses.push({ address: step.address, ok: result.ok, via: step.action });
   return result;
 };
 
@@ -148,6 +160,9 @@ function Fixture() {
             sections={mode === "empty" ? [] : sections}
             loading={mode === "loading"}
           />
+        </PartScope>
+        <PartScope screen="test" component="single" rev={1} state="filled">
+          <SeatPlan kind="grid" sections={mode === "empty" ? [] : rear} loading={mode === "loading"} />
         </PartScope>
         <PartScope screen="test" component="cells" rev={1} state="filled">
           <KitCellGrid

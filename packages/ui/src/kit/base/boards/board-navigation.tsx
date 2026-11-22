@@ -35,7 +35,6 @@ export function nextPosition(positions: readonly Position[], from: Position, key
 
 const navigationKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"];
 const Navigation = createContext<ReturnType<typeof useNavigation> | null>(null);
-
 function useNavigation(positions: readonly Position[]) {
   const [focused, setFocused] = useState<string>();
   const pending = useRef<string | null>(null);

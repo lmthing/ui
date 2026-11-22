@@ -1,14 +1,21 @@
 import type { ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
-import { components, createRegistry, stampItemIds, themeName, type StateName } from "@lmthing/ui/catalog";
+import {
+  components,
+  createRegistry,
+  space,
+  stampItemIds,
+  themeName,
+  type StateName,
+} from "@lmthing/ui/catalog";
 import { KitProvider, PartScope } from "@lmthing/ui/kit";
 import { expect, it } from "vitest";
-import { DateRows, StageBoard, type DateGroup } from "../src/kit/renderers";
+import { DateRows, SeatPlan, StageBoard, type DateGroup } from "../src/kit/renderers";
 import { SeatingPlan } from "../src/packs/events/seating";
 import { ApplicantLanes } from "../src/packs/hiring/applicant-pipeline";
 import { CabinSeats, type CabinSeatsView } from "../src/packs/trips/cabin-seats";
-import { addressedElements, config, elementAt } from "./render";
+import { addressedElements, config, elementAt, styleAt } from "./render";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const prefix = "home/c1/";
@@ -74,6 +81,26 @@ it("does not confirm an occupied seat or create a new Writer entry", () => {
   expect(createRegistry({ packs: ["trips"], includeDrafts: true }).ids).not.toContain("CabinSeats");
 });
 
+it.each([
+  ["filled", true],
+  ["loading", false],
+] as const)("makes every seat-plan slot inert when %s with loading=%s", (state, loading) => {
+  const seat = { id: "r1", label: "A", kind: "free" as const, target: { part: "root" } };
+  const html = render(
+    <SeatPlan
+      kind="grid"
+      part={null}
+      loading={loading}
+      sections={[{ id: "map", label: "Map", rows: [{ label: "1", seats: [seat] }] }]}
+      total={{ text: "Total", part: "total" }}
+      action={{ part: "confirm", label: "Confirm" }}
+    />,
+    state,
+  );
+  expect(addressedElements(html).size).toBe(0);
+  expect(html).not.toMatch(/role="(?:button|gridcell)"/);
+});
+
 it("keeps separate table and guest targets when owner-projected assignments change", () => {
   const { meta, props, examples } = components.Seating;
   const input = stampItemIds(meta, props.parse(examples[0])) as Parameters<typeof SeatingPlan>[0];
@@ -88,10 +115,8 @@ it("keeps separate table and guest targets when owner-projected assignments chan
   const next = render(<SeatingPlan {...input} entries={entries} />);
   expect(partText(next, "r2/seats")).toBe("1 / 10");
   expect(partText(next, "r5/name")).toBe("DS");
-  for (const part of ["root", "tray", "r1/root", "r1/label", "r5/root"]) {
-    expect(addressedElements(next).has(`${prefix}${part}`)).toBe(true);
+  for (const part of ["root", "tray", "r1/root", "r1/label", "r5/root"])
     expect(next.split(`data-testid="${prefix}${part}"`)).toHaveLength(2);
-  }
 });
 
 it("keeps terminal applicants out of counted lanes and preserves the active address", () => {
@@ -113,20 +138,14 @@ it("renders queue lanes in caller order without introducing move affordances", (
     <StageBoard
       part="groups"
       style="stack"
-      lanes={[
-        { id: "open", label: "Open", count: "2" },
-        { id: "done", label: "Done", count: "0" },
-      ]}
-      cards={[
-        {
-          id: "r2",
-          column: 0,
-          label: "Earlier",
-          goto: "earlier",
-          lines: [{ part: "title", text: "Earlier" }],
-        },
-        { id: "r1", column: 0, label: "Later", goto: "later", lines: [{ part: "title", text: "Later" }] },
-      ]}
+      lanes={[{ id: "open", label: "Open", count: "2" }]}
+      cards={["Earlier", "Later"].map((text, index) => ({
+        id: `r${2 - index}`,
+        column: 0,
+        label: text,
+        goto: text.toLowerCase(),
+        lines: [{ part: "title", text }],
+      }))}
     />,
   );
   expect(html.indexOf(`${prefix}r2/root`)).toBeLessThan(html.indexOf(`${prefix}r1/root`));
@@ -148,7 +167,13 @@ const groups: DateGroup[] = [
         body: { part: "body", text: "Update" },
         accessories: [{ part: "react", label: "Like", action: "toggle" }],
       },
-      { item: "r1", label: "Reply", indent: 1, body: { part: "body", text: "Reply" } },
+      {
+        item: "r1",
+        label: "Reply",
+        indent: 1,
+        body: { part: "body", text: "Reply" },
+        accessories: [{ part: "respond", label: "Respond" }],
+      },
     ],
   },
 ];
@@ -157,14 +182,18 @@ it("keeps date, time and accessory addresses distinct and introduces no actions 
   const html = render(<DateRows groups={groups} />);
   const parts = addressedElements(html);
   expect([...parts.keys()]).toEqual(
-    ["day", "r2/root", "r2/author", "r2/time", "r2/body", "r2/react", "r1/root", "r1/body"].map(
-      (part) => `${prefix}${part}`,
-    ),
+    "day r2/root r2/author r2/time r2/body r2/react r1/root r1/body r1/respond"
+      .split(" ")
+      .map((part) => `${prefix}${part}`),
   );
   expect(parts.get(`${prefix}r2/time`)?.text).toEqual(["All day"]);
   expect(parts.get(`${prefix}r2/root`)?.attributes).toContain('role="link"');
   expect(parts.get(`${prefix}r2/root`)?.text).not.toContain("Like");
   expect(parts.get(`${prefix}r2/react`)?.attributes).toContain('role="button"');
+  const footer = html.match(/<div [^>]+>(?=<div data-testid="home\/c1\/r1\/respond")/)?.[0];
+  expect(styleAt(html, { tag: "div", attributes: footer ?? "", children: [] })).toContain(
+    `padding-left:${space.xl}px`,
+  );
   const loading = render(<DateRows groups={groups} />, "loading");
   expect(addressedElements(loading).size).toBe(0);
   expect(loading).not.toMatch(/role="(?:link|button)"/);

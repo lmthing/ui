@@ -101,7 +101,7 @@ export function CabinSeats({
     words: { cabinSeats: words },
   } = useWords(tripsWordsFor);
   const currency = useAppCurrency();
-  const loading = useComponentState() === "loading";
+  const state = useComponentState();
   const number = new Intl.NumberFormat(lang, { useGrouping: false });
   const selected = findSelection(rows, columns, selection);
   const index = selected ? rows.findIndex(({ row }) => row === selected.row) : -1;
@@ -115,7 +115,6 @@ export function CabinSeats({
     <SeatPlan
       kind="grid"
       part={null}
-      loading={loading}
       {...(passenger ? { screenLabel: passenger } : {})}
       sections={cabinRows.length ? [{ id: "cabin", label: cabin, rows: cabinRows }] : []}
       legend={{ text: words.legend, role: "caption" }}
@@ -128,7 +127,16 @@ export function CabinSeats({
               role: "meta",
             } satisfies LayoutLine,
           })}
-      action={{ part: confirmPart, action: "press", label: words.confirm, disabled: !selected }}
+      {...(state === "filled" || state === "loading"
+        ? {
+            action: {
+              part: confirmPart,
+              action: "press" as const,
+              label: words.confirm,
+              disabled: !selected,
+            },
+          }
+        : {})}
     />
   );
   return (
