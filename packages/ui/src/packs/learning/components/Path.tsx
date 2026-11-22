@@ -186,8 +186,7 @@ export function Path({ units, milestones = [], detail, density: requested, surfa
       content: <PathUnit {...{ unit, milestone, density }} brief={detail === "brief"} />,
     };
   });
-  const winding = <kit.KitPath part={null} {...{ nodes, loading }} />;
   return <kit.KitCard part="root" padded {...{ density, surface }}>
-    <kit.KitState density={density} loading={winding}>{winding}</kit.KitState>
+    <kit.KitPath part={null} {...{ nodes, loading }} />
   </kit.KitCard>;
 }

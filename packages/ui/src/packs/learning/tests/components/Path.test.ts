@@ -2,7 +2,6 @@ import { describe, expect, expectTypeOf, it } from "vitest";
 import {
   components,
   createRegistry,
-  loadingLabel,
   packReady,
   placeholderTitle,
   planAct,
@@ -127,7 +126,6 @@ describe("Path states and parts", () => {
   });
   it("draws an inert loading state without showing or addressing units", () => {
     const html = renderInstance("Path", first, "loading", theme);
-    expect(html).toContain(loadingLabel);
     expect(html).toContain('aria-busy="true"');
     expect([...addressedElements(html).keys()]).toEqual(["home/c1/root"]);
     expect(html).not.toContain('role="button"');
