@@ -118,6 +118,19 @@ describe("Achievements fallback and empty state", () => {
 });
 
 describe("Achievements parts and read/act", () => {
+  it.each(["grid", "rows"] as const)(
+    "exposes the complete styled criterion as one phrase in %s",
+    (arrange) => {
+      const input = { ...first, arrange };
+      const criterion = first.badges[1]!.how!;
+      const html = renderInstance("Achievements", input, "filled", theme);
+      expect(html).toContain(`aria-label="${criterion}"`);
+      const part = addressedElements(html).get("home/c1/r2/how");
+      expect([...part!.text, ...part!.children.flatMap((child) => child.text)].join("")).toBe(criterion);
+      expect(readComponent(Achievements, input, "a1").join("\n")).toContain(criterion);
+    },
+  );
+
   it("draws the title, icon and correct detail at each stable badge address", () => {
     const draw = (axes = {}) =>
       addressedElements(

@@ -107,8 +107,8 @@ function ResultMetrics({ values, words, density }: {
 }) {
   const cell = (part: "right" | "wrong" | "seconds" | "points", value: string) =>
     <kit.KitContent key={part} density={density}>
-      <kit.KitText role="label" tone="muted" part={null} density={density}>{words[part]}</kit.KitText>
-      <kit.KitText role="number" numberScale="compact" tabular part={part} density={density}>{value}</kit.KitText>
+      <kit.KitText role="label" align="end" tone="muted" part={null} density={density}>{words[part]}</kit.KitText>
+      <kit.KitText role="number" numberScale="compact" align="end" tabular part={part} density={density}>{value}</kit.KitText>
     </kit.KitContent>;
   return <kit.KitContent group="response" density={density}>
     <kit.KitGrid density={density}>
@@ -153,7 +153,7 @@ export function Result(input: ResultProps) {
     <kit.KitContent density={density}>
       <kit.KitText role="label" tone={perfect && emphasis === "normal" ? "good" : "muted"} part={null} density={density}>{perfect ? result.perfect : result.score}</kit.KitText>
       <kit.KitText role="number" numberScale={emphasis === "hero" ? "display" : "compact"} tone={scoreTone} tabular part="score" {...{ density, emphasis }}>
-        {values.right}<kit.KitText part={null} tone="muted" density={density}>{values.total}</kit.KitText>
+        {values.right}<kit.KitText part={null} role="label" tone="muted" density={density}>{values.total}</kit.KitText>
       </kit.KitText>
     </kit.KitContent>
     <ResultMetrics words={result} {...{ values, density }} />

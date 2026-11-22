@@ -51,9 +51,41 @@ async function quiz(page: Page) {
   await part("next").click();
   await part("audio_2").click();
   await playback(page, "confirm");
+  await part("root")
+    .getByRole("radio", { name: /False$/ })
+    .click();
+  await part("check").click();
+  expect(await part("feedback").innerText()).toBe("Not quite");
+  expect(await part("answer").innerText()).toBe("True");
 }
 
-it("uses binary recall, addressed audio, ordering and module navigation on a phone", async () => {
+async function timetable(page: Page) {
+  const schedule = (part: string) => page.getByTestId(`home/schedule/${part}`);
+  const choices = schedule("day").getByRole("radio");
+  expect(await choices.count()).toBe(7);
+  const rail = await schedule("day").boundingBox();
+  const last = await choices.last().boundingBox();
+  expect(last!.x + last!.width).toBeLessThanOrEqual(rail!.x + rail!.width);
+  await choices.last().click();
+  expect(await choices.last().getAttribute("aria-checked")).toBe("true");
+  expect(await schedule("root").getByRole("button").first().innerText()).toContain("Class sun");
+}
+
+async function assignments(page: Page) {
+  const part = (name: string) => page.getByTestId(`home/assignments/r1/${name}`);
+  const color = () => part("mark").locator("svg").getAttribute("stroke");
+  const overdue = await color();
+  expect(await part("done").getAttribute("aria-checked")).toBe("false");
+  await part("done").click();
+  expect(await part("done").getAttribute("aria-checked")).toBe("true");
+  expect(await color()).not.toBe(overdue);
+  expect(await page.locator("body").getAttribute("data-link")).toBe("soil");
+  await part("done").click();
+  expect(await part("done").getAttribute("aria-checked")).toBe("false");
+  expect(await color()).toBe(overdue);
+}
+
+it("uses recall, quiz, module navigation, weekday selection and hand-in controls on a phone", async () => {
   const route = "/learning-options-fixture";
   const fixture = new URL("./options.fixture.tsx", import.meta.url).pathname;
   const server = await createServer({
@@ -77,6 +109,7 @@ it("uses binary recall, addressed audio, ordering and module navigation on a pho
     const browser = await launchChrome();
     try {
       const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+      await page.clock.setFixedTime(new Date(2026, 10, 22, 12));
       await page.addInitScript("globalThis.process ??= { env: {} }; globalThis.__name = (fn) => fn");
       await page.goto(new URL(route, server.resolvedUrls!.local[0]).href);
       await flashcard(page);
@@ -87,6 +120,8 @@ it("uses binary recall, addressed audio, ordering and module navigation on a pho
       expect(await current.getAttribute("role")).toBe("link");
       await current.click();
       await page.waitForFunction(() => document.body.dataset.link === "soil");
+      await timetable(page);
+      await assignments(page);
     } finally {
       await browser.close();
     }
