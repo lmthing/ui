@@ -617,6 +617,24 @@
       "{\"address\": \"p1/r1\", \"action\": \"move\"}"
     ]
   },
+  "ApplicantPipeline%2Fread%2FMove%20Sam%20Patel's%20card%20to%20Interview.%20Copy%20the%20card%20address%20and%20the%20action%20word%20after%20it%20from%20the%20move%20bracket%2C%20in%20separate%20fields.%20Do%20not%20include%20the%20destination%20value./f4b51152dde386e3/b490993b601cc056": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 ApplicantPipeline Applied: 1 — Screening: 1 — Interview: 0 — Offer: 0 — Hired: 0 · Rejected: 0 · Withdrawn: 0 — No applicants — Move to — Applied — Screening — Interview — Offer — Sam Patel — Applied 6 Apr 2027 — Call about group walks — By 10 Apr 2027 — Imani Cole — Applied 7 Apr 2027 — Review references — \"Summer dog walker\"\n  r1 \"Sam Patel\" · \"Call about group walks\" [p1/r1 press→sam_review] [p1/r1 move = \"screening\"; choices [\"applied\",\"interview\",\"offer\"]]\n  r2 \"Imani Cole\" · \"Review references\" [p1/r2 press→imani_review] [p1/r2 move = \"applied\"; choices [\"screening\",\"interview\",\"offer\"]]\n\nTask: Move Sam Patel's card to Interview. Copy the card address and the action word after it from the move bracket, in separate fields. Do not include the destination value.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\":\"p1/r1\",\"action\":\"move\"}",
+    "replies": [
+      "{\"address\":\"p1/r1\",\"action\":\"move\"}",
+      "{\"address\": \"p1/r1\", \"action\": \"move\"}",
+      "{\"address\": \"p1/r1\", \"action\": \"move\"}"
+    ]
+  },
+  "ApplicantPipeline%2Fread%2FOpen%20Sam%20Patel's%20application./96f56c4b1bc9755e/89c191e5fc140e04": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 ApplicantPipeline Applied: 1 — Screening: 1 — Interview: 0 — Offer: 0 — Hired: 0 · Rejected: 0 · Withdrawn: 0 — No applicants — Move to — Applied — Screening — Interview — Offer — Sam Patel — Applied 6 Apr 2027 — Call about group walks — By 10 Apr 2027 — Imani Cole — Applied 7 Apr 2027 — Review references — \"Summer dog walker\"\n  r1 \"Sam Patel\" · \"Call about group walks\" [p1/r1 press→sam_review] [p1/r1 move = \"screening\"; choices [\"applied\",\"interview\",\"offer\"]]\n  r2 \"Imani Cole\" · \"Review references\" [p1/r2 press→imani_review] [p1/r2 move = \"applied\"; choices [\"screening\",\"interview\",\"offer\"]]\n\nTask: Open Sam Patel's application.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"p1/r1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"p1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"p1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"p1/r1\", \"action\": \"press\"}"
+    ]
+  },
   "ApplicantPipeline%2Fread%2FOpen%20Sam%20Patel's%20application./b5e201affb911161/c28c4a3ee628477d": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 ApplicantPipeline Applied: 1 — Screening: 1 — Interview: 0 — Offer: 0 — Hired: 0 · Rejected: 0 · Withdrawn: 0 — No applicants — Move to — applied — screening — interview — offer — Sam Patel — Applied 6 Apr 2027 — Call about group walks — By 10 Apr 2027 — Imani Cole — Applied 7 Apr 2027 — Review references — \"Summer dog walker\"\n  r1 \"Sam Patel\" · \"Call about group walks\" [p1/r1 press→sam_review] [p1/r1 move = \"screening\"; choices [\"applied\",\"interview\",\"offer\"]]\n  r2 \"Imani Cole\" · \"Review references\" [p1/r2 press→imani_review] [p1/r2 move = \"applied\"; choices [\"screening\",\"interview\",\"offer\"]]\n\nTask: Open Sam Patel's application.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"p1/r1\", \"action\": \"press\"}",
@@ -1471,21 +1489,3 @@
     ]
   }
 }
-
-  },
-  "ApplicantPipeline%2Fread%2FMove%20Sam%20Patel's%20card%20to%20Interview.%20Copy%20the%20card%20address%20and%20the%20action%20word%20after%20it%20from%20the%20move%20bracket%2C%20in%20separate%20fields.%20Do%20not%20include%20the%20destination%20value./f4b51152dde386e3/b490993b601cc056": {
-    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 ApplicantPipeline Applied: 1 — Screening: 1 — Interview: 0 — Offer: 0 — Hired: 0 · Rejected: 0 · Withdrawn: 0 — No applicants — Move to — Applied — Screening — Interview — Offer — Sam Patel — Applied 6 Apr 2027 — Call about group walks — By 10 Apr 2027 — Imani Cole — Applied 7 Apr 2027 — Review references — \"Summer dog walker\"\n  r1 \"Sam Patel\" · \"Call about group walks\" [p1/r1 press→sam_review] [p1/r1 move = \"screening\"; choices [\"applied\",\"interview\",\"offer\"]]\n  r2 \"Imani Cole\" · \"Review references\" [p1/r2 press→imani_review] [p1/r2 move = \"applied\"; choices [\"screening\",\"interview\",\"offer\"]]\n\nTask: Move Sam Patel's card to Interview. Copy the card address and the action word after it from the move bracket, in separate fields. Do not include the destination value.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
-    "reply": "{\"address\":\"p1/r1\",\"action\":\"move\"}",
-    "replies": [
-      "{\"address\":\"p1/r1\",\"action\":\"move\"}",
-      "{\"address\": \"p1/r1\", \"action\": \"move\"}",
-      "{\"address\": \"p1/r1\", \"action\": \"move\"}"
-    ]
-  },
-  "ApplicantPipeline%2Fread%2FOpen%20Sam%20Patel's%20application./96f56c4b1bc9755e/89c191e5fc140e04": {
-    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 ApplicantPipeline Applied: 1 — Screening: 1 — Interview: 0 — Offer: 0 — Hired: 0 · Rejected: 0 · Withdrawn: 0 — No applicants — Move to — Applied — Screening — Interview — Offer — Sam Patel — Applied 6 Apr 2027 — Call about group walks — By 10 Apr 2027 — Imani Cole — Applied 7 Apr 2027 — Review references — \"Summer dog walker\"\n  r1 \"Sam Patel\" · \"Call about group walks\" [p1/r1 press→sam_review] [p1/r1 move = \"screening\"; choices [\"applied\",\"interview\",\"offer\"]]\n  r2 \"Imani Cole\" · \"Review references\" [p1/r2 press→imani_review] [p1/r2 move = \"applied\"; choices [\"screening\",\"interview\",\"offer\"]]\n\nTask: Open Sam Patel's application.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
-    "reply": "{\"address\": \"p1/r1\", \"action\": \"press\"}",
-    "replies": [
-      "{\"address\": \"p1/r1\", \"action\": \"press\"}",
-      "{\"address\": \"p1/r1\", \"action\": \"press\"}",
-      "{\"address\": \"p1/r1\", \"action\": \"press\"}"
