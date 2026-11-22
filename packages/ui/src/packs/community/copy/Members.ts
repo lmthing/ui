@@ -11,6 +11,8 @@ type Member = {
   ended?: string | undefined;
   photo?: string | undefined;
   votingRights: boolean;
+  badge?: string | undefined;
+  committee?: string | undefined;
 };
 const ledgerBalance = z.strictObject({ memberId: ref, outstanding: z.number().nonnegative() });
 type HostFacts = { today: string; secretary: boolean };
@@ -51,6 +53,8 @@ export function memberFacts(row: Member, data: c.DeviceData, lang?: string) {
     joined: row.joined && w.joined(c.appointmentDate(row.joined, lang)),
     ended: row.ended && w.ended(c.appointmentDate(row.ended, lang)),
     voting: row.votingRights ? w.voting.yes : w.voting.no,
+    badge: row.badge,
+    committee: row.committee && w.committee(row.committee),
     dues: balances.length
       ? { tone: owed ? ("warn" as const) : ("good" as const), label: owed ? w.dues.owed : w.dues.paid }
       : undefined,
@@ -60,8 +64,8 @@ export function memberFacts(row: Member, data: c.DeviceData, lang?: string) {
 export function memberReading(input: unknown, state: c.StateName, lang?: string, data: c.DeviceData = {}) {
   if (state !== "filled") return [];
   return (input as { members: Member[] }).members.map((row) => {
-    const { otherRoles, joined, ended, voting, dues } = memberFacts(row, data, lang);
-    return `${row.id}: ${[row.roles[0], otherRoles, joined, ended, voting, dues?.label].filter(Boolean).join(" · ")}`;
+    const { otherRoles, joined, ended, voting, badge, committee, dues } = memberFacts(row, data, lang);
+    return `${row.id}: ${[row.roles[0], otherRoles, joined, ended, voting, badge, committee, dues?.label].filter(Boolean).join(" · ")}`;
   });
 }
 

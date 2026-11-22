@@ -12,12 +12,19 @@ const hostRecord = z.object({
   viewer: ref.optional(),
   members: z.array(z.object({ id: ref, name: c.text(24), active: z.boolean() })),
   claims: z.array(signUpClaim),
+  retry: z.object({ slotId: ref, memberId: ref, action: z.enum(["claim", "release"]) }).optional(),
 });
 
 type Claim = z.output<typeof signUpClaim>;
 type Slot = { id: string; slotId: string; capacity: number; expanded?: boolean };
 type Sheet = { slots: Slot[]; claims: Claim[]; detail: "full" | "brief" };
-export type SignUpRow = Slot & { claimants: string[]; can_claim: boolean; own_claim: boolean };
+export type SignUpRow = Slot & {
+  claimants: string[];
+  can_claim: boolean;
+  own_claim: boolean;
+  retry_claim: boolean;
+  retry_release: boolean;
+};
 
 export function validSignUpClaims(slots: readonly { id: string; capacity: number }[], claims: Claim[]) {
   if (!distinct(claims, ({ slotId, memberId }) => `${slotId}/${memberId}`)) return false;
@@ -61,19 +68,30 @@ export function projectSignUp(input: Readonly<c.Values>, instance: string, data:
     slots: slots.map((row): SignUpRow => {
       const claimed = (host?.claims ?? claims).filter(({ slotId }) => slotId === row.slotId);
       const own_claim = !!viewer && claimed.some(({ memberId }) => memberId === viewer.id);
+      const can_claim = !!viewer && viewer.active && !own_claim && claimed.length < row.capacity;
+      const retry =
+        host?.retry?.slotId === row.slotId && host.retry.memberId === host.viewer ? host.retry : undefined;
       return {
         ...row,
         claimants: claimed.map(({ memberId }) => host?.roster.get(memberId)?.name ?? memberId),
-        can_claim: !!viewer && viewer.active && !own_claim && claimed.length < row.capacity,
+        can_claim,
         own_claim,
+        retry_claim: retry?.action === "claim" && can_claim,
+        retry_release: retry?.action === "release" && own_claim,
       };
     }),
   };
 }
 
 /** Preview a member who has a place on one row and can claim a place on another. */
-export function previewSignUp({ input }: { input: Readonly<c.Values> }): c.DeviceData {
-  const { claims } = input as Sheet;
+export function previewSignUp({
+  input,
+  state,
+}: {
+  input: Readonly<c.Values>;
+  state?: c.StateName;
+}): c.DeviceData {
+  const { claims, slots } = input as Sheet;
   const viewer = claims.length > 1 ? claims.at(-1)!.memberId : "preview_member";
   const ids = new Set([viewer, ...claims.map(({ memberId }) => memberId)]);
   return {
@@ -83,6 +101,8 @@ export function previewSignUp({ input }: { input: Readonly<c.Values> }): c.Devic
         instance: "preview",
         viewer,
         claims,
+        ...(state === "error" &&
+          slots[0] && { retry: { slotId: slots[0].slotId, memberId: viewer, action: "claim" } }),
         members: [...ids].map((id) => ({
           id,
           active: true,
@@ -114,6 +134,11 @@ export function signUpRowCopy(row: SignUpRow, detail: Sheet["detail"], lang?: st
         ? new Intl.ListFormat(c.localeOf(lang)).format(row.claimants) || words.noClaimants
         : undefined,
     action: row.own_claim ? ("release" as const) : row.can_claim ? ("claim" as const) : undefined,
+    retry: row.retry_claim
+      ? ("retry_claim" as const)
+      : row.retry_release
+        ? ("retry_release" as const)
+        : undefined,
   };
 }
 

@@ -40,30 +40,40 @@ the ledger. Opening a member shows their record; ending membership keeps their h
 - Pick: a group's membership and eligibility register. Not a small directory (`People`), a person's
   identity (`Profile`), business clients (customers `ClientCard`), or event guests (events `GuestList`).
 - Writes: `members` of `id` text(24), `name` text(24), `roles` text(24) each 0–3, `joined` date,
-  `ended` date optional, `votingRights` boolean, `photo` optional, `goto` optional, 1–30; `style`.
+  `ended` date optional, `votingRights` boolean, `photo` optional, `goto` optional, `badge` text(16)
+  optional, `committee` text(24) optional, 1–30.
   Active membership follows from dates; dues badges and counts come from the host's ledger, never props.
-- Styles: `register` (default), `compact` (name, primary role and computed badges).
+- Variants: `density` comfortable/compact; `detail` full (default) or brief (name, primary role,
+  voting rights, badge, committee and computed dues badge).
 - Parts → actions: members `root press` (linked only), members `end press` (secretary only).
+  Optional `badge` and `committee` are read-only member parts.
   `meta.confirmParts: ["end"]`. Ending sets `ended` to today; past vote snapshots stay unchanged.
 - States: filled, empty, loading, success (membership ended), error (save failed).
 - Real path: records on the secretary's device; members viewing their own records need a shared app.
 - Density: `meta.dense: true`, weight 3; a membership register needs more than six records.
-- Wave 6 options: add optional `badge` text(16) (such as `"Verified Neighbor"` or `"Keyholder"`) and `committee` tag.
+- Wave 6 options: add optional `badge` text(16) (such as `"Verified Member"` or `"Keyholder"`) and `committee` text(24).
 
 ### `Dues` · planned · data · phone
 One subscription period: each member's assessment, receipts and amount still owed, with collected and
 outstanding totals. The treasurer records payments; a member can pay only through an attached service.
 - Pick: collecting and reconciling membership dues. Not a person's bills (money `Bills`), a client invoice
   (customers `Invoice`), or one client's payment (customers `PaymentStatus`).
-- Writes: `period` text(20), `assessments` of `id` text(24), `memberId` text(24), `amount` number ≥ 0,
-  `due` date, 1–30; `receipts` of `id` text(24), `assessmentId` text(24), `amount` number > 0, `date`,
+- Writes: `period` text(20), `cadence` (`annual`, `monthly`, `one_off`) optional;
+  `assessments` of `id` text(24), `memberId` text(24), `amount` number ≥ 0,
+  `due` date, `waived` boolean optional, `householdId` text(24) optional, 1–30;
+  `receipts` of `id` text(24), `assessmentId` text(24), `amount` number > 0, `date`,
   `method` (`cash`, `transfer`, `card`), `voided` boolean (default false), 0–60; `style`.
   Amount paid, outstanding, credit, totals, partial-payment and overdue statuses are computed.
 - Styles: `ledger` (default, treasurer), `member` (the signed-in member's assessments and receipts only).
+- A waiver retains the face amount and payment history but removes the charge from assessed and
+  outstanding totals. Prior payments become credit; they are not deleted or refunded automatically.
+  Group by explicit household after applying member visibility, keeping each assessment and receipt address.
 - Parts → actions: assessments `record press` (ledger; opens a core receipt form), assessments
   `remind press` (ledger), assessments `pay press` (member; service attached only), receipts `void press`
   (ledger; reverses the receipt without deletion). `meta.confirmParts: ["void"]`;
   `meta.partTiers: { remind: "service", pay: "service" }`.
+  Waived assessments offer no record, remind or pay action. Optional `cadence` and item `household`
+  headings are read-only.
 - States: filled, empty, loading, success (receipt recorded), error (recording or payment failed).
 - Real path: a local ledger with numeric receipt amounts; reminders use messaging, payments a payment
   service. Only its confirmed receipt changes the ledger; pressing pay never marks an assessment paid.
@@ -75,13 +85,21 @@ One formal motion with for, against and abstain, the person's ballot, participat
 the decision after closing. Before closing it shows participation, not a winning outcome.
 - Pick: members deciding a motion under quorum and a passing rule. Not an opinion question (social
   `Poll`), a personal choice (`Choice`), a date search (events `FindDate`), or a manager's approval (team `Approval`).
-- Writes: `id` text(24), `motion` text(120), `detail` text(240) optional, `opens` and `closes` ISO
+- Writes: `voteId` text(24), `motion` text(120), `detail` text(240) optional, `opens` and `closes` ISO
   datetimes with offsets (`opens` before `closes`), `quorum` int 1–30, `rule` (`majority`, `two_thirds`,
-  `unanimous`), `ballots` of `memberId` text(24), `choice` (`for`, `against`, `abstain`), 0–30;
-  `cancelled` boolean (default false); `style`. No model-written counts, percentages or outcome.
-- Styles: `ballot` (default), `result` (read-only counts and decision after closing).
+  `unanimous`), `ballots` of `memberId` text(24), `choice` (`for`, `against`, `abstain`, or an array of
+  1–5 candidate ids), 0–30; `cancelled` boolean (default false); `candidates` of `id` text(24) and
+  `name` text(24), 1–12, optional; `seats` int 1–5 optional; `style`. No model-written counts,
+  percentages or outcomes.
+- Styles: `ballot` (default), `result` (read-only counts and decision after closing), `motion`
+  (explicit form of `ballot`), `election` (named candidates and seats). Election requires candidates,
+  defaults to one seat, and accepts a distinct candidate-id array up to the seat count or `abstain`.
+  Other styles accept only `for`, `against` and `abstain`, with no candidate or seat fields.
 - Parts → actions: `for select`, `against select`, `abstain select` (eligible member, while open,
   replacing their previous ballot), `cancel press` (chair only). `meta.confirmParts: ["cancel"]`.
+  In an election, candidate `root select` toggles approval in the viewer's one ballot and `abstain select`
+  replaces its choices. Selected candidates can always be deselected; the host also checks the seat cap.
+  `seats`, candidate `label`, `count`, and `elected` are read-only; counts and outcomes appear only after close.
 - States: filled (scheduled, open or closed), loading, success (ballot saved), error (ineligible,
   closed or save failed); cancellation is a retained, read-only state, not a failed motion.
 - Real path: one ballot per eligible member in a shared app; the host freezes eligibility at opening,
@@ -89,6 +107,8 @@ the decision after closing. Before closing it shows participation, not a winning
 - Rules: quorum counts all ballots, including abstentions; passing excludes abstentions. `majority`
   needs more for than against; `two_thirds` needs at least two thirds for; `unanimous` needs no against.
   Every pass needs quorum and at least one non-abstaining ballot; a tie fails. Counts are code-owned.
+  In elections the rule applies per candidate against non-abstaining ballots; award up to `seats` to
+  qualifying candidates with the most approvals. Ties crossing the seat cutoff leave those seats open.
 - Weight: 2; ballots are seed records, not a rendered member list; aggregate results and own choice only.
 - Wave 6 options: add `style: "motion" | "election"` (plus optional `candidates` and `seats` `1–5`) for multi-candidate board or officer elections under quorum rules.
 
@@ -102,7 +122,9 @@ release. Full slots cannot be claimed; releasing a place makes it available to s
   Claimed counts, remaining capacity, full status and the person's claims are computed.
 - Styles: `slots` (default), `compact` (one row per slot, expanding to show claimants).
 - Parts → actions: slots `claim press` (active member, free place only), slots `release press` (own
-  claim only), slots `root toggle` (compact). `meta.confirmParts: ["release"]`.
+  claim only), slots `root toggle` (compact); slots `retry_claim press` and `retry_release press`
+  (error only, exact failed operation supplied by the host and still permitted).
+  `meta.confirmParts: ["release", "retry_release"]`.
 - States: filled, empty, loading, success (claim saved), error (place just taken or save failed).
 - Real path: atomic claims in a shared app; one claim per member per slot, multiple different slots
   allowed. The host rejects duplicates and over-capacity seeds; a losing concurrent claim shows error.
@@ -116,11 +138,14 @@ done marks. Members approve the record; approved decision text stays fixed while
 - Writes: `title` text(40), `date`, `chairId` text(24), `decisions` of `id` text(24), `title` text(32),
   `text` text(200), `voteId` text(24) optional, 1–8; `actions` of `id` text(24), `decisionId` text(24),
   `text` text(36), `ownerId` text(24), `due` date optional, `done` boolean, 0–12; `approvedAt` ISO
-  datetime with offset optional, `approvedBy` text(24) optional (both approval props together); `style`.
+  datetime with offset optional, `approvedBy` text(24) optional (both approval props together);
+  `attendance` optional with `presentIds` and `apologiesIds`, each 0–30 text(24) member ids; `style`.
   Linked vote outcomes, overdue actions and completion counts are computed, never written twice.
 - Styles: `record` (default, decisions and actions together), `actions` (owned follow-up with decision links).
 - Parts → actions: decisions `root press` (linked motion only), actions `done check` (owner or secretary),
   `approve press` (chair; draft record only). Approval is a stored sign-off, not another group vote.
+  Optional `present` and `apologies` parts show names resolved against the host membership register.
+  Attendance ids are unique within and across both lists; unresolved ids show a count, not a name.
 - States: filled (draft or approved from `approvedAt`), empty, loading, success (approved or action saved),
   error (save failed). Approval locks decisions, not the actions' completion marks.
 - Real path: a shared meeting record linked to stored motions and members; a referenced motion must be
@@ -175,7 +200,8 @@ The showcase uses sample records and explains these limits; it does not claim to
   must resolve. The host keeps one group store; it works even when a sibling component is not on screen.
 - Snapshot eligible active members with voting rights at motion opening. Dues never silently remove
   voting rights; the group's stored policy decides them. Today's membership excludes `ended <= today`.
-- Sum non-voided receipts per assessment; outstanding is `max(0, assessed - paid)` and credit is
+- Sum non-voided receipts per assessment; subtract waivers before computing balances.
+  Outstanding is `max(0, assessed - paid)` and credit is
   `max(0, paid - assessed)`. Do not offset one member's credit against another member's debt.
 - Dense limits bound complete showcase seeds, not group size. Real totals use full records before
   display slicing; extra rows get shared "and N more" copy. Reads stay one line per member, slot or decision.

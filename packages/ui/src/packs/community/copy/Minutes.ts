@@ -1,5 +1,7 @@
+import { z } from "zod";
 import * as c from "../../../catalog";
 import { communityWordsFor } from "../lang";
+import { distinct, ref } from "../seeds";
 
 type Decision = { id: string; title: string; text: string; voteId?: string | undefined };
 type FollowUp = {
@@ -19,7 +21,19 @@ type Header = {
   chairId: string;
   approvedBy?: string | undefined;
   approvedAt?: string | undefined;
+  attendance?: z.output<typeof attendanceSchema> | undefined;
 };
+const attendanceIds = z
+  .array(ref)
+  .max(30)
+  .refine((ids) => distinct(ids, (id) => id));
+export const attendanceSchema = z
+  .strictObject({ presentIds: attendanceIds, apologiesIds: attendanceIds })
+  .refine(({ presentIds, apologiesIds }) => !apologiesIds.some((id) => presentIds.includes(id)), {
+    path: ["apologiesIds"],
+  });
+export const memberDirectoryKind = "community_members";
+const directoryMember = z.object({ id: ref, name: c.text(24) });
 type Document = Header & {
   approved: boolean;
   decisions: Decision[];
@@ -62,7 +76,7 @@ export function minutesProjection(hostFor?: (instance: string) => Host | undefin
 const memberName = (id: string, lang?: string) =>
   id.charAt(0).toLocaleUpperCase(c.localeOf(lang)) + id.slice(1).replaceAll("_", " ");
 
-export function minutesHeader(input: Header, lang?: string) {
+export function minutesHeader(input: Header, lang?: string, data: c.DeviceData = {}) {
   const w = communityWordsFor(lang).minutes;
   const { date, chairId, approvedAt, approvedBy } = input;
   const approvalDate = approvedAt && new Date(approvedAt).toISOString().slice(0, 10);
@@ -73,6 +87,28 @@ export function minutesHeader(input: Header, lang?: string) {
       approvedBy && approvalDate
         ? w.approval(memberName(approvedBy, lang), c.appointmentDate(approvalDate, lang))
         : w.draft,
+    ...attendanceLines(input.attendance, data, lang),
+  };
+}
+
+function attendanceLines(attendance: Header["attendance"], data: c.DeviceData, lang?: string) {
+  if (!attendance) return {};
+  const w = communityWordsFor(lang).minutes;
+  const names = new Map<string, string | undefined>();
+  for (const item of data[memberDirectoryKind] ?? []) {
+    const row = directoryMember.safeParse(item);
+    if (row.success) names.set(row.data.id, names.has(row.data.id) ? undefined : row.data.name);
+  }
+  const list = new Intl.ListFormat(c.localeOf(lang));
+  const resolve = (ids: readonly string[]) => {
+    const known = ids.map((id) => names.get(id)).filter((name): name is string => Boolean(name));
+    const unresolved = ids.length - known.length;
+    if (unresolved) known.push(w.unresolved(c.numberLine(unresolved, lang), c.pluralForm(unresolved, lang)));
+    return list.format(known) || w.unlisted;
+  };
+  return {
+    present: w.present(resolve(attendance.presentIds)),
+    apologies: w.apologies(resolve(attendance.apologiesIds)),
   };
 }
 
@@ -93,13 +129,13 @@ export function minutesRowCopy(row: MinutesRow, lang?: string) {
   } as const;
 }
 
-export function minutesReading(input: unknown, state: c.StateName, lang?: string) {
+export function minutesReading(input: unknown, state: c.StateName, lang?: string, data?: c.DeviceData) {
   if (state !== "filled") return [];
   const doc = input as Document;
   const w = communityWordsFor(lang).minutes;
   const rows = doc.entries.filter((row) => row.visible);
   return [
-    ...Object.values(minutesHeader(doc, lang)),
+    ...Object.values(minutesHeader(doc, lang, data)),
     ...(rows.some((row) => row.kind === "decision") ? [w.decisions] : []),
     ...(rows.some((row) => row.kind === "action") ? [w.actions] : []),
     ...rows.map(
